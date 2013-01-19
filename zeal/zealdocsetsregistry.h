@@ -5,11 +5,12 @@
 #include <QtSql/QSqlDatabase>
 #include <QDir>
 #include <QMap>
-#include <iostream>
-using namespace std;
 
-class ZealDocsetsRegistry
+#include "zealsearchresult.h"
+
+class ZealDocsetsRegistry : public QObject
 {
+    Q_OBJECT
 public:
     static ZealDocsetsRegistry* instance()
     {
@@ -27,8 +28,6 @@ public:
         return m_Instance;
     }
 
-    void addDocset(const QString& path);
-
     int count() const {
         return dbs.count();
     }
@@ -45,10 +44,20 @@ public:
         return dbs.keys();
     }
 
-private:
-    ZealDocsetsRegistry() {
-    }
+    void runQuery(const QString& query);
+    const QList<ZealSearchResult>& getQueryResults();
 
+signals:
+    void queryCompleted();
+
+public slots:
+    void addDocset(const QString& path);
+
+private slots:
+    void _runQuery(const QString& query, int queryNum);
+
+private:
+    ZealDocsetsRegistry();
     ZealDocsetsRegistry(const ZealDocsetsRegistry&); // hide copy constructor
     ZealDocsetsRegistry& operator=(const ZealDocsetsRegistry&); // hide assign op
                                  // we leave just the declarations, so the compiler will warn us
@@ -57,6 +66,8 @@ private:
     static ZealDocsetsRegistry* m_Instance;
     QMap<QString, QSqlDatabase> dbs;
     QMap<QString, QDir> dirs;
+    QList<ZealSearchResult> queryResults;
+    int lastQuery = -1;
 };
 
 extern ZealDocsetsRegistry* docsets;

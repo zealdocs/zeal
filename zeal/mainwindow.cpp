@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
     } else {
         for(auto subdir : dataDir.entryInfoList()) {
             if(subdir.isDir() && !subdir.isHidden()) {
-                docsets->addDocset(subdir.absoluteFilePath());
+                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                          Q_ARG(QString, subdir.absoluteFilePath()));
             }
         }
     }
@@ -33,12 +34,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
         ui->webView->setUrl("file://" + index.sibling(index.row(), 1).data().toString());
     });
+    connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
+        ui->treeView->setModel(&zealSearch);
+        ui->treeView->reset();
+        ui->treeView->setColumnHidden(1, true);
+    });
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
         if(!text.isEmpty()) {
             zealSearch.setQuery(text);
-            ui->treeView->setModel(&zealSearch);
-            ui->treeView->reset();
-            ui->treeView->setColumnHidden(1, true);
         } else {
             ui->treeView->setModel(&zealList);
         }

@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QSet>
 #include <QAbstractItemModel>
+#include "zealsearchresult.h"
 
 class ZealSearchModel : public QAbstractItemModel
 {
@@ -20,13 +21,15 @@ public:
     void setQuery(const QString& q);
     
 signals:
-    
+    void queryCompleted();
+
 public slots:
+    void onQueryCompleted();
 
 private:
     QString query;
-    QHash<QString, int> *counts;
-    const QHash<QString, int> getCounts() const;
+    QList<ZealSearchResult> dataList;
+    void populateData();
     QSet<QString> *strings;
     const QString* getString(const QString& str) const {
         if(strings->find(str) == strings->end())
