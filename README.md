@@ -28,7 +28,7 @@ Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
 
 ## TODO
 
- * Alt+Space / configurable hotkey for showing Zeal + tray icon
+ * Configuration (customisable hotkey instead of hardcoded Alt+Space, remember window size, etc.)
  * Search enhancements - some ideas:
    1. Allow selecting subset of docsets to search in.
    2. Substring match in case current startswith matching doesn't return anything.
