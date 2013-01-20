@@ -16,6 +16,7 @@ for tbl in tree.xpath('//table[@class="generic"]'):
         a = tr.find('td').find('a')
         c.execute('INSERT INTO things(type, name, path) values("module", ?, ?)', (a.text, a.attrib['href'].replace('../', '')))
 
+
 def parseClass(class_id, path):
     tree = parse(path)
     basepath = path.split('/')[0]
@@ -30,6 +31,17 @@ for cls in tree.xpath('//dd'):
     if not url.startswith('http://'):
         c.execute('INSERT INTO things(type, name, path) values("class", ?, ?)', (a.text, url))
         parseClass(c.lastrowid, url)
+
+
+# global functions:
+tree = parse('qtdoc/functions.html')
+for fun in tree.xpath('//li'):
+    if fun.find('a') is None: continue
+    if fun.find('a').text == 'global':
+        url = fun.find('a').attrib['href'].replace('../', '')
+        c.execute('INSERT INTO things(type, name, path) values("function", ?, ?)',
+            (fun.text.strip(': '), url))
+
 
 conn.commit()
 conn.close()
