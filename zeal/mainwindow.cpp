@@ -67,6 +67,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialise ui
     ui->setupUi(this);
+    auto quitAction = ui->menuBar->addAction("&Quit");
+    quitAction->setShortcut(QKeySequence::Quit);
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
     ui->lineEdit->setTreeView(ui->treeView);
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
