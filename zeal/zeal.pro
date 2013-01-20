@@ -16,13 +16,15 @@ SOURCES += main.cpp\
     zeallistmodel.cpp \
     zealsearchmodel.cpp \
     zealdocsetsregistry.cpp \
-    zealsearchresult.cpp
+    zealsearchresult.cpp \
+    zealsearchedit.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
     zealsearchmodel.h \
     zealdocsetsregistry.h \
-    zealsearchresult.h
+    zealsearchresult.h \
+    zealsearchedit.h
 
 FORMS    += mainwindow.ui
 

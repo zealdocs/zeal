@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
     ui->setupUi(this);
+    ui->lineEdit->setTreeView(ui->treeView);
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->setModel(&zealSearch);
         ui->treeView->reset();
         ui->treeView->setColumnHidden(1, true);
+        ui->treeView->setCurrentIndex(zealSearch.index(0, 0, QModelIndex()));
     });
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
         if(!text.isEmpty()) {
