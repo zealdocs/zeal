@@ -37,7 +37,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& query, int queryNum)
     QList<ZealSearchResult> results;
     for(auto name : names()) {
         auto qstr = QString("select name, parent, path from things where name "
-                            "like '%1%' order by name asc, path asc limit 40").arg(query);
+                            "like '%1%' order by lower(name) asc, path asc limit 40").arg(query);
         auto q = db(name).exec(qstr);
 
         while(q.next()) {
@@ -50,6 +50,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& query, int queryNum)
             results.append(ZealSearchResult(q.value(0).toString(), parentName, q.value(2).toString(), name));
         }
     }
+    qSort(results);
     if(queryNum != lastQuery) return; // some other queries pending - ignore this one
 
     queryResults = results;

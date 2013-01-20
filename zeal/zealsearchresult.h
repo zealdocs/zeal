@@ -11,6 +11,7 @@ public:
     const QString& getParentName() const { return parentName; };
     const QString& getPath() const { return path; };
     const QString& getDocsetName() const { return docset; };
+    bool operator<(const ZealSearchResult& r) const { return name.toLower() < r.name.toLower(); }
 private:
     QString name;
     QString parentName;
