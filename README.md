@@ -18,7 +18,7 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 Currently Zeal requires Qt 5.0. After compiling it you need to download docsets and put them in `$HOME/.local/share/zeal/docsets/` -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory, but for convenience can be downloaded from Dropbox:
 
  * [Qt5.tar.bz2](https://www.dropbox.com/s/o8uy2iz0wivs04j/Qt5.tar.bz2) (55M)
- * [python-2.7.3-docs-html.tar.bz2](https://www.dropbox.com/s/weve3snkc9gpqlj/python-2.7.3-docs-html.tar.bz2) (4.3M)
+ * [python-2.7.3-docs-html.tar.bz2](https://www.dropbox.com/s/2xehy4d2umwg574/python-2.7.3-docs-html.tar.bz2) (4.3M)
 
 Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
 
@@ -29,6 +29,7 @@ Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
    1. Allow selecting subset of docsets to search in.
    2. Substring match in case current startswith matching doesn't return anything.
    3. Better sorting of results (currently they are grouped by docset, which is probably not a good idea)
+   4. Better docsets formatting (without headers, sidebars etc.)
 
 
 ## Contributions
