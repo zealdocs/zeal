@@ -29,6 +29,8 @@ Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
 ## TODO
 
  * Configuration (customisable hotkey instead of hardcoded Alt+Space, remember window size, etc.)
+ * Support for global hotkeys under platforms other than Linux/X11 (Windows, OSX)
+ * Ctrl+F for searching within single document
  * Search enhancements - some ideas:
    1. Allow selecting subset of docsets to search in.
    2. Substring match in case current startswith matching doesn't return anything.
