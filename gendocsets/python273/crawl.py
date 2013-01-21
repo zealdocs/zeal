@@ -98,5 +98,15 @@ for method in tree.xpath('//dl[@class="method"]'):
         (method.xpath('dt/tt[@class="descname"]/text()')[0], url,
          get_std_class(classname, url)))
 
+
+tree = parse('library/functions.html')
+for method in tree.xpath('//dl[@class="function"]'):
+    url = 'library/functions.html'
+    if method.xpath('dt/@id'):
+        url += '#'+method.xpath('dt/@id')[0]
+    c.execute('INSERT INTO things(type, name, path) values("function", ?, ?)',
+        (method.xpath('dt/tt[@class="descname"]/text()')[0], url))
+         
+
 conn.commit()
 conn.close()
