@@ -12,7 +12,6 @@ c.execute('CREATE TABLE things (id integer primary key, type text, name text, pa
 tree = parse('py-modindex.html')
 
 modules = {}
-modfiles = set()
 
 for tbl in tree.xpath('//table[@class="indextable modindextable"]'):
     for tr in tbl.findall('tr'):
@@ -20,59 +19,79 @@ for tbl in tree.xpath('//table[@class="indextable modindextable"]'):
         if a is None: continue
         modname = a.find('tt').text
         c.execute('INSERT INTO things(type, name, path) values("module", ?, ?)', (modname, a.attrib['href']))
-        modules[modname] = c.lastrowid
-        modfiles.add(a.attrib['href'].split('#')[0])
+        modules[modname] = (c.lastrowid, a.attrib['href'].split('#')[0])
 
 
-def parseClass(class_id, url, tree):
+found_methods = set()
+classes = {}
+def parseClass(class_id, classname, url, tree):
     for dl in tree.xpath('dd/dl[@class="method" or @class="function"]'):
         url = fname
         if dl.xpath('dt/@id'):
             url += '#'+dl.xpath('dt/@id')[0]
         c.execute('INSERT INTO things(type, name, path, parent) values("member", ?, ?, ?)',
             (dl.xpath('dt/tt[@class="descname"]/text()')[0], url, class_id))
+        found_methods.add((classname, fname))
 
-
-for fname in modfiles:
+parsed_files = set()
+for modname, (modid, fname) in modules.items():
+    if '.' in modname: modname = modname.split('.')[0]  # modules aren't well-structured
+    if fname in parsed_files: continue
+    parsed_files.add(fname)
     tree = parse(fname)
-    for cls in tree.xpath('//dl[@class="class"]'):
+    for cls in tree.xpath('//dl[@class="class" or @class="exception"]'):
         header = cls.find('dt')
         url = fname
-        modname = cls.xpath('dt/tt[@class="descclassname"]/text()')[0][:-1]
-        # missing modules
-        if modname.startswith('email.mime.'): modname = 'email.mime'
-        if modname == 'multiprocessing.queues': modname = 'multiprocessing'
-        modid = modules[modname]
         if 'id' not in header.attrib:
             continue
         url += '#' + header.attrib['id']
-        c.execute('INSERT INTO things(type, name, path, parent) values("class", ?, ?, ?)', 
-            (cls.xpath('dt/tt[@class="descname"]/text()')[0], url, modid))
-        parseClass(c.lastrowid, fname, cls)
-    
-    # non-method functions:
-    for function in tree.xpath('//dl[@class="function"]'):
-        # ignore methods with class="function"
-        if function.getparent().getparent().attrib.get('class') == 'class': continue
-        # ctypes.html - callable (ugh.)
-        if function.getparent().getparent().getparent().getparent().attrib.get('class') == 'class': continue
-        header = function.find('dt')
-        url = fname
-        from lxml.etree import tostring
-        modname = function.xpath('dt/tt[@class="descclassname"]/text()')
-        if modname:
-            modname = modname[0][:-1]
+        classname = cls.xpath('dt/tt[@class="descname"]/text()')[0]
+        modname_cls = cls.xpath('dt/tt[@class="descclassname"]/text()')
+        if modname_cls:
+            modname_cls = modname_cls[0][:-1]
         else:
-            # ctypes prototype
+            modname_cls = modname
+        if modname_cls not in modules:
+            c.execute('INSERT INTO things(type, name, path) values("module", ?, ?)', (modname_cls, fname))
+            modules[modname_cls] = (c.lastrowid, fname)
+        c.execute('INSERT INTO things(type, name, path, parent) values(?, ?, ?, ?)', 
+            (cls.attrib['class'], classname, url, modules[modname_cls][0]))
+        classes[classname] = c.lastrowid
+        parseClass(c.lastrowid, classname, fname, cls)
+
+    # methods/functions outside classes:
+    for method in tree.xpath('//dl[@class="method" or @class="function"]'):
+        classname = method.xpath('dt/tt[@class="descclassname"]/text()')
+        methodname = method.xpath('dt/tt[@class="descname"]/text()')[0]
+
+        url = fname
+        if ' ' in methodname:
+            # ignore some weird cases from deprecated SGI/SunOS modules
+            assert ' SGI ' in open(fname).read() or ' SunOS ' in open(fname).read()
             continue
-        # missing modules
-        if modname == 'ctypes.util': modname = 'ctypes'
-        modid = modules[modname]
-        if 'id' not in header.attrib:
-            continue
-        url += '#' + header.attrib['id']
-        c.execute('INSERT INTO things(type, name, path, parent) values("function", ?, ?, ?)', 
-            (function.xpath('dt/tt[@class="descname"]/text()')[0], url, modid))
+
+        if method.xpath('dt/@id'):
+            url += '#'+method.xpath('dt/@id')[0]
+        else:
+            # should we update html file to contain id?
+            # there are only 23 such cases (at time of development), so might be not worth it...
+            pass
+
+        if not classname:
+            type_ = "function"
+            parentid = modid
+        else:
+            type_ = "member"
+            classname = classname[0][:-1]
+            if (classname, methodname) in found_methods: continue  # already indexed above
+            if classname not in classes:
+                c.execute('INSERT INTO things(type, name, path, parent) values("class", ?, ?, ?)', 
+                    (classname, url, modid))
+                classes[classname] = c.lastrowid
+            parentid = classes[classname]
+        
+        c.execute('INSERT INTO things(type, name, path, parent) values("%s", ?, ?, ?)' % type_,
+            (methodname, url, parentid))
 
 
 std_classes = {}
