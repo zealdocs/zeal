@@ -13,18 +13,22 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 [Screenshots (imgur)](http://imgur.com/a/crL3P)
 
-## How to compile
-
-Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
-
 ## How to use
 
-After compiling it you need to download docsets and put them in `$HOME/.local/share/zeal/docsets/` -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory, but for convenience can be downloaded from Dropbox:
+After compiling/unzipping it you need to download docsets and put them in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows) -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory, but for convenience can be downloaded from Dropbox:
 
  * [Qt5.tar.bz2](https://www.dropbox.com/s/qnpjfphph2z1yqw/Qt5.tar.bz2) (55M)
  * [python-2.7.3-docs-html.tar.bz2](https://www.dropbox.com/s/fjopk1jvpmjldgb/python-2.7.3-docs-html.tar.bz2) (4.3M)
 
 Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
+
+## How to compile
+
+Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
+
+## Windows binary
+
+A windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/1ro1j8dw1gc294c/zeal.zip) (23M).
 
 ## TODO
 
