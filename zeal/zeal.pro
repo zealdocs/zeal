@@ -17,16 +17,20 @@ SOURCES += main.cpp\
     zealsearchmodel.cpp \
     zealdocsetsregistry.cpp \
     zealsearchresult.cpp \
-    zealsearchedit.cpp
+    zealsearchedit.cpp \
+    zealnativeeventfilter.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
     zealsearchmodel.h \
     zealdocsetsregistry.h \
     zealsearchresult.h \
-    zealsearchedit.h
+    zealsearchedit.h \
+    zealnativeeventfilter.h
 
 FORMS    += mainwindow.ui
 
 
 QMAKE_CXXFLAGS += -std=c++11
+
+win32:DEFINES += WIN32

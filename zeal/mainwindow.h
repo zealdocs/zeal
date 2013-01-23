@@ -24,6 +24,7 @@ public:
 private:
     void bringToFront();
     Ui::MainWindow *ui;
+    QIcon icon;
     ZealListModel zealList;
     ZealSearchModel zealSearch;
     QProcess keyGrabber;

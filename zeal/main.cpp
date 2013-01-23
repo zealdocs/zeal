@@ -4,8 +4,10 @@
 
 #include <string>
 #include <iostream>
+#ifndef WIN32
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#endif // WIN32
 
 using namespace std;
 
@@ -34,6 +36,7 @@ int main(int argc, char *argv[])
 
 void run_grabkey()
 {
+#ifndef WIN32
     Display *display = XOpenDisplay(NULL);
 
     unsigned int AltMask = 0;
@@ -81,4 +84,5 @@ void run_grabkey()
             }
         }
     }
+#endif // WIN32
 }

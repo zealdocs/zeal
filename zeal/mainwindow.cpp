@@ -2,16 +2,20 @@
 #include "ui_mainwindow.h"
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
-#include <zealdocsetsregistry.h>
+#include "zealnativeeventfilter.h"
+#include "zealdocsetsregistry.h"
 
-#include <iostream>
-using namespace std;
-
+#include <QDebug>
+#include <QAbstractEventDispatcher>
 #include <QStandardPaths>
 #include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QLocalSocket>
 #include <QDir>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 const QString serverName = "zeal_process_running";
 
@@ -28,10 +32,26 @@ MainWindow::MainWindow(QWidget *parent) :
     localServer->listen(serverName);
 
     // initialise icons
-    setWindowIcon(QIcon::fromTheme("edit-find"));
+#ifdef WIN32
+    icon = qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation);
+#else
+    icon = QIcon::fromTheme("edit-find");
+#endif
+    setWindowIcon(icon);
     createTrayIcon();
 
     // initialise key grabber
+#ifdef WIN32
+    auto filter = new ZealNativeEventFilter();
+    connect(filter, &ZealNativeEventFilter::gotHotKey, [&]() {
+        if(isVisible()) hide();
+        else {
+            bringToFront();
+        }
+    });
+    qApp->eventDispatcher()->installNativeEventFilter(filter);
+    RegisterHotKey(NULL, 10, MOD_ALT, VK_SPACE);
+#else
     keyGrabber.setParent(this);
     keyGrabber.start(qApp->applicationFilePath(), {"--grabkey"});
     connect(&keyGrabber, &QProcess::readyRead, [&]() {
@@ -49,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
-
+#endif  // WIN32
     // initialise docsets
     auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     auto dataDir = QDir(dataLocation);
@@ -58,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
                               QString("'docsets' directory not found in '%1'").arg(dataLocation));
     } else {
         for(auto subdir : dataDir.entryInfoList()) {
-            if(subdir.isDir() && !subdir.isHidden()) {
+            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
                 QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
                                           Q_ARG(QString, subdir.absoluteFilePath()));
             }
@@ -67,15 +87,33 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialise ui
     ui->setupUi(this);
+
+    // menu
     auto quitAction = ui->menuBar->addAction("&Quit");
     quitAction->setShortcut(QKeySequence::Quit);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    auto helpMenu = new QMenu("&Help");
+    auto aboutAction = helpMenu->addAction("&About");
+    auto aboutQtAction = helpMenu->addAction("About &Qt");
+    connect(aboutAction, &QAction::triggered,
+            [&]() { QMessageBox::about(this, "About Zeal",
+                "This is Zeal - a documentation browser.\n\n"
+                "For details see https://github.com/jkozera/zeal/"); });
+    connect(aboutQtAction, &QAction::triggered,
+            [&]() { QMessageBox::aboutQt(this); });
+    ui->menuBar->addMenu(helpMenu);
 
+    // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
-        ui->webView->setUrl("file://" + index.sibling(index.row(), 1).data().toString());
+        QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
+        QUrl url = QUrl::fromLocalFile(url_l[0]);
+        if(url_l.count() > 1) {
+            url.setFragment(url_l[1]);
+        }
+        ui->webView->load(url);
     });
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
@@ -107,7 +145,7 @@ void MainWindow::createTrayIcon()
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     auto trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setIcon(QIcon::fromTheme("edit-find"));
+    trayIcon->setIcon(icon);
     trayIcon->setToolTip("Zeal");
     connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
         if(reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
