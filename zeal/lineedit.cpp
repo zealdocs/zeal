@@ -13,7 +13,7 @@
 #include <QApplication>
 
 LineEdit::LineEdit(QWidget *parent)
-    : ZealSearchEdit(parent)
+    : QLineEdit(parent)
 {
     clearButton = new QToolButton(this);
     clearButton->setIcon(static_cast<QApplication*>(QApplication::instance())->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
@@ -21,13 +21,19 @@ LineEdit::LineEdit(QWidget *parent)
     clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
     clearButton->setToolTip("Clear");
     clearButton->hide();
-    connect(clearButton, SIGNAL(clicked()), this, SLOT(clear()));
+    hideOnClear = false;
+    connect(clearButton, &QToolButton::clicked, this, &LineEdit::clear);
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(clearButton->sizeHint().width() + frameWidth + 1));
     QSize msz = minimumSizeHint();
     setMinimumSize(qMax(msz.width(), clearButton->sizeHint().height() + frameWidth * 2 + 2),
                    qMax(msz.height(), clearButton->sizeHint().height() + frameWidth * 2 + 2));
+}
+
+void LineEdit::clear() {
+    QLineEdit::clear();
+    if(hideOnClear) hide();
 }
 
 void LineEdit::resizeEvent(QResizeEvent *)

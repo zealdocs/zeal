@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     zealsearchresult.cpp \
     zealsearchedit.cpp \
     zealnativeeventfilter.cpp \
-    lineedit.cpp
+    lineedit.cpp \
+    searchablewebview.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
@@ -28,7 +29,8 @@ HEADERS  += mainwindow.h \
     zealsearchresult.h \
     zealsearchedit.h \
     zealnativeeventfilter.h \
-    lineedit.h
+    lineedit.h \
+    searchablewebview.h
 
 FORMS    += mainwindow.ui
 

@@ -4,7 +4,7 @@
 #include <QDebug>
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
-    QLineEdit(parent)
+    LineEdit(parent)
 {
 }
 

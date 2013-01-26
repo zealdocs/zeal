@@ -10,19 +10,23 @@
 #ifndef LINEEDIT_H
 #define LINEEDIT_H
 
-#include "zealsearchedit.h"
+#include <QLineEdit>
 
 class QToolButton;
 
-class LineEdit : public ZealSearchEdit
+class LineEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
     LineEdit(QWidget *parent = 0);
+    bool hideOnClear;
 
 protected:
     void resizeEvent(QResizeEvent *);
+
+public slots:
+    void clear();
 
 private slots:
     void updateCloseButton(const QString &text);

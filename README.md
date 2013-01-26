@@ -28,13 +28,12 @@ Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `ze
 
 ## Windows binary
 
-A windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/mvf1p2l89y76pd3/zeal.zip) (23M).
+A windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/8uxklvhaw12wd1d/zeal.zip) (23M).
 
 ## TODO
 
  * Configuration (customisable hotkey instead of hardcoded Alt+Space, remember window size, etc.)
  * Support for global hotkeys under platforms other than Linux/X11 and Windows (OSX)
- * Ctrl+F for searching within single document
  * Search enhancements - some ideas:
    1. Allow selecting subset of docsets to search in.
    2. Substring match in case current startswith matching doesn't return anything.

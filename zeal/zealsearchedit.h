@@ -3,9 +3,9 @@
 
 #include <QEvent>
 #include <QTreeView>
-#include <QLineEdit>
+#include "lineedit.h"
 
-class ZealSearchEdit : public QLineEdit
+class ZealSearchEdit : public LineEdit
 {
     Q_OBJECT
 public:
