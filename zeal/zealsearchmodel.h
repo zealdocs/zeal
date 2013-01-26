@@ -1,8 +1,6 @@
 #ifndef ZEALSEARCHMODEL_H
 #define ZEALSEARCHMODEL_H
 
-#include <QHash>
-#include <QSet>
 #include <QAbstractItemModel>
 #include "zealsearchresult.h"
 
@@ -30,12 +28,6 @@ private:
     QString query;
     QList<ZealSearchResult> dataList;
     void populateData();
-    QSet<QString> *strings;
-    const QString* getString(const QString& str) const {
-        if(strings->find(str) == strings->end())
-            (*strings).insert(str);
-        return &*strings->find(str);
-    }
 };
 
 #endif // ZEALSEARCHMODEL_H

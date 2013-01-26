@@ -1,6 +1,7 @@
 #include "zeallistmodel.h"
 #include "zealdocsetsregistry.h"
 
+#include <QIcon>
 #include <QtSql/QSqlQuery>
 
 #include <iostream>
@@ -71,11 +72,16 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
 
 QVariant ZealListModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole || !index.isValid())
+    if((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
         return QVariant();
-    if(index.column() == 0)
+    if(role == Qt::DecorationRole) {
+        if(i2s(index)->indexOf('/') == -1) {
+            return QVariant(QIcon(docsets->dir(*i2s(index)).absoluteFilePath("favicon.ico")));
+        } else return QVariant();
+    }
+    if(index.column() == 0) {
         return QVariant(i2s(index)->split('/').last());
-    else {
+    } else {
         return QVariant(*i2s(index));
     }
 }

@@ -2,6 +2,7 @@
 #include <numeric>
 using namespace std;
 
+#include <QIcon>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 
@@ -11,7 +12,6 @@ using namespace std;
 ZealSearchModel::ZealSearchModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
-    strings = new QSet<QString>;
     connect(docsets, &ZealDocsetsRegistry::queryCompleted, this, &ZealSearchModel::onQueryCompleted);
 }
 
@@ -24,9 +24,29 @@ Qt::ItemFlags ZealSearchModel::flags(const QModelIndex &index) const
 
 QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole || !index.isValid())
+    if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
         return QVariant();
-    return QVariant(*static_cast<QString*>(index.internalPointer()));
+
+    auto item = static_cast<ZealSearchResult*>(index.internalPointer());
+
+    if(role == Qt::DecorationRole) {
+        if(index.column() == 0) {
+            return QVariant(QIcon(docsets->dir(item->getDocsetName()).absoluteFilePath("favicon.ico")));
+        }
+        return QVariant();
+    }
+
+    if(index.column() == 0) {
+        if(!item->getParentName().isEmpty()) {
+            return QVariant(QString("%1 (%2)").arg(item->getName(), item->getParentName()));
+        } else {
+            return QVariant(item->getName());
+        }
+
+    } else if (index.column() == 1) {
+        return QVariant(docsets->dir(item->getDocsetName()).absoluteFilePath(item->getPath()));
+    }
+    return QVariant();
 }
 
 QVariant ZealSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -38,18 +58,10 @@ QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &paren
 {
     if(!parent.isValid()) {
         if(dataList.count() <= row) return QModelIndex();
-        auto item = dataList.at(row);
+        auto &item = dataList.at(row);
 
-        if(column == 0) {
-            if(!item.getParentName().isEmpty()) {
-                return createIndex(row, column, (void*)getString(
-                                       QString("%1 (%2)").arg(item.getName(), item.getParentName())));
-            } else {
-                return createIndex(row, column, (void*)getString(item.getName()));
-            }
-
-        } else if (column == 1) {
-            return createIndex(row, column, (void*)getString(docsets->dir(item.getDocsetName()).absoluteFilePath(item.getPath())));
+        if(column == 0 || column == 1) {
+            return createIndex(row, column, (void*)&item);
         }
     }
     return QModelIndex();
@@ -85,7 +97,6 @@ void ZealSearchModel::populateData()
 
 void ZealSearchModel::onQueryCompleted()
 {
-    strings->clear();
     dataList = docsets->getQueryResults();
     emit queryCompleted();
 }
