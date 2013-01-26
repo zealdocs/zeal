@@ -12,6 +12,7 @@ c.execute('CREATE TABLE things (id integer primary key, type text, name text, pa
 tree = parse('py-modindex.html')
 
 modules = {}
+classes = {}
 
 for tbl in tree.xpath('//table[@class="indextable modindextable"]'):
     for tr in tbl.findall('tr'):
@@ -22,23 +23,13 @@ for tbl in tree.xpath('//table[@class="indextable modindextable"]'):
         modules[modname] = (c.lastrowid, a.attrib['href'].split('#')[0])
 
 
-found_methods = set()
-classes = {}
-def parseClass(class_id, classname, url, tree):
-    for dl in tree.xpath('dd/dl[@class="method" or @class="function"]'):
-        url = fname
-        if dl.xpath('dt/@id'):
-            url += '#'+dl.xpath('dt/@id')[0]
-        c.execute('INSERT INTO things(type, name, path, parent) values("member", ?, ?, ?)',
-            (dl.xpath('dt/tt[@class="descname"]/text()')[0], url, class_id))
-        found_methods.add((classname, fname))
-
 parsed_files = set()
 for modname, (modid, fname) in modules.items():
     if '.' in modname: modname = modname.split('.')[0]  # modules aren't well-structured
     if fname in parsed_files: continue
     parsed_files.add(fname)
     tree = parse(fname)
+    # classes/exceptions
     for cls in tree.xpath('//dl[@class="class" or @class="exception"]'):
         header = cls.find('dt')
         url = fname
@@ -57,12 +48,17 @@ for modname, (modid, fname) in modules.items():
         c.execute('INSERT INTO things(type, name, path, parent) values(?, ?, ?, ?)', 
             (cls.attrib['class'], classname, url, modules[modname_cls][0]))
         classes[classname] = c.lastrowid
-        parseClass(c.lastrowid, classname, fname, cls)
 
-    # methods/functions outside classes:
+    # methods/functions:
     for method in tree.xpath('//dl[@class="method" or @class="function"]'):
         classname = method.xpath('dt/tt[@class="descclassname"]/text()')
+        if classname: classname = classname[0][:-1]
         methodname = method.xpath('dt/tt[@class="descname"]/text()')[0]
+        if not classname:
+            dl = [a for a in method.iterancestors() if a.attrib.get('class') == 'class']
+            if dl:
+                classname = dl[0].xpath('dt/tt[@class="descname"]/text()')
+                if classname: classname = classname[0]
 
         url = fname
         if ' ' in methodname:
@@ -77,13 +73,11 @@ for modname, (modid, fname) in modules.items():
             # there are only 23 such cases (at time of development), so might be not worth it...
             pass
 
-        if not classname:
+        if not classname or classname[0][:-1] == modname:
             type_ = "function"
             parentid = modid
         else:
             type_ = "member"
-            classname = classname[0][:-1]
-            if (classname, methodname) in found_methods: continue  # already indexed above
             if classname not in classes:
                 c.execute('INSERT INTO things(type, name, path, parent) values("class", ?, ?, ?)', 
                     (classname, url, modid))
