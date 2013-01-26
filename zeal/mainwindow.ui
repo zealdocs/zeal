@@ -23,7 +23,7 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="ZealSearchEdit" name="lineEdit"/>
+         <widget class="LineEdit" name="lineEdit"/>
         </item>
         <item>
          <widget class="QTreeView" name="treeView">
@@ -79,9 +79,9 @@
    <header>QtWebKit/QWebView</header>
   </customwidget>
   <customwidget>
-   <class>ZealSearchEdit</class>
+   <class>LineEdit</class>
    <extends>QLineEdit</extends>
-   <header>zealsearchedit.h</header>
+   <header>lineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

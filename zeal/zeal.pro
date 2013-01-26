@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     zealdocsetsregistry.cpp \
     zealsearchresult.cpp \
     zealsearchedit.cpp \
-    zealnativeeventfilter.cpp
+    zealnativeeventfilter.cpp \
+    lineedit.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
@@ -26,7 +27,8 @@ HEADERS  += mainwindow.h \
     zealdocsetsregistry.h \
     zealsearchresult.h \
     zealsearchedit.h \
-    zealnativeeventfilter.h
+    zealnativeeventfilter.h \
+    lineedit.h
 
 FORMS    += mainwindow.ui
 

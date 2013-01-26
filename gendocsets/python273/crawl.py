@@ -73,7 +73,7 @@ for modname, (modid, fname) in modules.items():
             # there are only 23 such cases (at time of development), so might be not worth it...
             pass
 
-        if not classname or classname[0][:-1] == modname:
+        if not classname or classname == modname:
             type_ = "function"
             parentid = modid
         else:
