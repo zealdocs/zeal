@@ -38,3 +38,5 @@ FORMS    += mainwindow.ui
 QMAKE_CXXFLAGS += -std=c++11
 
 win32:DEFINES += WIN32
+
+unix:!macx: LIBS += -lxcb-keysyms

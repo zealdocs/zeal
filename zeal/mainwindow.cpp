@@ -15,6 +15,11 @@
 
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <QtGui/5.0.0/QtGui/qpa/qplatformnativeinterface.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
+#include <X11/keysym.h>
 #endif
 
 const QString serverName = "zeal_process_running";
@@ -41,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent) :
     createTrayIcon();
 
     // initialise key grabber
-#ifdef WIN32
     auto filter = new ZealNativeEventFilter();
     connect(filter, &ZealNativeEventFilter::gotHotKey, [&]() {
         if(isVisible()) hide();
@@ -50,25 +54,29 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
     qApp->eventDispatcher()->installNativeEventFilter(filter);
+
+    // platform-specific code for global key grabbing
+#ifdef WIN32
     RegisterHotKey(NULL, 10, MOD_ALT, VK_SPACE);
 #else
-    keyGrabber.setParent(this);
-    keyGrabber.start(qApp->applicationFilePath(), {"--grabkey"});
-    connect(&keyGrabber, &QProcess::readyRead, [&]() {
-        char buf[100];
-        keyGrabber.readLine(buf, sizeof(buf));
-        if(QString(buf) == "failed\n") {
-            QMessageBox::warning(this, "grabkey process init failed",
-                                 QString("Failed to grab keyboard - Alt+Space will not work."));
+    auto platform = qApp->platformNativeInterface();
+
+    xcb_connection_t *c = static_cast<xcb_connection_t*>(platform->nativeResourceForWindow("connection", 0));
+
+    xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
+    xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, XK_space), keycode;
+
+    // add bindings for all screens
+    xcb_screen_iterator_t iter;
+    iter = xcb_setup_roots_iterator (xcb_get_setup (c));
+    for (; iter.rem; xcb_screen_next (&iter)) {
+        int i = 0;
+        while(keycodes[i] != XCB_NO_SYMBOL) {
+            keycode = keycodes[i];
+            xcb_grab_key(c, true, iter.data->root, XCB_MOD_MASK_ANY, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
+            i += 1;
         }
-        //first = false;
-        if(QString(buf) == "1\n") {
-            if(isVisible()) hide();
-            else {
-                bringToFront();
-            }
-        }
-    });
+    }
 #endif  // WIN32
     // initialise docsets
     auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
