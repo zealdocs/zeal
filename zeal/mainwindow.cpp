@@ -12,6 +12,7 @@
 #include <QSystemTrayIcon>
 #include <QLocalSocket>
 #include <QDir>
+#include <QTimer>
 
 #ifdef WIN32
 #include <windows.h>
@@ -113,6 +114,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
+    ui->lineEdit->setFocus();
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
@@ -142,8 +144,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
-    keyGrabber.terminate();
-    keyGrabber.waitForFinished(500);
 }
 
 void MainWindow::createTrayIcon()
@@ -158,7 +158,7 @@ void MainWindow::createTrayIcon()
     connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
         if(reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
             if(isVisible()) hide();
-            else show();
+            else bringToFront();
         }
     });
     trayIcon->show();
@@ -171,4 +171,13 @@ void MainWindow::bringToFront()
     raise();
     activateWindow();
     ui->lineEdit->setFocus();
+
+#ifndef WIN32
+    // Very ugly workaround for the problem described at http://stackoverflow.com/questions/14553810/
+    // (just show and hide a modal dialog box, which for some reason restores proper keyboard focus)
+    hackDialog.setGeometry(0, 0, 0, 0);
+    hackDialog.setModal(true);
+    hackDialog.show();
+    QTimer::singleShot(100, &hackDialog, SLOT(reject()));
+#endif
 }

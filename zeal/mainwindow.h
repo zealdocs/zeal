@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QLocalServer>
+#include <QDialog>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
 
@@ -27,8 +28,8 @@ private:
     QIcon icon;
     ZealListModel zealList;
     ZealSearchModel zealSearch;
-    QProcess keyGrabber;
     QLocalServer *localServer;
+    QDialog hackDialog;
     void createTrayIcon();
 };
 
