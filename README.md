@@ -9,7 +9,7 @@
 
 (from WordNet 3.0)
 
-Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash/), but designed from scratch to avoid copyright issues.
+Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash/).
 
 [Screenshots (imgur)](http://imgur.com/a/VrYQx)
 
@@ -22,13 +22,15 @@ After compiling/unzipping it you need to download docsets and put them in `$HOME
 
 Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
 
+You can also use Dash's docsets by putting `.docset` directories in the same directory as above.
+
 ## How to compile
 
 Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
 
 ## Windows binary
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/2kyb3p4ox271a0d/zeal.zip) (24M).
+A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/g4rtvs17b2zyeea/zeal.zip) (24M).
 
 ## TODO
 
@@ -36,9 +38,8 @@ A 64-bit Windows binary with all dependencies is available to download from Drop
  * Support for global hotkeys under platforms other than Linux/X11 and Windows (OSX)
  * Search enhancements - some ideas:
    1. Allow selecting subset of docsets to search in.
-   2. Substring match in case current startswith matching doesn't return anything.
-   3. Grouping of similar results (like overloaded functions)
-   4. Better docsets formatting (without headers, sidebars etc.)
+   2. Grouping of similar results (like overloaded functions)
+   3. Better docsets formatting (without headers, sidebars etc.)
  * More docsets
 
 

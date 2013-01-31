@@ -8,6 +8,8 @@
 
 #include "zealsearchresult.h"
 
+typedef enum {ZEAL, DASH, ZDASH} DocSetType;
+
 class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
@@ -64,8 +66,10 @@ private:
                                  // if we try to use those two functions by accident
 
     static ZealDocsetsRegistry* m_Instance;
+    // FIXME: DocSet class could be better instead of 3 maps
     QMap<QString, QSqlDatabase> dbs;
     QMap<QString, QDir> dirs;
+    QMap<QString, DocSetType> types;
     QList<ZealSearchResult> queryResults;
     int lastQuery = -1;
 };
