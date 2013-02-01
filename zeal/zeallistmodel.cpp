@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <QtSql/QSqlQuery>
+#include <QDebug>
 
 #include <iostream>
 #include <string>
@@ -13,7 +14,8 @@ ZealListModel::ZealListModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
     strings = new QSet<QString>;
-    modulesCounts = new QHash<QString, int>;
+    modulesCounts = new QHash<QPair<QString, QString>, int>;
+    items = new QHash<QPair<QString, int>, QPair<QString, QString> >;
 }
 
 Qt::ItemFlags ZealListModel::flags(const QModelIndex &index) const
@@ -23,23 +25,76 @@ Qt::ItemFlags ZealListModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-const QHash<QString, int> ZealListModel::getModulesCounts() const
+const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() const
 {
     if(!modulesCounts->count()) {
         for(auto name : docsets->names()) {
             auto db = docsets->db(name);
-            auto q = db.exec("select count(*) from things where type='module'");
-            q.next();
-            (*modulesCounts)[name] = q.value(0).toInt();
+            QSqlQuery q;
+            if(docsets->type(name) == ZEAL) {
+                q = db.exec("select type, count(*) from things group by type");
+            } else if(docsets->type(name) == DASH) {
+                q = db.exec("select type, count(*) from searchIndex group by type");
+            } else if(docsets->type(name) == ZDASH) {
+                q = db.exec("select ztokentype, count(*) from ztoken group by ztokentype");
+            }
+            while(q.next()) {
+                if(q.value(1).toInt() < 500) {
+                    QString typeName;
+                    if(docsets->type(name) == ZEAL || docsets->type(name) == DASH) {
+                        typeName = q.value(0).toString();
+                    } else { // ZDASH
+                        auto q2 = db.exec(QString("select ztypename from ztokentype where z_pk=%1").arg(q.value(0).toInt()));
+                        q2.next();
+                        typeName = q2.value(0).toString();
+                    }
+                    (*modulesCounts)[QPair<QString, QString>(name, typeName)] = q.value(1).toInt();
+                }
+            }
         }
     }
     return *modulesCounts;
 }
 
+const QPair<QString, QString> ZealListModel::getItem(const QString& path, int index) const {
+    QPair<QString, int> pair(path, index);
+    if(items->find(pair) != items->end()) return (*items)[pair];
+    QPair<QString, QString> item;
+    auto docsetName = path.split('/')[0];
+    auto type = singularize(path.split('/')[1]);
+    auto db = docsets->db(docsetName);
+    QSqlQuery q;
+    if(docsets->type(docsetName) == ZEAL) {
+        q = db.exec(QString("select name, path from things where type='%1' order by name asc limit 1 offset ").arg(type) + QString().setNum(index));
+    } else if(docsets->type(docsetName) == DASH) {
+        q = db.exec(QString("select name, path from searchIndex where type='%1' order by name asc limit 1 offset ").arg(type) + QString().setNum(index));
+    } else { // ZDASH
+        q = db.exec(QString("select ztokenname, zpath, zanchor from ztoken "
+                            "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                            "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
+                            "join ztokentype on ztoken.ztokentype = ztokentype.z_pk where ztypename='%1' "
+                            "order by ztokenname asc limit 1 offset ").arg(type) + QString().setNum(index));
+    }
+    q.next();
+    item.first = q.value(0).toString();
+    auto filePath = q.value(1).toString();
+    // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
+    if(docsets->type(docsetName) == DASH || docsets->type(docsetName) == ZDASH) {
+        filePath = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(filePath);
+    }
+    if(docsets->type(docsetName) == ZDASH) {
+        filePath += "#" + q.value(2).toString();
+
+    }
+    item.second = docsets->dir(docsetName).absoluteFilePath(filePath);
+    (*items)[pair] = item;
+    return item;
+}
+
 QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if(!parent.isValid()) {
-        if(row >= docsets->count()) return QModelIndex();
+        if(row >= docsets->count() || row == -1) return QModelIndex();
         if(column == 0) {
             return createIndex(row, column, (void*)getString(docsets->names().at(row)));
         } else if(column == 1) {
@@ -47,23 +102,31 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         }
         return QModelIndex();
     } else {
-        if(i2s(parent)->indexOf('/') == -1) {
-            if(column == 0) {
-                return createIndex(row, column, (void*)getString(*i2s(parent)+"/Modules"));
+        QString docsetName;
+        for(auto name : docsets->names()) {
+            if(i2s(parent)->startsWith(name+"/")) {
+                docsetName = name;
             }
-        } else if(i2s(parent)->endsWith("/Modules")) {
-            auto name = i2s(parent)->split("/").at(0);
-            if(row >= getModulesCounts()[name]) return QModelIndex();
-            auto db = docsets->db(name);
+        }
+        if(docsetName.isEmpty()) {
             if(column == 0) {
-                auto q = db.exec("select name from things where type='module' limit 1 offset " + QString().setNum(row));
-                q.next();
+                QList<QString> types;
+                for(auto &pair : getModulesCounts().keys()) {
+                    if(pair.first == *i2s(parent)) {
+                        types.append(pair.second);
+                    }
+                }
+                qSort(types);
+                return createIndex(row, column, (void*)getString(*i2s(parent)+"/"+pluralize(types[row])));
+            }
+        } else {
+            auto type = singularize(i2s(parent)->split('/')[1]);
+            if(row >= getModulesCounts()[QPair<QString, QString>(docsetName, type)]) return QModelIndex();
+            if(column == 0) {
                 return createIndex(row, column,
-                    (void*)getString(QString("%1/Modules/%2").arg(name, q.value(0).toString())));
+                    (void*)getString(QString("%1/%2/%3").arg(docsetName, pluralize(type), getItem(*i2s(parent), row).first)));
             } else if(column == 1) {
-                auto q = db.exec("select path from things where type='module' limit 1 offset " + QString().setNum(row));
-                q.next();
-                return createIndex(row, column, (void*)getString(docsets->dir(name).absoluteFilePath(q.value(0).toString())));
+                return createIndex(row, column, (void*)getString(getItem(*i2s(parent), row).second));
             }
         }
         return QModelIndex();
@@ -100,11 +163,19 @@ int ZealListModel::rowCount(const QModelIndex &parent) const
     } else {
         auto parentStr = i2s(parent);
         if(parentStr->indexOf("/") == -1) {
-            // docset - one enty - Modules
-            return 1;
-        } else if(parentStr->endsWith("/Modules")) {
-            // modules count
-            return getModulesCounts()[parentStr->split('/').at(0)];
+            // docset - show types
+            int numTypes = 0;
+            auto keys = getModulesCounts().keys();
+            for(auto &key : keys) {
+                if(parentStr == key.first) {
+                    numTypes += 1;
+                }
+            }
+            return numTypes;
+        } else if(parentStr->count("/") == 1) { // parent is docset/type
+            // type count
+            auto type = singularize(parentStr->split("/")[1]);
+            return getModulesCounts()[QPair<QString, QString>(parentStr->split('/')[0], type)];
         }
         // module - no sub items
         return 0;
@@ -118,10 +189,10 @@ const QString *ZealListModel::i2s(const QModelIndex &index) const
 
 QModelIndex ZealListModel::parent(const QModelIndex &child) const
 {
-    if(child.isValid() && i2s(child)->endsWith("/Modules")) {
+    if(child.isValid() && i2s(child)->count("/") == 1) { // docset/type
         return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0]));
-    } else if(child.isValid() && i2s(child)->indexOf("/Modules/") != -1) {
-        return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0] + "/Modules"));
+    } else if(child.isValid() && i2s(child)->count("/") == 2) { // docset/type/item
+        return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0] + "/" + i2s(child)->split('/')[1]));
     } else {
         return QModelIndex();
     }
@@ -129,8 +200,26 @@ QModelIndex ZealListModel::parent(const QModelIndex &child) const
 
 int ZealListModel::columnCount(const QModelIndex &parent) const
 {
-    if(!parent.isValid() || i2s(parent)->endsWith("/Modules"))
+    if(!parent.isValid() || i2s(parent)->count("/") == 1) // child of docset/type
         return 2;
     else
         return 1;
+}
+
+QString ZealListModel::pluralize(const QString& s) {
+    QString ret = s;
+    if(s.endsWith('s')) {
+        return ret+"es";
+    } else {
+        return ret+"s";
+    }
+}
+QString ZealListModel::singularize(const QString& s) {
+    QString ret = s;
+    if(ret.endsWith("ses")) {
+        ret.chop(2);
+    } else {
+        ret.chop(1);
+    }
+    return ret;
 }

@@ -30,7 +30,7 @@ Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `ze
 
 ## Windows binary
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/g4rtvs17b2zyeea/zeal.zip) (24M).
+A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/cs2r0eych4om2k2/zeal.zip) (24M).
 
 ## TODO
 
@@ -41,6 +41,7 @@ A 64-bit Windows binary with all dependencies is available to download from Drop
    2. Grouping of similar results (like overloaded functions)
    3. Better docsets formatting (without headers, sidebars etc.)
  * More docsets
+ * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
 
 
 ## Contributions

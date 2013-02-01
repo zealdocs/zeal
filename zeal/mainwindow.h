@@ -23,7 +23,7 @@ public:
     ~MainWindow();
     
 private:
-    void bringToFront();
+    void bringToFront(bool withHack);
     Ui::MainWindow *ui;
     QIcon icon;
     ZealListModel zealList;

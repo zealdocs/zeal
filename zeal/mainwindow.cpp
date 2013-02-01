@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
-        bringToFront();
+        bringToFront(false);
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(filter, &ZealNativeEventFilter::gotHotKey, [&]() {
         if(isVisible()) hide();
         else {
-            bringToFront();
+            bringToFront(true);
         }
     });
     qApp->eventDispatcher()->installNativeEventFilter(filter);
@@ -158,13 +158,13 @@ void MainWindow::createTrayIcon()
     connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
         if(reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
             if(isVisible()) hide();
-            else bringToFront();
+            else bringToFront(false);
         }
     });
     trayIcon->show();
 }
 
-void MainWindow::bringToFront()
+void MainWindow::bringToFront(bool withHack)
 {
     show();
     setWindowState( (windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
@@ -175,9 +175,11 @@ void MainWindow::bringToFront()
 #ifndef WIN32
     // Very ugly workaround for the problem described at http://stackoverflow.com/questions/14553810/
     // (just show and hide a modal dialog box, which for some reason restores proper keyboard focus)
-    hackDialog.setGeometry(0, 0, 0, 0);
-    hackDialog.setModal(true);
-    hackDialog.show();
-    QTimer::singleShot(100, &hackDialog, SLOT(reject()));
+    if(withHack) {
+        hackDialog.setGeometry(0, 0, 0, 0);
+        hackDialog.setModal(true);
+        hackDialog.show();
+        QTimer::singleShot(100, &hackDialog, SLOT(reject()));
+    }
 #endif
 }

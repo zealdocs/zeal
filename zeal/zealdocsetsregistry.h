@@ -42,6 +42,10 @@ public:
         return dirs[name];
     }
 
+    DocSetType type(const QString& name) const {
+        return types[name];
+    }
+
     QStringList names() const {
         return dbs.keys();
     }
