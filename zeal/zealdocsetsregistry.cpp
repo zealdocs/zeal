@@ -117,7 +117,6 @@ void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
             }
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-            // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
             if(types[name] == DASH || types[name] == ZDASH) {
                 path = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(path);
             }

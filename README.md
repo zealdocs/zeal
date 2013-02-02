@@ -33,7 +33,7 @@ Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `ze
 
 ## Windows binary
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/rbx3bxqif45v0nn/zeal.zip) (24M).
+A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/fbi5pr1gg706gvm/zeal.zip) (24M).
 
 ## TODO
 

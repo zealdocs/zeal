@@ -59,37 +59,40 @@ const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() cons
 const QPair<QString, QString> ZealListModel::getItem(const QString& path, int index) const {
     QPair<QString, int> pair(path, index);
     if(items->find(pair) != items->end()) return (*items)[pair];
-    QPair<QString, QString> item;
+
     auto docsetName = path.split('/')[0];
     auto type = singularize(path.split('/')[1]);
     auto db = docsets->db(docsetName);
     QSqlQuery q;
     if(docsets->type(docsetName) == ZEAL) {
-        q = db.exec(QString("select name, path from things where type='%1' order by name asc limit 1 offset ").arg(type) + QString().setNum(index));
+        q = db.exec(QString("select name, path from things where type='%1' order by name asc").arg(type));
     } else if(docsets->type(docsetName) == DASH) {
-        q = db.exec(QString("select name, path from searchIndex where type='%1' order by name asc limit 1 offset ").arg(type) + QString().setNum(index));
+        q = db.exec(QString("select name, path from searchIndex where type='%1' order by name asc").arg(type));
     } else { // ZDASH
         q = db.exec(QString("select ztokenname, zpath, zanchor from ztoken "
                             "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
                             "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
                             "join ztokentype on ztoken.ztokentype = ztokentype.z_pk where ztypename='%1' "
-                            "order by ztokenname asc limit 1 offset ").arg(type) + QString().setNum(index));
+                            "order by ztokenname asc").arg(type));
     }
-    q.next();
-    item.first = q.value(0).toString();
-    auto filePath = q.value(1).toString();
-    // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-    // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
-    if(docsets->type(docsetName) == DASH || docsets->type(docsetName) == ZDASH) {
-        filePath = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(filePath);
+    int i = 0;
+    while(q.next()) {
+        QPair<QString, QString> item;
+        item.first = q.value(0).toString();
+        auto filePath = q.value(1).toString();
+        // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
+        // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
+        if(docsets->type(docsetName) == DASH || docsets->type(docsetName) == ZDASH) {
+            filePath = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(filePath);
+        }
+        if(docsets->type(docsetName) == ZDASH) {
+            filePath += "#" + q.value(2).toString();
+        }
+        item.second = docsets->dir(docsetName).absoluteFilePath(filePath);
+        (*items)[QPair<QString, int>(path, i)] = item;
+        i += 1;
     }
-    if(docsets->type(docsetName) == ZDASH) {
-        filePath += "#" + q.value(2).toString();
-
-    }
-    item.second = docsets->dir(docsetName).absoluteFilePath(filePath);
-    (*items)[pair] = item;
-    return item;
+    return (*items)[pair];
 }
 
 QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent) const
