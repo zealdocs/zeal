@@ -79,6 +79,7 @@ const QPair<QString, QString> ZealListModel::getItem(const QString& path, int in
     item.first = q.value(0).toString();
     auto filePath = q.value(1).toString();
     // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
+    // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
     if(docsets->type(docsetName) == DASH || docsets->type(docsetName) == ZDASH) {
         filePath = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(filePath);
     }

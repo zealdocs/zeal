@@ -11,9 +11,9 @@
 
 Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash/).
 
-![Screenshot](http://i.imgur.com/6EcSIvD.png)
+![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
-[More screenshots (imgur)](http://imgur.com/a/VrYQx)
+[More screenshots (imgur)](http://imgur.com/a/EFmzc)
 
 
 ## How to use
@@ -33,7 +33,7 @@ Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `ze
 
 ## Windows binary
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/cs2r0eych4om2k2/zeal.zip) (24M).
+A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/rbx3bxqif45v0nn/zeal.zip) (24M).
 
 ## TODO
 

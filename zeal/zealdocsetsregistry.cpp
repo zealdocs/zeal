@@ -1,5 +1,6 @@
 #include <QThread>
 #include <QVariant>
+#include <QDebug>
 #include <QtSql/QSqlQuery>
 
 #include "zealdocsetsregistry.h"
@@ -48,68 +49,89 @@ void ZealDocsetsRegistry::runQuery(const QString& query)
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query), Q_ARG(int, lastQuery));
 }
 
-void ZealDocsetsRegistry::_runQuery(const QString& query, int queryNum)
+void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
 {
     if(queryNum != lastQuery) return; // some other queries pending - ignore this one
 
     QList<ZealSearchResult> results;
+    QString query = query_;
+    query.replace("\\", "\\\\");
+    query.replace("_", "\\_");
+    query.replace("%", "\\%");
+    query.replace("'", "''");
     for(auto name : names()) {
         QString qstr;
         QSqlQuery q;
-        bool found = false;
+        QList<QList<QVariant> > found;
         bool withSubStrings = false;
-        while(!found) {
+        while(found.size() < 40) {
             auto curQuery = query;
+            QString notQuery; // don't return the same result twice
+            QString parentQuery;
             if(withSubStrings) {
-                // if nothing found starting with query, search all substrings
+                // if less than 40 found starting with query, search all substrings
                 curQuery = "%"+query;
+                if(types[name] == ZDASH) {
+                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(query);
+                } else {
+                    notQuery = QString(" and not t.name like '%1%' escape '\\' ").arg(query);
+                    if(types[name] == ZEAL) {
+                        parentQuery = QString(" or t2.name like '%1%' escape '\\'  ").arg(query);
+                    }
+                }
             }
+            int cols = 3;
             if(types[name] == ZEAL) {
-                qstr = QString("select name, parent, path from things where name "
-                               "like '%1%' order by lower(name) asc, path asc limit 40").arg(curQuery);
+                qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
+                               "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 40").arg(curQuery, notQuery, parentQuery);
+
             } else if(types[name] == DASH) {
-                qstr = QString("select name, null, path from searchIndex where name "
-                               "like '%1%' order by lower(name) asc, path asc limit 40").arg(curQuery);
+                qstr = QString("select t.name, null, t.path from searchIndex t where t.name "
+                               "like '%1%' escape '\\'  %2 order by lower(t.name) asc, t.path asc limit 40").arg(curQuery, notQuery);
             } else if(types[name] == ZDASH) {
+                cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                 "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where ztokenname "
+                                "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
                                // %.%1% for long Django docset values like django.utils.http
                                // (Might be not appropriate for other docsets, but I don't have any on hand to test)
-                               "like '%1%' or ztokenname like '%.%1%' order by lower(ztokenname) asc, zpath asc, zanchor asc limit 40").arg(curQuery);
+                               "like '%1%' escape '\\'  or ztokenname like '%.%1%' escape '\\' ) %2 order by lower(ztokenname) asc, zpath asc, "
+                               "zanchor asc limit 40").arg(curQuery, notQuery);
             }
             q = db(name).exec(qstr);
-            if(q.next()) { found = true; }
-            else {
-                if(withSubStrings) break;
-                withSubStrings = true;  // try again searching for substrings
+            while(q.next()) {
+                QList<QVariant> values;
+                for(int i = 0; i < cols; ++i) {
+                    values.append(q.value(i));
+                }
+                found.append(values);
             }
+
+            if(withSubStrings) break;
+            withSubStrings = true;  // try again searching for substrings
         }
-        if(!found) continue;
-        do {
+        for(auto &row : found) {
             QString parentName;
-            if(!q.value(1).isNull()) {
-                auto qp = db(name).exec(QString("select name from things where id = %1").arg(q.value(1).toInt()));
-                qp.next();
-                parentName = qp.value(0).toString();
+            if(!row[1].isNull()) {
+                parentName = row[1].toString();
             }
-            auto path = q.value(2).toString();
+            auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
             // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
             if(types[name] == DASH || types[name] == ZDASH) {
                 path = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(path);
             }
             if(types[name] == ZDASH) {
-                path += "#" + q.value(3).toString();
+                path += "#" + row[3].toString();
             }
-            auto itemName = q.value(0).toString();
-            if(itemName.indexOf('.') != -1 && itemName.indexOf('.') != 0 && q.value(1).isNull()) {
+            auto itemName = row[0].toString();
+            if(itemName.indexOf('.') != -1 && itemName.indexOf('.') != 0 && row[1].isNull()) {
                 auto splitted = itemName.split(".");
                 itemName = splitted.at(splitted.size()-1);
                 parentName = splitted.at(splitted.size()-2);
             }
             results.append(ZealSearchResult(itemName, parentName, path, name, query));
-        } while (q.next());
+        }
     }
     qSort(results);
     if(queryNum != lastQuery) return; // some other queries pending - ignore this one

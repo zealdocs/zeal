@@ -4,6 +4,7 @@
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
 #include "zealdocsetsregistry.h"
+#include "zealsearchitemdelegate.h"
 
 #include <QDebug>
 #include <QAbstractEventDispatcher>
@@ -17,7 +18,11 @@
 #ifdef WIN32
 #include <windows.h>
 #else
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#else
 #include <QtGui/5.0.0/QtGui/qpa/qplatformnativeinterface.h>
+#endif
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
@@ -117,6 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit->setFocus();
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
+    ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit, ui->treeView));
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
         QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
         QUrl url = QUrl::fromLocalFile(url_l[0]);
