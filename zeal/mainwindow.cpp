@@ -5,6 +5,7 @@
 #include "zealnativeeventfilter.h"
 #include "zealdocsetsregistry.h"
 #include "zealsearchitemdelegate.h"
+#include "zealsettingsdialog.h"
 
 #include <QDebug>
 #include <QAbstractEventDispatcher>
@@ -106,6 +107,11 @@ MainWindow::MainWindow(QWidget *parent) :
     auto quitAction = ui->menuBar->addAction("&Quit");
     quitAction->setShortcut(QKeySequence::Quit);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    auto settingsAction = ui->menuBar->addAction("&Options");
+    connect(settingsAction, &QAction::triggered, [&]() {
+        ZealSettingsDialog settings;
+        settings.exec();
+    });
     auto helpMenu = new QMenu("&Help");
     auto aboutAction = helpMenu->addAction("&About");
     auto aboutQtAction = helpMenu->addAction("About &Qt");

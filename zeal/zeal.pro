@@ -17,26 +17,25 @@ SOURCES += main.cpp\
     zealsearchmodel.cpp \
     zealdocsetsregistry.cpp \
     zealsearchresult.cpp \
-    zealsearchedit.cpp \
     zealnativeeventfilter.cpp \
     lineedit.cpp \
-    searchablewebview.cpp \
     zealsearchitemdelegate.cpp \
-    zealsearchitemstyle.cpp
+    zealsearchitemstyle.cpp \
+    zealsettingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
     zealsearchmodel.h \
     zealdocsetsregistry.h \
     zealsearchresult.h \
-    zealsearchedit.h \
     zealnativeeventfilter.h \
     lineedit.h \
-    searchablewebview.h \
     zealsearchitemdelegate.h \
-    zealsearchitemstyle.h
+    zealsearchitemstyle.h \
+    zealsettingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    zealsettingsdialog.ui
 
 
 QMAKE_CXXFLAGS += -std=c++11
@@ -44,3 +43,5 @@ QMAKE_CXXFLAGS += -std=c++11
 win32:DEFINES += WIN32
 
 unix:!macx: LIBS += -lxcb-keysyms
+
+include (widgets/widgets.pri)
