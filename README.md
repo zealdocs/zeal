@@ -33,11 +33,10 @@ Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `ze
 
 ## Windows binary
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/fbi5pr1gg706gvm/zeal.zip) (24M).
+A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/odiu8vqvnec2jre/zeal.zip) (24M).
 
 ## TODO
 
- * Configuration (customisable hotkey instead of hardcoded Alt+Space, remember window size, etc.)
  * Support for global hotkeys under platforms other than Linux/X11 and Windows (OSX)
  * Search enhancements - some ideas:
    1. Allow selecting subset of docsets to search in.

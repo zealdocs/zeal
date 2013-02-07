@@ -32,7 +32,8 @@ HEADERS  += mainwindow.h \
     lineedit.h \
     zealsearchitemdelegate.h \
     zealsearchitemstyle.h \
-    zealsettingsdialog.h
+    zealsettingsdialog.h \
+    xcb_keysym.h
 
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui
@@ -43,5 +44,6 @@ QMAKE_CXXFLAGS += -std=c++11
 win32:DEFINES += WIN32
 
 unix:!macx: LIBS += -lxcb-keysyms
+unix:!macx: SOURCES += xcb_keysym.cpp
 
 include (widgets/widgets.pri)

@@ -5,8 +5,10 @@
 #include <QProcess>
 #include <QLocalServer>
 #include <QDialog>
+#include <QSettings>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
+#include "zealnativeeventfilter.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +33,16 @@ private:
     QLocalServer *localServer;
     QDialog hackDialog;
     void createTrayIcon();
+    void setHotKey(const QKeySequence& hotKey);
+    QKeySequence hotKey;
+    QSettings settings;
+    ZealNativeEventFilter nativeFilter;
+
+protected:
+    void closeEvent(QCloseEvent *event) {
+        settings.setValue("geometry", saveGeometry());
+        QMainWindow::closeEvent(event);
+    }
 };
 
 #endif // MAINWINDOW_H

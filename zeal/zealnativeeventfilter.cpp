@@ -7,6 +7,7 @@
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
 #include <QGuiApplication>
+#include "xcb_keysym.h"
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
 #include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
 #else
@@ -100,21 +101,41 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         return true;
     }
 #else // WIN32
-
     xcb_generic_event_t* ev = static_cast<xcb_generic_event_t*>(message);
-    if((ev->response_type&127) == XCB_KEY_PRESS) {
+    if((ev->response_type&127) == XCB_KEY_PRESS && !hotKey.isEmpty()) {
         xcb_connection_t  *c = static_cast<xcb_connection_t*>(
               ((QGuiApplication*)QGuiApplication::instance())->
                     platformNativeInterface()->nativeResourceForWindow("connection", 0));
         xcb_key_press_event_t *event = (xcb_key_press_event_t *)ev;
 
         xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
-        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, XK_space);
+        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, GetX11Key(hotKey[hotKey.count()-1]));
         int i = 0;
         bool found = false;
         while(keycodes[i] != XCB_NO_SYMBOL) {
             if(event->detail == keycodes[i]) {
-                if(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R)) {
+                bool modifiers_present = true;
+                if(hotKey[hotKey.count()-1] & Qt::ALT) {
+                    if(!(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R))) {
+                        modifiers_present = false;
+                    }
+                }
+                if(hotKey[hotKey.count()-1] & Qt::CTRL) {
+                    if(!(event->state & GetModifier(c, keysyms, XK_Control_L) || event->state & GetModifier(c, keysyms,  XK_Control_R))) {
+                        modifiers_present = false;
+                    }
+                }
+                if(hotKey[hotKey.count()-1] & Qt::META) {
+                    if(!(event->state & GetModifier(c, keysyms, XK_Meta_L) || event->state & GetModifier(c, keysyms,  XK_Meta_R))) {
+                        modifiers_present = false;
+                    }
+                }
+                if(hotKey[hotKey.count()-1] & Qt::SHIFT) {
+                    if(!(event->state & GetModifier(c, keysyms, XK_Shift_L) || event->state & GetModifier(c, keysyms,  XK_Shift_R))) {
+                        modifiers_present = false;
+                    }
+                }
+                if(enabled && modifiers_present) {
                     xcb_allow_events(c, XCB_ALLOW_ASYNC_KEYBOARD, event->time);
                     emit gotHotKey();
                     found = true;

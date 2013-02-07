@@ -14,6 +14,8 @@ class ZealSettingsDialog : public QDialog
 public:
     explicit ZealSettingsDialog(QWidget *parent = 0);
     ~ZealSettingsDialog();
+    void setHotKey(const QKeySequence &keySequence);
+    QKeySequence hotKey();
     
 private:
     Ui::ZealSettingsDialog *ui;
