@@ -53,3 +53,7 @@ Any feedback, feature requests, or pull requests are welcome. Before starting to
 Please keep in mind I'm not an experienced C++ programmer, so the code quality might be not great.
 
 Also you can send bitcoins to 1Zea1QhPV5CGp8SNMpb2RHUvRrfNhKqGV to encourage development.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jkozera/zeal/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
