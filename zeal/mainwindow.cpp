@@ -10,6 +10,7 @@
 #include <QAbstractEventDispatcher>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QStyleFactory>
 #include <QSystemTrayIcon>
 #include <QLocalSocket>
 #include <QDir>
@@ -44,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
+
+#ifndef WIN32
+    // Default style sometimes (when =windows) doesn't work well with Linux
+    qApp->setStyle(QStyleFactory::create("fusion"));
+#endif
 
     // initialise icons
 #ifdef WIN32

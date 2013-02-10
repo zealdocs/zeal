@@ -8,6 +8,8 @@ QT       += core gui widgets webkitwidgets sql
 
 
 TARGET = zeal
+target.path = /usr/bin
+INSTALLS = target
 TEMPLATE = app
 
 

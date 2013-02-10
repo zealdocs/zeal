@@ -31,9 +31,11 @@ You can also use Dash's docsets by putting `.docset` directories in the same dir
 
 Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
 
-## Windows binary
+## Binary packages
 
-A 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/odiu8vqvnec2jre/zeal.zip) (24M).
+An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Quantal and Precise packages. (Tested only with Quantal - please let me know if the Precise package works.)
+
+Also a 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/odiu8vqvnec2jre/zeal.zip) (24M).
 
 ## TODO
 
