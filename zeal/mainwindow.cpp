@@ -16,6 +16,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QTimer>
+#include <QWebSettings>
 
 #ifdef WIN32
 #include <windows.h>
@@ -99,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
         settings.setValue("splitter", ui->splitter->saveState());
     });
+    ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
 
     // menu
     auto quitAction = ui->menuBar->addAction("&Quit");
@@ -109,9 +111,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(settingsAction, &QAction::triggered, [=]() {
         ZealSettingsDialog settingsDialog;
         settingsDialog.setHotKey(hotKey);
+        settingsDialog.ui->minFontSize->setValue(settings.value("minFontSize").toInt());
+        void (QSpinBox:: *signal)(int) = &QSpinBox::valueChanged;
+        connect(settingsDialog.ui->minFontSize, signal, [=](int val) {
+            ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, val);
+        });
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
             setHotKey(settingsDialog.hotKey());
+            settings.setValue("minFontSize", QVariant(ui->webView->settings()->fontSize(QWebSettings::MinimumFontSize)));
+        } else {
+            // cancelled - restore previous value
+            ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
         }
         nativeFilter.setEnabled(true);
     });

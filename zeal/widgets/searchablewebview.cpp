@@ -69,3 +69,7 @@ void SearchableWebView::load(const QUrl &url) {
 QSize SearchableWebView::sizeHint() const {
     return webView.sizeHint();
 }
+
+QWebSettings * SearchableWebView::settings() const {
+    return webView.settings();
+}
