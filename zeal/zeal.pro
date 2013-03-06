@@ -49,3 +49,4 @@ unix:!macx: LIBS += -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
 
 include (widgets/widgets.pri)
+include (quazip/quazip.pri)

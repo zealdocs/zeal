@@ -1,0 +1,2 @@
+Qt5 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPMjlHa1k5WTVldDg 201303062116
+python-2.7.3-docs-html https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPVkVtM0lrNVdCNXM 201303062116

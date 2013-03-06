@@ -17,6 +17,13 @@
 #include <QSettings>
 #include <QTimer>
 #include <QWebSettings>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QAbstractNetworkCache>
+#include <QUrl>
+#include <QTemporaryFile>
+#include <quazip/quazip.h>
+#include "JlCompress.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -82,14 +89,15 @@ MainWindow::MainWindow(QWidget *parent) :
     auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     auto dataDir = QDir(dataLocation);
     if(!dataDir.cd("docsets")) {
-        QMessageBox::critical(this, "No docsets directory found",
-                              QString("'docsets' directory not found in '%1'").arg(dataLocation));
-    } else {
-        for(auto subdir : dataDir.entryInfoList()) {
-            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
-                                          Q_ARG(QString, subdir.absoluteFilePath()));
-            }
+        QMessageBox::information(this, "No docsets directory found",
+                          QString("'docsets' directory not found in '%1'. Creating a new one.").arg(dataLocation));
+        dataDir.mkdir("docsets");
+    }
+    dataDir.cd("docsets");
+    for(auto subdir : dataDir.entryInfoList()) {
+        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
+            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                      Q_ARG(QString, subdir.absoluteFilePath()));
         }
     }
 
@@ -110,11 +118,132 @@ MainWindow::MainWindow(QWidget *parent) :
     auto settingsAction = ui->menuBar->addAction("&Options");
     connect(settingsAction, &QAction::triggered, [=]() {
         ZealSettingsDialog settingsDialog;
+        QNetworkAccessManager _manager, *manager = &_manager;
         settingsDialog.setHotKey(hotKey);
+        settingsDialog.ui->downloadableGroup->hide();
+        settingsDialog.ui->docsetsProgress->hide();
         settingsDialog.ui->minFontSize->setValue(settings.value("minFontSize").toInt());
         void (QSpinBox:: *signal)(int) = &QSpinBox::valueChanged;
         connect(settingsDialog.ui->minFontSize, signal, [=](int val) {
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, val);
+        });
+        settingsDialog.ui->listView->setModel(&zealList);
+        connect(settingsDialog.ui->listView, &QListView::activated, [=, &settingsDialog](const QModelIndex& index) {
+            settingsDialog.ui->deleteButton->setEnabled(true);
+        });
+        connect(settingsDialog.ui->deleteButton, &QPushButton::clicked, [=, &settingsDialog] {
+            auto answer = QMessageBox::question(&settingsDialog, "Are you sure",
+                QString("Are you sure you want to permanently delete the '%1' docest? "
+                        "Clicking 'Cancel' in this dialog box will not revert the deletion.").arg(
+                                      settingsDialog.ui->listView->currentIndex().data().toString()));
+            if(answer == QMessageBox::Yes) {
+                auto dataDir = QDir(dataLocation);
+                if(dataDir.cd("docsets") && dataDir.cd(settingsDialog.ui->listView->currentIndex().data().toString())) {
+                    dataDir.removeRecursively();
+                }
+                zealList.removeRow(settingsDialog.ui->listView->currentIndex().row());
+            }
+        });
+        int _count, *count = &_count;
+        connect(settingsDialog.ui->downloadButton, &QPushButton::clicked, [=, &settingsDialog] {
+            *count = 0;
+            settingsDialog.ui->downloadButton->hide();
+            settingsDialog.ui->docsetsProgress->show();
+            QNetworkRequest listRequest(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
+            manager->get(listRequest);
+
+        });
+        auto progressCb = [=, &settingsDialog](quint64 recv, quint64 total) {
+            settingsDialog.ui->docsetsProgress->setMaximum(total);
+            settingsDialog.ui->docsetsProgress->setValue(recv);
+        };
+        connect(manager, &QNetworkAccessManager::finished, [=, &settingsDialog](QNetworkReply* reply) {
+            ++*count;
+            if(*count == 1) {
+                QString list = reply->readAll();
+                QMap<QString, QString> urls;
+                for(auto item : list.split("\n")) {
+                    QStringList docset = item.split(" ");
+                    if(docset.size() < 2) break;
+                    if(!docsets->names().contains(docset[0])) {
+                        if(!docset[1].startsWith("http")) {
+                            urls.clear();
+                            QMessageBox::warning(&settingsDialog, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt");
+                            break;
+                        }
+                        urls[docset[0]] = docset[1];
+                        settingsDialog.ui->docsetsList->addItem(docset[0]);
+                    }
+                }
+                settingsDialog.ui->docsetsProgress->hide();
+                if(urls.size() > 0) {
+                    settingsDialog.ui->downloadableGroup->show();
+                    connect(settingsDialog.ui->docsetsList, &QListWidget::activated, [=, &settingsDialog](const QModelIndex& index) {
+                        settingsDialog.ui->downloadDocsetButton->setEnabled(true);
+                    });
+                    connect(settingsDialog.ui->downloadDocsetButton, &QPushButton::clicked, [=, &settingsDialog]() {
+                        settingsDialog.ui->docsetsList->setEnabled(false);
+                        settingsDialog.ui->downloadDocsetButton->setEnabled(false);
+                        settingsDialog.ui->downloadDocsetButton->setText("Downloading, please wait...");
+                        QUrl url(urls[settingsDialog.ui->docsetsList->currentItem()->text()]);
+                        *count = 1;
+                        manager->get(QNetworkRequest(url));
+                        settingsDialog.ui->docsetsProgress->show();
+                        settingsDialog.ui->docsetsProgress->setMaximum(1);
+                        settingsDialog.ui->docsetsProgress->setValue(0);
+                    });
+                } else {
+                    QMessageBox::warning(&settingsDialog, "No docsets found", "No downloadable docsets found.");
+                    settingsDialog.ui->downloadButton->show();
+                }
+            } else {
+                if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
+                    auto reply3 = manager->get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
+                    connect(reply3, &QNetworkReply::downloadProgress, progressCb);
+                } else {
+                    QTemporaryFile tmp;
+                    tmp.open();
+                    tmp.write(reply->readAll());
+                    tmp.seek(0);
+                    QuaZip zipfile(&tmp);
+                    if(zipfile.open(QuaZip::mdUnzip)) {
+                        tmp.close();
+                        auto dataDir = QDir(dataLocation);
+                        if(!dataDir.cd("docsets")) {
+                            QMessageBox::critical(&settingsDialog, "No docsets directory found",
+                                                  QString("'docsets' directory not found in '%1'").arg(dataLocation));
+                        } else {
+                            QStringList files = JlCompress::extractDir(tmp.fileName(), dataDir.absolutePath());
+                            QDir next(files[0]), root = next;
+                            next.cdUp();
+                            while(next.absolutePath() != dataDir.absolutePath()) {
+                                qDebug() << root.absolutePath();
+                                root = next;
+                                next.cdUp();
+                            }
+                            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                                      Q_ARG(QString, root.absolutePath()));
+                            ui->treeView->reset();
+                            settingsDialog.ui->listView->reset();
+                            for(int i = 0; i < settingsDialog.ui->docsetsList->count(); ++i) {
+                                if(settingsDialog.ui->docsetsList->item(i)->text() == root.dirName()) {
+                                    settingsDialog.ui->docsetsList->takeItem(i);
+                                    break;
+                                }
+                            }
+                            settingsDialog.ui->docsetsList->setEnabled(true);
+                            settingsDialog.ui->downloadDocsetButton->setText("Download");
+                        }
+                    } else if(*count == 2) {
+                        // allow one retry if zip format is incorrect - Google Drive
+                        // allows downloading only for second request
+                        auto reply2 = manager->get(QNetworkRequest(reply->url()));
+                        connect(reply2, &QNetworkReply::downloadProgress, progressCb);
+                    } else {
+                        QMessageBox::warning(&settingsDialog, "Error", "Download failed: invalid ZIP file.");
+                    }
+                }
+            }
         });
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {

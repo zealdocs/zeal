@@ -113,6 +113,7 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
             }
         }
         if(docsetName.isEmpty()) {
+            // i2s(parent) == docsetName
             if(column == 0) {
                 QList<QString> types;
                 for(auto &pair : getModulesCounts().keys()) {
@@ -226,4 +227,14 @@ QString ZealListModel::singularize(const QString& s) {
         ret.chop(1);
     }
     return ret;
+}
+
+bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent) {
+    if(parent.isValid()) return false;
+    beginRemoveRows(parent, row, row + count - 1);
+    for(int i = 0; i < count; ++i) {
+        docsets->remove(docsets->names()[row + i]);
+    }
+    endRemoveRows();
+    return true;
 }

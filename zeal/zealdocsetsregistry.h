@@ -50,6 +50,12 @@ public:
         return dbs.keys();
     }
 
+    void remove(const QString& name) {
+        dbs.remove(name);
+        dirs.remove(name);
+        types.remove(name);
+    }
+
     void runQuery(const QString& query);
     const QList<ZealSearchResult>& getQueryResults();
 

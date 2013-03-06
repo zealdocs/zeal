@@ -4,10 +4,6 @@
 #include <QDialog>
 #include "ui_zealsettingsdialog.h"
 
-namespace Ui {
-class ZealSettingsDialog;
-}
-
 class ZealSettingsDialog : public QDialog
 {
     Q_OBJECT

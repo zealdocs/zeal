@@ -18,7 +18,9 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 ## How to use
 
-After compiling/unzipping it you need to download docsets and put them in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows) -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory, but for convenience can be downloaded from Dropbox:
+After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Options', 'Docsets', 'Download...'.
+
+You can also put them manually in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows) -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory. They can be also downloaded from Dropbox: (failover in case Google Drive URLs from `docsets.txt` stop working.)
 
  * [Qt5.tar.bz2](https://www.dropbox.com/s/xlisxarbg09220a/Qt5.tar.bz2) (55M)
  * [python-2.7.3-docs-html.tar.bz2](https://www.dropbox.com/s/fcng55tc48hnwe3/python-2.7.3-docs-html.tar.bz2) (4.3M)
@@ -27,15 +29,15 @@ Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
 
 You can also use Dash's docsets by putting `.docset` directories in the same directory as above.
 
-## How to compile
-
-Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
-
 ## Binary packages
 
 An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Quantal and Precise packages. (Tested only with Quantal - please let me know if the Precise package works.)
 
 Also a 64-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/ln9frnz7lxs5hrs/zeal.zip) (24M).
+
+## How to compile
+
+Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
 
 ## TODO
 
@@ -45,7 +47,9 @@ Also a 64-bit Windows binary with all dependencies is available to download from
    2. Grouping of similar results (like overloaded functions)
    3. Better docsets formatting (without headers, sidebars etc.)
  * More docsets
- * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
+ * Code cleanup
+   * `MainWindow::MainWindow` probably should be shorter than 200+ lines.
+   * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
 
 ## Creating your own docsets
 

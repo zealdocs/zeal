@@ -25,6 +25,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     static QString pluralize(const QString& s);
     static QString singularize(const QString& s);
+    bool removeRows(int row, int count, const QModelIndex &parent);
 signals:
     
 public slots:
