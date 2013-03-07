@@ -10,6 +10,8 @@
 #include "xcb_keysym.h"
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
 #include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 1)
+#include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
 #else
 #include <QtGui/5.0.0/QtGui/qpa/qplatformnativeinterface.h>
 #endif

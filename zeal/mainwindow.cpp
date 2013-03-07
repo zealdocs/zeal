@@ -30,6 +30,8 @@
 #else
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
 #include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 1)
+#include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
 #else
 #include <QtGui/5.0.0/QtGui/qpa/qplatformnativeinterface.h>
 #endif
@@ -90,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     auto dataDir = QDir(dataLocation);
     if(!dataDir.cd("docsets")) {
         QMessageBox::information(this, "No docsets directory found",
-                          QString("'docsets' directory not found in '%1'. Creating a new one.").arg(dataLocation));
+                                 QString("'docsets' directory not found in '%1'. Creating a new one.").arg(dataLocation));
         dataDir.mkdir("docsets");
     }
     dataDir.cd("docsets");
@@ -272,6 +274,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit, ui->treeView));
+#if QT_VERSION < QT_VERSION_CHECK(5, 1, 0) && defined(WIN32)
+    // overriding subElementRect doesn't work with Qt 5.0.0, but is required to display
+    // selected item frame correctly in Windows (for patch see https://codereview.qt-project.org/#change,46559)
+    // This is a workaround for Qt < 5.1 - selecting whole rows leads to always rendering the frame.
+    // (Only the frame is larger than the list item, which is different from default behaviour.)
+    ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+#endif
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
         QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
         QUrl url = QUrl::fromLocalFile(url_l[0]);
