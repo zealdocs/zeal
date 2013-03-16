@@ -28,7 +28,7 @@ rmtree(os.path.join(DOCUMENTS_DIR, 'extjs-build'))
 rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
 os.unlink(os.path.join(DOCUMENTS_DIR, 'index.html'))
 
-copy(os.path.join('icon.png'), OUT_DIR)
+copy(os.path.join(os.path.dirname(__file__), 'icon.png'), OUT_DIR)
 os.mkdir(HTML_DIR)
 
 with open(os.path.join(OUT_DIR, 'Contents', 'Info.plist'), 'w') as plist:
