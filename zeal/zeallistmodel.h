@@ -26,6 +26,7 @@ public:
     static QString pluralize(const QString& s);
     static QString singularize(const QString& s);
     bool removeRows(int row, int count, const QModelIndex &parent);
+    void resetModulesCounts() { modulesCounts->clear(); }
 signals:
     
 public slots:

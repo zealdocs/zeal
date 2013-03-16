@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
@@ -88,19 +88,19 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="downloadButton">
-           <property name="text">
-            <string>Download...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QProgressBar" name="docsetsProgress">
            <property name="maximum">
             <number>0</number>
            </property>
            <property name="value">
             <number>-1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="downloadButton">
+           <property name="text">
+            <string>Download...</string>
            </property>
           </widget>
          </item>

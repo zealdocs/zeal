@@ -4,11 +4,13 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QLocalServer>
+#include <QNetworkAccessManager>
 #include <QDialog>
 #include <QSettings>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
+#include "zealsettingsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,7 +39,10 @@ private:
     QKeySequence hotKey;
     QSettings settings;
     ZealNativeEventFilter nativeFilter;
-
+    ZealSettingsDialog settingsDialog;
+    QNetworkAccessManager naManager;
+    int naCount = 0;
+    QMap<QString, QString> urls;
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
