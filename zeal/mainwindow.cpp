@@ -31,6 +31,8 @@
 #else
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
 #include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 2)
+#include <QtGui/5.0.2/QtGui/qpa/qplatformnativeinterface.h>
 #elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 1)
 #include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
 #else
@@ -94,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
     if(!dataDir.cd("docsets")) {
         QMessageBox::information(this, "No docsets directory found",
                                  QString("'docsets' directory not found in '%1'. Creating a new one.").arg(dataLocation));
-        dataDir.mkdir("docsets");
+        dataDir.mkpath("docsets");
     }
     dataDir.cd("docsets");
     for(auto subdir : dataDir.entryInfoList()) {
@@ -134,26 +136,31 @@ MainWindow::MainWindow(QWidget *parent) :
             QString list = reply->readAll();
             settingsDialog.ui->docsetsList->clear();
             urls.clear();
-            for(auto item : list.split("\n")) {
-                QStringList docset = item.split(" ");
-                if(docset.size() < 2) break;
-                if(!docsets->names().contains(docset[0])) {
-                    if(!docset[1].startsWith("http")) {
-                        urls.clear();
-                        QMessageBox::warning(&settingsDialog, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt");
-                        break;
+            if(reply->error() != QNetworkReply::NoError) {
+                QMessageBox::warning(&settingsDialog, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
+                settingsDialog.ui->downloadButton->show();
+            } else {
+                for(auto item : list.split("\n")) {
+                    QStringList docset = item.split(" ");
+                    if(docset.size() < 2) break;
+                    if(!docsets->names().contains(docset[0])) {
+                        if(!docset[1].startsWith("http")) {
+                            urls.clear();
+                            QMessageBox::warning(&settingsDialog, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
+                            break;
+                        }
+                        urls[docset[0]] = docset[1];
+                        settingsDialog.ui->docsetsList->addItem(docset[0]);
                     }
-                    urls[docset[0]] = docset[1];
-                    settingsDialog.ui->docsetsList->addItem(docset[0]);
+                }
+                if(urls.size() > 0) {
+                    settingsDialog.ui->downloadableGroup->show();
+                } else {
+                    QMessageBox::warning(&settingsDialog, "No docsets found", QString("No downloadable docsets found."));
+                    settingsDialog.ui->downloadButton->show();
                 }
             }
             settingsDialog.ui->docsetsProgress->hide();
-            if(urls.size() > 0) {
-                settingsDialog.ui->downloadableGroup->show();
-            } else {
-                QMessageBox::warning(&settingsDialog, "No docsets found", "No downloadable docsets found.");
-                settingsDialog.ui->downloadButton->show();
-            }
         } else {
             if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
                 auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
