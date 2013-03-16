@@ -31,7 +31,11 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 
     if(role == Qt::DecorationRole) {
         if(index.column() == 0) {
-            return QVariant(QIcon(docsets->dir(item->getDocsetName()).absoluteFilePath("favicon.ico")));
+            QIcon icon(docsets->dir(item->getDocsetName()).absoluteFilePath("favicon.ico"));
+            if(icon.availableSizes().isEmpty()) {
+                icon = QIcon(docsets->dir(item->getDocsetName()).absoluteFilePath("icon.png"));
+            }
+            return QVariant(icon);
         }
         return QVariant();
     }

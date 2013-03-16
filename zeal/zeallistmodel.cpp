@@ -144,7 +144,11 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     if(role == Qt::DecorationRole) {
         if(i2s(index)->indexOf('/') == -1) {
-            return QVariant(QIcon(docsets->dir(*i2s(index)).absoluteFilePath("favicon.ico")));
+            QIcon icon(docsets->dir(*i2s(index)).absoluteFilePath("favicon.ico"));
+            if(icon.availableSizes().isEmpty()) {
+                icon = QIcon(docsets->dir(*i2s(index)).absoluteFilePath("icon.png"));
+            }
+            return QVariant(icon);
         } else return QVariant();
     }
     if(index.column() == 0) {
