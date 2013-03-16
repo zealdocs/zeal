@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """ExtJS docsets parser - needs to be run in the ExtJS reference documentation
-directory as a working directory"""
+directory as a working directory. It can be downloaded from http://docs.sencha.com/"""
 
 from cStringIO import StringIO
 import errno
@@ -129,6 +129,9 @@ for fname, tree in trees.iteritems():
                 untypes.add(stype)
                 idxtype = 'unknown'
             for member in section.find_class('member'):
+		if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
+		    assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
+		    continue
                 c.execute('INSERT INTO searchIndex(type, name, path) values(?, ?, ?)',
                         (idxtype, fname[:-len('html')]+member.xpath('div[@class="title"]/a/text()')[0],
                          os.path.join('html', fname)+'#'+member.attrib['id']))
