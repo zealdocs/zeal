@@ -235,7 +235,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, val);
     });
     settingsDialog.ui->listView->setModel(&zealList);
-    connect(settingsDialog.ui->listView, &QListView::activated, [=](const QModelIndex& index) {
+    connect(settingsDialog.ui->listView, &QListView::clicked, [=](const QModelIndex& index) {
         settingsDialog.ui->deleteButton->setEnabled(true);
     });
     connect(settingsDialog.ui->deleteButton, &QPushButton::clicked, [=] {
@@ -277,7 +277,7 @@ MainWindow::MainWindow(QWidget *parent) :
         naManager.get(listRequest);
 
     });
-    connect(settingsDialog.ui->docsetsList, &QListWidget::activated, [=](const QModelIndex& index) {
+    connect(settingsDialog.ui->docsetsList, &QListWidget::clicked, [=](const QModelIndex& index) {
         settingsDialog.ui->downloadDocsetButton->setEnabled(true);
     });
     connect(settingsDialog.ui->downloadDocsetButton, &QPushButton::clicked, [=]() {
@@ -327,13 +327,18 @@ MainWindow::MainWindow(QWidget *parent) :
     // (Only the frame is larger than the list item, which is different from default behaviour.)
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 #endif
+    connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex& index) {
+       ui->treeView->activated(index);
+    });
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
-        QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
-        QUrl url = QUrl::fromLocalFile(url_l[0]);
-        if(url_l.count() > 1) {
-            url.setFragment(url_l[1]);
+        if(!index.sibling(index.row(), 1).data().isNull()) {
+            QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
+            QUrl url = QUrl::fromLocalFile(url_l[0]);
+            if(url_l.count() > 1) {
+                url.setFragment(url_l[1]);
+            }
+            ui->webView->load(url);
         }
-        ui->webView->load(url);
     });
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
