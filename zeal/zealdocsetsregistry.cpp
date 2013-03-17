@@ -64,12 +64,12 @@ void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
         QSqlQuery q;
         QList<QList<QVariant> > found;
         bool withSubStrings = false;
-        while(found.size() < 40) {
+        while(found.size() < 100) {
             auto curQuery = query;
             QString notQuery; // don't return the same result twice
             QString parentQuery;
             if(withSubStrings) {
-                // if less than 40 found starting with query, search all substrings
+                // if less than 100 found starting with query, search all substrings
                 curQuery = "%"+query;
                 if(types[name] == ZDASH) {
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(query);
@@ -83,11 +83,11 @@ void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
             int cols = 3;
             if(types[name] == ZEAL) {
                 qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
-                               "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 40").arg(curQuery, notQuery, parentQuery);
+                               "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
 
             } else if(types[name] == DASH) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where t.name "
-                               "like '%1%' escape '\\'  %2 order by lower(t.name) asc, t.path asc limit 40").arg(curQuery, notQuery);
+                               "like '%1%' escape '\\'  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery);
             } else if(types[name] == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
@@ -96,7 +96,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
                                // %.%1% for long Django docset values like django.utils.http
                                // (Might be not appropriate for other docsets, but I don't have any on hand to test)
                                "like '%1%' escape '\\'  or ztokenname like '%.%1%' escape '\\' ) %2 order by lower(ztokenname) asc, zpath asc, "
-                               "zanchor asc limit 40").arg(curQuery, notQuery);
+                               "zanchor asc limit 100").arg(curQuery, notQuery);
             }
             q = db(name).exec(qstr);
             while(q.next()) {

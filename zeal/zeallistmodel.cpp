@@ -39,7 +39,7 @@ const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() cons
                 q = db.exec("select ztokentype, count(*) from ztoken group by ztokentype");
             }
             while(q.next()) {
-                if(q.value(1).toInt() < 500) {
+                if(q.value(1).toInt() < 1500) {
                     QString typeName;
                     if(docsets->type(name) == ZEAL || docsets->type(name) == DASH) {
                         typeName = q.value(0).toString();
