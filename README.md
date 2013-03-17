@@ -20,14 +20,12 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Options', 'Docsets', 'Download...'.
 
-You can also put them manually in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows) -- after creating the directory first. Currently there are docsets available from Qt 5 and Python 2.7.3, generated using scripts from `gendoctests` directory. They can be also downloaded from Dropbox: (failover in case Google Drive URLs from `docsets.txt` stop working.)
+Currently there are docsets available from Ruby 1 and 2 [1], ExtJS 4.1, Python 2.7.3, Qt 5 [2].
 
- * [Qt5.tar.bz2](https://www.dropbox.com/s/xlisxarbg09220a/Qt5.tar.bz2) (55M)
- * [python-2.7.3-docs-html.tar.bz2](https://www.dropbox.com/s/fcng55tc48hnwe3/python-2.7.3-docs-html.tar.bz2) (4.3M)
+[1] thanks to Dash's [docset exchange programme](https://github.com/jkozera/zeal/issues/1#issuecomment-13357189)  
+[2] generated using scripts from `gendoctests` directory
 
-Do `tar -jxvf file.tar.bz2` in docsets directory to enable given docset.
-
-You can also use Dash's docsets by putting `.docset` directories in the same directory as above.
+You can also use Dash's docsets by putting `.docset` directories in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows).
 
 ## Binary packages
 
