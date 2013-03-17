@@ -20,7 +20,7 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Options', 'Docsets', 'Download...'.
 
-Currently there are docsets available from Ruby 1 and 2 [1], ExtJS 4.1, Python 2.7.3, Sencha Touch 2.1, Qt 5 [2].
+Currently there are docsets available from Django, Ruby 1 and 2 [1], ExtJS 4.1, Python 2.7.3, Sencha Touch 2.1, Qt 5 [2].
 
 [1] thanks to Dash's [docset exchange programme](https://github.com/jkozera/zeal/issues/1#issuecomment-13357189)  
 [2] generated using scripts from `gendoctests` directory

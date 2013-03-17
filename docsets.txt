@@ -1,6 +1,7 @@
-ExtJS-4.1 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPUF95TUV5SUhHYk0 201303170007
+Django https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPMGJxRE44VndpaHM 201303171634
+ExtJS-4.1 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPZHRBcXZXd3RaU2s 201303170007
 python-2.7.3-docs-html https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPVkVtM0lrNVdCNXM 201303062116
 Qt5 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPMjlHa1k5WTVldDg 201303062116
 Ruby https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPS3JZc2dZdUVTYms 201303170016
 Ruby2 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPM1A5WkJKYkd2SEU 201303170016
-SenchaTouch-2.1 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPUFB2NmRPMmMtekk 201303170045
+SenchaTouch-2.1 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPVGkyLVVBSEw5dXM 201303170045
