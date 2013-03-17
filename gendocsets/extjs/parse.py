@@ -8,14 +8,22 @@ import errno
 import os
 import re
 from json import loads
-from lxml.html import parse, tostring
+from lxml.html import parse, tostring, fromstring
 from shutil import copytree, rmtree, copy
 
 import sqlite3
 
 INPUT_DIR = '.'
 OUTPUT_DIR = os.path.join(INPUT_DIR, 'output')
-OUT_DIR = 'ExtJS-4.1.docset'
+if os.path.exists(os.path.join(INPUT_DIR, 'extjs-build')):
+    builddir = 'extjs-build'
+    OUT_DIR = 'ExtJS-4.1.docset'
+    docsetname = 'ExtJS 4.1'
+else:
+    builddir = 'touch-build'
+    assert os.path.exists(os.path.join(INPUT_DIR, builddir))
+    OUT_DIR = 'SenchaTouch-2.1.docset'
+    docsetname = 'Sencha Touch 2.1'
 DOCUMENTS_DIR = os.path.join(OUT_DIR, 'Contents', 'Resources', 'Documents')
 HTML_DIR = os.path.join(DOCUMENTS_DIR, 'html')
 
@@ -24,7 +32,7 @@ copytree(INPUT_DIR, DOCUMENTS_DIR)
 
 # index.html doesn't work with Dash
 rmtree(os.path.join(DOCUMENTS_DIR, 'output'))
-rmtree(os.path.join(DOCUMENTS_DIR, 'extjs-build'))
+rmtree(os.path.join(DOCUMENTS_DIR, builddir))
 rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
 os.unlink(os.path.join(DOCUMENTS_DIR, 'index.html'))
 
@@ -36,20 +44,21 @@ with open(os.path.join(OUT_DIR, 'Contents', 'Info.plist'), 'w') as plist:
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleIdentifier</key>
-	<string>ExtJS 4.1</string>
-	<key>CFBundleName</key>
-	<string>ExtJS 4.1</string>
-	<key>DocSetPlatformFamily</key>
-	<string>ExtJS 4.1</string>
-	<key>isDashDocset</key>
-	<true/>
+    <key>CFBundleIdentifier</key>
+    <string>%s</string>
+    <key>CFBundleName</key>
+    <string>%s</string>
+    <key>DocSetPlatformFamily</key>
+    <string>%s</string>
+    <key>isDashDocset</key>
+    <true/>
 </dict>
-</plist>""")
+</plist>""" % (docsetname, docsetname, docsetname))
 
 conn = sqlite3.connect(os.path.join(OUT_DIR, 'Contents', 'Resources', 'docSet.dsidx'))
 c = conn.cursor()
 c.execute('CREATE TABLE searchIndex (id integer primary key, name text, type text, path text)')
+c.execute('CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);')
 
 ids = {}
 trees = {}
@@ -84,7 +93,9 @@ for fname, tree in trees.iteritems():
         }
     </style>
 </head>
-<body><div class="class-overview"><div class="x-panel-body">""")
+<body>
+<span style="font-size:2em; font-weight:bold">%s</span>
+<div class="class-overview"><div class="x-panel-body">"""%fname[:-len('.html')])
         
         for a in tree.findall('//a'):
             if 'href' not in a.attrib: continue
@@ -92,7 +103,8 @@ for fname, tree in trees.iteritems():
                 a.attrib['href'] = '../' + a.attrib['href']
             else:
                 if not a.attrib['href'].startswith('#'): continue
-                if '/guide/' in a.attrib['href'] or '/example' in a.attrib['href']: continue
+                ignore = ['/guide/', '/example/', '/guides/', '/video/']
+                if any(i in a.attrib['href'] for i in ignore): continue
                 
                 fragment = a.attrib['href'].replace('#!/api/', '')
                 def cfg():
@@ -120,21 +132,23 @@ for fname, tree in trees.iteritems():
             stype = section.find('h3').text
             try:
                 idxtype = {'Methods': 'clm',
-                           'Properties': 'Attribute',
-                           'Config options': 'Attribute',
+                           'Properties': 'Property',
+                           'Config options': 'Option',
                            'Events': 'event',
-                           'CSS Mixins': 'func',
+                           'CSS Mixins': 'Mixin',
                            'CSS Variables': 'var'}[stype]
             except KeyError:
                 untypes.add(stype)
                 idxtype = 'unknown'
             for member in section.find_class('member'):
-		if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
-		    assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
-		    continue
+                if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
+                    assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
+                    continue
+                membername = member.xpath('div[@class="title"]/a/text()')[0]
                 c.execute('INSERT INTO searchIndex(type, name, path) values(?, ?, ?)',
-                        (idxtype, fname[:-len('html')]+member.xpath('div[@class="title"]/a/text()')[0],
+                        (idxtype, fname[:-len('html')]+membername,
                          os.path.join('html', fname)+'#'+member.attrib['id']))
+                member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
         
         c.execute('INSERT INTO searchIndex(type, name, path) values("cl", ?, ?)',
                     (fname[:-len('.html')], os.path.join('html', fname)))
