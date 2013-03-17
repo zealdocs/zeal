@@ -102,7 +102,13 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         if(column == 0) {
             return createIndex(row, column, (void*)getString(docsets->names().at(row)));
         } else if(column == 1) {
-            return createIndex(row, column, (void*)getString(docsets->dir(docsets->names().at(row)).absoluteFilePath("index.html")));
+            QDir dir(docsets->dir(docsets->names().at(row)));
+            if(QFile(dir.absoluteFilePath("index.html")).exists()) {
+                return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
+            } else {
+                dir.cd("Contents"); dir.cd("Resources"); dir.cd("Documents");
+                return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
+            }
         }
         return QModelIndex();
     } else {
