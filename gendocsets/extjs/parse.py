@@ -18,12 +18,14 @@ OUTPUT_DIR = os.path.join(INPUT_DIR, 'output')
 if os.path.exists(os.path.join(INPUT_DIR, 'extjs-build')):
     builddir = 'extjs-build'
     OUT_DIR = 'ExtJS-4.1.docset'
-    docsetname = 'ExtJS 4.1'
+    docsetname = 'ExtJS'
+    docsetshortname = 'extjs'
 else:
     builddir = 'touch-build'
     assert os.path.exists(os.path.join(INPUT_DIR, builddir))
     OUT_DIR = 'SenchaTouch-2.1.docset'
-    docsetname = 'Sencha Touch 2.1'
+    docsetname = 'Sencha Touch'
+    docsetshortname = 'sencha'
 DOCUMENTS_DIR = os.path.join(OUT_DIR, 'Contents', 'Resources', 'Documents')
 HTML_DIR = os.path.join(DOCUMENTS_DIR, 'html')
 
@@ -52,8 +54,10 @@ with open(os.path.join(OUT_DIR, 'Contents', 'Info.plist'), 'w') as plist:
     <string>%s</string>
     <key>isDashDocset</key>
     <true/>
+    <key>dashIndexFilePath</key>
+    <string>html/Ext.html</string>
 </dict>
-</plist>""" % (docsetname, docsetname, docsetname))
+</plist>""" % (docsetshortname, docsetname, docsetshortname))
 
 conn = sqlite3.connect(os.path.join(OUT_DIR, 'Contents', 'Resources', 'docSet.dsidx'))
 c = conn.cursor()
