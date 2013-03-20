@@ -29,7 +29,7 @@ You can also use Dash's docsets by putting `.docset` directories in `$HOME/.loca
 
 ## Binary packages
 
-An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Quantal and Precise packages. (Tested only with Quantal - please let me know if the Precise package works.)
+An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Quantal packages.
 
 Also a 32-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/aggp899jz2lzmfa/zeal.zip) (29M).
 
