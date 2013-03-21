@@ -194,9 +194,13 @@ static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *
 }
 
 
-unsigned GetX11Modifier( xcb_connection_t *p_connection,
+QList<unsigned> GetX11Modifier( xcb_connection_t *p_connection,
         xcb_key_symbols_t *p_symbols, unsigned i_qt )
 {
+    unsigned i_nlock = GetModifier(p_connection, p_symbols, XK_Num_Lock),
+             i_slock = GetModifier(p_connection, p_symbols, XK_Scroll_Lock);
+    unsigned i_clock = XCB_MOD_MASK_LOCK;
+
     unsigned i_mask = 0;
 
     if( i_qt & Qt::ALT )
@@ -211,5 +215,18 @@ unsigned GetX11Modifier( xcb_connection_t *p_connection,
     if( i_qt & Qt::META )
         i_mask |= GetModifier( p_connection, p_symbols, XK_Meta_L ) |
                   GetModifier( p_connection, p_symbols, XK_Meta_R );
-    return i_mask;
+
+    QList<unsigned> ret;
+    ret.append(i_mask);
+
+    if(i_nlock) ret.append(i_mask | i_nlock);
+    if(i_slock) ret.append(i_mask | i_slock);
+    if(i_clock) ret.append(i_mask | i_clock);
+
+    if(i_nlock && i_slock) ret.append(i_mask | i_nlock | i_slock);
+    if(i_nlock && i_clock) ret.append(i_mask | i_nlock | i_clock);
+    if(i_slock && i_clock) ret.append(i_mask | i_slock | i_clock);
+    if(i_nlock && i_slock && i_clock) ret.append(i_mask | i_nlock | i_clock);
+
+    return ret;
 }

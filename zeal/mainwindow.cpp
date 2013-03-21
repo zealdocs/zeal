@@ -483,23 +483,12 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
 
     if(!hotKey.isEmpty()) {
-        // disable previous hotkey
-        xcb_keysym_t keysym = GetX11Key(hotKey[hotKey.count()-1]);
-        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, keysym), keycode;
-
-        // remove bindings from all screens
+        // remove previous bindings from all screens
         xcb_screen_iterator_t iter;
         iter = xcb_setup_roots_iterator (xcb_get_setup (c));
         for (; iter.rem; xcb_screen_next (&iter)) {
-            int i = 0;
-            while(keycodes[i] != XCB_NO_SYMBOL) {
-                keycode = keycodes[i];
-                xcb_ungrab_key(c, keycode, iter.data->root, GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1]));
-                i += 1;
-            }
+            xcb_ungrab_key(c, XCB_GRAB_ANY, iter.data->root, XCB_MOD_MASK_ANY);
         }
-
-        free(keycodes);
     }
     hotKey = hotKey_;
     nativeFilter.setHotKey(hotKey);
@@ -522,23 +511,25 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     // add bindings for all screens
     xcb_screen_iterator_t iter;
     iter = xcb_setup_roots_iterator (xcb_get_setup (c));
+    bool any_failed = false;
     for (; iter.rem; xcb_screen_next (&iter)) {
         int i = 0;
         while(keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
-            xcb_void_cookie_t cookie = xcb_grab_key_checked(c, true, iter.data->root,
-                GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1]), keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
-            if(xcb_request_check(c, cookie)) {
-                hotKey = QKeySequence();
-                nativeFilter.setHotKey(hotKey);
-                settings.setValue("hotkey", hotKey);
-                QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
-                free(keysyms);
-                free(keycodes);
-                return;
+            for(auto modifier : GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1])) {
+                auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
+                    modifier, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
+                if(xcb_request_check(c, cookie)) {
+                    any_failed = true;
+                }
             }
             i += 1;
         }
+    }
+    if(any_failed) {
+        QMessageBox::warning(this, "Key binding warning",
+            "Warning: Global hotkey binding problem detected. Some other program might have a conflicting "
+            "key binding. If the hotkey doesn't work, try closing some programs or using a different hotkey.");
     }
     free(keysyms);
     free(keycodes);
