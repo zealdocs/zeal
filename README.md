@@ -13,7 +13,7 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 ![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
-[More screenshots (imgur)](http://imgur.com/a/EFmzc)
+[More screenshots (imgur)](http://imgur.com/a/eVi97)
 
 
 ## How to use
