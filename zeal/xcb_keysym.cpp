@@ -90,6 +90,29 @@ const x11_to_qt x11keys_to_qtkeys[] =
     { 0, 0 }
 };
 
+// the code below comes from http://www.videolan.org/developers/vlc/modules/control/globalhotkeys/xcb.c
+/*****************************************************************************
+ * xcb.c: Global-Hotkey X11 using xcb handling for vlc
+ *****************************************************************************
+ * Copyright (C) 2009 the VideoLAN team
+ *
+ * Authors: Laurent Aimar <fenrir _AT_ videolan _DOT_ org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+ *****************************************************************************/
+
 xcb_keysym_t GetX11Key( unsigned i_qt )
 {
     i_qt = i_qt & ~(Qt::ALT | Qt::CTRL | Qt::SHIFT | Qt::META);
@@ -105,4 +128,88 @@ xcb_keysym_t GetX11Key( unsigned i_qt )
     }
 
     return XK_VoidSymbol;
+}
+
+static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym )
+{
+    static const unsigned pi_mask[8] = {
+        XCB_MOD_MASK_SHIFT, XCB_MOD_MASK_LOCK, XCB_MOD_MASK_CONTROL,
+        XCB_MOD_MASK_1, XCB_MOD_MASK_2, XCB_MOD_MASK_3,
+        XCB_MOD_MASK_4, XCB_MOD_MASK_5
+    };
+
+    if( sym == 0 )
+        return 0; /* no modifier */
+
+    xcb_keycode_t *p_keys = xcb_key_symbols_get_keycode( p_symbols, sym );
+    if( !p_keys )
+        return 0;
+
+    int i = 0;
+    bool no_modifier = true;
+    while( p_keys[i] != XCB_NO_SYMBOL )
+    {
+        if( p_keys[i] != 0 )
+        {
+            no_modifier = false;
+            break;
+        }
+        i++;
+    }
+
+    if( no_modifier ) {
+        free( p_keys );
+        return 0;
+    }
+
+    xcb_get_modifier_mapping_cookie_t r =
+            xcb_get_modifier_mapping( p_connection );
+    xcb_get_modifier_mapping_reply_t *p_map =
+            xcb_get_modifier_mapping_reply( p_connection, r, NULL );
+    if( !p_map ) {
+        free( p_keys );
+        return 0;
+    }
+
+    xcb_keycode_t *p_keycode = xcb_get_modifier_mapping_keycodes( p_map );
+    if( !p_keycode ) {
+        free( p_keys );
+        free( p_map );
+        return 0;
+    }
+
+    for( int i = 0; i < 8; i++ )
+        for( int j = 0; j < p_map->keycodes_per_modifier; j++ )
+            for( int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++ )
+                if( p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
+                {
+                    free( p_keys );
+                    free( p_map );
+                    return pi_mask[i];
+                }
+
+    free( p_keys );
+    free( p_map ); // FIXME to check
+    return 0;
+}
+
+
+unsigned GetX11Modifier( xcb_connection_t *p_connection,
+        xcb_key_symbols_t *p_symbols, unsigned i_qt )
+{
+    unsigned i_mask = 0;
+
+    if( i_qt & Qt::ALT )
+        i_mask |= GetModifier( p_connection, p_symbols, XK_Alt_L ) |
+                  GetModifier( p_connection, p_symbols, XK_Alt_R );
+    if( i_qt & Qt::CTRL )
+        i_mask |= GetModifier( p_connection, p_symbols, XK_Control_L ) |
+                  GetModifier( p_connection, p_symbols, XK_Control_R );
+    if( i_qt & Qt::SHIFT )
+        i_mask |= GetModifier( p_connection, p_symbols, XK_Shift_L ) |
+                  GetModifier( p_connection, p_symbols, XK_Shift_R );
+    if( i_qt & Qt::META )
+        i_mask |= GetModifier( p_connection, p_symbols, XK_Meta_L ) |
+                  GetModifier( p_connection, p_symbols, XK_Meta_R );
+    return i_mask;
 }

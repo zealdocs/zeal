@@ -494,7 +494,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
             int i = 0;
             while(keycodes[i] != XCB_NO_SYMBOL) {
                 keycode = keycodes[i];
-                xcb_ungrab_key(c, keycode, iter.data->root, XCB_MOD_MASK_ANY);
+                xcb_ungrab_key(c, keycode, iter.data->root, GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1]));
                 i += 1;
             }
         }
@@ -515,6 +515,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
         nativeFilter.setHotKey(hotKey);
         settings.setValue("hotkey", hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
+        free(keysyms);
         return;
     }
 
@@ -525,12 +526,15 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
         int i = 0;
         while(keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
-            xcb_void_cookie_t cookie = xcb_grab_key_checked(c, true, iter.data->root, XCB_MOD_MASK_ANY, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
+            xcb_void_cookie_t cookie = xcb_grab_key_checked(c, true, iter.data->root,
+                GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1]), keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
             if(xcb_request_check(c, cookie)) {
                 hotKey = QKeySequence();
                 nativeFilter.setHotKey(hotKey);
                 settings.setValue("hotkey", hotKey);
                 QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
+                free(keysyms);
+                free(keycodes);
                 return;
             }
             i += 1;

@@ -16,5 +16,6 @@ typedef struct
 extern const x11_to_qt x11keys_to_qtkeys[];
 
 extern xcb_keysym_t GetX11Key( unsigned i_qt );
+extern unsigned GetX11Modifier( xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, unsigned i_qt );
 
 #endif
