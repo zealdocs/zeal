@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets webkitwidgets sql
+QT       += core gui widgets webkitwidgets sql gui-private
 
 
 TARGET = zeal

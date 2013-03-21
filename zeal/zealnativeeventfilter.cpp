@@ -8,15 +8,7 @@
 #include <X11/keysym.h>
 #include <QGuiApplication>
 #include "xcb_keysym.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-#include <QtGui/5.1.0/QtGui/qpa/qplatformnativeinterface.h>
-#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 2)
-#include <QtGui/5.0.2/QtGui/qpa/qplatformnativeinterface.h>
-#elif QT_VERSION >= QT_VERSION_CHECK(5, 0, 1)
-#include <QtGui/5.0.1/QtGui/qpa/qplatformnativeinterface.h>
-#else
-#include <QtGui/5.0.0/QtGui/qpa/qplatformnativeinterface.h>
-#endif
+#include <qpa/qplatformnativeinterface.h>
 #include <QDebug>
 
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
