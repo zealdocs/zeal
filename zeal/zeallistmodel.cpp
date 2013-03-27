@@ -3,6 +3,7 @@
 
 #include <QIcon>
 #include <QtSql/QSqlQuery>
+#include <QDomDocument>
 #include <QDebug>
 
 #include <iostream>
@@ -103,10 +104,39 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
             return createIndex(row, column, (void*)getString(docsets->names().at(row)));
         } else if(column == 1) {
             QDir dir(docsets->dir(docsets->names().at(row)));
+
             if(QFile(dir.absoluteFilePath("index.html")).exists()) {
                 return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
             } else {
-                dir.cd("Contents"); dir.cd("Resources"); dir.cd("Documents");
+                // retrieve index file name from Info.plist for Dash docsets
+                dir.cd("Contents");
+                QFile file(dir.absoluteFilePath("Info.plist"));
+                QDomDocument infoplist("infoplist");
+                if(!file.open(QIODevice::ReadOnly)) {
+                    return createIndex(row, column, (void*)getString(""));
+                }
+                if(!infoplist.setContent(&file)) {
+                    file.close();
+                    return createIndex(row, column, (void*)getString(""));
+                }
+                auto keys = infoplist.elementsByTagName("key");
+                for(int i = 0; i < keys.count(); ++i) {
+                    auto key = keys.at(i);
+                    if(key.firstChild().nodeValue() == "dashIndexFilePath") {
+                        auto path = key.nextSibling().firstChild().nodeValue().split("/");
+                        auto filename = path.last();
+                        path.removeLast();
+                        dir.cd("Resources"); dir.cd("Documents");
+                        for(auto directory : path) {
+                            if(!dir.cd(directory)) {
+                                return createIndex(row, column, (void*)getString(""));
+                            }
+                        }
+                        return createIndex(row, column, (void*)getString(dir.absoluteFilePath(filename)));
+                    }
+                }
+                // fallback to index.html
+                dir.cd("Resources"); dir.cd("Documents");
                 return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
             }
         }
