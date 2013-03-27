@@ -243,6 +243,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if(answer == QMessageBox::Yes) {
             auto dataDir = QDir(dataLocation);
             auto docsetName = settingsDialog.ui->listView->currentIndex().data().toString();
+            zealList.removeRow(settingsDialog.ui->listView->currentIndex().row());
             if(dataDir.cd("docsets")) {
                 settingsDialog.ui->docsetsProgress->show();
                 settingsDialog.ui->deleteButton->hide();
@@ -263,7 +264,6 @@ MainWindow::MainWindow(QWidget *parent) :
                     watcher->deleteLater();
                 });
             }
-            zealList.removeRow(settingsDialog.ui->listView->currentIndex().row());
         }
     });
     connect(settingsDialog.ui->downloadButton, &QPushButton::clicked, [=] {

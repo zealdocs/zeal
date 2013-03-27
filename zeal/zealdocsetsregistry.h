@@ -51,6 +51,7 @@ public:
     }
 
     void remove(const QString& name) {
+        dbs[name].close();
         dbs.remove(name);
         dirs.remove(name);
         types.remove(name);
