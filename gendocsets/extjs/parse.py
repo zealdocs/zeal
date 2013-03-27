@@ -15,17 +15,28 @@ import sqlite3
 
 INPUT_DIR = '.'
 OUTPUT_DIR = os.path.join(INPUT_DIR, 'output')
+icon = 'icon.png'
+indexpath = 'html/Ext.html'
 if os.path.exists(os.path.join(INPUT_DIR, 'extjs-build')):
     builddir = 'extjs-build'
     OUT_DIR = 'ExtJS-4.1.docset'
     docsetname = 'ExtJS'
     docsetshortname = 'extjs'
-else:
+elif os.path.exists(os.path.join(INPUT_DIR, 'touch-build')):
     builddir = 'touch-build'
-    assert os.path.exists(os.path.join(INPUT_DIR, builddir))
     OUT_DIR = 'SenchaTouch-2.1.docset'
     docsetname = 'Sencha Touch'
     docsetshortname = 'sencha'
+else:
+    # assuming Appcelerator Titanium
+    builddir = None
+    OUT_DIR = 'AppceleratorTitanium.docset'
+    docsetname = 'Appcelerator Titanium'
+    docsetshortname = 'titanium'
+    icon = 'appcelerator.png'
+    indexpath = 'html/Titanium.html'
+
+
 DOCUMENTS_DIR = os.path.join(OUT_DIR, 'Contents', 'Resources', 'Documents')
 HTML_DIR = os.path.join(DOCUMENTS_DIR, 'html')
 
@@ -34,11 +45,23 @@ copytree(INPUT_DIR, DOCUMENTS_DIR)
 
 # index.html doesn't work with Dash
 rmtree(os.path.join(DOCUMENTS_DIR, 'output'))
-rmtree(os.path.join(DOCUMENTS_DIR, builddir))
-rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
+if builddir:
+    rmtree(os.path.join(DOCUMENTS_DIR, builddir))
+    rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
+if docsetname == 'Appcelerator Titanium':
+    # CSS fix for fluid width
+    for dirpath, dirnames, filenames in os.walk(DOCUMENTS_DIR):
+        for fname in filenames:
+            if not fname.endswith('.css'): continue
+            with open(os.path.join(dirpath, fname), 'a') as f:
+                f.write("""
+body {min-width:0px !important}
+.class-overview p.private {border:0px; background-color:inherit; padding:0px; text-align:left;}""")
+                print os.path.join(dirpath, fname), 'CSS fixed'
+
 os.unlink(os.path.join(DOCUMENTS_DIR, 'index.html'))
 
-copy(os.path.join(os.path.dirname(__file__), 'icon.png'), OUT_DIR)
+copy(os.path.join(os.path.dirname(__file__), icon), os.path.join(OUT_DIR, 'icon.png'))
 os.mkdir(HTML_DIR)
 
 with open(os.path.join(OUT_DIR, 'Contents', 'Info.plist'), 'w') as plist:
@@ -55,9 +78,9 @@ with open(os.path.join(OUT_DIR, 'Contents', 'Info.plist'), 'w') as plist:
     <key>isDashDocset</key>
     <true/>
     <key>dashIndexFilePath</key>
-    <string>html/Ext.html</string>
+    <string>%s</string>
 </dict>
-</plist>""" % (docsetshortname, docsetname, docsetshortname))
+</plist>""" % (docsetshortname, docsetname, docsetshortname, indexpath))
 
 conn = sqlite3.connect(os.path.join(OUT_DIR, 'Contents', 'Resources', 'docSet.dsidx'))
 c = conn.cursor()
@@ -85,6 +108,10 @@ for fname, tree in trees.iteritems():
 <html>
 <head>
     <link rel="stylesheet" href="../resources/css/app-851b66f18114a2a31d488e9c8d7cb964.css" type="text/css" />
+    <!-- titanium hack -->
+    <link rel="stylesheet" href="../resources/css/my.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/viewport.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/docs-ext.css" type="text/css" />
     <style>
         body {
             margin: 2em;
@@ -99,7 +126,8 @@ for fname, tree in trees.iteritems():
 </head>
 <body>
 <span style="font-size:2em; font-weight:bold">%s</span>
-<div class="class-overview"><div class="x-panel-body">"""%fname[:-len('.html')])
+<!-- center-container is for titanium -->
+<div id="center-container" class="class-overview"><div class="x-panel-body">"""%fname[:-len('.html')])
         
         for a in tree.findall('//a'):
             if 'href' not in a.attrib: continue
