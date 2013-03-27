@@ -18,7 +18,7 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 ## How to use
 
-After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Options', 'Docsets', 'Download...'.
+After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Edit', 'Options', 'Docsets', 'Download...'.
 
 Currently there are docsets available from Django, Ruby 1 and 2 [1], ExtJS 4.1, Python 2.7.3, Sencha Touch 2.1, Qt 5 [2].
 

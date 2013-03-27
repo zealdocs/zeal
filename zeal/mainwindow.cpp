@@ -110,11 +110,16 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsDialog.ui->docsetsProgress->hide();
 
     // menu
-    auto quitAction = ui->menuBar->addAction("&Quit");
+    auto fileMenu = new QMenu("&File");
+    auto quitAction = fileMenu->addAction("&Quit");
+    ui->menuBar->addMenu(fileMenu);
     quitAction->setShortcut(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    auto settingsAction = ui->menuBar->addAction("&Options");
+
+    auto editMenu = new QMenu("&Edit");
+    auto settingsAction = editMenu->addAction("&Options");
+    ui->menuBar->addMenu(editMenu);
 
     auto progressCb = [=](quint64 recv, quint64 total) {
         if(recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
