@@ -145,14 +145,14 @@ for fname, tree in trees.iteritems():
                 untypes.add(stype)
                 idxtype = 'unknown'
             for member in section.find_class('member'):
+                membername = member.xpath('div[@class="title"]/a/text()')[0]
+                member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
                 if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
                     assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
                     continue
-                membername = member.xpath('div[@class="title"]/a/text()')[0]
                 c.execute('INSERT INTO searchIndex(type, name, path) values(?, ?, ?)',
                         (idxtype, fname[:-len('html')]+membername,
                          os.path.join('html', fname)+'#'+member.attrib['id']))
-                member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
         
         c.execute('INSERT INTO searchIndex(type, name, path) values("cl", ?, ?)',
                     (fname[:-len('.html')], os.path.join('html', fname)))
