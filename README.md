@@ -31,7 +31,7 @@ You can also use Dash's docsets by putting `.docset` directories in `$HOME/.loca
 
 An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Precise and Quantal packages.
 
-Also a 32-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/aggp899jz2lzmfa/zeal.zip) (29M).
+Also a 32-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/gcokxsqio3tgnlo/zeal.zip) (29M).
 
 ## How to compile
 
