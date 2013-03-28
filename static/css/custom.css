@@ -1,0 +1,32 @@
+body { padding-top: 60px; }
+hr { border-top: 1px solid #ccc; border-bottom: 1px solid #ddd; margin: -40px 0 40px 0; }
+#screenshot {
+  margin: 0 auto;
+  display: block;
+}
+
+.row .btn {
+  float: right;
+  margin: 15px 0 0 0;
+}
+.well {
+    margin: 40px;
+}
+.well img {
+    display: block;
+    float: right;
+}
+.copyright {
+    float: right;
+    margin: 80px 0;
+}
+#ssModal {
+    width: 1100px;
+    margin-left: -550px;
+}
+#ssModal.fade.in {
+    top: 5%;
+}
+#ssModal .modal-body {
+    max-height: 650px;
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    <meta charset="utf-8">
+    <title>Zeal - offline API documentation browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Jerzy Kozera">
+    <link href="static/css/bootstrap.css" rel="stylesheet">
+    <link href="static/css/custom.css" rel="stylesheet">
+    <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
+      </script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="/">
+            Zeal
+          </a>
+          <ul class="nav">
+            <li{% if page.url == '/index.html' %} class="active"{% endif %}><a href="/">Home</a></li>
+            <li{% if page.url == '/download.html' %} class="active"{% endif %}><a href="download.html">Download</a></li>
+            <li><a href="mailto:zeal@zealdocs.org">Contact</a></li>
+          </ul>
+          <form class="navbar-form pull-right">
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+    {{ content }} 
+      <div class="copyright">
+        © Jerzy Kozera 2013
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js">
+    </script>
+    <script src="static/js/bootstrap.js">
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-436420-7', 'zealdocs.org');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
