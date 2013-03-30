@@ -15,6 +15,9 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 
 [More screenshots (imgur)](http://imgur.com/a/eVi97)
 
+## Download
+
+For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html).
 
 ## How to use
 
@@ -27,15 +30,9 @@ Currently there are docsets available from Django, jQuery, Ruby 1 and 2 [1], App
 
 You can also use Dash's docsets by putting `.docset` directories in `$HOME/.local/share/zeal/docsets/` (Linux) or `C:\Users\[your username]\AppData\Local\zeal\docsets\` (Windows).
 
-## Binary packages
-
-An [Ubuntu PPA](https://launchpad.net/~jerzy-kozera/+archive/zeal-ppa) is available with Ubuntu Precise and Quantal packages.
-
-Also a 32-bit Windows binary with all dependencies is available to download from Dropbox - [zeal.zip](https://www.dropbox.com/s/gcokxsqio3tgnlo/zeal.zip) (29M).
-
 ## How to compile
 
-Currently Zeal requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
+If you prefer to compile Zeal manually, currently it requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
 
 ## TODO
 
