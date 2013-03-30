@@ -30,3 +30,7 @@ hr { border-top: 1px solid #ccc; border-bottom: 1px solid #ddd; margin: -40px 0 
 #ssModal .modal-body {
     max-height: 650px;
 }
+#github-btn {
+    float: right;
+    margin-right: 60px;
+}
