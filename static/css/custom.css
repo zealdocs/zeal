@@ -1,8 +1,11 @@
 body { padding-top: 60px; }
-hr { border-top: 1px solid #ccc; border-bottom: 1px solid #ddd; margin: -40px 0 40px 0; }
+.hero-unit { background-color: #e8e8e8; }
 #screenshot {
   margin: 0 auto;
   display: block;
+}
+.ss-wrapper {
+    padding-right: 20px;
 }
 
 .row .btn {
@@ -32,5 +35,12 @@ hr { border-top: 1px solid #ccc; border-bottom: 1px solid #ddd; margin: -40px 0 
 }
 #github-btn {
     float: right;
-    margin-right: 60px;
+}
+.hero-unit #github-btn {
+    margin-right: -80px;
+    margin-top: -40px;
+}
+h2.top { margin-top: -6.5px; }
+@media (max-width: 767px) {
+    h2.top { margin-top: 10px; }
 }

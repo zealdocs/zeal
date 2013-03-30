@@ -32,11 +32,13 @@
         </div>
       </div>
     </div>
+    <div class="container">
+    {% if page.url != '/index.html' %}
     <div id="github-btn">
         <iframe src="http://ghbtns.com/github-btn.html?user=jkozera&repo=zeal&type=watch&count=true&size=large"
           allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30"></iframe>
     </div>
-    <div class="container">
+    {% endif %}
     {{ content }} 
       <div class="copyright">
         © Jerzy Kozera 2013

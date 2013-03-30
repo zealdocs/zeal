@@ -1,10 +1,11 @@
 ---
 layout: default
 ---
-<style>
-    #github-btn { position: relative; top: 40px; }
-</style>
   <div class="hero-unit">
+    <div id="github-btn">
+        <iframe src="http://ghbtns.com/github-btn.html?user=jkozera&repo=zeal&type=watch&count=true&size=large"
+          allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30"></iframe>
+    </div>
     <div>
       <h1>
         Zeal
@@ -31,49 +32,44 @@ layout: default
       Download »
     </a>
   </div>
-  <hr>
   <div class="row">
-    <div class="span4">
-      <div>
+    <div class="span6">
+      <div class="ss-wrapper"><a href="#ssModal" data-toggle="modal"><img id="screenshot" src="http://i.imgur.com/m2MS8pyh.png" ></a>
+        <a class="btn" href="http://imgur.com/a/eVi97">More screenshots »</a>
+        <div class="clearfix"></div>
       </div>
-      <a href="#ssModal" data-toggle="modal"><img id="screenshot" src="http://i.imgur.com/m2MS8pyh.png" style=" width: 261px; height: 150px;"></a>
-      <a class="btn" href="http://imgur.com/a/eVi97">
-        <div>
-          More screenshots »
+
+    </div>
+    <div class="span6">
+        <div class="row">
+              <div class="span6">
+                <h2 class="top">
+                  Documentation included
+                </h2>
+                <p>Currently there are docsets available from:</p>
+                <ol>
+                  <li>Django, jQuery, Ruby 1 and 2 - thanks to Dash's
+                      <a href="https://github.com/jkozera/zeal/issues/1#issuecomment-13357189">docset exchange programe</a>,
+                  </li>
+                  <li>
+                      Appcelerator Titanium, ExtJS 4.1, Python 2.7.3, Sencha Touch 2.1, Qt 5
+                      - generated for Zeal.
+                  </li>
+                </ol>
+              </div>
         </div>
-      </a>
-    </div>
-    <div class="span4">
-      <div>
-        <h2>
-          Open source!
-        </h2>
-        <p>
-          Zeal is released under the GPL license, which allows anyone to contribute
-          changes. And it is available free of charge.
-        </p>
-      </div>
-      <a class="btn" href="https://github.com/jkozera/zeal">
-        See GitHub project page »
-      </a>
-    </div>
-    <div class="span4">
-      <div>
-        <h2>
-          Documentation included
-        </h2>
-        <p>Currently there are docsets available from:</p>
-        <ol>
-          <li>Django, jQuery, Ruby 1 and 2 - thanks to Dash's
-              <a href="https://github.com/jkozera/zeal/issues/1#issuecomment-13357189">docset exchange programe</a>,
-          </li>
-          <li>
-              Appcelerator Titanium, ExtJS 4.1, Python 2.7.3, Sencha Touch 2.1, Qt 5
-              - generated for Zeal.
-          </li>
-        </ol>
-      </div>
-    </div>
+        <div class="row">
+              <div class="span6">
+                <h2>
+                  Open source!
+                </h2>
+                <p>
+                  Zeal is released under the GPL license, which allows anyone to contribute
+                  changes. And it is available free of charge.
+                </p>
+              <a class="btn" href="https://github.com/jkozera/zeal">See GitHub project page »</a>
+              </div>
+        </div>
   </div>
 <div id="ssModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
