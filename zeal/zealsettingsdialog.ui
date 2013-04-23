@@ -64,6 +64,9 @@
              <property name="text">
               <string>System Tray</string>
              </property>
+             <attribute name="buttonGroup">
+              <string notr="true">hidingBehavior</string>
+             </attribute>
             </widget>
            </item>
            <item>
@@ -71,6 +74,9 @@
              <property name="text">
               <string>Minimize</string>
              </property>
+             <attribute name="buttonGroup">
+              <string notr="true">hidingBehavior</string>
+             </attribute>
             </widget>
            </item>
           </layout>
@@ -228,4 +234,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="hidingBehavior"/>
+ </buttongroups>
 </ui>
