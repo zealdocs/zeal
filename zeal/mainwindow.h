@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QDialog>
 #include <QSettings>
+#include <QSystemTrayIcon>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
@@ -41,6 +42,8 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QNetworkAccessManager naManager;
+    QSystemTrayIcon *trayIcon = nullptr;
+    QMenu *trayIconMenu = nullptr;
     int naCount = 0;
     QMap<QString, QString> urls;
 protected:

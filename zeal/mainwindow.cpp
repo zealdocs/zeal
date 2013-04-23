@@ -10,7 +10,6 @@
 #include <QStandardPaths>
 #include <QMessageBox>
 #include <QStyleFactory>
-#include <QSystemTrayIcon>
 #include <QLocalSocket>
 #include <QDir>
 #include <QSettings>
@@ -63,7 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
     icon = QIcon::fromTheme("edit-find");
 #endif
     setWindowIcon(icon);
-    createTrayIcon();
+    if(settings.value("hidingBehavior", "systray").toString() == "systray")
+        createTrayIcon();
 
     QKeySequence keySequence;
     if(settings.value("hotkey").isNull()) {
@@ -74,9 +74,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialise key grabber
     connect(&nativeFilter, &ZealNativeEventFilter::gotHotKey, [&]() {
-        if(isVisible()) hide();
-        else {
+        if(!isVisible() || !isActiveWindow()) {
             bringToFront(true);
+        } else {
+            if(trayIcon) {
+                hide();
+            } else {
+                showMinimized();
+            }
         }
     });
     qApp->eventDispatcher()->installNativeEventFilter(&nativeFilter);
@@ -290,10 +295,27 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(settingsAction, &QAction::triggered, [=]() {
         settingsDialog.setHotKey(hotKey);
         settingsDialog.ui->minFontSize->setValue(settings.value("minFontSize").toInt());
+        QString hiding = settings.value("hidingBehavior", "systray").toString();
+        if(hiding == "systray") {
+            settingsDialog.ui->radioSysTray->setChecked(true);
+        } else {
+            settingsDialog.ui->radioMinimize->setChecked(true);
+        }
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
             setHotKey(settingsDialog.hotKey());
             settings.setValue("minFontSize", QVariant(ui->webView->settings()->fontSize(QWebSettings::MinimumFontSize)));
+            settings.setValue("hidingBehavior",
+                              settingsDialog.ui->radioSysTray->isChecked() ?
+                                  "systray" : "minimize");
+            if(settings.value("hidingBehavior").toString() == "systray") {
+                createTrayIcon();
+            } else if(trayIcon) {
+                trayIcon->deleteLater();
+                trayIconMenu->deleteLater();
+                trayIcon = nullptr;
+                trayIconMenu = nullptr;
+            }
         } else {
             // cancelled - restore previous value
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
@@ -360,10 +382,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::createTrayIcon()
 {
-    auto trayIconMenu = new QMenu(this);
+    if(trayIcon) return;
+    trayIconMenu = new QMenu(this);
     auto quitAction = trayIconMenu->addAction("&Quit");
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    auto trayIcon = new QSystemTrayIcon(this);
+    trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
     trayIcon->setIcon(icon);
     trayIcon->setToolTip("Zeal");
