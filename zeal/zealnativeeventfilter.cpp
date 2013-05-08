@@ -106,28 +106,56 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         xcb_key_press_event_t *event = (xcb_key_press_event_t *)ev;
 
         xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
-        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, GetX11Key(hotKey[hotKey.count()-1]));
-        int i = 0;
+        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, GetX11Key(hotKey[0]));
+
         bool found = false;
+        // found=true means either (a) complete hotkey was pressed, or (b) any of its separate
+        // keys was released. We return true in both cases, because key releases while window
+        // is not present cause SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
+        if((ev->response_type&127) == XCB_KEY_RELEASE) {
+            QList<QPair<int, Qt::Modifier> > modifiers;
+            modifiers.append(qMakePair(XK_Alt_L, Qt::ALT));
+            modifiers.append(qMakePair(XK_Alt_R, Qt::ALT));
+            modifiers.append(qMakePair(XK_Control_L, Qt::CTRL));
+            modifiers.append(qMakePair(XK_Control_R, Qt::CTRL));
+            modifiers.append(qMakePair(XK_Meta_L, Qt::META));
+            modifiers.append(qMakePair(XK_Meta_R, Qt::META));
+            for(auto modifier : modifiers) {
+                if(!(hotKey[0] & modifier.second)) {
+                    continue;
+                }
+                xcb_keycode_t *mod_keycodes = xcb_key_symbols_get_keycode(keysyms, modifier.first);
+                if(mod_keycodes == nullptr) continue;
+                int i = 0;
+                while(mod_keycodes[i] != XCB_NO_SYMBOL) {
+                    if(event->detail == mod_keycodes[i]) {
+                        found = true;
+                    }
+                    i += 1;
+                }
+                free(mod_keycodes);
+            }
+        }
+        int i = 0;
         while(keycodes[i] != XCB_NO_SYMBOL) {
             if(event->detail == keycodes[i]) {
                 bool modifiers_present = true;
-                if(hotKey[hotKey.count()-1] & Qt::ALT) {
+                if(hotKey[0] & Qt::ALT) {
                     if(!(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[hotKey.count()-1] & Qt::CTRL) {
+                if(hotKey[0] & Qt::CTRL) {
                     if(!(event->state & GetModifier(c, keysyms, XK_Control_L) || event->state & GetModifier(c, keysyms,  XK_Control_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[hotKey.count()-1] & Qt::META) {
+                if(hotKey[0] & Qt::META) {
                     if(!(event->state & GetModifier(c, keysyms, XK_Meta_L) || event->state & GetModifier(c, keysyms,  XK_Meta_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[hotKey.count()-1] & Qt::SHIFT) {
+                if(hotKey[0] & Qt::SHIFT) {
                     if(!(event->state & GetModifier(c, keysyms, XK_Shift_L) || event->state & GetModifier(c, keysyms,  XK_Shift_R))) {
                         modifiers_present = false;
                     }
@@ -139,6 +167,9 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
                     }
                     found = true;
                 } else {
+                    if((ev->response_type&127) == XCB_KEY_RELEASE) {
+                        found = true;
+                    }
                     xcb_allow_events(c, XCB_ALLOW_REPLAY_KEYBOARD, event->time);
                 }
                 break;

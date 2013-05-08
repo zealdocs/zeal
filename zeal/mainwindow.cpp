@@ -431,7 +431,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     nativeFilter.setHotKey(hotKey);
     settings.setValue("hotkey", hotKey);
     if(hotKey.isEmpty()) return;
-    int key = hotKey[hotKey.count()-1];
+    int key = hotKey[0];
     if(key & Qt::ALT) i_mod |= MOD_ALT;
     if(key & Qt::CTRL) i_mod |= MOD_CONTROL;
     if(key & Qt::SHIFT) i_mod |= MOD_SHIFT;
@@ -516,7 +516,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
 
     if(hotKey.isEmpty()) return;
 
-    xcb_keysym_t keysym = GetX11Key(hotKey[hotKey.count()-1]);
+    xcb_keysym_t keysym = GetX11Key(hotKey[0]);
     xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, keysym), keycode;
 
     if(!keycodes) {
@@ -536,7 +536,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
         int i = 0;
         while(keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
-            for(auto modifier : GetX11Modifier(c, keysyms, hotKey[hotKey.count()-1])) {
+            for(auto modifier : GetX11Modifier(c, keysyms, hotKey[0])) {
                 auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
                     modifier, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
                 if(xcb_request_check(c, cookie)) {
