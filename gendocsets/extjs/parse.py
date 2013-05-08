@@ -24,7 +24,7 @@ if os.path.exists(os.path.join(INPUT_DIR, 'extjs-build')):
     docsetshortname = 'extjs'
 elif os.path.exists(os.path.join(INPUT_DIR, 'touch-build')):
     builddir = 'touch-build'
-    OUT_DIR = 'SenchaTouch-2.1.docset'
+    OUT_DIR = 'SenchaTouch-2.2.docset'
     docsetname = 'Sencha Touch'
     docsetshortname = 'sencha'
 else:
@@ -107,7 +107,7 @@ for fname, tree in trees.iteritems():
         htmlfile.write("""<!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="../resources/css/app-851b66f18114a2a31d488e9c8d7cb964.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/app-44f34022ca84128086b28c375ab02185.css" type="text/css" />
     <!-- titanium hack -->
     <link rel="stylesheet" href="../resources/css/my.css" type="text/css" />
     <link rel="stylesheet" href="../resources/css/viewport.css" type="text/css" />
