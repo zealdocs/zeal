@@ -98,7 +98,8 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
     }
 #else // WIN32
     xcb_generic_event_t* ev = static_cast<xcb_generic_event_t*>(message);
-    if((ev->response_type&127) == XCB_KEY_PRESS && !hotKey.isEmpty()) {
+    if(((ev->response_type&127) == XCB_KEY_PRESS || (ev->response_type&127) == XCB_KEY_RELEASE) && !hotKey.isEmpty()) {
+        // XCB_KEY_RELEASE must be ignored by Qt because otherwise it causes SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
         xcb_connection_t  *c = static_cast<xcb_connection_t*>(
               ((QGuiApplication*)QGuiApplication::instance())->
                     platformNativeInterface()->nativeResourceForWindow("connection", 0));
@@ -133,7 +134,9 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
                 }
                 if(enabled && modifiers_present) {
                     xcb_allow_events(c, XCB_ALLOW_ASYNC_KEYBOARD, event->time);
-                    emit gotHotKey();
+                    if((ev->response_type&127) == XCB_KEY_PRESS) {
+                        emit gotHotKey();
+                    }
                     found = true;
                 } else {
                     xcb_allow_events(c, XCB_ALLOW_REPLAY_KEYBOARD, event->time);
