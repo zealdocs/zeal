@@ -1,7 +1,7 @@
 AppceleratorTitanium https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPclpRWUNycTBhOGM 201304171941
 Django https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPZGlkazZOdFJ0UDg 201303282044
 ExtJS-4.1 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPTVRYeHdNU1h5Y3M 201303272010
-jQuery https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPYU4tSHNPUVN1VzA 201303272010
+jQuery https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPb0NzbGxfU1JqZEU 201305141635
 python-2.7.3-docs-html https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPVkVtM0lrNVdCNXM 201303062116
 Qt5 https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPMjlHa1k5WTVldDg 201303062116
 Ruby https://drive.google.com/uc?export=download&confirm=no_antivirus&id=0B8S9pdOpH0GPS3JZc2dZdUVTYms 201303170016
