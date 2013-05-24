@@ -19,12 +19,12 @@ icon = 'icon.png'
 indexpath = 'html/Ext.html'
 if os.path.exists(os.path.join(INPUT_DIR, 'extjs-build')):
     builddir = 'extjs-build'
-    OUT_DIR = 'ExtJS-4.1.docset'
+    OUT_DIR = 'ExtJS-4.2.1.docset'
     docsetname = 'ExtJS'
     docsetshortname = 'extjs'
 elif os.path.exists(os.path.join(INPUT_DIR, 'touch-build')):
     builddir = 'touch-build'
-    OUT_DIR = 'SenchaTouch-2.2.docset'
+    OUT_DIR = 'SenchaTouch-2.2.1.docset'
     docsetname = 'Sencha Touch'
     docsetshortname = 'sencha'
 else:
@@ -107,7 +107,7 @@ for fname, tree in trees.iteritems():
         htmlfile.write("""<!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="../resources/css/app-44f34022ca84128086b28c375ab02185.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/app-c8e1f59f40e720cb5379f7041379119a.css" type="text/css" />
     <!-- titanium hack -->
     <link rel="stylesheet" href="../resources/css/my.css" type="text/css" />
     <link rel="stylesheet" href="../resources/css/viewport.css" type="text/css" />
