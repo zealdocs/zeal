@@ -56,14 +56,12 @@ For creating new docsets, you have three choices of index format supported by Ze
 
 Author of Dash [has suggested](https://github.com/jkozera/zeal/issues/1#issuecomment-13357189) a "docset exchange programme", allowing Zeal to use one Dash docset in return for each new generated-for-Zeal docset, so it's recommended to use the `DASH` format.
 
-## Contributions
+## Contributions / Project Status
 
-Any feedback, feature requests, or pull requests are welcome. Before starting to implement anything larger, especially items from the TODO list above, it would be good to contact me at jerzy dot kozera at gmail, to avoid duplicating work.
+Any feedback, feature requests, or pull requests are welcome. However the project is not under active development at the moment, so unless someone is interested in contributing code, no new features are expected.
+
+I'm going to continue updating docsets that are part of Dash/Zeal exchange programme, and try to fix critical stability/compatibility issues if any arise, to keep the project somewhat alive, but will not implement new features in foreseeable future. Anyway, I should be able to review pull requests.
 
 Please keep in mind I'm not an experienced C++ programmer, so the code quality might be not great.
 
-Also you can send bitcoins to 1Zea1QhPV5CGp8SNMpb2RHUvRrfNhKqGV to encourage development.
-
-
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jkozera/zeal/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
