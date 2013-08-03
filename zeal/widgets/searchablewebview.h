@@ -13,6 +13,7 @@ public:
     void load(const QUrl& url);
     QSize sizeHint() const;
     QWebSettings * settings() const;
+    QWebPage * page() const;
 
 protected:
     void keyPressEvent(QKeyEvent *event);

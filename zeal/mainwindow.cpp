@@ -4,6 +4,7 @@
 #include "zealsearchmodel.h"
 #include "zealdocsetsregistry.h"
 #include "zealsearchitemdelegate.h"
+#include "zealnetworkaccessmanager.h"
 
 #include <QDebug>
 #include <QAbstractEventDispatcher>
@@ -111,6 +112,9 @@ MainWindow::MainWindow(QWidget *parent) :
         settings.setValue("splitter", ui->splitter->saveState());
     });
     ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
+    ZealNetworkAccessManager * zealNaManager = new ZealNetworkAccessManager();
+    ui->webView->page()->setNetworkAccessManager(zealNaManager);
+
     settingsDialog.ui->downloadableGroup->hide();
     settingsDialog.ui->docsetsProgress->hide();
 

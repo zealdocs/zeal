@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     lineedit.cpp \
     zealsearchitemdelegate.cpp \
     zealsearchitemstyle.cpp \
-    zealsettingsdialog.cpp
+    zealsettingsdialog.cpp \
+    zealnetworkaccessmanager.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
@@ -35,7 +36,8 @@ HEADERS  += mainwindow.h \
     zealsearchitemdelegate.h \
     zealsearchitemstyle.h \
     zealsettingsdialog.h \
-    xcb_keysym.h
+    xcb_keysym.h \
+    zealnetworkaccessmanager.h
 
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui
