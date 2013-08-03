@@ -23,6 +23,8 @@
 #include <QTemporaryFile>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <QWebFrame>
+#include <QWebElement>
 #include <quazip/quazip.h>
 #include "JlCompress.h"
 
@@ -222,11 +224,20 @@ MainWindow::MainWindow(QWidget *parent) :
                         });
                     }
                 } else if(naCount == 2) {
+                    QFile file(tmp->fileName());
+                    file.open(QIODevice::ReadOnly);
+                    QWebView view;
+                    view.setContent(file.readAll());
                     tmp->close();
                     delete tmp;
-                    // allow one retry if zip format is incorrect - Google Drive
-                    // sometimes allows downloading only for second request
-                    auto reply2 = naManager.get(QNetworkRequest(reply->url()));
+
+                    QString href = view.page()->mainFrame()->findFirstElement("#uc-download-link").attribute("href");
+                    QString path = href.split("?")[0], query = href.split("?")[1];
+                    QUrl url = reply->url();
+                    url.setPath(path);
+                    url.setQuery(query);
+                    // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
+                    auto reply2 = naManager.get(QNetworkRequest(url));
                     connect(reply2, &QNetworkReply::downloadProgress, progressCb);
                 } else {
                     tmp->close();
