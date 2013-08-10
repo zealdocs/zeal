@@ -5,6 +5,7 @@
 
 #include "zealdocsetsregistry.h"
 #include "zealsearchresult.h"
+#include "zealsearchquery.h"
 
 ZealDocsetsRegistry* ZealDocsetsRegistry::m_Instance;
 
@@ -49,34 +50,40 @@ void ZealDocsetsRegistry::runQuery(const QString& query)
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query), Q_ARG(int, lastQuery));
 }
 
-void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
+void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
 {
     if(queryNum != lastQuery) return; // some other queries pending - ignore this one
 
     QList<ZealSearchResult> results;
-    QString query = query_;
-    query.replace("\\", "\\\\");
-    query.replace("_", "\\_");
-    query.replace("%", "\\%");
-    query.replace("'", "''");
-    for(auto name : names()) {
+
+    ZealSearchQuery query = ZealSearchQuery(rawQuery);
+
+    QString docsetPrefix = query.getDocsetFilter();
+    QString preparedQuery = query.getSanitizedQuery();
+
+    for(QString name : names()) {
+        if(!docsetPrefix.isEmpty() && !name.toLower().contains(docsetPrefix)) {
+            // Filter out this docset as the names don't match the docset prefix
+            continue;
+        }
+
         QString qstr;
         QSqlQuery q;
         QList<QList<QVariant> > found;
         bool withSubStrings = false;
         while(found.size() < 100) {
-            auto curQuery = query;
+            auto curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
             QString parentQuery;
             if(withSubStrings) {
                 // if less than 100 found starting with query, search all substrings
-                curQuery = "%"+query;
+                curQuery = "%"+preparedQuery;
                 if(types[name] == ZDASH) {
-                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(query);
+                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(preparedQuery);
                 } else {
-                    notQuery = QString(" and not t.name like '%1%' escape '\\' ").arg(query);
+                    notQuery = QString(" and not t.name like '%1%' escape '\\' ").arg(preparedQuery);
                     if(types[name] == ZEAL) {
-                        parentQuery = QString(" or t2.name like '%1%' escape '\\'  ").arg(query);
+                        parentQuery = QString(" or t2.name like '%1%' escape '\\'  ").arg(preparedQuery);
                     }
                 }
             }
@@ -129,7 +136,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& query_, int queryNum)
                 itemName = splitted.at(splitted.size()-1);
                 parentName = splitted.at(splitted.size()-2);
             }
-            results.append(ZealSearchResult(itemName, parentName, path, name, query));
+            results.append(ZealSearchResult(itemName, parentName, path, name, preparedQuery));
         }
     }
     qSort(results);
