@@ -15,10 +15,6 @@ body { padding-top: 60px; }
 .well {
     margin: 40px;
 }
-.well img {
-    display: block;
-    float: right;
-}
 .copyright {
     float: right;
     margin: 80px 0;

@@ -103,12 +103,21 @@ layout: default
     </div>
   </div>
   <div class="well">
-      <img src="http://i.imgur.com/1gT8891.png"/>
+    <img class="pull-right" src="http://i.imgur.com/1gT8891.png"/>
     <h1>
       Usage
     </h1>
     <p>
-      After installing/compiling, to quickly download documentation sets, click 'Edit',&nbsp;'Options',&nbsp;'Docsets',&nbsp;'Download...'.
+      After installing/compiling, to quickly download documentation sets, click 'Edit',&nbsp;'Options',&nbsp;'Docsets',&nbsp;'Download...'.</p>
+    <h2>Docset filter</h2>
+    <p>You can filter the search results to a specific (or a set of specific) docsets.</p>
+    <p>The docset filter and the search query are delimited by a pipe character (|).</p>
+    <p>Examples:</p>
+    <ul>
+        <li>ruby|set_x will search all docsets containing ruby (e.g. ironruby, ruby and ruby2) for set_x</li>
+        <li>set_x will search all docsets for set_x</li>
+        <li>||set_x will search all docsets for |set_x.</li>
+    </ul>
+    <img src="/static/img/search_filter.png" />
     <div class="clearfix"></div>
-    </p>
   </div>
