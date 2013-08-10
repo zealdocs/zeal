@@ -16,6 +16,18 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
     this->installEventFilter(this);
 }
 
+// Clear input with consideration to docset filters
+void ZealSearchEdit::clearQuery()
+{
+    ZealSearchQuery currentQuery(text());
+    // Keep the filter for the first esc press
+    if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
+        setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
+    } else {
+        clear();
+    }
+}
+
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
     if(obj == this && ev->type() == QEvent::KeyPress) {
@@ -25,15 +37,8 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
             return true;
         }
 
-        // Clear input with consideration to docset filters when the user presses escape.
         if(keyEvent->key() == Qt::Key_Escape) {
-            ZealSearchQuery currentQuery(text());
-            // Keep the filter for the first esc press
-            if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
-                setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
-            } else {
-                clear();
-            }
+            clearQuery();
         }
     }
     return QLineEdit::eventFilter(obj, ev);

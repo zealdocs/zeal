@@ -11,6 +11,7 @@ class ZealSearchEdit : public LineEdit
 public:
     explicit ZealSearchEdit(QWidget *parent = 0);
     void setTreeView(QTreeView *view);
+    void clearQuery();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
