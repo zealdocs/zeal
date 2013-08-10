@@ -20,10 +20,8 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
     if(obj == this && ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
-        if(keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up ||
-                keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return ||
-                keyEvent->key() == Qt::Key_PageUp || keyEvent->key() == Qt::Key_PageDown) {
-            QCoreApplication::instance()->sendEvent(treeView, keyEvent);
+        if(keyEvent->key() == Qt::Key_Down) {
+            treeView->setFocus();
             return true;
         }
 
@@ -39,4 +37,14 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
         }
     }
     return QLineEdit::eventFilter(obj, ev);
+}
+
+void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
+{
+    ZealSearchQuery currentQuery(text());
+    int selectionOffset = currentQuery.getDocsetFilter().size();
+    if(selectionOffset > 0) {
+        selectionOffset++; // add the delimeter
+    }
+    setSelection(selectionOffset, text().size() - selectionOffset);
 }

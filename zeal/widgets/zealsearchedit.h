@@ -14,9 +14,10 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
+    void focusInEvent(QFocusEvent *);
 
 signals:
-    
+
 public slots:
 
 private:

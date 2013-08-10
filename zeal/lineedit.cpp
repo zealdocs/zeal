@@ -24,6 +24,7 @@ LineEdit::LineEdit(QWidget *parent)
     clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
     clearButton->setToolTip("Clear");
     clearButton->hide();
+    clearButton->setFocusPolicy(Qt::ClickFocus);
     hideOnClear = false;
     connect(clearButton, &QToolButton::clicked, this, &LineEdit::clear);
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
