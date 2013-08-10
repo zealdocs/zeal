@@ -3,11 +3,6 @@
 
 #include "zealsearchquery.h"
 
-ZealSearchQuery::ZealSearchQuery()
-{
-    rawQuery = "";
-}
-
 ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
 {
     this->rawQuery = rawQuery;

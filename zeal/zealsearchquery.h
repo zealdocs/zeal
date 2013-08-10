@@ -6,7 +6,6 @@ class ZealSearchQuery
     QString rawQuery;
 
 public:
-    ZealSearchQuery();
     ZealSearchQuery(const QString& rawQuery);
 
     static const char DOCSET_FILTER_SEPARATOR = '|';
