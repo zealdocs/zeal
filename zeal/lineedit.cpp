@@ -34,21 +34,6 @@ LineEdit::LineEdit(QWidget *parent)
                    qMax(msz.height(), clearButton->sizeHint().height() + frameWidth * 2 + 2));
 }
 
-void LineEdit::keyPressEvent(QKeyEvent * evt)
-{
-    if(evt->key() == Qt::Key_Escape) {
-        ZealSearchQuery currentQuery(text());
-        // Keep the filter for the first esc press
-        if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
-            setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
-        } else {
-            clear();
-        }
-    } else {
-        QLineEdit::keyPressEvent(evt);
-    }
-}
-
 void LineEdit::clear() {
     QLineEdit::clear();
     if(hideOnClear) hide();
