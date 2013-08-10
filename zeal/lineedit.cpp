@@ -11,6 +11,7 @@
 #include <QToolButton>
 #include <QStyle>
 #include <QApplication>
+#include <QKeyEvent>
 
 LineEdit::LineEdit(QWidget *parent)
     : QLineEdit(parent)
@@ -29,6 +30,15 @@ LineEdit::LineEdit(QWidget *parent)
     QSize msz = minimumSizeHint();
     setMinimumSize(qMax(msz.width(), clearButton->sizeHint().height() + frameWidth * 2 + 2),
                    qMax(msz.height(), clearButton->sizeHint().height() + frameWidth * 2 + 2));
+}
+
+void LineEdit::keyPressEvent(QKeyEvent * evt)
+{
+    if(evt->key() == Qt::Key_Escape) {
+        clear();
+    } else {
+        QLineEdit::keyPressEvent(evt);
+    }
 }
 
 void LineEdit::clear() {
