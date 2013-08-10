@@ -108,6 +108,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialise ui
     ui->setupUi(this);
+
+    setupShortcuts();
+
     restoreGeometry(settings.value("geometry").toByteArray());
     ui->splitter->restoreState(settings.value("splitter").toByteArray());
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
@@ -432,6 +435,15 @@ void MainWindow::bringToFront(bool withHack)
         QTimer::singleShot(100, &hackDialog, SLOT(reject()));
     }
 #endif
+}
+
+void MainWindow::setupShortcuts()
+{
+    QShortcut* focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
+    focusSearch->setContext(Qt::ApplicationShortcut);
+    connect(focusSearch, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+    });
 }
 
 void MainWindow::setHotKey(const QKeySequence& hotKey_) {
