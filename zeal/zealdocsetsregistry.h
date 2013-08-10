@@ -14,6 +14,7 @@ class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
 public:
+
     static ZealDocsetsRegistry* instance()
     {
         static QMutex mutex;
@@ -57,6 +58,7 @@ public:
         types.remove(name);
     }
 
+    QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);
     const QList<ZealSearchResult>& getQueryResults();
 
