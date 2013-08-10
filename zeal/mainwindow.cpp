@@ -25,6 +25,7 @@
 #include <QFutureWatcher>
 #include <QWebFrame>
 #include <QWebElement>
+#include <QShortcut>
 #include <quazip/quazip.h>
 #include "JlCompress.h"
 
@@ -443,6 +444,13 @@ void MainWindow::setupShortcuts()
     focusSearch->setContext(Qt::ApplicationShortcut);
     connect(focusSearch, &QShortcut::activated, [=]() {
         ui->lineEdit->setFocus();
+    });
+
+    QShortcut* globalEsc = new QShortcut(QKeySequence("Esc"), this);
+    globalEsc->setContext(Qt::ApplicationShortcut);
+    connect(globalEsc, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+        ui->lineEdit->clearQuery();
     });
 }
 
