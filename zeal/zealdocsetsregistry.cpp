@@ -78,6 +78,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             if(withSubStrings) {
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%"+preparedQuery;
+                // don't return 'starting with' results twice
                 if(types[name] == ZDASH) {
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(preparedQuery);
                 } else {
