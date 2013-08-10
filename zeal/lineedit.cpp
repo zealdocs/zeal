@@ -8,6 +8,8 @@
 ****************************************************************************/
 // from http://git.forwardbias.in/?p=lineeditclearbutton.git;a=blob_plain;f=lineedit.cpp;hb=HEAD
 #include "lineedit.h"
+#include "zealsearchquery.h"
+
 #include <QToolButton>
 #include <QStyle>
 #include <QApplication>
@@ -35,7 +37,13 @@ LineEdit::LineEdit(QWidget *parent)
 void LineEdit::keyPressEvent(QKeyEvent * evt)
 {
     if(evt->key() == Qt::Key_Escape) {
-        clear();
+        ZealSearchQuery currentQuery(text());
+        // Keep the filter for the first esc press
+        if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
+            setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
+        } else {
+            clear();
+        }
     } else {
         QLineEdit::keyPressEvent(evt);
     }
