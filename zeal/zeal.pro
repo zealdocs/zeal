@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     zealsearchitemdelegate.cpp \
     zealsearchitemstyle.cpp \
     zealsettingsdialog.cpp \
-    zealnetworkaccessmanager.cpp
+    zealnetworkaccessmanager.cpp \
+    zealsearchquery.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     zealsearchitemstyle.h \
     zealsettingsdialog.h \
     xcb_keysym.h \
-    zealnetworkaccessmanager.h
+    zealnetworkaccessmanager.h \
+    zealsearchquery.h
 
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui

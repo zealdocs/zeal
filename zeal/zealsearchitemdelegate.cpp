@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QApplication>
 
+#include "zealsearchquery.h"
+
 ZealSearchItemDelegate::ZealSearchItemDelegate(QObject *parent, QLineEdit* lineEdit_, QWidget* view_) :
     QStyledItemDelegate(parent), lineEdit(lineEdit_), view(view_)
 {
@@ -46,7 +48,7 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     auto elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
     QString highlight;
     if(lineEdit) {
-        highlight = lineEdit->text();
+        highlight = ZealSearchQuery(lineEdit->text()).getCoreQuery();
     }
     int from = 0;
     while(from < elided.size()) {
