@@ -12,11 +12,11 @@ QString getQueryParam(QStringList arguments)
     // Poor mans arg parser
     for (int i = 1; i < arguments.size(); ++i) {
         if(arguments.at(i) == "--query") {
-            if(arguments.size() > i) {
+            if(arguments.size() > i + 1) {
                 return arguments.at(i + 1);
             } else {
                 cerr << "Usage: " << arguments.at(0).toStdString() << " --query <search term>";
-                break;
+                exit(1);
             }
         }
     }
@@ -27,12 +27,13 @@ QString getQueryParam(QStringList arguments)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QString queryParam = getQueryParam(a.arguments());
+
     // detect already running instance and optionally pass a search
     // query onto it.
     QLocalSocket socket;
     socket.connectToServer(serverName);
     if (socket.waitForConnected(500)) {
-        QString queryParam = getQueryParam(a.arguments());
         if(!queryParam.isEmpty()) {
             QByteArray msg;
             msg.append(queryParam);
