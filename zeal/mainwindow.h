@@ -26,9 +26,11 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    
+
 private:
     void bringToFront(bool withHack);
+    void bringToFrontAndSearch(const QString);
+
     Ui::MainWindow *ui;
     QIcon icon;
     ZealListModel zealList;

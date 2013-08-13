@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
+#include "zealsearchquery.h"
 #include "zealdocsetsregistry.h"
 #include "zealsearchitemdelegate.h"
 #include "zealnetworkaccessmanager.h"
 
-#include <QDebug>
+#include <QtDebug>
+#include <QKeyEvent>
 #include <QAbstractEventDispatcher>
 #include <QStandardPaths>
 #include <QMessageBox>
@@ -48,7 +50,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
-        bringToFront(false);
+        QLocalSocket *connection = localServer->nextPendingConnection();
+        // Wait a little while the other side writes the bytes
+        connection->waitForReadyRead();
+        QString indata = connection->readAll();
+        if(!indata.isEmpty()) {
+            bringToFrontAndSearch(indata);
+        }
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
@@ -432,6 +440,16 @@ void MainWindow::bringToFront(bool withHack)
         QTimer::singleShot(100, &hackDialog, SLOT(reject()));
     }
 #endif
+}
+
+void MainWindow::bringToFrontAndSearch(const QString query)
+{
+    bringToFront(false);
+    zealSearch.setQuery(query);
+    ui->lineEdit->setText(query);
+    ui->treeView->setFocus();
+    qDebug() << "Number of results: " << ui->treeView->children().size();
+    ui->treeView->activated(ui->treeView->currentIndex());
 }
 
 void MainWindow::setHotKey(const QKeySequence& hotKey_) {
