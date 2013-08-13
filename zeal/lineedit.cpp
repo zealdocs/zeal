@@ -24,6 +24,7 @@ LineEdit::LineEdit(QWidget *parent)
     clearButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
     clearButton->setToolTip("Clear");
     clearButton->hide();
+    clearButton->setFocusPolicy(Qt::ClickFocus);
     hideOnClear = false;
     connect(clearButton, &QToolButton::clicked, this, &LineEdit::clear);
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(updateCloseButton(const QString&)));
@@ -32,21 +33,6 @@ LineEdit::LineEdit(QWidget *parent)
     QSize msz = minimumSizeHint();
     setMinimumSize(qMax(msz.width(), clearButton->sizeHint().height() + frameWidth * 2 + 2),
                    qMax(msz.height(), clearButton->sizeHint().height() + frameWidth * 2 + 2));
-}
-
-void LineEdit::keyPressEvent(QKeyEvent * evt)
-{
-    if(evt->key() == Qt::Key_Escape) {
-        ZealSearchQuery currentQuery(text());
-        // Keep the filter for the first esc press
-        if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
-            setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
-        } else {
-            clear();
-        }
-    } else {
-        QLineEdit::keyPressEvent(evt);
-    }
 }
 
 void LineEdit::clear() {

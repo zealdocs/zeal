@@ -51,6 +51,7 @@ protected:
         settings.setValue("geometry", saveGeometry());
         QMainWindow::closeEvent(event);
     }
+    void setupShortcuts();
 };
 
 #endif // MAINWINDOW_H
