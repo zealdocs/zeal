@@ -48,5 +48,8 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.show();
+    if(!queryParam.isEmpty()) {
+        w.bringToFrontAndSearch(queryParam);
+    }
     return a.exec();
 }
