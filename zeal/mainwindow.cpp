@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
+#include "zealsearchquery.h"
 #include "zealdocsetsregistry.h"
 #include "zealsearchitemdelegate.h"
 #include "zealnetworkaccessmanager.h"
 
-#include <QDebug>
+#include <QtDebug>
+#include <QKeyEvent>
 #include <QAbstractEventDispatcher>
 #include <QStandardPaths>
 #include <QMessageBox>
@@ -48,7 +50,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
-        bringToFront(false);
+        QLocalSocket *connection = localServer->nextPendingConnection();
+        // Wait a little while the other side writes the bytes
+        connection->waitForReadyRead();
+        QString indata = connection->readAll();
+        if(!indata.isEmpty()) {
+            bringToFrontAndSearch(indata);
+        }
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
@@ -379,6 +387,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->reset();
         ui->treeView->setColumnHidden(1, true);
         ui->treeView->setCurrentIndex(zealSearch.index(0, 0, QModelIndex()));
+        // Trigger a load of the first result
+        ui->treeView->activated(ui->treeView->currentIndex());
     });
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
         if(!text.isEmpty()) {
@@ -432,6 +442,31 @@ void MainWindow::bringToFront(bool withHack)
         QTimer::singleShot(100, &hackDialog, SLOT(reject()));
     }
 #endif
+}
+
+void MainWindow::bringToFrontAndSearch(const QString query)
+{
+    bringToFront(true);
+    zealSearch.setQuery(query);
+    ui->lineEdit->setText(query);
+    ui->treeView->setFocus();
+    ui->treeView->activated(ui->treeView->currentIndex());
+}
+
+void MainWindow::setupShortcuts()
+{
+    QShortcut* focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
+    focusSearch->setContext(Qt::ApplicationShortcut);
+    connect(focusSearch, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+    });
+
+    QShortcut* globalEsc = new QShortcut(QKeySequence("Esc"), this);
+    globalEsc->setContext(Qt::ApplicationShortcut);
+    connect(globalEsc, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+        ui->lineEdit->clearQuery();
+    });
 }
 
 void MainWindow::setHotKey(const QKeySequence& hotKey_) {
