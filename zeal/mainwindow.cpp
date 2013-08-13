@@ -450,7 +450,6 @@ void MainWindow::bringToFrontAndSearch(const QString query)
     zealSearch.setQuery(query);
     ui->lineEdit->setText(query);
     ui->treeView->setFocus();
-    qDebug() << "Number of results: " << ui->treeView->children().size();
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
