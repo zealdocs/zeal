@@ -444,7 +444,7 @@ void MainWindow::bringToFront(bool withHack)
 
 void MainWindow::bringToFrontAndSearch(const QString query)
 {
-    bringToFront(false);
+    bringToFront(true);
     zealSearch.setQuery(query);
     ui->lineEdit->setText(query);
     ui->treeView->setFocus();
