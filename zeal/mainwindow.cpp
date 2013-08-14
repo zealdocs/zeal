@@ -391,6 +391,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->reset();
         ui->treeView->setColumnHidden(1, true);
         ui->treeView->setCurrentIndex(zealSearch.index(0, 0, QModelIndex()));
+        ui->treeView->activated(ui->treeView->currentIndex());
     });
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
         if(!text.isEmpty()) {
