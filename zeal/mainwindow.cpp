@@ -25,6 +25,7 @@
 #include <QFutureWatcher>
 #include <QWebFrame>
 #include <QWebElement>
+#include <QShortcut>
 #include <quazip/quazip.h>
 #include "JlCompress.h"
 
@@ -108,6 +109,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // initialise ui
     ui->setupUi(this);
+
+    setupShortcuts();
+
     restoreGeometry(settings.value("geometry").toByteArray());
     ui->splitter->restoreState(settings.value("splitter").toByteArray());
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
@@ -432,6 +436,22 @@ void MainWindow::bringToFront(bool withHack)
         QTimer::singleShot(100, &hackDialog, SLOT(reject()));
     }
 #endif
+}
+
+void MainWindow::setupShortcuts()
+{
+    QShortcut* focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
+    focusSearch->setContext(Qt::ApplicationShortcut);
+    connect(focusSearch, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+    });
+
+    QShortcut* globalEsc = new QShortcut(QKeySequence("Esc"), this);
+    globalEsc->setContext(Qt::ApplicationShortcut);
+    connect(globalEsc, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+        ui->lineEdit->clearQuery();
+    });
 }
 
 void MainWindow::setHotKey(const QKeySequence& hotKey_) {

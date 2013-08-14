@@ -24,7 +24,6 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *);
-    void keyPressEvent(QKeyEvent * evt);
 
 public slots:
     void clear();
