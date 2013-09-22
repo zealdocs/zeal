@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
+    <width>459</width>
     <height>505</height>
    </rect>
   </property>
@@ -149,7 +149,13 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Docsets with icons are contributed by Dash.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
