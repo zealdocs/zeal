@@ -147,6 +147,13 @@
            <widget class="QListWidget" name="docsetsList"/>
           </item>
           <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Docsets with icons are contributed by Dash.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <spacer name="horizontalSpacer_2">

@@ -1,9 +1,12 @@
 #ifndef ZEALDOCSETSREGISTRY_H
 #define ZEALDOCSETSREGISTRY_H
 
+#include <QDebug>
+#include <QCoreApplication>
 #include <QMutex>
 #include <QtSql/QSqlDatabase>
 #include <QDir>
+#include <QIcon>
 #include <QMap>
 
 #include "zealsearchresult.h"
@@ -41,6 +44,23 @@ public:
 
     const QDir& dir(const QString& name) {
         return dirs[name];
+    }
+
+    QIcon icon(const QString& name) {
+        QIcon icon(dir(name).absoluteFilePath("favicon.ico"));
+        if(icon.availableSizes().isEmpty()) {
+            icon = QIcon(dir(name).absoluteFilePath("icon.png"));
+        }
+        if(icon.availableSizes().isEmpty()) {
+#ifdef WIN32
+            QDir icondir(QCoreApplication::applicationDirPath());
+            icondir.cd("icons");
+#else
+            QDir icondir("/usr/share/pixmaps/zeal");
+#endif
+            icon = QIcon(icondir.filePath(name+".png"));
+        }
+        return icon;
     }
 
     DocSetType type(const QString& name) const {
