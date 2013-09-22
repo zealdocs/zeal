@@ -6,6 +6,7 @@ body { padding-top: 60px; }
 }
 .ss-wrapper {
     padding-right: 20px;
+    margin-top: 20px; 
 }
 
 .row .btn {
