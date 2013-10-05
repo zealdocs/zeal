@@ -165,10 +165,12 @@ MainWindow::MainWindow(QWidget *parent) :
                     auto url = anchor.attribute("href");
                     auto name_list = url.split("/");
                     auto name = name_list[name_list.count()-1].replace(".tgz", "");
+                    name = name.replace(".tar.bz2", "");
                     if(name != "" && !docsets->names().contains(name)) {
                         urls[name] = url;
                         auto url_list = url.split("/");
                         auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
+                        iconfile = iconfile.replace(".tar.bz2", ".png");
 #ifdef WIN32
                         QDir icondir(QCoreApplication::applicationDirPath());
                         icondir.cd("icons");
@@ -214,7 +216,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
                 connect(reply3, &QNetworkReply::downloadProgress, progressCb);
             } else {
-                if(reply->request().url().path().endsWith("tgz")) {
+                if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
                     auto dataDir = QDir(dataLocation);
                     if(!dataDir.cd("docsets")) {
                         QMessageBox::critical(&settingsDialog, "No docsets directory found",
@@ -234,17 +236,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
                         QProcess *tar = new QProcess();
                         tar->setWorkingDirectory(dataDir.absolutePath());
-                        auto args = QStringList("-ztf"); args.append(tmp->fileName());
+                        QStringList args;
+                        if(reply->request().url().path().endsWith("tar.bz2")) {
+                            args = QStringList("-jtf");
+                        } else {
+                            args = QStringList("-ztf");
+                        }
+                        args.append(tmp->fileName());
                         tar->start(program, args);
                         tar->waitForFinished();
                         auto line_buf = tar->readLine();
                         auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
 
-                        args = QStringList("-zxf"); args.append(tmp->fileName());
+                        if(reply->request().url().path().endsWith("tar.bz2")) {
+                            args = QStringList("-jxf");
+                        } else {
+                            args = QStringList("-zxf");
+                        }
+                        args.append(tmp->fileName());
                         connect(tar, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished, [=](int a, QProcess::ExitStatus b) {
                             auto path = reply->request().url().path().split("/");
                             auto fileName = path[path.count()-1];
                             auto docsetName = fileName.replace(".tgz", ".docset");
+                            docsetName = docsetName.replace(".tar.bz2", ".docset");
 
                             if(outDir != docsetName) {
                                 QDir dataDir2(dataDir);
@@ -405,7 +419,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QUrl url(urls[settingsDialog.ui->docsetsList->currentItem()->text()]);
         naCount = 2;
         auto reply = naManager.get(QNetworkRequest(url));
-        if(url.path().endsWith((".tgz"))) {
+        if(url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
             // Dash's docsets don't redirect, so we can start showing progress instantly
             connect(reply, &QNetworkReply::downloadProgress, progressCb);
         }
