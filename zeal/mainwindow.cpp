@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QWebSettings>
+#include <QNetworkProxyFactory>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QAbstractNetworkCache>
@@ -53,6 +54,10 @@ MainWindow::MainWindow(QWidget *parent) :
     trayIcon = nullptr;
     trayIconMenu = nullptr;
     naCount = 0;
+
+    // Use the platform-specific proxy settings
+    QNetworkProxyFactory::setUseSystemConfiguration(true);
+
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
