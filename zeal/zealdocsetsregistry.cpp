@@ -39,6 +39,7 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
 }
 
 ZealDocsetsRegistry::ZealDocsetsRegistry() {
+    lastQuery = -1;
     auto thread = new QThread(this);
     moveToThread(thread);
     thread->start();

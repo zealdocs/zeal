@@ -3,7 +3,7 @@
 
 #include <QWebView>
 #include <QWebSettings>
-#include "lineedit.h"
+#include "../lineedit.h"
 
 class SearchableWebView : public QWidget
 {

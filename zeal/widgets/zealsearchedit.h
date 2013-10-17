@@ -3,7 +3,7 @@
 
 #include <QEvent>
 #include <QTreeView>
-#include "lineedit.h"
+#include "../lineedit.h"
 
 class ZealSearchEdit : public LineEdit
 {

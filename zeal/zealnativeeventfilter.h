@@ -17,7 +17,7 @@ signals:
     void gotHotKey();
 public slots:
 private:
-    bool enabled = true;
+    bool enabled;
     QKeySequence hotKey;
 };
 

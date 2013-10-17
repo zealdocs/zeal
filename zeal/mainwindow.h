@@ -44,9 +44,9 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QNetworkAccessManager naManager;
-    QSystemTrayIcon *trayIcon = nullptr;
-    QMenu *trayIconMenu = nullptr;
-    int naCount = 0;
+    QSystemTrayIcon *trayIcon;
+    QMenu *trayIconMenu;
+    int naCount;
     QMap<QString, QString> urls;
 protected:
     void closeEvent(QCloseEvent *event) {

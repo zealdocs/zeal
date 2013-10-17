@@ -104,7 +104,7 @@ private:
     QMap<QString, QDir> dirs;
     QMap<QString, DocSetType> types;
     QList<ZealSearchResult> queryResults;
-    int lastQuery = -1;
+    int lastQuery;
 };
 
 extern ZealDocsetsRegistry* docsets;

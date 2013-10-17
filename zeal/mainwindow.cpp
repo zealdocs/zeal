@@ -30,7 +30,7 @@
 #include <QWebFrame>
 #include <QWebElement>
 #include <QShortcut>
-#include <quazip/quazip.h>
+#include "quazip/quazip.h"
 #include "JlCompress.h"
 
 #ifdef WIN32
@@ -50,6 +50,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     settings("Zeal", "Zeal")
 {
+    trayIcon = nullptr;
+    trayIconMenu = nullptr;
+    naCount = 0;
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {

@@ -3,7 +3,7 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-#include "zealsearchquery.h"
+#include "../zealsearchquery.h"
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     LineEdit(parent)
