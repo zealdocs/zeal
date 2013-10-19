@@ -1,0 +1,77 @@
+/** \page usage Usage
+ * 
+ * This page provides general information on QuaZIP usage. See classes
+ * QuaZip and QuaZipFile for the detailed documentation on what can
+ * QuaZIP do and what it can not. Also, reading comments in the zip.h and
+ * unzip.h files (taken from the original ZIP/UNZIP package) is always a
+ * good idea too. After all, QuaZIP is just a wrapper with a few
+ * convenience extensions and reimplementations.
+ *
+ * QuaZip is a class representing ZIP archive, QuaZipFile represents a
+ * file inside archive and subclasses QIODevice as well. One limitation
+ * is that there can be only one instance of QuaZipFile per QuaZip
+ * instance, which kind of makes it confusing why there are two classes
+ * instead of one. This is actually no more than an API design mistake.
+ *
+ * \section terminology Terminology
+ *
+ * "QuaZIP" means whole this library, while "QuaZip" (note the
+ * lower case) is just one class in it.
+ *
+ * "ZIP/UNZIP API" or "minizip" means the original API of the Gilles
+ * Vollant's ZIP/UNZIP package. It was slightly modified to better
+ * integrate with Qt. These modifications are not source or binary
+ * compatible with the official minizip release, which means you can't
+ * just drop the newer minizip version into QuaZIP sources and make it
+ * work.
+ *
+ * "ZIP", "ZIP archive" or "ZIP file" means any ZIP archive. Typically
+ * this is a plain file with ".zip" (or ".ZIP") file name suffix, but it
+ * can also be any seekable QIODevice (say, QBuffer, but not
+ * QTcpSocket).
+ *
+ * "A file inside archive", "a file inside ZIP" or something like that
+ * means file either being read or written from/to some ZIP archive.
+ *
+ * \section error-handling Error handling
+ *
+ * Almost any call to ZIP/UNZIP API return some error code. Most of the
+ * original API's error checking could be done in this wrapper as well,
+ * but it would cause unnecessary code bloating without any benefit. So,
+ * QuaZIP only checks for situations that ZIP/UNZIP API can not check
+ * for. For example, ZIP/UNZIP API has no "ZIP open mode" concept
+ * because read and write modes are completely separated. On the other
+ * hand, to avoid creating classes like "QuaZipReader", "QuaZipWriter"
+ * or something like that, QuaZIP introduces "ZIP open mode" concept
+ * instead, thus making it possible to use one class (QuaZip) for both
+ * reading and writing. But this leads to additional open mode checks
+ * which are not done in ZIP/UNZIP package.
+ *
+ * Therefore, error checking is two-level (QuaZIP's level and ZIP/UNZIP
+ * API level), which sometimes can be confusing, so here are some
+ * advices on how the error checking should be properly done:
+ *
+ * - Both QuaZip and QuaZipFile have getZipError() function, which return
+ *   error code of the last ZIP/UNZIP API call. Most function calls
+ *   reset error code to UNZ_OK on success and set error code on
+ *   failure. Some functions do not reset error code. Most of them are
+ *   \c const and do not access ZIP archive in any way. Some, on the
+ *   other hand, \em do access ZIP archive, but do not reset or set
+ *   error code. For example, QuaZipFile::pos() function. Such functions
+ *   are explicitly marked in the documentation.
+ * - Most functions have their own way to report errors, by returning a
+ *   null string, negative value or \c false. If such a function returns
+ *   error value, call getZipError() to get more information about
+ *   error. See "zip.h" and "unzip.h" of the ZIP/UNZIP package for error
+ *   codes.
+ * - If the function returns error-stating value (like \c false), but
+ *   getZipError() returns UNZ_OK, it means that you did something
+ *   obviously wrong. For example, tried to write in the archive open
+ *   for reading or not open at all. You better just not do that!
+ *   Most functions also issue a warning using qWarning() function in
+ *   such cases. See documentation for a specific function for details
+ *   on when it should not be called.
+ *
+ * I know that this is somewhat messy, but I could not find a better way
+ * to do all the error handling.
+ **/

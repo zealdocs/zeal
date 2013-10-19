@@ -1,0 +1,32 @@
+/**
+ * \page faq QuaZip FAQ
+ *
+ * <!--
+ *
+ * \ref faq-non-QIODevice "Q. Is there any way to use QuaZipFile in Qt where you are supposed to use normal (non-zipped) file, but not through QIODevice API?"
+ * \ref faq-zip64 "Q. Can QuaZIP handle files larger than 4GB? What about zip64 standard?"
+ *
+ * -->
+ *
+ * \anchor faq-non-QIODevice Q. Is there any way to use QuaZipFile in Qt
+ * where you are supposed to use normal (non-zipped) file, but not
+ * through QIODevice API?
+ *
+ * A. Usually not. For example, if you are passing file name to some
+ * database driver (like SQLite), Qt usually just passes this name down
+ * to the 3rd-party library, which is usually does not know anything
+ * about QIODevice and therefore there is no way to pass QuaZipFile as
+ * normal file. However, if we are talking about some place where you
+ * pass file name, and then indirectly use QFile to open it, then it is
+ * a good idea to make overloaded method, which accepts a QIODevice
+ * pointer. Then you would be able to pass QuaZipFile as well as many
+ * other nice things such as QBuffer or QProcess.
+ *
+ * \anchor faq-zip64 Q. Can QuaZIP handle files larger than 4GB? What
+ * about zip64 standard?
+ *
+ * A. It isn't supported yet. QuaZIP is a wrapper around minizip. The minizip
+ * version QuaZIP was based on didn't support zip64. The newer version
+ * that appeared around 2010 reportedly does. But it will take some time
+ * and effort to integrate this version with QuaZIP.
+ **/

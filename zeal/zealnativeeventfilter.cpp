@@ -2,7 +2,7 @@
 
 #ifdef WIN32
 #include <windows.h>
-#else
+#elsif LINUX
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
@@ -97,7 +97,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         emit gotHotKey();
         return true;
     }
-#else // WIN32
+#elsif LINUX // WIN32 or LINUX
     xcb_generic_event_t* ev = static_cast<xcb_generic_event_t*>(message);
     if(((ev->response_type&127) == XCB_KEY_PRESS || (ev->response_type&127) == XCB_KEY_RELEASE) && !hotKey.isEmpty()) {
         // XCB_KEY_RELEASE must be ignored by Qt because otherwise it causes SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
@@ -181,6 +181,6 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         free(keycodes);
         if(found) return true;
     }
-#endif // WIN32
+#endif // WIN32 or LINUX
     return false;
 }
