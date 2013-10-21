@@ -36,7 +36,9 @@
 
 #ifdef WIN32
 #include <windows.h>
-#else
+#endif
+
+#ifdef LINUX
 #include <qpa/qplatformnativeinterface.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
@@ -78,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     // initialise icons
-#ifdef WIN32
+#if defined(WIN32) || defined(OSX)
     icon = qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation);
 #else
     icon = QIcon::fromTheme("edit-find");
@@ -664,7 +666,7 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
         settings.setValue("hotkey", hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
     }
-#else
+#elif LINUX
     auto platform = qApp->platformNativeInterface();
 
     xcb_connection_t *c = static_cast<xcb_connection_t*>(platform->nativeResourceForWindow("connection", 0));
@@ -721,5 +723,5 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     }
     free(keysyms);
     free(keycodes);
-#endif // WIN32
+#endif // WIN32 or LINUX
 }

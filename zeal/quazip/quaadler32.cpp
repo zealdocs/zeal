@@ -1,6 +1,6 @@
 #include "quaadler32.h"
 
-#include "QtZlib/zlib.h"
+#include "zlib.h"
 
 QuaAdler32::QuaAdler32()
 {

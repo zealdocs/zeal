@@ -1,6 +1,6 @@
 #include "quacrc32.h"
 
-#include "QtZlib/zlib.h"
+#include "zlib.h"
 
 QuaCrc32::QuaCrc32()
 {
