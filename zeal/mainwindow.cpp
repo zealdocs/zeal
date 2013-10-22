@@ -115,8 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
     auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     auto dataDir = QDir(dataLocation);
     if(!dataDir.cd("docsets")) {
-        QMessageBox::information(this, "No docsets directory found",
-                                 QString("'docsets' directory not found in '%1'. Creating a new one.").arg(dataLocation));
         dataDir.mkpath("docsets");
     }
     dataDir.cd("docsets");
