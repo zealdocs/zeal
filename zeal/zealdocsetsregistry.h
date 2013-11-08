@@ -78,6 +78,12 @@ public:
         types.remove(name);
     }
 
+    void clear() {
+        for(auto key : dbs.keys()) {
+            remove(key);
+        }
+    }
+
     QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);
     const QList<ZealSearchResult>& getQueryResults();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>459</width>
+    <width>568</width>
     <height>505</height>
    </rect>
   </property>
@@ -78,6 +78,58 @@
               <string notr="true">hidingBehavior</string>
              </attribute>
             </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Docsets storage directory</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLineEdit" name="storageEdit"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="storageButton">
+               <property name="text">
+                <string>Browse...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+             <item>
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>NOTE:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zeal will also look for docsets in the 'docsets' subdirectory of the directory containing zeal binary file, if such 'docsets' subdirectory exists. This is meant to be useful for creating portable versions of Zeal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="scaledContents">
+                <bool>false</bool>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>

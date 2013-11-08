@@ -48,6 +48,8 @@ private:
     QMenu *trayIconMenu;
     int naCount;
     QMap<QString, QString> urls;
+    QString docsetsDir();
+    void initialiseDocsets();
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());

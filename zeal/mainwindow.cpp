@@ -31,6 +31,7 @@
 #include <QWebFrame>
 #include <QWebElement>
 #include <QShortcut>
+#include <QFileDialog>
 #include "quazip/quazip.h"
 #include "JlCompress.h"
 
@@ -112,18 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setHotKey(keySequence);
 
     // initialise docsets
-    auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    auto dataDir = QDir(dataLocation);
-    if(!dataDir.cd("docsets")) {
-        dataDir.mkpath("docsets");
-    }
-    dataDir.cd("docsets");
-    for(auto subdir : dataDir.entryInfoList()) {
-        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
-                                      Q_ARG(QString, subdir.absoluteFilePath()));
-        }
-    }
+    initialiseDocsets();
 
     // initialise ui
     ui->setupUi(this);
@@ -225,10 +215,10 @@ MainWindow::MainWindow(QWidget *parent) :
                 connect(reply3, &QNetworkReply::downloadProgress, progressCb);
             } else {
                 if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
-                    auto dataDir = QDir(dataLocation);
-                    if(!dataDir.cd("docsets")) {
+                    auto dataDir = QDir(docsetsDir());
+                    if(!dataDir.exists()) {
                         QMessageBox::critical(&settingsDialog, "No docsets directory found",
-                                              QString("'docsets' directory not found in '%1'").arg(dataLocation));
+                                              QString("'%s' directory not found").arg(docsetsDir()));
                     } else {
 #ifdef WIN32
                         QDir tardir(QCoreApplication::applicationDirPath());
@@ -301,10 +291,10 @@ MainWindow::MainWindow(QWidget *parent) :
                     QuaZip zipfile(tmp);
                     if(zipfile.open(QuaZip::mdUnzip)) {
                         tmp->close();
-                        auto dataDir = QDir(dataLocation);
-                        if(!dataDir.cd("docsets")) {
+                        auto dataDir = QDir(docsetsDir());
+                        if(!dataDir.exists()) {
                             QMessageBox::critical(&settingsDialog, "No docsets directory found",
-                                                  QString("'docsets' directory not found in '%1'").arg(dataLocation));
+                                                  QString("'%1' directory not found").arg(docsetsDir()));
                         } else {
                             QStringList *files = new QStringList;
                             settingsDialog.ui->docsetsProgress->setRange(0, 0);
@@ -382,10 +372,10 @@ MainWindow::MainWindow(QWidget *parent) :
                     "Clicking 'Cancel' in this dialog box will not revert the deletion.").arg(
                                   settingsDialog.ui->listView->currentIndex().data().toString()));
         if(answer == QMessageBox::Yes) {
-            auto dataDir = QDir(dataLocation);
+            auto dataDir = QDir(docsetsDir());
             auto docsetName = settingsDialog.ui->listView->currentIndex().data().toString();
             zealList.removeRow(settingsDialog.ui->listView->currentIndex().row());
-            if(dataDir.cd("docsets")) {
+            if(dataDir.exists()) {
                 settingsDialog.ui->docsetsProgress->show();
                 settingsDialog.ui->deleteButton->hide();
                 settingsDialog.ui->docsetsProgress->setRange(0, 0);
@@ -434,6 +424,12 @@ MainWindow::MainWindow(QWidget *parent) :
         settingsDialog.ui->docsetsProgress->show();
         settingsDialog.ui->docsetsProgress->setRange(0, 0);
     });
+    connect(settingsDialog.ui->storageButton, &QPushButton::clicked, [=]() {
+        QString dir = QFileDialog::getExistingDirectory(0, "Open Directory");
+        if(!dir.isEmpty()) {
+            settingsDialog.ui->storageEdit->setText(dir);
+        }
+    });
     connect(settingsAction, &QAction::triggered, [=]() {
         settingsDialog.setHotKey(hotKey);
         settingsDialog.ui->minFontSize->setValue(settings.value("minFontSize").toInt());
@@ -443,8 +439,15 @@ MainWindow::MainWindow(QWidget *parent) :
         } else {
             settingsDialog.ui->radioMinimize->setChecked(true);
         }
+        settingsDialog.ui->storageEdit->setText(docsetsDir());
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
+            if(settingsDialog.ui->storageEdit->text() != docsetsDir()) {
+                // set new docsets dir
+                settings.setValue("docsetsDir", settingsDialog.ui->storageEdit->text());
+                // reload docsets:
+                initialiseDocsets();
+            }
             setHotKey(settingsDialog.hotKey());
             settings.setValue("minFontSize", QVariant(ui->webView->settings()->fontSize(QWebSettings::MinimumFontSize)));
             settings.setValue("hidingBehavior",
@@ -722,4 +725,38 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     free(keysyms);
     free(keycodes);
 #endif // WIN32 or LINUX
+}
+
+QString MainWindow::docsetsDir() {
+    if(settings.contains("docsetsDir")) {
+        return settings.value("docsetsDir").toString();
+    } else {
+        auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        auto dataDir = QDir(dataLocation);
+        if(!dataDir.cd("docsets")) {
+            dataDir.mkpath("docsets");
+        }
+        dataDir.cd("docsets");
+        return dataDir.absolutePath();
+    }
+}
+
+void MainWindow::initialiseDocsets() {
+    docsets->clear();
+    QDir dataDir(docsetsDir());
+    for(auto subdir : dataDir.entryInfoList()) {
+        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
+            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                      Q_ARG(QString, subdir.absoluteFilePath()));
+        }
+    }
+    QDir appDir(QCoreApplication::applicationDirPath());
+    if(appDir.cd("docsets")) {
+        for(auto subdir : appDir.entryInfoList()) {
+            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
+                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                          Q_ARG(QString, subdir.absoluteFilePath()));
+            }
+        }
+    }
 }
