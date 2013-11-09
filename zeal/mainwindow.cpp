@@ -222,10 +222,9 @@ MainWindow::MainWindow(QWidget *parent) :
                     } else {
 #ifdef WIN32
                         QDir tardir(QCoreApplication::applicationDirPath());
-                        tardir.cd("bsdtar");
                         QString program = tardir.filePath("bsdtar.exe");
 #else
-                        QString program = "tar";
+                        QString program = "bsdtar";
 #endif
                         QTemporaryFile *tmp = new QTemporaryFile;
                         tmp->open();
@@ -236,11 +235,12 @@ MainWindow::MainWindow(QWidget *parent) :
                         tar->setWorkingDirectory(dataDir.absolutePath());
                         QStringList args;
                         if(reply->request().url().path().endsWith("tar.bz2")) {
-                            args = QStringList("-jtf");
+                            args = QStringList("-jqtf");
                         } else {
-                            args = QStringList("-ztf");
+                            args = QStringList("-zqtf");
                         }
                         args.append(tmp->fileName());
+                        args.append("*docset");
                         tar->start(program, args);
                         tar->waitForFinished();
                         auto line_buf = tar->readLine();
