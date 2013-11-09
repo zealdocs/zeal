@@ -52,7 +52,7 @@ macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
 macx:CONFIG += c++11
 
 win32:DEFINES += WIN32 QUAZIP_BUILD
-!win32:LIBS += -lz
+LIBS += -lz
 
 unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
