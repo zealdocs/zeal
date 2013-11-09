@@ -31,8 +31,8 @@ If you prefer to compile Zeal manually, currently it requires Qt 5.0. To compile
 
  * [Issues](https://github.com/jkozera/zeal/issues)
  * Search enhancements - some ideas:
-   1. Allow selecting subset of docsets to search in (enable/disable docsets, docset groups)
-   2. Grouping of similar results (like overloaded funcdtions)
+   * Allow selecting subset of docsets to search in (enable/disable docsets, docset groups)
+   * Grouping of similar results (like overloaded funcdtions)
  * Code cleanup
    * `MainWindow::MainWindow` probably should be shorter than 200+ lines.
    * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
