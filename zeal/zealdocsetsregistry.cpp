@@ -2,6 +2,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QtSql/QSqlQuery>
+#include <QStandardPaths>
 
 #include "zealdocsetsregistry.h"
 #include "zealsearchresult.h"
@@ -38,7 +39,9 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
     dirs.insert(name, dir);
 }
 
-ZealDocsetsRegistry::ZealDocsetsRegistry() {
+ZealDocsetsRegistry::ZealDocsetsRegistry() :
+    settings("Zeal", "Zeal")
+{
     lastQuery = -1;
     auto thread = new QThread(this);
     moveToThread(thread);
@@ -153,12 +156,37 @@ const QList<ZealSearchResult>& ZealDocsetsRegistry::getQueryResults()
     return queryResults;
 }
 
-void ZealDocsetsRegistry::initializeDocsets(QDir dir)
+QString ZealDocsetsRegistry::docsetsDir(){
+    if(settings.contains("docsetsDir")) {
+        return settings.value("docsetsDir").toString();
+    } else {
+        auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        auto dataDir = QDir(dataLocation);
+        if(!dataDir.cd("docsets")) {
+            dataDir.mkpath("docsets");
+        }
+        dataDir.cd("docsets");
+        return dataDir.absolutePath();
+    }
+}
+
+void ZealDocsetsRegistry::initialiseDocsets()
 {
-    for(auto subdir : dir.entryInfoList()) {
+    clear();
+    QDir dataDir( docsetsDir() );
+    for(auto subdir : dataDir.entryInfoList()) {
         if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
             QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
                                       Q_ARG(QString, subdir.absoluteFilePath()));
+        }
+    }
+    QDir appDir( QCoreApplication::applicationDirPath() );
+    if(appDir.cd("docsets")){
+        for(auto subdir : appDir.entryInfoList()) {
+            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
+                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                          Q_ARG(QString, subdir.absoluteFilePath()));
+            }
         }
     }
 }

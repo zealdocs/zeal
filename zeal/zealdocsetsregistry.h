@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QMap>
+#include <QSettings>
 
 #include "zealsearchresult.h"
 
@@ -88,7 +89,8 @@ public:
     void runQuery(const QString& query);
     const QList<ZealSearchResult>& getQueryResults();
 
-    void initializeDocsets(QDir dir);
+    QString docsetsDir();
+    void initialiseDocsets();
 
 signals:
     void queryCompleted();
@@ -112,6 +114,7 @@ private:
     QMap<QString, QDir> dirs;
     QMap<QString, DocSetType> types;
     QList<ZealSearchResult> queryResults;
+    QSettings settings;
     int lastQuery;
 };
 

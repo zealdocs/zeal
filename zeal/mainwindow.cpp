@@ -113,7 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setHotKey(keySequence);
 
     // initialise docsets
-    initialiseDocsets();
+    docsets->initialiseDocsets();
 
     // initialise ui
     ui->setupUi(this);
@@ -215,10 +215,10 @@ MainWindow::MainWindow(QWidget *parent) :
                 connect(reply3, &QNetworkReply::downloadProgress, progressCb);
             } else {
                 if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
-                    auto dataDir = QDir(docsetsDir());
+                    auto dataDir = QDir(docsets->docsetsDir());
                     if(!dataDir.exists()) {
                         QMessageBox::critical(&settingsDialog, "No docsets directory found",
-                                              QString("'%s' directory not found").arg(docsetsDir()));
+                                              QString("'%s' directory not found").arg(docsets->docsetsDir()));
                     } else {
 #ifdef WIN32
                         QDir tardir(QCoreApplication::applicationDirPath());
@@ -291,10 +291,10 @@ MainWindow::MainWindow(QWidget *parent) :
                     QuaZip zipfile(tmp);
                     if(zipfile.open(QuaZip::mdUnzip)) {
                         tmp->close();
-                        auto dataDir = QDir(docsetsDir());
+                        auto dataDir = QDir(docsets->docsetsDir());
                         if(!dataDir.exists()) {
                             QMessageBox::critical(&settingsDialog, "No docsets directory found",
-                                                  QString("'%1' directory not found").arg(docsetsDir()));
+                                                  QString("'%1' directory not found").arg(docsets->docsetsDir()));
                         } else {
                             QStringList *files = new QStringList;
                             settingsDialog.ui->docsetsProgress->setRange(0, 0);
@@ -372,7 +372,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     "Clicking 'Cancel' in this dialog box will not revert the deletion.").arg(
                                   settingsDialog.ui->listView->currentIndex().data().toString()));
         if(answer == QMessageBox::Yes) {
-            auto dataDir = QDir(docsetsDir());
+            auto dataDir = QDir(docsets->docsetsDir());
             auto docsetName = settingsDialog.ui->listView->currentIndex().data().toString();
             zealList.removeRow(settingsDialog.ui->listView->currentIndex().row());
             if(dataDir.exists()) {
@@ -439,14 +439,14 @@ MainWindow::MainWindow(QWidget *parent) :
         } else {
             settingsDialog.ui->radioMinimize->setChecked(true);
         }
-        settingsDialog.ui->storageEdit->setText(docsetsDir());
+        settingsDialog.ui->storageEdit->setText(docsets->docsetsDir());
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
-            if(settingsDialog.ui->storageEdit->text() != docsetsDir()) {
+            if(settingsDialog.ui->storageEdit->text() != docsets->docsetsDir()) {
                 // set new docsets dir
                 settings.setValue("docsetsDir", settingsDialog.ui->storageEdit->text());
                 // reload docsets:
-                initialiseDocsets();
+                docsets->initialiseDocsets();
             }
             setHotKey(settingsDialog.hotKey());
             settings.setValue("minFontSize", QVariant(ui->webView->settings()->fontSize(QWebSettings::MinimumFontSize)));
@@ -725,28 +725,4 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     free(keysyms);
     free(keycodes);
 #endif // WIN32 or LINUX
-}
-
-QString MainWindow::docsetsDir() {
-    if(settings.contains("docsetsDir")) {
-        return settings.value("docsetsDir").toString();
-    } else {
-        auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-        auto dataDir = QDir(dataLocation);
-        if(!dataDir.cd("docsets")) {
-            dataDir.mkpath("docsets");
-        }
-        dataDir.cd("docsets");
-        return dataDir.absolutePath();
-    }
-}
-
-void MainWindow::initialiseDocsets() {
-    docsets->clear();
-    QDir dataDir(docsetsDir());
-    docsets->initializeDocsets( dataDir );
-    QDir appDir(QCoreApplication::applicationDirPath());
-    if(appDir.cd("docsets")) {
-        docsets->initializeDocsets( appDir );
-    }
 }
