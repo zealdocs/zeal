@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "ui_zealsettingsdialog.h"
+#include "zeallistmodel.h"
 
 class ZealSettingsDialog : public QDialog
 {
@@ -15,6 +16,14 @@ public:
     QKeySequence hotKey();
     
     Ui::ZealSettingsDialog *ui;
+
+    void setListModel(ZealListModel *model){
+        zealList = model;
+        ui->listView->setModel( zealList );
+    }
+
+private:
+    ZealListModel *zealList;
 };
 
 #endif // ZEALSETTINGSDIALOG_H

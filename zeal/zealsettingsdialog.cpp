@@ -5,6 +5,9 @@ ZealSettingsDialog::ZealSettingsDialog(QWidget *parent) :
     ui(new Ui::ZealSettingsDialog)
 {
     ui->setupUi(this);
+
+    ui->downloadableGroup->hide();
+    ui->docsetsProgress->hide();
 }
 
 ZealSettingsDialog::~ZealSettingsDialog()

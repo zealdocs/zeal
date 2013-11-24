@@ -129,9 +129,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ZealNetworkAccessManager * zealNaManager = new ZealNetworkAccessManager();
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
 
-    settingsDialog.ui->downloadableGroup->hide();
-    settingsDialog.ui->docsetsProgress->hide();
-
     // menu
     auto fileMenu = new QMenu("&File");
     auto quitAction = fileMenu->addAction("&Quit");
@@ -362,7 +359,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(settingsDialog.ui->minFontSize, signal, [=](int val) {
         ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, val);
     });
-    settingsDialog.ui->listView->setModel(&zealList);
+    settingsDialog.setListModel( &zealList );
     connect(settingsDialog.ui->listView, &QListView::clicked, [=](const QModelIndex& index) {
         settingsDialog.ui->deleteButton->setEnabled(true);
     });
