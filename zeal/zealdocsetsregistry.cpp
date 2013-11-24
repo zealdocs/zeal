@@ -152,3 +152,13 @@ const QList<ZealSearchResult>& ZealDocsetsRegistry::getQueryResults()
 {
     return queryResults;
 }
+
+void ZealDocsetsRegistry::initializeDocsets(QDir dir)
+{
+    for(auto subdir : dir.entryInfoList()) {
+        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
+            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                                      Q_ARG(QString, subdir.absoluteFilePath()));
+        }
+    }
+}

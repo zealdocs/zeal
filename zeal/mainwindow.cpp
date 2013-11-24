@@ -744,19 +744,9 @@ QString MainWindow::docsetsDir() {
 void MainWindow::initialiseDocsets() {
     docsets->clear();
     QDir dataDir(docsetsDir());
-    for(auto subdir : dataDir.entryInfoList()) {
-        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
-                                      Q_ARG(QString, subdir.absoluteFilePath()));
-        }
-    }
+    docsets->initializeDocsets( dataDir );
     QDir appDir(QCoreApplication::applicationDirPath());
     if(appDir.cd("docsets")) {
-        for(auto subdir : appDir.entryInfoList()) {
-            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
-                                          Q_ARG(QString, subdir.absoluteFilePath()));
-            }
-        }
+        docsets->initializeDocsets( appDir );
     }
 }

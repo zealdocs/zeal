@@ -88,6 +88,8 @@ public:
     void runQuery(const QString& query);
     const QList<ZealSearchResult>& getQueryResults();
 
+    void initializeDocsets(QDir dir);
+
 signals:
     void queryCompleted();
 
