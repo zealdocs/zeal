@@ -2,9 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QProcess>
 #include <QLocalServer>
-#include <QNetworkAccessManager>
 #include <QDialog>
 #include <QSettings>
 #include <QSystemTrayIcon>
@@ -43,13 +41,12 @@ private:
     QSettings settings;
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
-    QNetworkAccessManager naManager;
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
-    int naCount;
     QMap<QString, QString> urls;
-    QString docsetsDir();
-    void initialiseDocsets();
+private slots:
+    void refreshRequest();
+    void changeMinFontSize(int minFont);
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
