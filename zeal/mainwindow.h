@@ -2,9 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QProcess>
 #include <QLocalServer>
-#include <QNetworkAccessManager>
 #include <QDialog>
 #include <QSettings>
 #include <QSystemTrayIcon>
@@ -43,10 +41,8 @@ private:
     QSettings settings;
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
-    QNetworkAccessManager naManager;
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
-    int naCount;
     QMap<QString, QString> urls;
 private slots:
     void refreshRequest();

@@ -29,15 +29,7 @@ ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
 
     ui->listView->setModel( &zealList );
 
-    ui->minFontSize->setValue(settings.value("minFontSize").toInt());
-    QString hiding = settings.value("hidingBehavior", "systray").toString();
-    if(hiding == "systray") {
-        ui->radioSysTray->setChecked(true);
-    } else {
-        ui->radioMinimize->setChecked(true);
-    }
-    ui->storageEdit->setText(docsets->docsetsDir());
-
+    loadSettings();
 
     connect(&naManager, &QNetworkAccessManager::finished, [this](QNetworkReply *reply){DownloadCompleteCb(reply);});
 }
@@ -55,6 +47,17 @@ void ZealSettingsDialog::setHotKey(const QKeySequence &keySequence)
 QKeySequence ZealSettingsDialog::hotKey()
 {
     return ui->toolButton->keySequence();
+}
+
+void ZealSettingsDialog::loadSettings(){
+    ui->minFontSize->setValue(settings.value("minFontSize").toInt());
+    QString hiding = settings.value("hidingBehavior", "systray").toString();
+    if(hiding == "systray") {
+        ui->radioSysTray->setChecked(true);
+    } else {
+        ui->radioMinimize->setChecked(true);
+    }
+    ui->storageEdit->setText(docsets->docsetsDir());
 }
 
 void ZealSettingsDialog::progressCb(quint64 recv, quint64 total){
@@ -369,7 +372,6 @@ void ZealSettingsDialog::on_buttonBox_accepted()
         // reload docsets:
         docsets->initialiseDocsets();
     }
-    setHotKey(hotKey());
     settings.setValue("minFontSize", ui->minFontSize->text());
     settings.setValue("hidingBehavior",
                       ui->radioSysTray->isChecked() ?
@@ -379,4 +381,9 @@ void ZealSettingsDialog::on_buttonBox_accepted()
 void ZealSettingsDialog::on_minFontSize_valueChanged(int arg1)
 {
     minFontSizeChanged(arg1);
+}
+
+void ZealSettingsDialog::on_buttonBox_rejected()
+{
+    loadSettings();
 }

@@ -11,29 +11,16 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QAbstractEventDispatcher>
-#include <QStandardPaths>
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <QLocalSocket>
-#include <QDir>
 #include <QSettings>
 #include <QTimer>
 #include <QWebSettings>
 #include <QNetworkProxyFactory>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QAbstractNetworkCache>
-#include <QUrl>
-#include <QTemporaryFile>
-#include <QtConcurrent/QtConcurrent>
-#include <QFutureWatcher>
-#include <QProcess>
 #include <QWebFrame>
-#include <QWebElement>
 #include <QShortcut>
-#include <QFileDialog>
-#include "quazip/quazip.h"
-#include "JlCompress.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -57,7 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     trayIcon = nullptr;
     trayIconMenu = nullptr;
-    naCount = 0;
 
     // Use the platform-specific proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);
@@ -149,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent) :
         settingsDialog.setHotKey(hotKey);
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
+            setHotKey(settingsDialog.hotKey());
             if(settings.value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
             } else if(trayIcon) {
