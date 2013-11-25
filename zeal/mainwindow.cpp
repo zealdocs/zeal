@@ -142,10 +142,9 @@ MainWindow::MainWindow(QWidget *parent) :
     auto settingsAction = editMenu->addAction("&Options");
     ui->menuBar->addMenu(editMenu);
 
-    void (QSpinBox:: *signal)(int) = &QSpinBox::valueChanged;
-    connect(settingsDialog.ui->minFontSize, signal, [=](int val) {
-        ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, val);
-    });
+    connect(&settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
+    connect(&settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
+
     connect(settingsAction, &QAction::triggered, [=]() {
         settingsDialog.setHotKey(hotKey);
         nativeFilter.setEnabled(false);
@@ -423,4 +422,12 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     free(keysyms);
     free(keycodes);
 #endif // WIN32 or LINUX
+}
+
+void MainWindow::refreshRequest(){
+    ui->treeView->reset();
+}
+
+void MainWindow::changeMinFontSize(int minFont){
+    ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
 }

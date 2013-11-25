@@ -23,7 +23,10 @@ public:
 
    public:
     void progressCb(quint64 recv, quint64 total);
-
+    void DownloadCompleteCb(QNetworkReply *reply);
+signals:
+    void refreshRequested();
+    void minFontSizeChanged(int minFont);
 private slots:
     void on_downloadButton_clicked();
 
@@ -40,6 +43,8 @@ private slots:
     void on_tabWidget_currentChanged(int index);
 
     void on_buttonBox_accepted();
+
+    void on_minFontSize_valueChanged(int arg1);
 
 private:
     ZealListModel &zealList;

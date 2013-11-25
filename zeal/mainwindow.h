@@ -48,6 +48,9 @@ private:
     QMenu *trayIconMenu;
     int naCount;
     QMap<QString, QString> urls;
+private slots:
+    void refreshRequest();
+    void changeMinFontSize(int minFont);
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
