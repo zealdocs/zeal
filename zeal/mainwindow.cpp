@@ -156,8 +156,8 @@ MainWindow::MainWindow(QWidget *parent) :
     auto aboutQtAction = helpMenu->addAction("About &Qt");
     connect(aboutAction, &QAction::triggered,
             [&]() { QMessageBox::about(this, "About Zeal",
-                "This is Zeal - a documentation browser.\n\n"
-                "For details see https://github.com/jkozera/zeal/"); });
+                QString("This is Zeal ") + ZEAL_VERSION + " - a documentation browser.\n\n"
+                "For details see http://zealdocs.org/"); });
     connect(aboutQtAction, &QAction::triggered,
             [&]() { QMessageBox::aboutQt(this); });
     ui->menuBar->addMenu(helpMenu);
