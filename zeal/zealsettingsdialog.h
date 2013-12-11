@@ -41,7 +41,7 @@ private slots:
 
     void on_listView_clicked(const QModelIndex &index);
 
-    void on_tabWidget_currentChanged(int index);
+    void on_tabWidget_currentChanged();
 
     void on_buttonBox_accepted();
 
