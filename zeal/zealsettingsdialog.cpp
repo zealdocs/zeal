@@ -140,7 +140,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
         }
     } else {
         QVariant itemId = reply->property("listItem");
-        QListWidgetItem *listItem = ui->docsetsList->item( itemId.toInt() );
+        QListWidgetItem *listItem = (QListWidgetItem*) itemId.value<void*>();
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
             auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
             connect(reply3, &QNetworkReply::downloadProgress, [this, listItem](quint64 recv, quint64 total){progressCb(recv, total, listItem);});
@@ -326,10 +326,22 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
         QListWidgetItem *tmp = ui->docsetsList->item(i);
         if(tmp->checkState() == Qt::Checked){
             item = tmp;
-            break;
+
+            QUrl url(urls[item->text()]);
+
+            qDebug() << "Downloading: " << url;
+
+            naCount = 2;
+            auto reply = naManager.get(QNetworkRequest(url));
+            reply->setProperty("listItem", qVariantFromValue( (void*) item ));
+            if(url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
+                // Dash's docsets don't redirect, so we can start showing progress instantly
+                connect(reply, &QNetworkReply::downloadProgress, [this, item](quint64 recv, quint64 total){progressCb(recv, total, item);});
+            }
+            //break;
         }
     }
-    QUrl url(urls[item->text()]);
+    /*QUrl url(urls[item->text()]);
     naCount = 2;
     auto reply = naManager.get(QNetworkRequest(url));
     reply->setProperty("listItem", QVariant( i ));
@@ -338,7 +350,7 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
         connect(reply, &QNetworkReply::downloadProgress, [this, item](quint64 recv, quint64 total){progressCb(recv, total, item);});
     }
     ui->docsetsProgress->show();
-    ui->docsetsProgress->setRange(0, 0);
+    ui->docsetsProgress->setRange(0, 0);*/
 }
 
 void ZealSettingsDialog::on_storageButton_clicked()
