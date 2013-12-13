@@ -23,7 +23,7 @@ public:
 
 private:
     void loadSettings();
-    void progressCb(quint64 recv, quint64 total);
+    void progressCb(quint64 recv, quint64 total, QListWidgetItem *item = NULL);
     void DownloadCompleteCb(QNetworkReply *reply);
 signals:
     void refreshRequested();

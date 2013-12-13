@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include "quazip/quazip.h"
 #include "JlCompress.h"
+#include "progressitemdelegate.h"
 
 ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
     QDialog(parent),
@@ -28,6 +29,9 @@ ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
     ui->docsetsProgress->hide();
 
     ui->listView->setModel( &zealList );
+
+    ProgressItemDelegate *progressDelegate = new ProgressItemDelegate();
+    ui->docsetsList->setItemDelegate( progressDelegate );
 
     loadSettings();
 
@@ -60,10 +64,15 @@ void ZealSettingsDialog::loadSettings(){
     ui->storageEdit->setText(docsets->docsetsDir());
 }
 
-void ZealSettingsDialog::progressCb(quint64 recv, quint64 total){
+void ZealSettingsDialog::progressCb(quint64 recv, quint64 total, QListWidgetItem *item){
     if(recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
         ui->docsetsProgress->setMaximum(total);
         ui->docsetsProgress->setValue(recv);
+
+        if( item != NULL ){
+            item->setData( ProgressItemDelegate::ProgressMaxRole, total );
+            item->setData( ProgressItemDelegate::ProgressRole, recv );
+        }
     }
 }
 
@@ -93,6 +102,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                    QDir icondir("/usr/share/pixmaps/zeal");
 #endif
                     auto *lwi = new QListWidgetItem(QIcon(icondir.filePath(iconfile)), name);
+                    lwi->setCheckState( Qt::Unchecked );
                     ui->docsetsList->addItem(lwi);
                 }
             }
@@ -112,7 +122,9 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                             break;
                         }
                         urls[docset[0]] = docset[1];
-                        ui->docsetsList->addItem(docset[0]);
+                        auto *lwi = new QListWidgetItem( docset[0], ui->docsetsList );
+                        lwi->setCheckState( Qt::Unchecked );
+                        ui->docsetsList->addItem(lwi);
                     }
                 }
                 if(urls.size() > 0) {
@@ -127,9 +139,11 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
             ui->docsetsProgress->hide();
         }
     } else {
+        QVariant itemId = reply->property("listItem");
+        QListWidgetItem *listItem = ui->docsetsList->item( itemId.toInt() );
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
             auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
-            connect(reply3, &QNetworkReply::downloadProgress, [this](quint64 recv, quint64 total){progressCb(recv, total);});
+            connect(reply3, &QNetworkReply::downloadProgress, [this, listItem](quint64 recv, quint64 total){progressCb(recv, total, listItem);});
         } else {
             if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
                 auto dataDir = QDir(docsets->docsetsDir());
@@ -197,7 +211,11 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                         ui->downloadDocsetButton->setText("Download");
                         ui->docsetsProgress->hide();
                     });
-                    ui->docsetsProgress->setRange(0, 0);
+                    //ui->docsetsProgress->setRange(0, 0);
+                    if(listItem){
+                        listItem->setData(ProgressItemDelegate::ProgressRole, 0);
+                        listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
+                    }
                     tar->start(program, args);
                 }
             } else {
@@ -214,7 +232,11 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                                               QString("'%1' directory not found").arg(docsets->docsetsDir()));
                     } else {
                         QStringList *files = new QStringList;
-                        ui->docsetsProgress->setRange(0, 0);
+                        //ui->docsetsProgress->setRange(0, 0);
+                if(listItem){
+                listItem->setData(ProgressItemDelegate::ProgressRole, 0);
+                listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
+                }
                         auto future = QtConcurrent::run([=] {
                             *files = JlCompress::extractDir(tmp->fileName(), dataDir.absolutePath());
                             delete tmp;
@@ -298,12 +320,22 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
     ui->docsetsList->setEnabled(false);
     ui->downloadDocsetButton->setEnabled(false);
     ui->downloadDocsetButton->setText("Downloading, please wait...");
-    QUrl url(urls[ui->docsetsList->currentItem()->text()]);
+    QListWidgetItem *item = NULL;
+    int i=0;
+    for(i=0;i<ui->docsetsList->count();++i){
+        QListWidgetItem *tmp = ui->docsetsList->item(i);
+        if(tmp->checkState() == Qt::Checked){
+            item = tmp;
+            break;
+        }
+    }
+    QUrl url(urls[item->text()]);
     naCount = 2;
     auto reply = naManager.get(QNetworkRequest(url));
+    reply->setProperty("listItem", QVariant( i ));
     if(url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
         // Dash's docsets don't redirect, so we can start showing progress instantly
-        connect(reply, &QNetworkReply::downloadProgress, [this](quint64 recv, quint64 total){progressCb(recv, total);});
+        connect(reply, &QNetworkReply::downloadProgress, [this, item](quint64 recv, quint64 total){progressCb(recv, total, item);});
     }
     ui->docsetsProgress->show();
     ui->docsetsProgress->setRange(0, 0);
