@@ -358,10 +358,15 @@ void ZealSettingsDialog::on_listView_clicked(const QModelIndex &index)
     ui->deleteButton->setEnabled(true);
 }
 
-void ZealSettingsDialog::on_tabWidget_currentChanged(int index)
+void ZealSettingsDialog::on_tabWidget_currentChanged()
 {
-    // This is needed so the docset list is up to date when the user views it
+    // Ensure the list is completely up to date
+    QModelIndex index = ui->listView->currentIndex();
     ui->listView->reset();
+
+    if (index.isValid()) {
+        ui->listView->setCurrentIndex(index);
+    }
 }
 
 void ZealSettingsDialog::on_buttonBox_accepted()
