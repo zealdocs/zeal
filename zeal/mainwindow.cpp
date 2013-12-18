@@ -144,12 +144,19 @@ MainWindow::MainWindow(QWidget *parent) :
         nativeFilter.setEnabled(true);
         ui->treeView->reset();
     });
+
+    ui->action_Back->setShortcut(QKeySequence::Back);
+    ui->action_Forward->setShortcut(QKeySequence::Forward);
+    connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
+    connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
+
     connect(ui->action_About, &QAction::triggered,
             [&]() { QMessageBox::about(this, "About Zeal",
                 QString("This is Zeal ") + ZEAL_VERSION + " - a documentation browser.\n\n"
                 "For details see http://zealdocs.org/"); });
     connect(ui->action_About_QT, &QAction::triggered,
             [&]() { QMessageBox::aboutQt(this); });
+    displayViewActions();
 
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
@@ -177,6 +184,13 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->webView->load(url);
         }
     });
+    connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
+    connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
+
+    connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
+        displayViewActions();
+    });
+
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
         ui->treeView->reset();
@@ -197,6 +211,23 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
+}
+
+void MainWindow::displayViewActions() {
+    ui->action_Back->setEnabled(ui->webView->canGoBack());
+    ui->backButton->setEnabled(ui->webView->canGoBack());
+    ui->action_Forward->setEnabled(ui->webView->canGoForward());
+    ui->forwardButton->setEnabled(ui->webView->canGoForward());
+}
+
+void MainWindow::back() {
+    ui->webView->back();
+    displayViewActions();
+}
+
+void MainWindow::forward() {
+    ui->webView->forward();
+    displayViewActions();
 }
 
 void MainWindow::createTrayIcon()
