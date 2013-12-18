@@ -3,16 +3,18 @@
 
 class ZealSearchQuery
 {
-    QString rawQuery;
-
 public:
-    ZealSearchQuery(const QString& rawQuery);
+    ZealSearchQuery(const QString& coreQuery);
 
     static const char DOCSET_FILTER_SEPARATOR = ':';
 
     QString getDocsetFilter();
     QString getSanitizedQuery();
     QString getCoreQuery();
+
+private:
+    QString docsetFilter;
+    QString coreQuery;
 };
 
 #endif // ZEALSEARCHQUERY_H

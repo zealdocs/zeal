@@ -3,26 +3,32 @@
 
 #include "zealsearchquery.h"
 
+// Creates a search query from a string
+//
+// Examples:
+//   "android:setTypeFa" #=> docsetFilter = "android", coreQuery = "setTypeFa"
+//   "noprefix"          #=> docsetFilter = "", coreQuery = "noprefix"
+//   ":find"             #=> docsetFilter = "", coreQuery = ":find"
 ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
 {
-    this->rawQuery = rawQuery;
+    this->coreQuery = rawQuery;
+    this->docsetFilter = "";
+
+    if(rawQuery.indexOf(ZealSearchQuery::DOCSET_FILTER_SEPARATOR) >= 1) {
+        QStringList partitioned = rawQuery.split(ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
+        QString prefix = partitioned[0];
+        this->coreQuery = partitioned[1];
+        this->docsetFilter = prefix.trimmed();
+    }
+
+    this->coreQuery = this->coreQuery.trimmed();
 }
 
 
 // Returns the docset filter for the given query.
-//
-// Examples:
-//   "android:setTypeFa" #=> "android"
-//   "noprefix"          #=> ""
-//   ":find"             #=> ""
 QString ZealSearchQuery::getDocsetFilter()
 {
-    if(rawQuery.indexOf(ZealSearchQuery::DOCSET_FILTER_SEPARATOR) >= 1) {
-        QString prefix = rawQuery.split(ZealSearchQuery::DOCSET_FILTER_SEPARATOR)[0];
-        return prefix.trimmed();
-    }
-
-    return "";
+    return this->docsetFilter;
 }
 
 // Returns the core query, sanitized for use in SQL queries
@@ -37,15 +43,7 @@ QString ZealSearchQuery::getSanitizedQuery()
 }
 
 // Returns the query with any docset prefixes removed.
-//
-// Examples:
-//   "android:setTypeFa" #=> "setTypeFa"
-//   "plain"             #=> "plain"
-//   ":find"             #=> ":find"
 QString ZealSearchQuery::getCoreQuery()
 {
-    QString docsetPrefix = getDocsetFilter();
-    int prefixLen = docsetPrefix.size() + 1; // Remove separator
-    if(prefixLen == 1) prefixLen = 0; // No docset prefix - do not remove anything
-    return rawQuery.right(rawQuery.size() - prefixLen).trimmed();
+    return this->coreQuery;
 }
