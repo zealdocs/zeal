@@ -14,14 +14,19 @@ public:
     QSize sizeHint() const;
     QWebSettings * settings() const;
     QWebPage * page() const;
+    bool canGoBack();
+    bool canGoForward();
 
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *);
     
 signals:
+    void urlChanged(const QUrl &url);
     
 public slots:
+    void back();
+    void forward();
     
 private:
     LineEdit lineEdit;

@@ -117,21 +117,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
 
     // menu
-    auto fileMenu = new QMenu("&File");
-    auto quitAction = fileMenu->addAction("&Quit");
-    ui->menuBar->addMenu(fileMenu);
-    quitAction->setShortcut(QKeySequence::Quit);
-    connect(quitAction, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-    auto editMenu = new QMenu("&Edit");
-    auto settingsAction = editMenu->addAction("&Options");
-    ui->menuBar->addMenu(editMenu);
+    ui->action_Quit->setShortcut(QKeySequence::Quit);
+    connect(ui->action_Quit, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
+    connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     connect(&settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
     connect(&settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
 
-    connect(settingsAction, &QAction::triggered, [=]() {
+    connect(ui->action_Options, &QAction::triggered, [=]() {
         settingsDialog.setHotKey(hotKey);
         nativeFilter.setEnabled(false);
         if(settingsDialog.exec()) {
@@ -151,16 +144,19 @@ MainWindow::MainWindow(QWidget *parent) :
         nativeFilter.setEnabled(true);
         ui->treeView->reset();
     });
-    auto helpMenu = new QMenu("&Help");
-    auto aboutAction = helpMenu->addAction("&About");
-    auto aboutQtAction = helpMenu->addAction("About &Qt");
-    connect(aboutAction, &QAction::triggered,
+
+    ui->action_Back->setShortcut(QKeySequence::Back);
+    ui->action_Forward->setShortcut(QKeySequence::Forward);
+    connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
+    connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
+
+    connect(ui->action_About, &QAction::triggered,
             [&]() { QMessageBox::about(this, "About Zeal",
                 QString("This is Zeal ") + ZEAL_VERSION + " - a documentation browser.\n\n"
                 "For details see http://zealdocs.org/"); });
-    connect(aboutQtAction, &QAction::triggered,
+    connect(ui->action_About_QT, &QAction::triggered,
             [&]() { QMessageBox::aboutQt(this); });
-    ui->menuBar->addMenu(helpMenu);
+    displayViewActions();
 
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
@@ -188,6 +184,13 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->webView->load(url);
         }
     });
+    connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
+    connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
+
+    connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
+        displayViewActions();
+    });
+
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
         ui->treeView->reset();
@@ -208,6 +211,23 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
+}
+
+void MainWindow::displayViewActions() {
+    ui->action_Back->setEnabled(ui->webView->canGoBack());
+    ui->backButton->setEnabled(ui->webView->canGoBack());
+    ui->action_Forward->setEnabled(ui->webView->canGoForward());
+    ui->forwardButton->setEnabled(ui->webView->canGoForward());
+}
+
+void MainWindow::back() {
+    ui->webView->back();
+    displayViewActions();
+}
+
+void MainWindow::forward() {
+    ui->webView->forward();
+    displayViewActions();
 }
 
 void MainWindow::createTrayIcon()

@@ -28,6 +28,7 @@ public:
 
 private:
     void bringToFront(bool withHack);
+    void displayViewActions();
 
     Ui::MainWindow *ui;
     QIcon icon;
@@ -47,6 +48,8 @@ private:
 private slots:
     void refreshRequest();
     void changeMinFontSize(int minFont);
+    void back();
+    void forward();
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
