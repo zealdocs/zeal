@@ -25,8 +25,8 @@ protected:
     void showEvent(QShowEvent *);
 
 private:
-    void startTask();
-    void endTask();
+    void startTasks(qint8 tasks);
+    void endTasks(qint8 tasks);
     void displayProgress();
     void loadSettings();
     void DownloadCompleteCb(QNetworkReply *reply);

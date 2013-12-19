@@ -84,26 +84,33 @@ void ZealSettingsDialog::displayProgress()
 {
     ui->docsetsProgress->setValue(currentDownload);
     ui->docsetsProgress->setMaximum(totalDownload);
-    ui->docsetsProgress->setVisible(tasksRunning > 0 || totalDownload > 0);
+    ui->docsetsProgress->setVisible(tasksRunning > 0);
 }
 
-void ZealSettingsDialog::startTask()
+void ZealSettingsDialog::startTasks(qint8 tasks = 1)
 {
-    tasksRunning++;
+    tasksRunning += tasks;
+    if (tasksRunning == 0) {
+        resetProgress();
+    }
+
     displayProgress();
 }
 
-void ZealSettingsDialog::endTask()
+void ZealSettingsDialog::endTasks(qint8 tasks = 1)
 {
-    tasksRunning--;
-    displayProgress();
+    startTasks(-tasks);
 }
 
 void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
-    if (reply->error() == QNetworkReply::OperationCanceledError) {
-        return; // user has aborted the downloads. disregard this event
-    }
     qint8 remainingRetries = replies.take(reply);
+    if (reply->error() != QNetworkReply::NoError) {
+        endTasks();
+        if (reply->error() != QNetworkReply::OperationCanceledError) {
+            QMessageBox::warning(this, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
+        }
+        return;
+    }
 
     if(!downloadedDocsetsList) { // 1st and 2nd requests are for github and kapeli.com
         if(reply->request().url().host() == "kapeli.com") {
@@ -134,31 +141,27 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
             }
         } else {
             QString list = reply->readAll();
-            if(reply->error() != QNetworkReply::NoError) {
-                QMessageBox::warning(this, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
-                ui->downloadButton->show();
-            } else {
-                for(auto item : list.split("\n")) {
-                    QStringList docset = item.split(" ");
-                    if(docset.size() < 2) break;
-                    if(!docsets->names().contains(docset[0])) {
-                        if(!docset[1].startsWith("http")) {
-                            urls.clear();
-                            QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
-                            break;
-                        }
-                        urls[docset[0]] = docset[1];
-                        ui->docsetsList->addItem(docset[0]);
+            for(auto item : list.split("\n")) {
+                QStringList docset = item.split(" ");
+                if(docset.size() < 2) break;
+                if(!docsets->names().contains(docset[0])) {
+                    if(!docset[1].startsWith("http")) {
+                        urls.clear();
+                        QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
+                        break;
                     }
-                }
-                if(urls.size() > 0) {
-                    ui->downloadableGroup->show();
-                } else {
-                    QMessageBox::warning(this, "No docsets found", QString("No downloadable docsets found."));
-                    ui->downloadButton->show();
+                    urls[docset[0]] = docset[1];
+                    ui->docsetsList->addItem(docset[0]);
                 }
             }
+            if(urls.size() > 0) {
+                ui->downloadableGroup->show();
+            } else {
+                QMessageBox::warning(this, "No docsets found", QString("No downloadable docsets found."));
+            }
         }
+
+        endTasks();
     } else {
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
             auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
@@ -170,7 +173,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                 if(!dataDir.exists()) {
                     QMessageBox::critical(this, "No docsets directory found",
                                           QString("'%s' directory not found").arg(docsets->docsetsDir()));
-                    endTask();
+                    endTasks();
                 } else {
 #ifdef WIN32
                     QDir tardir(QCoreApplication::applicationDirPath());
@@ -227,7 +230,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                                 break;
                             }
                         }
-                        endTask();
+                        endTasks();
                     });
                     tar->start(program, args);
                 }
@@ -243,7 +246,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     if(!dataDir.exists()) {
                         QMessageBox::critical(this, "No docsets directory found",
                                               QString("'%1' directory not found").arg(docsets->docsetsDir()));
-                        endTask();
+                        endTasks();
                     } else {
                         QStringList *files = new QStringList;
                         auto future = QtConcurrent::run([=] {
@@ -274,7 +277,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                                     break;
                                 }
                             }
-                            endTask();
+                            endTasks();
                         });
                     }
                 } else if(remainingRetries > 0) { // 3rd request - retry once for Google Drive
@@ -298,7 +301,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     tmp->close();
                     delete tmp;
                     QMessageBox::warning(this, "Error", "Download failed: invalid ZIP file.");
-                    endTask();
+                    endTasks();
                 }
             }
         }
@@ -306,8 +309,8 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
 
     // if all enqueued downloads have finished executing
     if(replies.isEmpty()) {
+        downloadedDocsetsList = ui->docsetsList->count() > 0;
         resetProgress();
-        downloadedDocsetsList = true;
     }
 }
 
@@ -315,7 +318,7 @@ void ZealSettingsDialog::on_downloadButton_clicked()
 {
    downloadedDocsetsList = false;
    ui->downloadButton->hide();
-   ui->docsetsProgress->show();
+   startTasks(2);
    QNetworkRequest listRequest(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
    QNetworkRequest listRequest2(QUrl("http://kapeli.com/docset_links"));
    replies.insert(naManager.get(listRequest), 0);
@@ -347,7 +350,7 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
             connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
         }
 
-        startTask();
+        startTasks();
     }
 }
 
@@ -372,7 +375,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
         zealList.removeRow(ui->listView->currentIndex().row());
         if(dataDir.exists()) {
             ui->deleteButton->hide();
-            startTask();
+            startTasks();
             auto future = QtConcurrent::run([=] {
                 QDir docsetDir(dataDir);
                 if(docsetDir.cd(docsetName)) {
@@ -384,7 +387,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
             watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished, [=]() {
-                endTask();
+                endTasks();
                 ui->deleteButton->show();
                 watcher->deleteLater();
             });
@@ -404,6 +407,7 @@ void ZealSettingsDialog::resetProgress()
     progress.clear();
     totalDownload = 0;
     currentDownload = 0;
+    ui->downloadButton->setVisible(!downloadedDocsetsList);
     ui->downloadDocsetButton->setText("Download");
     ui->docsetsList->setEnabled(true);
     displayProgress();
@@ -413,10 +417,6 @@ void ZealSettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply: replies.keys())
         reply->abort();
-
-    tasksRunning = 0;
-    resetProgress();
-    replies.clear();
 }
 
 void ZealSettingsDialog::on_tabWidget_currentChanged()
