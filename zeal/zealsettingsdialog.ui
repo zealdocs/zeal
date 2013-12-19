@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
@@ -205,10 +205,13 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hint:&lt;/span&gt; You can select multiple docsets by ctrl clicking multiple items, holding the mouse button down while selecting multiple items or clicking on an item and then clicking on another while holding shift.&lt;/p&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
