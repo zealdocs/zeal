@@ -68,9 +68,12 @@ void ZealSettingsDialog::loadSettings(){
 }
 
 // creates a total download progress for multiple QNetworkReplies
-void ZealSettingsDialog::on_downloadProgress(quint64 recv, quint64 total, QListWidgetItem *item){
+void ZealSettingsDialog::on_downloadProgress(quint64 recv, quint64 total){
     if(recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
         QNetworkReply *reply = (QNetworkReply*) sender();
+        // Try to get the item associated to the request
+        QVariant itemId = reply->property("listItem");
+        QListWidgetItem *item = (QListWidgetItem*) itemId.value<void*>();
         QPair<qint32, qint32> *previousProgress = progress[reply];
         if (previousProgress == nullptr) {
             previousProgress = new QPair<qint32, qint32>(0, 0);
@@ -181,7 +184,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
             auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
             replies.insert(reply3, 1);
-            connect(reply3, &QNetworkReply::downloadProgress, [this, listItem](quint64 recv, quint64 total){on_downloadProgress(recv, total, listItem);});
+            connect(reply3, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
         } else {
             if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
                 auto dataDir = QDir(docsets->docsetsDir());
@@ -318,7 +321,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     url.setQuery(query);
                     // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
                     auto reply2 = naManager.get(QNetworkRequest(url));
-                    connect(reply2, &QNetworkReply::downloadProgress, [this, listItem](quint64 recv, quint64 total){on_downloadProgress(recv, total, listItem);});
+                    connect(reply2, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
                     replies.insert(reply2, remainingRetries - 1);
                 } else {
                     tmp->close();
@@ -360,8 +363,6 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
         return;
     }
 
-    ui->docsetsList->setEnabled(false);
-    ui->downloadDocsetButton->setEnabled(false);
     ui->downloadDocsetButton->setText("Stop downloads.");
     QListWidgetItem *item = NULL;
     // Find each checked item, and create a NetworkRequest for it.
@@ -377,11 +378,11 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
             replies.insert(reply, 1);
             if(url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
                 // Dash's docsets don't redirect, so we can start showing progress instantly
-                connect(reply, &QNetworkReply::downloadProgress, [this, item](quint64 recv, quint64 total){on_downloadProgress(recv, total, item);});
+                connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
             }
+            startTasks();
         }
     }
-    startTasks();
 }
 
 void ZealSettingsDialog::on_storageButton_clicked()

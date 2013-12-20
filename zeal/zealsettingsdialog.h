@@ -36,7 +36,7 @@ signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
 private slots:
-    void on_downloadProgress(quint64 recv, quint64 total, QListWidgetItem *item = NULL);
+    void on_downloadProgress(quint64 recv, quint64 total);
 
     void on_downloadButton_clicked();
 
