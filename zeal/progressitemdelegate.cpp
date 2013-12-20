@@ -12,8 +12,10 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 {
     QVariant itemProgress = index.model()->data(index, ProgressRole);
     QVariant maxProgress  = index.model()->data(index, ProgressMaxRole);
+    QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
+    QVariant visible = index.model()->data(index, ProgressVisibleRole);
     QStyleOptionViewItem tempOption = option;
-    if( itemProgress.isValid() && maxProgress.isValid() ){
+    if( itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool()) ){
         tempOption.rect.setRight( tempOption.rect.right() - 150 );
 
         QProgressBar renderer;
@@ -23,6 +25,9 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         renderer.setMinimum(0);
         renderer.setMaximum( maxProgress.toInt() );
         renderer.setValue( progressAmnt );
+        if( formatProgress.isValid() ){
+            renderer.setFormat( formatProgress.toString() );
+        }
 
         painter->save();
         QPoint rect = tempOption.rect.topRight();

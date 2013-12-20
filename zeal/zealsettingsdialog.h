@@ -32,6 +32,7 @@ private:
     void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
+    void removeDownloaded();
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);

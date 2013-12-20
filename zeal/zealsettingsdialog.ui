@@ -229,7 +229,7 @@
             <item>
              <widget class="QPushButton" name="downloadDocsetButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Download</string>
