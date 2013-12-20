@@ -2,6 +2,7 @@
 #include <QStyle>
 #include <QResizeEvent>
 #include <QWebFrame>
+#include <QWebHistory>
 #include "searchablewebview.h"
 
 
@@ -33,6 +34,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     connect(&webView, &QWebView::loadFinished, [&](bool ok) {
         moveLineEdit();
     });
+
+    connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
 
     connect(&webView, &QWebView::loadStarted, [&]() {
         lineEdit.clear();
@@ -76,4 +79,20 @@ QSize SearchableWebView::sizeHint() const {
 
 QWebSettings * SearchableWebView::settings() const {
     return webView.settings();
+}
+
+void SearchableWebView::back() {
+    webView.back();
+}
+
+void SearchableWebView::forward() {
+    webView.forward();
+}
+
+bool SearchableWebView::canGoBack() {
+    return webView.history()->canGoBack();
+}
+
+bool SearchableWebView::canGoForward() {
+    return webView.history()->canGoForward();
 }
