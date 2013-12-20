@@ -32,7 +32,11 @@ private:
     void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
-    void removeDownloaded();
+
+    enum DocsetProgressRoles {
+        ZealDocsetDoneInstalling = Qt::UserRole + 20,
+    };
+
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);

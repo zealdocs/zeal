@@ -76,7 +76,6 @@ void ZealSettingsDialog::on_downloadProgress(quint64 recv, quint64 total){
         // Try to get the item associated to the request
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
-        qDebug()<<"Progress id: "<<itemId.toInt();
         QPair<qint32, qint32> *previousProgress = progress[reply];
         if (previousProgress == nullptr) {
             previousProgress = new QPair<qint32, qint32>(0, 0);
@@ -120,7 +119,7 @@ void ZealSettingsDialog::endTasks(qint8 tasks = 1)
        // Remove completed items
        for(int i=ui->docsetsList->count()-1;i>=0;--i){
            QListWidgetItem *tmp = ui->docsetsList->item(i);
-           if(tmp->checkState() == Qt::Checked && tmp->data(ProgressItemDelegate::ProgressFormatRole).toString() == "Done"){
+           if(tmp->data(ZealDocsetDoneInstalling).toBool() ){
                ui->docsetsList->takeItem( i );
            }
        }
@@ -195,7 +194,6 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
         // Try to get the item associated to the request
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
-        qDebug()<<"Item Id: "<<itemId.toInt();
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
             auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
 
@@ -261,7 +259,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                         ui->listView->reset();
                         for(int i = 0; i < ui->docsetsList->count(); ++i) {
                             if(ui->docsetsList->item(i)->text()+".docset" == docsetName) {
-                                //ui->docsetsList->takeItem(i);
+                                listItem->setData(ZealDocsetDoneInstalling, true);
                                 listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
                                 listItem->setData(ProgressItemDelegate::ProgressRole, 1);
                                 listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
@@ -319,7 +317,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                             for(int i = 0; i < ui->docsetsList->count(); ++i) {
                                 if(ui->docsetsList->item(i)->text() == root.dirName() ||
                                    ui->docsetsList->item(i)->text()+".docset" == root.dirName()) {
-                                    //ui->docsetsList->takeItem(i);
+                                    listItem->setData(ZealDocsetDoneInstalling, true);
                                     listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
                                     listItem->setData(ProgressItemDelegate::ProgressRole, 1);
                                     listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
@@ -396,11 +394,10 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
 
             auto reply = naManager.get(QNetworkRequest(url));
             reply->setProperty("listItem", i);
-            qDebug()<<"ID: "<<i;
             replies.insert(reply, 1);
-            QVariant dbg = reply->property("listItem");
-            qDebug()<<"Dbg: "<<dbg.toInt();
             tmp->setData( ProgressItemDelegate::ProgressVisibleRole, true);
+            tmp->setData( ProgressItemDelegate::ProgressRole, 0);
+            tmp->setData( ProgressItemDelegate::ProgressMaxRole, 1);
             if(url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
                 // Dash's docsets don't redirect, so we can start showing progress instantly
                 connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
@@ -410,7 +407,7 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
     }
 
     if( replies.count() > 0 ){
-        ui->downloadDocsetButton->setText("Stop downloads.");
+        ui->downloadDocsetButton->setText("Stop downloads");
     }
 }
 
@@ -477,6 +474,7 @@ void ZealSettingsDialog::resetProgress()
 void ZealSettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply: replies.keys()){
+        // Hide progress bar
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
 
