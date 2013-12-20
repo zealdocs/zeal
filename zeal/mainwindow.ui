@@ -154,7 +154,7 @@ font: 75 14pt;</string>
   </action>
   <action name="action_About_QT">
    <property name="text">
-    <string>About &amp;QT</string>
+    <string>About &amp;Qt</string>
    </property>
   </action>
   <action name="action_Back">
