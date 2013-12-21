@@ -18,6 +18,8 @@ public:
         ProgressFormatRole = Qt::UserRole + 12,
         ProgressVisibleRole = Qt::UserRole + 13
     };
+private:
+    static const int progressBarWidth = 150;
 
 signals:
 

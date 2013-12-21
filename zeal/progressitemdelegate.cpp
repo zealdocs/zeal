@@ -10,18 +10,21 @@ ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
 
 void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    QStyleOptionViewItem tempOption = option;
     QVariant itemProgress = index.model()->data(index, ProgressRole);
     QVariant maxProgress  = index.model()->data(index, ProgressMaxRole);
-    QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
     QVariant visible = index.model()->data(index, ProgressVisibleRole);
-    QStyleOptionViewItem tempOption = option;
-    if( itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool()) ){
-        tempOption.rect.setRight( tempOption.rect.right() - 150 );
 
+    if( itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool()) ){
         QProgressBar renderer;
+        QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
         int progressAmnt = itemProgress.toInt();
 
-        renderer.resize( QSize( 150, tempOption.rect.height() ));
+        // Adjust maximum text width
+        tempOption.rect.setRight( tempOption.rect.right() - progressBarWidth);
+
+        // Size progress bar
+        renderer.resize( QSize( progressBarWidth, tempOption.rect.height() ));
         renderer.setMinimum(0);
         renderer.setMaximum( maxProgress.toInt() );
         renderer.setValue( progressAmnt );
@@ -29,6 +32,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
             renderer.setFormat( formatProgress.toString() );
         }
 
+        // Paint progress bar
         painter->save();
         QPoint rect = tempOption.rect.topRight();
         painter->translate( rect );
@@ -36,6 +40,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         painter->restore();
     }
 
+    // Paint text
     QItemDelegate::paint( painter, dynamic_cast<const QStyleOptionViewItem&>(tempOption), index );
 
     return;
