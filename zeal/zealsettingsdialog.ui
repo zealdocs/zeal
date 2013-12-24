@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
+    <width>568</width>
     <height>505</height>
    </rect>
   </property>
@@ -196,22 +196,15 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QListWidget" name="docsetsList">
-            <property name="selectionMode">
-             <enum>QAbstractItemView::ExtendedSelection</enum>
-            </property>
-           </widget>
+           <widget class="QListWidget" name="docsetsList"/>
           </item>
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hint:&lt;/span&gt; You can select multiple docsets by ctrl clicking multiple items, holding the mouse button down while selecting multiple items or clicking on an item and then clicking on another while holding shift.&lt;/p&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
@@ -236,7 +229,7 @@
             <item>
              <widget class="QPushButton" name="downloadDocsetButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>Download</string>

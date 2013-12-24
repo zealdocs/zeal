@@ -32,6 +32,11 @@ private:
     void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
+
+    enum DocsetProgressRoles {
+        ZealDocsetDoneInstalling = Qt::UserRole + 20,
+    };
+
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
@@ -39,6 +44,8 @@ private slots:
     void on_downloadProgress(quint64 recv, quint64 total);
 
     void on_downloadButton_clicked();
+
+    //void on_docsetsList_clicked(const QModelIndex &index);
 
     void on_downloadDocsetButton_clicked();
 
