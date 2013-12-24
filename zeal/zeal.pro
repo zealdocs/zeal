@@ -63,7 +63,9 @@ unix:!macx: DEFINES += LINUX
 
 icons.path=/usr/share/pixmaps/zeal
 icons.files=icons/*
-unix:INSTALLS += icons
+desktop.path=/usr/share/applications
+desktop.files=zeal.desktop
+unix:INSTALLS += icons desktop
 
 include (widgets/widgets.pri)
 include (quazip/quazip.pri)

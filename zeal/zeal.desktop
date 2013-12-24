@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Zeal
+GenericName=Simple API documentation browser
+Comment=Simple API documentation browser inspired by Dash
+Exec=zeal
+Terminal=false
+Type=Application
+Categories=Development;
