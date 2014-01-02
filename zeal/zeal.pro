@@ -54,7 +54,7 @@ macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
 macx:CONFIG += c++11
 
 win32:DEFINES += WIN32 QUAZIP_BUILD
-DEFINES += ZEAL_VERSION=\\\"20131224\\\"
+DEFINES += ZEAL_VERSION=\\\"20140102\\\"
 LIBS += -lz
 
 unix:!macx: LIBS += -lxcb -lxcb-keysyms
