@@ -32,6 +32,7 @@ private:
     void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
+    void saveSettings();
 
     enum DocsetProgressRoles {
         ZealDocsetDoneInstalling = Qt::UserRole + 20,
@@ -64,6 +65,8 @@ private slots:
     void on_buttonBox_rejected();
 
     void on_docsetsList_itemSelectionChanged();
+
+    void on_buttonBox_clicked(QAbstractButton *button);
 
 private:
     ZealListModel &zealList;

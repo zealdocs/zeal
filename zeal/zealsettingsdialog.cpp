@@ -484,6 +484,20 @@ void ZealSettingsDialog::stopDownloads()
     }
 }
 
+void ZealSettingsDialog::saveSettings(){
+    if(ui->storageEdit->text() != docsets->docsetsDir()) {
+        // set new docsets dir
+        settings.setValue("docsetsDir", ui->storageEdit->text());
+        // reload docsets:
+        docsets->initialiseDocsets();
+        refreshRequested();
+    }
+    settings.setValue("minFontSize", ui->minFontSize->text());
+    settings.setValue("hidingBehavior",
+                      ui->radioSysTray->isChecked() ?
+                          "systray" : "minimize");
+}
+
 void ZealSettingsDialog::on_tabWidget_currentChanged()
 {
     // Ensure the list is completely up to date
@@ -501,16 +515,7 @@ void ZealSettingsDialog::showEvent(QShowEvent *) {
 
 void ZealSettingsDialog::on_buttonBox_accepted()
 {
-    if(ui->storageEdit->text() != docsets->docsetsDir()) {
-        // set new docsets dir
-        settings.setValue("docsetsDir", ui->storageEdit->text());
-        // reload docsets:
-        docsets->initialiseDocsets();
-    }
-    settings.setValue("minFontSize", ui->minFontSize->text());
-    settings.setValue("hidingBehavior",
-                      ui->radioSysTray->isChecked() ?
-                          "systray" : "minimize");
+    saveSettings();
 }
 
 void ZealSettingsDialog::on_minFontSize_valueChanged(int arg1)
@@ -521,4 +526,11 @@ void ZealSettingsDialog::on_minFontSize_valueChanged(int arg1)
 void ZealSettingsDialog::on_buttonBox_rejected()
 {
     loadSettings();
+}
+
+void ZealSettingsDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    if( button == ui->buttonBox->button(QDialogButtonBox::Apply) ){
+        saveSettings();
+    }
 }
