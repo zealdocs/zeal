@@ -133,6 +133,8 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
         endTasks();
         if (reply->request().url().host() == "raw.github.com") {
             // allow github to fail
+            // downloadedDocsetsList will be set either here, or in "if(replies.isEmpty())" below
+            downloadedDocsetsList = ui->docsetsList->count() > 0;
             return;
         }
         if (reply->error() != QNetworkReply::OperationCanceledError) {
