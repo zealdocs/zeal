@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QSettings>
 #include <QSystemTrayIcon>
+#include <QCloseEvent>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
@@ -53,7 +54,8 @@ private slots:
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
-        QMainWindow::closeEvent(event);
+        event->ignore();
+        hide();
     }
     void setupShortcuts();
 };
