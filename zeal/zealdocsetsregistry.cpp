@@ -75,6 +75,12 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
         QSqlQuery q;
         QList<QList<QVariant> > found;
         bool withSubStrings = false;
+        // %.%1% for long Django docset values like django.utils.http
+        // %::%1% for long C++ docset values like std::set
+        // %/%1% for long Go docset values like archive/tar
+        QString subNames = QString(" or %1 like '%.%2%' escape '\\'");
+        subNames += QString(" or %1 like '%::%2%' escape '\\'");
+        subNames += QString(" or %1 like '%/%2%' escape '\\'");
         while(found.size() < 100) {
             auto curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
@@ -84,11 +90,13 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 curQuery = "%"+preparedQuery;
                 // don't return 'starting with' results twice
                 if(types[name] == ZDASH) {
-                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' or ztokenname like '%.%1%' escape '\\') ").arg(preparedQuery);
+                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 } else {
-                    notQuery = QString(" and not t.name like '%1%' escape '\\' ").arg(preparedQuery);
                     if(types[name] == ZEAL) {
-                        parentQuery = QString(" or t2.name like '%1%' escape '\\'  ").arg(preparedQuery);
+                        notQuery = QString(" and not (t.name like '%1%' escape '\\') ").arg(preparedQuery);
+                        parentQuery = QString(" or t2.name like '%1%' escape '\\' ").arg(preparedQuery);
+                    } else { // DASH
+                        notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
                     }
                 }
             }
@@ -98,17 +106,16 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                                "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
 
             } else if(types[name] == DASH) {
-                qstr = QString("select t.name, null, t.path from searchIndex t where t.name "
-                               "like '%1%' escape '\\'  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery);
+                qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
+                               "like '%1%' escape '\\' %3)  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
             } else if(types[name] == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                 "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                 "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
-                               // %.%1% for long Django docset values like django.utils.http
-                               // (Might be not appropriate for other docsets, but I don't have any on hand to test)
-                               "like '%1%' escape '\\'  or ztokenname like '%.%1%' escape '\\' ) %2 order by lower(ztokenname) asc, zpath asc, "
-                               "zanchor asc limit 100").arg(curQuery, notQuery);
+
+                               "like '%1%' escape '\\' %3) %2 order by lower(ztokenname) asc, zpath asc, "
+                               "zanchor asc limit 100").arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
             }
             q = db(name).exec(qstr);
             while(q.next()) {
@@ -136,10 +143,14 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 path += "#" + row[3].toString();
             }
             auto itemName = row[0].toString();
-            if(itemName.indexOf('.') != -1 && itemName.indexOf('.') != 0 && row[1].isNull()) {
-                auto splitted = itemName.split(".");
-                itemName = splitted.at(splitted.size()-1);
-                parentName = splitted.at(splitted.size()-2);
+            QString separators[] = {".", "::", "/"};
+            for(unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
+                QString sep = separators[i];
+                if(itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && row[1].isNull()) {
+                    auto splitted = itemName.split(sep);
+                    itemName = splitted.at(splitted.size()-1);
+                    parentName = splitted.at(splitted.size()-2);
+                }
             }
             results.append(ZealSearchResult(itemName, parentName, path, name, preparedQuery));
         }
