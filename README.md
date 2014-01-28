@@ -30,6 +30,7 @@ If you prefer to compile Zeal manually.
 ### Requirements
 * Qt 5.0
 * X C Binding – keysyms (Ubuntu `libxcb-keysyms1-dev`)
+* `bsdtar` is required for the built-in docset extracting to work
 
 To compile it, run `qmake` and `make` in the `zeal` directory.
 
