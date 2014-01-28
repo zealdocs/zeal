@@ -25,7 +25,13 @@ After installing/compiling it you need to download docsets. It can be done autom
 
 ## How to compile
 
-If you prefer to compile Zeal manually, currently it requires Qt 5.0. To compile it, run `qmake` and `make` in the `zeal` directory.
+If you prefer to compile Zeal manually.
+
+### Requirements
+* Qt 5.0
+* X C Binding – keysyms (Ubuntu `libxcb-keysyms1-dev`)
+
+To compile it, run `qmake` and `make` in the `zeal` directory.
 
 ## TODO
 
