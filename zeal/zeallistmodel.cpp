@@ -184,7 +184,12 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
         } else return QVariant();
     }
     if(index.column() == 0) {
-        return QVariant(i2s(index)->split('/').last());
+        auto retlist = i2s(index)->split('/');
+        QString retval = retlist.last();
+        if(i2s(index)->count("/") > 2) {  // name with slashes - trim only "docset/type"
+            for (int i = retlist.length() - 2; i > 1; --i) retval = retlist[i] + "/" + retval;
+        }
+        return QVariant(retval);
     } else {
         return QVariant(*i2s(index));
     }
@@ -232,7 +237,7 @@ QModelIndex ZealListModel::parent(const QModelIndex &child) const
 {
     if(child.isValid() && i2s(child)->count("/") == 1) { // docset/type
         return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0]));
-    } else if(child.isValid() && i2s(child)->count("/") == 2) { // docset/type/item
+    } else if(child.isValid() && i2s(child)->count("/") >= 2) { // docset/type/item (item can contain slashes)
         return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0] + "/" + i2s(child)->split('/')[1]));
     } else {
         return QModelIndex();

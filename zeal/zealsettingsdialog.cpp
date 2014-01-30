@@ -131,6 +131,12 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
     qint8 remainingRetries = replies.take(reply);
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
+        if (reply->request().url().host() == "raw.github.com") {
+            // allow github to fail
+            // downloadedDocsetsList will be set either here, or in "if(replies.isEmpty())" below
+            downloadedDocsetsList = ui->docsetsList->count() > 0;
+            return;
+        }
         if (reply->error() != QNetworkReply::OperationCanceledError) {
             QMessageBox::warning(this, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
         }
@@ -164,6 +170,9 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     lwi->setCheckState(Qt::Unchecked);
                     ui->docsetsList->addItem(lwi);
                 }
+            }
+            if(urls.size() > 0) {
+                ui->downloadableGroup->show();
             }
         } else {
             QString list = reply->readAll();
