@@ -214,7 +214,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                 auto dataDir = QDir(docsets->docsetsDir());
                 if(!dataDir.exists()) {
                     QMessageBox::critical(this, "No docsets directory found",
-                                          QString("'%s' directory not found").arg(docsets->docsetsDir()));
+                                          QString("'%1' directory not found").arg(docsets->docsetsDir()));
                     endTasks();
                 } else {
 #ifdef WIN32
