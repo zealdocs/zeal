@@ -219,9 +219,9 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                 } else {
 #ifdef WIN32
                     QDir tardir(QCoreApplication::applicationDirPath());
-                    QString program = tardir.filePath("bsdtar.exe");
+                    const QString program = tardir.filePath("bsdtar.exe");
 #else
-                    QString program = "bsdtar";
+                    const QString program = "bsdtar";
 #endif
                     QTemporaryFile *tmp = new QTemporaryFile;
                     tmp->open();
@@ -239,6 +239,14 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     args.append(tmp->fileName());
                     args.append("*docset");
                     tar->start(program, args);
+
+                    // TODO: check if bsdtar exists earlier (on startup or
+                    // before archive downloading)
+                    if (!tar->waitForStarted()) {
+                        QMessageBox::critical(this, "bsdtar executable not found",
+                                QString("'%1' executable not found").arg(program));
+                        endTasks();
+                    }
                     tar->waitForFinished();
                     auto line_buf = tar->readLine();
                     auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
