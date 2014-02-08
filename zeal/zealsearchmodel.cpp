@@ -92,7 +92,11 @@ void ZealSearchModel::setQuery(const QString &q) {
 
 void ZealSearchModel::populateData()
 {
-    docsets->runQuery(query);
+    if (query.isEmpty()) {
+        docsets->invalidateQueries();
+    } else {
+        docsets->runQuery(query);
+    }
 }
 
 void ZealSearchModel::onQueryCompleted()

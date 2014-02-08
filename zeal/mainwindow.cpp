@@ -200,9 +200,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->treeView->activated(ui->treeView->currentIndex());
     });
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
-        if(!text.isEmpty()) {
-            zealSearch.setQuery(text);
-        } else {
+        zealSearch.setQuery(text);
+        if(text.isEmpty()) {
             ui->treeView->setModel(&zealList);
         }
     });

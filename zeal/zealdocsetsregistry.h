@@ -87,6 +87,7 @@ public:
 
     QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);
+    void invalidateQueries();
     const QList<ZealSearchResult>& getQueryResults();
 
     QString docsetsDir();

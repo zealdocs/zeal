@@ -54,6 +54,11 @@ void ZealDocsetsRegistry::runQuery(const QString& query)
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query), Q_ARG(int, lastQuery));
 }
 
+void ZealDocsetsRegistry::invalidateQueries()
+{
+    lastQuery += 1;
+}
+
 void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
 {
     if(queryNum != lastQuery) return; // some other queries pending - ignore this one
