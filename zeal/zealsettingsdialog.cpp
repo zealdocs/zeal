@@ -204,7 +204,10 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
         if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
-            auto reply3 = naManager.get(QNetworkRequest(QUrl(reply->rawHeader("Location"))));
+            QUrl url(reply->rawHeader("Location"));
+            if(url.host() == "") url.setHost(reply->request().url().host());
+            if(url.scheme() == "") url.setScheme(reply->request().url().scheme());
+            auto reply3 = naManager.get(QNetworkRequest(url));
 
             reply3->setProperty("listItem", itemId);
             replies.insert(reply3, 1);
