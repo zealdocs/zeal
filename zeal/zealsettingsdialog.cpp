@@ -244,7 +244,8 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                     // before archive downloading)
                     if (!tar->waitForStarted()) {
                         QMessageBox::critical(this, "bsdtar executable not found",
-                                QString("'%1' executable not found").arg(program));
+                                (QString("'%1' executable not found. It is required to allow extracting docsets. ") + QString(
+                                         "Please install it if you want to extract docsets from within Zeal.")).arg(program));
                         endTasks();
                     }
                     tar->waitForFinished();
