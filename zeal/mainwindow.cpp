@@ -191,6 +191,13 @@ MainWindow::MainWindow(QWidget *parent) :
         displayViewActions();
     });
 
+    // Display tooltip showing link location when hovered over.
+    connect(ui->webView->page(), &QWebPage::linkHovered, [&](const QString &link, const QString &title, const QString &textContent){
+        if( !link.startsWith("file:///") ){
+            setToolTip( link );
+        }
+    });
+
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
         ui->treeView->reset();
