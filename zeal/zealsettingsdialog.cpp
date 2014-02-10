@@ -294,6 +294,7 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                         listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
                     }
                     tar->start(program, args);
+                    tar->waitForFinished();
                 }
             } else {
                 QTemporaryFile *tmp = new QTemporaryFile;
