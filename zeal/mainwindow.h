@@ -46,6 +46,8 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
     QMap<QString, QString> urls;
+    QString getDocsetName(QString urlPath);
+    QString getDocsetModule(QString urlPath);
 private slots:
     void refreshRequest();
     void changeMinFontSize(int minFont);
