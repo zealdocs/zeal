@@ -21,7 +21,6 @@
 #include <QAbstractNetworkCache>
 #include <QWebFrame>
 #include <QShortcut>
-#include <regex>
 
 #ifdef WIN32
 #include <windows.h>
@@ -191,15 +190,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
         QString urlPath = url.path();
         QString docsetName = getDocsetName(urlPath);
-        QString pageTitle = getDocsetModule(urlPath);
         QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
 
         // paint label with the icon
         ui->pageIcon->setPixmap(docsetMap);
-        ui->pageTitle->setText(pageTitle);
         displayViewActions();
     });
 
+    connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &title) {
+        if (!title.isEmpty()) {
+            ui->pageTitle->setText(title);
+        }
+    });
 
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
@@ -223,21 +225,9 @@ MainWindow::~MainWindow()
 }
 
 QString MainWindow::getDocsetName(QString urlPath) {
-    std::regex docsetRegex("/([^/]+?)[.]docset", std::regex_constants::ECMAScript);
-    std::smatch match;
-    std::string urlText = urlPath.toStdString();
-    return (std::regex_search(urlText, match, docsetRegex))
-            ? QString::fromStdString(match[match.size() - 1])
-            : "";
-}
-
-QString MainWindow::getDocsetModule(QString urlPath) {
-    // otherwise remove the .html ending
-    std::regex urlRegex("((?:/[^/]+){1,3})(?:/index)?[.]html", std::regex_constants::ECMAScript);
-    std::string fullUrl = urlPath.toStdString();
-    std::smatch matches;
-    return (std::regex_search(fullUrl, matches, urlRegex))
-            ? QString::fromStdString(matches[1])
+    QRegExp docsetRegex("/([^/]+)[.]docset");
+    return (docsetRegex.indexIn(urlPath) != -1)
+            ? docsetRegex.cap(1)
             : "";
 }
 

@@ -23,6 +23,7 @@ protected:
     
 signals:
     void urlChanged(const QUrl &url);
+    void titleChanged(const QString &title);
     
 public slots:
     void back();
