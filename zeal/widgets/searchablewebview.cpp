@@ -36,6 +36,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     });
 
     connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
+    connect(&webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
 
     connect(&webView, &QWebView::loadStarted, [&]() {
         lineEdit.clear();

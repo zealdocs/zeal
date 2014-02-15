@@ -188,9 +188,20 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
+        QString urlPath = url.path();
+        QString docsetName = getDocsetName(urlPath);
+        QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
+
+        // paint label with the icon
+        ui->pageIcon->setPixmap(docsetMap);
         displayViewActions();
     });
 
+    connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &title) {
+        if (!title.isEmpty()) {
+            ui->pageTitle->setText(title);
+        }
+    });
 
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         ui->treeView->setModel(&zealSearch);
@@ -211,6 +222,13 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
+}
+
+QString MainWindow::getDocsetName(QString urlPath) {
+    QRegExp docsetRegex("/([^/]+)[.]docset");
+    return (docsetRegex.indexIn(urlPath) != -1)
+            ? docsetRegex.cap(1)
+            : "";
 }
 
 void MainWindow::displayViewActions() {
