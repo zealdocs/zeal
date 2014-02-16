@@ -1,5 +1,5 @@
 body { padding-top: 60px; }
-.hero-unit { background-color: #e8e8e8; }
+.hero-unit { background-color: #e8e8e8; padding-bottom: 15px; }
 #screenshot {
   margin: 0 auto;
   display: block;
@@ -36,6 +36,11 @@ body { padding-top: 60px; }
 .hero-unit #github-btn {
     margin-right: -80px;
     margin-top: -40px;
+}
+#gittip-btn {
+    float: right;
+    margin-right: -40px;
+    margin-top: 5px;
 }
 h2.top { margin-top: -6.5px; }
 @media (max-width: 767px) {
