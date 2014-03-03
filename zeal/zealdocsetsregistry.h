@@ -9,8 +9,10 @@
 #include <QIcon>
 #include <QMap>
 #include <QSettings>
+#include <QJsonObject>
 
 #include "zealsearchresult.h"
+#include "zealdocsetmetadata.h"
 
 typedef enum {ZEAL, DASH, ZDASH} DocSetType;
 
@@ -45,6 +47,10 @@ public:
 
     const QDir& dir(const QString& name) {
         return dirs[name];
+    }
+
+    const ZealDocsetMetadata& meta(const QString& name){
+        return metadata[name];
     }
 
     QIcon icon(const QString& name) {
@@ -114,6 +120,7 @@ private:
     QMap<QString, QSqlDatabase> dbs;
     QMap<QString, QDir> dirs;
     QMap<QString, DocSetType> types;
+    QMap<QString, ZealDocsetMetadata> metadata;
     QList<ZealSearchResult> queryResults;
     QSettings settings;
     int lastQuery;

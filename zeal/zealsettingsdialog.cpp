@@ -127,6 +127,22 @@ void ZealSettingsDialog::endTasks(qint8 tasks = 1)
 
 }
 
+void ZealSettingsDialog::updateDocsets(){
+    QStringList docsetNames = docsets->names();
+    foreach(auto name, docsetNames){
+        ZealDocsetMetadata metadata = docsets->meta(name);
+        qDebug()<<name<<" Ver: "<<metadata.getVersion();
+
+        QString feedUrl = metadata.getFeedURL();
+        if(!feedUrl.isEmpty()){
+            auto reply2 = naManager.get(QNetworkRequest(feedUrl));
+            reply2->setProperty("old_metadata", QVariant::fromValue(metadata));
+            connect(reply2, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+            replies.insert(reply2, 0);
+        }
+    }
+}
+
 void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
     qint8 remainingRetries = replies.take(reply);
     if (reply->error() != QNetworkReply::NoError) {
@@ -156,7 +172,11 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                 auto name = name_list[name_list.count()-1].replace(".tgz", "");
                 name = name.replace(".tar.bz2", "");
                 if(name != "" && !docsets->names().contains(name)) {
-                    urls[name] = url;
+                    auto feedUrl = url;
+                    if( url.contains("feeds") ){
+                        feedUrl = url.section("/",0,-2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+                    }
+                    urls[name] = feedUrl;
                     auto url_list = url.split("/");
                     auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
                     iconfile = iconfile.replace(".tar.bz2", ".png");
@@ -213,7 +233,33 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
             replies.insert(reply3, 1);
             connect(reply3, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
         } else {
-            if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
+            if(reply->request().url().path().endsWith("xml")){
+                QXmlStreamReader feed(reply->readAll() );
+                ZealDocsetMetadata metadata;
+                ZealDocsetMetadata oldMetadata;
+                metadata.read(feed);
+
+                if(!metadata.getNumUrls()){
+                    QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
+                } else {
+
+                    QVariant oldMeta = reply->property("old_metadata");
+                    if(oldMeta.isValid()){
+                        oldMetadata = oldMeta.value<ZealDocsetMetadata>();
+                    }
+
+                    qDebug()<<oldMetadata.getVersion()<<" : " <<metadata.getVersion();
+                    if(oldMetadata.getVersion() != metadata.getVersion()){
+                        metadata.setFeedURL(reply->request().url().toString());
+                        qDebug()<<"Download from: "<<metadata.getUrls()[0];
+                        auto reply2 = naManager.get(QNetworkRequest(metadata.getUrls()[0]));
+                        reply2->setProperty("listItem", itemId);
+                        reply2->setProperty("metadata", QVariant::fromValue(metadata));
+                        connect(reply2, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+                        replies.insert(reply2, remainingRetries - 1);
+                    }
+                }
+            } else if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
                 auto dataDir = QDir(docsets->docsetsDir());
                 if(!dataDir.exists()) {
                     QMessageBox::critical(this, "No docsets directory found",
@@ -271,6 +317,14 @@ void ZealSettingsDialog::DownloadCompleteCb(QNetworkReply *reply){
                             QDir dataDir2(dataDir);
                             dataDir2.rename(outDir, docsetName);
                         }
+
+                        // Write metadata about docset
+                        ZealDocsetMetadata metadata;
+                        QVariant metavariant = reply->property("metadata");
+                        if(metavariant.isValid()){
+                            metadata = metavariant.value<ZealDocsetMetadata>();
+                        }
+                        metadata.write(dataDir.absoluteFilePath(docsetName)+"/meta.json");
 
                         // FIXME C&P (see "FIXME C&P" below)
                         QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
@@ -554,4 +608,9 @@ void ZealSettingsDialog::on_buttonBox_clicked(QAbstractButton *button)
     if( button == ui->buttonBox->button(QDialogButtonBox::Apply) ){
         saveSettings();
     }
+}
+
+void ZealSettingsDialog::on_updateButton_clicked()
+{
+    updateDocsets();
 }

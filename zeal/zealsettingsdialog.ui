@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
@@ -147,6 +147,13 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="docsetsActions">
+         <item>
+          <widget class="QPushButton" name="updateButton">
+           <property name="text">
+            <string>Update docsets</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">

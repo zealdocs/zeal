@@ -8,6 +8,7 @@
 #include "ui_zealsettingsdialog.h"
 #include "zeallistmodel.h"
 #include "zealdocsetsregistry.h"
+#include "zealdocsetmetadata.h"
 
 class ZealSettingsDialog : public QDialog
 {
@@ -29,6 +30,7 @@ private:
     void endTasks(qint8 tasks);
     void displayProgress();
     void loadSettings();
+    void updateDocsets();
     void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
@@ -67,6 +69,8 @@ private slots:
     void on_docsetsList_itemSelectionChanged();
 
     void on_buttonBox_clicked(QAbstractButton *button);
+
+    void on_updateButton_clicked();
 
 private:
     ZealListModel &zealList;
