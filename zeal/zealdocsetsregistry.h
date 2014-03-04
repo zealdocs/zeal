@@ -38,19 +38,19 @@ public:
     }
 
     int count() const {
-        return dbs.count();
+        return docs.count();
     }
 
     QSqlDatabase& db(const QString& name) {
-        return dbs[name];
+        return docs[name].db;
     }
 
     const QDir& dir(const QString& name) {
-        return dirs[name];
+        return docs[name].dir;
     }
 
     const ZealDocsetMetadata& meta(const QString& name){
-        return metadata[name];
+        return docs[name].metadata;
     }
 
     QIcon icon(const QString& name) {
@@ -71,22 +71,20 @@ public:
     }
 
     DocSetType type(const QString& name) const {
-        return types[name];
+        return docs[name].type;
     }
 
     QStringList names() const {
-        return dbs.keys();
+        return docs.keys();
     }
 
     void remove(const QString& name) {
-        dbs[name].close();
-        dbs.remove(name);
-        dirs.remove(name);
-        types.remove(name);
+        docs[name].db.close();
+        docs.remove(name);
     }
 
     void clear() {
-        for(auto key : dbs.keys()) {
+        for(auto key : docs.keys()) {
             remove(key);
         }
     }
@@ -109,6 +107,13 @@ private slots:
     void _runQuery(const QString& query, int queryNum);
 
 private:
+    typedef struct {
+        QSqlDatabase db;
+        QDir dir;
+        DocSetType type;
+        ZealDocsetMetadata metadata;
+    } docsetEntry;
+
     ZealDocsetsRegistry();
     ZealDocsetsRegistry(const ZealDocsetsRegistry&); // hide copy constructor
     ZealDocsetsRegistry& operator=(const ZealDocsetsRegistry&); // hide assign op
@@ -116,11 +121,7 @@ private:
                                  // if we try to use those two functions by accident
 
     static ZealDocsetsRegistry* m_Instance;
-    // FIXME: DocSet class could be better instead of 3 maps
-    QMap<QString, QSqlDatabase> dbs;
-    QMap<QString, QDir> dirs;
-    QMap<QString, DocSetType> types;
-    QMap<QString, ZealDocsetMetadata> metadata;
+    QMap<QString, docsetEntry> docs;
     QList<ZealSearchResult> queryResults;
     QSettings settings;
     int lastQuery;

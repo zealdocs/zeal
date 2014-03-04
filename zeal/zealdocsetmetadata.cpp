@@ -64,7 +64,7 @@ void ZealDocsetMetadata::write(QJsonObject &json) const {
     json["feed_url"] = feedUrl;
 }
 
-QList<QString> ZealDocsetMetadata::getUrls() const {
+QStringList ZealDocsetMetadata::getUrls() const {
     return urls;
 }
 
