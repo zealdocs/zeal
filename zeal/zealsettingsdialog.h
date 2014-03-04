@@ -31,7 +31,6 @@ private:
     void displayProgress();
     void loadSettings();
     void updateDocsets();
-    void DownloadCompleteCb(QNetworkReply *reply);
     void resetProgress();
     void stopDownloads();
     void saveSettings();
@@ -44,6 +43,9 @@ signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
 private slots:
+    void downloadDocsetList();
+    void extractDocset();
+
     void on_downloadProgress(quint64 recv, quint64 total);
 
     void on_downloadButton_clicked();
