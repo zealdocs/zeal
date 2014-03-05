@@ -1,6 +1,7 @@
 #include "zealdocsetmetadata.h"
 
-ZealDocsetMetadata::ZealDocsetMetadata()
+ZealDocsetMetadata::ZealDocsetMetadata():
+    valid(true)
 {
 }
 
@@ -39,6 +40,8 @@ void ZealDocsetMetadata::read(const QString &path) {
         QJsonDocument doc( QJsonDocument::fromJson(data) );
         read( doc.object() );
         file.close();
+    } else {
+        valid = false;
     }
 }
 
@@ -62,6 +65,10 @@ void ZealDocsetMetadata::write(QJsonObject &json) const {
 
     json["urls"] = urlArray;
     json["feed_url"] = feedUrl;
+}
+
+bool ZealDocsetMetadata::isValid() const {
+    return valid;
 }
 
 QStringList ZealDocsetMetadata::getUrls() const {

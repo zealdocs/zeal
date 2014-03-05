@@ -45,6 +45,7 @@ signals:
 private slots:
     void downloadDocsetList();
     void extractDocset();
+    void downloadDocsetLists();
 
     void on_downloadProgress(quint64 recv, quint64 total);
 

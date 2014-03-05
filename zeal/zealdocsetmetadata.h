@@ -21,6 +21,7 @@ public:
     void read(const QString &path);
     void write(const QString &path) const;
     void write(QJsonObject &json) const;
+    bool isValid() const;
     QStringList getUrls() const;
     int getNumUrls() const;
     QString getVersion() const;
@@ -30,6 +31,7 @@ private:
     QStringList urls;
     QString version;
     QString feedUrl;
+    bool valid;
 };
 
 Q_DECLARE_METATYPE(ZealDocsetMetadata);

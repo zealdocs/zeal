@@ -48,7 +48,6 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
     meta.read(path+"/meta.json");
     entry.metadata = meta;
     docs[name] = entry;
-    qDebug()<<name<<": "<<meta.getVersion();
 }
 
 ZealDocsetsRegistry::ZealDocsetsRegistry() :

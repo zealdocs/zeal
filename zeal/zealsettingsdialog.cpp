@@ -131,20 +131,54 @@ void ZealSettingsDialog::endTasks(qint8 tasks = 1)
 void ZealSettingsDialog::updateDocsets()
 {
     QStringList docsetNames = docsets->names();
+    bool missingMetadata = false;
     foreach(auto name, docsetNames){
         ZealDocsetMetadata metadata = docsets->meta(name);
         qDebug()<<name<<" Ver: "<<metadata.getVersion();
+        if(!metadata.isValid()){
+            missingMetadata = true;
+        }
 
         QString feedUrl = metadata.getFeedURL();
         if(!feedUrl.isEmpty()){
             startTasks(1);
             auto reply = naManager.get(QNetworkRequest(feedUrl));
-            reply->setProperty("old_metadata", QVariant::fromValue(metadata));
+            reply->setProperty("metadata", QVariant::fromValue(metadata));
             connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
             connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
 
             replies.insert(reply, 0);
         }
+    }
+    if(missingMetadata){
+        int r = QMessageBox::information(this, "Zeal", "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
+                                         QMessageBox::Yes | QMessageBox::No);
+        if(r == QMessageBox::Yes){
+            if(!downloadedDocsetsList){
+                downloadDocsetLists();
+            }
+            // There must be a better way to do this.
+            auto future = QtConcurrent::run([=]{
+                while(!downloadedDocsetsList || replies.size()){
+                    QThread::yieldCurrentThread();
+                }
+            });
+            QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
+            watcher->setFuture(future);
+            connect( watcher, &QFutureWatcher<void>::finished, [=]{
+                foreach(auto name, docsetNames){
+                    if(urls.contains(name)){
+                        startTasks(1);
+                        auto reply = naManager.get(QNetworkRequest(urls[name]));
+                        connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+                        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+
+                        replies.insert(reply, 0);
+                    }
+                }
+            });
+        }
+
     }
 }
 
@@ -178,24 +212,26 @@ void ZealSettingsDialog::downloadDocsetList()
             auto name_list = url.split("/");
             auto name = name_list[name_list.count()-1].replace(".tgz", "");
             name = name.replace(".tar.bz2", "");
-            if(name != "" && !docsets->names().contains(name)) {
+            if(name != "") {
                 auto feedUrl = url;
                 if( url.contains("feeds") ){ // TODO: There must be a better way to do this, or a valid list of available docset feeds.
                     feedUrl = url.section("/",0,-2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
                 }
                 urls[name] = feedUrl;
-                auto url_list = url.split("/");
-                auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
-                iconfile = iconfile.replace(".tar.bz2", ".png");
+                if(!docsets->names().contains(name)){
+                    auto url_list = url.split("/");
+                    auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
+                    iconfile = iconfile.replace(".tar.bz2", ".png");
 #ifdef WIN32
-                QDir icondir(QCoreApplication::applicationDirPath());
-                icondir.cd("icons");
+                    QDir icondir(QCoreApplication::applicationDirPath());
+                    icondir.cd("icons");
 #else
-                QDir icondir("/usr/share/pixmaps/zeal");
+                    QDir icondir("/usr/share/pixmaps/zeal");
 #endif
-                auto *lwi = new QListWidgetItem(QIcon(icondir.filePath(iconfile)), name);
-                lwi->setCheckState(Qt::Unchecked);
-                ui->docsetsList->addItem(lwi);
+                    auto *lwi = new QListWidgetItem(QIcon(icondir.filePath(iconfile)), name);
+                    lwi->setCheckState(Qt::Unchecked);
+                    ui->docsetsList->addItem(lwi);
+                }
             }
         }
         if(urls.size() > 0) {
@@ -206,13 +242,13 @@ void ZealSettingsDialog::downloadDocsetList()
         for(auto item : list.split("\n")) {
             QStringList docset = item.split(" ");
             if(docset.size() < 2) break;
+            urls[docset[0]] = docset[1];
             if(!docsets->names().contains(docset[0])) {
                 if(!docset[1].startsWith("http")) {
                     urls.clear();
                     QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
                     break;
                 }
-                urls[docset[0]] = docset[1];
                 auto *lwi = new QListWidgetItem( docset[0], ui->docsetsList );
                 lwi->setCheckState( Qt::Unchecked );
                 ui->docsetsList->addItem(lwi);
@@ -265,7 +301,7 @@ void ZealSettingsDialog::extractDocset()
                 QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
             } else {
 
-                QVariant oldMeta = reply->property("old_metadata");
+                QVariant oldMeta = reply->property("metadata");
                 if(oldMeta.isValid()){
                     oldMetadata = oldMeta.value<ZealDocsetMetadata>();
                 }
@@ -464,8 +500,7 @@ void ZealSettingsDialog::extractDocset()
     reply->deleteLater();
 }
 
-void ZealSettingsDialog::on_downloadButton_clicked()
-{
+void ZealSettingsDialog::downloadDocsetLists(){
    downloadedDocsetsList = false;
    ui->downloadButton->hide();
    startTasks(2);
@@ -478,6 +513,11 @@ void ZealSettingsDialog::on_downloadButton_clicked()
 
    replies.insert(reply, 0);
    replies.insert(reply2, 0);
+}
+
+void ZealSettingsDialog::on_downloadButton_clicked()
+{
+    downloadDocsetLists();
 }
 
 void ZealSettingsDialog::on_docsetsList_itemSelectionChanged()
