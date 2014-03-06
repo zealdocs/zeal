@@ -141,13 +141,10 @@ void ZealSettingsDialog::updateDocsets()
 
         QString feedUrl = metadata.getFeedURL();
         if(!feedUrl.isEmpty()){
-            startTasks(1);
-            auto reply = naManager.get(QNetworkRequest(feedUrl));
-            reply->setProperty("metadata", QVariant::fromValue(metadata));
-            connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
-            connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+            auto reply = startDownload(feedUrl);
 
-            replies.insert(reply, 0);
+            reply->setProperty("metadata", QVariant::fromValue(metadata));
+            connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
         }
     }
     if(missingMetadata){
@@ -167,13 +164,11 @@ void ZealSettingsDialog::updateDocsets()
             watcher->setFuture(future);
             connect( watcher, &QFutureWatcher<void>::finished, [=]{
                 foreach(auto name, docsetNames){
-                    if(urls.contains(name)){
-                        startTasks(1);
-                        auto reply = naManager.get(QNetworkRequest(urls[name]));
-                        connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
-                        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+                    ZealDocsetMetadata metadata = docsets->meta(name);
+                    if(!metadata.isValid() && urls.contains(name)){
+                        auto reply = startDownload(urls[name]);
 
-                        replies.insert(reply, 0);
+                        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
                     }
                 }
             });
@@ -276,6 +271,18 @@ void ZealSettingsDialog::extractDocset()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     qint8 remainingRetries = replies.take(reply);
+    if (reply->error() != QNetworkReply::NoError) {
+        endTasks();
+        if (reply->request().url().host() == "raw.github.com") {
+            // allow github to fail
+            return;
+        }
+        if (reply->error() != QNetworkReply::OperationCanceledError) {
+            QMessageBox::warning(this, "Network Error", "Failed to retrieve docset: " + reply->errorString());
+        }
+        return;
+    }
+
     // Try to get the item associated to the request
     QVariant itemId = reply->property("listItem");
     QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
@@ -283,11 +290,9 @@ void ZealSettingsDialog::extractDocset()
         QUrl url(reply->rawHeader("Location"));
         if(url.host() == "") url.setHost(reply->request().url().host());
         if(url.scheme() == "") url.setScheme(reply->request().url().scheme());
-        auto reply3 = naManager.get(QNetworkRequest(url));
+        auto reply3 = startDownload(url, 1);
 
         reply3->setProperty("listItem", itemId);
-        replies.insert(reply3, 1);
-        connect(reply3, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
         connect(reply3, SIGNAL(finished()), SLOT(extractDocset()));
     } else {
         if(reply->request().url().path().endsWith("xml")){
@@ -309,14 +314,11 @@ void ZealSettingsDialog::extractDocset()
                 qDebug()<<oldMetadata.getVersion()<<" : " <<metadata.getVersion();
                 if(oldMetadata.getVersion() != metadata.getVersion()){
                     metadata.setFeedURL(reply->request().url().toString());
-                    qDebug()<<"Download from: "<<metadata.getUrls()[0];
-                    auto reply2 = naManager.get(QNetworkRequest(metadata.getUrls()[0]));
+                    auto reply2 = startDownload(metadata.getUrls()[0], 1);
+
                     reply2->setProperty("listItem", itemId);
                     reply2->setProperty("metadata", QVariant::fromValue(metadata));
-                    connect(reply2, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
                     connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
-                    startTasks(1);
-                    replies.insert(reply2, remainingRetries - 1);
                 }
             }
         } else if(reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
@@ -478,11 +480,9 @@ void ZealSettingsDialog::extractDocset()
                 url.setPath(path);
                 url.setQuery(query);
                 // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
-                auto reply2 = naManager.get(QNetworkRequest(url));
+                auto reply2 = startDownload(url, remainingRetries - 1); //naManager.get(QNetworkRequest(url));
                 reply2->setProperty("listItem", itemId);
-                connect(reply2, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
                 connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
-                replies.insert(reply2, remainingRetries - 1);
             } else {
                 tmp->close();
                 delete tmp;
@@ -503,16 +503,11 @@ void ZealSettingsDialog::extractDocset()
 void ZealSettingsDialog::downloadDocsetLists(){
    downloadedDocsetsList = false;
    ui->downloadButton->hide();
-   startTasks(2);
-   QNetworkRequest listRequest(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
-   QNetworkRequest listRequest2(QUrl("http://kapeli.com/docset_links"));
-   auto reply = naManager.get(listRequest);
-   auto reply2 = naManager.get(listRequest2);
+   auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
+   auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
+
    connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
    connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
-
-   replies.insert(reply, 0);
-   replies.insert(reply2, 0);
 }
 
 void ZealSettingsDialog::on_downloadButton_clicked()
@@ -539,10 +534,10 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
 
             QUrl url(urls[tmp->text()]);
 
-            auto reply = naManager.get(QNetworkRequest(url));
+            auto reply = startDownload(url, 1);
             reply->setProperty("listItem", i);
             connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
-            replies.insert(reply, 1);
+
             tmp->setData( ProgressItemDelegate::ProgressVisibleRole, true);
             tmp->setData( ProgressItemDelegate::ProgressRole, 0);
             tmp->setData( ProgressItemDelegate::ProgressMaxRole, 1);
@@ -550,7 +545,6 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
                 // Dash's docsets don't redirect, so we can start showing progress instantly
                 connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
             }
-            startTasks();
         }
     }
 
@@ -615,8 +609,28 @@ void ZealSettingsDialog::resetProgress()
     currentDownload = 0;
     ui->downloadButton->setVisible(!downloadedDocsetsList);
     ui->downloadDocsetButton->setText("Download");
+    ui->downloadButton->setEnabled(true);
+    ui->updateButton->setEnabled(true);
+    ui->addFeedButton->setEnabled(true);
     ui->docsetsList->setEnabled(true);
     displayProgress();
+}
+
+QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries){
+    startTasks(1);
+    qDebug()<<"Downloading "<<url;
+    QNetworkReply *reply = naManager.get(QNetworkRequest(url));
+    connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+    replies.insert(reply, retries);
+
+    if( replies.count() > 0 ){
+        ui->downloadDocsetButton->setText("Stop downloads");
+        ui->downloadButton->setEnabled(false);
+        ui->updateButton->setEnabled(false);
+        ui->addFeedButton->setEnabled(false);
+    }
+
+    return reply;
 }
 
 void ZealSettingsDialog::stopDownloads()
@@ -652,6 +666,7 @@ void ZealSettingsDialog::on_tabWidget_currentChanged()
     QModelIndex index = ui->listView->currentIndex();
     ui->listView->reset();
 
+
     if (index.isValid()) {
         ui->listView->setCurrentIndex(index);
     }
@@ -686,4 +701,27 @@ void ZealSettingsDialog::on_buttonBox_clicked(QAbstractButton *button)
 void ZealSettingsDialog::on_updateButton_clicked()
 {
     updateDocsets();
+}
+
+void ZealSettingsDialog::on_addFeedButton_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    QString txt = clipboard->text();
+    if(!txt.startsWith("dash-feed://")){
+        txt = "";
+    }
+    QString feedUrl = QInputDialog::getText(this, "Zeal", "Feed URL:", QLineEdit::Normal, txt);
+    if(feedUrl.startsWith("dash-feed://")){
+        feedUrl = feedUrl.remove(0,12);
+        feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
+    }
+    qDebug()<<"URL: "<<feedUrl;
+    auto reply = startDownload(feedUrl);
+    connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+    /*startTasks(1);
+    auto reply = naManager.get(QNetworkRequest(feedUrl));
+    connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+    connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+
+    replies.insert(reply, 0);*/
 }

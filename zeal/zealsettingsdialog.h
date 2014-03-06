@@ -3,7 +3,10 @@
 
 #include <QDialog>
 #include <QNetworkAccessManager>
+#include <QInputDialog>
 #include <QSettings>
+#include <QClipboard>
+#include <QUrl>
 
 #include "ui_zealsettingsdialog.h"
 #include "zeallistmodel.h"
@@ -32,6 +35,7 @@ private:
     void loadSettings();
     void updateDocsets();
     void resetProgress();
+    QNetworkReply *startDownload(const QUrl &url, qint8 retries = 0);
     void stopDownloads();
     void saveSettings();
 
@@ -74,6 +78,8 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
 
     void on_updateButton_clicked();
+
+    void on_addFeedButton_clicked();
 
 private:
     ZealListModel &zealList;
