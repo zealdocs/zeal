@@ -165,8 +165,8 @@ void ZealSettingsDialog::updateDocsets()
             connect( watcher, &QFutureWatcher<void>::finished, [=]{
                 foreach(auto name, docsetNames){
                     ZealDocsetMetadata metadata = docsets->meta(name);
-                    if(!metadata.isValid() && urls.contains(name)){
-                        auto reply = startDownload(urls[name]);
+                    if(!metadata.isValid() && availMetadata.contains(name)){
+                        auto reply = startDownload(availMetadata[name]);
 
                         connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
                     }
@@ -212,7 +212,10 @@ void ZealSettingsDialog::downloadDocsetList()
                 if( url.contains("feeds") ){ // TODO: There must be a better way to do this, or a valid list of available docset feeds.
                     feedUrl = url.section("/",0,-2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
                 }
-                urls[name] = feedUrl;
+                //urls[name] = feedUrl;
+                ZealDocsetMetadata meta;
+                meta.setFeedURL(feedUrl);
+                availMetadata[name] = meta;
                 if(!docsets->names().contains(name)){
                     auto url_list = url.split("/");
                     auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
@@ -229,7 +232,7 @@ void ZealSettingsDialog::downloadDocsetList()
                 }
             }
         }
-        if(urls.size() > 0) {
+        if(availMetadata.size() > 0) {
             ui->downloadableGroup->show();
         }
     } else {
@@ -237,10 +240,13 @@ void ZealSettingsDialog::downloadDocsetList()
         for(auto item : list.split("\n")) {
             QStringList docset = item.split(" ");
             if(docset.size() < 2) break;
-            urls[docset[0]] = docset[1];
+            ZealDocsetMetadata meta;
+            meta.addUrl(docset[1]);
+            meta.setVersion(docset[2]);
+            availMetadata[docset[0]] = meta;
             if(!docsets->names().contains(docset[0])) {
                 if(!docset[1].startsWith("http")) {
-                    urls.clear();
+                    availMetadata.clear();
                     QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
                     break;
                 }
@@ -249,7 +255,7 @@ void ZealSettingsDialog::downloadDocsetList()
                 ui->docsetsList->addItem(lwi);
             }
         }
-        if(urls.size() > 0) {
+        if(availMetadata.size() > 0) {
             ui->downloadableGroup->show();
         } else {
             QMessageBox::warning(this, "No docsets found", QString("No downloadable docsets found."));
@@ -291,8 +297,10 @@ void ZealSettingsDialog::extractDocset()
         if(url.host() == "") url.setHost(reply->request().url().host());
         if(url.scheme() == "") url.setScheme(reply->request().url().scheme());
         auto reply3 = startDownload(url, 1);
+        endTasks();
 
         reply3->setProperty("listItem", itemId);
+        reply3->setProperty("metadata", reply->property("metadata"));
         connect(reply3, SIGNAL(finished()), SLOT(extractDocset()));
     } else {
         if(reply->request().url().path().endsWith("xml")){
@@ -312,7 +320,7 @@ void ZealSettingsDialog::extractDocset()
                 }
 
                 qDebug()<<oldMetadata.getVersion()<<" : " <<metadata.getVersion();
-                if(oldMetadata.getVersion() != metadata.getVersion()){
+                if(metadata.getVersion().isEmpty() || oldMetadata.getVersion() != metadata.getVersion()){
                     metadata.setFeedURL(reply->request().url().toString());
                     auto reply2 = startDownload(metadata.getUrls()[0], 1);
 
@@ -438,6 +446,11 @@ void ZealSettingsDialog::extractDocset()
                     });
                     QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
                     watcher->setFuture(future);
+                    ZealDocsetMetadata metadata;
+                    QVariant metavariant = reply->property("metadata");
+                    if(metavariant.isValid()){
+                        metadata = metavariant.value<ZealDocsetMetadata>();
+                    }
                     connect(watcher, &QFutureWatcher<void>::finished, [=] {
                         // extract finished - add docset
                         QDir next((*files)[0]), root = next;
@@ -447,6 +460,7 @@ void ZealSettingsDialog::extractDocset()
                             root = next;
                             next.cdUp();
                         }
+                        metadata.write(dataDir.absoluteFilePath(root.dirName())+"/meta.json");
                         // FIXME C&P (see "FIXME C&P" above)
                         QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
                                                   Q_ARG(QString, root.absolutePath()));
@@ -481,7 +495,9 @@ void ZealSettingsDialog::extractDocset()
                 url.setQuery(query);
                 // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
                 auto reply2 = startDownload(url, remainingRetries - 1); //naManager.get(QNetworkRequest(url));
+                endTasks();
                 reply2->setProperty("listItem", itemId);
+                reply2->setProperty("metadata", reply->property("metadata"));
                 connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
             } else {
                 tmp->close();
@@ -532,9 +548,10 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
         QListWidgetItem *tmp = ui->docsetsList->item(i);
         if(tmp->checkState() == Qt::Checked){
 
-            QUrl url(urls[tmp->text()]);
+            //QUrl url(urls[tmp->text()]);
 
-            auto reply = startDownload(url, 1);
+            auto reply = startDownload(availMetadata[tmp->text()], 1);
+            QUrl url = reply->url();
             reply->setProperty("listItem", i);
             connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
 
@@ -630,6 +647,16 @@ QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries)
         ui->addFeedButton->setEnabled(false);
     }
 
+    return reply;
+}
+
+QNetworkReply *ZealSettingsDialog::startDownload(const ZealDocsetMetadata &meta, qint8 retries){
+    QString url = meta.getFeedURL();
+    if(url.isEmpty()){
+        url = meta.getUrls()[0];
+    }
+    QNetworkReply *reply = startDownload( url, retries );
+    reply->setProperty("metadata", QVariant::fromValue(meta));
     return reply;
 }
 

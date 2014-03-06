@@ -23,7 +23,9 @@ public:
     void write(QJsonObject &json) const;
     bool isValid() const;
     QStringList getUrls() const;
+    void addUrl(const QString &url);
     int getNumUrls() const;
+    void setVersion(const QString &ver);
     QString getVersion() const;
     QString getFeedURL() const;
     void setFeedURL(const QString &url);

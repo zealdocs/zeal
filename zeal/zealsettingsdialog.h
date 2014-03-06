@@ -36,6 +36,7 @@ private:
     void updateDocsets();
     void resetProgress();
     QNetworkReply *startDownload(const QUrl &url, qint8 retries = 0);
+    QNetworkReply *startDownload(const ZealDocsetMetadata &meta, qint8 retries = 0);
     void stopDownloads();
     void saveSettings();
 
@@ -86,7 +87,7 @@ private:
     QNetworkAccessManager naManager;
     QSettings settings;
     bool downloadedDocsetsList;
-    QMap<QString, QString> urls;
+    QMap<QString, ZealDocsetMetadata> availMetadata;
     QHash<QNetworkReply*, qint8> replies;
     QHash<QNetworkReply*, QPair<qint32, qint32>*> progress;
     qint32 totalDownload;

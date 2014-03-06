@@ -75,8 +75,16 @@ QStringList ZealDocsetMetadata::getUrls() const {
     return urls;
 }
 
+void ZealDocsetMetadata::addUrl(const QString &url){
+    urls.append(url);
+}
+
 int ZealDocsetMetadata::getNumUrls() const {
     return urls.length();
+}
+
+void ZealDocsetMetadata::setVersion(const QString &ver){
+    version = ver;
 }
 
 QString ZealDocsetMetadata::getVersion() const {
