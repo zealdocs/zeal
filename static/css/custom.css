@@ -42,6 +42,9 @@ body { padding-top: 60px; }
     margin-right: -40px;
     margin-top: 5px;
 }
+#gittip-btn a {
+    display: block;
+}
 h2.top { margin-top: -6.5px; }
 @media (max-width: 767px) {
     h2.top { margin-top: 10px; }
