@@ -298,7 +298,7 @@ void MainWindow::bringToFrontAndSearch(const QString query)
 
 bool MainWindow::startHidden()
 {
-    if(settings.value("startupBehavior", "systray").toString() == "systray")
+    if(settings.value("startupBehavior", "window").toString() == "systray")
         return true;
     return false;
 }

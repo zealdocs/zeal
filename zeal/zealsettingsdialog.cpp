@@ -66,7 +66,7 @@ void ZealSettingsDialog::loadSettings(){
     } else {
         ui->radioMinimize->setChecked(true);
     }
-    QString startup = settings.value("startupBehavior", "systray").toString();
+    QString startup = settings.value("startupBehavior", "window").toString();
     if(startup == "systray") {
         ui->radioStartTray->setChecked(true);
     } else {
@@ -525,7 +525,7 @@ void ZealSettingsDialog::saveSettings(){
                           "systray" : "minimize");
     settings.setValue("startupBehavior",
                       ui->radioStartTray->isChecked() ?
-                          "systray" : "maximize");
+                          "systray" : "window");
 }
 
 void ZealSettingsDialog::on_tabWidget_currentChanged()

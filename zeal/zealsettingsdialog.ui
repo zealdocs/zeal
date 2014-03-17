@@ -76,7 +76,7 @@
            <item>
             <widget class="QRadioButton" name="radioStartMax">
              <property name="text">
-              <string>Maximize</string>
+              <string>Window</string>
              </property>
             </widget>
            </item>
