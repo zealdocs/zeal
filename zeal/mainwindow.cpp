@@ -171,7 +171,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // (Only the frame is larger than the list item, which is different from default behaviour.)
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 #endif
+    bool treeViewClicked = false;
+
     connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex& index) {
+        treeViewClicked = true;
        ui->treeView->activated(index);
     });
     connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
@@ -182,6 +185,11 @@ MainWindow::MainWindow(QWidget *parent) :
                 url.setFragment(url_l[1]);
             }
             ui->webView->load(url);
+
+            if (!treeViewClicked)
+                ui->webView->focus();
+            else
+                treeViewClicked = false;
         }
     });
     connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
@@ -204,6 +212,8 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
+        treeViewClicked = true;
+
         ui->treeView->setModel(&zealSearch);
         ui->treeView->reset();
         ui->treeView->setColumnHidden(1, true);

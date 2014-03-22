@@ -80,6 +80,11 @@ void SearchableWebView::load(const QUrl &url) {
     webView.load(url);
 }
 
+void SearchableWebView::focus()
+{
+    webView.setFocus();
+}
+
 QWebPage * SearchableWebView::page() const {
     return webView.page();
 }
