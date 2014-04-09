@@ -173,7 +173,9 @@ for fname, tree in trees.iteritems():
                 untypes.add(stype)
                 idxtype = 'unknown'
             for member in section.find_class('member'):
-                membername = member.xpath('div[@class="title"]/a/text()')[0]
+                membername = member.xpath('div[@class="title"]/a/text()')
+                if not len(membername): continue
+                membername = membername[0]
                 member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
                 if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
                     assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
