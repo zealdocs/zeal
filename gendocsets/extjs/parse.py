@@ -107,7 +107,7 @@ for fname, tree in trees.iteritems():
         htmlfile.write("""<!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="../resources/css/app-939e5db2bc2809b47493559f1001ebbd.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/app-4689d2a5522dcd3c9e9923ca59c33f27.css" type="text/css" />
     <!-- titanium hack -->
     <link rel="stylesheet" href="../resources/css/my.css" type="text/css" />
     <link rel="stylesheet" href="../resources/css/viewport.css" type="text/css" />
