@@ -47,7 +47,7 @@ copytree(INPUT_DIR, DOCUMENTS_DIR)
 rmtree(os.path.join(DOCUMENTS_DIR, 'output'))
 if builddir:
     rmtree(os.path.join(DOCUMENTS_DIR, builddir))
-    rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
+    rmtree(os.path.join(DOCUMENTS_DIR, 'guides'), ignore_errors=True)
 if docsetname == 'Appcelerator Titanium':
     # CSS fix for fluid width
     for dirpath, dirnames, filenames in os.walk(DOCUMENTS_DIR):
