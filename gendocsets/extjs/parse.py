@@ -177,7 +177,8 @@ for fname, tree in trees.iteritems():
                 if not len(membername): continue
                 membername = membername[0]
                 member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
-                if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
+                if member.find_class('defined-in')[0].text and \
+                        member.find_class('defined-in')[0].text != fname[:-len('.html')]:
                     assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
                     continue
                 c.execute('INSERT INTO searchIndex(type, name, path) values(?, ?, ?)',
