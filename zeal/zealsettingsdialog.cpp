@@ -127,6 +127,7 @@ void ZealSettingsDialog::endTasks(qint8 tasks = 1)
        for(int i=ui->docsetsList->count()-1;i>=0;--i){
            QListWidgetItem *tmp = ui->docsetsList->item(i);
            if(tmp->data(ZealDocsetDoneInstalling).toBool() ){
+               tmp->setCheckState( Qt::Unchecked );
                tmp->setHidden( true );
            }
        }
@@ -184,6 +185,19 @@ void ZealSettingsDialog::updateDocsets()
                     ZealDocsetMetadata metadata = docsets->meta(name);
                     if(!metadata.isValid() && availMetadata.contains(name)){
                         auto reply = startDownload(availMetadata[name]);
+
+                        QList<QListWidgetItem*> items = ui->docsetsList->findItems( QString(name), Qt::MatchFixedString);
+                        if(items.count() > 0){
+                            qDebug()<<"Found!";
+                            items[0]->setCheckState( Qt::Checked );
+                            items[0]->setHidden(false);
+                            reply->setProperty("listItem", ui->docsetsList->row( items[0] ));
+                        } else {
+                            QListWidgetItem *item = new QListWidgetItem( name, ui->docsetsList );
+                            item->setCheckState( Qt::Checked );
+                            ui->docsetsList->addItem( item );
+                            reply->setProperty("listItem", ui->docsetsList->row( item ));
+                        }
 
                         connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
                     }
