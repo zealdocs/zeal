@@ -26,6 +26,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void bringToFrontAndSearch(const QString);
+    bool startHidden();
 
 private:
     void bringToFront(bool withHack);

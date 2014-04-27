@@ -47,7 +47,7 @@ copytree(INPUT_DIR, DOCUMENTS_DIR)
 rmtree(os.path.join(DOCUMENTS_DIR, 'output'))
 if builddir:
     rmtree(os.path.join(DOCUMENTS_DIR, builddir))
-    rmtree(os.path.join(DOCUMENTS_DIR, 'guides'))
+    rmtree(os.path.join(DOCUMENTS_DIR, 'guides'), ignore_errors=True)
 if docsetname == 'Appcelerator Titanium':
     # CSS fix for fluid width
     for dirpath, dirnames, filenames in os.walk(DOCUMENTS_DIR):
@@ -94,8 +94,11 @@ h3_bug_re = re.compile(r"<h4 class='members-subtitle'>([^<>]+)</h3>")
 
 for fname in os.listdir(OUTPUT_DIR):
     data = loads(open(os.path.join(OUTPUT_DIR, fname), 'r').read().split('(', 1)[1].rsplit(')', 1)[0])
-    html = h3_bug_re.sub('<h4 class="members-subtitle">\1</h4>', data['html'].encode('utf-8'))
+    html = h3_bug_re.sub(r'<h4 class="members-subtitle">\1</h4>', data['html'].encode('utf-8'))
     name = fname.rsplit('.', 1)[0]+'.html'
+    if not name.strip():
+        # ignore invalid files with empty names
+        continue
     trees[name] = tree = parse(StringIO(html))
     for div in tree.findall('//div'):
         if 'id' in div.attrib:
@@ -107,7 +110,7 @@ for fname, tree in trees.iteritems():
         htmlfile.write("""<!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="../resources/css/app-939e5db2bc2809b47493559f1001ebbd.css" type="text/css" />
+    <link rel="stylesheet" href="../resources/css/app-4689d2a5522dcd3c9e9923ca59c33f27.css" type="text/css" />
     <!-- titanium hack -->
     <link rel="stylesheet" href="../resources/css/my.css" type="text/css" />
     <link rel="stylesheet" href="../resources/css/viewport.css" type="text/css" />
@@ -173,9 +176,12 @@ for fname, tree in trees.iteritems():
                 untypes.add(stype)
                 idxtype = 'unknown'
             for member in section.find_class('member'):
-                membername = member.xpath('div[@class="title"]/a/text()')[0]
+                membername = member.xpath('div[@class="title"]/a/text()')
+                if not len(membername): continue
+                membername = membername[0]
                 member.insert(0, fromstring("<a name='//apple_ref/cpp/%s/%s' class='dashAnchor' />" % (idxtype, membername)))
-                if member.find_class('defined-in')[0].text != fname[:-len('.html')]:
+                if member.find_class('defined-in')[0].text and \
+                        member.find_class('defined-in')[0].text != fname[:-len('.html')]:
                     assert member.find_class('defined-in')[0].text + '.html' in trees, member.find_class('defined-in')[0].text
                     continue
                 c.execute('INSERT INTO searchIndex(type, name, path) values(?, ?, ?)',

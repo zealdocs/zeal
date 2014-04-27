@@ -67,7 +67,10 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
-    w.show();
+
+    if (!w.startHidden())
+        w.show();
+
     if(!queryParam.isEmpty()) {
         w.bringToFrontAndSearch(queryParam);
     }

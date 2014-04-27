@@ -296,6 +296,13 @@ void MainWindow::bringToFrontAndSearch(const QString query)
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
+bool MainWindow::startHidden()
+{
+    if(settings.value("startupBehavior", "window").toString() == "systray")
+        return true;
+    return false;
+}
+
 void MainWindow::setupShortcuts()
 {
     QShortcut* focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
