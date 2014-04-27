@@ -188,7 +188,6 @@ void ZealSettingsDialog::updateDocsets()
 
                         QList<QListWidgetItem*> items = ui->docsetsList->findItems( QString(name), Qt::MatchFixedString);
                         if(items.count() > 0){
-                            qDebug()<<"Found!";
                             items[0]->setCheckState( Qt::Checked );
                             items[0]->setHidden(false);
                             reply->setProperty("listItem", ui->docsetsList->row( items[0] ));
@@ -359,7 +358,7 @@ void ZealSettingsDialog::extractDocset()
 
                 if(metadata.getVersion().isEmpty() || oldMetadata.getVersion() != metadata.getVersion()){
                     metadata.setFeedURL(reply->request().url().toString());
-                    auto reply2 = startDownload(metadata.getUrls()[0], 1);
+                    auto reply2 = startDownload(metadata.getPrimaryUrl(), 1);
 
                     if(listItem != NULL){
                         listItem->setHidden(false);
@@ -697,7 +696,7 @@ QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries)
 QNetworkReply *ZealSettingsDialog::startDownload(const ZealDocsetMetadata &meta, qint8 retries){
     QString url = meta.getFeedURL();
     if(url.isEmpty()){
-        url = meta.getUrls()[0];
+        url = meta.getPrimaryUrl();
     }
     QNetworkReply *reply = startDownload( url, retries );
     reply->setProperty("metadata", QVariant::fromValue(meta));

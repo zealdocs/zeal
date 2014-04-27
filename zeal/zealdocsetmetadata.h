@@ -9,6 +9,7 @@
 #include <QString>
 #include <QStringList>
 #include <QFile>
+#include <QUrl>
 
 
 class ZealDocsetMetadata //: public QObject
@@ -23,6 +24,7 @@ public:
     void write(QJsonObject &json) const;
     bool isValid() const;
     QStringList getUrls() const;
+    QString getPrimaryUrl() const;
     void addUrl(const QString &url);
     int getNumUrls() const;
     void setVersion(const QString &ver);

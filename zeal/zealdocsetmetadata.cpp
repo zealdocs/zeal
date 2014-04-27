@@ -75,6 +75,21 @@ QStringList ZealDocsetMetadata::getUrls() const {
     return urls;
 }
 
+QString ZealDocsetMetadata::getPrimaryUrl() const {
+    // Find preferred mirror from feed url host
+    QUrl feedUrl(getFeedURL());
+
+    QRegExp regex("[^:]+://"+feedUrl.host().replace(".", "\\.")+".*");
+
+    int idx = urls.indexOf( regex );
+
+    if(idx<0){
+        idx = qrand() % urls.count();
+    }
+
+    return urls[idx];
+}
+
 void ZealDocsetMetadata::addUrl(const QString &url){
     urls.append(url);
 }
