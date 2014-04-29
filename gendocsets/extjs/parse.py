@@ -96,7 +96,7 @@ for fname in os.listdir(OUTPUT_DIR):
     data = loads(open(os.path.join(OUTPUT_DIR, fname), 'r').read().split('(', 1)[1].rsplit(')', 1)[0])
     html = h3_bug_re.sub(r'<h4 class="members-subtitle">\1</h4>', data['html'].encode('utf-8'))
     name = fname.rsplit('.', 1)[0]+'.html'
-    if not name.strip():
+    if not fname.rsplit('.', 1)[0].strip():
         # ignore invalid files with empty names
         continue
     trees[name] = tree = parse(StringIO(html))
