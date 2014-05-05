@@ -6,4 +6,5 @@ Comment=Simple API documentation browser inspired by Dash
 Exec=zeal
 Terminal=false
 Type=Application
+Icon=zeal
 Categories=Development;
