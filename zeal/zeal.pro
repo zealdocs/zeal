@@ -65,7 +65,7 @@ icons.path=/usr/share/pixmaps/zeal
 icons.files=icons/*
 desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
-app-icon.path=/usr/share/icons/hicolor/48x48/apps/zeal.svg
+app-icon.path=/usr/share/icons/hicolor/48x48/apps
 app-icon.files=zeal.svg
 unix:INSTALLS += icons desktop app-icon
 
