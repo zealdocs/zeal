@@ -32,6 +32,7 @@
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
 #include "xcb_keysym.h"
+#include <gtk/gtk.h>
 #endif
 
 const QString serverName = "zeal_process_running";
@@ -43,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsDialog(zealList)
 {
     trayIcon = nullptr;
+    indicator = nullptr;
     trayIconMenu = nullptr;
 
     // Use the platform-specific proxy settings
@@ -89,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if(!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
-            if(trayIcon) {
+            if(trayIcon || indicator) {
                 hide();
             } else {
                 showMinimized();
@@ -258,23 +260,55 @@ void MainWindow::forward() {
     displayViewActions();
 }
 
+void onQuit(GtkMenu *menu, gpointer data)
+{
+    Q_UNUSED(menu);
+    QApplication *self = static_cast<QApplication *>(data);
+    self->quit();
+}
+
 void MainWindow::createTrayIcon()
 {
-    if(trayIcon) return;
-    trayIconMenu = new QMenu(this);
-    auto quitAction = trayIconMenu->addAction("&Quit");
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    trayIcon = new QSystemTrayIcon(this);
-    trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setIcon(icon);
-    trayIcon->setToolTip("Zeal");
-    connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
-        if(reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
-            if(isVisible()) hide();
-            else bringToFront(false);
-        }
-    });
-    trayIcon->show();
+    if(trayIcon || indicator) return;
+
+    QString desktop;
+    bool isUnity;
+
+    desktop = getenv("XDG_CURRENT_DESKTOP");
+    isUnity = (desktop.toLower() == "unity");
+
+    if(isUnity) //Application Indicators for Unity
+    {
+        GtkWidget *menu;
+        GtkWidget *quitItem;
+
+        menu = gtk_menu_new();
+
+        quitItem = gtk_menu_item_new_with_label("Quit");
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), quitItem);
+        g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
+        gtk_widget_show(quitItem);
+
+        indicator = app_indicator_new("zeal", icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
+
+        app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
+        app_indicator_set_menu(indicator, GTK_MENU(menu));
+    } else {  //others
+        trayIconMenu = new QMenu(this);
+        auto quitAction = trayIconMenu->addAction("&Quit");
+        connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+        trayIcon = new QSystemTrayIcon(this);
+        trayIcon->setContextMenu(trayIconMenu);
+        trayIcon->setIcon(icon);
+        trayIcon->setToolTip("Zeal");
+        connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
+            if(reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
+                if(isVisible()) hide();
+                else bringToFront(false);
+            }
+        });
+        trayIcon->show();
+    }
 }
 
 void MainWindow::bringToFront(bool withHack)
