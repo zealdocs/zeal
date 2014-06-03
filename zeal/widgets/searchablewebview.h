@@ -11,6 +11,7 @@ class SearchableWebView : public QWidget
 public:
     explicit SearchableWebView(QWidget *parent = 0);
     void load(const QUrl& url);
+    void focus();
     QSize sizeHint() const;
     QWebSettings * settings() const;
     QWebPage * page() const;

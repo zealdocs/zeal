@@ -37,6 +37,11 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
             return true;
         }
 
+        if(keyEvent->key() == Qt::Key_Return) {
+            emit treeView->activated(treeView->selectionModel()->currentIndex());
+            return true;
+        }
+
         if(keyEvent->key() == Qt::Key_Escape) {
             clearQuery();
         }
