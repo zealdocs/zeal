@@ -5,5 +5,5 @@ zeal/zeal
 zeal/moc_*.cpp
 zeal/ui_*.h
 zeal/Makefile
-build-zeal-Desktop_Qt_5_1_1_GCC_64bit-Debug
+build-zeal-Desktop*
 *.swp

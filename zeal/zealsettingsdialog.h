@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QNetworkAccessManager>
+#include <QtNetwork/QNetworkProxy>
 #include <QSettings>
 
 #include "ui_zealsettingsdialog.h"
@@ -12,6 +13,8 @@
 class ZealSettingsDialog : public QDialog
 {
     Q_OBJECT
+
+    Q_ENUMS(ProxyType)
     
 public:
     explicit ZealSettingsDialog(ZealListModel &zlist, QWidget *parent = 0);
@@ -20,6 +23,12 @@ public:
     QKeySequence hotKey();
     
     Ui::ZealSettingsDialog *ui;
+
+    enum ProxyType {
+        NoProxy,
+        SystemProxy,
+        UserDefinedProxy
+    };
 
 protected:
     void showEvent(QShowEvent *);
@@ -41,6 +50,7 @@ private:
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
+
 private slots:
     void on_downloadProgress(quint64 recv, quint64 total);
 
@@ -79,6 +89,13 @@ private:
     qint32 totalDownload;
     qint32 currentDownload;
     qint32 tasksRunning;
+
+    ZealSettingsDialog::ProxyType proxyType() const;
+    void setProxyType(ZealSettingsDialog::ProxyType type);
+
+    QNetworkProxy httpProxy() const;
 };
+
+Q_DECLARE_METATYPE(ZealSettingsDialog::ProxyType)
 
 #endif // ZEALSETTINGSDIALOG_H
