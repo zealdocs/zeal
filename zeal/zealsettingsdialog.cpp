@@ -560,7 +560,13 @@ void ZealSettingsDialog::saveSettings(){
     settings.setValue("startupBehavior",
                       ui->radioStartTray->isChecked() ?
                           "systray" : "window");
+
+    // Proxy settings
     settings.setValue("proxyType", proxyType());
+    settings.setValue("httpProxy", ui->m_httpProxy->text());
+    settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
+    settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
+    settings.setValue("httpProxy", ui->m_httpProxyPass->text());
 }
 
 void ZealSettingsDialog::on_tabWidget_currentChanged()
