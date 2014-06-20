@@ -64,11 +64,11 @@ unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
 unix:!macx: DEFINES += LINUX
 
-appicons16.path=/usr/share/icons/hicolor/app/16x16
-appicons24.path=/usr/share/icons/hicolor/app/24x24
-appicons32.path=/usr/share/icons/hicolor/app/32x32
-appicons64.path=/usr/share/icons/hicolor/app/64x64
-appicons128.path=/usr/share/icons/hicolor/app/128x128
+appicons16.path=/usr/share/icons/hicolor/16x16/apps
+appicons24.path=/usr/share/icons/hicolor/24x24/apps
+appicons32.path=/usr/share/icons/hicolor/32x32/apps
+appicons64.path=/usr/share/icons/hicolor/64x64/apps
+appicons128.path=/usr/share/icons/hicolor/128x128/apps
 appicons16.files=appicons/16/*
 appicons24.files=appicons/24/*
 appicons32.files=appicons/32/*
