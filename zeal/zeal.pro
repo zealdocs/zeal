@@ -45,7 +45,7 @@ HEADERS  += mainwindow.h \
     progressitemdelegate.h \
     zealdocsetmetadata.h
 
-INCLUDEPATH += /usr/include/libappindicator-0.1 \
+unix:!macx: INCLUDEPATH += /usr/include/libappindicator-0.1 \
         /usr/include/gtk-2.0 \
         /usr/lib/gtk-2.0/include \
 
@@ -66,7 +66,7 @@ LIBS += -lz -L/usr/lib -lappindicator
 
 CONFIG += link_pkgconfig
 
-PKGCONFIG = gtk+-2.0
+unix:!macx: PKGCONFIG = gtk+-2.0
 
 unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
