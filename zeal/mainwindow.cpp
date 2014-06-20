@@ -70,7 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
 #elif defined(WIN32)
     icon = QIcon(":/zeal.ico");
 #else
-    icon = QIcon::fromTheme("edit-find");
+    QIcon::setThemeName("hicolor");
+    icon = QIcon::fromTheme("zeal");
 #endif
     if(settings.value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
