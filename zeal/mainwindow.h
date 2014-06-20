@@ -12,6 +12,13 @@
 #include "zealnativeeventfilter.h"
 #include "zealsettingsdialog.h"
 
+#ifdef LINUX
+#undef signals
+#include <libappindicator/app-indicator.h>
+#define signals public
+#endif
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -45,6 +52,7 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QSystemTrayIcon *trayIcon;
+    AppIndicator *indicator;  //for Unity
     QMenu *trayIconMenu;
     QMap<QString, QString> urls;
     QString getDocsetName(QString urlPath);

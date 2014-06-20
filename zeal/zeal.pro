@@ -45,6 +45,10 @@ HEADERS  += mainwindow.h \
     progressitemdelegate.h \
     zealdocsetmetadata.h
 
+INCLUDEPATH += /usr/include/libappindicator-0.1 \
+        /usr/include/gtk-2.0 \
+        /usr/lib/gtk-2.0/include \
+
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui
 
@@ -58,7 +62,11 @@ macx:CONFIG += c++11
 win32:RC_ICONS = zeal.ico
 win32:DEFINES += WIN32 QUAZIP_BUILD
 DEFINES += ZEAL_VERSION=\\\"20140215\\\"
-LIBS += -lz
+LIBS += -lz -L/usr/lib -lappindicator
+
+CONFIG += link_pkgconfig
+
+PKGCONFIG = gtk+-2.0
 
 unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
