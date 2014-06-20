@@ -52,7 +52,9 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QSystemTrayIcon *trayIcon;
+#ifdef LINUX
     AppIndicator *indicator;  //for Unity
+#endif
     QMenu *trayIconMenu;
     QMap<QString, QString> urls;
     QString getDocsetName(QString urlPath);

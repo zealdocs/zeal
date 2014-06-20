@@ -62,13 +62,13 @@ macx:CONFIG += c++11
 win32:RC_ICONS = zeal.ico
 win32:DEFINES += WIN32 QUAZIP_BUILD
 DEFINES += ZEAL_VERSION=\\\"20140215\\\"
-LIBS += -lz -L/usr/lib -lappindicator
+LIBS += -lz -L/usr/lib
 
 CONFIG += link_pkgconfig
 
 unix:!macx: PKGCONFIG = gtk+-2.0
 
-unix:!macx: LIBS += -lxcb -lxcb-keysyms
+unix:!macx: LIBS += -lxcb -lxcb-keysyms -lappindicator
 unix:!macx: SOURCES += xcb_keysym.cpp
 unix:!macx: DEFINES += LINUX
 

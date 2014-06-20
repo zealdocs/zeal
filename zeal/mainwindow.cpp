@@ -44,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsDialog(zealList)
 {
     trayIcon = nullptr;
+#ifdef LINUX
     indicator = nullptr;
+#endif
     trayIconMenu = nullptr;
 
     // server for detecting already running instances
@@ -91,7 +93,11 @@ MainWindow::MainWindow(QWidget *parent) :
         if(!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
+#ifdef LINUX
             if(trayIcon || indicator) {
+#else
+            if(trayIcon) {
+#endif
                 hide();
             } else {
                 showMinimized();
@@ -261,16 +267,22 @@ void MainWindow::forward() {
     displayViewActions();
 }
 
+#ifdef LINUX
 void onQuit(GtkMenu *menu, gpointer data)
 {
     Q_UNUSED(menu);
     QApplication *self = static_cast<QApplication *>(data);
     self->quit();
 }
+#endif
 
 void MainWindow::createTrayIcon()
 {
+#ifdef LINUX
     if(trayIcon || indicator) return;
+#else
+    if(trayIcon) return;
+#endif
 
     QString desktop;
     bool isUnity;
@@ -278,6 +290,7 @@ void MainWindow::createTrayIcon()
     desktop = getenv("XDG_CURRENT_DESKTOP");
     isUnity = (desktop.toLower() == "unity");
 
+#ifdef LINUX
     if(isUnity) //Application Indicators for Unity
     {
         GtkWidget *menu;
@@ -295,6 +308,7 @@ void MainWindow::createTrayIcon()
         app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
         app_indicator_set_menu(indicator, GTK_MENU(menu));
     } else {  //others
+#endif
         trayIconMenu = new QMenu(this);
         auto quitAction = trayIconMenu->addAction("&Quit");
         connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -309,7 +323,9 @@ void MainWindow::createTrayIcon()
             }
         });
         trayIcon->show();
+#ifdef LINUX
     }
+#endif
 }
 
 void MainWindow::bringToFront(bool withHack)
