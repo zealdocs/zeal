@@ -13,6 +13,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QFileDialog>
+#include <QtNetwork/QNetworkProxy>
 #include "quazip/quazip.h"
 #include "JlCompress.h"
 #include "progressitemdelegate.h"
@@ -74,6 +75,37 @@ void ZealSettingsDialog::loadSettings(){
         ui->radioStartMax->setChecked(true);
     }
     ui->storageEdit->setText(docsets->docsetsDir());
+
+    ui->m_noProxySettings->setChecked(false);
+    ui->m_systemProxySettings->setChecked(false);
+    ui->m_manualProxySettings->setChecked(false);
+
+    ZealSettingsDialog::ProxyType proxyType = ZealSettingsDialog::NoProxy;
+    const QVariant variant = settings.value("proxyType", ZealSettingsDialog::NoProxy);
+    if (variant.canConvert<ZealSettingsDialog::ProxyType>()) {
+        proxyType = variant.value<ZealSettingsDialog::ProxyType>();
+    }
+
+    QString httpProxy = settings.value("httpProxy").toString();
+    quint16 httpProxyPort = settings.value("httpProxyPort", 0).toInt();
+    QString httpProxyUser = settings.value("httpProxyUser").toString();
+    QString httpProxyPass = settings.value("httpProxyPass").toString();
+
+    if (proxyType == ZealSettingsDialog::NoProxy) {
+        ui->m_noProxySettings->setChecked(true);
+        QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
+    } else if (proxyType == ZealSettingsDialog::SystemProxy) {
+        ui->m_systemProxySettings->setChecked(true);
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    } else {
+        ui->m_manualProxySettings->setChecked(true);
+        ui->m_httpProxy->setText(httpProxy);
+        ui->m_httpProxyPort->setValue(httpProxyPort);
+        ui->m_httpProxyUser->setText(httpProxyUser);
+        ui->m_httpProxyPass->setText(httpProxyPass);
+        ui->m_httpProxyNeedsAuth->setChecked(!httpProxyUser.isEmpty() | !httpProxyPass.isEmpty());
+        QNetworkProxy::setApplicationProxy(this->httpProxy());
+    }
 }
 
 // creates a total download progress for multiple QNetworkReplies
@@ -659,7 +691,6 @@ void ZealSettingsDialog::on_deleteButton_clicked()
 
 void ZealSettingsDialog::on_listView_clicked(const QModelIndex &index)
 {
-
     ui->deleteButton->setEnabled(true);
 }
 
@@ -679,6 +710,7 @@ void ZealSettingsDialog::resetProgress()
 
 QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries){
     startTasks(1);
+    naManager.setProxy(this->httpProxy());
     QNetworkReply *reply = naManager.get(QNetworkRequest(url));
     connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
     replies.insert(reply, retries);
@@ -731,6 +763,13 @@ void ZealSettingsDialog::saveSettings(){
     settings.setValue("startupBehavior",
                       ui->radioStartTray->isChecked() ?
                           "systray" : "window");
+
+    // Proxy settings
+    settings.setValue("proxyType", proxyType());
+    settings.setValue("httpProxy", ui->m_httpProxy->text());
+    settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
+    settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
+    settings.setValue("httpProxy", ui->m_httpProxyPass->text());
 }
 
 void ZealSettingsDialog::on_tabWidget_currentChanged()
@@ -793,4 +832,48 @@ void ZealSettingsDialog::on_addFeedButton_clicked()
     }
     auto reply = startDownload(feedUrl);
     connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+}
+
+ZealSettingsDialog::ProxyType ZealSettingsDialog::proxyType() const
+{
+    return ZealSettingsDialog::ProxyType(settings.value("proxyType", ZealSettingsDialog::NoProxy).toInt());
+}
+
+QNetworkProxy ZealSettingsDialog::httpProxy() const
+{
+    QNetworkProxy proxy;
+
+    switch (proxyType()) {
+        case ZealSettingsDialog::NoProxy:
+            {
+                proxy = QNetworkProxy::NoProxy;
+            }
+            break;
+
+        case ZealSettingsDialog::SystemProxy:
+            {
+                QNetworkProxyQuery npq(QUrl("http://www.google.com"));
+                QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
+                if (listOfProxies.size()) {
+                    proxy = listOfProxies[0];
+                }
+            }
+            break;
+
+        case ZealSettingsDialog::UserDefinedProxy:
+            {
+                proxy = QNetworkProxy(QNetworkProxy::HttpProxy, ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
+                if (ui->m_httpProxyNeedsAuth->isChecked()) {
+                    proxy.setUser(ui->m_httpProxyUser->text());
+                    proxy.setPassword(ui->m_httpProxyPass->text());
+                }
+            }
+            break;
+
+        default:
+            Q_ASSERT_X(false, Q_FUNC_INFO, "Unknown proxy type given!");
+            break;
+    }
+
+    return proxy;
 }
