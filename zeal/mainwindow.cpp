@@ -45,9 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :
     trayIcon = nullptr;
     trayIconMenu = nullptr;
 
-    // Use the platform-specific proxy settings
-    QNetworkProxyFactory::setUseSystemConfiguration(true);
-
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
@@ -115,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
     ZealNetworkAccessManager * zealNaManager = new ZealNetworkAccessManager();
+    zealNaManager->setProxy(settingsDialog.httpProxy());
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
 
     // menu
