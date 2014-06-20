@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     zealsettingsdialog.cpp \
     zealnetworkaccessmanager.cpp \
     zealsearchquery.cpp \
-    progressitemdelegate.cpp
+    progressitemdelegate.cpp \
+    zealdocsetmetadata.cpp
 
 HEADERS  += mainwindow.h \
     zeallistmodel.h \
@@ -41,7 +42,8 @@ HEADERS  += mainwindow.h \
     xcb_keysym.h \
     zealnetworkaccessmanager.h \
     zealsearchquery.h \
-    progressitemdelegate.h
+    progressitemdelegate.h \
+    zealdocsetmetadata.h
 
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui

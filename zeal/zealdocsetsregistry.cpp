@@ -15,11 +15,16 @@ ZealDocsetsRegistry* docsets = ZealDocsetsRegistry::instance();
 void ZealDocsetsRegistry::addDocset(const QString& path) {
     auto dir = QDir(path);
     auto name = dir.dirName().replace(".docset", "");
+    if(docs.contains(name)){
+        remove(name);
+    }
     auto db = QSqlDatabase::addDatabase("QSQLITE", name);
+    docsetEntry entry;
+
     if(QFile::exists(dir.filePath("index.sqlite"))) {
         db.setDatabaseName(dir.filePath("index.sqlite"));
         db.open();
-        types.insert(name, ZEAL);
+        entry.type = ZEAL;
     } else {
         auto dashFile = QDir(QDir(dir.filePath("Contents")).filePath("Resources")).filePath("docSet.dsidx");
         db.setDatabaseName(dashFile);
@@ -30,13 +35,19 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
             tables.append(q.value(0).toString());
         }
         if(tables.contains("searchIndex")) {
-            types.insert(name, DASH);
+            entry.type = DASH;
         } else {
-            types.insert(name, ZDASH);
+            entry.type = ZDASH;
         }
     }
-    dbs.insert(name, db);
-    dirs.insert(name, dir);
+    entry.db = db;
+    entry.dir = dir;
+
+    // Read metadata
+    ZealDocsetMetadata meta;
+    meta.read(path+"/meta.json");
+    entry.metadata = meta;
+    docs[name] = entry;
 }
 
 ZealDocsetsRegistry::ZealDocsetsRegistry() :
@@ -94,10 +105,10 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%"+preparedQuery;
                 // don't return 'starting with' results twice
-                if(types[name] == ZDASH) {
+                if(docs[name].type == ZDASH) {
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 } else {
-                    if(types[name] == ZEAL) {
+                    if(docs[name].type == ZEAL) {
                         notQuery = QString(" and not (t.name like '%1%' escape '\\') ").arg(preparedQuery);
                         parentQuery = QString(" or t2.name like '%1%' escape '\\' ").arg(preparedQuery);
                     } else { // DASH
@@ -106,14 +117,14 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 }
             }
             int cols = 3;
-            if(types[name] == ZEAL) {
+            if(docs[name].type == ZEAL) {
                 qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
                                "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
 
-            } else if(types[name] == DASH) {
+            } else if(docs[name].type == DASH) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
                                "like '%1%' escape '\\' %3)  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if(types[name] == ZDASH) {
+            } else if(docs[name].type == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                 "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -141,10 +152,10 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             }
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-            if(types[name] == DASH || types[name] == ZDASH) {
+            if(docs[name].type == DASH || docs[name].type == ZDASH) {
                 path = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(path);
             }
-            if(types[name] == ZDASH) {
+            if(docs[name].type == ZDASH) {
                 path += "#" + row[3].toString();
             }
             auto itemName = row[0].toString();
@@ -192,7 +203,7 @@ void ZealDocsetsRegistry::initialiseDocsets()
     QDir dataDir( docsetsDir() );
     for(auto subdir : dataDir.entryInfoList()) {
         if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-            QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+            QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
                                       Q_ARG(QString, subdir.absoluteFilePath()));
         }
     }
@@ -200,7 +211,7 @@ void ZealDocsetsRegistry::initialiseDocsets()
     if(appDir.cd("docsets")){
         for(auto subdir : appDir.entryInfoList()) {
             if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-                QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
                                           Q_ARG(QString, subdir.absoluteFilePath()));
             }
         }
