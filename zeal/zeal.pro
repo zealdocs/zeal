@@ -55,6 +55,7 @@ macx:DEFINES += OSX
 macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
 macx:CONFIG += c++11
 
+win32:RC_ICONS = zeal.ico
 win32:DEFINES += WIN32 QUAZIP_BUILD
 DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 LIBS += -lz
@@ -63,11 +64,19 @@ unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
 unix:!macx: DEFINES += LINUX
 
+appicons16.path=/usr/share/icons/hicolor/app/16x16
+appicons24.path=/usr/share/icons/hicolor/app/24x24
+appicons32.path=/usr/share/icons/hicolor/app/32x32
+appicons64.path=/usr/share/icons/hicolor/app/64x64
+appicons128.path=/usr/share/icons/hicolor/app/128x128
 icons.path=/usr/share/pixmaps/zeal
 icons.files=icons/*
 desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
-unix:INSTALLS += icons desktop
+unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
 
 include (widgets/widgets.pri)
 include (quazip/quazip.pri)
+
+RESOURCES += \
+    zeal.qrc

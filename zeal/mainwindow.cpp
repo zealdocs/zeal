@@ -68,12 +68,13 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     // initialise icons
-#if defined(WIN32) || defined(OSX)
+#if defined(OSX)
     icon = qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation);
+#elif defined(WIN32)
+    icon = QIcon(":/zeal.ico");
 #else
     icon = QIcon::fromTheme("edit-find");
 #endif
-    setWindowIcon(icon);
     if(settings.value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 

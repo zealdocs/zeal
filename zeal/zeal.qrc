@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>zeal.ico</file>
+    </qresource>
+</RCC>
