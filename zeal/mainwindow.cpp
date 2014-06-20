@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QIcon::setThemeName("hicolor");
     icon = QIcon::fromTheme("zeal");
 #endif
+    setWindowIcon(icon);
     if(settings.value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
