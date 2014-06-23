@@ -31,6 +31,7 @@ If you prefer to compile Zeal manually.
 * Qt 5.0
 * X C Binding – keysyms (Ubuntu `libxcb-keysyms1-dev`)
 * `bsdtar` is required for the built-in docset extracting to work
+* `libappindicator` and `libappindicator-devel` for notifications
 
 To compile it, run `qmake` and `make` in the `zeal` directory. On Linux, a final `make install` is required to install icons.
 
