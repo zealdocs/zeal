@@ -26,13 +26,16 @@
 #include <windows.h>
 #endif
 
+#ifdef USE_LIBAPPINDICATOR
+#include <gtk/gtk.h>
+#endif
+
 #ifdef LINUX
 #include <qpa/qplatformnativeinterface.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
 #include "xcb_keysym.h"
-#include <gtk/gtk.h>
 #endif
 
 const QString serverName = "zeal_process_running";
@@ -44,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     settingsDialog(zealList)
 {
     trayIcon = nullptr;
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
     indicator = nullptr;
 #endif
     trayIconMenu = nullptr;
@@ -93,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if(!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
             if(trayIcon || indicator) {
 #else
             if(trayIcon) {
@@ -267,7 +270,7 @@ void MainWindow::forward() {
     displayViewActions();
 }
 
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
 void onQuit(GtkMenu *menu, gpointer data)
 {
     Q_UNUSED(menu);
@@ -278,7 +281,7 @@ void onQuit(GtkMenu *menu, gpointer data)
 
 void MainWindow::createTrayIcon()
 {
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
     if(trayIcon || indicator) return;
 #else
     if(trayIcon) return;
@@ -290,7 +293,7 @@ void MainWindow::createTrayIcon()
     desktop = getenv("XDG_CURRENT_DESKTOP");
     isUnity = (desktop.toLower() == "unity");
 
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
     if(isUnity) //Application Indicators for Unity
     {
         GtkWidget *menu;
@@ -323,7 +326,7 @@ void MainWindow::createTrayIcon()
             }
         });
         trayIcon->show();
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
     }
 #endif
 }

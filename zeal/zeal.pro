@@ -45,10 +45,6 @@ HEADERS  += mainwindow.h \
     progressitemdelegate.h \
     zealdocsetmetadata.h
 
-unix:!macx: INCLUDEPATH += /usr/include/libappindicator-0.1 \
-        /usr/include/gtk-2.0 \
-        /usr/lib/gtk-2.0/include \
-
 FORMS    += mainwindow.ui \
     zealsettingsdialog.ui
 
@@ -66,11 +62,19 @@ LIBS += -lz -L/usr/lib
 
 CONFIG += link_pkgconfig
 
-unix:!macx: PKGCONFIG = gtk+-2.0
-
-unix:!macx: LIBS += -lxcb -lxcb-keysyms -lappindicator
+unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
 unix:!macx: DEFINES += LINUX
+
+unix:!macx:!no_libappindicator {
+    INCLUDEPATH += /usr/include/libappindicator-0.1 \
+        /usr/include/gtk-2.0 \
+        /usr/lib/gtk-2.0/include
+    PKGCONFIG = gtk+-2.0
+    LIBS += -lappindicator
+
+    DEFINES += USE_LIBAPPINDICATOR
+}
 
 appicons16.path=/usr/share/icons/hicolor/16x16/apps
 appicons24.path=/usr/share/icons/hicolor/24x24/apps
