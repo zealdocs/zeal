@@ -375,11 +375,17 @@ void MainWindow::setupShortcuts()
         ui->lineEdit->setFocus();
     });
 
+    QShortcut* globalClear = new QShortcut(QKeySequence("Ctrl+R"), this);
+    globalClear->setContext(Qt::ApplicationShortcut);
+    connect(globalClear, &QShortcut::activated, [=]() {
+        ui->lineEdit->setFocus();
+        ui->lineEdit->clearQuery();
+    });
+
     QShortcut* globalEsc = new QShortcut(QKeySequence("Esc"), this);
     globalEsc->setContext(Qt::ApplicationShortcut);
     connect(globalEsc, &QShortcut::activated, [=]() {
-        ui->lineEdit->setFocus();
-        ui->lineEdit->clearQuery();
+        hide();
     });
 }
 
