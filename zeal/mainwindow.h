@@ -12,7 +12,7 @@
 #include "zealnativeeventfilter.h"
 #include "zealsettingsdialog.h"
 
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
 #undef signals
 #include <libappindicator/app-indicator.h>
 #define signals public
@@ -52,7 +52,7 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QSystemTrayIcon *trayIcon;
-#ifdef LINUX
+#ifdef USE_LIBAPPINDICATOR
     AppIndicator *indicator;  //for Unity
 #endif
     QMenu *trayIconMenu;
