@@ -16,6 +16,7 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
     void focusInEvent(QFocusEvent *);
+    void mousePressEvent(QMouseEvent *ev);
 
 signals:
 
@@ -23,6 +24,7 @@ public slots:
 
 private:
     QTreeView *treeView;
+    bool focusing;
 };
 
 #endif // ZEALSEARCHEDIT_H

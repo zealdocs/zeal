@@ -13,6 +13,7 @@ ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
 void ZealSearchEdit::setTreeView(QTreeView *view)
 {
     treeView = view;
+    focusing = false;
     this->installEventFilter(this);
 }
 
@@ -51,10 +52,24 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 
 void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
 {
+    // Focus on the widget.
+    LineEdit::focusInEvent(evt);
+
+    // Override the default selection.
     ZealSearchQuery currentQuery(text());
     int selectionOffset = currentQuery.getDocsetFilter().size();
     if(selectionOffset > 0) {
         selectionOffset++; // add the delimeter
     }
     setSelection(selectionOffset, text().size() - selectionOffset);
+    focusing = true;
+}
+
+void ZealSearchEdit::mousePressEvent(QMouseEvent *ev)
+{
+    // Let the focusInEvent code deal with initial selection on focus.
+    if (!focusing) {
+        LineEdit::mousePressEvent(ev);
+    }
+    focusing = false;
 }
