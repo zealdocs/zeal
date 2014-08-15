@@ -23,7 +23,11 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="ZealSearchEdit" name="lineEdit"/>
+         <widget class="ZealSearchEdit" name="lineEdit">
+          <property name="placeholderText">
+           <string>Enter your query</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QTreeView" name="treeView">
