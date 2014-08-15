@@ -159,6 +159,10 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 path += "#" + row[3].toString();
             }
             auto itemName = row[0].toString();
+            QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
+            if (matchMethodName.indexIn(itemName) != -1) {
+                itemName = matchMethodName.cap(1);
+            }
             QString separators[] = {".", "::", "/"};
             for(unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
                 QString sep = separators[i];
