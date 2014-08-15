@@ -2,27 +2,25 @@
 #include <QApplication>
 #include <QLocalSocket>
 #include <QProxyStyle>
+#include <QCommandLineParser>
 
 #include <string>
 #include <iostream>
 
 using namespace std;
 
-QString getQueryParam(QStringList arguments)
-{
-    // Poor mans arg parser
-    for (int i = 1; i < arguments.size(); ++i) {
-        if(arguments.at(i) == "--query") {
-            if(arguments.size() > i + 1) {
-                return arguments.at(i + 1);
-            } else {
-                cerr << "Usage: " << arguments.at(0).toStdString() << " --query <search term>";
-                exit(1);
-            }
-        }
-    }
-
-    return "";
+// Sets up the command line parser.
+// TODO: make compatible with older versions of QT.
+void setupOptionParser(QCommandLineParser *parser) {
+    parser->setApplicationDescription("zeal - Offline documentation browser.");
+    parser->addHelpOption();
+    parser->addVersionOption();
+    QCommandLineOption queryOption(QStringList() << "q" << "query",
+                                   "Query <search term>.", "term");
+    parser->addOption(queryOption);
+    QCommandLineOption forceRun(QStringList() << "f" << "force",
+                                "Force the application run.");
+    parser->addOption(forceRun);
 }
 
 #ifdef WIN32
@@ -44,16 +42,24 @@ public:
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QApplication::setApplicationName("zeal");
+    QApplication::setApplicationVersion(ZEAL_VERSION);
+    QCommandLineParser optionParser;
+    setupOptionParser(&optionParser);
+    optionParser.process(a);
 #ifdef WIN32
     a.setStyle(new ZealProxyStyle);
 #endif
-    QString queryParam = getQueryParam(a.arguments());
+
+    // Extract the command line flags.
+    QString queryParam = optionParser.value("query");
+    bool runForce = optionParser.isSet("force");
 
     // detect already running instance and optionally pass a search
     // query onto it.
     QLocalSocket socket;
     socket.connectToServer(serverName);
-    if (socket.waitForConnected(500)) {
+    if (!runForce && socket.waitForConnected(500)) {
         if(!queryParam.isEmpty()) {
             QByteArray msg;
             msg.append(queryParam);
