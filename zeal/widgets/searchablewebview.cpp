@@ -21,6 +21,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
             // highlight other occurences:
             webView.findText(text, QWebPage::HighlightAllOccurrences);
         }
+
         // store text for later searches
         searchText = text;
     });
@@ -71,9 +72,14 @@ void SearchableWebView::keyPressEvent(QKeyEvent *event) {
             flags |= QWebPage::FindBackward;
         webView.findText(searchText, flags);
     }
-    if(event->key() == Qt::Key_Escape) {
-        lineEdit.clear();
+
+    if (event->key() == Qt::Key_Slash) {
+        lineEdit.show();
+        lineEdit.setFocus();
     }
+
+    // Ignore all other events and pass them to the parent widget.
+    event->ignore();
 }
 
 void SearchableWebView::load(const QUrl &url) {

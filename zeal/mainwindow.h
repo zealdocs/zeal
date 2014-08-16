@@ -70,6 +70,7 @@ protected:
         hide();
     }
     void setupShortcuts();
+    void keyPressEvent(QKeyEvent *keyEvent);
 };
 
 #endif // MAINWINDOW_H

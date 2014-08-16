@@ -374,13 +374,15 @@ void MainWindow::setupShortcuts()
     connect(focusSearch, &QShortcut::activated, [=]() {
         ui->lineEdit->setFocus();
     });
+}
 
-    QShortcut* globalEsc = new QShortcut(QKeySequence("Esc"), this);
-    globalEsc->setContext(Qt::ApplicationShortcut);
-    connect(globalEsc, &QShortcut::activated, [=]() {
+// Captures global events in order to pass them to the search bar.
+void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (keyEvent->key() == Qt::Key_Escape) {
         ui->lineEdit->setFocus();
         ui->lineEdit->clearQuery();
-    });
+    }
 }
 
 void MainWindow::setHotKey(const QKeySequence& hotKey_) {
