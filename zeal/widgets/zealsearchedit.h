@@ -21,6 +21,7 @@ protected:
 signals:
 
 public slots:
+    void clear();
 
 private:
     QTreeView *treeView;

@@ -24,6 +24,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *);
+    bool eventFilter(QObject *, QEvent *);
 
 public slots:
     void clear();

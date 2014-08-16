@@ -25,8 +25,13 @@ void ZealSearchEdit::clearQuery()
     if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
         setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
     } else {
-        clear();
+        LineEdit::clear();
     }
+}
+
+void ZealSearchEdit::clear()
+{
+    this->clearQuery();
 }
 
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
@@ -42,12 +47,8 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
             emit treeView->activated(treeView->selectionModel()->currentIndex());
             return true;
         }
-
-        if(keyEvent->key() == Qt::Key_Escape) {
-            clearQuery();
-        }
     }
-    return QLineEdit::eventFilter(obj, ev);
+    return LineEdit::eventFilter(obj, ev);
 }
 
 void ZealSearchEdit::focusInEvent(QFocusEvent * evt)

@@ -33,11 +33,23 @@ LineEdit::LineEdit(QWidget *parent)
     QSize msz = minimumSizeHint();
     setMinimumSize(qMax(msz.width(), clearButton->sizeHint().height() + frameWidth * 2 + 2),
                    qMax(msz.height(), clearButton->sizeHint().height() + frameWidth * 2 + 2));
+    this->installEventFilter(this);
 }
 
 void LineEdit::clear() {
     QLineEdit::clear();
     if(hideOnClear) hide();
+}
+
+bool LineEdit::eventFilter(QObject *ob, QEvent *ev)
+{
+    if (ob == this && ev->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            clear();
+        }
+    }
+    return QLineEdit::eventFilter(ob, ev);
 }
 
 void LineEdit::resizeEvent(QResizeEvent *)
