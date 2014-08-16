@@ -1,0 +1,13 @@
+body {
+    text-align: center;
+    display: -webkit-flex;
+    margin: 0;
+    -webkit-flex-direction: column;
+    background: rgb(235, 235, 235);
+}
+.container {
+    -webkit-flex: none;
+}
+.dynamic {
+    -webkit-flex: auto;
+}

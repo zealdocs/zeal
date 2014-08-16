@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>zeal.ico</file>
+        <file>webpage/Welcome.html</file>
+        <file>webpage/main.css</file>
     </qresource>
 </RCC>

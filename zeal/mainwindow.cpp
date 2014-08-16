@@ -217,11 +217,11 @@ MainWindow::MainWindow(QWidget *parent) :
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &title) {
-        if (!title.isEmpty()) {
-            ui->pageTitle->setText(title);
-        }
+    connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &) {
+        QString title = ui->webView->page()->mainFrame()->title();
+        ui->pageTitle->setText(title);
     });
+    ui->webView->load(QUrl("qrc:///webpage/Welcome.html"));
 
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         treeViewClicked = true;
