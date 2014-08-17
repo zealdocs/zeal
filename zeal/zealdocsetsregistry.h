@@ -89,6 +89,7 @@ public:
         }
     }
 
+    bool hasDocset(const QString& name);
     QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);
     void invalidateQueries();
@@ -108,6 +109,8 @@ private slots:
 
 private:
     typedef struct {
+        QString name;
+        QString prefix;
         QSqlDatabase db;
         QDir dir;
         DocSetType type;
@@ -120,6 +123,7 @@ private:
                                  // we leave just the declarations, so the compiler will warn us
                                  // if we try to use those two functions by accident
 
+    QList<docsetEntry> docsets();
     static ZealDocsetsRegistry* m_Instance;
     QMap<QString, docsetEntry> docs;
     QList<ZealSearchResult> queryResults;

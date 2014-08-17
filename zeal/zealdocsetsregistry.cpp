@@ -40,6 +40,9 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
             entry.type = ZDASH;
         }
     }
+    entry.name = name;
+    // TODO: make customizable prefixes.
+    entry.prefix = name;
     entry.db = db;
     entry.dir = dir;
 
@@ -57,6 +60,16 @@ ZealDocsetsRegistry::ZealDocsetsRegistry() :
     auto thread = new QThread(this);
     moveToThread(thread);
     thread->start();
+}
+
+bool ZealDocsetsRegistry::hasDocset(const QString &name)
+{
+    this->docs.contains(name);
+}
+
+QList<ZealDocsetsRegistry::docsetEntry> ZealDocsetsRegistry::docsets()
+{
+    return this->docs.values();
 }
 
 void ZealDocsetsRegistry::runQuery(const QString& query)
@@ -81,8 +94,8 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
     QString preparedQuery = query.getSanitizedQuery();
     bool hasPrefixFilter = !docsetPrefix.isEmpty();
 
-    for (const QString &name : names()) {
-        if (hasPrefixFilter && !name.contains(docsetPrefix, Qt::CaseInsensitive)) {
+    for (const ZealDocsetsRegistry::docsetEntry docset : docsets()) {
+        if (hasPrefixFilter && !docset.prefix.contains(docsetPrefix, Qt::CaseInsensitive)) {
             // Filter out this docset as the names don't match the docset prefix
             continue;
         }
@@ -105,10 +118,10 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%"+preparedQuery;
                 // don't return 'starting with' results twice
-                if(docs[name].type == ZDASH) {
+                if(docset.type == ZDASH) {
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 } else {
-                    if(docs[name].type == ZEAL) {
+                    if(docset.type == ZEAL) {
                         notQuery = QString(" and not (t.name like '%1%' escape '\\') ").arg(preparedQuery);
                         parentQuery = QString(" or t2.name like '%1%' escape '\\' ").arg(preparedQuery);
                     } else { // DASH
@@ -117,14 +130,14 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 }
             }
             int cols = 3;
-            if(docs[name].type == ZEAL) {
+            if(docset.type == ZEAL) {
                 qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
                                "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
 
-            } else if(docs[name].type == DASH) {
+            } else if(docset.type == DASH) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
                                "like '%1%' escape '\\' %3)  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if(docs[name].type == ZDASH) {
+            } else if(docset.type == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                 "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -133,7 +146,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                                "like '%1%' escape '\\' %3) %2 order by lower(ztokenname) asc, zpath asc, "
                                "zanchor asc limit 100").arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
             }
-            q = db(name).exec(qstr);
+            q = db(docset.name).exec(qstr);
             while(q.next()) {
                 QList<QVariant> values;
                 for(int i = 0; i < cols; ++i) {
@@ -152,10 +165,10 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             }
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-            if(docs[name].type == DASH || docs[name].type == ZDASH) {
+            if(docset.type == DASH || docset.type == ZDASH) {
                 path = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(path);
             }
-            if(docs[name].type == ZDASH) {
+            if(docset.type == ZDASH) {
                 path += "#" + row[3].toString();
             }
             auto itemName = row[0].toString();
@@ -172,7 +185,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                     parentName = splitted.at(splitted.size()-2);
                 }
             }
-            results.append(ZealSearchResult(itemName, parentName, path, name, preparedQuery));
+            results.append(ZealSearchResult(itemName, parentName, path, docset.name, preparedQuery));
         }
     }
     qSort(results);
