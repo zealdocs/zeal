@@ -2,13 +2,18 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QDebug>
-#include <QCompleter>
 
 #include "../zealsearchquery.h"
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     LineEdit(parent)
 {
+    completionLabel = new QLabel(this);
+    completionLabel->setObjectName("completer");
+    completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
+    completionLabel->setFont(this->font());
+
+    connect(this, &ZealSearchEdit::textChanged, this, &ZealSearchEdit::showCompletions);
 }
 
 void ZealSearchEdit::setTreeView(QTreeView *view)
@@ -21,10 +26,10 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
 // Makes the line edit use autocompletions.
 void ZealSearchEdit::setCompletions(QStringList completions)
 {
-    QCompleter *completer = new QCompleter(completions, this);
-    completer->setCompletionMode(QCompleter::InlineCompletion);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    this->setCompleter(completer);
+    prefixCompleter = new QCompleter(completions, this);
+    prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
+    prefixCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    prefixCompleter->setWidget(this);
 }
 
 // Clear input with consideration to docset filters
@@ -61,14 +66,22 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 
         // Autocompletes the prefixes.
         if (keyEvent->key() == Qt::Key_Tab) {
-            QString currentCompletion = this->completer()->currentCompletion();
-            if (!currentCompletion.isEmpty()) {
-                this->setText(currentCompletion);
+            QString currentText = text();
+            QString completed = this->currentCompletion(currentText);
+            if (!completed.isEmpty()) {
+                this->setText(completed);
                 return true;
             }
         }
     }
     return LineEdit::eventFilter(obj, ev);
+}
+
+void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
+{
+    QString text = this->text();
+    showCompletions(text);
+    LineEdit::resizeEvent(ev);
 }
 
 void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
@@ -93,4 +106,28 @@ void ZealSearchEdit::mousePressEvent(QMouseEvent *ev)
         LineEdit::mousePressEvent(ev);
     }
     focusing = false;
+}
+
+QString ZealSearchEdit::currentCompletion(const QString &text)
+{
+    if (text.isEmpty()) {
+        return QString();
+    } else {
+        return this->prefixCompleter->currentCompletion();
+    }
+}
+
+void ZealSearchEdit::showCompletions(const QString &newValue)
+{
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    int textWidth = fontMetrics().width(newValue);
+
+    this->prefixCompleter->setCompletionPrefix(this->text());
+
+    QString completed = this->currentCompletion(newValue).mid(newValue.size());
+    QSize labelSize(fontMetrics().width(completed), size().height());
+
+    completionLabel->setMinimumSize(labelSize);
+    completionLabel->move(frameWidth + 2 + textWidth, frameWidth);
+    completionLabel->setText(completed);
 }
