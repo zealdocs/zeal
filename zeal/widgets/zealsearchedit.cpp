@@ -54,9 +54,17 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
     if(obj == this && ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
 
-        if(keyEvent->key() == Qt::Key_Down) {
-            treeView->setFocus();
-            return true;
+        if(keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
+            QModelIndex index = treeView->currentIndex();
+            int nextRow = keyEvent->key() == Qt::Key_Down
+                    ? index.row() + 1
+                    : index.row() - 1;
+            QModelIndex sibling = index.sibling(nextRow, 0);
+            if (nextRow >= 0 && nextRow < treeView->model()->rowCount())
+            {
+                treeView->setCurrentIndex(sibling);
+                return true;
+            }
         }
 
         if(keyEvent->key() == Qt::Key_Return) {
