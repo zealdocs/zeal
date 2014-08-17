@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QCompleter>
 
 #include "../zealsearchquery.h"
 
@@ -15,6 +16,15 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
     treeView = view;
     focusing = false;
     this->installEventFilter(this);
+}
+
+// Makes the line edit use autocompletions.
+void ZealSearchEdit::setCompletions(QStringList completions)
+{
+    QCompleter *completer = new QCompleter(completions, this);
+    completer->setCompletionMode(QCompleter::InlineCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    this->setCompleter(completer);
 }
 
 // Clear input with consideration to docset filters
@@ -38,6 +48,7 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
     if(obj == this && ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+
         if(keyEvent->key() == Qt::Key_Down) {
             treeView->setFocus();
             return true;
@@ -46,6 +57,15 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
         if(keyEvent->key() == Qt::Key_Return) {
             emit treeView->activated(treeView->selectionModel()->currentIndex());
             return true;
+        }
+
+        // Autocompletes the prefixes.
+        if (keyEvent->key() == Qt::Key_Tab) {
+            QString currentCompletion = this->completer()->currentCompletion();
+            if (!currentCompletion.isEmpty()) {
+                this->setText(currentCompletion);
+                return true;
+            }
         }
     }
     return LineEdit::eventFilter(obj, ev);

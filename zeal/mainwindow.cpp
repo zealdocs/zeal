@@ -173,6 +173,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
+    setupSearchBoxCompletions();
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit, ui->treeView));
@@ -244,6 +245,15 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
+}
+
+// Sets up the search box autocompletions.
+void MainWindow::setupSearchBoxCompletions() {
+    QStringList completions;
+    for (ZealDocsetsRegistry::docsetEntry docset: docsets->docsets()) {
+        completions << QString("%1:").arg(docset.prefix);
+    }
+    ui->lineEdit->setCompletions(completions);
 }
 
 QString MainWindow::getDocsetName(QString urlPath) {

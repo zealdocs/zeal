@@ -20,6 +20,14 @@ class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
 public:
+    typedef struct {
+        QString name;
+        QString prefix;
+        QSqlDatabase db;
+        QDir dir;
+        DocSetType type;
+        ZealDocsetMetadata metadata;
+    } docsetEntry;
 
     static ZealDocsetsRegistry* instance()
     {
@@ -94,10 +102,11 @@ public:
     void runQuery(const QString& query);
     void invalidateQueries();
     const QList<ZealSearchResult>& getQueryResults();
+    QList<docsetEntry> docsets();
 
     QString docsetsDir();
     void initialiseDocsets();
-
+    void setPrefixes(QHash<QString, QVariant> docsetPrefixes);
 signals:
     void queryCompleted();
 
@@ -108,22 +117,12 @@ private slots:
     void _runQuery(const QString& query, int queryNum);
 
 private:
-    typedef struct {
-        QString name;
-        QString prefix;
-        QSqlDatabase db;
-        QDir dir;
-        DocSetType type;
-        ZealDocsetMetadata metadata;
-    } docsetEntry;
-
     ZealDocsetsRegistry();
     ZealDocsetsRegistry(const ZealDocsetsRegistry&); // hide copy constructor
     ZealDocsetsRegistry& operator=(const ZealDocsetsRegistry&); // hide assign op
                                  // we leave just the declarations, so the compiler will warn us
                                  // if we try to use those two functions by accident
 
-    QList<docsetEntry> docsets();
     static ZealDocsetsRegistry* m_Instance;
     QMap<QString, docsetEntry> docs;
     QList<ZealSearchResult> queryResults;

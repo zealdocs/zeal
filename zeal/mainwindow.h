@@ -38,6 +38,7 @@ public:
 private:
     void bringToFront(bool withHack);
     void displayViewActions();
+    void setupSearchBoxCompletions();
 
     Ui::MainWindow *ui;
     QIcon icon;
