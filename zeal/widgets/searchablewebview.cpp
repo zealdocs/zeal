@@ -9,6 +9,7 @@
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent), lineEdit(this), webView(this)
 {
+    webView.setAttribute(Qt::WA_AcceptTouchEvents, false);
     lineEdit.hideOnClear = true;
     lineEdit.hide();
     connect(&lineEdit, &LineEdit::textChanged, [&](const QString& text) {
