@@ -392,6 +392,9 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     if (keyEvent->key() == Qt::Key_Escape) {
         ui->lineEdit->setFocus();
         ui->lineEdit->clearQuery();
+    } else if (keyEvent->key() == Qt::Key_Question) {
+        ui->lineEdit->setFocus();
+        ui->lineEdit->selectQuery();
     }
 }
 

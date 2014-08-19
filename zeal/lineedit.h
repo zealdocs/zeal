@@ -27,7 +27,7 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent);
 
 public slots:
-    void clear();
+    virtual void clear();
 
 private slots:
     void updateCloseButton(const QString &text);

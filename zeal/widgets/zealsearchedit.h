@@ -14,6 +14,7 @@ public:
     explicit ZealSearchEdit(QWidget *parent = 0);
     void setTreeView(QTreeView *view);
     void clearQuery();
+    void selectQuery();
     void setCompletions(QStringList completions);
 
 protected:
@@ -30,6 +31,8 @@ public slots:
     void showCompletions(const QString &text);
 
 private:
+    int queryStart();
+
     QCompleter *prefixCompleter;
     QTreeView *treeView;
     QLabel *completionLabel;

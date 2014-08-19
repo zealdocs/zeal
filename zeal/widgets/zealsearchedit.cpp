@@ -32,16 +32,28 @@ void ZealSearchEdit::setCompletions(QStringList completions)
     prefixCompleter->setWidget(this);
 }
 
-// Clear input with consideration to docset filters
-void ZealSearchEdit::clearQuery()
+int ZealSearchEdit::queryStart()
 {
     ZealSearchQuery currentQuery(text());
     // Keep the filter for the first esc press
     if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
-        setText(currentQuery.getDocsetFilter() + ZealSearchQuery::DOCSET_FILTER_SEPARATOR);
+        return currentQuery.getDocsetFilter().size() + 1;
     } else {
-        LineEdit::clear();
+        return 0;
     }
+}
+
+// Clear input with consideration to docset filters
+void ZealSearchEdit::clearQuery()
+{
+    QString query = text();
+    query.chop(query.size() - queryStart());
+    setText(query);
+}
+
+void ZealSearchEdit::selectQuery()
+{
+    setSelection(queryStart(), text().size());
 }
 
 void ZealSearchEdit::clear()
