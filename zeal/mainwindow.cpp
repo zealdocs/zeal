@@ -211,10 +211,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
         QString urlPath = url.path();
         QString docsetName = getDocsetName(urlPath);
-        QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
 
-        // paint label with the icon
-        ui->pageIcon->setPixmap(docsetMap);
+        if (docsets->names().contains(docsetName)) {
+            QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
+
+            // paint label with the icon
+            ui->pageIcon->setPixmap(docsetMap);
+        }
         displayViewActions();
     });
 

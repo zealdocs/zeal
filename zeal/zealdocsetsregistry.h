@@ -50,14 +50,17 @@ public:
     }
 
     QSqlDatabase& db(const QString& name) {
+        Q_ASSERT(docs.contains(name));
         return docs[name].db;
     }
 
     const QDir& dir(const QString& name) {
+        Q_ASSERT(docs.contains(name));
         return docs[name].dir;
     }
 
     const ZealDocsetMetadata& meta(const QString& name){
+        Q_ASSERT(docs.contains(name));
         return docs[name].metadata;
     }
 
@@ -79,6 +82,7 @@ public:
     }
 
     DocSetType type(const QString& name) const {
+        Q_ASSERT(docs.contains(name));
         return docs[name].type;
     }
 
