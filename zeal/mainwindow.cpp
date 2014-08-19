@@ -221,6 +221,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &) {
         QString title = ui->webView->page()->mainFrame()->title();
         ui->pageTitle->setText(title);
+        ui->pageTitle->repaint();
     });
     ui->webView->load(QUrl("qrc:///webpage/Welcome.html"));
 
