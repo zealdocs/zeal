@@ -72,9 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     // initialise icons
-#if defined(OSX)
-    icon = qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation);
-#elif defined(WIN32)
+#if (defined(OSX) || defined(WIN32))
     icon = QIcon(":/zeal.ico");
 #else
     QIcon::setThemeName("hicolor");

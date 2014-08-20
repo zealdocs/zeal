@@ -1,6 +1,7 @@
 #include <QThread>
 #include <QVariant>
 #include <QDebug>
+#include <QDir>
 #include <QtSql/QSqlQuery>
 #include <QStandardPaths>
 
@@ -229,23 +230,25 @@ QString ZealDocsetsRegistry::docsetsDir(){
     }
 }
 
+// Recursively finds and adds all docsets in a given directory.
+void ZealDocsetsRegistry::addDocsetsFromFolder(QDir folder)
+{
+    for(QFileInfo subdir : folder.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+        if (subdir.suffix() == "docset") {
+            QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
+                                      Q_ARG(QString, subdir.absoluteFilePath()));
+        } else {
+            addDocsetsFromFolder(QDir(subdir.absoluteFilePath()));
+        }
+    }
+}
+
 void ZealDocsetsRegistry::initialiseDocsets()
 {
     clear();
-    QDir dataDir( docsetsDir() );
-    for(auto subdir : dataDir.entryInfoList()) {
-        if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-            QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
-                                      Q_ARG(QString, subdir.absoluteFilePath()));
-        }
-    }
+    addDocsetsFromFolder(QDir(docsetsDir()));
     QDir appDir( QCoreApplication::applicationDirPath() );
     if(appDir.cd("docsets")){
-        for(auto subdir : appDir.entryInfoList()) {
-            if(subdir.isDir() && subdir.fileName() != "." && subdir.fileName() != "..") {
-                QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
-                                          Q_ARG(QString, subdir.absoluteFilePath()));
-            }
-        }
+        addDocsetsFromFolder(appDir);
     }
 }

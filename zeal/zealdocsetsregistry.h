@@ -126,6 +126,7 @@ private:
     ZealDocsetsRegistry& operator=(const ZealDocsetsRegistry&); // hide assign op
                                  // we leave just the declarations, so the compiler will warn us
                                  // if we try to use those two functions by accident
+    void addDocsetsFromFolder(QDir folder);
 
     static ZealDocsetsRegistry* m_Instance;
     QMap<QString, docsetEntry> docs;
