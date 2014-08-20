@@ -11,6 +11,7 @@ TARGET = zeal
 target.path = /usr/bin
 INSTALLS = target
 TEMPLATE = app
+ICON = zeal.icns
 
 
 SOURCES += main.cpp\
@@ -97,3 +98,6 @@ include (quazip/quazip.pri)
 
 RESOURCES += \
     zeal.qrc
+
+OTHER_FILES += \
+    zeal.icns
