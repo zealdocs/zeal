@@ -12,6 +12,7 @@
 #include <QJsonObject>
 
 #include "zealsearchresult.h"
+#include "zealdocsetinfo.h"
 #include "zealdocsetmetadata.h"
 
 typedef enum {ZEAL, DASH, ZDASH} DocSetType;
@@ -27,6 +28,7 @@ public:
         QDir dir;
         DocSetType type;
         ZealDocsetMetadata metadata;
+        ZealDocsetInfo info;
     } docsetEntry;
 
     static ZealDocsetsRegistry* instance()
@@ -101,6 +103,7 @@ public:
         }
     }
 
+    docsetEntry *getEntry(const QString &name);
     bool hasDocset(const QString& name);
     QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);

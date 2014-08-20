@@ -1,5 +1,6 @@
 #include "zeallistmodel.h"
 #include "zealdocsetsregistry.h"
+#include "zealdocsetinfo.h"
 
 #include <QIcon>
 #include <QtSql/QSqlQuery>
@@ -76,9 +77,6 @@ const QPair<QString, QString> ZealListModel::getItem(const QString& path, int in
         auto filePath = q.value(1).toString();
         // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
         // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
-        if(docsets->type(docsetName) == DASH || docsets->type(docsetName) == ZDASH) {
-            filePath = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(filePath);
-        }
         if(docsets->type(docsetName) == ZDASH) {
             filePath += "#" + q.value(2).toString();
         }
@@ -96,42 +94,21 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         if(column == 0) {
             return createIndex(row, column, (void*)getString(docsets->names().at(row)));
         } else if(column == 1) {
-            QDir dir(docsets->dir(docsets->names().at(row)));
+            ZealDocsetsRegistry::docsetEntry *entry = docsets->getEntry(docsets->names().at(row));
+            QDir dir(entry->dir);
 
-            if(QFile(dir.absoluteFilePath("index.html")).exists()) {
-                return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
-            } else {
-                // retrieve index file name from Info.plist for Dash docsets
-                dir.cd("Contents");
-                QFile file(dir.absoluteFilePath("Info.plist"));
-                QDomDocument infoplist("infoplist");
-                if(!file.open(QIODevice::ReadOnly)) {
-                    return createIndex(row, column, (void*)getString(""));
-                }
-                if(!infoplist.setContent(&file)) {
-                    file.close();
-                    return createIndex(row, column, (void*)getString(""));
-                }
-                auto keys = infoplist.elementsByTagName("key");
-                for(int i = 0; i < keys.count(); ++i) {
-                    auto key = keys.at(i);
-                    if(key.firstChild().nodeValue() == "dashIndexFilePath") {
-                        auto path = key.nextSibling().firstChild().nodeValue().split("/");
-                        auto filename = path.last();
-                        path.removeLast();
-                        dir.cd("Resources"); dir.cd("Documents");
-                        for(auto directory : path) {
-                            if(!dir.cd(directory)) {
-                                return createIndex(row, column, (void*)getString(""));
-                            }
-                        }
-                        return createIndex(row, column, (void*)getString(dir.absoluteFilePath(filename)));
+            if (!entry->info.indexPath.isEmpty()) {
+                auto path = entry->info.indexPath.split("/");
+                auto filename = path.last();
+                path.removeLast();
+                for(auto directory : path) {
+                    if(!dir.cd(directory)) {
+                        return createIndex(row, column, (void*)getString(""));
                     }
                 }
-                // fallback to index.html
-                dir.cd("Resources"); dir.cd("Documents");
-                return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
+                return createIndex(row, column, (void*)getString(dir.absoluteFilePath(filename)));
             }
+            return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
         }
         return QModelIndex();
     } else {
@@ -177,9 +154,11 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
         } else return QVariant();
     }
     if(index.column() == 0) {
-        auto retlist = i2s(index)->split('/');
+        QStringList retlist = i2s(index)->split('/');
         QString retval = retlist.last();
-        if(i2s(index)->count("/") > 2) {  // name with slashes - trim only "docset/type"
+        if (retlist.size() == 1) { // docset name
+            retval = docsets->getEntry(retval)->info.bundleName;
+        } else if(retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i) retval = retlist[i] + "/" + retval;
         }
         return QVariant(retval);

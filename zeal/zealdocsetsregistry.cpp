@@ -16,18 +16,27 @@ ZealDocsetsRegistry* docsets = ZealDocsetsRegistry::instance();
 void ZealDocsetsRegistry::addDocset(const QString& path) {
     auto dir = QDir(path);
     auto name = dir.dirName().replace(".docset", "");
-    if(docs.contains(name)){
-        remove(name);
-    }
-    auto db = QSqlDatabase::addDatabase("QSQLITE", name);
+    QSqlDatabase db;
     docsetEntry entry;
 
     if(QFile::exists(dir.filePath("index.sqlite"))) {
+        db = QSqlDatabase::addDatabase("QSQLITE", name);
         db.setDatabaseName(dir.filePath("index.sqlite"));
         db.open();
+        entry.name = name;
+        entry.prefix = name;
         entry.type = ZEAL;
     } else {
-        auto dashFile = QDir(QDir(dir.filePath("Contents")).filePath("Resources")).filePath("docSet.dsidx");
+        QDir contentsDir(dir.filePath("Contents"));
+        entry.info.readDocset(contentsDir.absoluteFilePath("Info.plist"));
+
+        if (entry.info.family == "cheatsheet") {
+            name = QString("%1_cheats").arg(name);
+        }
+        entry.name = name;
+
+        auto dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
+        db = QSqlDatabase::addDatabase("QSQLITE", name);
         db.setDatabaseName(dashFile);
         db.open();
         auto q = db.exec("select name from sqlite_master where type='table'");
@@ -40,10 +49,18 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
         } else {
             entry.type = ZDASH;
         }
+
+        dir.cd("Contents");
+        dir.cd("Resources");
+        dir.cd("Documents");
     }
-    entry.name = name;
-    // TODO: make customizable prefixes.
-    entry.prefix = name;
+
+    if(docs.contains(name)){
+        remove(name);
+    }
+    entry.prefix = entry.info.bundleName.isEmpty()
+            ? name
+            : entry.info.bundleName;
     entry.db = db;
     entry.dir = dir;
 
@@ -86,6 +103,11 @@ void ZealDocsetsRegistry::setPrefixes(QHash<QString, QVariant> docsetPrefixes)
             docset.prefix = docsetPrefix;
         }
     }
+}
+
+ZealDocsetsRegistry::docsetEntry *ZealDocsetsRegistry::getEntry(const QString& name)
+{
+    return &docs[name];
 }
 
 void ZealDocsetsRegistry::runQuery(const QString& query)
@@ -181,9 +203,6 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             }
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-            if(docset.type == DASH || docset.type == ZDASH) {
-                path = QDir(QDir(QDir("Contents").filePath("Resources")).filePath("Documents")).filePath(path);
-            }
             if(docset.type == ZDASH) {
                 path += "#" + row[3].toString();
             }
