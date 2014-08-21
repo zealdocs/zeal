@@ -3,6 +3,7 @@
 #include <QResizeEvent>
 #include <QWebFrame>
 #include <QWebHistory>
+#include <QWebPage>
 #include "searchablewebview.h"
 
 
@@ -33,12 +34,14 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
         lineEdit.setFocus();
     });
 
+    webView.page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
     connect(&webView, &QWebView::loadFinished, [&](bool ok) {
         moveLineEdit();
     });
 
     connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
     connect(&webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
+    connect(&webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
 
     connect(&webView, &QWebView::loadStarted, [&]() {
         lineEdit.clear();

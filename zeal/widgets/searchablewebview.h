@@ -25,6 +25,7 @@ protected:
 signals:
     void urlChanged(const QUrl &url);
     void titleChanged(const QString &title);
+    void linkClicked(const QUrl &url);
     
 public slots:
     void back();

@@ -9,6 +9,7 @@
 
 #include <QtDebug>
 #include <QCoreApplication>
+#include <QDesktopServices>
 #include <QKeyEvent>
 #include <QAbstractEventDispatcher>
 #include <QMessageBox>
@@ -225,6 +226,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->pageTitle->repaint();
     });
     ui->webView->load(QUrl("qrc:///webpage/Welcome.html"));
+
+    connect(ui->webView, &SearchableWebView::linkClicked, [&](const QUrl &url) {
+        QMessageBox question;
+        QString messageFormat = QString("Do you want to go to an external link?\nUrl: %1");
+        question.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        question.setText(messageFormat.arg(url.toString()));
+        if (question.exec() == QMessageBox::Yes) {
+            QDesktopServices::openUrl(url);
+        }
+    });
 
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         treeViewClicked = true;
