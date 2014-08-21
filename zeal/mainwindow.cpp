@@ -17,10 +17,12 @@
 #include <QLocalSocket>
 #include <QSettings>
 #include <QTimer>
+#include <QToolButton>
 #include <QWebSettings>
 #include <QNetworkProxyFactory>
 #include <QAbstractNetworkCache>
 #include <QWebFrame>
+#include <QWebHistory>
 #include <QShortcut>
 
 #ifdef WIN32
@@ -216,6 +218,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QString title = ui->webView->page()->mainFrame()->title();
         ui->pageTitle->setText(title);
         ui->pageTitle->repaint();
+        displayViewActions();
     });
     ui->webView->load(QUrl("qrc:///webpage/Welcome.html"));
 
@@ -248,6 +251,9 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->treeView->setModel(&zealList);
         }
     });
+
+    ui->backButton->setMenu(&backMenu);
+    ui->forwardButton->setMenu(&forwardMenu);
 }
 
 MainWindow::~MainWindow()
@@ -312,6 +318,23 @@ void MainWindow::displayViewActions() {
     ui->backButton->setEnabled(ui->webView->canGoBack());
     ui->action_Forward->setEnabled(ui->webView->canGoForward());
     ui->forwardButton->setEnabled(ui->webView->canGoForward());
+
+    ui->menu_View->clear();
+    ui->menu_View->addAction(ui->action_Back);
+    ui->menu_View->addAction(ui->action_Forward);
+    ui->menu_View->addSeparator();
+
+    backMenu.clear();
+    forwardMenu.clear();
+
+    QWebHistory *history = ui->webView->page()->history();
+    for (QWebHistoryItem item: history->backItems(10)) {
+        backMenu.addAction(addHistoryAction(history, item));
+    }
+    addHistoryAction(history, history->currentItem())->setEnabled(false);
+    for (QWebHistoryItem item: history->forwardItems(10)) {
+        forwardMenu.addAction(addHistoryAction(history, item));
+    }
 }
 
 void MainWindow::back() {
@@ -322,6 +345,17 @@ void MainWindow::back() {
 void MainWindow::forward() {
     ui->webView->forward();
     displayViewActions();
+}
+
+QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
+{
+    QAction *backAction = new QAction(item.title(), ui->menu_View);
+    ui->menu_View->addAction(backAction);
+    connect(backAction, &QAction::triggered, [=](bool) {
+        history->goToItem(item);
+    });
+
+    return backAction;
 }
 
 #ifdef USE_LIBAPPINDICATOR

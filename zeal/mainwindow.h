@@ -4,9 +4,11 @@
 #include <QMainWindow>
 #include <QLocalServer>
 #include <QDialog>
+#include <QMenu>
 #include <QSettings>
 #include <QSystemTrayIcon>
 #include <QCloseEvent>
+#include <QWebHistory>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
@@ -40,6 +42,7 @@ private:
     void displayViewActions();
     void loadSections(const QString docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
+    QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
 
     Ui::MainWindow *ui;
     QIcon icon;
@@ -47,6 +50,8 @@ private:
     ZealSearchModel zealSearch;
     ZealSearchModel sectionsList;
     QLocalServer *localServer;
+    QMenu backMenu;
+    QMenu forwardMenu;
     QDialog hackDialog;
     bool treeViewClicked;
     void createTrayIcon();
