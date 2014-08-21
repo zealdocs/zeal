@@ -38,14 +38,17 @@ public:
 private:
     void bringToFront(bool withHack);
     void displayViewActions();
+    void loadSections(const QString docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
 
     Ui::MainWindow *ui;
     QIcon icon;
     ZealListModel zealList;
     ZealSearchModel zealSearch;
+    ZealSearchModel sectionsList;
     QLocalServer *localServer;
     QDialog hackDialog;
+    bool treeViewClicked;
     void createTrayIcon();
     void setHotKey(const QKeySequence& hotKey);
     QKeySequence hotKey;
@@ -64,6 +67,8 @@ private slots:
     void changeMinFontSize(int minFont);
     void back();
     void forward();
+    void onSearchComplete();
+    void openDocset(const QModelIndex& index);
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());

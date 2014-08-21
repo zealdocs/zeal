@@ -102,6 +102,20 @@
           </attribute>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="sections_lab">
+          <property name="text">
+           <string>Sections:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="sections">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="layoutWidget">

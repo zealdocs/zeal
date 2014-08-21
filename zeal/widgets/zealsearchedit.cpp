@@ -1,7 +1,5 @@
 #include "zealsearchedit.h"
-#include <QCoreApplication>
 #include <QKeyEvent>
-#include <QDebug>
 
 #include "../zealsearchquery.h"
 

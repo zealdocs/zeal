@@ -183,27 +183,18 @@ MainWindow::MainWindow(QWidget *parent) :
     // (Only the frame is larger than the list item, which is different from default behaviour.)
     ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 #endif
-    bool treeViewClicked = false;
+    treeViewClicked = false;
 
     connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex& index) {
         treeViewClicked = true;
-       ui->treeView->activated(index);
+        ui->treeView->activated(index);
     });
-    connect(ui->treeView, &QTreeView::activated, [&](const QModelIndex& index) {
-        if(!index.sibling(index.row(), 1).data().isNull()) {
-            QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
-            QUrl url = QUrl::fromLocalFile(url_l[0]);
-            if(url_l.count() > 1) {
-                url.setFragment(url_l[1]);
-            }
-            ui->webView->load(url);
-
-            if (!treeViewClicked)
-                ui->webView->focus();
-            else
-                treeViewClicked = false;
-        }
+    connect(ui->sections, &QListView::clicked, [&](const QModelIndex &index) {
+        treeViewClicked = true;
+        ui->sections->activated(index);
     });
+    connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
+    connect(ui->sections, &QListView::activated, this, &MainWindow::openDocset);
     connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
     connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
 
@@ -215,6 +206,7 @@ MainWindow::MainWindow(QWidget *parent) :
             QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
 
             // paint label with the icon
+            loadSections(docsetName, url);
             ui->pageIcon->setPixmap(docsetMap);
         }
         displayViewActions();
@@ -237,6 +229,10 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
+    ui->sections->hide();
+    ui->sections_lab->hide();
+    ui->sections->setModel(&sectionsList);
+    connect(docsets, &ZealDocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
     connect(&zealSearch, &ZealSearchModel::queryCompleted, [&]() {
         treeViewClicked = true;
 
@@ -258,6 +254,41 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete localServer;
+}
+
+void MainWindow::openDocset(const QModelIndex &index)
+{
+    if(!index.sibling(index.row(), 1).data().isNull()) {
+        QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
+        QUrl url = QUrl::fromLocalFile(url_l[0]);
+        if(url_l.count() > 1) {
+            url.setFragment(url_l[1]);
+        }
+        ui->webView->load(url);
+
+        if (!treeViewClicked)
+            ui->webView->focus();
+        else
+            treeViewClicked = false;
+    }
+}
+
+void MainWindow::onSearchComplete()
+{
+    zealSearch.onQueryCompleted(docsets->getQueryResults());
+}
+
+void MainWindow::loadSections(const QString docsetName, const QUrl &url)
+{
+    QString dir = docsets->dir(docsetName).absolutePath();
+    QString urlPath = url.path();
+    int dirPosition = urlPath.indexOf(dir);
+    QString path = url.path().mid(dirPosition + dir.size() + 1);
+    // resolve the url to use the docset related path.
+    QList<ZealSearchResult> results = docsets->getRelatedLinks(docsetName, path);
+    sectionsList.onQueryCompleted(results);
+    ui->sections->setVisible(results.size() > 1);
+    ui->sections_lab->setVisible(results.size() > 1);
 }
 
 // Sets up the search box autocompletions.

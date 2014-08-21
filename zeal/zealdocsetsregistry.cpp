@@ -2,6 +2,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QDir>
+#include <QUrl>
 #include <QtSql/QSqlQuery>
 #include <QStandardPaths>
 
@@ -207,19 +208,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                 path += "#" + row[3].toString();
             }
             auto itemName = row[0].toString();
-            QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
-            if (matchMethodName.indexIn(itemName) != -1) {
-                itemName = matchMethodName.cap(1);
-            }
-            QString separators[] = {".", "::", "/"};
-            for(unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
-                QString sep = separators[i];
-                if(itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && row[1].isNull()) {
-                    auto splitted = itemName.split(sep);
-                    itemName = splitted.at(splitted.size()-1);
-                    parentName = splitted.at(splitted.size()-2);
-                }
-            }
+            normalizeName(itemName, parentName, row[1].toString());
             results.append(ZealSearchResult(itemName, parentName, path, docset.name, preparedQuery));
         }
     }
@@ -230,9 +219,68 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
     emit queryCompleted();
 }
 
+void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, QString initialParent)
+{
+    QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
+    if (matchMethodName.indexIn(itemName) != -1) {
+        itemName = matchMethodName.cap(1);
+    }
+    QString separators[] = {".", "::", "/"};
+    for(unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
+        QString sep = separators[i];
+        if(itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && initialParent.isNull()) {
+            auto splitted = itemName.split(sep);
+            itemName = splitted.at(splitted.size()-1);
+            parentName = splitted.at(splitted.size()-2);
+        }
+    }
+}
+
 const QList<ZealSearchResult>& ZealDocsetsRegistry::getQueryResults()
 {
     return queryResults;
+}
+
+QList<ZealSearchResult> ZealDocsetsRegistry::getRelatedLinks(QString name, QString path)
+{
+    QList<ZealSearchResult> results;
+    // Get the url without the #anchor.
+    QUrl mainUrl(path);
+    mainUrl.setFragment(NULL);
+    QString pageUrl(mainUrl.toString());
+    docsetEntry entry = docs[name];
+
+    // Prepare the query to look up all pages with the same url.
+    QString query;
+    if (entry.type == DASH) {
+        query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
+    } else if (entry.type == ZDASH) {
+        query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
+                        "FROM ztoken "
+                        "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                        "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                        "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
+                        "WHERE zfilepath.zpath = \"%1\"").arg(pageUrl);
+    } else if (entry.type == ZEAL) {
+        query = QString("SELECT name type, path FROM things WHERE path LIKE \"%1%%\"").arg(pageUrl);
+    }
+
+    QSqlQuery result = entry.db.exec(query);
+    while (result.next()) {
+        QString sectionName = result.value(0).toString();
+        QString sectionPath = result.value(2).toString();
+        QString parentName;
+        if (entry.type == ZDASH) {
+            sectionPath.append("#");
+            sectionPath.append(result.value(3).toString());
+        }
+
+        normalizeName(sectionName, parentName, "");
+
+        results.append(ZealSearchResult(sectionName, "", sectionPath, name, QString()));
+    }
+
+    return results;
 }
 
 QString ZealDocsetsRegistry::docsetsDir(){
