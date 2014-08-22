@@ -66,10 +66,14 @@ public:
         return docs[name].metadata;
     }
 
-    QIcon icon(const QString& name) {
-        QIcon icon(dir(name).absoluteFilePath("favicon.ico"));
+    QIcon icon(const QString& docsetName) {
+        docsetEntry *entry = &docs[docsetName];
+        QString bundleName = entry->info.bundleName;
+        bundleName.replace(" ", "_");
+        QString identifier = entry->info.bundleIdentifier;
+        QIcon icon(entry->dir.absoluteFilePath("favicon.ico"));
         if(icon.availableSizes().isEmpty()) {
-            icon = QIcon(dir(name).absoluteFilePath("icon.png"));
+            icon = QIcon(entry->dir.absoluteFilePath("icon.png"));
         }
         if(icon.availableSizes().isEmpty()) {
 #ifdef WIN32
@@ -78,7 +82,15 @@ public:
 #else
             QDir icondir("/usr/share/pixmaps/zeal");
 #endif
-            icon = QIcon(icondir.filePath(name+".png"));
+            icon = QIcon(icondir.filePath(bundleName+".png"));
+
+            // Fallback to identifier and docset file name.
+            if (icon.availableSizes().isEmpty()) {
+                icon = QIcon(icondir.filePath(identifier+".png"));
+            }
+            if (icon.availableSizes().isEmpty()) {
+                icon = QIcon(icondir.filePath(docsetName+".png"));
+            }
         }
         return icon;
     }

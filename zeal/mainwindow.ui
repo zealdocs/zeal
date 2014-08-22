@@ -23,6 +23,28 @@
 	border-right: none;
 	border-bottom: 1px solid black;
 	border-left: none;
+}
+
+QTabBar::tab {
+	height: 32px;
+	color: black;
+	border-image: url(&quot;:/chrome/chrome_tab.png&quot;) 0 16 0 16;
+	border-right: 16px black solid;
+	border-left: 16px black solid;
+	padding: 0 5px;
+	margin: 0 -8px -3px -8px;
+}
+
+QTabBar::tab::selected {
+	border-image: url(&quot;:/chrome/active_chrome_tab.png&quot;) 0 16 0 16 stretch;
+}
+
+QTabBar::tab::first, QTabBar::tab::only-one {
+	margin-left: 0;
+}
+
+QTabBar::tab::last, QTabBar::tab::only-one {
+	margin-right: 0;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -136,13 +158,13 @@
           </property>
           <layout class="QHBoxLayout" name="toolbox">
            <property name="topMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
             <number>12</number>
            </property>
            <property name="bottomMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <item>
             <widget class="QToolButton" name="backButton">
@@ -159,44 +181,21 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="pageIcon">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="pageTitle">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
+            <layout class="QHBoxLayout" name="toolbarLayout">
+             <item>
+              <widget class="QPushButton" name="openUrlButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Open URL</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -252,10 +251,21 @@
     <addaction name="action_Back"/>
     <addaction name="action_Forward"/>
    </widget>
+   <widget class="QMenu" name="menu_Tabs">
+    <property name="title">
+     <string>Tabs</string>
+    </property>
+    <addaction name="action_NewTab"/>
+    <addaction name="action_CloseTab"/>
+    <addaction name="separator"/>
+    <addaction name="action_NextTab"/>
+    <addaction name="action_PreviousTab"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
+   <addaction name="menu_Tabs"/>
   </widget>
   <action name="action_Quit">
    <property name="text">
@@ -285,6 +295,29 @@
   <action name="action_Forward">
    <property name="text">
     <string>&amp;Forward</string>
+   </property>
+  </action>
+  <action name="action_NewTab">
+   <property name="text">
+    <string>New Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="action_CloseTab">
+   <property name="text">
+    <string>Close Tab</string>
+   </property>
+  </action>
+  <action name="action_NextTab">
+   <property name="text">
+    <string>Next Tab</string>
+   </property>
+  </action>
+  <action name="action_PreviousTab">
+   <property name="text">
+    <string>Previous Tab</string>
    </property>
   </action>
  </widget>

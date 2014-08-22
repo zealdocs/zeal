@@ -17,6 +17,7 @@ public:
     QWebPage * page() const;
     bool canGoBack();
     bool canGoForward();
+    void setPage(QWebPage *page);
 
 protected:
     void keyPressEvent(QKeyEvent *event);

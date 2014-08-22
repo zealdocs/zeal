@@ -36,6 +36,10 @@ bool ZealDocsetInfo::readDocset(const QString filePath)
             this->keyword = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "DashDocSetFamily") {
             this->family = key.nextSibling().firstChild().nodeValue();
+        } else if (key.firstChild().nodeValue() == "CFBundleName") {
+            this->bundleName = key.nextSibling().firstChild().nodeValue();
+        } else if (key.firstChild().nodeValue() == "CFBundleIdentifier") {
+            this->bundleIdentifier = key.nextSibling().firstChild().nodeValue();
         }
     }
     return true;

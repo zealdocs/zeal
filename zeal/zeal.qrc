@@ -3,5 +3,9 @@
         <file>zeal.ico</file>
         <file>webpage/Welcome.html</file>
         <file>webpage/main.css</file>
+        <file>chrome/active_chrome_tab.png</file>
+        <file>chrome/chrome_tab_2.png</file>
+        <file>chrome/chrome_tab.png</file>
+        <file>chrome/overlay_chrome_tab.png</file>
     </qresource>
 </RCC>

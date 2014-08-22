@@ -55,6 +55,11 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     });
 }
 
+void SearchableWebView::setPage(QWebPage *page)
+{
+    webView.setPage(page);
+}
+
 void SearchableWebView::moveLineEdit() {
     QSize sz = lineEdit.sizeHint();
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);

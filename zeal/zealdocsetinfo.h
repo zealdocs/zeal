@@ -14,6 +14,8 @@ public:
     QString indexPath;
     QString family;
     QString keyword;
+    QString bundleName;
+    QString bundleIdentifier;
 };
 
 #endif // ZEALDOCSETINFO_H
