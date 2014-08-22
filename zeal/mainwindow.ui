@@ -18,8 +18,11 @@
 	background: black;
 }
 
-#webView, #treeView{
-	border-top: 1px solid black;
+#frame, #frame_2{
+	border-top: none;
+	border-right: none;
+	border-bottom: 1px solid black;
+	border-left: none;
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
