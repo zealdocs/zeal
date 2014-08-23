@@ -207,16 +207,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
         QString urlPath = url.path();
         QString docsetName = getDocsetName(urlPath);
-
+        QIcon icon = docsetIcon(docsetName);
         if (docsets->names().contains(docsetName)) {
-            QPixmap docsetMap = docsets->icon(docsetName).pixmap(32,32);
-
-            // paint label with the icon
             loadSections(docsetName, url);
-            tabBar.setTabIcon(tabBar.currentIndex(), docsetMap);
-        } else {
-            tabBar.setTabIcon(tabBar.currentIndex(), QIcon());
         }
+
+        tabBar.setTabIcon(tabBar.currentIndex(), icon);
         displayViewActions();
     });
 
@@ -324,6 +320,15 @@ void MainWindow::openDocset(const QModelIndex &index)
             ui->webView->focus();
         else
             treeViewClicked = false;
+    }
+}
+
+QIcon MainWindow::docsetIcon(QString docsetName)
+{
+    if (docsets->names().contains(docsetName)) {
+        return docsets->icon(docsetName).pixmap(32,32);
+    } else {
+        return QIcon();
     }
 }
 
@@ -535,7 +540,10 @@ void MainWindow::forward() {
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
 {
-    QAction *backAction = new QAction(item.title(), ui->menu_View);
+    QString docsetName = getDocsetName(item.url().toString());
+    QIcon icon = docsetIcon(docsetName);
+
+    QAction *backAction = new QAction(icon, item.title(), ui->menu_View);
     ui->menu_View->addAction(backAction);
     connect(backAction, &QAction::triggered, [=](bool) {
         history->goToItem(item);

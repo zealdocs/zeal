@@ -69,6 +69,7 @@ private:
     void reloadTabState();
     void displayTabs();
     void updateTreeView(QString text);
+    QIcon docsetIcon(QString docsetName);
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
 
     QList<SearchState*> tabs;
