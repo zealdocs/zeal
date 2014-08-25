@@ -34,7 +34,6 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
         lineEdit.setFocus();
     });
 
-    webView.page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
     connect(&webView, &QWebView::loadFinished, [&](bool ok) {
         moveLineEdit();
     });

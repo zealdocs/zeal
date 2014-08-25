@@ -382,6 +382,7 @@ void MainWindow::createTab()
     ui->lineEdit->setText("");
 
     newTab->page = new QWebPage(ui->webView);
+    newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
 
     ui->treeView->setModel(NULL);
     ui->treeView->setModel(&zealList);
