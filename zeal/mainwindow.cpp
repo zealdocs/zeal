@@ -133,6 +133,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // menu
     ui->action_Quit->setShortcut(QKeySequence::Quit);
+    addAction(ui->action_Quit);
     connect(ui->action_Quit, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
@@ -161,7 +162,9 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     ui->action_Back->setShortcut(QKeySequence::Back);
+    addAction(ui->action_Back);
     ui->action_Forward->setShortcut(QKeySequence::Forward);
+    addAction(ui->action_Forward);
     connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
@@ -250,6 +253,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->forwardButton->setMenu(&forwardMenu);
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);
+    addAction(ui->action_NewTab);
     connect(ui->action_NewTab, &QAction::triggered, [&]() {
         saveTabState();
         createTab();
@@ -271,6 +275,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #else
     ui->action_CloseTab->setShortcut(QKeySequence::Close);
 #endif
+    addAction(ui->action_CloseTab);
     connect(ui->action_CloseTab, &QAction::triggered, [&]() {
         closeTab(-1);
     });
@@ -294,11 +299,13 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     ui->action_NextTab->setShortcut(QKeySequence::NextChild);
+    addAction(ui->action_NextTab);
     connect(ui->action_NextTab, &QAction::triggered, [&]() {
         tabBar.setCurrentIndex((tabBar.currentIndex() + 1) % tabBar.count());
     });
 
     ui->action_PreviousTab->setShortcut(QKeySequence::PreviousChild);
+    addAction(ui->action_PreviousTab);
     connect(ui->action_PreviousTab, &QAction::triggered, [&]() {
         tabBar.setCurrentIndex((tabBar.currentIndex() - 1 + tabBar.count()) % tabBar.count());
     });
@@ -419,6 +426,13 @@ void MainWindow::displayTabs()
         action->setChecked(i == tabBar.currentIndex());
         if (i < 10) {
             QString shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
+            auto actions_ = actions();
+            for (int i = 0; i < actions_.length(); ++i) {
+                 if (actions_[i]->shortcut().toString() == shortcut) {
+                       removeAction(actions_[i]);
+                 }
+            }
+            addAction(action);
             action->setShortcut(QKeySequence(shortcut));
         }
 
