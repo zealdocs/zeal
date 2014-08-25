@@ -2,15 +2,16 @@
 #include <QApplication>
 #include <QLocalSocket>
 #include <QProxyStyle>
-#include <QCommandLineParser>
 
 #include <string>
 #include <iostream>
 
 using namespace std;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#include <QCommandLineParser>
+
 // Sets up the command line parser.
-// TODO: make compatible with older versions of QT.
 void setupOptionParser(QCommandLineParser *parser) {
     parser->setApplicationDescription("zeal - Offline documentation browser.");
     parser->addHelpOption();
@@ -22,6 +23,7 @@ void setupOptionParser(QCommandLineParser *parser) {
                                 "Force the application run.");
     parser->addOption(forceRun);
 }
+#endif
 
 #ifdef WIN32
 class ZealProxyStyle : public QProxyStyle {
@@ -44,16 +46,24 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QApplication::setApplicationName("zeal");
     QApplication::setApplicationVersion(ZEAL_VERSION);
-    QCommandLineParser optionParser;
-    setupOptionParser(&optionParser);
-    optionParser.process(a);
 #ifdef WIN32
     a.setStyle(new ZealProxyStyle);
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    QCommandLineParser optionParser;
+    setupOptionParser(&optionParser);
+    optionParser.process(a);
     // Extract the command line flags.
     QString queryParam = optionParser.value("query");
     bool runForce = optionParser.isSet("force");
+#else
+    QString queryParam;
+    if (argc > 2 && QString(argv[1]) == "--query") {
+        queryParam = argv[2];
+    }
+    bool runForce = false;
+#endif
 
     // detect already running instance and optionally pass a search
     // query onto it.
