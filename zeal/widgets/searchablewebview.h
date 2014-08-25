@@ -17,6 +17,7 @@ public:
     QWebPage * page() const;
     bool canGoBack();
     bool canGoForward();
+    void setPage(QWebPage *page);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -25,6 +26,7 @@ protected:
 signals:
     void urlChanged(const QUrl &url);
     void titleChanged(const QString &title);
+    void linkClicked(const QUrl &url);
     
 public slots:
     void back();

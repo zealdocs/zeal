@@ -13,20 +13,109 @@
   <property name="windowTitle">
    <string>Zeal</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QSplitter::handle {
+	background: black;
+}
+
+#frame, #frame_2{
+	border-top: none;
+	border-right: none;
+	border-bottom: 1px solid black;
+	border-left: none;
+}
+
+QTabBar::tab {
+	height: 32px;
+	color: black;
+	border-image: url(&quot;:/chrome/chrome_tab.png&quot;) 0 16 0 16;
+	border-right: 16px black solid;
+	border-left: 16px black solid;
+	padding: 0 5px;
+	margin: 0 -8px -3px -8px;
+}
+
+QTabBar::tab::selected {
+	border-image: url(&quot;:/chrome/active_chrome_tab.png&quot;) 0 16 0 16 stretch;
+}
+
+QTabBar::tab::first, QTabBar::tab::only-one {
+	margin-left: 0;
+}
+
+QTabBar::tab::last, QTabBar::tab::only-one {
+	margin-right: 0;
+}</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
+      <property name="lineWidth">
+       <number>5</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="handleWidth">
+       <number>1</number>
+      </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="ZealSearchEdit" name="lineEdit"/>
+         <widget class="QFrame" name="frame">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QVBoxLayout" name="searchToolbar">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="ZealSearchEdit" name="lineEdit">
+             <property name="placeholderText">
+              <string>Enter your query</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
          <widget class="QTreeView" name="treeView">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectItems</enum>
           </property>
@@ -38,75 +127,78 @@
           </attribute>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="sections_lab">
+          <property name="text">
+           <string>Sections:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListView" name="sections">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="viewInfo">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
-         <layout class="QHBoxLayout" name="toolbox">
-          <item>
-           <widget class="QPushButton" name="backButton">
-            <property name="styleSheet">
-             <string notr="true">max-width: 30px;
-font: 75 14pt;</string>
-            </property>
-            <property name="text">
-             <string>←</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="forwardButton">
-            <property name="styleSheet">
-             <string notr="true">max-width: 30px;
-font: 75 14pt;</string>
-            </property>
-            <property name="text">
-             <string>→</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="pageIcon">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="pageTitle">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <widget class="QFrame" name="frame_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <layout class="QHBoxLayout" name="toolbox">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>12</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QToolButton" name="backButton">
+             <property name="text">
+              <string>←</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="forwardButton">
+             <property name="text">
+              <string>→</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="toolbarLayout">
+             <item>
+              <widget class="QPushButton" name="openUrlButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Open URL</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
          <widget class="SearchableWebView" name="webView" native="true">
@@ -159,10 +251,21 @@ font: 75 14pt;</string>
     <addaction name="action_Back"/>
     <addaction name="action_Forward"/>
    </widget>
+   <widget class="QMenu" name="menu_Tabs">
+    <property name="title">
+     <string>Tabs</string>
+    </property>
+    <addaction name="action_NewTab"/>
+    <addaction name="action_CloseTab"/>
+    <addaction name="separator"/>
+    <addaction name="action_NextTab"/>
+    <addaction name="action_PreviousTab"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
+   <addaction name="menu_Tabs"/>
   </widget>
   <action name="action_Quit">
    <property name="text">
@@ -192,6 +295,29 @@ font: 75 14pt;</string>
   <action name="action_Forward">
    <property name="text">
     <string>&amp;Forward</string>
+   </property>
+  </action>
+  <action name="action_NewTab">
+   <property name="text">
+    <string>New Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="action_CloseTab">
+   <property name="text">
+    <string>Close Tab</string>
+   </property>
+  </action>
+  <action name="action_NextTab">
+   <property name="text">
+    <string>Next Tab</string>
+   </property>
+  </action>
+  <action name="action_PreviousTab">
+   <property name="text">
+    <string>Previous Tab</string>
    </property>
   </action>
  </widget>

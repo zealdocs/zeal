@@ -22,7 +22,7 @@ signals:
     void queryCompleted();
 
 public slots:
-    void onQueryCompleted();
+    void onQueryCompleted(const QList<ZealSearchResult> &results);
 
 private:
     QString query;

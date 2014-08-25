@@ -12,7 +12,6 @@ using namespace std;
 ZealSearchModel::ZealSearchModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
-    connect(docsets, &ZealDocsetsRegistry::queryCompleted, this, &ZealSearchModel::onQueryCompleted);
 }
 
 Qt::ItemFlags ZealSearchModel::flags(const QModelIndex &index) const
@@ -99,8 +98,10 @@ void ZealSearchModel::populateData()
     }
 }
 
-void ZealSearchModel::onQueryCompleted()
+void ZealSearchModel::onQueryCompleted(const QList<ZealSearchResult> &results)
 {
-    dataList = docsets->getQueryResults();
+    beginResetModel();
+    dataList = results;
+    endResetModel();
     emit queryCompleted();
 }

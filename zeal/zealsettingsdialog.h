@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QClipboard>
 #include <QUrl>
+#include <QHash>
 
 #include "ui_zealsettingsdialog.h"
 #include "zeallistmodel.h"
@@ -55,6 +56,9 @@ private:
         ZealDocsetDoneInstalling = Qt::UserRole + 20,
     };
 
+    // Stores prefix used to activate a specific docset.
+    QHash<QString, QVariant> prefixes;
+
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
@@ -78,7 +82,7 @@ private slots:
 
     void on_listView_clicked(const QModelIndex &index);
 
-    void on_tabWidget_currentChanged();
+    void on_tabWidget_currentChanged(int current);
 
     void on_buttonBox_accepted();
 

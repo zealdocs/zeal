@@ -106,6 +106,9 @@ void ZealSettingsDialog::loadSettings(){
         ui->m_httpProxyNeedsAuth->setChecked(!httpProxyUser.isEmpty() | !httpProxyPass.isEmpty());
         QNetworkProxy::setApplicationProxy(this->httpProxy());
     }
+
+    // Load prefixes.
+    prefixes = settings.value("prefixes").toHash();
 }
 
 // creates a total download progress for multiple QNetworkReplies
@@ -770,9 +773,11 @@ void ZealSettingsDialog::saveSettings(){
     settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
     settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
     settings.setValue("httpProxy", ui->m_httpProxyPass->text());
+
+    settings.setValue("prefixes", prefixes);
 }
 
-void ZealSettingsDialog::on_tabWidget_currentChanged()
+void ZealSettingsDialog::on_tabWidget_currentChanged(int current)
 {
     // Ensure the list is completely up to date
     QModelIndex index = ui->listView->currentIndex();
@@ -782,10 +787,14 @@ void ZealSettingsDialog::on_tabWidget_currentChanged()
     if (index.isValid()) {
         ui->listView->setCurrentIndex(index);
     }
+
+    if (ui->docsetsList->count() == 0 && current == 2) {
+        downloadDocsetLists();
+    }
 }
 
 void ZealSettingsDialog::showEvent(QShowEvent *) {
-    on_tabWidget_currentChanged();
+    on_tabWidget_currentChanged(0);
 }
 
 void ZealSettingsDialog::on_buttonBox_accepted()

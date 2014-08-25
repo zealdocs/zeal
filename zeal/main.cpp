@@ -8,22 +8,22 @@
 
 using namespace std;
 
-QString getQueryParam(QStringList arguments)
-{
-    // Poor mans arg parser
-    for (int i = 1; i < arguments.size(); ++i) {
-        if(arguments.at(i) == "--query") {
-            if(arguments.size() > i + 1) {
-                return arguments.at(i + 1);
-            } else {
-                cerr << "Usage: " << arguments.at(0).toStdString() << " --query <search term>";
-                exit(1);
-            }
-        }
-    }
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+#include <QCommandLineParser>
 
-    return "";
+// Sets up the command line parser.
+void setupOptionParser(QCommandLineParser *parser) {
+    parser->setApplicationDescription("zeal - Offline documentation browser.");
+    parser->addHelpOption();
+    parser->addVersionOption();
+    QCommandLineOption queryOption(QStringList() << "q" << "query",
+                                   "Query <search term>.", "term");
+    parser->addOption(queryOption);
+    QCommandLineOption forceRun(QStringList() << "f" << "force",
+                                "Force the application run.");
+    parser->addOption(forceRun);
 }
+#endif
 
 #ifdef WIN32
 class ZealProxyStyle : public QProxyStyle {
@@ -44,16 +44,32 @@ public:
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QApplication::setApplicationName("zeal");
+    QApplication::setApplicationVersion(ZEAL_VERSION);
 #ifdef WIN32
     a.setStyle(new ZealProxyStyle);
 #endif
-    QString queryParam = getQueryParam(a.arguments());
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    QCommandLineParser optionParser;
+    setupOptionParser(&optionParser);
+    optionParser.process(a);
+    // Extract the command line flags.
+    QString queryParam = optionParser.value("query");
+    bool runForce = optionParser.isSet("force");
+#else
+    QString queryParam;
+    if (argc > 2 && QString(argv[1]) == "--query") {
+        queryParam = argv[2];
+    }
+    bool runForce = false;
+#endif
 
     // detect already running instance and optionally pass a search
     // query onto it.
     QLocalSocket socket;
     socket.connectToServer(serverName);
-    if (socket.waitForConnected(500)) {
+    if (!runForce && socket.waitForConnected(500)) {
         if(!queryParam.isEmpty()) {
             QByteArray msg;
             msg.append(queryParam);

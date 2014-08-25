@@ -1,0 +1,16 @@
+body {
+    text-align: center;
+    display: -webkit-flex;
+    margin: 0;
+    -webkit-flex-direction: column;
+}
+#title {
+    color: #7A7A7A;
+    font-size: 5em;
+}
+.container {
+    -webkit-flex: none;
+}
+.dynamic {
+    -webkit-flex: auto;
+}

@@ -3,12 +3,14 @@
 #include <QResizeEvent>
 #include <QWebFrame>
 #include <QWebHistory>
+#include <QWebPage>
 #include "searchablewebview.h"
 
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent), lineEdit(this), webView(this)
 {
+    webView.setAttribute(Qt::WA_AcceptTouchEvents, false);
     lineEdit.hideOnClear = true;
     lineEdit.hide();
     connect(&lineEdit, &LineEdit::textChanged, [&](const QString& text) {
@@ -21,6 +23,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
             // highlight other occurences:
             webView.findText(text, QWebPage::HighlightAllOccurrences);
         }
+
         // store text for later searches
         searchText = text;
     });
@@ -37,6 +40,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 
     connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
     connect(&webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
+    connect(&webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
 
     connect(&webView, &QWebView::loadStarted, [&]() {
         lineEdit.clear();
@@ -48,6 +52,11 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
             setToolTip( link );
         }
     });
+}
+
+void SearchableWebView::setPage(QWebPage *page)
+{
+    webView.setPage(page);
 }
 
 void SearchableWebView::moveLineEdit() {
@@ -71,9 +80,14 @@ void SearchableWebView::keyPressEvent(QKeyEvent *event) {
             flags |= QWebPage::FindBackward;
         webView.findText(searchText, flags);
     }
-    if(event->key() == Qt::Key_Escape) {
-        lineEdit.clear();
+
+    if (event->key() == Qt::Key_Slash) {
+        lineEdit.show();
+        lineEdit.setFocus();
     }
+
+    // Ignore all other events and pass them to the parent widget.
+    event->ignore();
 }
 
 void SearchableWebView::load(const QUrl &url) {

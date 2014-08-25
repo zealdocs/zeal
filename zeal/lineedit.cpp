@@ -40,6 +40,15 @@ void LineEdit::clear() {
     if(hideOnClear) hide();
 }
 
+void LineEdit::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (keyEvent->key() == Qt::Key_Escape) {
+        clear();
+        return;
+    }
+    QLineEdit::keyPressEvent(keyEvent);
+}
+
 void LineEdit::resizeEvent(QResizeEvent *)
 {
     QSize sz = clearButton->sizeHint();
