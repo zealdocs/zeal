@@ -266,7 +266,11 @@ MainWindow::MainWindow(QWidget *parent) :
         searchState->expansions.removeOne(index);
     });
 
+#ifdef WIN32
+    ui->action_CloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
+#else
     ui->action_CloseTab->setShortcut(QKeySequence::Close);
+#endif
     connect(ui->action_CloseTab, &QAction::triggered, [&]() {
         closeTab(-1);
     });
@@ -412,6 +416,11 @@ void MainWindow::displayTabs()
         QAction *action = ui->menu_Tabs->addAction(title);
         action->setCheckable(true);
         action->setChecked(i == tabBar.currentIndex());
+        if (i < 10) {
+            QString shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
+            action->setShortcut(QKeySequence(shortcut));
+        }
+
         if (title.length() >= 20) {
             title.truncate(17);
             title += "...";
