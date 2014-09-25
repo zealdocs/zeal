@@ -775,8 +775,7 @@ void ZealSettingsDialog::saveSettings(){
     settings.setValue("httpProxy", ui->m_httpProxy->text());
     settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
     settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
-    settings.setValue("httpProxy", ui->m_httpProxyPass->text());
-
+    settings.setValue("httpProxyPass", ui->m_httpProxyPass->text());
     settings.setValue("prefixes", prefixes);
 }
 
