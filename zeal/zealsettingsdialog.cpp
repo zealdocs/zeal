@@ -80,11 +80,7 @@ void ZealSettingsDialog::loadSettings(){
     ui->m_systemProxySettings->setChecked(false);
     ui->m_manualProxySettings->setChecked(false);
 
-    ZealSettingsDialog::ProxyType proxyType = ZealSettingsDialog::NoProxy;
-    const QVariant variant = settings.value("proxyType", ZealSettingsDialog::NoProxy);
-    if (variant.canConvert<ZealSettingsDialog::ProxyType>()) {
-        proxyType = variant.value<ZealSettingsDialog::ProxyType>();
-    }
+    ZealSettingsDialog::ProxyType proxyType = static_cast<ZealSettingsDialog::ProxyType>(settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
 
     QString httpProxy = settings.value("httpProxy").toString();
     quint16 httpProxyPort = settings.value("httpProxyPort", 0).toInt();
@@ -768,7 +764,14 @@ void ZealSettingsDialog::saveSettings(){
                           "systray" : "window");
 
     // Proxy settings
-    settings.setValue("proxyType", proxyType());
+    ZealSettingsDialog::ProxyType currentProxy;
+    if (ui->m_noProxySettings->isChecked())
+        currentProxy = ZealSettingsDialog::NoProxy;
+    else if (ui->m_systemProxySettings->isChecked())
+        currentProxy = ZealSettingsDialog::SystemProxy;
+    else if (ui->m_manualProxySettings->isChecked())
+        currentProxy = ZealSettingsDialog::UserDefinedProxy;
+    settings.setValue("proxyType", (int) currentProxy);
     settings.setValue("httpProxy", ui->m_httpProxy->text());
     settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
     settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
@@ -845,7 +848,7 @@ void ZealSettingsDialog::on_addFeedButton_clicked()
 
 ZealSettingsDialog::ProxyType ZealSettingsDialog::proxyType() const
 {
-    return ZealSettingsDialog::ProxyType(settings.value("proxyType", ZealSettingsDialog::NoProxy).toInt());
+    return static_cast<ZealSettingsDialog::ProxyType>(settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
 }
 
 QNetworkProxy ZealSettingsDialog::httpProxy() const
