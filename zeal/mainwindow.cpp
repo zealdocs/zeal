@@ -131,8 +131,9 @@ MainWindow::MainWindow(QWidget *parent) :
     zealNaManager->setProxy(settingsDialog.httpProxy());
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
 
+    
     // menu
-    ui->action_Quit->setShortcut(QKeySequence::Quit);
+    ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence("Ctrl+Q"), QKeySequence::Quit});
     addAction(ui->action_Quit);
     connect(ui->action_Quit, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
