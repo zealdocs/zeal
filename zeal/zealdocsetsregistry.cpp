@@ -171,18 +171,18 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             int cols = 3;
             if(docset.type == ZEAL) {
                 qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
-                               "(t.name like '%1%' escape '\\'  %3) %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
+                               "(t.name like '%1%' escape '\\'  %3) %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
 
             } else if(docset.type == DASH) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
-                               "like '%1%' escape '\\' %3)  %2 order by lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
+                               "like '%1%' escape '\\' %3)  %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
             } else if(docset.type == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                 "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                 "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
 
-                               "like '%1%' escape '\\' %3) %2 order by lower(ztokenname) asc, zpath asc, "
+                               "like '%1%' escape '\\' %3) %2 order by length(ztokenname), lower(ztokenname) asc, zpath asc, "
                                "zanchor asc limit 100").arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
             }
             q = db(docset.name).exec(qstr);
