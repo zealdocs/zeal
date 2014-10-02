@@ -119,7 +119,6 @@ public:
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
     QList<ZealSearchResult> getRelatedLinks(QString name, QString path);
-    bool hasDocset(const QString& name);
     QString prepareQuery(const QString& rawQuery);
     void runQuery(const QString& query);
     void invalidateQueries();

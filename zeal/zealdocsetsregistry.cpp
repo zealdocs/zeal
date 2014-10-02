@@ -81,11 +81,6 @@ ZealDocsetsRegistry::ZealDocsetsRegistry() :
     thread->start();
 }
 
-bool ZealDocsetsRegistry::hasDocset(const QString &name)
-{
-    this->docs.contains(name);
-}
-
 QList<ZealDocsetsRegistry::docsetEntry> ZealDocsetsRegistry::docsets()
 {
     return this->docs.values();
