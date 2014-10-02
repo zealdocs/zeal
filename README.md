@@ -40,7 +40,7 @@ To compile it, run `qmake` and `make` in the `zeal` directory. On Linux, a final
  * [Issues](https://github.com/jkozera/zeal/issues)
  * Search enhancements - some ideas:
    * Allow selecting subset of docsets to search in (enable/disable docsets, docset groups)
-   * Grouping of similar results (like overloaded funcdtions)
+   * Grouping of similar results (like overloaded functions)
  * Code cleanup
    * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
    * ...
