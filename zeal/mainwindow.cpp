@@ -133,7 +133,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     
     // menu
-    ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence("Ctrl+Q"), QKeySequence::Quit});
+    if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
+        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence("Ctrl+Q"), QKeySequence::Quit});
+    } else {
+        // Quit == Ctrl+Q - don't set the same sequence twice because it causes
+        // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
+        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
+    }
     addAction(ui->action_Quit);
     connect(ui->action_Quit, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
