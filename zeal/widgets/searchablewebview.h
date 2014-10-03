@@ -3,6 +3,7 @@
 
 #include <QWebView>
 #include <QWebSettings>
+#include "zealwebview.h"
 #include "../lineedit.h"
 
 class SearchableWebView : public QWidget
@@ -34,7 +35,7 @@ public slots:
     
 private:
     LineEdit lineEdit;
-    QWebView webView;
+    ZealWebView webView;
     QString searchText;
     void moveLineEdit();
 };
