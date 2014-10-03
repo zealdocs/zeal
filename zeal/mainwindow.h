@@ -59,13 +59,13 @@ public:
     ~MainWindow();
     void bringToFrontAndSearch(const QString);
     bool startHidden();
+    void createTab();
 
 private:
     void bringToFront(bool withHack);
     void displayViewActions();
     void loadSections(const QString docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
-    void createTab();
     void reloadTabState();
     void displayTabs();
     void updateTreeView(QString text);
