@@ -76,20 +76,14 @@ public:
             icon = QIcon(entry->dir.absoluteFilePath("icon.png"));
         }
         if(icon.availableSizes().isEmpty()) {
-#ifdef WIN32
-            QDir icondir(QCoreApplication::applicationDirPath());
-            icondir.cd("icons");
-#else
-            QDir icondir("/usr/share/pixmaps/zeal");
-#endif
-            icon = QIcon(icondir.filePath(bundleName+".png"));
+            icon = QIcon(QString("icons:%1.png").arg(bundleName));
 
             // Fallback to identifier and docset file name.
             if (icon.availableSizes().isEmpty()) {
-                icon = QIcon(icondir.filePath(identifier+".png"));
+                icon = QIcon(QString("icons:%1.png").arg(identifier));
             }
             if (icon.availableSizes().isEmpty()) {
-                icon = QIcon(icondir.filePath(docsetName+".png"));
+                icon = QIcon(QString("icons:%1.png").arg(docsetName));
             }
         }
         return icon;
