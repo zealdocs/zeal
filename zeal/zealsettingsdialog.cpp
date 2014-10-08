@@ -280,13 +280,7 @@ void ZealSettingsDialog::downloadDocsetList()
                 auto url_list = url.split("/");
                 auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
                 iconfile = iconfile.replace(".tar.bz2", ".png");
-#ifdef WIN32
-                QDir icondir(QCoreApplication::applicationDirPath());
-                icondir.cd("icons");
-#else
-                QDir icondir("/usr/share/pixmaps/zeal");
-#endif
-                auto *lwi = new QListWidgetItem(QIcon(icondir.filePath(iconfile)), name);
+                auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
                 lwi->setCheckState(Qt::Unchecked);
 
                 if(docsets->names().contains(name)){

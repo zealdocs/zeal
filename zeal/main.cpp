@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QLocalSocket>
 #include <QProxyStyle>
+#include <QStandardPaths>
 
 #include <string>
 #include <iostream>
@@ -81,6 +82,18 @@ int main(int argc, char *argv[])
         }
         return -1; // Exit already a process running
     }
+
+    // look for icons in: 
+    // 1. user's data directory (same as docsets dir, but in icons/)
+    // 2. executable directory/icons
+    // 3. on unix, standard/legacy install location
+    // 4. current directory/icons
+    QDir::setSearchPaths("icons", QStandardPaths::locateAll(QStandardPaths::DataLocation, "icons", QStandardPaths::LocateDirectory));
+    QDir::addSearchPath("icons", QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("icons"));
+#ifndef WIN32
+    QDir::addSearchPath("icons", "/usr/share/pixmaps/zeal");
+#endif
+    QDir::addSearchPath("icons", "./icons");
 
     MainWindow w;
 
