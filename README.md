@@ -32,8 +32,25 @@ If you prefer to compile Zeal manually.
 * X C Binding – keysyms (Ubuntu `libxcb-keysyms1-dev`)
 * `bsdtar` is required for the built-in docset extracting to work
 * `libappindicator` and `libappindicator-devel` for notifications
+* you may need to install `libqt5webkit5-dev` and `qtbase5-private-dev`
 
 To compile it, run `qmake` and `make` in the `zeal` directory. On Linux, a final `make install` is required to install icons.
+
+## Query & Filter docsets
+
+You can limit the search scope by using ':' to indicate the desired docsets.
+
+`java:BaseDAO`
+
+You can also search multiple docsets separating them with a comma:
+
+`python,django:string`
+
+## Command line
+
+If you prefer, you can start with Zeal queries from command line, for this, use the option `--query`:
+
+`zeal --query python:bomb`
 
 ## TODO
 

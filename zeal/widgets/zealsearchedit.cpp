@@ -34,8 +34,8 @@ int ZealSearchEdit::queryStart()
 {
     ZealSearchQuery currentQuery(text());
     // Keep the filter for the first esc press
-    if(currentQuery.getDocsetFilter().size() > 0 && currentQuery.getCoreQuery().size() > 0) {
-        return currentQuery.getDocsetFilter().size() + 1;
+    if(currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
+        return currentQuery.getDocsetFilterSize() + 1;
     } else {
         return 0;
     }
@@ -109,7 +109,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
 
     // Override the default selection.
     ZealSearchQuery currentQuery(text());
-    int selectionOffset = currentQuery.getDocsetFilter().size();
+    int selectionOffset = currentQuery.getDocsetFilterSize();
     if(selectionOffset > 0) {
         selectionOffset++; // add the delimeter
     }

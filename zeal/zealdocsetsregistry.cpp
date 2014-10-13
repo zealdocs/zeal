@@ -124,12 +124,11 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
     QList<ZealSearchResult> results;
     ZealSearchQuery query(rawQuery);
 
-    QString docsetPrefix = query.getDocsetFilter();
     QString preparedQuery = query.getSanitizedQuery();
-    bool hasPrefixFilter = !docsetPrefix.isEmpty();
+    bool hasDocsetFilter = query.hasDocsetFilter();
 
     for (const ZealDocsetsRegistry::docsetEntry docset : docsets()) {
-        if (hasPrefixFilter && !docset.prefix.contains(docsetPrefix, Qt::CaseInsensitive)) {
+        if(hasDocsetFilter && !query.docsetPrefixMatch(docset.prefix)) {
             // Filter out this docset as the names don't match the docset prefix
             continue;
         }
