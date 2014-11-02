@@ -830,8 +830,9 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     }
     if(any_failed) {
         QMessageBox::warning(this, "Key binding warning",
-            "Warning: Global hotkey binding problem detected. Some other program might have a conflicting "
-            "key binding. If the hotkey doesn't work, try closing some programs or using a different hotkey.");
+                "Warning: Global hotkey binding problem detected. Some other program might have a conflicting key binding with "
+                "<strong>" + hotKey.toString() + "</strong>"
+                ". If the hotkey doesn't work, try closing some programs or using a different hotkey.");
     }
     free(keysyms);
     free(keycodes);
