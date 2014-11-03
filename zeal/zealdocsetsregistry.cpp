@@ -50,10 +50,6 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
         } else {
             entry.type = ZDASH;
         }
-
-        dir.cd("Contents");
-        dir.cd("Resources");
-        dir.cd("Documents");
     }
 
     if(docs.contains(name)){
