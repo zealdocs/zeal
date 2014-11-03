@@ -432,7 +432,13 @@ void MainWindow::displayTabs()
         action->setCheckable(true);
         action->setChecked(i == tabBar.currentIndex());
         if (i < 10) {
-            QString shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
+            QString shortcut;
+            if (i == 9) {
+                shortcut = QString("Ctrl+%1").arg(QString::number(0));
+            }
+            else {
+                shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
+            }
             auto actions_ = actions();
             for (int i = 0; i < actions_.length(); ++i) {
                  if (actions_[i]->shortcut().toString() == shortcut) {
