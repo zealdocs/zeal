@@ -7,3 +7,4 @@ zeal/ui_*.h
 zeal/Makefile
 build-zeal-Desktop*
 *.swp
+zeal/qrc_zeal.cpp
