@@ -27,7 +27,7 @@ script:
  - cp /root/5.3/mingw482_32/bin/libgcc_s_dw2-1.dll zeal-$(cat VERSION)
  - cp /root/5.3/mingw482_32/bin/libwinpthread-1.dll zeal-$(cat VERSION)
  - cp /root/5.3/mingw482_32/bin/icu*.dll zeal-$(cat VERSION)
- - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml; do cp /root/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
+ - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp /root/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
  - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
  - mkdir win32_release
  - mv zeal-$(cat VERSION).zip win32_release
