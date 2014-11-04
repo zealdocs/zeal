@@ -38,6 +38,6 @@ publish:
     artifacts:
      - win32_release/
     tag: $(cat VERSION)
-    token: {{github_token}}
+    token: $$github_token
     user: jkozera
     repo: zeal
