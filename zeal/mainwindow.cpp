@@ -126,7 +126,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
         settings.setValue("splitter", ui->splitter->saveState());
     });
-    ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
+
+    applyWebPageStyle();
     ZealNetworkAccessManager * zealNaManager = new ZealNetworkAccessManager();
     zealNaManager->setProxy(settingsDialog.httpProxy());
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
@@ -146,6 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
     connect(&settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
+    connect(&settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
         settingsDialog.setHotKey(hotKey);
@@ -850,5 +852,13 @@ void MainWindow::refreshRequest(){
 }
 
 void MainWindow::changeMinFontSize(int minFont){
-    ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
+    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
+}
+
+void MainWindow::applyWebPageStyle()
+{
+    if (settings.contains("minFontSize")) {
+        int minFont = settings.value("minFontSize").toInt();
+        QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
+    }
 }

@@ -6,7 +6,6 @@
 #include <QWebPage>
 #include "searchablewebview.h"
 
-
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent), lineEdit(this), webView(this)
 {

@@ -62,6 +62,7 @@ private:
 signals:
     void refreshRequested();
     void minFontSizeChanged(int minFont);
+    void webPageStyleUpdated();
 
 private slots:
     void downloadDocsetList();
