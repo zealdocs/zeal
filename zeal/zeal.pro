@@ -68,6 +68,7 @@ CONFIG += link_pkgconfig
 unix:!macx: LIBS += -lxcb -lxcb-keysyms
 unix:!macx: SOURCES += xcb_keysym.cpp
 unix:!macx: DEFINES += LINUX
+unix:!macx: QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
 
 unix:!macx:!no_libappindicator {
     INCLUDEPATH += /usr/include/libappindicator-0.1 \
