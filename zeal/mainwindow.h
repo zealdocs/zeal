@@ -93,6 +93,7 @@ private:
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
     QSystemTrayIcon *trayIcon;
+
 #ifdef USE_LIBAPPINDICATOR
     AppIndicator *indicator;  //for Unity
 #endif
@@ -111,6 +112,7 @@ private slots:
     void saveTabState();
     void goToTab(int index);
     void closeTab(int index);
+    void applyWebPageStyle();
 protected:
     void closeEvent(QCloseEvent *event) {
         settings.setValue("geometry", saveGeometry());
