@@ -151,7 +151,7 @@ private:
     QList<ZealSearchResult> queryResults;
     QSettings settings;
     int lastQuery;
-    void normalizeName(QString &itemName, QString &parentName, QString initialParent);
+    void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
 };
 
 extern ZealDocsetsRegistry* docsets;

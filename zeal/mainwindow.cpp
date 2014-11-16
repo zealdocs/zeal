@@ -341,7 +341,7 @@ void MainWindow::openDocset(const QModelIndex &index)
     }
 }
 
-QIcon MainWindow::docsetIcon(QString docsetName)
+QIcon MainWindow::docsetIcon(const QString &docsetName)
 {
     if (docsets->names().contains(docsetName)) {
         return docsets->icon(docsetName).pixmap(32,32);
@@ -512,7 +512,7 @@ void MainWindow::onSearchComplete()
     searchState->zealSearch.onQueryCompleted(docsets->getQueryResults());
 }
 
-void MainWindow::loadSections(const QString docsetName, const QUrl &url)
+void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
     QString dir = docsets->dir(docsetName).absolutePath();
     QString urlPath = url.path();
@@ -532,7 +532,7 @@ void MainWindow::setupSearchBoxCompletions() {
     ui->lineEdit->setCompletions(completions);
 }
 
-QString MainWindow::getDocsetName(QString urlPath) {
+QString MainWindow::getDocsetName(const QString &urlPath) {
     QRegExp docsetRegex("/([^/]+)[.]docset");
     return (docsetRegex.indexIn(urlPath) != -1)
             ? docsetRegex.cap(1)
@@ -669,7 +669,7 @@ void MainWindow::bringToFront(bool withHack)
 #endif
 }
 
-void MainWindow::bringToFrontAndSearch(const QString query)
+void MainWindow::bringToFrontAndSearch(const QString &query)
 {
     bringToFront(true);
     searchState->zealSearch.setQuery(query);

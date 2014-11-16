@@ -212,7 +212,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
     emit queryCompleted();
 }
 
-void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, QString initialParent)
+void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, const QString &initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
     if (matchMethodName.indexIn(itemName) != -1)

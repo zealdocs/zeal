@@ -3,13 +3,13 @@
 #include <QDomDocument>
 #include <QFile>
 
-ZealDocsetInfo::ZealDocsetInfo(const QString filePath)
+ZealDocsetInfo::ZealDocsetInfo(const QString &filePath)
 {
     if (QFile(filePath).exists())
         readDocset(filePath);
 }
 
-bool ZealDocsetInfo::readDocset(const QString filePath)
+bool ZealDocsetInfo::readDocset(const QString &filePath)
 {
     QFile file(filePath);
     QDomDocument infoplist("infoplist");

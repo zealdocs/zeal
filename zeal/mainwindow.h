@@ -57,7 +57,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void bringToFrontAndSearch(const QString);
+    void bringToFrontAndSearch(const QString &query);
     void createTab();
     bool startHidden();
 
@@ -87,11 +87,11 @@ private slots:
 private:
     void bringToFront(bool withHack);
     void displayViewActions();
-    void loadSections(const QString docsetName, const QUrl &url);
+    void loadSections(const QString &docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
-    QIcon docsetIcon(QString docsetName);
+    QIcon docsetIcon(const QString &docsetName);
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
     void createTrayIcon();
     void setHotKey(const QKeySequence& hotKey);
@@ -123,7 +123,7 @@ private:
 
     QMenu *trayIconMenu;
     QMap<QString, QString> urls;
-    QString getDocsetName(QString urlPath);
+    QString getDocsetName(const QString &urlPath);
 };
 
 #endif // MAINWINDOW_H

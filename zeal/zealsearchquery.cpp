@@ -25,7 +25,7 @@ bool ZealSearchQuery::hasDocsetFilter()
     return !rawDocsetFilter.isEmpty();
 }
 
-bool ZealSearchQuery::docsetPrefixMatch(QString docsetPrefix)
+bool ZealSearchQuery::docsetPrefixMatch(const QString &docsetPrefix)
 {
     for (const QString docsetPrefixFilter : docsetFilters) {
         if (docsetPrefix.contains(docsetPrefixFilter, Qt::CaseInsensitive))

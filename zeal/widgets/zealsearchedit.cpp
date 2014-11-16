@@ -22,7 +22,7 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
 }
 
 // Makes the line edit use autocompletions.
-void ZealSearchEdit::setCompletions(QStringList completions)
+void ZealSearchEdit::setCompletions(const QStringList &completions)
 {
     prefixCompleter = new QCompleter(completions, this);
     prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);

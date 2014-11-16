@@ -29,13 +29,13 @@ public:
     ///
     /// Multiple docsets are supported using the ',' character:
     ///   "java,android:setTypeFa #=> docsetFilters = ["java", "android"], coreQuery = "setTypeFa"
-    ZealSearchQuery(const QString& coreQuery);
+    ZealSearchQuery(const QString &coreQuery);
 
     /// Returns true if there's a docset filter for the given query
     bool hasDocsetFilter();
 
     /// Returns true if the docset prefix match the ones given on query
-    bool docsetPrefixMatch(QString docsetPrefix);
+    bool docsetPrefixMatch(const QString &docsetPrefix);
 
     /// Returns the docset filter raw size for the given query
     int getDocsetFilterSize();

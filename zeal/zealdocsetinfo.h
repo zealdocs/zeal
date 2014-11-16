@@ -5,8 +5,8 @@
 
 struct ZealDocsetInfo
 {
-    explicit ZealDocsetInfo(const QString filePath = QString());
-    bool readDocset(const QString filePath);
+    explicit ZealDocsetInfo(const QString &filePath = QString());
+    bool readDocset(const QString &filePath);
 
     QString indexPath;
     QString family;
