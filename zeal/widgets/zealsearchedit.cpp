@@ -9,7 +9,7 @@ ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     completionLabel = new QLabel(this);
     completionLabel->setObjectName("completer");
     completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
-    completionLabel->setFont(this->font());
+    completionLabel->setFont(font());
 
     connect(this, &ZealSearchEdit::textChanged, this, &ZealSearchEdit::showCompletions);
 }
@@ -18,7 +18,7 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
 {
     treeView = view;
     focusing = false;
-    this->installEventFilter(this);
+    installEventFilter(this);
 }
 
 // Makes the line edit use autocompletions.
@@ -56,7 +56,7 @@ void ZealSearchEdit::selectQuery()
 
 void ZealSearchEdit::clear()
 {
-    this->clearQuery();
+    clearQuery();
 }
 
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
@@ -85,9 +85,9 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
         // Autocompletes the prefixes.
         if (keyEvent->key() == Qt::Key_Tab) {
             QString currentText = text();
-            QString completed = this->currentCompletion(currentText);
+            QString completed = currentCompletion(currentText);
             if (!completed.isEmpty()) {
-                this->setText(completed);
+                setText(completed);
                 return true;
             }
         }
@@ -97,8 +97,7 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 
 void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
 {
-    QString text = this->text();
-    showCompletions(text);
+    showCompletions(text());
     LineEdit::resizeEvent(ev);
 }
 
@@ -131,7 +130,7 @@ QString ZealSearchEdit::currentCompletion(const QString &text)
     if (text.isEmpty()) {
         return QString();
     } else {
-        return this->prefixCompleter->currentCompletion();
+        return prefixCompleter->currentCompletion();
     }
 }
 
@@ -140,9 +139,9 @@ void ZealSearchEdit::showCompletions(const QString &newValue)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     int textWidth = fontMetrics().width(newValue);
 
-    this->prefixCompleter->setCompletionPrefix(this->text());
+    prefixCompleter->setCompletionPrefix(text());
 
-    QString completed = this->currentCompletion(newValue).mid(newValue.size());
+    QString completed = currentCompletion(newValue).mid(newValue.size());
     QSize labelSize(fontMetrics().width(completed), size().height());
 
     completionLabel->setMinimumSize(labelSize);

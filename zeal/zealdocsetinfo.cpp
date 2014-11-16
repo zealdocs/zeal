@@ -31,15 +31,15 @@ bool ZealDocsetInfo::readDocset(const QString filePath)
     for(int i = 0; i < keys.count(); ++i) {
         auto key = keys.at(i);
         if(key.firstChild().nodeValue() == "dashIndexFilePath") {
-            this->indexPath = key.nextSibling().firstChild().nodeValue();
+            indexPath = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "DashDocSetKeyword") {
-            this->keyword = key.nextSibling().firstChild().nodeValue();
+            keyword = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "DashDocSetFamily") {
-            this->family = key.nextSibling().firstChild().nodeValue();
+            family = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "CFBundleName") {
-            this->bundleName = key.nextSibling().firstChild().nodeValue();
+            bundleName = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "CFBundleIdentifier") {
-            this->bundleIdentifier = key.nextSibling().firstChild().nodeValue();
+            bundleIdentifier = key.nextSibling().firstChild().nodeValue();
         }
     }
     return true;

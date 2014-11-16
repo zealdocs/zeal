@@ -82,7 +82,7 @@ void ZealSettingsDialog::loadSettings(){
 
     ZealSettingsDialog::ProxyType proxyType = static_cast<ZealSettingsDialog::ProxyType>(settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
 
-    QString httpProxy = settings.value("httpProxy").toString();
+    QString httpProxyName = settings.value("httpProxy").toString();
     quint16 httpProxyPort = settings.value("httpProxyPort", 0).toInt();
     QString httpProxyUser = settings.value("httpProxyUser").toString();
     QString httpProxyPass = settings.value("httpProxyPass").toString();
@@ -95,12 +95,12 @@ void ZealSettingsDialog::loadSettings(){
         QNetworkProxyFactory::setUseSystemConfiguration(true);
     } else {
         ui->m_manualProxySettings->setChecked(true);
-        ui->m_httpProxy->setText(httpProxy);
+        ui->m_httpProxy->setText(httpProxyName);
         ui->m_httpProxyPort->setValue(httpProxyPort);
         ui->m_httpProxyUser->setText(httpProxyUser);
         ui->m_httpProxyPass->setText(httpProxyPass);
         ui->m_httpProxyNeedsAuth->setChecked(!httpProxyUser.isEmpty() | !httpProxyPass.isEmpty());
-        QNetworkProxy::setApplicationProxy(this->httpProxy());
+        QNetworkProxy::setApplicationProxy(httpProxy());
     }
 
     // Load prefixes.
@@ -703,7 +703,7 @@ void ZealSettingsDialog::resetProgress()
 
 QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries){
     startTasks(1);
-    naManager.setProxy(this->httpProxy());
+    naManager.setProxy(httpProxy());
     QNetworkReply *reply = naManager.get(QNetworkRequest(url));
     connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
     replies.insert(reply, retries);

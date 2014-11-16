@@ -83,7 +83,7 @@ ZealDocsetsRegistry::ZealDocsetsRegistry() :
 
 QList<ZealDocsetsRegistry::docsetEntry> ZealDocsetsRegistry::docsets()
 {
-    return this->docs.values();
+    return docs.values();
 }
 
 // Sets the docset prefixes.
@@ -94,8 +94,8 @@ void ZealDocsetsRegistry::setPrefixes(QHash<QString, QVariant> docsetPrefixes)
         it.next();
         QString docsetName = it.key();
         QString docsetPrefix = it.value().toString();
-        if (this->docs.contains(docsetName)) {
-            docsetEntry docset = this->docs.value(docsetName);
+        if (docs.contains(docsetName)) {
+            docsetEntry docset = docs.value(docsetName);
             docset.prefix = docsetPrefix;
         }
     }
