@@ -37,7 +37,8 @@ LineEdit::LineEdit(QWidget *parent)
 
 void LineEdit::clear() {
     QLineEdit::clear();
-    if(hideOnClear) hide();
+    if (hideOnClear)
+        hide();
 }
 
 void LineEdit::keyPressEvent(QKeyEvent *keyEvent)

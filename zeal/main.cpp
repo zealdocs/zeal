@@ -29,7 +29,8 @@ void setupOptionParser(QCommandLineParser *parser) {
 #ifdef WIN32
 class ZealProxyStyle : public QProxyStyle {
 public:
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter* painter, const QWidget *widget = 0) const {
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
+    {
         if (element == PE_FrameLineEdit && option->styleObject) {
             option->styleObject->setProperty("_q_no_animation", true);
             // Workaround for a probable bug in QWindowsVistaStyle - for example opening the 'String (CommandEvent)'
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
     QLocalSocket socket;
     socket.connectToServer(serverName);
     if (!runForce && socket.waitForConnected(500)) {
-        if(!queryParam.isEmpty()) {
+        if (!queryParam.isEmpty()) {
             QByteArray msg;
             msg.append(queryParam);
             socket.write(msg);
@@ -100,8 +101,8 @@ int main(int argc, char *argv[])
     if (!w.startHidden())
         w.show();
 
-    if(!queryParam.isEmpty()) {
+    if (!queryParam.isEmpty())
         w.bringToFrontAndSearch(queryParam);
-    }
+
     return a.exec();
 }

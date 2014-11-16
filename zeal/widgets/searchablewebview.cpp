@@ -16,7 +16,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
         // clear selection:
         webView.findText("");
         webView.findText("", QWebPage::HighlightAllOccurrences);
-        if(!text.isEmpty()) {
+        if (!text.isEmpty()) {
             // select&scroll to one occurence:
             webView.findText(text, QWebPage::FindWrapsAroundDocument);
             // highlight other occurences:
@@ -46,10 +46,9 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     });
 
     // Display tooltip showing link location when hovered over.
-    connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link, const QString &title, const QString &textContent){
-        if( !link.startsWith("file:///") ){
-            setToolTip( link );
-        }
+    connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link, const QString &title, const QString &textContent) {
+        if (!link.startsWith("file:///"))
+            setToolTip(link);
     });
 }
 
@@ -73,9 +72,9 @@ void SearchableWebView::resizeEvent(QResizeEvent *event) {
 }
 
 void SearchableWebView::keyPressEvent(QKeyEvent *event) {
-    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
-        if( event->modifiers() & Qt::ShiftModifier )
+        if (event->modifiers() & Qt::ShiftModifier)
             flags |= QWebPage::FindBackward;
         webView.findText(searchText, flags);
     }
@@ -98,15 +97,18 @@ void SearchableWebView::focus()
     webView.setFocus();
 }
 
-QWebPage * SearchableWebView::page() const {
+QWebPage * SearchableWebView::page() const
+{
     return webView.page();
 }
 
-QSize SearchableWebView::sizeHint() const {
+QSize SearchableWebView::sizeHint() const
+{
     return webView.sizeHint();
 }
 
-QWebSettings * SearchableWebView::settings() const {
+QWebSettings * SearchableWebView::settings() const
+{
     return webView.settings();
 }
 

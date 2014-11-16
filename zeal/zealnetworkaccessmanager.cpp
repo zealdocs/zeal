@@ -16,7 +16,7 @@ QNetworkReply * ZealNetworkAccessManager::createRequest(QNetworkAccessManager::O
     if (resourceFile) {
         return QNetworkAccessManager::createRequest(op, req, outgoingData);
     }
-    if(nonLocalFile || nonFile) {
+    if (nonLocalFile || nonFile) {
         // ignore requests which cause Zeal to hang
         return QNetworkAccessManager::createRequest(QNetworkAccessManager::GetOperation,
                                                     QNetworkRequest(QUrl()));

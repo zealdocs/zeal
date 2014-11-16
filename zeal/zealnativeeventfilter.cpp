@@ -13,7 +13,7 @@
 
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
 // Copyright (C) 2009 the VideoLAN team
-static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym )
+static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym)
 {
     static const unsigned pi_mask[8] = {
         XCB_MOD_MASK_SHIFT, XCB_MOD_MASK_LOCK, XCB_MOD_MASK_CONTROL,
@@ -21,23 +21,23 @@ static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *
         XCB_MOD_MASK_4, XCB_MOD_MASK_5
     };
 
-    if( sym == 0 )
+    if (sym == 0)
         return 0; /* no modifier */
 
 #ifdef XCB_KEYSYM_OLD_API /* as seen in Debian Lenny */
-    const xcb_keycode_t key = xcb_key_symbols_get_keycode( p_symbols, sym );
-    if( key == 0 )
+    const xcb_keycode_t key = xcb_key_symbols_get_keycode(p_symbols, sym);
+    if (key == 0)
         return 0;
 #else
-    const xcb_keycode_t *p_keys = xcb_key_symbols_get_keycode( p_symbols, sym );
-    if( !p_keys )
+    const xcb_keycode_t *p_keys = xcb_key_symbols_get_keycode(p_symbols, sym);
+    if (!p_keys)
         return 0;
 
     int i = 0;
     bool no_modifier = true;
-    while( p_keys[i] != XCB_NO_SYMBOL )
+    while(p_keys[i] != XCB_NO_SYMBOL)
     {
-        if( p_keys[i] != 0 )
+        if (p_keys[i] != 0)
         {
             no_modifier = false;
             break;
@@ -45,39 +45,39 @@ static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *
         i++;
     }
 
-    if( no_modifier )
+    if (no_modifier)
         return 0;
 #endif
 
     xcb_get_modifier_mapping_cookie_t r =
-            xcb_get_modifier_mapping( p_connection );
+            xcb_get_modifier_mapping(p_connection);
     xcb_get_modifier_mapping_reply_t *p_map =
-            xcb_get_modifier_mapping_reply( p_connection, r, NULL );
-    if( !p_map )
+            xcb_get_modifier_mapping_reply(p_connection, r, NULL);
+    if (!p_map)
         return 0;
 
-    xcb_keycode_t *p_keycode = xcb_get_modifier_mapping_keycodes( p_map );
-    if( !p_keycode )
+    xcb_keycode_t *p_keycode = xcb_get_modifier_mapping_keycodes(p_map);
+    if (!p_keycode)
         return 0;
 
-    for( int i = 0; i < 8; i++ )
-        for( int j = 0; j < p_map->keycodes_per_modifier; j++ )
+    for(int i = 0; i < 8; i++)
+        for(int j = 0; j < p_map->keycodes_per_modifier; j++)
 #ifdef XCB_KEYSYM_OLD_API /* as seen in Debian Lenny */
-            if( p_keycode[i * p_map->keycodes_per_modifier + j] == key )
+            if (p_keycode[i * p_map->keycodes_per_modifier + j] == key)
             {
-                free( p_map );
+                free(p_map);
                 return pi_mask[i];
             }
 #else
-            for( int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++ )
-                if( p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
+            for(int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++)
+                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
                 {
-                    free( p_map );
+                    free(p_map);
                     return pi_mask[i];
                 }
 #endif
 
-    free( p_map ); // FIXME to check
+    free(p_map); // FIXME to check
     return 0;
 }
 #endif // WIN32
@@ -93,13 +93,13 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
 #ifdef WIN32
     MSG* msg = static_cast<MSG*>(message);
 
-    if(WM_HOTKEY == msg->message && msg->wParam == 10) {
+    if (WM_HOTKEY == msg->message && msg->wParam == 10) {
         emit gotHotKey();
         return true;
     }
 #elif LINUX // WIN32 or LINUX
     xcb_generic_event_t* ev = static_cast<xcb_generic_event_t*>(message);
-    if(((ev->response_type&127) == XCB_KEY_PRESS || (ev->response_type&127) == XCB_KEY_RELEASE) && !hotKey.isEmpty()) {
+    if (((ev->response_type&127) == XCB_KEY_PRESS || (ev->response_type&127) == XCB_KEY_RELEASE) && !hotKey.isEmpty()) {
         // XCB_KEY_RELEASE must be ignored by Qt because otherwise it causes SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
         xcb_connection_t  *c = static_cast<xcb_connection_t*>(
               ((QGuiApplication*)QGuiApplication::instance())->
@@ -113,7 +113,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         // found=true means either (a) complete hotkey was pressed, or (b) any of its separate
         // keys was released. We return true in both cases, because key releases while window
         // is not present cause SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
-        if((ev->response_type&127) == XCB_KEY_RELEASE) {
+        if ((ev->response_type&127) == XCB_KEY_RELEASE) {
             QList<QPair<int, Qt::Modifier> > modifiers;
             modifiers.append(qMakePair(XK_Alt_L, Qt::ALT));
             modifiers.append(qMakePair(XK_Alt_R, Qt::ALT));
@@ -122,14 +122,14 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             modifiers.append(qMakePair(XK_Meta_L, Qt::META));
             modifiers.append(qMakePair(XK_Meta_R, Qt::META));
             for(auto modifier : modifiers) {
-                if(!(hotKey[0] & modifier.second)) {
+                if (!(hotKey[0] & modifier.second)) {
                     continue;
                 }
                 xcb_keycode_t *mod_keycodes = xcb_key_symbols_get_keycode(keysyms, modifier.first);
-                if(mod_keycodes == nullptr) continue;
+                if (mod_keycodes == nullptr) continue;
                 int i = 0;
                 while(mod_keycodes[i] != XCB_NO_SYMBOL) {
-                    if(event->detail == mod_keycodes[i]) {
+                    if (event->detail == mod_keycodes[i]) {
                         found = true;
                     }
                     i += 1;
@@ -139,36 +139,36 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         }
         int i = 0;
         while(keycodes[i] != XCB_NO_SYMBOL) {
-            if(event->detail == keycodes[i]) {
+            if (event->detail == keycodes[i]) {
                 bool modifiers_present = true;
-                if(hotKey[0] & Qt::ALT) {
-                    if(!(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R))) {
+                if (hotKey[0] & Qt::ALT) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[0] & Qt::CTRL) {
-                    if(!(event->state & GetModifier(c, keysyms, XK_Control_L) || event->state & GetModifier(c, keysyms,  XK_Control_R))) {
+                if (hotKey[0] & Qt::CTRL) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Control_L) || event->state & GetModifier(c, keysyms,  XK_Control_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[0] & Qt::META) {
-                    if(!(event->state & GetModifier(c, keysyms, XK_Meta_L) || event->state & GetModifier(c, keysyms,  XK_Meta_R))) {
+                if (hotKey[0] & Qt::META) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Meta_L) || event->state & GetModifier(c, keysyms,  XK_Meta_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(hotKey[0] & Qt::SHIFT) {
-                    if(!(event->state & GetModifier(c, keysyms, XK_Shift_L) || event->state & GetModifier(c, keysyms,  XK_Shift_R))) {
+                if (hotKey[0] & Qt::SHIFT) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Shift_L) || event->state & GetModifier(c, keysyms,  XK_Shift_R))) {
                         modifiers_present = false;
                     }
                 }
-                if(enabled && modifiers_present) {
+                if (enabled && modifiers_present) {
                     xcb_allow_events(c, XCB_ALLOW_ASYNC_KEYBOARD, event->time);
-                    if((ev->response_type&127) == XCB_KEY_PRESS) {
+                    if ((ev->response_type&127) == XCB_KEY_PRESS) {
                         emit gotHotKey();
                     }
                     found = true;
                 } else {
-                    if((ev->response_type&127) == XCB_KEY_RELEASE) {
+                    if ((ev->response_type&127) == XCB_KEY_RELEASE) {
                         found = true;
                     }
                     xcb_allow_events(c, XCB_ALLOW_REPLAY_KEYBOARD, event->time);
@@ -179,7 +179,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         }
         free(keysyms);
         free(keycodes);
-        if(found) return true;
+        if (found) return true;
     }
 #endif // WIN32 or LINUX
     return false;

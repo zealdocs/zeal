@@ -15,33 +15,32 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QVariant maxProgress  = index.model()->data(index, ProgressMaxRole);
     QVariant visible = index.model()->data(index, ProgressVisibleRole);
 
-    if( itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool()) ){
+    if (itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool())) {
         QProgressBar renderer;
         QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
         int progressAmnt = itemProgress.toInt();
 
         // Adjust maximum text width
-        tempOption.rect.setRight( tempOption.rect.right() - progressBarWidth);
+        tempOption.rect.setRight(tempOption.rect.right() - progressBarWidth);
 
         // Size progress bar
-        renderer.resize( QSize( progressBarWidth, tempOption.rect.height() ));
+        renderer.resize(QSize(progressBarWidth, tempOption.rect.height()));
         renderer.setMinimum(0);
-        renderer.setMaximum( maxProgress.toInt() );
-        renderer.setValue( progressAmnt );
-        if( formatProgress.isValid() ){
-            renderer.setFormat( formatProgress.toString() );
-        }
+        renderer.setMaximum(maxProgress.toInt());
+        renderer.setValue(progressAmnt);
+        if (formatProgress.isValid())
+            renderer.setFormat(formatProgress.toString());
 
         // Paint progress bar
         painter->save();
         QPoint rect = tempOption.rect.topRight();
-        painter->translate( rect );
-        renderer.render( painter );
+        painter->translate(rect);
+        renderer.render(painter);
         painter->restore();
     }
 
     // Paint text
-    QItemDelegate::paint( painter, dynamic_cast<const QStyleOptionViewItem&>(tempOption), index );
+    QItemDelegate::paint(painter, dynamic_cast<const QStyleOptionViewItem&>(tempOption), index);
 
     return;
 }

@@ -19,10 +19,10 @@ bool ZealDocsetInfo::readDocset(const QString filePath)
 {
     QFile file(filePath);
     QDomDocument infoplist("infoplist");
-    if(!file.open(QIODevice::ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
-    if(!infoplist.setContent(&file)) {
+    if (!infoplist.setContent(&file)) {
         file.close();
         return false;
     }
@@ -30,7 +30,7 @@ bool ZealDocsetInfo::readDocset(const QString filePath)
     auto keys = infoplist.elementsByTagName("key");
     for(int i = 0; i < keys.count(); ++i) {
         auto key = keys.at(i);
-        if(key.firstChild().nodeValue() == "dashIndexFilePath") {
+        if (key.firstChild().nodeValue() == "dashIndexFilePath") {
             indexPath = key.nextSibling().firstChild().nodeValue();
         } else if (key.firstChild().nodeValue() == "DashDocSetKeyword") {
             keyword = key.nextSibling().firstChild().nodeValue();

@@ -34,7 +34,7 @@ int ZealSearchEdit::queryStart()
 {
     ZealSearchQuery currentQuery(text());
     // Keep the filter for the first esc press
-    if(currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
+    if (currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
         return currentQuery.getDocsetFilterSize() + 1;
     } else {
         return 0;
@@ -61,10 +61,10 @@ void ZealSearchEdit::clear()
 
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
-    if(obj == this && ev->type() == QEvent::KeyPress) {
+    if (obj == this && ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
 
-        if(keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
+        if (keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
             QModelIndex index = treeView->currentIndex();
             int nextRow = keyEvent->key() == Qt::Key_Down
                     ? index.row() + 1
@@ -77,7 +77,7 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
             }
         }
 
-        if(keyEvent->key() == Qt::Key_Return) {
+        if (keyEvent->key() == Qt::Key_Return) {
             emit treeView->activated(treeView->selectionModel()->currentIndex());
             return true;
         }
@@ -109,7 +109,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
     // Override the default selection.
     ZealSearchQuery currentQuery(text());
     int selectionOffset = currentQuery.getDocsetFilterSize();
-    if(selectionOffset > 0) {
+    if (selectionOffset > 0) {
         selectionOffset++; // add the delimeter
     }
     setSelection(selectionOffset, text().size() - selectionOffset);
