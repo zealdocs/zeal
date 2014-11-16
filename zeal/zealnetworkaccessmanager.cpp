@@ -13,9 +13,9 @@ QNetworkReply * ZealNetworkAccessManager::createRequest(QNetworkAccessManager::O
     const bool resourceFile = req.url().scheme() == "qrc";
     const bool nonLocalFile = req.url().scheme() == "file" && req.url().host() != "";
     const bool nonFile = req.url().scheme() != "file";
-    if (resourceFile) {
+    if (resourceFile)
         return QNetworkAccessManager::createRequest(op, req, outgoingData);
-    }
+
     if (nonLocalFile || nonFile) {
         // ignore requests which cause Zeal to hang
         return QNetworkAccessManager::createRequest(QNetworkAccessManager::GetOperation,
@@ -30,9 +30,9 @@ QNetworkReply * ZealNetworkAccessManager::createRequest(QNetworkAccessManager::O
     QString winPath = winUrl.path();
     // absolute paths are of form /C:/..., so don't replace colons occuring
     // within first 3 characters
-    while(winPath.lastIndexOf(':') > 2) {
+    while (winPath.lastIndexOf(':') > 2)
         winPath = winPath.replace(winPath.lastIndexOf(':'), 1, "_");
-    }
+
     winUrl.setPath(winPath);
     winReq.setUrl(winUrl);
     return QNetworkAccessManager::createRequest(op, winReq, outgoingData);

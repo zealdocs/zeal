@@ -156,7 +156,7 @@ void ZealSettingsDialog::endTasks(qint8 tasks = 1)
 
    if (tasksRunning <= 0) {
        // Remove completed items
-       for(int i = ui->docsetsList->count() - 1; i >= 0; --i) {
+       for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
            QListWidgetItem *tmp = ui->docsetsList->item(i);
            if (tmp->data(ZealDocsetDoneInstalling).toBool()) {
                tmp->setCheckState(Qt::Unchecked);
@@ -205,7 +205,7 @@ void ZealSettingsDialog::updateDocsets()
 
             // There must be a better way to do this.
             auto future = QtConcurrent::run([=] {
-                while(!downloadedDocsetsList || replies.size())
+                while (!downloadedDocsetsList || replies.size())
                     QThread::yieldCurrentThread();
             });
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
@@ -261,7 +261,7 @@ void ZealSettingsDialog::downloadDocsetList()
         view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
         view.setContent(reply->readAll());
         auto collection = view.page()->mainFrame()->findAllElements(".drowx");
-        for(auto drowx : collection) {
+        for (auto drowx : collection) {
             auto anchor = drowx.findFirst("a");
             auto url = anchor.attribute("href");
             auto name_list = url.split("/");
@@ -295,9 +295,10 @@ void ZealSettingsDialog::downloadDocsetList()
         }
     } else {
         QString list = reply->readAll();
-        for(auto item : list.split("\n")) {
+        for (auto item : list.split("\n")) {
             QStringList docset = item.split(" ");
-            if (docset.size() < 2) break;
+            if (docset.size() < 2)
+                break;
             ZealDocsetMetadata meta;
             meta.addUrl(docset[1]);
             meta.setVersion(docset[2]);
@@ -470,7 +471,7 @@ void ZealSettingsDialog::extractDocset()
                     zealList.resetModulesCounts();
                     refreshRequested();
                     ui->listView->reset();
-                    for(int i = 0; i < ui->docsetsList->count(); ++i) {
+                    for (int i = 0; i < ui->docsetsList->count(); ++i) {
                         if (ui->docsetsList->item(i)->text()+".docset" == docsetName) {
                             listItem->setData(ZealDocsetDoneInstalling, true);
                             listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
@@ -522,7 +523,7 @@ void ZealSettingsDialog::extractDocset()
                         QDir next((*files)[0]), root = next;
                         delete files;
                         next.cdUp();
-                        while(next.absolutePath() != dataDir.absolutePath()) {
+                        while (next.absolutePath() != dataDir.absolutePath()) {
                             root = next;
                             next.cdUp();
                         }
@@ -533,7 +534,7 @@ void ZealSettingsDialog::extractDocset()
                         zealList.resetModulesCounts();
                         refreshRequested();
                         ui->listView->reset();
-                        for(int i = 0; i < ui->docsetsList->count(); ++i) {
+                        for (int i = 0; i < ui->docsetsList->count(); ++i) {
                             if (ui->docsetsList->item(i)->text() == root.dirName() ||
                                     ui->docsetsList->item(i)->text()+".docset" == root.dirName()) {
                                 listItem->setData(ZealDocsetDoneInstalling, true);
@@ -612,10 +613,9 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
     }
 
     // Find each checked item, and create a NetworkRequest for it.
-    for(int i = 0; i < ui->docsetsList->count(); ++i) {
+    for (int i = 0; i < ui->docsetsList->count(); ++i) {
         QListWidgetItem *tmp = ui->docsetsList->item(i);
         if (tmp->checkState() == Qt::Checked) {
-
             //QUrl url(urls[tmp->text()]);
 
             auto reply = startDownload(availMetadata[tmp->text()], 1);
@@ -851,35 +851,30 @@ QNetworkProxy ZealSettingsDialog::httpProxy() const
     QNetworkProxy proxy;
 
     switch (proxyType()) {
-        case ZealSettingsDialog::NoProxy:
-            {
-                proxy = QNetworkProxy::NoProxy;
-            }
-            break;
+    case ZealSettingsDialog::NoProxy:
+        proxy = QNetworkProxy::NoProxy;
+        break;
 
-        case ZealSettingsDialog::SystemProxy:
-            {
-                QNetworkProxyQuery npq(QUrl("http://www.google.com"));
-                QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
-                if (listOfProxies.size()) {
-                    proxy = listOfProxies[0];
-                }
-            }
-            break;
+    case ZealSettingsDialog::SystemProxy: {
+        QNetworkProxyQuery npq(QUrl("http://www.google.com"));
+        QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
+        if (listOfProxies.size()) {
+            proxy = listOfProxies[0];
+        }
+    }
+        break;
 
-        case ZealSettingsDialog::UserDefinedProxy:
-            {
-                proxy = QNetworkProxy(QNetworkProxy::HttpProxy, ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
-                if (ui->m_httpProxyNeedsAuth->isChecked()) {
-                    proxy.setUser(ui->m_httpProxyUser->text());
-                    proxy.setPassword(ui->m_httpProxyPass->text());
-                }
-            }
-            break;
+    case ZealSettingsDialog::UserDefinedProxy:
+        proxy = QNetworkProxy(QNetworkProxy::HttpProxy, ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
+        if (ui->m_httpProxyNeedsAuth->isChecked()) {
+            proxy.setUser(ui->m_httpProxyUser->text());
+            proxy.setPassword(ui->m_httpProxyPass->text());
+        }
+        break;
 
-        default:
-            Q_ASSERT_X(false, Q_FUNC_INFO, "Unknown proxy type given!");
-            break;
+    default:
+        Q_ASSERT_X(false, Q_FUNC_INFO, "Unknown proxy type given!");
+        break;
     }
 
     return proxy;

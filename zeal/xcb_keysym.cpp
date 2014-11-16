@@ -121,8 +121,7 @@ xcb_keysym_t GetX11Key(unsigned i_qt)
     if (i_qt >= 32 && i_qt <= 127)
         return i_qt;
 
-    for(int i = 0; x11keys_to_qtkeys[i].i_qt != 0; i++)
-    {
+    for (int i = 0; x11keys_to_qtkeys[i].i_qt != 0; i++) {
         if (x11keys_to_qtkeys[i].i_qt == i_qt)
             return x11keys_to_qtkeys[i].i_x11;
     }
@@ -147,10 +146,8 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
 
     int i = 0;
     bool no_modifier = true;
-    while(p_keys[i] != XCB_NO_SYMBOL)
-    {
-        if (p_keys[i] != 0)
-        {
+    while (p_keys[i] != XCB_NO_SYMBOL) {
+        if (p_keys[i] != 0) {
             no_modifier = false;
             break;
         }
@@ -178,11 +175,10 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
         return 0;
     }
 
-    for(int i = 0; i < 8; i++)
-        for(int j = 0; j < p_map->keycodes_per_modifier; j++)
-            for(int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++)
-                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
-                {
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < p_map->keycodes_per_modifier; j++)
+            for (int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++)
+                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k]) {
                     free(p_keys);
                     free(p_map);
                     return pi_mask[i];

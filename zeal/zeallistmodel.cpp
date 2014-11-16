@@ -30,7 +30,7 @@ Qt::ItemFlags ZealListModel::flags(const QModelIndex &index) const
 const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() const
 {
     if (!modulesCounts->count()) {
-        for(auto name : docsets->names()) {
+        for (auto name : docsets->names()) {
             auto db = docsets->db(name);
             QSqlQuery q;
             if (docsets->type(name) == ZEAL) {
@@ -41,7 +41,8 @@ const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() cons
                 q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
                             " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
             }
-            while(q.next()) {
+
+            while (q.next()) {
                 int count = q.value(1).toInt();
                 QString typeName = q.value(0).toString();
                 (*modulesCounts)[QPair<QString, QString>(name, typeName)] = count;
@@ -72,7 +73,7 @@ const QPair<QString, QString> ZealListModel::getItem(const QString& path, int in
                             "order by ztokenname asc").arg(type));
     }
     int i = 0;
-    while(q.next()) {
+    while (q.next()) {
         QPair<QString, QString> item;
         item.first = q.value(0).toString();
         auto filePath = q.value(1).toString();
@@ -102,10 +103,9 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
                 auto path = entry->info.indexPath.split("/");
                 auto filename = path.last();
                 path.removeLast();
-                for(auto directory : path) {
-                    if (!dir.cd(directory)) {
+                for (auto directory : path) {
+                    if (!dir.cd(directory))
                         return createIndex(row, column, (void*)getString(""));
-                    }
                 }
                 return createIndex(row, column, (void*)getString(dir.absoluteFilePath(filename)));
             }
@@ -114,19 +114,17 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         return QModelIndex();
     } else {
         QString docsetName;
-        for(auto name : docsets->names()) {
-            if (i2s(parent)->startsWith(name+"/")) {
+        for (auto name : docsets->names()) {
+            if (i2s(parent)->startsWith(name+"/"))
                 docsetName = name;
-            }
         }
         if (docsetName.isEmpty()) {
             // i2s(parent) == docsetName
             if (column == 0) {
                 QList<QString> types;
-                for(auto &pair : getModulesCounts().keys()) {
-                    if (pair.first == *i2s(parent)) {
+                for (auto &pair : getModulesCounts().keys()) {
+                    if (pair.first == *i2s(parent))
                         types.append(pair.second);
-                    }
                 }
                 qSort(types);
                 return createIndex(row, column, (void*)getString(*i2s(parent)+"/"+pluralize(types[row])));
@@ -185,10 +183,9 @@ int ZealListModel::rowCount(const QModelIndex &parent) const
             // docset - show types
             int numTypes = 0;
             auto keys = getModulesCounts().keys();
-            for(auto &key : keys) {
-                if (parentStr == key.first) {
+            for (auto &key : keys) {
+                if (parentStr == key.first)
                     numTypes += 1;
-                }
             }
             return numTypes;
         } else if (parentStr->count("/") == 1) { // parent is docset/type
@@ -244,11 +241,13 @@ QString ZealListModel::singularize(const QString& s) {
 }
 
 bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent) {
-    if (parent.isValid()) return false;
+    if (parent.isValid())
+        return false;
+
     beginRemoveRows(parent, row, row + count - 1);
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i)
         docsets->remove(docsets->names()[row + i]);
-    }
     endRemoveRows();
+
     return true;
 }

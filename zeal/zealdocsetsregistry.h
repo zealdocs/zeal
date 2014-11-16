@@ -34,8 +34,7 @@ public:
     static ZealDocsetsRegistry* instance()
     {
         static QMutex mutex;
-        if (!m_Instance)
-        {
+        if (!m_Instance) {
             mutex.lock();
 
             if (!m_Instance)

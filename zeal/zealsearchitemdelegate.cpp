@@ -47,11 +47,11 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     QFontMetrics metricsBold(bold);
     auto elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
     QString highlight;
-    if (lineEdit) {
+    if (lineEdit)
         highlight = ZealSearchQuery(lineEdit->text()).getCoreQuery();
-    }
+
     int from = 0;
-    while(from < elided.size()) {
+    while (from < elided.size()) {
         int until = elided.toLower().indexOf(highlight.toLower(), from);
         if (!highlight.size()) until = -1;
 

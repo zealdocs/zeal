@@ -35,10 +35,9 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
 
     int i = 0;
     bool no_modifier = true;
-    while(p_keys[i] != XCB_NO_SYMBOL)
+    while (p_keys[i] != XCB_NO_SYMBOL)
     {
-        if (p_keys[i] != 0)
-        {
+        if (p_keys[i] != 0) {
             no_modifier = false;
             break;
         }
@@ -60,21 +59,20 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
     if (!p_keycode)
         return 0;
 
-    for(int i = 0; i < 8; i++)
-        for(int j = 0; j < p_map->keycodes_per_modifier; j++)
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < p_map->keycodes_per_modifier; j++)
 #ifdef XCB_KEYSYM_OLD_API /* as seen in Debian Lenny */
-            if (p_keycode[i * p_map->keycodes_per_modifier + j] == key)
-            {
+            if (p_keycode[i * p_map->keycodes_per_modifier + j] == key) {
                 free(p_map);
                 return pi_mask[i];
             }
 #else
-            for(int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++)
-                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
-                {
+            for (int k = 0; p_keys[k] != XCB_NO_SYMBOL; ++k) {
+                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k]) {
                     free(p_map);
                     return pi_mask[i];
                 }
+            }
 #endif
 
     free(p_map); // FIXME to check
@@ -121,14 +119,14 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             modifiers.append(qMakePair(XK_Control_R, Qt::CTRL));
             modifiers.append(qMakePair(XK_Meta_L, Qt::META));
             modifiers.append(qMakePair(XK_Meta_R, Qt::META));
-            for(auto modifier : modifiers) {
+            for (auto modifier : modifiers) {
                 if (!(hotKey[0] & modifier.second)) {
                     continue;
                 }
                 xcb_keycode_t *mod_keycodes = xcb_key_symbols_get_keycode(keysyms, modifier.first);
                 if (mod_keycodes == nullptr) continue;
                 int i = 0;
-                while(mod_keycodes[i] != XCB_NO_SYMBOL) {
+                while (mod_keycodes[i] != XCB_NO_SYMBOL) {
                     if (event->detail == mod_keycodes[i]) {
                         found = true;
                     }
@@ -138,7 +136,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             }
         }
         int i = 0;
-        while(keycodes[i] != XCB_NO_SYMBOL) {
+        while (keycodes[i] != XCB_NO_SYMBOL) {
             if (event->detail == keycodes[i]) {
                 bool modifiers_present = true;
                 if (hotKey[0] & Qt::ALT) {

@@ -16,7 +16,7 @@ void ZealDocsetMetadata::read(const QJsonObject &json)
 
 void ZealDocsetMetadata::read(QXmlStreamReader &xml)
 {
-    while(!xml.atEnd()) {
+    while (!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
         if (token == QXmlStreamReader::StartDocument)
             continue;

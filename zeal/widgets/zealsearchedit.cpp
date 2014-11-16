@@ -70,8 +70,7 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
                     ? index.row() + 1
                     : index.row() - 1;
             QModelIndex sibling = index.sibling(nextRow, 0);
-            if (nextRow >= 0 && nextRow < treeView->model()->rowCount())
-            {
+            if (nextRow >= 0 && nextRow < treeView->model()->rowCount()) {
                 treeView->setCurrentIndex(sibling);
                 return true;
             }

@@ -42,14 +42,13 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
         db.open();
         auto q = db.exec("select name from sqlite_master where type='table'");
         QStringList tables;
-        while(q.next()) {
+        while (q.next())
             tables.append(q.value(0).toString());
-        }
-        if (tables.contains("searchIndex")) {
+
+        if (tables.contains("searchIndex"))
             entry.type = DASH;
-        } else {
+        else
             entry.type = ZDASH;
-        }
 
         dir.cd("Contents");
         dir.cd("Resources");
@@ -143,7 +142,7 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
         QString subNames = QString(" or %1 like '%.%2%' escape '\\'");
         subNames += QString(" or %1 like '%::%2%' escape '\\'");
         subNames += QString(" or %1 like '%/%2%' escape '\\'");
-        while(found.size() < 100) {
+        while (found.size() < 100) {
             auto curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
             QString parentQuery;
@@ -180,34 +179,34 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
                                "zanchor asc limit 100").arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
             }
             q = db(docset.name).exec(qstr);
-            while(q.next()) {
+            while (q.next()) {
                 QList<QVariant> values;
-                for(int i = 0; i < cols; ++i) {
+                for (int i = 0; i < cols; ++i)
                     values.append(q.value(i));
-                }
                 found.append(values);
             }
 
             if (withSubStrings) break;
             withSubStrings = true;  // try again searching for substrings
         }
-        for(auto &row : found) {
+        for (auto &row : found) {
             QString parentName;
-            if (!row[1].isNull()) {
+            if (!row[1].isNull())
                 parentName = row[1].toString();
-            }
+
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-            if (docset.type == ZDASH) {
+            if (docset.type == ZDASH)
                 path += "#" + row[3].toString();
-            }
+
             auto itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
             results.append(ZealSearchResult(itemName, parentName, path, docset.name, preparedQuery));
         }
     }
     qSort(results);
-    if (queryNum != lastQuery) return; // some other queries pending - ignore this one
+    if (queryNum != lastQuery)
+        return; // some other queries pending - ignore this one
 
     queryResults = results;
     emit queryCompleted();
@@ -216,11 +215,11 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
 void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, QString initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
-    if (matchMethodName.indexIn(itemName) != -1) {
+    if (matchMethodName.indexIn(itemName) != -1)
         itemName = matchMethodName.cap(1);
-    }
+
     QString separators[] = {".", "::", "/"};
-    for(unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
+    for (unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
         QString sep = separators[i];
         if (itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && initialParent.isNull()) {
             auto splitted = itemName.split(sep);
@@ -295,7 +294,7 @@ QString ZealDocsetsRegistry::docsetsDir()
 // Recursively finds and adds all docsets in a given directory.
 void ZealDocsetsRegistry::addDocsetsFromFolder(QDir folder)
 {
-    for(QFileInfo subdir : folder.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+    for (QFileInfo subdir : folder.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
         if (subdir.suffix() == "docset") {
             QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
                                       Q_ARG(QString, subdir.absoluteFilePath()));

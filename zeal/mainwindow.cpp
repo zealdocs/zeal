@@ -819,14 +819,13 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     bool any_failed = false;
     for (; iter.rem; xcb_screen_next (&iter)) {
         int i = 0;
-        while(keycodes[i] != XCB_NO_SYMBOL) {
+        while (keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
-            for(auto modifier : GetX11Modifier(c, keysyms, hotKey[0])) {
+            for (auto modifier : GetX11Modifier(c, keysyms, hotKey[0])) {
                 auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
                     modifier, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
-                if (xcb_request_check(c, cookie)) {
+                if (xcb_request_check(c, cookie))
                     any_failed = true;
-                }
             }
             i += 1;
         }
