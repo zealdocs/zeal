@@ -30,9 +30,8 @@ extern const QString serverName;
 
 // Represents per tab search state.
 // needs to contain [search input, search model, section model, url]
-typedef struct SearchState
+struct SearchState
 {
-public:
     QWebPage *page;
     // model representing sections
     ZealSearchModel sectionsList;
@@ -48,7 +47,7 @@ public:
 
     int scrollPosition;
     int sectionsScroll;
-} SearchState;
+};
 
 class MainWindow : public QMainWindow
 {

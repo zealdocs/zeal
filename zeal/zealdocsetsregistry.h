@@ -21,7 +21,7 @@ class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
 public:
-    typedef struct {
+    struct docsetEntry {
         QString name;
         QString prefix;
         QSqlDatabase db;
@@ -29,7 +29,7 @@ public:
         DocSetType type;
         ZealDocsetMetadata metadata;
         ZealDocsetInfo info;
-    } docsetEntry;
+    };
 
     static ZealDocsetsRegistry* instance()
     {
