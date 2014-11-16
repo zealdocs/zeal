@@ -1,15 +1,12 @@
 #ifndef ZEALDOCSETINFO_H
 #define ZEALDOCSETINFO_H
 
-#include "stdlib.h"
-#include <QFile>
+#include <QString>
 
 struct ZealDocsetInfo
 {
-public:
-    ZealDocsetInfo();
-    ZealDocsetInfo(const QString filePath);
-    bool readDocset(const QString filePath);
+    explicit ZealDocsetInfo(const QString &filePath = QString());
+    bool readDocset(const QString &filePath);
 
     QString indexPath;
     QString family;

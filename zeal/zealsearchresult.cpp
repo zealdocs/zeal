@@ -25,9 +25,8 @@ bool ZealSearchResult::operator<(const ZealSearchResult &r) const
     }
 
     const int namesCmp = QString::compare(name, r.name, Qt::CaseInsensitive);
-    if (namesCmp) {
+    if (namesCmp)
         return namesCmp < 0;
-    }
 
     return QString::compare(parentName, r.parentName, Qt::CaseInsensitive) < 0;
 }

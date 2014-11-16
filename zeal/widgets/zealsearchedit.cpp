@@ -9,7 +9,7 @@ ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     completionLabel = new QLabel(this);
     completionLabel->setObjectName("completer");
     completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
-    completionLabel->setFont(this->font());
+    completionLabel->setFont(font());
 
     connect(this, &ZealSearchEdit::textChanged, this, &ZealSearchEdit::showCompletions);
 }
@@ -18,11 +18,11 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
 {
     treeView = view;
     focusing = false;
-    this->installEventFilter(this);
+    installEventFilter(this);
 }
 
 // Makes the line edit use autocompletions.
-void ZealSearchEdit::setCompletions(QStringList completions)
+void ZealSearchEdit::setCompletions(const QStringList &completions)
 {
     prefixCompleter = new QCompleter(completions, this);
     prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
@@ -34,7 +34,7 @@ int ZealSearchEdit::queryStart()
 {
     ZealSearchQuery currentQuery(text());
     // Keep the filter for the first esc press
-    if(currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
+    if (currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
         return currentQuery.getDocsetFilterSize() + 1;
     } else {
         return 0;
@@ -56,28 +56,27 @@ void ZealSearchEdit::selectQuery()
 
 void ZealSearchEdit::clear()
 {
-    this->clearQuery();
+    clearQuery();
 }
 
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
-    if(obj == this && ev->type() == QEvent::KeyPress) {
+    if (obj == this && ev->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
 
-        if(keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
+        if (keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
             QModelIndex index = treeView->currentIndex();
             int nextRow = keyEvent->key() == Qt::Key_Down
                     ? index.row() + 1
                     : index.row() - 1;
             QModelIndex sibling = index.sibling(nextRow, 0);
-            if (nextRow >= 0 && nextRow < treeView->model()->rowCount())
-            {
+            if (nextRow >= 0 && nextRow < treeView->model()->rowCount()) {
                 treeView->setCurrentIndex(sibling);
                 return true;
             }
         }
 
-        if(keyEvent->key() == Qt::Key_Return) {
+        if (keyEvent->key() == Qt::Key_Return) {
             emit treeView->activated(treeView->selectionModel()->currentIndex());
             return true;
         }
@@ -85,9 +84,9 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
         // Autocompletes the prefixes.
         if (keyEvent->key() == Qt::Key_Tab) {
             QString currentText = text();
-            QString completed = this->currentCompletion(currentText);
+            QString completed = currentCompletion(currentText);
             if (!completed.isEmpty()) {
-                this->setText(completed);
+                setText(completed);
                 return true;
             }
         }
@@ -97,8 +96,7 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 
 void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
 {
-    QString text = this->text();
-    showCompletions(text);
+    showCompletions(text());
     LineEdit::resizeEvent(ev);
 }
 
@@ -110,7 +108,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
     // Override the default selection.
     ZealSearchQuery currentQuery(text());
     int selectionOffset = currentQuery.getDocsetFilterSize();
-    if(selectionOffset > 0) {
+    if (selectionOffset > 0) {
         selectionOffset++; // add the delimeter
     }
     setSelection(selectionOffset, text().size() - selectionOffset);
@@ -131,7 +129,7 @@ QString ZealSearchEdit::currentCompletion(const QString &text)
     if (text.isEmpty()) {
         return QString();
     } else {
-        return this->prefixCompleter->currentCompletion();
+        return prefixCompleter->currentCompletion();
     }
 }
 
@@ -140,9 +138,9 @@ void ZealSearchEdit::showCompletions(const QString &newValue)
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     int textWidth = fontMetrics().width(newValue);
 
-    this->prefixCompleter->setCompletionPrefix(this->text());
+    prefixCompleter->setCompletionPrefix(text());
 
-    QString completed = this->currentCompletion(newValue).mid(newValue.size());
+    QString completed = currentCompletion(newValue).mid(newValue.size());
     QSize labelSize(fontMetrics().width(completed), size().height());
 
     completionLabel->setMinimumSize(labelSize);

@@ -113,24 +113,23 @@ const x11_to_qt x11keys_to_qtkeys[] =
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-xcb_keysym_t GetX11Key( unsigned i_qt )
+xcb_keysym_t GetX11Key(unsigned i_qt)
 {
     i_qt = i_qt & ~(Qt::ALT | Qt::CTRL | Qt::SHIFT | Qt::META);
 
     /* X11 and Qt use ASCII for printable ASCII characters */
-    if( i_qt >= 32 && i_qt <= 127 )
+    if (i_qt >= 32 && i_qt <= 127)
         return i_qt;
 
-    for( int i = 0; x11keys_to_qtkeys[i].i_qt != 0; i++ )
-    {
-        if( x11keys_to_qtkeys[i].i_qt == i_qt )
+    for (int i = 0; x11keys_to_qtkeys[i].i_qt != 0; i++) {
+        if (x11keys_to_qtkeys[i].i_qt == i_qt)
             return x11keys_to_qtkeys[i].i_x11;
     }
 
     return XK_VoidSymbol;
 }
 
-static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym )
+static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym)
 {
     static const unsigned pi_mask[8] = {
         XCB_MOD_MASK_SHIFT, XCB_MOD_MASK_LOCK, XCB_MOD_MASK_CONTROL,
@@ -138,64 +137,61 @@ static unsigned GetModifier( xcb_connection_t *p_connection, xcb_key_symbols_t *
         XCB_MOD_MASK_4, XCB_MOD_MASK_5
     };
 
-    if( sym == 0 )
+    if (sym == 0)
         return 0; /* no modifier */
 
-    xcb_keycode_t *p_keys = xcb_key_symbols_get_keycode( p_symbols, sym );
-    if( !p_keys )
+    xcb_keycode_t *p_keys = xcb_key_symbols_get_keycode(p_symbols, sym);
+    if (!p_keys)
         return 0;
 
     int i = 0;
     bool no_modifier = true;
-    while( p_keys[i] != XCB_NO_SYMBOL )
-    {
-        if( p_keys[i] != 0 )
-        {
+    while (p_keys[i] != XCB_NO_SYMBOL) {
+        if (p_keys[i] != 0) {
             no_modifier = false;
             break;
         }
         i++;
     }
 
-    if( no_modifier ) {
-        free( p_keys );
+    if (no_modifier) {
+        free(p_keys);
         return 0;
     }
 
     xcb_get_modifier_mapping_cookie_t r =
-            xcb_get_modifier_mapping( p_connection );
+            xcb_get_modifier_mapping(p_connection);
     xcb_get_modifier_mapping_reply_t *p_map =
-            xcb_get_modifier_mapping_reply( p_connection, r, NULL );
-    if( !p_map ) {
-        free( p_keys );
+            xcb_get_modifier_mapping_reply(p_connection, r, NULL);
+    if (!p_map) {
+        free(p_keys);
         return 0;
     }
 
-    xcb_keycode_t *p_keycode = xcb_get_modifier_mapping_keycodes( p_map );
-    if( !p_keycode ) {
-        free( p_keys );
-        free( p_map );
+    xcb_keycode_t *p_keycode = xcb_get_modifier_mapping_keycodes(p_map);
+    if (!p_keycode) {
+        free(p_keys);
+        free(p_map);
         return 0;
     }
 
-    for( int i = 0; i < 8; i++ )
-        for( int j = 0; j < p_map->keycodes_per_modifier; j++ )
-            for( int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++ )
-                if( p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k])
-                {
-                    free( p_keys );
-                    free( p_map );
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < p_map->keycodes_per_modifier; j++)
+            for (int k = 0; p_keys[k] != XCB_NO_SYMBOL; k++)
+                if (p_keycode[i*p_map->keycodes_per_modifier + j] == p_keys[k]) {
+                    free(p_keys);
+                    free(p_map);
                     return pi_mask[i];
                 }
 
-    free( p_keys );
-    free( p_map ); // FIXME to check
+    free(p_keys);
+    free(p_map); // FIXME to check
     return 0;
 }
 
 
-QList<unsigned> GetX11Modifier( xcb_connection_t *p_connection,
-        xcb_key_symbols_t *p_symbols, unsigned i_qt )
+QList<unsigned> GetX11Modifier(xcb_connection_t *p_connection,
+        xcb_key_symbols_t *p_symbols, unsigned i_qt)
 {
     unsigned i_nlock = GetModifier(p_connection, p_symbols, XK_Num_Lock),
              i_slock = GetModifier(p_connection, p_symbols, XK_Scroll_Lock);
@@ -203,30 +199,30 @@ QList<unsigned> GetX11Modifier( xcb_connection_t *p_connection,
 
     unsigned i_mask = 0;
 
-    if( i_qt & Qt::ALT )
-        i_mask |= GetModifier( p_connection, p_symbols, XK_Alt_L ) |
-                  GetModifier( p_connection, p_symbols, XK_Alt_R );
-    if( i_qt & Qt::CTRL )
-        i_mask |= GetModifier( p_connection, p_symbols, XK_Control_L ) |
-                  GetModifier( p_connection, p_symbols, XK_Control_R );
-    if( i_qt & Qt::SHIFT )
-        i_mask |= GetModifier( p_connection, p_symbols, XK_Shift_L ) |
-                  GetModifier( p_connection, p_symbols, XK_Shift_R );
-    if( i_qt & Qt::META )
-        i_mask |= GetModifier( p_connection, p_symbols, XK_Meta_L ) |
-                  GetModifier( p_connection, p_symbols, XK_Meta_R );
+    if (i_qt & Qt::ALT)
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Alt_L) |
+                  GetModifier(p_connection, p_symbols, XK_Alt_R);
+    if (i_qt & Qt::CTRL)
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Control_L) |
+                  GetModifier(p_connection, p_symbols, XK_Control_R);
+    if (i_qt & Qt::SHIFT)
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Shift_L) |
+                  GetModifier(p_connection, p_symbols, XK_Shift_R);
+    if (i_qt & Qt::META)
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Meta_L) |
+                  GetModifier(p_connection, p_symbols, XK_Meta_R);
 
     QList<unsigned> ret;
     ret.append(i_mask);
 
-    if(i_nlock) ret.append(i_mask | i_nlock);
-    if(i_slock) ret.append(i_mask | i_slock);
-    if(i_clock) ret.append(i_mask | i_clock);
+    if (i_nlock) ret.append(i_mask | i_nlock);
+    if (i_slock) ret.append(i_mask | i_slock);
+    if (i_clock) ret.append(i_mask | i_clock);
 
-    if(i_nlock && i_slock) ret.append(i_mask | i_nlock | i_slock);
-    if(i_nlock && i_clock) ret.append(i_mask | i_nlock | i_clock);
-    if(i_slock && i_clock) ret.append(i_mask | i_slock | i_clock);
-    if(i_nlock && i_slock && i_clock) ret.append(i_mask | i_nlock | i_clock);
+    if (i_nlock && i_slock) ret.append(i_mask | i_nlock | i_slock);
+    if (i_nlock && i_clock) ret.append(i_mask | i_nlock | i_clock);
+    if (i_slock && i_clock) ret.append(i_mask | i_slock | i_clock);
+    if (i_nlock && i_slock && i_clock) ret.append(i_mask | i_nlock | i_clock);
 
     return ret;
 }

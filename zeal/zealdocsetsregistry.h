@@ -21,7 +21,7 @@ class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
 public:
-    typedef struct {
+    struct docsetEntry {
         QString name;
         QString prefix;
         QSqlDatabase db;
@@ -29,13 +29,12 @@ public:
         DocSetType type;
         ZealDocsetMetadata metadata;
         ZealDocsetInfo info;
-    } docsetEntry;
+    };
 
     static ZealDocsetsRegistry* instance()
     {
         static QMutex mutex;
-        if (!m_Instance)
-        {
+        if (!m_Instance) {
             mutex.lock();
 
             if (!m_Instance)
@@ -47,35 +46,40 @@ public:
         return m_Instance;
     }
 
-    int count() const {
+    int count() const
+    {
         return docs.count();
     }
 
-    QSqlDatabase& db(const QString& name) {
+    QSqlDatabase& db(const QString& name)
+    {
         Q_ASSERT(docs.contains(name));
         return docs[name].db;
     }
 
-    const QDir& dir(const QString& name) {
+    const QDir& dir(const QString& name)
+    {
         Q_ASSERT(docs.contains(name));
         return docs[name].dir;
     }
 
-    const ZealDocsetMetadata& meta(const QString& name){
+    const ZealDocsetMetadata& meta(const QString& name)
+    {
         Q_ASSERT(docs.contains(name));
         return docs[name].metadata;
     }
 
-    QIcon icon(const QString& docsetName) {
+    QIcon icon(const QString& docsetName)
+    {
         docsetEntry *entry = &docs[docsetName];
         QString bundleName = entry->info.bundleName;
         bundleName.replace(" ", "_");
         QString identifier = entry->info.bundleIdentifier;
         QIcon icon(entry->dir.absoluteFilePath("favicon.ico"));
-        if(icon.availableSizes().isEmpty()) {
+        if (icon.availableSizes().isEmpty())
             icon = QIcon(entry->dir.absoluteFilePath("icon.png"));
-        }
-        if(icon.availableSizes().isEmpty()) {
+
+        if (icon.availableSizes().isEmpty()) {
             icon = QIcon(QString("icons:%1.png").arg(bundleName));
 
             // Fallback to identifier and docset file name.
@@ -89,24 +93,27 @@ public:
         return icon;
     }
 
-    DocSetType type(const QString& name) const {
+    DocSetType type(const QString& name) const
+    {
         Q_ASSERT(docs.contains(name));
         return docs[name].type;
     }
 
-    QStringList names() const {
+    QStringList names() const
+    {
         return docs.keys();
     }
 
-    void remove(const QString& name) {
+    void remove(const QString& name)
+    {
         docs[name].db.close();
         docs.remove(name);
     }
 
-    void clear() {
-        for(auto key : docs.keys()) {
+    void clear()
+    {
+        for (auto key : docs.keys())
             remove(key);
-        }
     }
 
     docsetEntry *getEntry(const QString &name);
@@ -144,7 +151,7 @@ private:
     QList<ZealSearchResult> queryResults;
     QSettings settings;
     int lastQuery;
-    void normalizeName(QString &itemName, QString &parentName, QString initialParent);
+    void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
 };
 
 extern ZealDocsetsRegistry* docsets;

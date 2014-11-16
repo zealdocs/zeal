@@ -16,7 +16,7 @@ ZealSearchModel::ZealSearchModel(QObject *parent) :
 
 Qt::ItemFlags ZealSearchModel::flags(const QModelIndex &index) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return 0;
     return QAbstractItemModel::flags(index);
 }
@@ -28,15 +28,15 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 
     auto item = static_cast<ZealSearchResult*>(index.internalPointer());
 
-    if(role == Qt::DecorationRole) {
-        if(index.column() == 0) {
+    if (role == Qt::DecorationRole) {
+        if (index.column() == 0) {
             return QVariant(docsets->icon(item->getDocsetName()));
         }
         return QVariant();
     }
 
-    if(index.column() == 0) {
-        if(!item->getParentName().isEmpty()) {
+    if (index.column() == 0) {
+        if (!item->getParentName().isEmpty()) {
             return QVariant(QString("%1 (%2)").arg(item->getName(), item->getParentName()));
         } else {
             return QVariant(item->getName());
@@ -55,11 +55,11 @@ QVariant ZealSearchModel::headerData(int section, Qt::Orientation orientation, i
 
 QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if(!parent.isValid()) {
-        if(dataList.count() <= row) return QModelIndex();
+    if (!parent.isValid()) {
+        if (dataList.count() <= row) return QModelIndex();
         auto &item = dataList.at(row);
 
-        if(column == 0 || column == 1) {
+        if (column == 0 || column == 1) {
             return createIndex(row, column, (void*)&item);
         }
     }
@@ -73,7 +73,7 @@ QModelIndex ZealSearchModel::parent(const QModelIndex &child) const
 
 int ZealSearchModel::rowCount(const QModelIndex &parent) const
 {
-    if(!parent.isValid()) {
+    if (!parent.isValid()) {
         return dataList.count();
     }
     return 0;

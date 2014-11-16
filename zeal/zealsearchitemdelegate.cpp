@@ -22,7 +22,7 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     option.text = index.data().toString();
     option.features |= QStyleOptionViewItem::HasDisplay;
 #endif
-    if(!index.data(Qt::DecorationRole).isNull()) {
+    if (!index.data(Qt::DecorationRole).isNull()) {
         option.features |= QStyleOptionViewItem::HasDecoration;
         option.icon = index.data(Qt::DecorationRole).value<QIcon>();
     }
@@ -30,7 +30,7 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     ZealSearchItemStyle style;
     style.drawControl(QStyle::CE_ItemViewItem, &option, painter, view);
 
-    if(option.state & QStyle::State_Selected) {
+    if (option.state & QStyle::State_Selected) {
 #ifdef WIN32
         option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
 #endif
@@ -47,15 +47,15 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     QFontMetrics metricsBold(bold);
     auto elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
     QString highlight;
-    if(lineEdit) {
+    if (lineEdit)
         highlight = ZealSearchQuery(lineEdit->text()).getCoreQuery();
-    }
-    int from = 0;
-    while(from < elided.size()) {
-        int until = elided.toLower().indexOf(highlight.toLower(), from);
-        if(!highlight.size()) until = -1;
 
-        if(until == -1) {
+    int from = 0;
+    while (from < elided.size()) {
+        int until = elided.toLower().indexOf(highlight.toLower(), from);
+        if (!highlight.size()) until = -1;
+
+        if (until == -1) {
             painter->drawText(rect, elided.mid(from));
             from = elided.size();
         } else {

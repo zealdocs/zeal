@@ -10,27 +10,26 @@ ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
     if (sepAt >= 1
         && (next >= rawQuery.size()
             || rawQuery.at(next) != DOCSET_FILTER_SEPARATOR)) {
-        this->rawDocsetFilter = rawQuery.leftRef(sepAt).toString().trimmed();
-        this->coreQuery = rawQuery.midRef(next).toString().trimmed();
-        this->docsetFilters = this->rawDocsetFilter.split(MULTIPLE_DOCSET_SEPARATOR);
+        rawDocsetFilter = rawQuery.leftRef(sepAt).toString().trimmed();
+        coreQuery = rawQuery.midRef(next).toString().trimmed();
+        docsetFilters = rawDocsetFilter.split(MULTIPLE_DOCSET_SEPARATOR);
     } else {
-        this->rawDocsetFilter = "";
-        this->coreQuery = rawQuery.trimmed();
-        this->docsetFilters = QStringList();
+        rawDocsetFilter = "";
+        coreQuery = rawQuery.trimmed();
+        docsetFilters = QStringList();
     }
 }
 
 bool ZealSearchQuery::hasDocsetFilter()
 {
-    return !this->rawDocsetFilter.isEmpty();
+    return !rawDocsetFilter.isEmpty();
 }
 
-bool ZealSearchQuery::docsetPrefixMatch(QString docsetPrefix)
+bool ZealSearchQuery::docsetPrefixMatch(const QString &docsetPrefix)
 {
-    for (const QString docsetPrefixFilter : this->docsetFilters) {
-        if(docsetPrefix.contains(docsetPrefixFilter, Qt::CaseInsensitive)) {
+    for (const QString docsetPrefixFilter : docsetFilters) {
+        if (docsetPrefix.contains(docsetPrefixFilter, Qt::CaseInsensitive))
             return true;
-        }
     }
 
     return false;
@@ -38,7 +37,7 @@ bool ZealSearchQuery::docsetPrefixMatch(QString docsetPrefix)
 
 int ZealSearchQuery::getDocsetFilterSize()
 {
-    return this->rawDocsetFilter.size();
+    return rawDocsetFilter.size();
 }
 
 QString ZealSearchQuery::getSanitizedQuery()
@@ -53,5 +52,5 @@ QString ZealSearchQuery::getSanitizedQuery()
 
 QString ZealSearchQuery::getCoreQuery()
 {
-    return this->coreQuery;
+    return coreQuery;
 }

@@ -15,7 +15,7 @@ public:
     void setTreeView(QTreeView *view);
     void clearQuery();
     void selectQuery();
-    void setCompletions(QStringList completions);
+    void setCompletions(const QStringList &completions);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
