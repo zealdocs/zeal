@@ -608,13 +608,10 @@ void MainWindow::createTrayIcon()
     if(trayIcon) return;
 #endif
 
-    QString desktop;
-    bool isUnity;
-
-    desktop = getenv("XDG_CURRENT_DESKTOP");
-    isUnity = (desktop.toLower() == "unity");
-
 #ifdef USE_LIBAPPINDICATOR
+    const QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    const bool isUnity = (desktop.toLower() == "unity");
+
     if(isUnity) //Application Indicators for Unity
     {
         GtkWidget *menu;
