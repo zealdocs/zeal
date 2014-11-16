@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     addAction(ui->action_CloseTab);
     connect(ui->action_CloseTab, &QAction::triggered, [&]() {
-        closeTab(-1);
+        closeTab();
     });
 
     tabBar.setTabsClosable(false);
@@ -370,7 +370,7 @@ void MainWindow::goToTab(int index)
     reloadTabState();
 }
 
-void MainWindow::closeTab(int index = -1)
+void MainWindow::closeTab(int index)
 {
     if (index == -1) {
         index = tabBar.currentIndex();
