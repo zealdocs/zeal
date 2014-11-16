@@ -322,7 +322,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete localServer;
 }
 
 void MainWindow::openDocset(const QModelIndex &index)
