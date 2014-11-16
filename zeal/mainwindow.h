@@ -56,9 +56,33 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
     void bringToFrontAndSearch(const QString);
-    bool startHidden();
     void createTab();
+    bool startHidden();
+
+protected:
+    void closeEvent(QCloseEvent *event) {
+        settings.setValue("geometry", saveGeometry());
+        event->ignore();
+        hide();
+    }
+    void setupShortcuts();
+    void keyPressEvent(QKeyEvent *keyEvent);
+
+private slots:
+    void refreshRequest();
+    void changeMinFontSize(int minFont);
+    void back();
+    void forward();
+    void onSearchComplete();
+    void openDocset(const QModelIndex& index);
+    void queryCompleted();
+    void scrollSearch();
+    void saveTabState();
+    void goToTab(int index);
+    void closeTab(int index);
+    void applyWebPageStyle();
 
 private:
     void bringToFront(bool withHack);
@@ -67,9 +91,10 @@ private:
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
-    void updateTreeView(QString text);
     QIcon docsetIcon(QString docsetName);
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
+    void createTrayIcon();
+    void setHotKey(const QKeySequence& hotKey);
 
     QList<SearchState*> tabs;
 
@@ -84,8 +109,7 @@ private:
     QMenu forwardMenu;
     QDialog hackDialog;
     bool treeViewClicked;
-    void createTrayIcon();
-    void setHotKey(const QKeySequence& hotKey);
+
     QKeySequence hotKey;
     QSettings settings;
     QTabBar tabBar;
@@ -96,30 +120,10 @@ private:
 #ifdef USE_LIBAPPINDICATOR
     AppIndicator *indicator;  //for Unity
 #endif
+
     QMenu *trayIconMenu;
     QMap<QString, QString> urls;
     QString getDocsetName(QString urlPath);
-private slots:
-    void refreshRequest();
-    void changeMinFontSize(int minFont);
-    void back();
-    void forward();
-    void onSearchComplete();
-    void openDocset(const QModelIndex& index);
-    void queryCompleted();
-    void scrollSearch();
-    void saveTabState();
-    void goToTab(int index);
-    void closeTab(int index);
-    void applyWebPageStyle();
-protected:
-    void closeEvent(QCloseEvent *event) {
-        settings.setValue("geometry", saveGeometry());
-        event->ignore();
-        hide();
-    }
-    void setupShortcuts();
-    void keyPressEvent(QKeyEvent *keyEvent);
 };
 
 #endif // MAINWINDOW_H
