@@ -288,7 +288,7 @@ MainWindow::MainWindow(QWidget *parent) :
         closeTab();
     });
 
-    tabBar.setTabsClosable(false);
+    tabBar.setTabsClosable(true);
     tabBar.setExpanding(false);
     tabBar.setUsesScrollButtons(true);
     tabBar.setDrawBase(false);
