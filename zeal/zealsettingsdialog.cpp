@@ -335,6 +335,16 @@ void ZealSettingsDialog::downloadDocsetList()
     reply->deleteLater();
 }
 
+const QString ZealSettingsDialog::getTarPath() const
+{
+#ifdef WIN32
+    QDir tardir(QCoreApplication::applicationDirPath());
+    return tardir.filePath("bsdtar.exe");
+#else
+    return "bsdtar";
+#endif
+}
+
 void ZealSettingsDialog::extractDocset()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
@@ -403,12 +413,7 @@ void ZealSettingsDialog::extractDocset()
                                       QString("'%1' directory not found").arg(docsets->docsetsDir()));
                 endTasks();
             } else {
-#ifdef WIN32
-                QDir tardir(QCoreApplication::applicationDirPath());
-                const QString program = tardir.filePath("bsdtar.exe");
-#else
-                const QString program = "bsdtar";
-#endif
+                const QString program = getTarPath();
                 QTemporaryFile *tmp = new QTemporaryFile;
                 tmp->open();
                 tmp->write(reply->readAll());
@@ -425,15 +430,6 @@ void ZealSettingsDialog::extractDocset()
                 args.append(tmp->fileName());
                 args.append("*docset");
                 tar->start(program, args);
-
-                // TODO: check if bsdtar exists earlier (on startup or
-                // before archive downloading)
-                if (!tar->waitForStarted()) {
-                    QMessageBox::critical(this, "bsdtar executable not found",
-                                          (QString("'%1' executable not found. It is required to allow extracting docsets. ") + QString(
-                                               "Please install it if you want to extract docsets from within Zeal.")).arg(program));
-                    endTasks();
-                }
                 tar->waitForFinished();
                 auto line_buf = tar->readLine();
                 auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
@@ -608,6 +604,18 @@ void ZealSettingsDialog::on_docsetsList_itemSelectionChanged()
 void ZealSettingsDialog::on_downloadDocsetButton_clicked()
 {
     if (replies.count() > 0) {
+        stopDownloads();
+        return;
+    }
+
+    // Idle run of bsdtar to check if it is available
+    const QString program = getTarPath();
+    QProcess *tar = new QProcess();
+    tar->start(program);
+    if (!tar->waitForStarted()) {
+        QMessageBox::critical(this, "bsdtar executable not found",
+                (QString("'%1' executable not found. It is required to allow extracting docsets. ")
+               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(program));
         stopDownloads();
         return;
     }
