@@ -9,7 +9,7 @@ class ZealWebView : public QWebView
     Q_OBJECT
 public:
     explicit ZealWebView(QWidget *parent = 0);
-
+    void wheelEvent(QWheelEvent * event);
 protected:
     virtual QWebView *createWindow(QWebPage::WebWindowType type);
 
