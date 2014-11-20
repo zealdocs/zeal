@@ -648,13 +648,15 @@ void ZealSettingsDialog::on_storageButton_clicked()
 
 void ZealSettingsDialog::on_deleteButton_clicked()
 {
+    const QString docsetDisplayName = ui->listView->currentIndex().data().toString();
     auto answer = QMessageBox::question(this, "Are you sure",
         QString("Are you sure you want to permanently delete the '%1' docest? "
-                "Clicking 'Cancel' in this dialog box will not revert the deletion.").arg(
-                              ui->listView->currentIndex().data().toString()));
+                "Clicking 'Cancel' in this dialog box will not revert the deletion.")
+                .arg(docsetDisplayName));
+
     if (answer == QMessageBox::Yes) {
         auto dataDir = QDir(docsets->docsetsDir());
-        auto docsetName = ui->listView->currentIndex().data().toString();
+        auto docsetName = ui->listView->currentIndex().data(ZealList::DocsetName).toString();
         zealList.removeRow(ui->listView->currentIndex().row());
         if (dataDir.exists()) {
             ui->docsetsProgress->show();
@@ -662,15 +664,19 @@ void ZealSettingsDialog::on_deleteButton_clicked()
             startTasks();
             auto future = QtConcurrent::run([=] {
                 QDir docsetDir(dataDir);
-                if (docsetDir.cd(docsetName)) {
-                    docsetDir.removeRecursively();
-                } else if (docsetDir.cd(docsetName + ".docset")) {
-                    docsetDir.removeRecursively();
+                bool isDeleted = false;
+
+                if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset")) {
+                    isDeleted = docsetDir.removeRecursively();
+                }
+                if (!isDeleted) {
+                    QMessageBox::information(nullptr, "", 
+                        QString("Delete docset %1 failed!").arg(docsetDisplayName));
                 }
             });
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
             watcher->setFuture(future);
-            connect(watcher, &QFutureWatcher<void>::finished, [=]() {
+            connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 endTasks();
                 ui->deleteButton->show();
                 watcher->deleteLater();
