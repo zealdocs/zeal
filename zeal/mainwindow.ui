@@ -14,7 +14,8 @@
    <string>Zeal</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QSplitter::handle {
+      <string notr="true">
+QSplitter::handle {
 	background: black;
 }
 
@@ -43,9 +44,13 @@ QTabBar::tab::first, QTabBar::tab::only-one {
 	margin-left: 0;
 }
 
-QTabBar::tab::last, QTabBar::tab::only-one {
-	margin-right: 0;
-}</string>
+QTabBar::close-button {
+    image: url(&quot;:/chrome/black_button_close.png&quot;);
+}
+QTabBar::close-button::hover {
+    image: url(&quot;:/chrome/red_button_close_hover.png&quot;);
+}
+</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">

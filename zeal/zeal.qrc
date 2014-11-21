@@ -7,5 +7,7 @@
         <file>chrome/chrome_tab_2.png</file>
         <file>chrome/chrome_tab.png</file>
         <file>chrome/overlay_chrome_tab.png</file>
+        <file>chrome/red_button_close_hover.png</file>
+        <file>chrome/black_button_close.png</file>
     </qresource>
 </RCC>
