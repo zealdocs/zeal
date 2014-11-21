@@ -10,3 +10,12 @@ QWebView *ZealWebView::createWindow(QWebPage::WebWindowType type) {
     mw->createTab();
     return this;
 }
+
+void ZealWebView::wheelEvent(QWheelEvent *event){
+    if (event->modifiers() & Qt::ControlModifier) {
+        zf += event->delta()/120;
+        updateZoomFactor();
+    } else {
+        QWebView::wheelEvent(event);
+    }
+}
