@@ -10,8 +10,20 @@ class ZealWebView : public QWebView
 public:
     explicit ZealWebView(QWidget *parent = 0);
     void wheelEvent(QWheelEvent * event);
+    int zealZoomFactor() {
+        return zf;
+    }
+    void setZealZoomFactor(int zf_) {
+        zf = zf_;
+        updateZoomFactor();
+    }
 protected:
     virtual QWebView *createWindow(QWebPage::WebWindowType type);
+private:
+    int zf = 0;
+    void updateZoomFactor() {
+        setZoomFactor(1+(qreal(zf)/10));
+    }
 
 signals:
 

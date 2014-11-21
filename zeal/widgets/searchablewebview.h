@@ -19,20 +19,22 @@ public:
     bool canGoBack();
     bool canGoForward();
     void setPage(QWebPage *page);
+    int zealZoomFactor() { return webView.zealZoomFactor(); }
+    void setZealZoomFactor(int zf_) { webView.setZealZoomFactor(zf_); }
 
 protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *);
-    
+
 signals:
     void urlChanged(const QUrl &url);
     void titleChanged(const QString &title);
     void linkClicked(const QUrl &url);
-    
+
 public slots:
     void back();
     void forward();
-    
+
 private:
     LineEdit lineEdit;
     ZealWebView webView;

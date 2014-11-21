@@ -131,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ZealNetworkAccessManager *zealNaManager = new ZealNetworkAccessManager();
     zealNaManager->setProxy(settingsDialog.httpProxy());
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
-    
+
     // menu
     if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
         ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence("Ctrl+Q"), QKeySequence::Quit});
@@ -482,6 +482,7 @@ void MainWindow::reloadTabState()
     }
 
     ui->webView->setPage(searchState->page);
+    ui->webView->setZealZoomFactor(searchState->zoomFactor);
 
     int resultCount = searchState->sectionsList.rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
@@ -505,6 +506,7 @@ void MainWindow::saveTabState()
     searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
     searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
     searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
+    searchState->zoomFactor = ui->webView->zealZoomFactor();
 }
 
 void MainWindow::onSearchComplete()
