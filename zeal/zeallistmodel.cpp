@@ -145,7 +145,8 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
 
 QVariant ZealListModel::data(const QModelIndex &index, int role) const
 {
-    if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
+    if ((role != Qt::DisplayRole && role != Qt::DecorationRole && role != ZealList::DocsetName)
+            || !index.isValid())
         return QVariant();
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1) {
@@ -156,9 +157,12 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
         QStringList retlist = i2s(index)->split('/');
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
-            retval = docsets->getEntry(retval)->info.bundleName;
+            if (role == Qt::DisplayRole) {
+                retval = docsets->getEntry(retval)->info.bundleName;
+            }
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
-            for (int i = retlist.length() - 2; i > 1; --i) retval = retlist[i] + "/" + retval;
+            for (int i = retlist.length() - 2; i > 1; --i) 
+                retval = retlist[i] + "/" + retval;
         }
         return QVariant(retval);
     } else {

@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+
 using namespace std;
 
 class ZealListModel : public QAbstractItemModel
@@ -44,6 +45,10 @@ private:
             (*strings).insert(str);
         return &*strings->find(str);
     }
+};
+
+enum ZealList {
+    DocsetName = Qt::UserRole
 };
 
 #endif // ZEALLISTMODEL_H
