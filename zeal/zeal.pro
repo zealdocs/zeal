@@ -57,7 +57,8 @@ FORMS    += mainwindow.ui \
     zealsettingsdialog.ui
 
 
-QMAKE_CXXFLAGS += -std=c++11
+!msvc:QMAKE_CXXFLAGS += -std=c++11
+msvc:INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 
 macx:DEFINES += OSX
 macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
@@ -66,7 +67,8 @@ macx:CONFIG += c++11
 win32:RC_ICONS = zeal.ico
 win32:DEFINES += WIN32 QUAZIP_BUILD
 DEFINES += ZEAL_VERSION=\\\"20140215\\\"
-LIBS += -lz -L/usr/lib
+!msvc:LIBS += -lz -L/usr/lib
+msvc:QMAKE_LIBS += user32.lib
 
 CONFIG += link_pkgconfig
 
