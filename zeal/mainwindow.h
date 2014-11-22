@@ -21,6 +21,7 @@
 #include "zealsearchmodel.h"
 #include "zealnativeeventfilter.h"
 #include "zealsettingsdialog.h"
+#include "zealnetworkaccessmanager.h"
 
 #ifdef USE_LIBAPPINDICATOR
 #undef signals
@@ -107,6 +108,7 @@ private:
     QList<SearchState*> tabs;
 
     SearchState *searchState;
+    ZealNetworkAccessManager *zealNaManager;
 
     Ui::MainWindow *ui;
     QIcon icon;

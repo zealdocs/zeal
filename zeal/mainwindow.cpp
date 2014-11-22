@@ -5,7 +5,6 @@
 #include "zealsearchquery.h"
 #include "zealdocsetsregistry.h"
 #include "zealsearchitemdelegate.h"
-#include "zealnetworkaccessmanager.h"
 
 #include <QtDebug>
 #include <QCoreApplication>
@@ -133,7 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     applyWebPageStyle();
-    ZealNetworkAccessManager *zealNaManager = new ZealNetworkAccessManager();
+    zealNaManager = new ZealNetworkAccessManager();
     zealNaManager->setProxy(settingsDialog.httpProxy());
 #ifdef USE_WEBENGINE
     // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
@@ -407,6 +406,7 @@ void MainWindow::createTab()
     newTab->page = new QWebPage(ui->webView);
 #ifndef USE_WEBENGINE
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    newTab->page->setNetworkAccessManager(zealNaManager);
 #endif
 
     ui->treeView->setModel(NULL);
