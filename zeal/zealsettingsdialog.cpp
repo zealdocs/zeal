@@ -416,7 +416,15 @@ void ZealSettingsDialog::extractDocset()
                 const QString program = getTarPath();
                 QTemporaryFile *tmp = new QTemporaryFile;
                 tmp->open();
-                tmp->write(reply->readAll());
+                qint64 read_len = 1;
+                const int BUFSIZE = 1024*1024;
+                char buf[BUFSIZE];
+                while (read_len > 0) {
+                    read_len = reply->read(buf, BUFSIZE);
+                    if (read_len > 0) {
+                        tmp->write(buf, read_len);
+                    }
+                }
                 tmp->flush();
 
                 QProcess *tar = new QProcess();
