@@ -8,7 +8,14 @@
 #include <QSettings>
 #include <QSystemTrayIcon>
 #include <QCloseEvent>
-#include <QWebHistory>
+#ifdef USE_WEBENGINE
+    #include <QWebEngineHistory>
+    #define QWebPage QWebEnginePage
+    #define QWebHistory QWebEngineHistory
+    #define QWebHistoryItem QWebEngineHistoryItem
+#else
+    #include <QWebHistory>
+#endif
 #include <QModelIndex>
 #include "zeallistmodel.h"
 #include "zealsearchmodel.h"

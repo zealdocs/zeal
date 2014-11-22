@@ -678,7 +678,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
                     isDeleted = docsetDir.removeRecursively();
                 }
                 if (!isDeleted) {
-                    QMessageBox::information(nullptr, "", 
+                    QMessageBox::information(nullptr, "",
                         QString("Delete docset %1 failed!").arg(docsetDisplayName));
                 }
             });

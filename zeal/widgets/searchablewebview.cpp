@@ -1,9 +1,14 @@
 #include <QShortcut>
 #include <QStyle>
 #include <QResizeEvent>
-#include <QWebFrame>
-#include <QWebHistory>
-#include <QWebPage>
+#ifdef USE_WEBENGINE
+    #include <QWebEngineHistory>
+    #include <QWebEnginePage>
+#else
+    #include <QWebFrame>
+    #include <QWebHistory>
+    #include <QWebPage>
+#endif
 #include "searchablewebview.h"
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
@@ -14,6 +19,9 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     lineEdit.hide();
     connect(&lineEdit, &LineEdit::textChanged, [&](const QString& text) {
         // clear selection:
+#ifdef USE_WEBENGINE
+        webView.findText(text);
+#else
         webView.findText("");
         webView.findText("", QWebPage::HighlightAllOccurrences);
         if (!text.isEmpty()) {
@@ -22,6 +30,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
             // highlight other occurences:
             webView.findText(text, QWebPage::HighlightAllOccurrences);
         }
+#endif
+
 
         // store text for later searches
         searchText = text;
@@ -39,14 +49,23 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 
     connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
     connect(&webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
+#ifdef USE_WEBENGINE
+    // not implemented?
+    // connect(webView.page(), &QWebPage::linkClicked, this, &SearchableWebView::linkClicked);
+#else
     connect(&webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
+#endif
 
     connect(&webView, &QWebView::loadStarted, [&]() {
         lineEdit.clear();
     });
 
     // Display tooltip showing link location when hovered over.
+#ifdef USE_WEBENGINE
+    connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link) {
+#else
     connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link, const QString &title, const QString &textContent) {
+#endif
         if (!link.startsWith("file:///"))
             setToolTip(link);
     });
@@ -60,7 +79,11 @@ void SearchableWebView::setPage(QWebPage *page)
 void SearchableWebView::moveLineEdit() {
     QSize sz = lineEdit.sizeHint();
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+#ifdef USE_WEBENGINE
+    // FIXME scrollbar width
+#else
     frameWidth += webView.page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
+#endif
     lineEdit.move(rect().right() - frameWidth - sz.width(), rect().top());
     lineEdit.raise();
 }
@@ -73,7 +96,11 @@ void SearchableWebView::resizeEvent(QResizeEvent *event) {
 
 void SearchableWebView::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+#ifdef USE_WEBENGINE
+        QWebPage::FindFlags flags = 0;
+#else
         QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
+#endif
         if (event->modifiers() & Qt::ShiftModifier)
             flags |= QWebPage::FindBackward;
         webView.findText(searchText, flags);

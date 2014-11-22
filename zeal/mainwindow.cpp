@@ -19,11 +19,16 @@
 #include <QSettings>
 #include <QTimer>
 #include <QToolButton>
-#include <QWebSettings>
+#ifdef USE_WEBENGINE
+    #include <QWebEngineSettings>
+    #include <QWebEngineHistory>
+#else
+    #include <QWebSettings>
+    #include <QWebFrame>
+    #include <QWebHistory>
+#endif
 #include <QNetworkProxyFactory>
 #include <QAbstractNetworkCache>
-#include <QWebFrame>
-#include <QWebHistory>
 #include <QScrollBar>
 #include <QShortcut>
 
@@ -130,7 +135,11 @@ MainWindow::MainWindow(QWidget *parent) :
     applyWebPageStyle();
     ZealNetworkAccessManager *zealNaManager = new ZealNetworkAccessManager();
     zealNaManager->setProxy(settingsDialog.httpProxy());
+#ifdef USE_WEBENGINE
+    // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
+#else
     ui->webView->page()->setNetworkAccessManager(zealNaManager);
+#endif
 
     // menu
     if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
@@ -396,7 +405,9 @@ void MainWindow::createTab()
     ui->lineEdit->setText("");
 
     newTab->page = new QWebPage(ui->webView);
+#ifndef USE_WEBENGINE
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+#endif
 
     ui->treeView->setModel(NULL);
     ui->treeView->setModel(&zealList);
@@ -409,7 +420,11 @@ void MainWindow::createTab()
     tabBar.setCurrentIndex(tabs.size() - 1);
 
     reloadTabState();
+#ifdef USE_WEBENGINE
+    newTab->page->load(QUrl("qrc:///webpage/Welcome.html"));
+#else
     newTab->page->mainFrame()->load(QUrl("qrc:///webpage/Welcome.html"));
+#endif
 }
 
 void MainWindow::displayTabs()
@@ -427,7 +442,11 @@ void MainWindow::displayTabs()
 
     for (int i = 0; i < tabs.count(); i++) {
         SearchState *state = tabs.at(i);
+#ifdef USE_WEBENGINE
+        QString title = state->page->title();
+#else
         QString title = state->page->history()->currentItem().title();
+#endif
         QAction *action = ui->menu_Tabs->addAction(title);
         action->setCheckable(true);
         action->setChecked(i == tabBar.currentIndex());
@@ -559,7 +578,8 @@ void MainWindow::displayViewActions() {
     for (QWebHistoryItem item: history->backItems(10)) {
         backMenu.addAction(addHistoryAction(history, item));
     }
-    addHistoryAction(history, history->currentItem())->setEnabled(false);
+    if (history->count() > 0)
+        addHistoryAction(history, history->currentItem())->setEnabled(false);
     for (QWebHistoryItem item: history->forwardItems(10)) {
         forwardMenu.addAction(addHistoryAction(history, item));
     }

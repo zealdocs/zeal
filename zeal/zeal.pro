@@ -4,7 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets webkitwidgets sql gui-private xml
+QT       += core gui widgets sql gui-private xml webkitwidgets
+
+use_webengine {
+    QT      += webenginewidgets
+    DEFINES += USE_WEBENGINE
+}
 
 
 TARGET = zeal

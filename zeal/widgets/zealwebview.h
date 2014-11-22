@@ -1,7 +1,14 @@
 #ifndef ZEALWEBVIEW_H
 #define ZEALWEBVIEW_H
 
-#include <QWebView>
+#ifdef USE_WEBENGINE
+    #include <QWebEngineView>
+    #include <QWebEnginePage>
+    #define QWebView QWebEngineView
+    #define QWebPage QWebEnginePage
+#else
+    #include <QWebView>
+#endif
 
 // Subclass QWebView so we can override createWindow
 class ZealWebView : public QWebView
