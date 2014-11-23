@@ -339,7 +339,8 @@ const QString ZealSettingsDialog::getTarPath() const
 {
 #ifdef WIN32
     QDir tardir(QCoreApplication::applicationDirPath());
-    return tardir.filePath("bsdtar.exe");
+    // quotes required for paths with spaces, like "C:\Program Files"
+    return "\"" + tardir.filePath("bsdtar.exe") + "\"";
 #else
     return "bsdtar";
 #endif
