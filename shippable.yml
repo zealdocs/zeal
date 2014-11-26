@@ -5,14 +5,14 @@ before_install:
   - shippable_retry sudo apt-get -y -q update
 install:
   - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip git curl
-  - [ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT
-  - [ -d $HOME/qt/Tools ] || wget -O $HOME/qt/qt.exe http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe
-  - [ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT
-  - [ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z -o$HOME/qt
-  - [ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z -o$HOME/qt
-  - [ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_essentials.7z -o$HOME/qt
-  - [ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_addons.7z -o$HOME/qt
-  - [ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw482/4.8.2i686-4.8.2-release-posix-dwarf-rt_v3-rev3.7z -o$HOME/qt
+  - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
+  - bash -c '[ -d $HOME/qt/Tools ] || wget -O $HOME/qt/qt.exe http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe'
+  - bash -c '[ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_essentials.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_addons.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw482/4.8.2i686-4.8.2-release-posix-dwarf-rt_v3-rev3.7z -o$HOME/qt'
   - rm -rf $HOME/qt/OUT
   - rm -f $HOME/qt/qt.exe
   - echo "[Paths]" > $HOME/qt/5.3/mingw482_32/bin/qt.conf
