@@ -1,6 +1,7 @@
 build_image: shippableimages/ubuntu1404_python
 cache: true
 before_install:
+  - dpkg --add-architecture i386
   - shippable_retry sudo apt-get -y -q update
 install:
   - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip git curl
