@@ -26,6 +26,8 @@ install:
   - cat $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 script:
+  - wine regedit $HOME/qt/temp.reg
+  - echo $HOME
   - cd zeal
   - date +%Y%m%d > VERSION
   # a bit ugly version updating:
