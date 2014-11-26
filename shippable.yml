@@ -53,6 +53,6 @@ script:
   - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$(cat VERSION)
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
   - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
-  - mkdir ../shippable
+  - mkdir -p ../shippable
   - mv zeal-$(cat VERSION).zip ../shippable
 archive: true
