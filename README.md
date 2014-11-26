@@ -1,5 +1,8 @@
 # Zeal
 
+[![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
+(you can download Artifacts from Shippable for latest win32 build)
+
 **zeal**  
 *noun*  
 

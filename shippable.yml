@@ -23,7 +23,6 @@ install:
   - echo '"PATH"="BASEDIR\\Tools\\mingw482_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw482_32\\bin;BASEDIR\\5.3\\mingw482_32\\bin"' >> $HOME/qt/temp.reg
   - sed -i "s.BASEDIR.Z:$HOME/qt.g" $HOME/qt/temp.reg
   - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
-  - cat $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 script:
   - cd zeal
@@ -54,6 +53,6 @@ script:
   - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$(cat VERSION)
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
   - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
-  - mkdir shippable
-  - mv zeal-$(cat VERSION).zip shippable
+  - mkdir ../shippable
+  - mv zeal-$(cat VERSION).zip ../shippable
 archive: true
