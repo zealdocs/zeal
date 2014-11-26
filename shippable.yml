@@ -21,8 +21,8 @@ install:
   - echo '"QMAKESPEC"="BASEDIR\\5.3\\mingw482_32\\mkspecs\\win32-g++"' >> $HOME/qt/temp.reg
   - echo '"QTDIR"="BASEDIR\\5.3\\mingw482_32"' >> $HOME/qt/temp.reg
   - echo '"PATH"="BASEDIR\\Tools\\mingw482_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw482_32\\bin;BASEDIR\\5.3\\mingw482_32\\bin"' >> $HOME/qt/temp.reg
-  - sed -i "s.BASEDIR.$HOME/qt.g" $HOME/qt/temp.reg
-  - sed -i 's./.\\.g' $HOME/qt/temp.reg
+  - sed -i 's.BASEDIR.Z:$HOME/qt.g' $HOME/qt/temp.reg
+  - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
   - cat $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 script:
