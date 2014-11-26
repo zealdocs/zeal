@@ -52,7 +52,11 @@ script:
   - cp $HOME/qt/5.3/mingw482_32/bin/libwinpthread-1.dll zeal-$(cat VERSION)
   - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$(cat VERSION)
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
+  - rm -f zeal*.zip
   - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
-  - mkdir -p ../shippable
-  - mv zeal-$(cat VERSION).zip ../shippable
-archive: true
+  - curl --header "Content-Type: application/octet-stream" --data-binary @zeal-$(cat VERSION).zip $ZEAL_UPLOAD_URL
+  - rm -rf zeal-*
+
+env:
+  global:
+    - secure: urSU/HvAaO3ZBEb9m5SZgffYGDX5P/UspnxHDqFV26ivNl97LmtgA+SSQyCWpvahN8ZkW6wdRnm9UBThsfOwVm1jcdamzKvpYxlQxieuoH7/V8au0hyO5qKmzvo8xIsP3NPnZdQ/yJUU36YEheIP4AB7XguzqugYyBOa6247iTYr98gytnrRxuLJs51EWet/SJzI6jW9XZAGz7T3THYOj7MbewQX1G/oxgpGI7oGdkk4/XUDza5TqXqdSJ2tzj/93TKC7nFDAWtPaG2DrvLyf2UeBb2/3lJbCccFmhMEM45oPlWbyuwDkD3rq7Bc2cbVLTBM/5mO52txM9SST/CheQ==
