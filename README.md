@@ -1,8 +1,9 @@
 # Zeal
 
 [![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
+(latest builds are available at https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads)
 
-**zeal**  
+**zeal**
 *noun*  
 
  1. a feeling of strong eagerness (usually in favor of a person or cause)

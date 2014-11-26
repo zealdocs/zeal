@@ -54,7 +54,7 @@ script:
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
   - rm -f zeal*.zip
   - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
-  - curl --header "Content-Type: application/octet-stream" --data-binary @zeal-$(cat VERSION).zip $ZEAL_UPLOAD_URL
+  - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @zeal-$(cat VERSION).zip $ZEAL_UPLOAD_URL || true'
   - rm -rf zeal-*
 
 env:
