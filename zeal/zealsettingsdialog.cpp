@@ -241,7 +241,6 @@ void ZealSettingsDialog::downloadDocsetList()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    qint8 remainingRetries = replies.take(reply);
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
         if (reply->request().url().host() == "raw.github.com") {
