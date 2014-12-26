@@ -292,6 +292,8 @@ void ZealSettingsDialog::downloadDocsetList()
         }
         if (availMetadata.size() > 0) {
             ui->downloadableGroup->show();
+        } else {
+            --downloadDocsetListChance;
         }
     } else {
         QString list = reply->readAll();
@@ -320,10 +322,14 @@ void ZealSettingsDialog::downloadDocsetList()
         if (availMetadata.size() > 0) {
             ui->downloadableGroup->show();
         } else {
-            QMessageBox::warning(this, "No docsets found", QString("No downloadable docsets found."));
+            --downloadDocsetListChance;
         }
     }
 
+    if (!downloadDocsetListChance) {
+        QMessageBox::warning(this, "No docsets found", 
+                QString("No downloadable docsets found."));
+    }
     endTasks();
 
     // if all enqueued downloads have finished executing
@@ -596,6 +602,7 @@ void ZealSettingsDialog::downloadDocsetLists()
    auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
    auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
 
+   downloadDocsetListChance = 2;
    connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
    connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
 }

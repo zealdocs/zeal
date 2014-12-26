@@ -111,6 +111,7 @@ private:
     qint32 totalDownload;
     qint32 currentDownload;
     qint32 tasksRunning;
+    unsigned int downloadDocsetListChance;
 
     ZealSettingsDialog::ProxyType proxyType() const;
     void setProxyType(ZealSettingsDialog::ProxyType type);
