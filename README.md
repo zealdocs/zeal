@@ -1,7 +1,13 @@
 # Zeal
 
+## Call for (Co-)Maintainer
+
+**Please contact me via email (available in git commits) if you are interested in taking over or co-maintaining this project.** I could transfer it to a different account, perhaps even transfer the zealdocs.org domain if someone is interested. Anyone with relevant C++ and Qt experience is encouraged to apply!
+
 [![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
 (latest builds are available at https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads)
+
+---
 
 **zeal**
 *noun*  
@@ -17,6 +23,17 @@ Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash
 ![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
 [More screenshots (imgur)](http://imgur.com/a/eVi97)
+
+## Project Status
+
+This project is not under active development at the moment, so unless someone is interested in maintaining it, no new features or fixes are expected.
+
+## Contributions
+
+Pull requests may remain not reviewed for long time, and in general I don't foresee having much time for this project.
+
+Please keep in mind I'm not an experienced C++ programmer, so the code quality might be not great.
+
 
 ## Download
 
@@ -68,11 +85,3 @@ If you prefer, you can start with Zeal queries from command line, for this, use 
 ## Creating your own docsets
 
 You can use [Dash's instructions for generating docsets](http://kapeli.com/docsets).
-
-## Contributions / Project Status
-
-Any feedback, feature requests, or pull requests are welcome. However the project is not under active development at the moment, so unless someone is interested in contributing code, no new features are expected.
-
-I'm going to continue updating docsets that are part of Dash/Zeal exchange programme, and try to fix critical stability/compatibility issues if any arise, to keep the project somewhat alive, but will not implement new features in foreseeable future. Anyway, I should be able to review pull requests.
-
-Please keep in mind I'm not an experienced C++ programmer, so the code quality might be not great.
