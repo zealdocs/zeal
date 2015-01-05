@@ -72,11 +72,13 @@ public:
     bool startHidden();
 
 protected:
-    void closeEvent(QCloseEvent *event) {
+    void closeEvent(QCloseEvent *event)
+    {
         settings.setValue("geometry", saveGeometry());
         event->ignore();
         hide();
     }
+
     void setupShortcuts();
     void keyPressEvent(QKeyEvent *keyEvent);
 
@@ -86,7 +88,7 @@ private slots:
     void back();
     void forward();
     void onSearchComplete();
-    void openDocset(const QModelIndex& index);
+    void openDocset(const QModelIndex &index);
     void queryCompleted();
     void scrollSearch();
     void saveTabState();
@@ -104,9 +106,9 @@ private:
     QIcon docsetIcon(const QString &docsetName);
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
     void createTrayIcon();
-    void setHotKey(const QKeySequence& hotKey);
+    void setHotKey(const QKeySequence &hotKey);
 
-    QList<SearchState*> tabs;
+    QList<SearchState *> tabs;
 
     SearchState *searchState;
     ZealNetworkAccessManager *zealNaManager;
@@ -129,7 +131,7 @@ private:
     QSystemTrayIcon *trayIcon;
 
 #ifdef USE_LIBAPPINDICATOR
-    AppIndicator *indicator;  //for Unity
+    AppIndicator *indicator;  // for Unity
 #endif
 
     QMenu *trayIconMenu;

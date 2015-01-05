@@ -7,12 +7,16 @@
 #include <QFontMetrics>
 #include <QPainter>
 
-ZealSearchItemDelegate::ZealSearchItemDelegate(QObject *parent, QLineEdit* lineEdit_, QWidget* view_) :
-    QStyledItemDelegate(parent), lineEdit(lineEdit_), view(view_)
+ZealSearchItemDelegate::ZealSearchItemDelegate(QObject *parent, QLineEdit *lineEdit_,
+                                               QWidget *view_) :
+    QStyledItemDelegate(parent),
+    lineEdit(lineEdit_),
+    view(view_)
 {
 }
 
-void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_, const QModelIndex &index) const
+void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
+                                   const QModelIndex &index) const
 {
     painter->save();
     QStyleOptionViewItem option(option_);
@@ -32,17 +36,19 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
     if (option.state & QStyle::State_Selected) {
 #ifdef WIN32
-        option.palette.setColor(QPalette::All, QPalette::HighlightedText, option.palette.color(QPalette::Active, QPalette::Text));
+        option.palette.setColor(QPalette::All, QPalette::HighlightedText,
+                                option.palette.color(QPalette::Active, QPalette::Text));
 #endif
         painter->setPen(QPen(option.palette.highlightedText(), 1));
     }
 
-    auto rect = static_cast<QApplication*>(QApplication::instance())->style()->subElementRect(QStyle::SE_ItemViewItemText, &option, view);
+    auto rect = static_cast<QApplication *>(QApplication::instance())->style()->subElementRect(
+        QStyle::SE_ItemViewItemText, &option, view);
     const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, view);
     rect.adjust(margin, 0, 2, 0); // +2px for bold text
 
     QFontMetrics metrics(painter->font());
-    QFont bold(painter->font());;
+    QFont bold(painter->font());
     bold.setBold(true);
     QFontMetrics metricsBold(bold);
     auto elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());

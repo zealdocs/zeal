@@ -8,9 +8,8 @@ class ZealNetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 public:
     explicit ZealNetworkAccessManager(QObject *parent = 0);
-    QNetworkReply * createRequest(QNetworkAccessManager::Operation op,
-                                  const QNetworkRequest& req,
-                                  QIODevice * outgoingData = 0) override;
+    QNetworkReply *createRequest(QNetworkAccessManager::Operation op, const QNetworkRequest &req,
+                                 QIODevice *outgoingData = 0) override;
 };
 
 #endif // ZEALNETWORKACCESSMANAGER_H

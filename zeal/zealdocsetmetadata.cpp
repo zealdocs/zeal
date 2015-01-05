@@ -4,7 +4,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
-ZealDocsetMetadata::ZealDocsetMetadata():
+ZealDocsetMetadata::ZealDocsetMetadata() :
     valid(true)
 {
 }
@@ -14,7 +14,7 @@ void ZealDocsetMetadata::read(const QJsonObject &json)
     version = json["version"].toString();
     feedUrl = json["feed_url"].toString();
     QJsonArray urlArray = json["urls"].toArray();
-    foreach(auto url, urlArray)
+    foreach (auto url, urlArray)
         urls.append(url.toString());
 }
 
@@ -28,10 +28,10 @@ void ZealDocsetMetadata::read(QXmlStreamReader &xml)
         // Try to pull out the relevant data
         if (token == QXmlStreamReader::StartElement) {
             if (xml.name() == "version") {
-                if (xml.readNext()!=QXmlStreamReader::Characters) continue;
+                if (xml.readNext() != QXmlStreamReader::Characters) continue;
                 version = xml.text().toString();
             } else if (xml.name() == "url") {
-                if (xml.readNext()!=QXmlStreamReader::Characters) continue;
+                if (xml.readNext() != QXmlStreamReader::Characters) continue;
                 urls.append(xml.text().toString());
             }
         }
@@ -67,7 +67,7 @@ void ZealDocsetMetadata::write(QJsonObject &json) const
 {
     json["version"] = version;
     QJsonArray urlArray;
-    foreach(auto url , urls)
+    foreach (auto url, urls)
         urlArray.append(url);
 
     json["urls"] = urlArray;

@@ -25,7 +25,6 @@
  *
  * END_COMMON_COPYRIGHT_HEADER */
 
-
 #include "razorshortcutbutton.h"
 #include "razorshortcutbutton_p.h"
 
@@ -55,16 +54,14 @@ RazorShortcutButton::RazorShortcutButton(QWidget *parent) :
     setKeySequence("");
 }
 
-
 /************************************************
 
  ************************************************/
-RazorShortcutButtonPrivate::RazorShortcutButtonPrivate(RazorShortcutButton *parent):
+RazorShortcutButtonPrivate::RazorShortcutButtonPrivate(RazorShortcutButton *parent) :
     q_ptr(parent),
     mKeysCount(0)
 {
 }
-
 
 /************************************************
 
@@ -78,9 +75,7 @@ void RazorShortcutButtonPrivate::activate(bool active)
         q->grabKeyboard();
     else
         q->releaseKeyboard();
-
 }
-
 
 /************************************************
 
@@ -92,7 +87,6 @@ RazorShortcutButton::~RazorShortcutButton()
     delete d;
 }
 
-
 /************************************************
 
  ************************************************/
@@ -100,13 +94,12 @@ bool RazorShortcutButton::event(QEvent *event)
 {
     Q_D(RazorShortcutButton);
 
-    if (isChecked())
-    {
+    if (isChecked()) {
         if (event->type() == QEvent::KeyPress)
-            return d->keyPressEvent(static_cast<QKeyEvent*>(event));
+            return d->keyPressEvent(static_cast<QKeyEvent *>(event));
 
         if (event->type() == QEvent::KeyRelease)
-            return d->keyReleaseEvent(static_cast<QKeyEvent*>(event));
+            return d->keyReleaseEvent(static_cast<QKeyEvent *>(event));
 
         if (event->type() == QEvent::FocusOut)
             setChecked(false);
@@ -114,7 +107,6 @@ bool RazorShortcutButton::event(QEvent *event)
 
     return QToolButton::event(event);
 }
-
 
 /************************************************
 
@@ -128,11 +120,10 @@ bool RazorShortcutButtonPrivate::keyPressEvent(QKeyEvent *event)
     Q_Q(RazorShortcutButton);
 
     int key = 0;
-    switch (event->key())
-    {
+    switch (event->key()) {
     case Qt::Key_Escape:
         return false;
-    case Qt::Key_AltGr: //or else we get unicode salad
+    case Qt::Key_AltGr: // or else we get unicode salad
         return false;
     case Qt::Key_Shift:
     case Qt::Key_Control:
@@ -145,8 +136,7 @@ bool RazorShortcutButtonPrivate::keyPressEvent(QKeyEvent *event)
         break;
     }
 
-    if (key)
-    {
+    if (key) {
         QKeySequence seq(key + event->modifiers());
         q->setKeySequence(seq);
         return true;
@@ -154,7 +144,6 @@ bool RazorShortcutButtonPrivate::keyPressEvent(QKeyEvent *event)
 
     return false;
 }
-
 
 /************************************************
 
@@ -167,25 +156,20 @@ bool RazorShortcutButtonPrivate::keyReleaseEvent(QKeyEvent *event)
 
     mKeysCount--;
 
-    if (mKeysCount<1)
-    {
+    if (mKeysCount < 1)
         q->setChecked(false);
-    }
 
     return false;
 }
-
 
 /************************************************
 
  ************************************************/
 QKeySequence RazorShortcutButton::keySequence() const
 {
-   Q_D(const RazorShortcutButton);
+    Q_D(const RazorShortcutButton);
     return d->mSequence;
 }
-
-
 
 /************************************************
 
@@ -205,7 +189,6 @@ void RazorShortcutButton::setKeySequence(const QKeySequence &sequence)
     emit keySequenceChanged(s);
 }
 
-
 /************************************************
 
  ************************************************/
@@ -213,7 +196,6 @@ void RazorShortcutButton::setKeySequence(const QString &sequence)
 {
     setKeySequence(QKeySequence(sequence));
 }
-
 
 /************************************************
 

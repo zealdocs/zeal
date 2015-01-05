@@ -25,7 +25,6 @@
  *
  * END_COMMON_COPYRIGHT_HEADER */
 
-
 #ifndef RAZORSHORTCUTBUTTON_P_H
 #define RAZORSHORTCUTBUTTON_P_H
 
@@ -35,7 +34,7 @@
 
 class QKeyEvent;
 
-class RazorShortcutButtonPrivate: public QObject
+class RazorShortcutButtonPrivate : public QObject
 {
     Q_OBJECT
 public:
@@ -49,7 +48,7 @@ public slots:
     void activate(bool active);
 
 private:
-    RazorShortcutButton* const q_ptr;
+    RazorShortcutButton * const q_ptr;
     Q_DECLARE_PUBLIC(RazorShortcutButton)
 
     QKeySequence mSequence;

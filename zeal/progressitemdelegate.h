@@ -9,7 +9,8 @@ class ProgressItemDelegate : public QItemDelegate
 public:
     explicit ProgressItemDelegate(QObject *parent = 0);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
 
     enum ProgressRoles {
         ProgressRole = Qt::UserRole + 10,

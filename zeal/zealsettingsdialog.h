@@ -2,7 +2,6 @@
 #define ZEALSETTINGSDIALOG_H
 
 #include "zeallistmodel.h"
-#include "zealdocsetsregistry.h"
 #include "zealdocsetmetadata.h"
 #include "ui_zealsettingsdialog.h"
 
@@ -20,9 +19,10 @@ class ZealSettingsDialog : public QDialog
 public:
     explicit ZealSettingsDialog(ZealListModel &zlist, QWidget *parent = 0);
     ~ZealSettingsDialog();
+
     void setHotKey(const QKeySequence &keySequence);
     QKeySequence hotKey();
-    
+
     Ui::ZealSettingsDialog *ui;
 
     enum ProxyType {
@@ -70,7 +70,7 @@ private slots:
 
     void on_downloadButton_clicked();
 
-    //void on_docsetsList_clicked(const QModelIndex &index);
+    // void on_docsetsList_clicked(const QModelIndex &index);
 
     void on_downloadDocsetButton_clicked();
 
@@ -102,8 +102,8 @@ private:
     QSettings settings;
     bool downloadedDocsetsList;
     QMap<QString, ZealDocsetMetadata> availMetadata;
-    QHash<QNetworkReply*, qint8> replies;
-    QHash<QNetworkReply*, QPair<qint32, qint32>*> progress;
+    QHash<QNetworkReply *, qint8> replies;
+    QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload;
     qint32 currentDownload;
     qint32 tasksRunning;

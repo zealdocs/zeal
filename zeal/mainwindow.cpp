@@ -67,9 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
         QString indata = connection->readAll();
-        if (!indata.isEmpty()) {
+        if (!indata.isEmpty())
             bringToFrontAndSearch(indata);
-        }
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
@@ -86,11 +85,10 @@ MainWindow::MainWindow(QWidget *parent) :
         createTrayIcon();
 
     QKeySequence keySequence;
-    if (settings.value("hotkey").isNull()) {
+    if (settings.value("hotkey").isNull())
         keySequence = QKeySequence("Alt+Space");
-    } else {
+    else
         keySequence = settings.value("hotkey").value<QKeySequence>();
-    }
 
     // initialise key grabber
     connect(&nativeFilter, &ZealNativeEventFilter::gotHotKey, [&]() {
@@ -136,14 +134,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // menu
     if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
-        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence("Ctrl+Q"), QKeySequence::Quit});
+        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence(
+                                                              "Ctrl+Q"), QKeySequence::Quit});
     } else {
         // Quit == Ctrl+Q - don't set the same sequence twice because it causes
         // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
         ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
     }
     addAction(ui->action_Quit);
-    connect(ui->action_Quit, &QAction::triggered, [=]() { settings.setValue("geometry", saveGeometry()); });
+    connect(ui->action_Quit, &QAction::triggered, [=]() {
+        settings.setValue("geometry", saveGeometry());
+    });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     connect(&settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
@@ -165,7 +166,8 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         } else {
             // cancelled - restore previous value
-            ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize, settings.value("minFontSize").toInt());
+            ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
+                                                 settings.value("minFontSize").toInt());
         }
         nativeFilter.setEnabled(true);
         ui->treeView->reset();
@@ -178,12 +180,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
-    connect(ui->action_About, &QAction::triggered,
-            [&]() { QMessageBox::about(this, "About Zeal",
-                QString("This is Zeal ") + ZEAL_VERSION + " - a documentation browser.\n\n"
-                "For details see http://zealdocs.org/"); });
-    connect(ui->action_About_QT, &QAction::triggered,
-            [&]() { QMessageBox::aboutQt(this); });
+    connect(ui->action_About, &QAction::triggered, [&]() {
+        QMessageBox::about(this, "About Zeal",
+                           QString("This is Zeal ") + ZEAL_VERSION
+                           + " - a documentation browser.\n\n"
+                           + "For details see http://zealdocs.org/");
+    });
+    connect(ui->action_About_QT, &QAction::triggered, [&]() {
+        QMessageBox::aboutQt(this);
+    });
     displayViewActions();
 
     // treeView and lineEdit
@@ -192,7 +197,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setupSearchBoxCompletions();
     ui->treeView->setModel(&zealList);
     ui->treeView->setColumnHidden(1, true);
-    ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit, ui->treeView));
+    ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
+                                                             ui->treeView));
 #if QT_VERSION < QT_VERSION_CHECK(5, 1, 0) && defined(WIN32)
     // overriding subElementRect doesn't work with Qt 5.0.0, but is required to display
     // selected item frame correctly in Windows (for patch see https://codereview.qt-project.org/#change,46559)
@@ -204,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex& index) {
+    connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex &index) {
         treeViewClicked = true;
         ui->treeView->activated(index);
     });
@@ -221,9 +227,8 @@ MainWindow::MainWindow(QWidget *parent) :
         QString urlPath = url.path();
         QString docsetName = getDocsetName(urlPath);
         QIcon icon = docsetIcon(docsetName);
-        if (docsets->names().contains(docsetName)) {
+        if (docsets->names().contains(docsetName))
             loadSections(docsetName, url);
-        }
 
         tabBar.setTabIcon(tabBar.currentIndex(), icon);
         displayViewActions();
@@ -238,25 +243,22 @@ MainWindow::MainWindow(QWidget *parent) :
         QString messageFormat = QString("Do you want to go to an external link?\nUrl: %1");
         question.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         question.setText(messageFormat.arg(url.toString()));
-        if (question.exec() == QMessageBox::Yes) {
+        if (question.exec() == QMessageBox::Yes)
             QDesktopServices::openUrl(url);
-        }
     });
 
     ui->sections->hide();
     ui->sections_lab->hide();
     ui->sections->setModel(&searchState->sectionsList);
     connect(docsets, &ZealDocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
-    connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString& text) {
-        if (text == searchState->searchQuery) {
+    connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
+        if (text == searchState->searchQuery)
             return;
-        }
 
         searchState->searchQuery = text;
         searchState->zealSearch.setQuery(text);
-        if (text.isEmpty()) {
+        if (text.isEmpty())
             ui->treeView->setModel(&zealList);
-        }
     });
 
     ui->backButton->setMenu(&backMenu);
@@ -271,9 +273,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // save the expanded items:
     connect(ui->treeView, &QTreeView::expanded, [&](QModelIndex index) {
-        if (searchState->expansions.indexOf(index) == -1) {
+        if (searchState->expansions.indexOf(index) == -1)
             searchState->expansions.append(index);
-        }
     });
 
     connect(ui->treeView, &QTreeView::collapsed, [&](QModelIndex index) {
@@ -296,15 +297,14 @@ MainWindow::MainWindow(QWidget *parent) :
     tabBar.setDrawBase(false);
 
     connect(&tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
-    ((QHBoxLayout*)ui->frame_2->layout())->insertWidget(2, &tabBar, 0, Qt::AlignBottom);
+    ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, &tabBar, 0, Qt::AlignBottom);
 
     connect(&tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
 
     connect(ui->openUrlButton, &QPushButton::clicked, [&]() {
         QUrl url(ui->webView->page()->history()->currentItem().url());
-        if (url.scheme() != "qrc") {
+        if (url.scheme() != "qrc")
             QDesktopServices::openUrl(url);
-        }
     });
 
     ui->action_NextTab->setShortcut(QKeySequence::NextChild);
@@ -330,9 +330,8 @@ void MainWindow::openDocset(const QModelIndex &index)
     if (!index.sibling(index.row(), 1).data().isNull()) {
         QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
         QUrl url = QUrl::fromLocalFile(url_l[0]);
-        if (url_l.count() > 1) {
+        if (url_l.count() > 1)
             url.setFragment(url_l[1]);
-        }
         ui->webView->load(url);
 
         if (!treeViewClicked)
@@ -344,11 +343,10 @@ void MainWindow::openDocset(const QModelIndex &index)
 
 QIcon MainWindow::docsetIcon(const QString &docsetName)
 {
-    if (docsets->names().contains(docsetName)) {
-        return docsets->icon(docsetName).pixmap(32,32);
-    } else {
+    if (docsets->names().contains(docsetName))
+        return docsets->icon(docsetName).pixmap(32, 32);
+    else
         return QIcon();
-    }
 }
 
 void MainWindow::queryCompleted()
@@ -371,23 +369,22 @@ void MainWindow::goToTab(int index)
 
 void MainWindow::closeTab(int index)
 {
-    if (index == -1) {
+    if (index == -1)
         index = tabBar.currentIndex();
-    }
 
     // TODO: proper deletion here
     tabs.removeAt(index);
 
-    if (tabs.count() == 0) {
+    if (tabs.count() == 0)
         createTab();
-    }
     tabBar.removeTab(index);
 }
 
 void MainWindow::createTab()
 {
     SearchState *newTab = new SearchState();
-    connect(&newTab->zealSearch, &ZealSearchModel::queryCompleted, this, &MainWindow::queryCompleted);
+    connect(&newTab->zealSearch, &ZealSearchModel::queryCompleted, this,
+            &MainWindow::queryCompleted);
     connect(&newTab->sectionsList, &ZealSearchModel::queryCompleted, [=]() {
         int resultCount = newTab->sectionsList.rowCount(QModelIndex());
         ui->sections->setVisible(resultCount > 1);
@@ -445,17 +442,14 @@ void MainWindow::displayTabs()
         action->setChecked(i == tabBar.currentIndex());
         if (i < 10) {
             QString shortcut;
-            if (i == 9) {
+            if (i == 9)
                 shortcut = QString("Ctrl+%1").arg(QString::number(0));
-            }
-            else {
+            else
                 shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
-            }
             auto actions_ = actions();
             for (int i = 0; i < actions_.length(); ++i) {
-                 if (actions_[i]->shortcut().toString() == shortcut) {
-                       removeAction(actions_[i]);
-                 }
+                if (actions_[i]->shortcut().toString() == shortcut)
+                    removeAction(actions_[i]);
             }
             addAction(action);
             action->setShortcut(QKeySequence(shortcut));
@@ -486,12 +480,10 @@ void MainWindow::reloadTabState()
     }
 
     // Bring back the selections and expansions.
-    for (QModelIndex selection: searchState->selections) {
+    for (QModelIndex selection: searchState->selections)
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    }
-    for (QModelIndex expandedIndex: searchState->expansions) {
+    for (QModelIndex expandedIndex: searchState->expansions)
         ui->treeView->expand(expandedIndex);
-    }
 
     ui->webView->setPage(searchState->page);
     ui->webView->setZealZoomFactor(searchState->zoomFactor);
@@ -538,22 +530,22 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 }
 
 // Sets up the search box autocompletions.
-void MainWindow::setupSearchBoxCompletions() {
+void MainWindow::setupSearchBoxCompletions()
+{
     QStringList completions;
-    for (ZealDocsetsRegistry::docsetEntry docset: docsets->docsets()) {
+    for (ZealDocsetsRegistry::docsetEntry docset: docsets->docsets())
         completions << QString("%1:").arg(docset.prefix);
-    }
     ui->lineEdit->setCompletions(completions);
 }
 
-QString MainWindow::getDocsetName(const QString &urlPath) {
+QString MainWindow::getDocsetName(const QString &urlPath)
+{
     QRegExp docsetRegex("/([^/]+)[.]docset");
-    return (docsetRegex.indexIn(urlPath) != -1)
-            ? docsetRegex.cap(1)
-            : "";
+    return (docsetRegex.indexIn(urlPath) != -1) ? docsetRegex.cap(1) : "";
 }
 
-void MainWindow::displayViewActions() {
+void MainWindow::displayViewActions()
+{
     ui->action_Back->setEnabled(ui->webView->canGoBack());
     ui->backButton->setEnabled(ui->webView->canGoBack());
     ui->action_Forward->setEnabled(ui->webView->canGoForward());
@@ -568,24 +560,24 @@ void MainWindow::displayViewActions() {
     forwardMenu.clear();
 
     QWebHistory *history = ui->webView->page()->history();
-    for (QWebHistoryItem item: history->backItems(10)) {
+    for (QWebHistoryItem item: history->backItems(10))
         backMenu.addAction(addHistoryAction(history, item));
-    }
     if (history->count() > 0)
         addHistoryAction(history, history->currentItem())->setEnabled(false);
-    for (QWebHistoryItem item: history->forwardItems(10)) {
+    for (QWebHistoryItem item: history->forwardItems(10))
         forwardMenu.addAction(addHistoryAction(history, item));
-    }
 
     displayTabs();
 }
 
-void MainWindow::back() {
+void MainWindow::back()
+{
     ui->webView->back();
     displayViewActions();
 }
 
-void MainWindow::forward() {
+void MainWindow::forward()
+{
     ui->webView->forward();
     displayViewActions();
 }
@@ -611,6 +603,7 @@ void onQuit(GtkMenu *menu, gpointer data)
     QApplication *self = static_cast<QApplication *>(data);
     self->quit();
 }
+
 #endif
 
 void MainWindow::createTrayIcon()
@@ -625,8 +618,7 @@ void MainWindow::createTrayIcon()
     const QString desktop = getenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == "unity");
 
-    if (isUnity) //Application Indicators for Unity
-    {
+    if (isUnity) { // Application Indicators for Unity
         GtkWidget *menu;
         GtkWidget *quitItem;
 
@@ -637,11 +629,12 @@ void MainWindow::createTrayIcon()
         g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
         gtk_widget_show(quitItem);
 
-        indicator = app_indicator_new("zeal", icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
+        indicator = app_indicator_new("zeal",
+                                      icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
 
         app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
         app_indicator_set_menu(indicator, GTK_MENU(menu));
-    } else {  //others
+    } else {  // others
 #endif
         trayIconMenu = new QMenu(this);
         auto quitAction = trayIconMenu->addAction("&Quit");
@@ -700,7 +693,7 @@ bool MainWindow::startHidden()
 
 void MainWindow::setupShortcuts()
 {
-    QShortcut* focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
+    QShortcut *focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
     focusSearch->setContext(Qt::ApplicationShortcut);
     connect(focusSearch, &QShortcut::activated, [=]() {
         ui->lineEdit->setFocus();
@@ -719,7 +712,8 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
-void MainWindow::setHotKey(const QKeySequence& hotKey_) {
+void MainWindow::setHotKey(const QKeySequence &hotKey_)
+{
     // platform-specific code for global key grabbing
 #ifdef WIN32
     UINT i_vk, i_mod = 0;
@@ -752,42 +746,106 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
 #define VK_PAGEUP               0x21
 #define VK_PAGEDOWN             0x22
 #endif
-    switch(key) {
-        case Qt::Key_Left: i_vk = VK_LEFT; break;
-        case Qt::Key_Right: i_vk = VK_RIGHT; break;
-        case Qt::Key_Up: i_vk = VK_UP; break;
-        case Qt::Key_Down: i_vk = VK_DOWN; break;
-        case Qt::Key_Space: i_vk = VK_SPACE; break;
-        case Qt::Key_Escape: i_vk = VK_ESCAPE; break;
-        case Qt::Key_Enter: i_vk = VK_RETURN; break;
-        case Qt::Key_Return: i_vk = VK_RETURN; break;
-        case Qt::Key_F1: i_vk = VK_F1; break;
-        case Qt::Key_F2: i_vk = VK_F2; break;
-        case Qt::Key_F3: i_vk = VK_F3; break;
-        case Qt::Key_F4: i_vk = VK_F4; break;
-        case Qt::Key_F5: i_vk = VK_F5; break;
-        case Qt::Key_F6: i_vk = VK_F6; break;
-        case Qt::Key_F7: i_vk = VK_F7; break;
-        case Qt::Key_F8: i_vk = VK_F8; break;
-        case Qt::Key_F9: i_vk = VK_F9; break;
-        case Qt::Key_F10: i_vk = VK_F10; break;
-        case Qt::Key_F11: i_vk = VK_F11; break;
-        case Qt::Key_F12: i_vk = VK_F12; break;
-        case Qt::Key_PageUp: i_vk = VK_PAGEUP; break;
-        case Qt::Key_PageDown: i_vk = VK_PAGEDOWN; break;
-        case Qt::Key_Home: i_vk = VK_HOME; break;
-        case Qt::Key_End: i_vk = VK_END; break;
-        case Qt::Key_Insert: i_vk = VK_INSERT; break;
-        case Qt::Key_Delete: i_vk = VK_DELETE; break;
-        case Qt::Key_VolumeDown: i_vk = VK_VOLUME_DOWN; break;
-        case Qt::Key_VolumeUp: i_vk = VK_VOLUME_UP; break;
-        case Qt::Key_MediaTogglePlayPause: i_vk = VK_MEDIA_PLAY_PAUSE; break;
-        case Qt::Key_MediaStop: i_vk = VK_MEDIA_STOP; break;
-        case Qt::Key_MediaPrevious: i_vk = VK_MEDIA_PREV_TRACK; break;
-        case Qt::Key_MediaNext: i_vk = VK_MEDIA_NEXT_TRACK; break;
-        default:
-            i_vk = toupper(key);
-            break;
+    switch (key) {
+    case Qt::Key_Left:
+        i_vk = VK_LEFT;
+        break;
+    case Qt::Key_Right:
+        i_vk = VK_RIGHT;
+        break;
+    case Qt::Key_Up:
+        i_vk = VK_UP;
+        break;
+    case Qt::Key_Down:
+        i_vk = VK_DOWN;
+        break;
+    case Qt::Key_Space:
+        i_vk = VK_SPACE;
+        break;
+    case Qt::Key_Escape:
+        i_vk = VK_ESCAPE;
+        break;
+    case Qt::Key_Enter:
+        i_vk = VK_RETURN;
+        break;
+    case Qt::Key_Return:
+        i_vk = VK_RETURN;
+        break;
+    case Qt::Key_F1:
+        i_vk = VK_F1;
+        break;
+    case Qt::Key_F2:
+        i_vk = VK_F2;
+        break;
+    case Qt::Key_F3:
+        i_vk = VK_F3;
+        break;
+    case Qt::Key_F4:
+        i_vk = VK_F4;
+        break;
+    case Qt::Key_F5:
+        i_vk = VK_F5;
+        break;
+    case Qt::Key_F6:
+        i_vk = VK_F6;
+        break;
+    case Qt::Key_F7:
+        i_vk = VK_F7;
+        break;
+    case Qt::Key_F8:
+        i_vk = VK_F8;
+        break;
+    case Qt::Key_F9:
+        i_vk = VK_F9;
+        break;
+    case Qt::Key_F10:
+        i_vk = VK_F10;
+        break;
+    case Qt::Key_F11:
+        i_vk = VK_F11;
+        break;
+    case Qt::Key_F12:
+        i_vk = VK_F12;
+        break;
+    case Qt::Key_PageUp:
+        i_vk = VK_PAGEUP;
+        break;
+    case Qt::Key_PageDown:
+        i_vk = VK_PAGEDOWN;
+        break;
+    case Qt::Key_Home:
+        i_vk = VK_HOME;
+        break;
+    case Qt::Key_End:
+        i_vk = VK_END;
+        break;
+    case Qt::Key_Insert:
+        i_vk = VK_INSERT;
+        break;
+    case Qt::Key_Delete:
+        i_vk = VK_DELETE;
+        break;
+    case Qt::Key_VolumeDown:
+        i_vk = VK_VOLUME_DOWN;
+        break;
+    case Qt::Key_VolumeUp:
+        i_vk = VK_VOLUME_UP;
+        break;
+    case Qt::Key_MediaTogglePlayPause:
+        i_vk = VK_MEDIA_PLAY_PAUSE;
+        break;
+    case Qt::Key_MediaStop:
+        i_vk = VK_MEDIA_STOP;
+        break;
+    case Qt::Key_MediaPrevious:
+        i_vk = VK_MEDIA_PREV_TRACK;
+        break;
+    case Qt::Key_MediaNext:
+        i_vk = VK_MEDIA_NEXT_TRACK;
+        break;
+    default:
+        i_vk = toupper(key);
+        break;
     }
 
     if (!RegisterHotKey(NULL, 10, i_mod, i_vk)) {
@@ -799,16 +857,16 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
 #elif LINUX
     auto platform = qApp->platformNativeInterface();
 
-    xcb_connection_t *c = static_cast<xcb_connection_t*>(platform->nativeResourceForWindow("connection", 0));
+    xcb_connection_t *c
+        = static_cast<xcb_connection_t *>(platform->nativeResourceForWindow("connection", 0));
     xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
 
     if (!hotKey.isEmpty()) {
         // remove previous bindings from all screens
         xcb_screen_iterator_t iter;
-        iter = xcb_setup_roots_iterator (xcb_get_setup (c));
-        for (; iter.rem; xcb_screen_next (&iter)) {
+        iter = xcb_setup_roots_iterator(xcb_get_setup(c));
+        for (; iter.rem; xcb_screen_next(&iter))
             xcb_ungrab_key(c, XCB_GRAB_ANY, iter.data->root, XCB_MOD_MASK_ANY);
-        }
     }
     hotKey = hotKey_;
     nativeFilter.setHotKey(hotKey);
@@ -830,15 +888,16 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
 
     // add bindings for all screens
     xcb_screen_iterator_t iter;
-    iter = xcb_setup_roots_iterator(xcb_get_setup (c));
+    iter = xcb_setup_roots_iterator(xcb_get_setup(c));
     bool any_failed = false;
-    for (; iter.rem; xcb_screen_next (&iter)) {
+    for (; iter.rem; xcb_screen_next(&iter)) {
         int i = 0;
         while (keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
             for (auto modifier : GetX11Modifier(c, keysyms, hotKey[0])) {
                 auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
-                    modifier, keycode, XCB_GRAB_MODE_SYNC, XCB_GRAB_MODE_SYNC);
+                                                   modifier, keycode, XCB_GRAB_MODE_SYNC,
+                                                   XCB_GRAB_MODE_SYNC);
                 if (xcb_request_check(c, cookie))
                     any_failed = true;
             }
@@ -847,9 +906,9 @@ void MainWindow::setHotKey(const QKeySequence& hotKey_) {
     }
     if (any_failed) {
         QMessageBox::warning(this, "Key binding warning",
-                "Warning: Global hotkey binding problem detected. Some other program might have a conflicting key binding with "
-                "<strong>" + hotKey.toString() + "</strong>"
-                ". If the hotkey doesn't work, try closing some programs or using a different hotkey.");
+                             "Warning: Global hotkey binding problem detected. Some other program might have a conflicting key binding with "
+                             "<strong>" + hotKey.toString() + "</strong>"
+                                                              ". If the hotkey doesn't work, try closing some programs or using a different hotkey.");
     }
     free(keysyms);
     free(keycodes);

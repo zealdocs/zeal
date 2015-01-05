@@ -25,7 +25,6 @@
  *
  * END_COMMON_COPYRIGHT_HEADER */
 
-
 #ifndef RAZORSHORTCUTBUTTON_H
 #define RAZORSHORTCUTBUTTON_H
 
@@ -33,7 +32,6 @@
 #include <QKeySequence>
 
 class RazorShortcutButtonPrivate;
-
 
 /**
  * @short A widget to input a QKeySequence.
@@ -80,7 +78,7 @@ protected:
     bool event(QEvent *event);
 
 private:
-    RazorShortcutButtonPrivate* const d_ptr;
+    RazorShortcutButtonPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(RazorShortcutButton)
 };
 

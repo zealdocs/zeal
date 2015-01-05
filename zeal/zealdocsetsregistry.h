@@ -12,7 +12,9 @@
 #include "zealdocsetinfo.h"
 #include "zealdocsetmetadata.h"
 
-typedef enum {ZEAL, DASH, ZDASH} DocSetType;
+typedef enum {
+    ZEAL, DASH, ZDASH
+} DocSetType;
 
 class ZealDocsetsRegistry : public QObject
 {
@@ -28,7 +30,7 @@ public:
         ZealDocsetInfo info;
     };
 
-    static ZealDocsetsRegistry* instance()
+    static ZealDocsetsRegistry *instance()
     {
         static QMutex mutex;
         if (!m_Instance) {
@@ -48,25 +50,25 @@ public:
         return docs.count();
     }
 
-    QSqlDatabase& db(const QString& name)
+    QSqlDatabase &db(const QString &name)
     {
         Q_ASSERT(docs.contains(name));
         return docs[name].db;
     }
 
-    const QDir& dir(const QString& name)
+    const QDir &dir(const QString &name)
     {
         Q_ASSERT(docs.contains(name));
         return docs[name].dir;
     }
 
-    const ZealDocsetMetadata& meta(const QString& name)
+    const ZealDocsetMetadata &meta(const QString &name)
     {
         Q_ASSERT(docs.contains(name));
         return docs[name].metadata;
     }
 
-    QIcon icon(const QString& docsetName)
+    QIcon icon(const QString &docsetName)
     {
         docsetEntry *entry = &docs[docsetName];
         QString bundleName = entry->info.bundleName;
@@ -80,17 +82,15 @@ public:
             icon = QIcon(QString("icons:%1.png").arg(bundleName));
 
             // Fallback to identifier and docset file name.
-            if (icon.availableSizes().isEmpty()) {
+            if (icon.availableSizes().isEmpty())
                 icon = QIcon(QString("icons:%1.png").arg(identifier));
-            }
-            if (icon.availableSizes().isEmpty()) {
+            if (icon.availableSizes().isEmpty())
                 icon = QIcon(QString("icons:%1.png").arg(docsetName));
-            }
         }
         return icon;
     }
 
-    DocSetType type(const QString& name) const
+    DocSetType type(const QString &name) const
     {
         Q_ASSERT(docs.contains(name));
         return docs[name].type;
@@ -101,7 +101,7 @@ public:
         return docs.keys();
     }
 
-    void remove(const QString& name)
+    void remove(const QString &name)
     {
         docs[name].db.close();
         docs.remove(name);
@@ -117,10 +117,10 @@ public:
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
     QList<ZealSearchResult> getRelatedLinks(QString name, QString path);
-    QString prepareQuery(const QString& rawQuery);
-    void runQuery(const QString& query);
+    QString prepareQuery(const QString &rawQuery);
+    void runQuery(const QString &query);
     void invalidateQueries();
-    const QList<ZealSearchResult>& getQueryResults();
+    const QList<ZealSearchResult> &getQueryResults();
     QList<docsetEntry> docsets();
 
     QString docsetsDir();
@@ -130,20 +130,20 @@ signals:
     void queryCompleted();
 
 public slots:
-    void addDocset(const QString& path);
+    void addDocset(const QString &path);
 
 private slots:
-    void _runQuery(const QString& query, int queryNum);
+    void _runQuery(const QString &query, int queryNum);
 
 private:
     ZealDocsetsRegistry();
-    ZealDocsetsRegistry(const ZealDocsetsRegistry&); // hide copy constructor
-    ZealDocsetsRegistry& operator=(const ZealDocsetsRegistry&); // hide assign op
-                                 // we leave just the declarations, so the compiler will warn us
-                                 // if we try to use those two functions by accident
+    ZealDocsetsRegistry(const ZealDocsetsRegistry &); // hide copy constructor
+    ZealDocsetsRegistry &operator=(const ZealDocsetsRegistry &); // hide assign op
+    // we leave just the declarations, so the compiler will warn us
+    // if we try to use those two functions by accident
     void addDocsetsFromFolder(QDir folder);
 
-    static ZealDocsetsRegistry* m_Instance;
+    static ZealDocsetsRegistry *m_Instance;
     QMap<QString, docsetEntry> docs;
     QList<ZealSearchResult> queryResults;
     QSettings settings;
@@ -151,6 +151,6 @@ private:
     void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
 };
 
-extern ZealDocsetsRegistry* docsets;
+extern ZealDocsetsRegistry *docsets;
 
 #endif // ZEALDOCSETSREGISTRY_H

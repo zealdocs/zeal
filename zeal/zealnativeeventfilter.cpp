@@ -14,7 +14,8 @@
 
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
 // Copyright (C) 2009 the VideoLAN team
-static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym)
+static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols,
+                            xcb_keysym_t sym)
 {
     static const unsigned pi_mask[8] = {
         XCB_MOD_MASK_SHIFT, XCB_MOD_MASK_LOCK, XCB_MOD_MASK_CONTROL,
@@ -49,10 +50,8 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
         return 0;
 #endif
 
-    xcb_get_modifier_mapping_cookie_t r =
-            xcb_get_modifier_mapping(p_connection);
-    xcb_get_modifier_mapping_reply_t *p_map =
-            xcb_get_modifier_mapping_reply(p_connection, r, NULL);
+    xcb_get_modifier_mapping_cookie_t r = xcb_get_modifier_mapping(p_connection);
+    xcb_get_modifier_mapping_reply_t *p_map = xcb_get_modifier_mapping_reply(p_connection, r, NULL);
     if (!p_map)
         return 0;
 
@@ -79,31 +78,35 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
     free(p_map); // FIXME to check
     return 0;
 }
+
 #endif // WIN32
 
 ZealNativeEventFilter::ZealNativeEventFilter(QObject *parent) :
-    QObject(parent), QAbstractNativeEventFilter()
+    QObject(parent),
+    QAbstractNativeEventFilter()
 {
 }
 
-bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *message,
+                                              long *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(result)
     enabled = true;
 #ifdef WIN32
-    MSG* msg = static_cast<MSG*>(message);
+    MSG *msg = static_cast<MSG *>(message);
 
     if (WM_HOTKEY == msg->message && msg->wParam == 10) {
         emit gotHotKey();
         return true;
     }
 #elif LINUX // WIN32 or LINUX
-    xcb_generic_event_t* ev = static_cast<xcb_generic_event_t*>(message);
-    if (((ev->response_type&127) == XCB_KEY_PRESS || (ev->response_type&127) == XCB_KEY_RELEASE) && !hotKey.isEmpty()) {
+    xcb_generic_event_t *ev = static_cast<xcb_generic_event_t *>(message);
+    if (((ev->response_type & 127) == XCB_KEY_PRESS || (ev->response_type & 127) == XCB_KEY_RELEASE)
+            && !hotKey.isEmpty()) {
         // XCB_KEY_RELEASE must be ignored by Qt because otherwise it causes SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
-        xcb_connection_t  *c = static_cast<xcb_connection_t*>(
-              ((QGuiApplication*)QGuiApplication::instance())->
+        xcb_connection_t *c = static_cast<xcb_connection_t *>(
+                    ((QGuiApplication *)QGuiApplication::instance())->
                     platformNativeInterface()->nativeResourceForWindow("connection", 0));
         xcb_key_press_event_t *event = (xcb_key_press_event_t *)ev;
 
@@ -123,16 +126,14 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             modifiers.append(qMakePair(XK_Meta_L, Qt::META));
             modifiers.append(qMakePair(XK_Meta_R, Qt::META));
             for (auto modifier : modifiers) {
-                if (!(hotKey[0] & modifier.second)) {
+                if (!(hotKey[0] & modifier.second))
                     continue;
-                }
                 xcb_keycode_t *mod_keycodes = xcb_key_symbols_get_keycode(keysyms, modifier.first);
                 if (mod_keycodes == nullptr) continue;
                 int i = 0;
                 while (mod_keycodes[i] != XCB_NO_SYMBOL) {
-                    if (event->detail == mod_keycodes[i]) {
+                    if (event->detail == mod_keycodes[i])
                         found = true;
-                    }
                     i += 1;
                 }
                 free(mod_keycodes);
@@ -143,35 +144,33 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             if (event->detail == keycodes[i]) {
                 bool modifiers_present = true;
                 if (hotKey[0] & Qt::ALT) {
-                    if (!(event->state & GetModifier(c, keysyms, XK_Alt_L) || event->state & GetModifier(c, keysyms,  XK_Alt_R))) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Alt_L)
+                          || event->state & GetModifier(c, keysyms, XK_Alt_R)))
                         modifiers_present = false;
-                    }
                 }
                 if (hotKey[0] & Qt::CTRL) {
-                    if (!(event->state & GetModifier(c, keysyms, XK_Control_L) || event->state & GetModifier(c, keysyms,  XK_Control_R))) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Control_L)
+                          || event->state & GetModifier(c, keysyms, XK_Control_R)))
                         modifiers_present = false;
-                    }
                 }
                 if (hotKey[0] & Qt::META) {
-                    if (!(event->state & GetModifier(c, keysyms, XK_Meta_L) || event->state & GetModifier(c, keysyms,  XK_Meta_R))) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Meta_L)
+                          || event->state & GetModifier(c, keysyms, XK_Meta_R)))
                         modifiers_present = false;
-                    }
                 }
                 if (hotKey[0] & Qt::SHIFT) {
-                    if (!(event->state & GetModifier(c, keysyms, XK_Shift_L) || event->state & GetModifier(c, keysyms,  XK_Shift_R))) {
+                    if (!(event->state & GetModifier(c, keysyms, XK_Shift_L)
+                          || event->state & GetModifier(c, keysyms, XK_Shift_R)))
                         modifiers_present = false;
-                    }
                 }
                 if (enabled && modifiers_present) {
                     xcb_allow_events(c, XCB_ALLOW_ASYNC_KEYBOARD, event->time);
-                    if ((ev->response_type&127) == XCB_KEY_PRESS) {
+                    if ((ev->response_type&127) == XCB_KEY_PRESS)
                         emit gotHotKey();
-                    }
                     found = true;
                 } else {
-                    if ((ev->response_type&127) == XCB_KEY_RELEASE) {
+                    if ((ev->response_type&127) == XCB_KEY_RELEASE)
                         found = true;
-                    }
                     xcb_allow_events(c, XCB_ALLOW_REPLAY_KEYBOARD, event->time);
                 }
                 break;

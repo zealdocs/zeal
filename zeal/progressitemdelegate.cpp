@@ -8,14 +8,16 @@ ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
 {
 }
 
-void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                 const QModelIndex &index) const
 {
     QStyleOptionViewItem tempOption = option;
     QVariant itemProgress = index.model()->data(index, ProgressRole);
-    QVariant maxProgress  = index.model()->data(index, ProgressMaxRole);
+    QVariant maxProgress = index.model()->data(index, ProgressMaxRole);
     QVariant visible = index.model()->data(index, ProgressVisibleRole);
 
-    if (itemProgress.isValid() && maxProgress.isValid() && (visible.isValid() && visible.toBool())) {
+    if (itemProgress.isValid() && maxProgress.isValid()
+            && (visible.isValid() && visible.toBool())) {
         QProgressBar renderer;
         QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
         int progressAmnt = itemProgress.toInt();
@@ -40,7 +42,5 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     }
 
     // Paint text
-    QItemDelegate::paint(painter, dynamic_cast<const QStyleOptionViewItem&>(tempOption), index);
-
-    return;
+    QItemDelegate::paint(painter, dynamic_cast<const QStyleOptionViewItem &>(tempOption), index);
 }

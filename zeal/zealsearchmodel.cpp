@@ -19,21 +19,19 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
         return QVariant();
 
-    auto item = static_cast<ZealSearchResult*>(index.internalPointer());
+    auto item = static_cast<ZealSearchResult *>(index.internalPointer());
 
     if (role == Qt::DecorationRole) {
-        if (index.column() == 0) {
+        if (index.column() == 0)
             return QVariant(docsets->icon(item->getDocsetName()));
-        }
         return QVariant();
     }
 
     if (index.column() == 0) {
-        if (!item->getParentName().isEmpty()) {
+        if (!item->getParentName().isEmpty())
             return QVariant(QString("%1 (%2)").arg(item->getName(), item->getParentName()));
-        } else {
+        else
             return QVariant(item->getName());
-        }
 
     } else if (index.column() == 1) {
         return QVariant(docsets->dir(item->getDocsetName()).absoluteFilePath(item->getPath()));
@@ -55,9 +53,8 @@ QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &paren
         if (dataList.count() <= row) return QModelIndex();
         auto &item = dataList.at(row);
 
-        if (column == 0 || column == 1) {
-            return createIndex(row, column, (void*)&item);
-        }
+        if (column == 0 || column == 1)
+            return createIndex(row, column, (void *)&item);
     }
     return QModelIndex();
 }
@@ -70,9 +67,8 @@ QModelIndex ZealSearchModel::parent(const QModelIndex &child) const
 
 int ZealSearchModel::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid()) {
+    if (!parent.isValid())
         return dataList.count();
-    }
     return 0;
 }
 
@@ -82,18 +78,18 @@ int ZealSearchModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-void ZealSearchModel::setQuery(const QString &q) {
+void ZealSearchModel::setQuery(const QString &q)
+{
     query = q;
     populateData();
 }
 
 void ZealSearchModel::populateData()
 {
-    if (query.isEmpty()) {
+    if (query.isEmpty())
         docsets->invalidateQueries();
-    } else {
+    else
         docsets->runQuery(query);
-    }
 }
 
 void ZealSearchModel::onQueryCompleted(const QList<ZealSearchResult> &results)

@@ -46,7 +46,7 @@ const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() cons
     return *modulesCounts;
 }
 
-const QPair<QString, QString> ZealListModel::getItem(const QString& path, int index) const
+const QPair<QString, QString> ZealListModel::getItem(const QString &path, int index) const
 {
     QPair<QString, int> pair(path, index);
     if (items->find(pair) != items->end()) return (*items)[pair];
@@ -56,9 +56,12 @@ const QPair<QString, QString> ZealListModel::getItem(const QString& path, int in
     auto db = docsets->db(docsetName);
     QSqlQuery q;
     if (docsets->type(docsetName) == ZEAL) {
-        q = db.exec(QString("select name, path from things where type='%1' order by name asc").arg(type));
+        q = db.exec(QString("select name, path from things where type='%1' order by name asc")
+                    .arg(type));
     } else if (docsets->type(docsetName) == DASH) {
-        q = db.exec(QString("select name, path from searchIndex where type='%1' order by name asc").arg(type));
+        q = db.exec(QString(
+                        "select name, path from searchIndex where type='%1' order by name asc").arg(
+                        type));
     } else { // ZDASH
         q = db.exec(QString("select ztokenname, zpath, zanchor from ztoken "
                             "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -73,9 +76,8 @@ const QPair<QString, QString> ZealListModel::getItem(const QString& path, int in
         auto filePath = q.value(1).toString();
         // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
         // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
-        if (docsets->type(docsetName) == ZDASH) {
+        if (docsets->type(docsetName) == ZDASH)
             filePath += "#" + q.value(2).toString();
-        }
         item.second = docsets->dir(docsetName).absoluteFilePath(filePath);
         (*items)[QPair<QString, int>(path, i)] = item;
         i += 1;
@@ -88,7 +90,7 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
     if (!parent.isValid()) {
         if (row >= docsets->count() || row == -1) return QModelIndex();
         if (column == 0) {
-            return createIndex(row, column, (void*)getString(docsets->names().at(row)));
+            return createIndex(row, column, (void *)getString(docsets->names().at(row)));
         } else if (column == 1) {
             ZealDocsetsRegistry::docsetEntry *entry = docsets->getEntry(docsets->names().at(row));
             QDir dir(entry->dir);
@@ -99,11 +101,11 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
                 path.removeLast();
                 for (auto directory : path) {
                     if (!dir.cd(directory))
-                        return createIndex(row, column, (void*)getString(""));
+                        return createIndex(row, column, (void *)getString(""));
                 }
-                return createIndex(row, column, (void*)getString(dir.absoluteFilePath(filename)));
+                return createIndex(row, column, (void *)getString(dir.absoluteFilePath(filename)));
             }
-            return createIndex(row, column, (void*)getString(dir.absoluteFilePath("index.html")));
+            return createIndex(row, column, (void *)getString(dir.absoluteFilePath("index.html")));
         }
         return QModelIndex();
     } else {
@@ -121,16 +123,21 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
                         types.append(pair.second);
                 }
                 qSort(types);
-                return createIndex(row, column, (void*)getString(*i2s(parent)+"/"+pluralize(types[row])));
+                return createIndex(row, column,
+                                   (void *)getString(*i2s(parent)+"/"+pluralize(types[row])));
             }
         } else {
             auto type = singularize(i2s(parent)->split('/')[1]);
-            if (row >= getModulesCounts()[QPair<QString, QString>(docsetName, type)]) return QModelIndex();
+            if (row >= getModulesCounts()[QPair<QString, QString>(docsetName, type)])
+                return QModelIndex();
             if (column == 0) {
                 return createIndex(row, column,
-                    (void*)getString(QString("%1/%2/%3").arg(docsetName, pluralize(type), getItem(*i2s(parent), row).first)));
+                                   (void *)getString(
+                                       QString("%1/%2/%3").arg(docsetName, pluralize(type),
+                                                               getItem(*i2s(parent), row).first)));
             } else if (column == 1) {
-                return createIndex(row, column, (void*)getString(getItem(*i2s(parent), row).second));
+                return createIndex(row, column,
+                                   (void *)getString(getItem(*i2s(parent), row).second));
             }
         }
         return QModelIndex();
@@ -143,19 +150,19 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
             || !index.isValid())
         return QVariant();
     if (role == Qt::DecorationRole) {
-        if (i2s(index)->indexOf('/') == -1) {
+        if (i2s(index)->indexOf('/') == -1)
             return QVariant(docsets->icon(*i2s(index)));
-        } else return QVariant();
+        else
+            return QVariant();
     }
     if (index.column() == 0) {
         QStringList retlist = i2s(index)->split('/');
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
-            if (role == Qt::DisplayRole) {
+            if (role == Qt::DisplayRole)
                 retval = docsets->getEntry(retval)->info.bundleName;
-            }
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
-            for (int i = retlist.length() - 2; i > 1; --i) 
+            for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
         }
         return QVariant(retval);
@@ -201,15 +208,16 @@ int ZealListModel::rowCount(const QModelIndex &parent) const
 
 const QString *ZealListModel::i2s(const QModelIndex &index) const
 {
-    return static_cast<const QString*>(index.internalPointer());
+    return static_cast<const QString *>(index.internalPointer());
 }
 
 QModelIndex ZealListModel::parent(const QModelIndex &child) const
 {
-    if (child.isValid() && i2s(child)->count("/") == 1) { // docset/type
-        return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0]));
-    } else if (child.isValid() && i2s(child)->count("/") >= 2) { // docset/type/item (item can contain slashes)
-        return createIndex(0, 0, (void*)getString(i2s(child)->split('/')[0] + "/" + i2s(child)->split('/')[1]));
+    if (child.isValid() && i2s(child)->count("/") == 1) {  // docset/type
+        return createIndex(0, 0, (void *)getString(i2s(child)->split('/')[0]));
+    } else if (child.isValid() && i2s(child)->count("/") >= 2) {    // docset/type/item (item can contain slashes)
+        return createIndex(0, 0, (void *)getString(i2s(child)->split('/')[0] + "/"
+                           + i2s(child)->split('/')[1]));
     } else {
         return QModelIndex();
     }
@@ -223,25 +231,27 @@ int ZealListModel::columnCount(const QModelIndex &parent) const
         return 1;
 }
 
-QString ZealListModel::pluralize(const QString& s) {
+QString ZealListModel::pluralize(const QString &s)
+{
     QString ret = s;
-    if (s.endsWith('s')) {
+    if (s.endsWith('s'))
         return ret+"es";
-    } else {
+    else
         return ret+"s";
-    }
 }
-QString ZealListModel::singularize(const QString& s) {
+
+QString ZealListModel::singularize(const QString &s)
+{
     QString ret = s;
-    if (ret.endsWith("ses")) {
+    if (ret.endsWith("ses"))
         ret.chop(2);
-    } else {
+    else
         ret.chop(1);
-    }
     return ret;
 }
 
-bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent) {
+bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
     if (parent.isValid())
         return false;
 

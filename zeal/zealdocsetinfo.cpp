@@ -34,7 +34,6 @@ bool ZealDocsetInfo::readDocset(const QString &filePath)
             bundleName = key.nextSibling().firstChild().nodeValue();
         else if (key.firstChild().nodeValue() == "CFBundleIdentifier")
             bundleIdentifier = key.nextSibling().firstChild().nodeValue();
-
     }
     return true;
 }

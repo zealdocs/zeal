@@ -11,7 +11,8 @@
 #include <QCommandLineParser>
 
 // Sets up the command line parser.
-void setupOptionParser(QCommandLineParser *parser) {
+void setupOptionParser(QCommandLineParser *parser)
+{
     parser->setApplicationDescription("zeal - Offline documentation browser.");
     parser->addHelpOption();
     parser->addVersionOption();
@@ -22,12 +23,15 @@ void setupOptionParser(QCommandLineParser *parser) {
                                 "Force the application run.");
     parser->addOption(forceRun);
 }
+
 #endif
 
 #ifdef WIN32
-class ZealProxyStyle : public QProxyStyle {
+class ZealProxyStyle : public QProxyStyle
+{
 public:
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
+                       const QWidget *widget = 0) const
     {
         if (element == PE_FrameLineEdit && option->styleObject) {
             option->styleObject->setProperty("_q_no_animation", true);
@@ -59,9 +63,8 @@ int main(int argc, char *argv[])
     bool runForce = optionParser.isSet("force");
 #else
     QString queryParam;
-    if (argc > 2 && QString(argv[1]) == "--query") {
+    if (argc > 2 && QString(argv[1]) == "--query")
         queryParam = argv[2];
-    }
     bool runForce = false;
 #endif
 
@@ -82,13 +85,16 @@ int main(int argc, char *argv[])
         return -1; // Exit already a process running
     }
 
-    // look for icons in: 
+    // look for icons in:
     // 1. user's data directory (same as docsets dir, but in icons/)
     // 2. executable directory/icons
     // 3. on unix, standard/legacy install location
     // 4. current directory/icons
-    QDir::setSearchPaths("icons", QStandardPaths::locateAll(QStandardPaths::DataLocation, "icons", QStandardPaths::LocateDirectory));
-    QDir::addSearchPath("icons", QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("icons"));
+    QDir::setSearchPaths("icons",
+                         QStandardPaths::locateAll(QStandardPaths::DataLocation, "icons",
+                                                   QStandardPaths::LocateDirectory));
+    QDir::addSearchPath("icons",
+                        QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("icons"));
 #ifndef WIN32
     QDir::addSearchPath("icons", "/usr/share/pixmaps/zeal");
 #endif

@@ -3,7 +3,7 @@
 ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
 {
     const int sepAt = rawQuery.indexOf(DOCSET_FILTER_SEPARATOR);
-    const int next  = sepAt + 1;
+    const int next = sepAt + 1;
 
     if (sepAt >= 1
         && (next >= rawQuery.size()

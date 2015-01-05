@@ -130,7 +130,8 @@ xcb_keysym_t GetX11Key(unsigned i_qt)
     return XK_VoidSymbol;
 }
 
-static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols, xcb_keysym_t sym)
+static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols,
+                            xcb_keysym_t sym)
 {
     static const unsigned pi_mask[8] = {
         XCB_MOD_MASK_SHIFT, XCB_MOD_MASK_LOCK, XCB_MOD_MASK_CONTROL,
@@ -160,10 +161,10 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
         return 0;
     }
 
-    xcb_get_modifier_mapping_cookie_t r =
-            xcb_get_modifier_mapping(p_connection);
-    xcb_get_modifier_mapping_reply_t *p_map =
-            xcb_get_modifier_mapping_reply(p_connection, r, NULL);
+    xcb_get_modifier_mapping_cookie_t r
+        = xcb_get_modifier_mapping(p_connection);
+    xcb_get_modifier_mapping_reply_t *p_map
+        = xcb_get_modifier_mapping_reply(p_connection, r, NULL);
     if (!p_map) {
         free(p_keys);
         return 0;
@@ -190,9 +191,8 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
     return 0;
 }
 
-
-QList<unsigned> GetX11Modifier(xcb_connection_t *p_connection,
-        xcb_key_symbols_t *p_symbols, unsigned i_qt)
+QList<unsigned> GetX11Modifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols,
+                               unsigned i_qt)
 {
     unsigned i_nlock = GetModifier(p_connection, p_symbols, XK_Num_Lock),
              i_slock = GetModifier(p_connection, p_symbols, XK_Scroll_Lock);
@@ -201,17 +201,17 @@ QList<unsigned> GetX11Modifier(xcb_connection_t *p_connection,
     unsigned i_mask = 0;
 
     if (i_qt & Qt::ALT)
-        i_mask |= GetModifier(p_connection, p_symbols, XK_Alt_L) |
-                  GetModifier(p_connection, p_symbols, XK_Alt_R);
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Alt_L)
+                  | GetModifier(p_connection, p_symbols, XK_Alt_R);
     if (i_qt & Qt::CTRL)
-        i_mask |= GetModifier(p_connection, p_symbols, XK_Control_L) |
-                  GetModifier(p_connection, p_symbols, XK_Control_R);
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Control_L)
+                  | GetModifier(p_connection, p_symbols, XK_Control_R);
     if (i_qt & Qt::SHIFT)
-        i_mask |= GetModifier(p_connection, p_symbols, XK_Shift_L) |
-                  GetModifier(p_connection, p_symbols, XK_Shift_R);
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Shift_L)
+                  | GetModifier(p_connection, p_symbols, XK_Shift_R);
     if (i_qt & Qt::META)
-        i_mask |= GetModifier(p_connection, p_symbols, XK_Meta_L) |
-                  GetModifier(p_connection, p_symbols, XK_Meta_R);
+        i_mask |= GetModifier(p_connection, p_symbols, XK_Meta_L)
+                  | GetModifier(p_connection, p_symbols, XK_Meta_R);
 
     QList<unsigned> ret;
     ret.append(i_mask);

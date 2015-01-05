@@ -17,8 +17,8 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
-    void setQuery(const QString& q);
-    
+    void setQuery(const QString &q);
+
 signals:
     void queryCompleted();
 

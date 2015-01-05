@@ -66,24 +66,24 @@ void ZealSettingsDialog::loadSettings()
 {
     ui->minFontSize->setValue(settings.value("minFontSize").toInt());
     QString hiding = settings.value("hidingBehavior", "systray").toString();
-    if (hiding == "systray") {
+    if (hiding == "systray")
         ui->radioSysTray->setChecked(true);
-    } else {
+    else
         ui->radioMinimize->setChecked(true);
-    }
     QString startup = settings.value("startupBehavior", "window").toString();
-    if (startup == "systray") {
+    if (startup == "systray")
         ui->radioStartTray->setChecked(true);
-    } else {
+    else
         ui->radioStartMax->setChecked(true);
-    }
     ui->storageEdit->setText(docsets->docsetsDir());
 
     ui->m_noProxySettings->setChecked(false);
     ui->m_systemProxySettings->setChecked(false);
     ui->m_manualProxySettings->setChecked(false);
 
-    ZealSettingsDialog::ProxyType proxyType = static_cast<ZealSettingsDialog::ProxyType>(settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
+    ZealSettingsDialog::ProxyType proxyType
+            = static_cast<ZealSettingsDialog::ProxyType>(
+                settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
 
     QString httpProxyName = settings.value("httpProxy").toString();
     quint16 httpProxyPort = settings.value("httpProxyPort", 0).toInt();
@@ -114,7 +114,7 @@ void ZealSettingsDialog::loadSettings()
 void ZealSettingsDialog::on_downloadProgress(quint64 recv, quint64 total)
 {
     if (recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
-        QNetworkReply *reply = (QNetworkReply*) sender();
+        QNetworkReply *reply = (QNetworkReply *)sender();
         // Try to get the item associated to the request
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
@@ -156,17 +156,16 @@ void ZealSettingsDialog::endTasks(qint8 tasks)
 {
     startTasks(-tasks);
 
-   if (tasksRunning <= 0) {
-       // Remove completed items
-       for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
-           QListWidgetItem *tmp = ui->docsetsList->item(i);
-           if (tmp->data(ZealDocsetDoneInstalling).toBool()) {
-               tmp->setCheckState(Qt::Unchecked);
-               tmp->setHidden(true);
-           }
-       }
-   }
-
+    if (tasksRunning <= 0) {
+        // Remove completed items
+        for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
+            QListWidgetItem *tmp = ui->docsetsList->item(i);
+            if (tmp->data(ZealDocsetDoneInstalling).toBool()) {
+                tmp->setCheckState(Qt::Unchecked);
+                tmp->setHidden(true);
+            }
+        }
+    }
 }
 
 void ZealSettingsDialog::updateDocsets()
@@ -174,7 +173,7 @@ void ZealSettingsDialog::updateDocsets()
     ui->downloadableGroup->show();
     QStringList docsetNames = docsets->names();
     bool missingMetadata = false;
-    foreach(auto name, docsetNames) {
+    foreach (auto name, docsetNames) {
         ZealDocsetMetadata metadata = docsets->meta(name);
         if (!metadata.isValid())
             missingMetadata = true;
@@ -183,7 +182,8 @@ void ZealSettingsDialog::updateDocsets()
         if (!feedUrl.isEmpty()) {
             auto reply = startDownload(feedUrl);
 
-            QList<QListWidgetItem*> items = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
+            QList<QListWidgetItem *> items
+                    = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
             if (items.count() > 0) {
                 reply->setProperty("listItem", ui->docsetsList->row(items[0]));
             } else {
@@ -199,7 +199,8 @@ void ZealSettingsDialog::updateDocsets()
         }
     }
     if (missingMetadata) {
-        int r = QMessageBox::information(this, "Zeal", "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
+        int r = QMessageBox::information(this, "Zeal",
+                                         "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
                                          QMessageBox::Yes | QMessageBox::No);
         if (r == QMessageBox::Yes) {
             if (!downloadedDocsetsList)
@@ -212,13 +213,14 @@ void ZealSettingsDialog::updateDocsets()
             });
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
             watcher->setFuture(future);
-            connect(watcher, &QFutureWatcher<void>::finished, [=]{
-                foreach(auto name, docsetNames) {
+            connect(watcher, &QFutureWatcher<void>::finished, [=] {
+                foreach (auto name, docsetNames) {
                     ZealDocsetMetadata metadata = docsets->meta(name);
                     if (!metadata.isValid() && availMetadata.contains(name)) {
                         auto reply = startDownload(availMetadata[name]);
 
-                        QList<QListWidgetItem*> items = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
+                        QList<QListWidgetItem *> items
+                            = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
                         if (items.count() > 0) {
                             items[0]->setCheckState(Qt::Checked);
                             items[0]->setHidden(false);
@@ -235,13 +237,12 @@ void ZealSettingsDialog::updateDocsets()
                 }
             });
         }
-
     }
 }
 
 void ZealSettingsDialog::downloadDocsetList()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
@@ -251,9 +252,9 @@ void ZealSettingsDialog::downloadDocsetList()
             downloadedDocsetsList = ui->docsetsList->count() > 0;
             return;
         }
-        if (reply->error() != QNetworkReply::OperationCanceledError) {
-            QMessageBox::warning(this, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
-        }
+        if (reply->error() != QNetworkReply::OperationCanceledError)
+            QMessageBox::warning(this, "No docsets found",
+                                 "Failed retrieving list of docsets: " + reply->errorString());
         return;
     }
 
@@ -271,9 +272,9 @@ void ZealSettingsDialog::downloadDocsetList()
             if (name != "") {
                 auto feedUrl = url;
                 if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
-                    feedUrl = url.section("/",0,-2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+                    feedUrl = url.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
 
-                //urls[name] = feedUrl;
+                // urls[name] = feedUrl;
                 ZealDocsetMetadata meta;
                 meta.setFeedURL(feedUrl);
                 availMetadata[name] = meta;
@@ -291,9 +292,8 @@ void ZealSettingsDialog::downloadDocsetList()
                 }
             }
         }
-        if (availMetadata.size() > 0) {
+        if (availMetadata.size() > 0)
             ui->downloadableGroup->show();
-        }
     } else {
         QString list = reply->readAll();
         for (auto item : list.split("\n")) {
@@ -318,11 +318,11 @@ void ZealSettingsDialog::downloadDocsetList()
                 ui->docsetsList->addItem(lwi);
             }
         }
-        if (availMetadata.size() > 0) {
+        if (availMetadata.size() > 0)
             ui->downloadableGroup->show();
-        } else {
-            QMessageBox::warning(this, "No docsets found", QString("No downloadable docsets found."));
-        }
+        else
+            QMessageBox::warning(this, "No docsets found",
+                                 QString("No downloadable docsets found."));
     }
 
     endTasks();
@@ -349,7 +349,7 @@ const QString ZealSettingsDialog::getTarPath() const
 
 void ZealSettingsDialog::extractDocset()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     qint8 remainingRetries = replies.take(reply);
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
@@ -357,9 +357,9 @@ void ZealSettingsDialog::extractDocset()
             // allow github to fail
             return;
         }
-        if (reply->error() != QNetworkReply::OperationCanceledError) {
-            QMessageBox::warning(this, "Network Error", "Failed to retrieve docset: " + reply->errorString());
-        }
+        if (reply->error() != QNetworkReply::OperationCanceledError)
+            QMessageBox::warning(this, "Network Error",
+                                 "Failed to retrieve docset: " + reply->errorString());
         return;
     }
 
@@ -392,7 +392,8 @@ void ZealSettingsDialog::extractDocset()
                 if (oldMeta.isValid())
                     oldMetadata = oldMeta.value<ZealDocsetMetadata>();
 
-                if (metadata.getVersion().isEmpty() || oldMetadata.getVersion() != metadata.getVersion()) {
+                if (metadata.getVersion().isEmpty()
+                        || oldMetadata.getVersion() != metadata.getVersion()) {
                     metadata.setFeedURL(reply->request().url().toString());
                     auto reply2 = startDownload(metadata.getPrimaryUrl(), 1);
 
@@ -408,7 +409,8 @@ void ZealSettingsDialog::extractDocset()
                     connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
                 }
             }
-        } else if (reply->request().url().path().endsWith("tgz") || reply->request().url().path().endsWith("tar.bz2")) {
+        } else if (reply->request().url().path().endsWith("tgz")
+                   || reply->request().url().path().endsWith("tar.bz2")) {
             auto dataDir = QDir(docsets->docsetsDir());
             if (!dataDir.exists()) {
                 QMessageBox::critical(this, "No docsets directory found",
@@ -423,20 +425,18 @@ void ZealSettingsDialog::extractDocset()
                 char buf[BUFSIZE];
                 while (read_len > 0) {
                     read_len = reply->read(buf, BUFSIZE);
-                    if (read_len > 0) {
+                    if (read_len > 0)
                         tmp->write(buf, read_len);
-                    }
                 }
                 tmp->flush();
 
                 QProcess *tar = new QProcess();
                 tar->setWorkingDirectory(dataDir.absolutePath());
                 QStringList args;
-                if (reply->request().url().path().endsWith("tar.bz2")) {
+                if (reply->request().url().path().endsWith("tar.bz2"))
                     args = QStringList("-jqtf");
-                } else {
+                else
                     args = QStringList("-zqtf");
-                }
                 args.append(tmp->fileName());
                 args.append("*docset");
                 tar->start(program, args);
@@ -444,11 +444,10 @@ void ZealSettingsDialog::extractDocset()
                 auto line_buf = tar->readLine();
                 auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
 
-                if (reply->request().url().path().endsWith("tar.bz2")) {
+                if (reply->request().url().path().endsWith("tar.bz2"))
                     args = QStringList("-jxf");
-                } else {
+                else
                     args = QStringList("-zxf");
-                }
                 args.append(tmp->fileName());
 
                 ZealDocsetMetadata metadata;
@@ -458,7 +457,8 @@ void ZealSettingsDialog::extractDocset()
 
                 auto path = reply->request().url().path().split("/");
 
-                connect(tar, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished, [=](int a, QProcess::ExitStatus b) {
+                connect(tar, (void (QProcess::*)(int, QProcess::ExitStatus))&QProcess::finished,
+                        [=](int a, QProcess::ExitStatus b) {
                     Q_UNUSED(a)
                     Q_UNUSED(b)
                     auto fileName = path[path.count()-1];
@@ -537,14 +537,16 @@ void ZealSettingsDialog::extractDocset()
                         }
                         metadata.write(dataDir.absoluteFilePath(root.dirName())+"/meta.json");
                         // FIXME C&P (see "FIXME C&P" above)
-                        QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                        QMetaObject::invokeMethod(docsets, "addDocset",
+                                                  Qt::BlockingQueuedConnection,
                                                   Q_ARG(QString, root.absolutePath()));
                         zealList.resetModulesCounts();
                         refreshRequested();
                         ui->listView->reset();
                         for (int i = 0; i < ui->docsetsList->count(); ++i) {
-                            if (ui->docsetsList->item(i)->text() == root.dirName() ||
-                                    ui->docsetsList->item(i)->text()+".docset" == root.dirName()) {
+                            const QString itemText = ui->docsetsList->item(i)->text();
+                            if (itemText == root.dirName()
+                                    || itemText + ".docset" == root.dirName()) {
                                 listItem->setData(ZealDocsetDoneInstalling, true);
                                 listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
                                 listItem->setData(ProgressItemDelegate::ProgressRole, 1);
@@ -569,7 +571,7 @@ void ZealSettingsDialog::extractDocset()
                 url.setPath(path);
                 url.setQuery(query);
                 // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
-                auto reply2 = startDownload(url, remainingRetries - 1); //naManager.get(QNetworkRequest(url));
+                auto reply2 = startDownload(url, remainingRetries - 1); // naManager.get(QNetworkRequest(url));
                 endTasks();
                 reply2->setProperty("listItem", itemId);
                 reply2->setProperty("metadata", reply->property("metadata"));
@@ -584,23 +586,22 @@ void ZealSettingsDialog::extractDocset()
     }
 
     // if all enqueued downloads have finished executing
-    if (replies.isEmpty()) {
+    if (replies.isEmpty())
         resetProgress();
-    }
 
     reply->deleteLater();
 }
 
 void ZealSettingsDialog::downloadDocsetLists()
 {
-   downloadedDocsetsList = false;
-   ui->downloadButton->hide();
-   ui->docsetsList->clear();
-   auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
-   auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
+    downloadedDocsetsList = false;
+    ui->downloadButton->hide();
+    ui->docsetsList->clear();
+    auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
+    auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
 
-   connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
-   connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
+    connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
+    connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
 }
 
 void ZealSettingsDialog::on_downloadButton_clicked()
@@ -636,7 +637,7 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
     for (int i = 0; i < ui->docsetsList->count(); ++i) {
         QListWidgetItem *tmp = ui->docsetsList->item(i);
         if (tmp->checkState() == Qt::Checked) {
-            //QUrl url(urls[tmp->text()]);
+            // QUrl url(urls[tmp->text()]);
 
             auto reply = startDownload(availMetadata[tmp->text()], 1);
             QUrl url = reply->url();
@@ -648,7 +649,8 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
             tmp->setData(ProgressItemDelegate::ProgressMaxRole, 1);
             if (url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
                 // Dash's docsets don't redirect, so we can start showing progress instantly
-                connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+                connect(reply, &QNetworkReply::downloadProgress, this,
+                        &ZealSettingsDialog::on_downloadProgress);
             }
         }
     }
@@ -660,9 +662,8 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
 void ZealSettingsDialog::on_storageButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(0, "Open Directory");
-    if (!dir.isEmpty()) {
+    if (!dir.isEmpty())
         ui->storageEdit->setText(dir);
-    }
 
 }
 
@@ -686,9 +687,8 @@ void ZealSettingsDialog::on_deleteButton_clicked()
                 QDir docsetDir(dataDir);
                 bool isDeleted = false;
 
-                if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset")) {
+                if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset"))
                     isDeleted = docsetDir.removeRecursively();
-                }
                 if (!isDeleted) {
                     QMessageBox::information(nullptr, "",
                         QString("Delete docset %1 failed!").arg(docsetDisplayName));
@@ -703,7 +703,6 @@ void ZealSettingsDialog::on_deleteButton_clicked()
             });
         }
     }
-
 }
 
 void ZealSettingsDialog::on_listView_clicked(const QModelIndex &index)
@@ -731,7 +730,8 @@ QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries)
     startTasks(1);
     naManager.setProxy(httpProxy());
     QNetworkReply *reply = naManager.get(QNetworkRequest(url));
-    connect(reply, &QNetworkReply::downloadProgress, this, &ZealSettingsDialog::on_downloadProgress);
+    connect(reply, &QNetworkReply::downloadProgress, this,
+            &ZealSettingsDialog::on_downloadProgress);
     replies.insert(reply, retries);
 
     if (replies.count() > 0) {
@@ -777,13 +777,10 @@ void ZealSettingsDialog::saveSettings()
         docsets->initialiseDocsets();
         refreshRequested();
     }
+
     settings.setValue("minFontSize", ui->minFontSize->text());
-    settings.setValue("hidingBehavior",
-                      ui->radioSysTray->isChecked() ?
-                          "systray" : "minimize");
-    settings.setValue("startupBehavior",
-                      ui->radioStartTray->isChecked() ?
-                          "systray" : "window");
+    settings.setValue("hidingBehavior", ui->radioSysTray->isChecked() ? "systray" : "minimize");
+    settings.setValue("startupBehavior", ui->radioStartTray->isChecked() ? "systray" : "window");
 
     // Proxy settings
     ZealSettingsDialog::ProxyType currentProxy;
@@ -793,7 +790,7 @@ void ZealSettingsDialog::saveSettings()
         currentProxy = ZealSettingsDialog::SystemProxy;
     else if (ui->m_manualProxySettings->isChecked())
         currentProxy = ZealSettingsDialog::UserDefinedProxy;
-    settings.setValue("proxyType", (int) currentProxy);
+    settings.setValue("proxyType", (int)currentProxy);
     settings.setValue("httpProxy", ui->m_httpProxy->text());
     settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
     settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
@@ -809,17 +806,15 @@ void ZealSettingsDialog::on_tabWidget_currentChanged(int current)
     QModelIndex index = ui->listView->currentIndex();
     ui->listView->reset();
 
-
-    if (index.isValid()) {
+    if (index.isValid())
         ui->listView->setCurrentIndex(index);
-    }
 
-    if (ui->docsetsList->count() == 0 && current == 2) {
+    if (ui->docsetsList->count() == 0 && current == 2)
         downloadDocsetLists();
-    }
 }
 
-void ZealSettingsDialog::showEvent(QShowEvent *) {
+void ZealSettingsDialog::showEvent(QShowEvent *)
+{
     on_tabWidget_currentChanged(0);
 }
 
@@ -861,7 +856,7 @@ void ZealSettingsDialog::on_addFeedButton_clicked()
         return;
 
     if (feedUrl.startsWith("dash-feed://")) {
-        feedUrl = feedUrl.remove(0,12);
+        feedUrl = feedUrl.remove(0, 12);
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
     auto reply = startDownload(feedUrl);
@@ -870,7 +865,8 @@ void ZealSettingsDialog::on_addFeedButton_clicked()
 
 ZealSettingsDialog::ProxyType ZealSettingsDialog::proxyType() const
 {
-    return static_cast<ZealSettingsDialog::ProxyType>(settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
+    return static_cast<ZealSettingsDialog::ProxyType>(
+                settings.value("proxyType", ZealSettingsDialog::NoProxy).toUInt());
 }
 
 QNetworkProxy ZealSettingsDialog::httpProxy() const
@@ -885,14 +881,14 @@ QNetworkProxy ZealSettingsDialog::httpProxy() const
     case ZealSettingsDialog::SystemProxy: {
         QNetworkProxyQuery npq(QUrl("http://www.google.com"));
         QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
-        if (listOfProxies.size()) {
+        if (listOfProxies.size())
             proxy = listOfProxies[0];
-        }
     }
-        break;
+    break;
 
     case ZealSettingsDialog::UserDefinedProxy:
-        proxy = QNetworkProxy(QNetworkProxy::HttpProxy, ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
+        proxy = QNetworkProxy(QNetworkProxy::HttpProxy,
+                              ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
         if (ui->m_httpProxyNeedsAuth->isChecked()) {
             proxy.setUser(ui->m_httpProxyUser->text());
             proxy.setPassword(ui->m_httpProxyPass->text());

@@ -35,11 +35,10 @@ int ZealSearchEdit::queryStart()
 {
     ZealSearchQuery currentQuery(text());
     // Keep the filter for the first esc press
-    if (currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0) {
+    if (currentQuery.getDocsetFilterSize() > 0 && currentQuery.getCoreQuery().size() > 0)
         return currentQuery.getDocsetFilterSize() + 1;
-    } else {
+    else
         return 0;
-    }
 }
 
 // Clear input with consideration to docset filters
@@ -63,13 +62,13 @@ void ZealSearchEdit::clear()
 bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
 {
     if (obj == this && ev->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(ev);
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
 
         if (keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
             QModelIndex index = treeView->currentIndex();
             int nextRow = keyEvent->key() == Qt::Key_Down
-                    ? index.row() + 1
-                    : index.row() - 1;
+                          ? index.row() + 1
+                          : index.row() - 1;
             QModelIndex sibling = index.sibling(nextRow, 0);
             if (nextRow >= 0 && nextRow < treeView->model()->rowCount()) {
                 treeView->setCurrentIndex(sibling);
@@ -101,7 +100,7 @@ void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
     LineEdit::resizeEvent(ev);
 }
 
-void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
+void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
 {
     // Focus on the widget.
     LineEdit::focusInEvent(evt);
@@ -109,9 +108,8 @@ void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
     // Override the default selection.
     ZealSearchQuery currentQuery(text());
     int selectionOffset = currentQuery.getDocsetFilterSize();
-    if (selectionOffset > 0) {
+    if (selectionOffset > 0)
         selectionOffset++; // add the delimeter
-    }
     setSelection(selectionOffset, text().size() - selectionOffset);
     focusing = true;
 }
@@ -119,19 +117,17 @@ void ZealSearchEdit::focusInEvent(QFocusEvent * evt)
 void ZealSearchEdit::mousePressEvent(QMouseEvent *ev)
 {
     // Let the focusInEvent code deal with initial selection on focus.
-    if (!focusing) {
+    if (!focusing)
         LineEdit::mousePressEvent(ev);
-    }
     focusing = false;
 }
 
 QString ZealSearchEdit::currentCompletion(const QString &text)
 {
-    if (text.isEmpty()) {
+    if (text.isEmpty())
         return QString();
-    } else {
+    else
         return prefixCompleter->currentCompletion();
-    }
 }
 
 void ZealSearchEdit::showCompletions(const QString &newValue)

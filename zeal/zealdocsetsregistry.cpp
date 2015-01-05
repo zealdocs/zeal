@@ -9,11 +9,12 @@
 #include <QThread>
 #include <QUrl>
 
-ZealDocsetsRegistry* ZealDocsetsRegistry::m_Instance;
+ZealDocsetsRegistry *ZealDocsetsRegistry::m_Instance;
 
-ZealDocsetsRegistry* docsets = ZealDocsetsRegistry::instance();
+ZealDocsetsRegistry *docsets = ZealDocsetsRegistry::instance();
 
-void ZealDocsetsRegistry::addDocset(const QString& path) {
+void ZealDocsetsRegistry::addDocset(const QString &path)
+{
     auto dir = QDir(path);
     auto name = dir.dirName().replace(".docset", "");
     QSqlDatabase db;
@@ -30,9 +31,8 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
         QDir contentsDir(dir.filePath("Contents"));
         entry.info.readDocset(contentsDir.absoluteFilePath("Info.plist"));
 
-        if (entry.info.family == "cheatsheet") {
+        if (entry.info.family == "cheatsheet")
             name = QString("%1_cheats").arg(name);
-        }
         entry.name = name;
 
         auto dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
@@ -58,8 +58,8 @@ void ZealDocsetsRegistry::addDocset(const QString& path) {
         remove(name);
 
     entry.prefix = entry.info.bundleName.isEmpty()
-            ? name
-            : entry.info.bundleName;
+                   ? name
+                   : entry.info.bundleName;
     entry.db = db;
     entry.dir = dir;
 
@@ -99,15 +99,16 @@ void ZealDocsetsRegistry::setPrefixes(QHash<QString, QVariant> docsetPrefixes)
     }
 }
 
-ZealDocsetsRegistry::docsetEntry *ZealDocsetsRegistry::getEntry(const QString& name)
+ZealDocsetsRegistry::docsetEntry *ZealDocsetsRegistry::getEntry(const QString &name)
 {
     return &docs[name];
 }
 
-void ZealDocsetsRegistry::runQuery(const QString& query)
+void ZealDocsetsRegistry::runQuery(const QString &query)
 {
     lastQuery += 1;
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query), Q_ARG(int, lastQuery));
+    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query),
+                              Q_ARG(int, lastQuery));
 }
 
 void ZealDocsetsRegistry::invalidateQueries()
@@ -115,7 +116,7 @@ void ZealDocsetsRegistry::invalidateQueries()
     lastQuery += 1;
 }
 
-void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
+void ZealDocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
 {
     if (queryNum != lastQuery) return; // some other queries pending - ignore this one
 
@@ -171,11 +172,12 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
             } else if (docset.type == ZDASH) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
-                                "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
+                               "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                               "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
 
                                "like '%1%' escape '\\' %3) %2 order by length(ztokenname), lower(ztokenname) asc, zpath asc, "
-                               "zanchor asc limit 100").arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
+                               "zanchor asc limit 100").arg(curQuery, notQuery,
+                                                            subNames.arg("ztokenname", curQuery));
             }
             q = db(docset.name).exec(qstr);
             while (q.next()) {
@@ -200,7 +202,8 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
 
             auto itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
-            results.append(ZealSearchResult(itemName, parentName, path, docset.name, preparedQuery));
+            results.append(ZealSearchResult(itemName, parentName, path, docset.name,
+                                            preparedQuery));
         }
     }
     qSort(results);
@@ -211,7 +214,8 @@ void ZealDocsetsRegistry::_runQuery(const QString& rawQuery, int queryNum)
     emit queryCompleted();
 }
 
-void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, const QString &initialParent)
+void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
+                                        const QString &initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
     if (matchMethodName.indexIn(itemName) != -1)
@@ -228,7 +232,7 @@ void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName, 
     }
 }
 
-const QList<ZealSearchResult>& ZealDocsetsRegistry::getQueryResults()
+const QList<ZealSearchResult> &ZealDocsetsRegistry::getQueryResults()
 {
     return queryResults;
 }
@@ -282,9 +286,8 @@ QString ZealDocsetsRegistry::docsetsDir()
     } else {
         auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
         auto dataDir = QDir(dataLocation);
-        if (!dataDir.cd("docsets")) {
+        if (!dataDir.cd("docsets"))
             dataDir.mkpath("docsets");
-        }
         dataDir.cd("docsets");
         return dataDir.absolutePath();
     }

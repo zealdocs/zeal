@@ -7,9 +7,10 @@ ZealNetworkAccessManager::ZealNetworkAccessManager(QObject *parent) :
 {
 }
 
-QNetworkReply * ZealNetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,
-                                                        const QNetworkRequest& req,
-                                                        QIODevice * outgoingData) {
+QNetworkReply *ZealNetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,
+                                                       const QNetworkRequest &req,
+                                                       QIODevice *outgoingData)
+{
     const bool resourceFile = req.url().scheme() == "qrc";
     const bool nonLocalFile = req.url().scheme() == "file" && req.url().host() != "";
     const bool nonFile = req.url().scheme() != "file";

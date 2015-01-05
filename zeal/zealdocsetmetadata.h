@@ -6,9 +6,9 @@
 #include <QUrl>
 #include <QXmlStreamReader>
 
-class ZealDocsetMetadata //: public QObject
+class ZealDocsetMetadata // : public QObject
 {
-    //Q_OBJECT
+    // Q_OBJECT
 public:
     ZealDocsetMetadata();
     void read(const QJsonObject &json);

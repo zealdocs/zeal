@@ -17,16 +17,23 @@ class SearchableWebView : public QWidget
     Q_OBJECT
 public:
     explicit SearchableWebView(QWidget *parent = 0);
-    void load(const QUrl& url);
+    void load(const QUrl &url);
     void focus();
     QSize sizeHint() const;
-    QWebSettings * settings() const;
-    QWebPage * page() const;
+    QWebSettings *settings() const;
+    QWebPage *page() const;
     bool canGoBack();
     bool canGoForward();
     void setPage(QWebPage *page);
-    int zealZoomFactor() { return webView.zealZoomFactor(); }
-    void setZealZoomFactor(int zf_) { webView.setZealZoomFactor(zf_); }
+    int zealZoomFactor()
+    {
+        return webView.zealZoomFactor();
+    }
+
+    void setZealZoomFactor(int zf_)
+    {
+        webView.setZealZoomFactor(zf_);
+    }
 
 protected:
     void keyPressEvent(QKeyEvent *event);
