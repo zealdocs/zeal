@@ -1,13 +1,11 @@
 #include "mainwindow.h"
+
 #include <QApplication>
+#include <QDir>
 #include <QLocalSocket>
 #include <QProxyStyle>
 #include <QStandardPaths>
-
-#include <string>
-#include <iostream>
-
-using namespace std;
+#include <QTextStream>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
 #include <QCommandLineParser>
@@ -79,7 +77,7 @@ int main(int argc, char *argv[])
             socket.flush();
             socket.close();
         } else {
-            cerr << "Already running. Terminating." << endl;
+            QTextStream(stderr) << "Already running. Terminating." << endl;
         }
         return -1; // Exit already a process running
     }

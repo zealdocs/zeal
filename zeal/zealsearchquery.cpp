@@ -1,5 +1,3 @@
-#include <QString>
-#include <QStringList>
 #include "zealsearchquery.h"
 
 ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)

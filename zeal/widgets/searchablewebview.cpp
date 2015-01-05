@@ -1,6 +1,9 @@
+#include "searchablewebview.h"
+
 #include <QShortcut>
 #include <QStyle>
 #include <QResizeEvent>
+
 #ifdef USE_WEBENGINE
     #include <QWebEngineHistory>
     #include <QWebEnginePage>
@@ -9,7 +12,6 @@
     #include <QWebHistory>
     #include <QWebPage>
 #endif
-#include "searchablewebview.h"
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent), lineEdit(this), webView(this)

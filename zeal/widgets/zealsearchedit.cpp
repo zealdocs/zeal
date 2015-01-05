@@ -1,7 +1,8 @@
 #include "zealsearchedit.h"
-#include <QKeyEvent>
 
 #include "../zealsearchquery.h"
+
+#include <QKeyEvent>
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     LineEdit(parent)

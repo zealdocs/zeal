@@ -1,8 +1,7 @@
 #ifndef ZEALSEARCHQUERY_H
 #define ZEALSEARCHQUERY_H
 
-class QString;
-class QStringList;
+#include <QStringList>
 
 /**
  * @short The search query model.

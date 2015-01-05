@@ -1,13 +1,27 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QLocalServer>
+#include "zeallistmodel.h"
+#include "zealnativeeventfilter.h"
+#include "zealnetworkaccessmanager.h"
+#include "zealsearchmodel.h"
+#include "zealsettingsdialog.h"
+
+#include <QCloseEvent>
 #include <QDialog>
 #include <QMenu>
+#include <QMainWindow>
+#include <QModelIndex>
+#include <QLocalServer>
 #include <QSettings>
 #include <QSystemTrayIcon>
-#include <QCloseEvent>
+
+#ifdef USE_LIBAPPINDICATOR
+#undef signals
+#include <libappindicator/app-indicator.h>
+#define signals public
+#endif
+
 #ifdef USE_WEBENGINE
     #include <QWebEngineHistory>
     #define QWebPage QWebEnginePage
@@ -16,19 +30,6 @@
 #else
     #include <QWebHistory>
 #endif
-#include <QModelIndex>
-#include "zeallistmodel.h"
-#include "zealsearchmodel.h"
-#include "zealnativeeventfilter.h"
-#include "zealsettingsdialog.h"
-#include "zealnetworkaccessmanager.h"
-
-#ifdef USE_LIBAPPINDICATOR
-#undef signals
-#include <libappindicator/app-indicator.h>
-#define signals public
-#endif
-
 
 namespace Ui {
 class MainWindow;

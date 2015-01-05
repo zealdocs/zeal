@@ -1,16 +1,10 @@
 #include "zeallistmodel.h"
-#include "zealdocsetsregistry.h"
+
 #include "zealdocsetinfo.h"
+#include "zealdocsetsregistry.h"
 
 #include <QIcon>
-#include <QtSql/QSqlQuery>
-#include <QDomDocument>
-#include <QDebug>
-
-#include <iostream>
-#include <string>
-
-using namespace std;
+#include <QSqlQuery>
 
 ZealListModel::ZealListModel(QObject *parent) :
     QAbstractItemModel(parent)

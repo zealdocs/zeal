@@ -1,5 +1,9 @@
 #include "zealdocsetmetadata.h"
 
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+
 ZealDocsetMetadata::ZealDocsetMetadata():
     valid(true)
 {

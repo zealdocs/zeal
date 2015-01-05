@@ -1,8 +1,8 @@
 #ifndef ZEALNATIVEEVENTFILTER_H
 #define ZEALNATIVEEVENTFILTER_H
 
-#include <QObject>
 #include <QAbstractNativeEventFilter>
+#include <QObject>
 #include <QKeySequence>
 
 class ZealNativeEventFilter : public QObject, public QAbstractNativeEventFilter

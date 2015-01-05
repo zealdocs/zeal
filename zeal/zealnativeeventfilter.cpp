@@ -3,13 +3,14 @@
 #ifdef WIN32
 #include <windows.h>
 #elif LINUX
+#include "xcb_keysym.h"
+
+#include <QGuiApplication>
+#include <qpa/qplatformnativeinterface.h>
+
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
-#include <QGuiApplication>
-#include "xcb_keysym.h"
-#include <qpa/qplatformnativeinterface.h>
-#include <QDebug>
 
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
 // Copyright (C) 2009 the VideoLAN team

@@ -1,12 +1,5 @@
-#include <iostream>
-#include <numeric>
-using namespace std;
-
-#include <QIcon>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlQuery>
-
 #include "zealsearchmodel.h"
+
 #include "zealdocsetsregistry.h"
 
 ZealSearchModel::ZealSearchModel(QObject *parent) :

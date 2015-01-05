@@ -1,16 +1,10 @@
 #ifndef ZEALDOCSETMETADATA_H
 #define ZEALDOCSETMETADATA_H
-#include <QDebug>
-#include <QCoreApplication>
-#include <QXmlStreamReader>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QString>
-#include <QStringList>
-#include <QFile>
-#include <QUrl>
 
+#include <QJsonObject>
+#include <QStringList>
+#include <QUrl>
+#include <QXmlStreamReader>
 
 class ZealDocsetMetadata //: public QObject
 {

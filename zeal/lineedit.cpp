@@ -7,12 +7,12 @@
 **
 ****************************************************************************/
 // from http://git.forwardbias.in/?p=lineeditclearbutton.git;a=blob_plain;f=lineedit.cpp;hb=HEAD
-#include "lineedit.h"
-#include "zealsearchquery.h"
 
+#include "lineedit.h"
+
+#include <QApplication>
 #include <QToolButton>
 #include <QStyle>
-#include <QApplication>
 #include <QKeyEvent>
 
 LineEdit::LineEdit(QWidget *parent)

@@ -1,14 +1,13 @@
-#include <QThread>
-#include <QVariant>
-#include <QDebug>
-#include <QDir>
-#include <QUrl>
-#include <QtSql/QSqlQuery>
-#include <QStandardPaths>
-
 #include "zealdocsetsregistry.h"
-#include "zealsearchresult.h"
+
 #include "zealsearchquery.h"
+#include "zealsearchresult.h"
+
+#include <QCoreApplication>
+#include <QSqlQuery>
+#include <QStandardPaths>
+#include <QThread>
+#include <QUrl>
 
 ZealDocsetsRegistry* ZealDocsetsRegistry::m_Instance;
 

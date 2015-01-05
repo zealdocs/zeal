@@ -1,5 +1,4 @@
 #include "zealsearchitemstyle.h"
-#include <QDebug>
 
 QRect ZealSearchItemStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 {

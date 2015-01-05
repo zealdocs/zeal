@@ -1,4 +1,5 @@
 #include "zealwebview.h"
+
 #include "../mainwindow.h"
 
 ZealWebView::ZealWebView(QWidget *parent) : QWebView(parent) {};

@@ -1,8 +1,9 @@
 #ifndef ZEALSEARCHMODEL_H
 #define ZEALSEARCHMODEL_H
 
-#include <QAbstractItemModel>
 #include "zealsearchresult.h"
+
+#include <QAbstractItemModel>
 
 class ZealSearchModel : public QAbstractItemModel
 {

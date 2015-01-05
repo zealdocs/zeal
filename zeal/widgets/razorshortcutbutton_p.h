@@ -30,6 +30,7 @@
 #define RAZORSHORTCUTBUTTON_P_H
 
 #include "razorshortcutbutton.h"
+
 #include <QMenu>
 
 class QKeyEvent;

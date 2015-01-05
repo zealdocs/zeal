@@ -1,5 +1,5 @@
 #include "zealnetworkaccessmanager.h"
-#include <QDebug>
+
 #include <QNetworkRequest>
 
 ZealNetworkAccessManager::ZealNetworkAccessManager(QObject *parent) :

@@ -1,16 +1,9 @@
 #ifndef ZEALLISTMODEL_H
 #define ZEALLISTMODEL_H
 
-#include <Qt>
 #include <QAbstractListModel>
-#include <QSet>
 #include <QHash>
-#include <QSharedPointer>
-#include <vector>
-#include <string>
-#include <iostream>
-
-using namespace std;
+#include <QSet>
 
 class ZealListModel : public QAbstractItemModel
 {

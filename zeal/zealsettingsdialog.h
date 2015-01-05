@@ -1,19 +1,17 @@
 #ifndef ZEALSETTINGSDIALOG_H
 #define ZEALSETTINGSDIALOG_H
 
-#include <QDialog>
-#include <QNetworkAccessManager>
-#include <QInputDialog>
-#include <QtNetwork/QNetworkProxy>
-#include <QSettings>
-#include <QClipboard>
-#include <QUrl>
-#include <QHash>
-
-#include "ui_zealsettingsdialog.h"
 #include "zeallistmodel.h"
 #include "zealdocsetsregistry.h"
 #include "zealdocsetmetadata.h"
+#include "ui_zealsettingsdialog.h"
+
+#include <QDialog>
+#include <QHash>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QSettings>
+#include <QUrl>
 
 class ZealSettingsDialog : public QDialog
 {

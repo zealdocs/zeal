@@ -1,15 +1,12 @@
 #ifndef ZEALDOCSETSREGISTRY_H
 #define ZEALDOCSETSREGISTRY_H
 
-#include <QDebug>
-#include <QCoreApplication>
-#include <QMutex>
-#include <QtSql/QSqlDatabase>
 #include <QDir>
 #include <QIcon>
 #include <QMap>
+#include <QMutex>
 #include <QSettings>
-#include <QJsonObject>
+#include <QSqlDatabase>
 
 #include "zealsearchresult.h"
 #include "zealdocsetinfo.h"

@@ -29,8 +29,7 @@
 #include "razorshortcutbutton.h"
 #include "razorshortcutbutton_p.h"
 
-#include <QtGui/QKeyEvent>
-#include <QtCore/QDebug>
+#include <QKeyEvent>
 
 /************************************************
 

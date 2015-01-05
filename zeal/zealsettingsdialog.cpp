@@ -1,24 +1,26 @@
 #include "zealsettingsdialog.h"
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QWebView>
-#include <QWebSettings>
-#include <QWebFrame>
-#include <QWebElementCollection>
-#include <QDir>
-#include <QUrl>
-#include <QTemporaryFile>
-#include <QProcess>
-#include <QMessageBox>
-#include <QtConcurrent/QtConcurrent>
-#include <QFutureWatcher>
-#include <QFileDialog>
-#include <QtNetwork/QNetworkProxy>
-#include "quazip/quazip.h"
-#include "JlCompress.h"
-#include "progressitemdelegate.h"
 
-#include <QDebug>
+#include "progressitemdelegate.h"
+#include "JlCompress.h"
+#include "quazip/quazip.h"
+
+#include <QClipboard>
+#include <QDir>
+#include <QFileDialog>
+#include <QFutureWatcher>
+#include <QInputDialog>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QMessageBox>
+#include <QProcess>
+#include <QTemporaryFile>
+#include <QUrl>
+#include <QWebElementCollection>
+#include <QWebFrame>
+#include <QWebSettings>
+#include <QWebView>
+
+#include <QtConcurrent/QtConcurrent>
 
 ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
     QDialog(parent),

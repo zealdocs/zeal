@@ -1,11 +1,11 @@
 #include "zealsearchitemdelegate.h"
-#include "zealsearchitemstyle.h"
-#include <QPainter>
-#include <QFontMetrics>
-#include <QDebug>
-#include <QApplication>
 
+#include "zealsearchitemstyle.h"
 #include "zealsearchquery.h"
+
+#include <QApplication>
+#include <QFontMetrics>
+#include <QPainter>
 
 ZealSearchItemDelegate::ZealSearchItemDelegate(QObject *parent, QLineEdit* lineEdit_, QWidget* view_) :
     QStyledItemDelegate(parent), lineEdit(lineEdit_), view(view_)
