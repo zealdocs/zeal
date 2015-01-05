@@ -12,7 +12,6 @@
 #include <QKeyEvent>
 #include <QAbstractEventDispatcher>
 #include <QMessageBox>
-#include <QStyleFactory>
 #include <QLocalSocket>
 #include <QLayout>
 #include <QSettings>
@@ -74,11 +73,6 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     localServer->listen(serverName);
-
-#if (!defined(WIN32) && !defined(OSX))
-    // Default style sometimes (when =windows) doesn't work well with Linux
-    qApp->setStyle(QStyleFactory::create("fusion"));
-#endif
 
     // initialise icons
 #if (defined(OSX) || defined(WIN32))
@@ -300,7 +294,6 @@ MainWindow::MainWindow(QWidget *parent) :
     tabBar.setExpanding(false);
     tabBar.setUsesScrollButtons(true);
     tabBar.setDrawBase(false);
-    tabBar.setStyle(QStyleFactory::create("fusion"));
 
     connect(&tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
     ((QHBoxLayout*)ui->frame_2->layout())->insertWidget(2, &tabBar, 0, Qt::AlignBottom);
