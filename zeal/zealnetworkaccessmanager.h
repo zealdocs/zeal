@@ -11,11 +11,6 @@ public:
     QNetworkReply * createRequest(QNetworkAccessManager::Operation op,
                                   const QNetworkRequest& req,
                                   QIODevice * outgoingData = 0) override;
-    
-signals:
-    
-public slots:
-    
 };
 
 #endif // ZEALNETWORKACCESSMANAGER_H

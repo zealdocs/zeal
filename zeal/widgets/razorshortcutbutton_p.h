@@ -50,7 +50,7 @@ public slots:
 
 private:
     RazorShortcutButton* const q_ptr;
-    Q_DECLARE_PUBLIC(RazorShortcutButton);
+    Q_DECLARE_PUBLIC(RazorShortcutButton)
 
     QKeySequence mSequence;
     QMenu mMenu;

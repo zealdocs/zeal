@@ -21,10 +21,7 @@ public:
     static QString singularize(const QString& s);
     bool removeRows(int row, int count, const QModelIndex &parent);
     void resetModulesCounts() { modulesCounts->clear(); }
-signals:
     
-public slots:
-
 private:
     const QString* i2s(const QModelIndex &index) const;
     QHash<QPair<QString, QString>, int> *modulesCounts;

@@ -11,7 +11,6 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-
     enum ProgressRoles {
         ProgressRole = Qt::UserRole + 10,
         ProgressMaxRole = Qt::UserRole + 11,
@@ -20,11 +19,6 @@ public:
     };
 private:
     static const int progressBarWidth = 150;
-
-signals:
-
-public slots:
-
 };
 
 #endif // PROGRESSITEMDELEGATE_H

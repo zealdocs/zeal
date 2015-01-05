@@ -16,9 +16,7 @@
 class ZealSettingsDialog : public QDialog
 {
     Q_OBJECT
-
     Q_ENUMS(ProxyType)
-    
 public:
     explicit ZealSettingsDialog(ZealListModel &zlist, QWidget *parent = 0);
     ~ZealSettingsDialog();

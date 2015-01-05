@@ -32,6 +32,6 @@ private:
     bool valid;
 };
 
-Q_DECLARE_METATYPE(ZealDocsetMetadata);
+Q_DECLARE_METATYPE(ZealDocsetMetadata)
 
 #endif // ZEALDOCSETMETADATA_H
