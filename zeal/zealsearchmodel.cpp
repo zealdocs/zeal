@@ -43,6 +43,9 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 
 QVariant ZealSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    Q_UNUSED(section)
+    Q_UNUSED(orientation)
+    Q_UNUSED(role)
     return QVariant();
 }
 
@@ -61,6 +64,7 @@ QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &paren
 
 QModelIndex ZealSearchModel::parent(const QModelIndex &child) const
 {
+    Q_UNUSED(child)
     return QModelIndex();
 }
 
@@ -74,6 +78,7 @@ int ZealSearchModel::rowCount(const QModelIndex &parent) const
 
 int ZealSearchModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent)
     return 2;
 }
 

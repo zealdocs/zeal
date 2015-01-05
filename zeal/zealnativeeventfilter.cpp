@@ -88,6 +88,8 @@ ZealNativeEventFilter::ZealNativeEventFilter(QObject *parent) :
 
 bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
+    Q_UNUSED(eventType)
+    Q_UNUSED(result)
     enabled = true;
 #ifdef WIN32
     MSG* msg = static_cast<MSG*>(message);

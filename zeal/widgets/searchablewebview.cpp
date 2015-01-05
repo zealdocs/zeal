@@ -46,6 +46,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     });
 
     connect(&webView, &QWebView::loadFinished, [&](bool ok) {
+        Q_UNUSED(ok)
         moveLineEdit();
     });
 
@@ -67,6 +68,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link) {
 #else
     connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link, const QString &title, const QString &textContent) {
+        Q_UNUSED(title)
+        Q_UNUSED(textContent)
 #endif
         if (!link.startsWith("file:///"))
             setToolTip(link);

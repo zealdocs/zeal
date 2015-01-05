@@ -243,7 +243,6 @@ void ZealSettingsDialog::downloadDocsetList()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    qint8 remainingRetries = replies.take(reply);
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
         if (reply->request().url().host() == "raw.github.com") {
@@ -460,6 +459,8 @@ void ZealSettingsDialog::extractDocset()
                 auto path = reply->request().url().path().split("/");
 
                 connect(tar, (void (QProcess::*)(int,QProcess::ExitStatus))&QProcess::finished, [=](int a, QProcess::ExitStatus b) {
+                    Q_UNUSED(a)
+                    Q_UNUSED(b)
                     auto fileName = path[path.count()-1];
                     auto docsetName = fileName.replace(".tgz", ".docset");
                     docsetName = docsetName.replace(".tar.bz2", ".docset");
@@ -707,6 +708,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
 
 void ZealSettingsDialog::on_listView_clicked(const QModelIndex &index)
 {
+    Q_UNUSED(index)
     ui->deleteButton->setEnabled(true);
 }
 
