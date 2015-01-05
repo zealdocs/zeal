@@ -1,8 +1,9 @@
 #include "zealsettingsdialog.h"
 
 #include "progressitemdelegate.h"
-#include "JlCompress.h"
+#include "zealdocsetsregistry.h"
 #include "quazip/quazip.h"
+#include "quazip/JlCompress.h"
 
 #include <QClipboard>
 #include <QDir>
