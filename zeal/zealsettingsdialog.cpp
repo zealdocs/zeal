@@ -244,13 +244,11 @@ void ZealSettingsDialog::downloadDocsetList()
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
         if (reply->request().url().host() == "raw.github.com") {
-            // allow github to fail
             // downloadedDocsetsList will be set either here, or in "if (replies.isEmpty())" below
             downloadedDocsetsList = ui->docsetsList->count() > 0;
-            return;
         }
         if (reply->error() != QNetworkReply::OperationCanceledError) {
-            QMessageBox::warning(this, "No docsets found", "Failed retrieving list of docsets: " + reply->errorString());
+            reportDownloadListFault("Failed retrieving list of docsets: " + reply->errorString());
         }
         return;
     }
@@ -268,8 +266,11 @@ void ZealSettingsDialog::downloadDocsetList()
             name = name.replace(".tar.bz2", "");
             if (name != "") {
                 auto feedUrl = url;
-                if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
-                    feedUrl = url.section("/",0,-2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+                // TODO: There must be a better way to do this, or a valid list of available docset feeds.
+                if (url.contains("feeds")) {
+                    // Attempt to generate a docset feed url.
+                    feedUrl = url.section("/",0,-2) + "/" + name + ".xml";
+                }
 
                 //urls[name] = feedUrl;
                 ZealDocsetMetadata meta;
@@ -292,9 +293,10 @@ void ZealSettingsDialog::downloadDocsetList()
         if (availMetadata.size() > 0) {
             ui->downloadableGroup->show();
         } else {
-            --downloadDocsetListChance;
+            reportDownloadListFault("No downloadable docsets found.");
         }
     } else {
+        QString invalidDocsetUrl = "";
         QString list = reply->readAll();
         for (auto item : list.split("\n")) {
             QStringList docset = item.split(" ");
@@ -305,8 +307,9 @@ void ZealSettingsDialog::downloadDocsetList()
             meta.setVersion(docset[2]);
             availMetadata[docset[0]] = meta;
             if (!docset[1].startsWith("http")) {
+                // meet an invalid docset url
                 availMetadata.clear();
-                QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
+                invalidDocsetUrl = QString(docset[1]);
                 break;
             }
             auto *lwi = new QListWidgetItem(docset[0], ui->docsetsList);
@@ -321,14 +324,16 @@ void ZealSettingsDialog::downloadDocsetList()
         if (availMetadata.size() > 0) {
             ui->downloadableGroup->show();
         } else {
-            --downloadDocsetListChance;
+            if (invalidDocsetUrl == "") {
+                reportDownloadListFault("No downloadable docsets found.");
+            } else {
+                reportDownloadListFault(
+                    "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: "
+                    + invalidDocsetUrl);
+            }
         }
     }
 
-    if (!downloadDocsetListChance) {
-        QMessageBox::warning(this, "No docsets found", 
-                QString("No downloadable docsets found."));
-    }
     endTasks();
 
     // if all enqueued downloads have finished executing
@@ -338,6 +343,14 @@ void ZealSettingsDialog::downloadDocsetList()
     }
 
     reply->deleteLater();
+}
+
+void ZealSettingsDialog::reportDownloadListFault(const QString &msg)
+{
+    ++downloadListFaultCounter;
+    if (downloadListFaultCounter == downloadListChance) {
+        QMessageBox::warning(this, "No docsets found", msg);
+    }
 }
 
 const QString ZealSettingsDialog::getTarPath() const
@@ -601,7 +614,8 @@ void ZealSettingsDialog::downloadDocsetLists()
    auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
    auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
 
-   downloadDocsetListChance = 2;
+   downloadListFaultCounter = 0;
+   downloadListChance = 2;
    connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
    connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
 }
@@ -763,7 +777,6 @@ void ZealSettingsDialog::stopDownloads()
         // Hide progress bar
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
-
         listItem->setData(ProgressItemDelegate::ProgressVisibleRole, false);
 
         reply->abort();
