@@ -143,7 +143,7 @@ void ZealSettingsDialog::displayProgress()
     ui->docsetsProgress->setVisible(tasksRunning > 0);
 }
 
-void ZealSettingsDialog::startTasks(qint8 tasks = 1)
+void ZealSettingsDialog::startTasks(qint8 tasks)
 {
     tasksRunning += tasks;
     if (tasksRunning == 0)
@@ -152,7 +152,7 @@ void ZealSettingsDialog::startTasks(qint8 tasks = 1)
     displayProgress();
 }
 
-void ZealSettingsDialog::endTasks(qint8 tasks = 1)
+void ZealSettingsDialog::endTasks(qint8 tasks)
 {
     startTasks(-tasks);
 

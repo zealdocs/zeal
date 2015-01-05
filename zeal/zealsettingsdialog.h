@@ -39,8 +39,8 @@ protected:
     void showEvent(QShowEvent *);
 
 private:
-    void startTasks(qint8 tasks);
-    void endTasks(qint8 tasks);
+    void startTasks(qint8 tasks = 1);
+    void endTasks(qint8 tasks = 1);
     void displayProgress();
     void loadSettings();
     void updateDocsets();
