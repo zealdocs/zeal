@@ -341,7 +341,7 @@
       <attribute name="title">
        <string>Docsets</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QListView" name="listView"/>
        </item>

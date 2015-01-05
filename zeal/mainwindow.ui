@@ -148,7 +148,7 @@ QTabBar::close-button::hover {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="layoutWidget_2">
        <layout class="QVBoxLayout" name="viewInfo">
         <property name="spacing">
          <number>0</number>
