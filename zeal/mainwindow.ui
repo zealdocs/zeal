@@ -234,13 +234,9 @@ QTabBar::close-button::hover {
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="action_Quit"/>
-   </widget>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
     <addaction name="action_Options"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -258,7 +254,7 @@ QTabBar::close-button::hover {
    </widget>
    <widget class="QMenu" name="menu_Tabs">
     <property name="title">
-     <string>Tabs</string>
+     <string>&amp;Tabs</string>
     </property>
     <addaction name="action_NewTab"/>
     <addaction name="action_CloseTab"/>
@@ -267,10 +263,9 @@ QTabBar::close-button::hover {
     <addaction name="action_PreviousTab"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menu_Edit"/>
    <addaction name="menu_View"/>
-   <addaction name="menu_Help"/>
    <addaction name="menu_Tabs"/>
+   <addaction name="menu_Help"/>
   </widget>
   <action name="action_Quit">
    <property name="text">
