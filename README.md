@@ -1,16 +1,9 @@
-# Zeal
-
-## Call for (Co-)Maintainer
-
-**Please contact me via email (available in git commits) if you are interested in taking over or co-maintaining this project.** I could transfer it to a different account, perhaps even transfer the zealdocs.org domain if someone is interested. Anyone with relevant C++ and Qt experience is encouraged to apply!
-
-[![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
-(latest builds are available at https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads)
+# Zeal [![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
 
 ---
 
 **zeal**
-*noun*  
+*noun*
 
  1. a feeling of strong eagerness (usually in favor of a person or cause)
  2. excessive fervor to do something or accomplish some end
@@ -18,30 +11,19 @@
 
 (from WordNet 3.0)
 
-Zeal is a simple documentation browser inspired by [Dash](http://kapeli.com/dash/).
+Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.com/dash/).
 
 ![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
 [More screenshots (imgur)](http://imgur.com/a/eVi97)
 
-## Project Status
-
-This project is not under active development at the moment, so unless someone is interested in maintaining it, no new features or fixes are expected.
-
-## Contributions
-
-Pull requests may remain not reviewed for long time, and in general I don't foresee having much time for this project.
-
-Please keep in mind I'm not an experienced C++ programmer, so the code quality might be not great.
-
-
 ## Download
 
-For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html).
+For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html). Also, the latest unstable builds are available [here]( https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads).
 
 ## How to use
 
-After installing/compiling it you need to download docsets. It can be done automatically by clicking 'Edit', 'Options', 'Docsets', 'Download...'.
+After installing Zeal, you need to download docsets. Go to *File->Options->Docsets*, select the ones you want, and click the *Download* button.
 
 ## How to compile
 
@@ -80,7 +62,6 @@ If you prefer, you can start with Zeal queries from command line, for this, use 
    * Grouping of similar results (like overloaded functions)
  * Code cleanup
    * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
-   * ...
 
 ## Creating your own docsets
 
