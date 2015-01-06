@@ -22,7 +22,7 @@ QNetworkReply *ZealNetworkAccessManager::createRequest(QNetworkAccessManager::Op
         return QNetworkAccessManager::createRequest(QNetworkAccessManager::GetOperation,
                                                     QNetworkRequest(QUrl()));
     }
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     // Fix for AngularJS docset - Windows doesn't allow ':'s in filenames,
     // and bsdtar.exe replaces them with '_'s, so replace all ':'s in requests
     // with '_'s.

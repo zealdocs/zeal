@@ -30,7 +30,7 @@
 #include <QScrollBar>
 #include <QShortcut>
 
-#ifdef WIN32
+#ifdef Q_OS_WIN32
 #include <windows.h>
 #endif
 
@@ -38,7 +38,7 @@
 #include <gtk/gtk.h>
 #endif
 
-#ifdef LINUX
+#ifdef Q_OS_LINUX
 #include <qpa/qplatformnativeinterface.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     localServer->listen(serverName);
 
     // initialise icons
-#if (defined(OSX) || defined(WIN32))
+#if (defined(Q_OS_OSX) || defined(Q_OS_WIN32))
     icon = QIcon(":/zeal.ico");
 #else
     QIcon::setThemeName("hicolor");
@@ -199,7 +199,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
                                                              ui->treeView));
-#if QT_VERSION < QT_VERSION_CHECK(5, 1, 0) && defined(WIN32)
+#if QT_VERSION < QT_VERSION_CHECK(5, 1, 0) && defined(Q_OS_WIN32)
     // overriding subElementRect doesn't work with Qt 5.0.0, but is required to display
     // selected item frame correctly in Windows (for patch see https://codereview.qt-project.org/#change,46559)
     // This is a workaround for Qt < 5.1 - selecting whole rows leads to always rendering the frame.
@@ -281,7 +281,7 @@ MainWindow::MainWindow(QWidget *parent) :
         searchState->expansions.removeOne(index);
     });
 
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     ui->action_CloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
 #else
     ui->action_CloseTab->setShortcut(QKeySequence::Close);
@@ -665,7 +665,7 @@ void MainWindow::bringToFront(bool withHack)
     activateWindow();
     ui->lineEdit->setFocus();
 
-#ifndef WIN32
+#ifndef Q_OS_WIN32
     // Very ugly workaround for the problem described at http://stackoverflow.com/questions/14553810/
     // (just show and hide a modal dialog box, which for some reason restores proper keyboard focus)
     if (withHack) {
@@ -715,7 +715,7 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 void MainWindow::setHotKey(const QKeySequence &hotKey_)
 {
     // platform-specific code for global key grabbing
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     UINT i_vk, i_mod = 0;
     if (!hotKey.isEmpty()) {
         // disable previous hotkey
@@ -854,7 +854,9 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
         settings.setValue("hotkey", hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
     }
-#elif LINUX
+#endif // Q_OS_WIN32
+
+#ifdef Q_OS_LINUX
     auto platform = qApp->platformNativeInterface();
 
     xcb_connection_t *c
@@ -912,7 +914,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     }
     free(keysyms);
     free(keycodes);
-#endif // WIN32 or LINUX
+#endif // Q_OS_LINUX
 }
 
 void MainWindow::refreshRequest()

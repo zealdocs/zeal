@@ -35,7 +35,7 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     style.drawControl(QStyle::CE_ItemViewItem, &option, painter, view);
 
     if (option.state & QStyle::State_Selected) {
-#ifdef WIN32
+#ifdef Q_OS_WIN32
         option.palette.setColor(QPalette::All, QPalette::HighlightedText,
                                 option.palette.color(QPalette::Active, QPalette::Text));
 #endif

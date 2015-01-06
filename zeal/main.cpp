@@ -26,7 +26,7 @@ void setupOptionParser(QCommandLineParser *parser)
 
 #endif
 
-#ifdef WIN32
+#ifdef Q_OS_WIN32
 class ZealProxyStyle : public QProxyStyle
 {
 public:
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QApplication::setApplicationName("zeal");
     QApplication::setApplicationVersion(ZEAL_VERSION);
-#ifdef WIN32
+#ifdef Q_OS_WIN32
     a.setStyle(new ZealProxyStyle);
 #endif
 
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
                                                    QStandardPaths::LocateDirectory));
     QDir::addSearchPath("icons",
                         QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("icons"));
-#ifndef WIN32
+#ifndef Q_OS_WIN32
     QDir::addSearchPath("icons", "/usr/share/pixmaps/zeal");
 #endif
     QDir::addSearchPath("icons", "./icons");

@@ -1,8 +1,10 @@
 #include "zealnativeeventfilter.h"
 
-#ifdef WIN32
+#ifdef Q_OS_WIN32
 #include <windows.h>
-#elif LINUX
+#endif
+
+#ifdef Q_OS_LINUX
 #include "xcb_keysym.h"
 
 #include <QGuiApplication>
@@ -79,7 +81,7 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
     return 0;
 }
 
-#endif // WIN32
+#endif // Q_OS_LINUX
 
 ZealNativeEventFilter::ZealNativeEventFilter(QObject *parent) :
     QObject(parent),
@@ -93,14 +95,17 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
     Q_UNUSED(eventType)
     Q_UNUSED(result)
     enabled = true;
-#ifdef WIN32
+
+#ifdef Q_OS_WIN32
     MSG *msg = static_cast<MSG *>(message);
 
     if (WM_HOTKEY == msg->message && msg->wParam == 10) {
         emit gotHotKey();
         return true;
     }
-#elif LINUX // WIN32 or LINUX
+#endif
+
+#ifdef Q_OS_LINUX
     xcb_generic_event_t *ev = static_cast<xcb_generic_event_t *>(message);
     if (((ev->response_type & 127) == XCB_KEY_PRESS || (ev->response_type & 127) == XCB_KEY_RELEASE)
             && !hotKey.isEmpty()) {
@@ -181,6 +186,6 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         free(keycodes);
         if (found) return true;
     }
-#endif // WIN32 or LINUX
+#endif // Q_OS_LINUX
     return false;
 }
