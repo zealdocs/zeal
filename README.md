@@ -1,4 +1,4 @@
-# Zeal [![Build Status](https://api.shippable.com/projects/5475304bd46935d5fbbe9b81/badge?branchName=master)](https://app.shippable.com/projects/5475304bd46935d5fbbe9b81/builds/latest)
+# Zeal [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
 
 ---
 
@@ -56,7 +56,7 @@ If you prefer, you can start with Zeal queries from command line, for this, use 
 
 ## TODO
 
- * [Issues](https://github.com/jkozera/zeal/issues)
+ * [Issues](https://github.com/zealdocs/zeal/issues)
  * Search enhancements - some ideas:
    * Allow selecting subset of docsets to search in (enable/disable docsets, docset groups)
    * Grouping of similar results (like overloaded functions)
