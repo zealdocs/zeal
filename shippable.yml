@@ -6,7 +6,7 @@ before_install:
 install:
   - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip git curl
   - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || wget -O $HOME/qt/qt.exe http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe'
+  - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe'
   - bash -c '[ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT'
   - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z -o$HOME/qt'
   - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z -o$HOME/qt'
@@ -36,9 +36,9 @@ script:
   - mkdir zeal-$(cat VERSION)
   - cp release/zeal.exe zeal-$(cat VERSION)
   - cp -r icons zeal-$(cat VERSION)
-  - wget https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bsdtar.exe -O zeal-$(cat VERSION)/bsdtar.exe
-  - wget https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bzip2.dll -O zeal-$(cat VERSION)/bzip2.dll
-  - wget https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/zlib1.dll -O zeal-$(cat VERSION)/zlib1.dll
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bsdtar.exe -O zeal-$(cat VERSION)/bsdtar.exe
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bzip2.dll -O zeal-$(cat VERSION)/bzip2.dll
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/zlib1.dll -O zeal-$(cat VERSION)/zlib1.dll
   - mkdir zeal-$(cat VERSION)/imageformats
   - mkdir zeal-$(cat VERSION)/platforms
   - mkdir zeal-$(cat VERSION)/sqldrivers
