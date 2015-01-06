@@ -4,6 +4,10 @@
 #
 #-------------------------------------------------
 
+lessThan(QT_VERSION, "5.2.0") {
+    error("Qt 5.2.0 or above is required to build Zeal.")
+}
+
 QT       += core gui widgets sql gui-private xml webkitwidgets
 
 use_webengine {

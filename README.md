@@ -30,7 +30,7 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 If you prefer to compile Zeal manually.
 
 ### Requirements
-* Qt 5.0
+* Qt 5.2+
 * X C Binding – keysyms (Ubuntu `libxcb-keysyms1-dev`)
 * `bsdtar` is required for the built-in docset extracting to work
 * `libappindicator` and `libappindicator-devel` for notifications
