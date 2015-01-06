@@ -5,9 +5,9 @@
 #include <QTreeView>
 #include <QCompleter>
 #include <QLabel>
-#include "../lineedit.h"
+#include <QLineEdit>
 
-class ZealSearchEdit : public LineEdit
+class ZealSearchEdit : public QLineEdit
 {
     Q_OBJECT
 public:
@@ -20,6 +20,7 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
     void focusInEvent(QFocusEvent *);
+    void keyPressEvent(QKeyEvent *keyEvent);
     void mousePressEvent(QMouseEvent *ev);
     void resizeEvent(QResizeEvent *ev);
 

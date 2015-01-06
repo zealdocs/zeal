@@ -30,7 +30,6 @@ SOURCES += main.cpp\
     zealdocsetsregistry.cpp \
     zealsearchresult.cpp \
     zealnativeeventfilter.cpp \
-    lineedit.cpp \
     zealsearchitemdelegate.cpp \
     zealsearchitemstyle.cpp \
     zealsettingsdialog.cpp \
@@ -46,7 +45,6 @@ HEADERS  += mainwindow.h \
     zealdocsetsregistry.h \
     zealsearchresult.h \
     zealnativeeventfilter.h \
-    lineedit.h \
     zealsearchitemdelegate.h \
     zealsearchitemstyle.h \
     zealsettingsdialog.h \

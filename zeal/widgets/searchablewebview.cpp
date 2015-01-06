@@ -19,9 +19,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     webView(this)
 {
     webView.setAttribute(Qt::WA_AcceptTouchEvents, false);
-    lineEdit.hideOnClear = true;
     lineEdit.hide();
-    connect(&lineEdit, &LineEdit::textChanged, [&](const QString &text) {
+    connect(&lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         // clear selection:
 #ifdef USE_WEBENGINE
         webView.findText(text);

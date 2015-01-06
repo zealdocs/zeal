@@ -1,6 +1,10 @@
 #ifndef SEARCHABLEWEBVIEW_H
 #define SEARCHABLEWEBVIEW_H
 
+#include "zealwebview.h"
+
+#include <QLineEdit>
+
 #ifdef USE_WEBENGINE
     #include <QWebEngineView>
     #include <QWebEngineSettings>
@@ -9,8 +13,6 @@
     #include <QWebView>
     #include <QWebSettings>
 #endif
-#include "zealwebview.h"
-#include "../lineedit.h"
 
 class SearchableWebView : public QWidget
 {
@@ -49,7 +51,7 @@ public slots:
     void forward();
 
 private:
-    LineEdit lineEdit;
+    QLineEdit lineEdit;
     ZealWebView webView;
     QString searchText;
     void moveLineEdit();

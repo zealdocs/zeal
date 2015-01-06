@@ -5,8 +5,10 @@
 #include <QKeyEvent>
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
-    LineEdit(parent)
+    QLineEdit(parent)
 {
+    setClearButtonEnabled(true);
+
     completionLabel = new QLabel(this);
     completionLabel->setObjectName("completer");
     completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
@@ -91,19 +93,19 @@ bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
             }
         }
     }
-    return LineEdit::eventFilter(obj, ev);
+    return QLineEdit::eventFilter(obj, ev);
 }
 
 void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
 {
     showCompletions(text());
-    LineEdit::resizeEvent(ev);
+    QLineEdit::resizeEvent(ev);
 }
 
 void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
 {
     // Focus on the widget.
-    LineEdit::focusInEvent(evt);
+    QLineEdit::focusInEvent(evt);
 
     // Override the default selection.
     ZealSearchQuery currentQuery(text());
@@ -114,11 +116,20 @@ void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
     focusing = true;
 }
 
+void ZealSearchEdit::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (keyEvent->key() == Qt::Key_Escape) {
+        clear();
+    } else {
+        QLineEdit::keyPressEvent(keyEvent);
+    }
+}
+
 void ZealSearchEdit::mousePressEvent(QMouseEvent *ev)
 {
     // Let the focusInEvent code deal with initial selection on focus.
     if (!focusing)
-        LineEdit::mousePressEvent(ev);
+        QLineEdit::mousePressEvent(ev);
     focusing = false;
 }
 
