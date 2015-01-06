@@ -1,14 +1,12 @@
 #include "mainwindow.h"
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QDir>
 #include <QLocalSocket>
 #include <QProxyStyle>
 #include <QStandardPaths>
 #include <QTextStream>
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
-#include <QCommandLineParser>
 
 // Sets up the command line parser.
 void setupOptionParser(QCommandLineParser *parser)
@@ -23,8 +21,6 @@ void setupOptionParser(QCommandLineParser *parser)
                                 "Force the application run.");
     parser->addOption(forceRun);
 }
-
-#endif
 
 #ifdef Q_OS_WIN32
 class ZealProxyStyle : public QProxyStyle
@@ -54,19 +50,12 @@ int main(int argc, char *argv[])
     a.setStyle(new ZealProxyStyle);
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
     QCommandLineParser optionParser;
     setupOptionParser(&optionParser);
     optionParser.process(a);
     // Extract the command line flags.
     QString queryParam = optionParser.value("query");
     bool runForce = optionParser.isSet("force");
-#else
-    QString queryParam;
-    if (argc > 2 && QString(argv[1]) == "--query")
-        queryParam = argv[2];
-    bool runForce = false;
-#endif
 
     // detect already running instance and optionally pass a search
     // query onto it.

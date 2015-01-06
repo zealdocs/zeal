@@ -20,12 +20,9 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 {
     painter->save();
     QStyleOptionViewItem option(option_);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-    // overriding subElementRect doesn't work with Qt 5.0.0, but is required to display
-    // selected item frame correctly in Windows (for patch see https://codereview.qt-project.org/#change,46559)
     option.text = index.data().toString();
     option.features |= QStyleOptionViewItem::HasDisplay;
-#endif
+
     if (!index.data(Qt::DecorationRole).isNull()) {
         option.features |= QStyleOptionViewItem::HasDecoration;
         option.icon = index.data(Qt::DecorationRole).value<QIcon>();

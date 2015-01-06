@@ -199,13 +199,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
                                                              ui->treeView));
-#if QT_VERSION < QT_VERSION_CHECK(5, 1, 0) && defined(Q_OS_WIN32)
-    // overriding subElementRect doesn't work with Qt 5.0.0, but is required to display
-    // selected item frame correctly in Windows (for patch see https://codereview.qt-project.org/#change,46559)
-    // This is a workaround for Qt < 5.1 - selecting whole rows leads to always rendering the frame.
-    // (Only the frame is larger than the list item, which is different from default behaviour.)
-    ui->treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-#endif
     treeViewClicked = false;
 
     createTab();
