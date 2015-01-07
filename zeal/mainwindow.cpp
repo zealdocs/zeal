@@ -719,7 +719,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     }
     hotKey = hotKey_;
     nativeFilter.setHotKey(hotKey);
-    settings.setValue("hotkey", hotKey);
+    m_settings->setValue("hotkey", hotKey);
     if (hotKey.isEmpty()) return;
     int key = hotKey[0];
     if (key & Qt::ALT) i_mod |= MOD_ALT;
@@ -847,7 +847,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     if (!RegisterHotKey(NULL, 10, i_mod, i_vk)) {
         hotKey = QKeySequence();
         nativeFilter.setHotKey(hotKey);
-        settings.setValue("hotkey", hotKey);
+        m_settings->setValue("hotkey", hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
     }
 #endif // Q_OS_WIN32
