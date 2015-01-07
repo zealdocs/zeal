@@ -9,24 +9,19 @@ class ZealNativeEventFilter : public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 public:
-    explicit ZealNativeEventFilter(QObject *parent = 0);
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
-    void setEnabled(bool enabled_)
-    {
-        enabled = enabled_;
-    }
+    explicit ZealNativeEventFilter(QObject *parent = nullptr);
 
-    void setHotKey(const QKeySequence &hotKey_)
-    {
-        hotKey = hotKey_;
-    }
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+
+    void setEnabled(bool enabled);
+    void setHotKey(const QKeySequence &key);
 
 signals:
-    void gotHotKey();
+    void hotKeyPressed();
 
 private:
-    bool enabled;
-    QKeySequence hotKey;
+    bool m_enabled;
+    QKeySequence m_hotKey;
 };
 
 #endif // ZEALNATIVEEVENTFILTER_H

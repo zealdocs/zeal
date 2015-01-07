@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
         keySequence = m_settings->value("hotkey").value<QKeySequence>();
 
     // initialise key grabber
-    connect(&nativeFilter, &ZealNativeEventFilter::gotHotKey, [&]() {
+    connect(&nativeFilter, &ZealNativeEventFilter::hotKeyPressed, [&]() {
         if (!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {

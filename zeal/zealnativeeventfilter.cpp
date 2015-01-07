@@ -94,7 +94,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
 {
     Q_UNUSED(eventType)
     Q_UNUSED(result)
-    enabled = true;
+    m_enabled = true;
 
 #ifdef Q_OS_WIN32
     MSG *msg = static_cast<MSG *>(message);
@@ -108,7 +108,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
 #ifdef Q_OS_LINUX
     xcb_generic_event_t *ev = static_cast<xcb_generic_event_t *>(message);
     if (((ev->response_type & 127) == XCB_KEY_PRESS || (ev->response_type & 127) == XCB_KEY_RELEASE)
-            && !hotKey.isEmpty()) {
+            && !m_hotKey.isEmpty()) {
         // XCB_KEY_RELEASE must be ignored by Qt because otherwise it causes SIGSEGV in QXcbKeyboard::handleKeyReleaseEvent
         xcb_connection_t *c = static_cast<xcb_connection_t *>(
                     ((QGuiApplication *)QGuiApplication::instance())->
@@ -116,7 +116,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         xcb_key_press_event_t *event = (xcb_key_press_event_t *)ev;
 
         xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
-        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, GetX11Key(hotKey[0]));
+        xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, GetX11Key(m_hotKey[0]));
 
         bool found = false;
         // found=true means either (a) complete hotkey was pressed, or (b) any of its separate
@@ -131,7 +131,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
             modifiers.append(qMakePair(XK_Meta_L, Qt::META));
             modifiers.append(qMakePair(XK_Meta_R, Qt::META));
             for (auto modifier : modifiers) {
-                if (!(hotKey[0] & modifier.second))
+                if (!(m_hotKey[0] & modifier.second))
                     continue;
                 xcb_keycode_t *mod_keycodes = xcb_key_symbols_get_keycode(keysyms, modifier.first);
                 if (mod_keycodes == nullptr) continue;
@@ -148,30 +148,30 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         while (keycodes[i] != XCB_NO_SYMBOL) {
             if (event->detail == keycodes[i]) {
                 bool modifiers_present = true;
-                if (hotKey[0] & Qt::ALT) {
+                if (m_hotKey[0] & Qt::ALT) {
                     if (!(event->state & GetModifier(c, keysyms, XK_Alt_L)
                           || event->state & GetModifier(c, keysyms, XK_Alt_R)))
                         modifiers_present = false;
                 }
-                if (hotKey[0] & Qt::CTRL) {
+                if (m_hotKey[0] & Qt::CTRL) {
                     if (!(event->state & GetModifier(c, keysyms, XK_Control_L)
                           || event->state & GetModifier(c, keysyms, XK_Control_R)))
                         modifiers_present = false;
                 }
-                if (hotKey[0] & Qt::META) {
+                if (m_hotKey[0] & Qt::META) {
                     if (!(event->state & GetModifier(c, keysyms, XK_Meta_L)
                           || event->state & GetModifier(c, keysyms, XK_Meta_R)))
                         modifiers_present = false;
                 }
-                if (hotKey[0] & Qt::SHIFT) {
+                if (m_hotKey[0] & Qt::SHIFT) {
                     if (!(event->state & GetModifier(c, keysyms, XK_Shift_L)
                           || event->state & GetModifier(c, keysyms, XK_Shift_R)))
                         modifiers_present = false;
                 }
-                if (enabled && modifiers_present) {
+                if (m_enabled && modifiers_present) {
                     xcb_allow_events(c, XCB_ALLOW_ASYNC_KEYBOARD, event->time);
                     if ((ev->response_type&127) == XCB_KEY_PRESS)
-                        emit gotHotKey();
+                        emit hotKeyPressed();
                     found = true;
                 } else {
                     if ((ev->response_type&127) == XCB_KEY_RELEASE)
@@ -184,8 +184,19 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
         }
         free(keysyms);
         free(keycodes);
-        if (found) return true;
+        if (found)
+            return true;
     }
 #endif // Q_OS_LINUX
     return false;
+}
+
+void ZealNativeEventFilter::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
+}
+
+void ZealNativeEventFilter::setHotKey(const QKeySequence &key)
+{
+    m_hotKey = key;
 }
