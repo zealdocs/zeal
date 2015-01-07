@@ -64,6 +64,7 @@ FORMS += \
 !msvc:LIBS += -lz -L/usr/lib
 
 win32:RC_ICONS = zeal.ico
+win32:DEFINES += QUAZIP_BUILD
 msvc:INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 msvc:QMAKE_LIBS += user32.lib
 
