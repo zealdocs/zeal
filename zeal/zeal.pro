@@ -8,83 +8,86 @@ lessThan(QT_VERSION, "5.2.0") {
     error("Qt 5.2.0 or above is required to build Zeal.")
 }
 
-QT       += core gui widgets sql gui-private xml webkitwidgets
+TEMPLATE = app
+
+QT += gui gui-private widgets sql xml webkitwidgets
+CONFIG += c++11
 
 use_webengine {
     QT      += webenginewidgets
     DEFINES += USE_WEBENGINE
 }
 
-
 TARGET = zeal
 target.path = /usr/bin
 INSTALLS = target
-TEMPLATE = app
-ICON = zeal.icns
 
+DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    zeallistmodel.cpp \
-    zealsearchmodel.cpp \
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+    progressitemdelegate.cpp \
+    zealdocsetinfo.cpp \
+    zealdocsetmetadata.cpp \
     zealdocsetsregistry.cpp \
-    zealsearchresult.cpp \
+    zeallistmodel.cpp \
     zealnativeeventfilter.cpp \
+    zealnetworkaccessmanager.cpp \
     zealsearchitemdelegate.cpp \
     zealsearchitemstyle.cpp \
-    zealsettingsdialog.cpp \
-    zealnetworkaccessmanager.cpp \
+    zealsearchmodel.cpp \
     zealsearchquery.cpp \
-    progressitemdelegate.cpp \
-    zealdocsetmetadata.cpp \
-    zealdocsetinfo.cpp
+    zealsearchresult.cpp \
+    zealsettingsdialog.cpp
 
-HEADERS  += mainwindow.h \
-    zeallistmodel.h \
-    zealsearchmodel.h \
+HEADERS += \
+    mainwindow.h \
+    progressitemdelegate.h \
+    zealdocsetinfo.h \
+    zealdocsetmetadata.h \
     zealdocsetsregistry.h \
-    zealsearchresult.h \
+    zeallistmodel.h \
     zealnativeeventfilter.h \
+    zealnetworkaccessmanager.h \
     zealsearchitemdelegate.h \
     zealsearchitemstyle.h \
-    zealsettingsdialog.h \
-    xcb_keysym.h \
-    zealnetworkaccessmanager.h \
+    zealsearchmodel.h \
     zealsearchquery.h \
-    progressitemdelegate.h \
-    zealdocsetmetadata.h \
-    zealdocsetinfo.h
+    zealsearchresult.h \
+    zealsettingsdialog.h
 
-FORMS    += mainwindow.ui \
+FORMS += \
+    mainwindow.ui \
     zealsettingsdialog.ui
 
-
-!msvc:QMAKE_CXXFLAGS += -std=c++11
-msvc:INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
-
-macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
-macx:CONFIG += c++11
+!msvc:LIBS += -lz -L/usr/lib
 
 win32:RC_ICONS = zeal.ico
-win32:DEFINES += QUAZIP_BUILD
-DEFINES += ZEAL_VERSION=\\\"20140215\\\"
-!msvc:LIBS += -lz -L/usr/lib
+msvc:INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 msvc:QMAKE_LIBS += user32.lib
 
-CONFIG += link_pkgconfig
+macx {
+    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
+    ICON = zeal.icns
+}
 
-unix:!macx: LIBS += -lxcb -lxcb-keysyms
-unix:!macx: SOURCES += xcb_keysym.cpp
-unix:!macx: QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
+unix:!macx {
+    LIBS += -lxcb -lxcb-keysyms
+    HEADERS += xcb_keysym.h
+    SOURCES += xcb_keysym.cpp
+    QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
 
-unix:!macx:!no_libappindicator {
-    INCLUDEPATH += /usr/include/libappindicator-0.1 \
-        /usr/include/gtk-2.0 \
-        /usr/lib/gtk-2.0/include
-    PKGCONFIG = gtk+-2.0
-    LIBS += -lappindicator
+    !no_libappindicator {
+        CONFIG += link_pkgconfig
+        PKGCONFIG = gtk+-2.0
+        INCLUDEPATH += /usr/include/libappindicator-0.1 \
+            /usr/include/gtk-2.0 \
+            /usr/lib/gtk-2.0/include
+        LIBS += -lappindicator
 
-    DEFINES += USE_LIBAPPINDICATOR
+        DEFINES += USE_LIBAPPINDICATOR
+    }
 }
 
 appicons16.path=/usr/share/icons/hicolor/16x16/apps
@@ -103,11 +106,8 @@ desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
 
-include (widgets/widgets.pri)
-include (quazip/quazip.pri)
+include(widgets/widgets.pri)
+include(quazip/quazip.pri)
 
 RESOURCES += \
     zeal.qrc
-
-OTHER_FILES += \
-    zeal.icns
