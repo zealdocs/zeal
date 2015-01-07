@@ -52,12 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_settings(new QSettings(this)),
     settingsDialog(zealList)
 {
-    trayIcon = nullptr;
-#ifdef USE_LIBAPPINDICATOR
-    indicator = nullptr;
-#endif
-    trayIconMenu = nullptr;
-
     // server for detecting already running instances
     localServer = new QLocalServer(this);
     connect(localServer, &QLocalServer::newConnection, [&]() {
@@ -94,9 +88,9 @@ MainWindow::MainWindow(QWidget *parent) :
             bringToFront(true);
         } else {
 #ifdef USE_LIBAPPINDICATOR
-            if (trayIcon || indicator) {
+            if (m_trayIcon || m_indicator) {
 #else
-            if (trayIcon) {
+            if (m_trayIcon) {
 #endif
                 hide();
             } else {
@@ -156,11 +150,11 @@ MainWindow::MainWindow(QWidget *parent) :
             setHotKey(settingsDialog.hotKey());
             if (m_settings->value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
-            } else if (trayIcon) {
-                trayIcon->deleteLater();
-                trayIconMenu->deleteLater();
-                trayIcon = nullptr;
-                trayIconMenu = nullptr;
+            } else if (m_trayIcon) {
+                m_trayIcon->deleteLater();
+                m_trayIconMenu->deleteLater();
+                m_trayIcon = nullptr;
+                m_trayIconMenu = nullptr;
             }
         } else {
             // cancelled - restore previous value
@@ -604,9 +598,9 @@ void onQuit(GtkMenu *menu, gpointer data)
 void MainWindow::createTrayIcon()
 {
 #ifdef USE_LIBAPPINDICATOR
-    if (trayIcon || indicator) return;
+    if (m_trayIcon || m_indicator) return;
 #else
-    if (trayIcon) return;
+    if (m_trayIcon) return;
 #endif
 
 #ifdef USE_LIBAPPINDICATOR
@@ -624,21 +618,21 @@ void MainWindow::createTrayIcon()
         g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
         gtk_widget_show(quitItem);
 
-        indicator = app_indicator_new("zeal",
+        m_indicator = app_indicator_new("zeal",
                                       icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
 
-        app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_menu(indicator, GTK_MENU(menu));
+        app_indicator_set_status(m_indicator, APP_INDICATOR_STATUS_ACTIVE);
+        app_indicator_set_menu(m_indicator, GTK_MENU(menu));
     } else {  // others
 #endif
-        trayIconMenu = new QMenu(this);
-        auto quitAction = trayIconMenu->addAction("&Quit");
+        m_trayIconMenu = new QMenu(this);
+        auto quitAction = m_trayIconMenu->addAction("&Quit");
         connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-        trayIcon = new QSystemTrayIcon(this);
-        trayIcon->setContextMenu(trayIconMenu);
-        trayIcon->setIcon(icon);
-        trayIcon->setToolTip("Zeal");
-        connect(trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
+        m_trayIcon = new QSystemTrayIcon(this);
+        m_trayIcon->setContextMenu(m_trayIconMenu);
+        m_trayIcon->setIcon(icon);
+        m_trayIcon->setToolTip("Zeal");
+        connect(m_trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
             if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
                 if (isVisible())
                     hide();
@@ -646,7 +640,7 @@ void MainWindow::createTrayIcon()
                     bringToFront(false);
             }
         });
-        trayIcon->show();
+        m_trayIcon->show();
 #ifdef USE_LIBAPPINDICATOR
     }
 #endif

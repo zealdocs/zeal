@@ -124,13 +124,14 @@ private:
     QTabBar tabBar;
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;
-    QSystemTrayIcon *trayIcon;
+
+    QSystemTrayIcon *m_trayIcon = nullptr;
+    QMenu *m_trayIconMenu = nullptr;
 
 #ifdef USE_LIBAPPINDICATOR
-    AppIndicator *indicator;  // for Unity
+    AppIndicator *m_indicator = nullptr;  // for Unity
 #endif
 
-    QMenu *trayIconMenu;
     QString getDocsetName(const QString &urlPath);
 };
 
