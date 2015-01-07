@@ -44,8 +44,12 @@ public:
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QApplication::setApplicationName("zeal");
-    QApplication::setApplicationVersion(ZEAL_VERSION);
+
+    QCoreApplication::setApplicationName(QStringLiteral("Zeal"));
+    QCoreApplication::setApplicationVersion(ZEAL_VERSION);
+    QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
+    QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
+
 #ifdef Q_OS_WIN32
     a.setStyle(new ZealProxyStyle);
 #endif

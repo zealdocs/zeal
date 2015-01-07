@@ -49,7 +49,7 @@ const QString serverName = "zeal_process_running";
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new QSettings("Zeal", "Zeal", this)),
+    m_settings(new QSettings(this)),
     settingsDialog(zealList)
 {
     trayIcon = nullptr;
