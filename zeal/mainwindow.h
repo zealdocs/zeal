@@ -9,7 +9,6 @@
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
-#include <QSettings>
 
 #ifdef USE_LIBAPPINDICATOR
 #undef signals
@@ -27,6 +26,7 @@
 #endif
 
 class QLocalServer;
+class QSettings;
 class QSystemTrayIcon;
 
 namespace Ui {
@@ -120,7 +120,7 @@ private:
     bool treeViewClicked;
 
     QKeySequence hotKey;
-    QSettings settings;
+    QSettings *m_settings = nullptr;
     QTabBar tabBar;
     ZealNativeEventFilter nativeFilter;
     ZealSettingsDialog settingsDialog;

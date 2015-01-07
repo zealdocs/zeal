@@ -15,6 +15,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QSettings>
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTimer>
@@ -48,7 +49,7 @@ const QString serverName = "zeal_process_running";
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    settings("Zeal", "Zeal"),
+    m_settings(new QSettings("Zeal", "Zeal", this)),
     settingsDialog(zealList)
 {
     trayIcon = nullptr;
@@ -78,14 +79,14 @@ MainWindow::MainWindow(QWidget *parent) :
     icon = QIcon::fromTheme("zeal");
 #endif
     setWindowIcon(icon);
-    if (settings.value("hidingBehavior", "systray").toString() == "systray")
+    if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
     QKeySequence keySequence;
-    if (settings.value("hotkey").isNull())
+    if (m_settings->value("hotkey").isNull())
         keySequence = QKeySequence("Alt+Space");
     else
-        keySequence = settings.value("hotkey").value<QKeySequence>();
+        keySequence = m_settings->value("hotkey").value<QKeySequence>();
 
     // initialise key grabber
     connect(&nativeFilter, &ZealNativeEventFilter::gotHotKey, [&]() {
@@ -114,10 +115,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupShortcuts();
 
-    restoreGeometry(settings.value("geometry").toByteArray());
-    ui->splitter->restoreState(settings.value("splitter").toByteArray());
+    restoreGeometry(m_settings->value("geometry").toByteArray());
+    ui->splitter->restoreState(m_settings->value("splitter").toByteArray());
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
-        settings.setValue("splitter", ui->splitter->saveState());
+        m_settings->setValue("splitter", ui->splitter->saveState());
     });
 
     applyWebPageStyle();
@@ -140,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     addAction(ui->action_Quit);
     connect(ui->action_Quit, &QAction::triggered, [=]() {
-        settings.setValue("geometry", saveGeometry());
+        m_settings->setValue("geometry", saveGeometry());
     });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
@@ -153,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
         nativeFilter.setEnabled(false);
         if (settingsDialog.exec()) {
             setHotKey(settingsDialog.hotKey());
-            if (settings.value("hidingBehavior").toString() == "systray") {
+            if (m_settings->value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
             } else if (trayIcon) {
                 trayIcon->deleteLater();
@@ -164,7 +165,7 @@ MainWindow::MainWindow(QWidget *parent) :
         } else {
             // cancelled - restore previous value
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
-                                                 settings.value("minFontSize").toInt());
+                                                 m_settings->value("minFontSize").toInt());
         }
         nativeFilter.setEnabled(true);
         ui->treeView->reset();
@@ -682,12 +683,12 @@ void MainWindow::bringToFrontAndSearch(const QString &query)
 
 bool MainWindow::startHidden()
 {
-    return settings.value("startupBehavior", "window").toString() == "systray";
+    return m_settings->value("startupBehavior", "window").toString() == "systray";
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    settings.setValue("geometry", saveGeometry());
+    m_settings->setValue("geometry", saveGeometry());
     event->ignore();
     hide();
 }
@@ -873,7 +874,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     }
     hotKey = hotKey_;
     nativeFilter.setHotKey(hotKey);
-    settings.setValue("hotkey", hotKey);
+    m_settings->setValue("hotkey", hotKey);
 
     if (hotKey.isEmpty()) return;
 
@@ -883,7 +884,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     if (!keycodes) {
         hotKey = QKeySequence();
         nativeFilter.setHotKey(hotKey);
-        settings.setValue("hotkey", hotKey);
+        m_settings->setValue("hotkey", hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
         free(keysyms);
         return;
@@ -930,8 +931,8 @@ void MainWindow::changeMinFontSize(int minFont)
 
 void MainWindow::applyWebPageStyle()
 {
-    if (settings.contains("minFontSize")) {
-        int minFont = settings.value("minFontSize").toInt();
+    if (m_settings->contains("minFontSize")) {
+        int minFont = m_settings->value("minFontSize").toInt();
         QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
     }
 }
