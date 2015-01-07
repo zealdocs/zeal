@@ -130,7 +130,6 @@ private:
 #endif
 
     QMenu *trayIconMenu;
-    QMap<QString, QString> urls;
     QString getDocsetName(const QString &urlPath);
 };
 
