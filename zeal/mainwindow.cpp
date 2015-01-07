@@ -663,6 +663,8 @@ void MainWindow::bringToFront(bool withHack)
         hackDialog.show();
         QTimer::singleShot(100, &hackDialog, SLOT(reject()));
     }
+#else
+    Q_UNUSED(withHack)
 #endif
 }
 

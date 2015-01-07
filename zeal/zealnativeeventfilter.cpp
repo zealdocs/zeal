@@ -100,7 +100,7 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
     MSG *msg = static_cast<MSG *>(message);
 
     if (WM_HOTKEY == msg->message && msg->wParam == 10) {
-        emit gotHotKey();
+        emit hotKeyPressed();
         return true;
     }
 #endif
