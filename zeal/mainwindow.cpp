@@ -1,34 +1,28 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "zeallistmodel.h"
-#include "zealsearchmodel.h"
-#include "zealsearchquery.h"
-#include "zealdocsetsregistry.h"
-#include "zealsearchitemdelegate.h"
 
-#include <QtDebug>
-#include <QCoreApplication>
+#include "zealdocsetsregistry.h"
+#include "zealnetworkaccessmanager.h"
+#include "zealsearchitemdelegate.h"
+#include "zealsearchquery.h"
+
+#include <QAbstractEventDispatcher>
+#include <QCloseEvent>
 #include <QDesktopServices>
 #include <QKeyEvent>
-#include <QAbstractEventDispatcher>
-#include <QMessageBox>
+#include <QLocalServer>
 #include <QLocalSocket>
-#include <QLayout>
-#include <QSettings>
-#include <QTimer>
-#include <QToolButton>
-#ifdef USE_WEBENGINE
-    #include <QWebEngineSettings>
-    #include <QWebEngineHistory>
-#else
-    #include <QWebSettings>
-    #include <QWebFrame>
-    #include <QWebHistory>
-#endif
-#include <QNetworkProxyFactory>
-#include <QAbstractNetworkCache>
+#include <QMessageBox>
 #include <QScrollBar>
 #include <QShortcut>
+#include <QSystemTrayIcon>
+#include <QTimer>
+
+#ifdef USE_WEBENGINE
+    #include <QWebEngineSettings>
+#else
+    #include <QWebFrame>
+#endif
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -39,11 +33,13 @@
 #endif
 
 #ifdef Q_OS_LINUX
+#include "xcb_keysym.h"
+
 #include <qpa/qplatformnativeinterface.h>
+
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
-#include "xcb_keysym.h"
 #endif
 
 const QString serverName = "zeal_process_running";
@@ -682,6 +678,13 @@ void MainWindow::bringToFrontAndSearch(const QString &query)
 bool MainWindow::startHidden()
 {
     return settings.value("startupBehavior", "window").toString() == "systray";
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    settings.setValue("geometry", saveGeometry());
+    event->ignore();
+    hide();
 }
 
 void MainWindow::setupShortcuts()

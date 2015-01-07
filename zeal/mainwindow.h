@@ -3,18 +3,14 @@
 
 #include "zeallistmodel.h"
 #include "zealnativeeventfilter.h"
-#include "zealnetworkaccessmanager.h"
 #include "zealsearchmodel.h"
 #include "zealsettingsdialog.h"
 
-#include <QCloseEvent>
 #include <QDialog>
 #include <QMenu>
 #include <QMainWindow>
 #include <QModelIndex>
-#include <QLocalServer>
 #include <QSettings>
-#include <QSystemTrayIcon>
 
 #ifdef USE_LIBAPPINDICATOR
 #undef signals
@@ -31,9 +27,14 @@
     #include <QWebHistory>
 #endif
 
+class QLocalServer;
+class QSystemTrayIcon;
+
 namespace Ui {
 class MainWindow;
 }
+
+class ZealNetworkAccessManager;
 
 extern const QString serverName;
 
@@ -72,13 +73,7 @@ public:
     bool startHidden();
 
 protected:
-    void closeEvent(QCloseEvent *event)
-    {
-        settings.setValue("geometry", saveGeometry());
-        event->ignore();
-        hide();
-    }
-
+    void closeEvent(QCloseEvent *event) override;
     void setupShortcuts();
     void keyPressEvent(QKeyEvent *keyEvent);
 
