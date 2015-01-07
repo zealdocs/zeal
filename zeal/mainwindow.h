@@ -7,7 +7,6 @@
 #include "zealsettingsdialog.h"
 
 #include <QDialog>
-#include <QMenu>
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QSettings>
@@ -113,8 +112,10 @@ private:
     ZealListModel zealList;
 
     QLocalServer *localServer;
-    QMenu backMenu;
-    QMenu forwardMenu;
+
+    QMenu *m_backMenu = nullptr;
+    QMenu *m_forwardMenu = nullptr;
+
     QDialog hackDialog;
     bool treeViewClicked;
 

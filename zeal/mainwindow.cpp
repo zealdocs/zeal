@@ -12,6 +12,7 @@
 #include <QKeyEvent>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QMenu>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QShortcut>
@@ -185,6 +186,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_About_QT, &QAction::triggered, [&]() {
         QMessageBox::aboutQt(this);
     });
+
+    m_backMenu = new QMenu(ui->backButton);
+    ui->backButton->setMenu(m_backMenu);
+
+    m_forwardMenu = new QMenu(ui->forwardButton);
+    ui->forwardButton->setMenu(m_forwardMenu);
+
     displayViewActions();
 
     // treeView and lineEdit
@@ -249,9 +257,6 @@ MainWindow::MainWindow(QWidget *parent) :
         if (text.isEmpty())
             ui->treeView->setModel(&zealList);
     });
-
-    ui->backButton->setMenu(&backMenu);
-    ui->forwardButton->setMenu(&forwardMenu);
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);
     addAction(ui->action_NewTab);
@@ -545,16 +550,16 @@ void MainWindow::displayViewActions()
     ui->menu_View->addAction(ui->action_Forward);
     ui->menu_View->addSeparator();
 
-    backMenu.clear();
-    forwardMenu.clear();
+    m_backMenu->clear();
+    m_forwardMenu->clear();
 
     QWebHistory *history = ui->webView->page()->history();
     for (QWebHistoryItem item: history->backItems(10))
-        backMenu.addAction(addHistoryAction(history, item));
+        m_backMenu->addAction(addHistoryAction(history, item));
     if (history->count() > 0)
         addHistoryAction(history, history->currentItem())->setEnabled(false);
     for (QWebHistoryItem item: history->forwardItems(10))
-        forwardMenu.addAction(addHistoryAction(history, item));
+        m_forwardMenu->addAction(addHistoryAction(history, item));
 
     displayTabs();
 }
