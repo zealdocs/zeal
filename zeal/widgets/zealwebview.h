@@ -10,36 +10,23 @@
     #include <QWebView>
 #endif
 
-// Subclass QWebView so we can override createWindow
 class ZealWebView : public QWebView
 {
     Q_OBJECT
 public:
-    explicit ZealWebView(QWidget *parent = 0);
-    void wheelEvent(QWheelEvent *event);
-    int zealZoomFactor()
-    {
-        return zf;
-    }
+    explicit ZealWebView(QWidget *parent = nullptr);
 
-    void setZealZoomFactor(int zf_)
-    {
-        zf = zf_;
-        updateZoomFactor();
-    }
+    int zealZoomFactor() const;
+    void setZealZoomFactor(int zf);
 
 protected:
-    virtual QWebView *createWindow(QWebPage::WebWindowType type);
+    QWebView *createWindow(QWebPage::WebWindowType type) override;
+    void wheelEvent(QWheelEvent *event) override;
+
 private:
-    int zf = 0;
-    void updateZoomFactor()
-    {
-        setZoomFactor(1+(qreal(zf)/10));
-    }
+    void updateZoomFactor();
 
-signals:
-
-public slots:
+    int m_zoomFactor = 0;
 };
 
 #endif // ZEALWEBVIEW_H

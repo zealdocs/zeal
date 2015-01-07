@@ -2,8 +2,20 @@
 
 #include "../mainwindow.h"
 
-ZealWebView::ZealWebView(QWidget *parent) : QWebView(parent)
+ZealWebView::ZealWebView(QWidget *parent) :
+    QWebView(parent)
 {
+}
+
+int ZealWebView::zealZoomFactor() const
+{
+    return m_zoomFactor;
+}
+
+void ZealWebView::setZealZoomFactor(int zf)
+{
+    m_zoomFactor = zf;
+    updateZoomFactor();
 }
 
 QWebView *ZealWebView::createWindow(QWebPage::WebWindowType type)
@@ -18,9 +30,14 @@ QWebView *ZealWebView::createWindow(QWebPage::WebWindowType type)
 void ZealWebView::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier) {
-        zf += event->delta()/120;
+        m_zoomFactor += event->delta() / 120;
         updateZoomFactor();
     } else {
         QWebView::wheelEvent(event);
     }
+}
+
+void ZealWebView::updateZoomFactor()
+{
+    setZoomFactor(1 + m_zoomFactor / 10.);
 }
