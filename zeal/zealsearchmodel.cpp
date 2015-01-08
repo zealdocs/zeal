@@ -23,7 +23,7 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(docsets->icon(item->getDocsetName()));
+            return QVariant(ZealDocsetsRegistry::instance()->icon(item->getDocsetName()));
         return QVariant();
     }
 
@@ -34,7 +34,7 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
             return QVariant(item->getName());
 
     } else if (index.column() == 1) {
-        return QVariant(docsets->dir(item->getDocsetName()).absoluteFilePath(item->getPath()));
+        return QVariant(ZealDocsetsRegistry::instance()->dir(item->getDocsetName()).absoluteFilePath(item->getPath()));
     }
     return QVariant();
 }
@@ -87,9 +87,9 @@ void ZealSearchModel::setQuery(const QString &q)
 void ZealSearchModel::populateData()
 {
     if (query.isEmpty())
-        docsets->invalidateQueries();
+        ZealDocsetsRegistry::instance()->invalidateQueries();
     else
-        docsets->runQuery(query);
+        ZealDocsetsRegistry::instance()->runQuery(query);
 }
 
 void ZealSearchModel::onQueryCompleted(const QList<ZealSearchResult> &results)

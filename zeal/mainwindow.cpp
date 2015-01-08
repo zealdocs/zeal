@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setHotKey(keySequence);
 
     // initialise docsets
-    docsets->initialiseDocsets();
+    ZealDocsetsRegistry::instance()->initialiseDocsets();
 
     // initialise ui
     ui->setupUi(this);
@@ -219,7 +219,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QString urlPath = url.path();
         QString docsetName = getDocsetName(urlPath);
         QIcon icon = docsetIcon(docsetName);
-        if (docsets->names().contains(docsetName))
+        if (ZealDocsetsRegistry::instance()->names().contains(docsetName))
             loadSections(docsetName, url);
 
         tabBar.setTabIcon(tabBar.currentIndex(), icon);
@@ -242,7 +242,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sections->hide();
     ui->sections_lab->hide();
     ui->sections->setModel(&searchState->sectionsList);
-    connect(docsets, &ZealDocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
+    connect(ZealDocsetsRegistry::instance(), &ZealDocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         if (text == searchState->searchQuery)
             return;
@@ -332,8 +332,8 @@ void MainWindow::openDocset(const QModelIndex &index)
 
 QIcon MainWindow::docsetIcon(const QString &docsetName)
 {
-    if (docsets->names().contains(docsetName))
-        return docsets->icon(docsetName).pixmap(32, 32);
+    if (ZealDocsetsRegistry::instance()->names().contains(docsetName))
+        return ZealDocsetsRegistry::instance()->icon(docsetName).pixmap(32, 32);
     else
         return QIcon();
 }
@@ -504,17 +504,17 @@ void MainWindow::saveTabState()
 
 void MainWindow::onSearchComplete()
 {
-    searchState->zealSearch.onQueryCompleted(docsets->getQueryResults());
+    searchState->zealSearch.onQueryCompleted(ZealDocsetsRegistry::instance()->getQueryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
-    QString dir = docsets->dir(docsetName).absolutePath();
+    QString dir = ZealDocsetsRegistry::instance()->dir(docsetName).absolutePath();
     QString urlPath = url.path();
     int dirPosition = urlPath.indexOf(dir);
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
-    QList<ZealSearchResult> results = docsets->getRelatedLinks(docsetName, path);
+    QList<ZealSearchResult> results = ZealDocsetsRegistry::instance()->getRelatedLinks(docsetName, path);
     searchState->sectionsList.onQueryCompleted(results);
 }
 
@@ -522,7 +522,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
-    for (ZealDocsetsRegistry::docsetEntry docset: docsets->docsets())
+    for (ZealDocsetsRegistry::docsetEntry docset: ZealDocsetsRegistry::instance()->docsets())
         completions << QString("%1:").arg(docset.prefix);
     ui->lineEdit->setCompletions(completions);
 }

@@ -76,7 +76,7 @@ void ZealSettingsDialog::loadSettings()
         ui->radioStartTray->setChecked(true);
     else
         ui->radioStartMax->setChecked(true);
-    ui->storageEdit->setText(docsets->docsetsDir());
+    ui->storageEdit->setText(ZealDocsetsRegistry::instance()->docsetsDir());
 
     ui->m_noProxySettings->setChecked(false);
     ui->m_systemProxySettings->setChecked(false);
@@ -172,10 +172,10 @@ void ZealSettingsDialog::endTasks(qint8 tasks)
 void ZealSettingsDialog::updateDocsets()
 {
     ui->downloadableGroup->show();
-    QStringList docsetNames = docsets->names();
+    QStringList docsetNames = ZealDocsetsRegistry::instance()->names();
     bool missingMetadata = false;
     foreach (auto name, docsetNames) {
-        ZealDocsetMetadata metadata = docsets->meta(name);
+        ZealDocsetMetadata metadata = ZealDocsetsRegistry::instance()->meta(name);
         if (!metadata.isValid())
             missingMetadata = true;
 
@@ -216,7 +216,7 @@ void ZealSettingsDialog::updateDocsets()
             watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 foreach (auto name, docsetNames) {
-                    ZealDocsetMetadata metadata = docsets->meta(name);
+                    ZealDocsetMetadata metadata = ZealDocsetsRegistry::instance()->meta(name);
                     if (!metadata.isValid() && availMetadata.contains(name)) {
                         auto reply = startDownload(availMetadata[name]);
 
@@ -287,7 +287,7 @@ void ZealSettingsDialog::downloadDocsetList()
                 auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
                 lwi->setCheckState(Qt::Unchecked);
 
-                if (docsets->names().contains(name)) {
+                if (ZealDocsetsRegistry::instance()->names().contains(name)) {
                     ui->docsetsList->insertItem(0, lwi);
                     lwi->setHidden(true);
                 } else {
@@ -314,7 +314,7 @@ void ZealSettingsDialog::downloadDocsetList()
             }
             auto *lwi = new QListWidgetItem(docset[0], ui->docsetsList);
             lwi->setCheckState(Qt::Unchecked);
-            if (docsets->names().contains(docset[0])) {
+            if (ZealDocsetsRegistry::instance()->names().contains(docset[0])) {
                 ui->docsetsList->insertItem(0, lwi);
                 lwi->setHidden(true);
             } else {
@@ -413,10 +413,10 @@ void ZealSettingsDialog::extractDocset()
             }
         } else if (reply->request().url().path().endsWith("tgz")
                    || reply->request().url().path().endsWith("tar.bz2")) {
-            auto dataDir = QDir(docsets->docsetsDir());
+            auto dataDir = QDir(ZealDocsetsRegistry::instance()->docsetsDir());
             if (!dataDir.exists()) {
                 QMessageBox::critical(this, "No docsets directory found",
-                                      QString("'%1' directory not found").arg(docsets->docsetsDir()));
+                                      QString("'%1' directory not found").arg(ZealDocsetsRegistry::instance()->docsetsDir()));
                 endTasks();
             } else {
                 const QString program = getTarPath();
@@ -476,7 +476,7 @@ void ZealSettingsDialog::extractDocset()
                     metadata.write(dataDir.absoluteFilePath(docsetName)+"/meta.json");
 
                     // FIXME C&P (see "FIXME C&P" below)
-                    QMetaObject::invokeMethod(docsets, "addDocset", Qt::BlockingQueuedConnection,
+                    QMetaObject::invokeMethod(ZealDocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
                                               Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
                     zealList.resetModulesCounts();
                     refreshRequested();
@@ -506,10 +506,10 @@ void ZealSettingsDialog::extractDocset()
             QuaZip zipfile(tmp);
             if (zipfile.open(QuaZip::mdUnzip)) {
                 tmp->close();
-                auto dataDir = QDir(docsets->docsetsDir());
+                auto dataDir = QDir(ZealDocsetsRegistry::instance()->docsetsDir());
                 if (!dataDir.exists()) {
                     QMessageBox::critical(this, "No docsets directory found",
-                                          QString("'%1' directory not found").arg(docsets->docsetsDir()));
+                                          QString("'%1' directory not found").arg(ZealDocsetsRegistry::instance()->docsetsDir()));
                     endTasks();
                 } else {
                     QStringList *files = new QStringList;
@@ -539,7 +539,7 @@ void ZealSettingsDialog::extractDocset()
                         }
                         metadata.write(dataDir.absoluteFilePath(root.dirName())+"/meta.json");
                         // FIXME C&P (see "FIXME C&P" above)
-                        QMetaObject::invokeMethod(docsets, "addDocset",
+                        QMetaObject::invokeMethod(ZealDocsetsRegistry::instance(), "addDocset",
                                                   Qt::BlockingQueuedConnection,
                                                   Q_ARG(QString, root.absolutePath()));
                         zealList.resetModulesCounts();
@@ -678,7 +678,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
                 .arg(docsetDisplayName));
 
     if (answer == QMessageBox::Yes) {
-        auto dataDir = QDir(docsets->docsetsDir());
+        auto dataDir = QDir(ZealDocsetsRegistry::instance()->docsetsDir());
         auto docsetName = ui->listView->currentIndex().data(ZealList::DocsetName).toString();
         zealList.removeRow(ui->listView->currentIndex().row());
         if (dataDir.exists()) {
@@ -772,11 +772,11 @@ void ZealSettingsDialog::stopDownloads()
 
 void ZealSettingsDialog::saveSettings()
 {
-    if (ui->storageEdit->text() != docsets->docsetsDir()) {
+    if (ui->storageEdit->text() != ZealDocsetsRegistry::instance()->docsetsDir()) {
         // set new docsets dir
         settings.setValue("docsetsDir", ui->storageEdit->text());
         // reload docsets:
-        docsets->initialiseDocsets();
+        ZealDocsetsRegistry::instance()->initialiseDocsets();
         refreshRequested();
     }
 

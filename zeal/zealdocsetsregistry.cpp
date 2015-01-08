@@ -11,8 +11,6 @@
 
 ZealDocsetsRegistry *ZealDocsetsRegistry::m_Instance;
 
-ZealDocsetsRegistry *docsets = ZealDocsetsRegistry::instance();
-
 void ZealDocsetsRegistry::addDocset(const QString &path)
 {
     auto dir = QDir(path);

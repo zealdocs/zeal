@@ -151,6 +151,4 @@ private:
     void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
 };
 
-extern ZealDocsetsRegistry *docsets;
-
 #endif // ZEALDOCSETSREGISTRY_H
