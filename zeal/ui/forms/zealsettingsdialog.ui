@@ -475,7 +475,7 @@
   <customwidget>
    <class>RazorShortcutButton</class>
    <extends>QToolButton</extends>
-   <header>widgets/razorshortcutbutton.h</header>
+   <header>ui/widgets/razorshortcutbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

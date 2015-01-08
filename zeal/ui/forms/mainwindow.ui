@@ -326,12 +326,12 @@ QTabBar::close-button::hover {
   <customwidget>
    <class>ZealSearchEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets/zealsearchedit.h</header>
+   <header>ui/widgets/zealsearchedit.h</header>
   </customwidget>
   <customwidget>
    <class>SearchableWebView</class>
    <extends>QWidget</extends>
-   <header>widgets/searchablewebview.h</header>
+   <header>ui/widgets/searchablewebview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -26,40 +26,26 @@ DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    progressitemdelegate.cpp \
     zealdocsetinfo.cpp \
     zealdocsetmetadata.cpp \
     zealdocsetsregistry.cpp \
     zeallistmodel.cpp \
-    zealnativeeventfilter.cpp \
     zealnetworkaccessmanager.cpp \
-    zealsearchitemdelegate.cpp \
-    zealsearchitemstyle.cpp \
     zealsearchmodel.cpp \
     zealsearchquery.cpp \
-    zealsearchresult.cpp \
-    zealsettingsdialog.cpp
+    zealsearchresult.cpp
 
 HEADERS += \
-    mainwindow.h \
-    progressitemdelegate.h \
     zealdocsetinfo.h \
     zealdocsetmetadata.h \
     zealdocsetsregistry.h \
     zeallistmodel.h \
-    zealnativeeventfilter.h \
     zealnetworkaccessmanager.h \
-    zealsearchitemdelegate.h \
-    zealsearchitemstyle.h \
     zealsearchmodel.h \
     zealsearchquery.h \
-    zealsearchresult.h \
-    zealsettingsdialog.h
+    zealsearchresult.h
 
-FORMS += \
-    mainwindow.ui \
-    zealsettingsdialog.ui
+include(ui/ui.pri)
 
 !msvc:LIBS += -lz -L/usr/lib
 
@@ -71,24 +57,6 @@ msvc:QMAKE_LIBS += user32.lib
 macx {
     QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
     ICON = zeal.icns
-}
-
-unix:!macx {
-    LIBS += -lxcb -lxcb-keysyms
-    HEADERS += xcb_keysym.h
-    SOURCES += xcb_keysym.cpp
-    QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
-
-    !no_libappindicator {
-        CONFIG += link_pkgconfig
-        PKGCONFIG = gtk+-2.0
-        INCLUDEPATH += /usr/include/libappindicator-0.1 \
-            /usr/include/gtk-2.0 \
-            /usr/lib/gtk-2.0/include
-        LIBS += -lappindicator
-
-        DEFINES += USE_LIBAPPINDICATOR
-    }
 }
 
 appicons16.path=/usr/share/icons/hicolor/16x16/apps
@@ -107,7 +75,6 @@ desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
 
-include(widgets/widgets.pri)
 include(quazip/quazip.pri)
 
 RESOURCES += \
