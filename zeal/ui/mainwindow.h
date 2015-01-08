@@ -34,7 +34,9 @@ class MainWindow;
 }
 
 namespace Zeal {
+class ListModel;
 class NetworkAccessManager;
+class SettingsDialog;
 }
 
 extern const QString serverName;
