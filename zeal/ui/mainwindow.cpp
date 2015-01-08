@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_settings(new QSettings(this)),
     m_zealListModel(new ListModel(this)),
-    m_settingsDialog(m_zealListModel)
+    m_settingsDialog(new SettingsDialog(m_zealListModel, this))
 {
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
@@ -120,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     applyWebPageStyle();
     m_zealNetworkManager = new NetworkAccessManager();
-    m_zealNetworkManager->setProxy(m_settingsDialog.httpProxy());
+    m_zealNetworkManager->setProxy(m_settingsDialog->httpProxy());
 #ifdef USE_WEBENGINE
     // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else
@@ -142,15 +142,15 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-    connect(&m_settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
-    connect(&m_settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
-    connect(&m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
+    connect(m_settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
+    connect(m_settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
+    connect(m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
-        m_settingsDialog.setHotKey(m_hotKey);
+        m_settingsDialog->setHotKey(m_hotKey);
         m_nativeFilter.setEnabled(false);
-        if (m_settingsDialog.exec()) {
-            setHotKey(m_settingsDialog.hotKey());
+        if (m_settingsDialog->exec()) {
+            setHotKey(m_settingsDialog->hotKey());
             if (m_settings->value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
             } else if (m_trayIcon) {

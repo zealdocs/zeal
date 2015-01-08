@@ -113,7 +113,7 @@ private:
     Ui::MainWindow *ui = nullptr;
     QSettings *m_settings = nullptr;
     Zeal::ListModel *m_zealListModel = nullptr;
-    Zeal::SettingsDialog m_settingsDialog;
+    Zeal::SettingsDialog *m_settingsDialog = nullptr;
 
     QIcon m_icon;
 
