@@ -1,152 +1,19 @@
 #include "zeallistmodel.h"
 
-#include "zealdocsetinfo.h"
 #include "zealdocsetsregistry.h"
 
-#include <QIcon>
 #include <QSqlQuery>
+
+/// TODO: Get rid of const_casts
 
 ZealListModel::ZealListModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
-    strings = new QSet<QString>;
-    modulesCounts = new QHash<QPair<QString, QString>, int>;
-    items = new QHash<QPair<QString, int>, QPair<QString, QString> >;
-}
-
-Qt::ItemFlags ZealListModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-    return QAbstractItemModel::flags(index);
-}
-
-const QHash<QPair<QString, QString>, int> ZealListModel::getModulesCounts() const
-{
-    if (!modulesCounts->count()) {
-        for (auto name : ZealDocsetsRegistry::instance()->names()) {
-            auto db = ZealDocsetsRegistry::instance()->db(name);
-            QSqlQuery q;
-            if (ZealDocsetsRegistry::instance()->type(name) == ZEAL) {
-                q = db.exec("select type, count(*) from things group by type");
-            } else if (ZealDocsetsRegistry::instance()->type(name) == DASH) {
-                q = db.exec("select type, count(*) from searchIndex group by type");
-            } else if (ZealDocsetsRegistry::instance()->type(name) == ZDASH) {
-                q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
-                            " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
-            }
-
-            while (q.next()) {
-                int count = q.value(1).toInt();
-                QString typeName = q.value(0).toString();
-                (*modulesCounts)[QPair<QString, QString>(name, typeName)] = count;
-            }
-        }
-    }
-    return *modulesCounts;
-}
-
-const QPair<QString, QString> ZealListModel::getItem(const QString &path, int index) const
-{
-    QPair<QString, int> pair(path, index);
-    if (items->find(pair) != items->end()) return (*items)[pair];
-
-    auto docsetName = path.split('/')[0];
-    auto type = singularize(path.split('/')[1]);
-    auto db = ZealDocsetsRegistry::instance()->db(docsetName);
-    QSqlQuery q;
-    if (ZealDocsetsRegistry::instance()->type(docsetName) == ZEAL) {
-        q = db.exec(QString("select name, path from things where type='%1' order by name asc")
-                    .arg(type));
-    } else if (ZealDocsetsRegistry::instance()->type(docsetName) == DASH) {
-        q = db.exec(QString(
-                        "select name, path from searchIndex where type='%1' order by name asc").arg(
-                        type));
-    } else { // ZDASH
-        q = db.exec(QString("select ztokenname, zpath, zanchor from ztoken "
-                            "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                            "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
-                            "join ztokentype on ztoken.ztokentype = ztokentype.z_pk where ztypename='%1' "
-                            "order by ztokenname asc").arg(type));
-    }
-    int i = 0;
-    while (q.next()) {
-        QPair<QString, QString> item;
-        item.first = q.value(0).toString();
-        auto filePath = q.value(1).toString();
-        // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
-        // TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
-        if (ZealDocsetsRegistry::instance()->type(docsetName) == ZDASH)
-            filePath += "#" + q.value(2).toString();
-        item.second = ZealDocsetsRegistry::instance()->dir(docsetName).absoluteFilePath(filePath);
-        (*items)[QPair<QString, int>(path, i)] = item;
-        i += 1;
-    }
-    return (*items)[pair];
-}
-
-QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid()) {
-        if (row >= ZealDocsetsRegistry::instance()->count() || row == -1) return QModelIndex();
-        if (column == 0) {
-            return createIndex(row, column, (void *)getString(ZealDocsetsRegistry::instance()->names().at(row)));
-        } else if (column == 1) {
-            ZealDocsetsRegistry::DocsetEntry *entry = ZealDocsetsRegistry::instance()->getEntry(ZealDocsetsRegistry::instance()->names().at(row));
-            QDir dir(entry->dir);
-
-            if (!entry->info.indexPath.isEmpty()) {
-                auto path = entry->info.indexPath.split("/");
-                auto filename = path.last();
-                path.removeLast();
-                for (auto directory : path) {
-                    if (!dir.cd(directory))
-                        return createIndex(row, column, (void *)getString(""));
-                }
-                return createIndex(row, column, (void *)getString(dir.absoluteFilePath(filename)));
-            }
-            return createIndex(row, column, (void *)getString(dir.absoluteFilePath("index.html")));
-        }
-        return QModelIndex();
-    } else {
-        QString docsetName;
-        for (auto name : ZealDocsetsRegistry::instance()->names()) {
-            if (i2s(parent)->startsWith(name+"/"))
-                docsetName = name;
-        }
-        if (docsetName.isEmpty()) {
-            // i2s(parent) == docsetName
-            if (column == 0) {
-                QList<QString> types;
-                for (auto &pair : getModulesCounts().keys()) {
-                    if (pair.first == *i2s(parent))
-                        types.append(pair.second);
-                }
-                qSort(types);
-                return createIndex(row, column,
-                                   (void *)getString(*i2s(parent)+"/"+pluralize(types[row])));
-            }
-        } else {
-            auto type = singularize(i2s(parent)->split('/')[1]);
-            if (row >= getModulesCounts()[QPair<QString, QString>(docsetName, type)])
-                return QModelIndex();
-            if (column == 0) {
-                return createIndex(row, column,
-                                   (void *)getString(
-                                       QString("%1/%2/%3").arg(docsetName, pluralize(type),
-                                                               getItem(*i2s(parent), row).first)));
-            } else if (column == 1) {
-                return createIndex(row, column,
-                                   (void *)getString(getItem(*i2s(parent), row).second));
-            }
-        }
-        return QModelIndex();
-    }
 }
 
 QVariant ZealListModel::data(const QModelIndex &index, int role) const
 {
-    if ((role != Qt::DisplayRole && role != Qt::DecorationRole && role != ZealList::DocsetName)
+    if ((role != Qt::DisplayRole && role != Qt::DecorationRole && role != DocsetNameRole)
             || !index.isValid())
         return QVariant();
     if (role == Qt::DecorationRole) {
@@ -171,52 +38,71 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
     }
 }
 
-QVariant ZealListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    Q_UNUSED(section)
-    Q_UNUSED(orientation)
-    Q_UNUSED(role)
-    return QVariant();
-}
-
-int ZealListModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.column() > 0 && !i2s(parent)->endsWith("/Modules")) return 0;
+    ZealDocsetsRegistry * const docsetRegistry = ZealDocsetsRegistry::instance();
     if (!parent.isValid()) {
-        // root
-        return ZealDocsetsRegistry::instance()->count();
-    } else {
-        auto parentStr = i2s(parent);
-        if (parentStr->indexOf("/") == -1) {
-            // docset - show types
-            int numTypes = 0;
-            auto keys = getModulesCounts().keys();
-            for (auto &key : keys) {
-                if (parentStr == key.first)
-                    numTypes += 1;
-            }
-            return numTypes;
-        } else if (parentStr->count("/") == 1) { // parent is docset/type
-            // type count
-            auto type = singularize(parentStr->split("/")[1]);
-            return getModulesCounts()[QPair<QString, QString>(parentStr->split('/')[0], type)];
-        }
-        // module - no sub items
-        return 0;
-    }
-}
+        if (row >= docsetRegistry->count() || row == -1) return QModelIndex();
+        if (column == 0) {
+            return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
+        } else if (column == 1) {
+            ZealDocsetsRegistry::DocsetEntry *entry = docsetRegistry->getEntry(docsetRegistry->names().at(row));
+            QDir dir(entry->dir);
 
-const QString *ZealListModel::i2s(const QModelIndex &index) const
-{
-    return static_cast<const QString *>(index.internalPointer());
+            if (!entry->info.indexPath.isEmpty()) {
+                auto path = entry->info.indexPath.split("/");
+                auto filename = path.last();
+                path.removeLast();
+                for (auto directory : path) {
+                    if (!dir.cd(directory))
+                        return createIndex(row, column, (void *)string(""));
+                }
+                return createIndex(row, column, (void *)string(dir.absoluteFilePath(filename)));
+            }
+            return createIndex(row, column, (void *)string(dir.absoluteFilePath("index.html")));
+        }
+        return QModelIndex();
+    } else {
+        QString docsetName;
+        for (const QString &name : docsetRegistry->names()) {
+            if (i2s(parent)->startsWith(name + "/"))
+                docsetName = name;
+        }
+        if (docsetName.isEmpty()) {
+            // i2s(parent) == docsetName
+            if (column == 0) {
+                QList<QString> types;
+                for (auto &pair : modulesCounts().keys()) {
+                    if (pair.first == *i2s(parent))
+                        types.append(pair.second);
+                }
+                qSort(types);
+                return createIndex(row, column,
+                                   (void *)string(*i2s(parent) + "/" + pluralize(types[row])));
+            }
+        } else {
+            const QString type = singularize(i2s(parent)->split('/')[1]);
+            if (row >= modulesCounts()[QPair<QString, QString>(docsetName, type)])
+                return QModelIndex();
+            if (column == 0) {
+                return createIndex(row, column,
+                                   (void *)string(
+                                       QString("%1/%2/%3").arg(docsetName, pluralize(type),
+                                                               item(*i2s(parent), row).first)));
+            } else if (column == 1) {
+                return createIndex(row, column, (void *)string(item(*i2s(parent), row).second));
+            }
+        }
+        return QModelIndex();
+    }
 }
 
 QModelIndex ZealListModel::parent(const QModelIndex &child) const
 {
     if (child.isValid() && i2s(child)->count("/") == 1) {  // docset/type
-        return createIndex(0, 0, (void *)getString(i2s(child)->split('/')[0]));
+        return createIndex(0, 0, (void *)string(i2s(child)->split('/')[0]));
     } else if (child.isValid() && i2s(child)->count("/") >= 2) {    // docset/type/item (item can contain slashes)
-        return createIndex(0, 0, (void *)getString(i2s(child)->split('/')[0] + "/"
+        return createIndex(0, 0, (void *)string(i2s(child)->split('/')[0] + "/"
                            + i2s(child)->split('/')[1]));
     } else {
         return QModelIndex();
@@ -231,23 +117,31 @@ int ZealListModel::columnCount(const QModelIndex &parent) const
         return 1;
 }
 
-QString ZealListModel::pluralize(const QString &s)
+int ZealListModel::rowCount(const QModelIndex &parent) const
 {
-    QString ret = s;
-    if (s.endsWith('s'))
-        return ret+"es";
-    else
-        return ret+"s";
-}
-
-QString ZealListModel::singularize(const QString &s)
-{
-    QString ret = s;
-    if (ret.endsWith("ses"))
-        ret.chop(2);
-    else
-        ret.chop(1);
-    return ret;
+    if (parent.column() > 0 && !i2s(parent)->endsWith("/Modules")) return 0;
+    if (!parent.isValid()) {
+        // root
+        return ZealDocsetsRegistry::instance()->count();
+    } else {
+        auto parentStr = i2s(parent);
+        if (parentStr->indexOf("/") == -1) {
+            // docset - show types
+            int numTypes = 0;
+            auto keys = modulesCounts().keys();
+            for (auto &key : keys) {
+                if (parentStr == key.first)
+                    numTypes += 1;
+            }
+            return numTypes;
+        } else if (parentStr->count("/") == 1) { // parent is docset/type
+            // type count
+            auto type = singularize(parentStr->split("/")[1]);
+            return modulesCounts()[QPair<QString, QString>(parentStr->split('/')[0], type)];
+        }
+        // module - no sub items
+        return 0;
+    }
 }
 
 bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent)
@@ -261,4 +155,108 @@ bool ZealListModel::removeRows(int row, int count, const QModelIndex &parent)
     endRemoveRows();
 
     return true;
+}
+
+void ZealListModel::resetModulesCounts()
+{
+    m_modulesCounts.clear();
+}
+
+QString ZealListModel::pluralize(const QString &s)
+{
+    return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
+}
+
+QString ZealListModel::singularize(const QString &s)
+{
+    return s.left(s.length() - (s.endsWith(QStringLiteral("ses")) ? 2 : 1));
+}
+
+const QString *ZealListModel::i2s(const QModelIndex &index) const
+{
+    return static_cast<const QString *>(index.internalPointer());
+}
+
+const QHash<QPair<QString, QString>, int> ZealListModel::modulesCounts() const
+{
+    if (m_modulesCounts.isEmpty()) {
+        for (const QString &name : ZealDocsetsRegistry::instance()->names()) {
+            auto db = ZealDocsetsRegistry::instance()->db(name);
+            QSqlQuery q;
+            if (ZealDocsetsRegistry::instance()->type(name) == ZEAL) {
+                q = db.exec("select type, count(*) from things group by type");
+            } else if (ZealDocsetsRegistry::instance()->type(name) == DASH) {
+                q = db.exec("select type, count(*) from searchIndex group by type");
+            } else if (ZealDocsetsRegistry::instance()->type(name) == ZDASH) {
+                q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
+                            " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
+            }
+
+            while (q.next()) {
+                int count = q.value(1).toInt();
+                QString typeName = q.value(0).toString();
+                const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
+                        [QPair<QString, QString>(name, typeName)] = count;
+            }
+        }
+    }
+    return m_modulesCounts;
+}
+
+const QPair<QString, QString> ZealListModel::item(const QString &path, int index) const
+{
+    QPair<QString, int> pair(path, index);
+    if (m_items.contains(pair))
+        return m_items[pair];
+
+    ZealDocsetsRegistry * const docsetRegistry = ZealDocsetsRegistry::instance();
+
+    const QString docsetName = path.split('/')[0];
+    const QString type = singularize(path.split('/')[1]);
+    QSqlDatabase &db = docsetRegistry->db(docsetName);
+
+    QString queryStr;
+    switch (docsetRegistry->type(docsetName)) {
+    case ZEAL:
+        queryStr = QString("select name, path from things where type='%1' order by name asc")
+                .arg(type);
+        break;
+    case DASH:
+        queryStr = QString("select name, path from searchIndex where type='%1' order by name asc")
+                .arg(type);
+        break;
+    case ZDASH:
+        queryStr = QString("select ztokenname, zpath, zanchor from ztoken "
+                           "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                           "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
+                           "join ztokentype on ztoken.ztokentype = ztokentype.z_pk where ztypename='%1' "
+                           "order by ztokenname asc").arg(type);
+        break;
+    }
+
+    QSqlQuery query = db.exec(queryStr);
+
+    int i = 0;
+    while (query.next()) {
+        QPair<QString, QString> item;
+        item.first = query.value(0).toString();
+        QString filePath = query.value(1).toString();
+
+        /// FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
+        /// TODO: parent name, splitting by '.', as in ZealDocsetsRegistry
+        if (docsetRegistry->type(docsetName) == ZDASH)
+            filePath += QStringLiteral("#") + query.value(2).toString();
+        item.second = docsetRegistry->dir(docsetName).absoluteFilePath(filePath);
+        const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
+                [QPair<QString, int>(path, i)] = item;
+        ++i;
+    }
+    return m_items[pair];
+}
+
+const QString *ZealListModel::string(const QString &str) const
+{
+    if (m_strings.find(str) == m_strings.end())
+        const_cast<QSet<QString> &>(m_strings).insert(str);
+    return &*m_strings.find(str);
 }

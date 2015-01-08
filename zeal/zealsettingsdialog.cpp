@@ -679,7 +679,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
 
     if (answer == QMessageBox::Yes) {
         auto dataDir = QDir(ZealDocsetsRegistry::instance()->docsetsDir());
-        auto docsetName = ui->listView->currentIndex().data(ZealList::DocsetName).toString();
+        auto docsetName = ui->listView->currentIndex().data(ZealListModel::DocsetNameRole).toString();
         zealList.removeRow(ui->listView->currentIndex().row());
         if (dataDir.exists()) {
             ui->docsetsProgress->show();
