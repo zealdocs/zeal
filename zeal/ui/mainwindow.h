@@ -111,8 +111,11 @@ private:
     Zeal::NetworkAccessManager *m_zealNetworkManager = nullptr;
 
     Ui::MainWindow *ui = nullptr;
-    QIcon m_icon;
+    QSettings *m_settings = nullptr;
     Zeal::ListModel *m_zealListModel = nullptr;
+    Zeal::SettingsDialog m_settingsDialog;
+
+    QIcon m_icon;
 
     QLocalServer *m_localServer = nullptr;
 
@@ -123,10 +126,8 @@ private:
     bool m_treeViewClicked;
 
     QKeySequence m_hotKey;
-    QSettings *m_settings = nullptr;
     QTabBar m_tabBar;
     Zeal::NativeEventFilter m_nativeFilter;
-    Zeal::SettingsDialog m_settingsDialog;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayIconMenu = nullptr;
