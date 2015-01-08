@@ -5,34 +5,34 @@
 
 ZealDocsetInfo::ZealDocsetInfo(const QString &filePath)
 {
-    if (QFile(filePath).exists())
+    if (QFile::exists(filePath))
         readDocset(filePath);
 }
 
 bool ZealDocsetInfo::readDocset(const QString &filePath)
 {
-    QFile file(filePath);
-    QDomDocument infoplist("infoplist");
-    if (!file.open(QIODevice::ReadOnly))
+    QScopedPointer<QFile> file(new QFile(filePath));
+    if (!file->open(QIODevice::ReadOnly))
         return false;
 
-    if (!infoplist.setContent(&file)) {
-        file.close();
+    QDomDocument infoplist(QStringLiteral("infoplist"));
+    if (!infoplist.setContent(file.data()))
         return false;
-    }
 
-    auto keys = infoplist.elementsByTagName("key");
+    const QDomNodeList keys = infoplist.elementsByTagName(QStringLiteral("key"));
     for (int i = 0; i < keys.count(); ++i) {
-        auto key = keys.at(i);
-        if (key.firstChild().nodeValue() == "dashIndexFilePath")
+        const QDomNode key = keys.at(i);
+        const QString nodeValue = key.firstChild().nodeValue();
+
+        if (nodeValue == QStringLiteral("dashIndexFilePath"))
             indexPath = key.nextSibling().firstChild().nodeValue();
-        else if (key.firstChild().nodeValue() == "DashDocSetKeyword")
+        else if (nodeValue == QStringLiteral("DashDocSetKeyword"))
             keyword = key.nextSibling().firstChild().nodeValue();
-        else if (key.firstChild().nodeValue() == "DashDocSetFamily")
+        else if (nodeValue == QStringLiteral("DashDocSetFamily"))
             family = key.nextSibling().firstChild().nodeValue();
-        else if (key.firstChild().nodeValue() == "CFBundleName")
+        else if (nodeValue == QStringLiteral("CFBundleName"))
             bundleName = key.nextSibling().firstChild().nodeValue();
-        else if (key.firstChild().nodeValue() == "CFBundleIdentifier")
+        else if (nodeValue == QStringLiteral("CFBundleIdentifier"))
             bundleIdentifier = key.nextSibling().firstChild().nodeValue();
     }
     return true;
