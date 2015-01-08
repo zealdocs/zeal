@@ -92,7 +92,7 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         if (column == 0) {
             return createIndex(row, column, (void *)getString(ZealDocsetsRegistry::instance()->names().at(row)));
         } else if (column == 1) {
-            ZealDocsetsRegistry::docsetEntry *entry = ZealDocsetsRegistry::instance()->getEntry(ZealDocsetsRegistry::instance()->names().at(row));
+            ZealDocsetsRegistry::DocsetEntry *entry = ZealDocsetsRegistry::instance()->getEntry(ZealDocsetsRegistry::instance()->names().at(row));
             QDir dir(entry->dir);
 
             if (!entry->info.indexPath.isEmpty()) {

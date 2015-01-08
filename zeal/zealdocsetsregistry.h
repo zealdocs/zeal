@@ -5,150 +5,76 @@
 #include <QIcon>
 #include <QMap>
 #include <QMutex>
-#include <QSettings>
 #include <QSqlDatabase>
 
 #include "zealsearchresult.h"
 #include "zealdocsetinfo.h"
 #include "zealdocsetmetadata.h"
 
-typedef enum {
+enum DocsetType {
     ZEAL, DASH, ZDASH
-} DocSetType;
+};
 
 class ZealDocsetsRegistry : public QObject
 {
     Q_OBJECT
 public:
-    struct docsetEntry {
+    struct DocsetEntry {
         QString name;
         QString prefix;
         QSqlDatabase db;
         QDir dir;
-        DocSetType type;
+        DocsetType type;
         ZealDocsetMetadata metadata;
         ZealDocsetInfo info;
     };
 
-    static ZealDocsetsRegistry *instance()
-    {
-        static QMutex mutex;
-        if (!m_Instance) {
-            mutex.lock();
+    static ZealDocsetsRegistry *instance();
 
-            if (!m_Instance)
-                m_Instance = new ZealDocsetsRegistry;
+    int count() const;
+    QStringList names() const;
+    void remove(const QString &name);
+    void clear();
 
-            mutex.unlock();
-        }
+    QSqlDatabase &db(const QString &name);
+    const QDir &dir(const QString &name);
+    const ZealDocsetMetadata &meta(const QString &name);
+    QIcon icon(const QString &docsetName) const;
+    DocsetType type(const QString &name) const;
 
-        return m_Instance;
-    }
-
-    int count() const
-    {
-        return docs.count();
-    }
-
-    QSqlDatabase &db(const QString &name)
-    {
-        Q_ASSERT(docs.contains(name));
-        return docs[name].db;
-    }
-
-    const QDir &dir(const QString &name)
-    {
-        Q_ASSERT(docs.contains(name));
-        return docs[name].dir;
-    }
-
-    const ZealDocsetMetadata &meta(const QString &name)
-    {
-        Q_ASSERT(docs.contains(name));
-        return docs[name].metadata;
-    }
-
-    QIcon icon(const QString &docsetName)
-    {
-        docsetEntry *entry = &docs[docsetName];
-        QString bundleName = entry->info.bundleName;
-        bundleName.replace(" ", "_");
-        QString identifier = entry->info.bundleIdentifier;
-        QIcon icon(entry->dir.absoluteFilePath("favicon.ico"));
-        if (icon.availableSizes().isEmpty())
-            icon = QIcon(entry->dir.absoluteFilePath("icon.png"));
-
-        if (icon.availableSizes().isEmpty()) {
-            icon = QIcon(QString("icons:%1.png").arg(bundleName));
-
-            // Fallback to identifier and docset file name.
-            if (icon.availableSizes().isEmpty())
-                icon = QIcon(QString("icons:%1.png").arg(identifier));
-            if (icon.availableSizes().isEmpty())
-                icon = QIcon(QString("icons:%1.png").arg(docsetName));
-        }
-        return icon;
-    }
-
-    DocSetType type(const QString &name) const
-    {
-        Q_ASSERT(docs.contains(name));
-        return docs[name].type;
-    }
-
-    QStringList names() const
-    {
-        return docs.keys();
-    }
-
-    void remove(const QString &name)
-    {
-        docs[name].db.close();
-        docs.remove(name);
-    }
-
-    void clear()
-    {
-        for (auto key : docs.keys())
-            remove(key);
-    }
-
-    docsetEntry *getEntry(const QString &name);
+    DocsetEntry *getEntry(const QString &name);
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
-    QList<ZealSearchResult> getRelatedLinks(QString name, QString path);
+    QList<ZealSearchResult> getRelatedLinks(const QString &name, const QString &path);
     QString prepareQuery(const QString &rawQuery);
     void runQuery(const QString &query);
     void invalidateQueries();
     const QList<ZealSearchResult> &getQueryResults();
-    QList<docsetEntry> docsets();
+    QList<DocsetEntry> docsets();
 
-    QString docsetsDir();
+    QString docsetsDir() const;
     void initialiseDocsets();
-    void setPrefixes(QHash<QString, QVariant> docsetPrefixes);
-signals:
-    void queryCompleted();
 
 public slots:
     void addDocset(const QString &path);
+
+signals:
+    void queryCompleted();
 
 private slots:
     void _runQuery(const QString &query, int queryNum);
 
 private:
     ZealDocsetsRegistry();
-    ZealDocsetsRegistry(const ZealDocsetsRegistry &); // hide copy constructor
-    ZealDocsetsRegistry &operator=(const ZealDocsetsRegistry &); // hide assign op
-    // we leave just the declarations, so the compiler will warn us
-    // if we try to use those two functions by accident
-    void addDocsetsFromFolder(QDir folder);
+    Q_DISABLE_COPY(ZealDocsetsRegistry)
 
-    static ZealDocsetsRegistry *m_Instance;
-    QMap<QString, docsetEntry> docs;
-    QList<ZealSearchResult> queryResults;
-    QSettings settings;
-    int lastQuery;
+    void addDocsetsFromFolder(const QDir &folder);
     void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
+
+    static ZealDocsetsRegistry *m_instance;
+    QMap<QString, DocsetEntry> m_docs;
+    QList<ZealSearchResult> m_queryResults;
+    int m_lastQuery = -1;
 };
 
 #endif // ZEALDOCSETSREGISTRY_H

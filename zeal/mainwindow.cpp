@@ -522,7 +522,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
-    for (ZealDocsetsRegistry::docsetEntry docset: ZealDocsetsRegistry::instance()->docsets())
+    for (ZealDocsetsRegistry::DocsetEntry docset: ZealDocsetsRegistry::instance()->docsets())
         completions << QString("%1:").arg(docset.prefix);
     ui->lineEdit->setCompletions(completions);
 }
