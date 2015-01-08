@@ -4,24 +4,41 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QLocalSocket>
-#include <QProxyStyle>
 #include <QStandardPaths>
 #include <QTextStream>
 
-// Sets up the command line parser.
-void setupOptionParser(QCommandLineParser *parser)
+#ifdef Q_OS_WIN32
+#include <QProxyStyle>
+#endif
+
+struct CommandLineParameters
 {
-    parser->setApplicationDescription("zeal - Offline documentation browser.");
-    parser->addHelpOption();
-    parser->addVersionOption();
-    QCommandLineOption queryOption(QStringList() << "q" << "query",
-                                   "Query <search term>.", "term");
-    parser->addOption(queryOption);
-    QCommandLineOption forceRun(QStringList() << "f" << "force",
-                                "Force the application run.");
-    parser->addOption(forceRun);
+    bool force;
+    QString query;
+};
+
+CommandLineParameters parseCommandLine(const QCoreApplication &app)
+{
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QObject::tr("Zeal - Offline documentation browser."));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
+    parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
+                                        QObject::tr("Force the application run.")));
+    parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
+                                        QObject::tr("Query <search term>."),
+                                        QStringLiteral("term")));
+    parser.process(app);
+
+    return {
+        parser.isSet(QStringLiteral("force")),
+        parser.value(QStringLiteral("query"))
+    };
 }
 
+/// TODO: Verify if this bug still exists in Qt 5.2+
 #ifdef Q_OS_WIN32
 class ZealProxyStyle : public QProxyStyle
 {
@@ -43,39 +60,32 @@ public:
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-
     QCoreApplication::setApplicationName(QStringLiteral("Zeal"));
     QCoreApplication::setApplicationVersion(ZEAL_VERSION);
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
+    QApplication qapp(argc, argv);
+
 #ifdef Q_OS_WIN32
-    a.setStyle(new ZealProxyStyle);
+    a.setStyle(new ZealProxyStyle());
 #endif
 
-    QCommandLineParser optionParser;
-    setupOptionParser(&optionParser);
-    optionParser.process(a);
-    // Extract the command line flags.
-    QString queryParam = optionParser.value("query");
-    bool runForce = optionParser.isSet("force");
+    const CommandLineParameters clParams = parseCommandLine(qapp);
 
-    // detect already running instance and optionally pass a search
-    // query onto it.
-    QLocalSocket socket;
-    socket.connectToServer(serverName);
-    if (!runForce && socket.waitForConnected(500)) {
-        if (!queryParam.isEmpty()) {
-            QByteArray msg;
-            msg.append(queryParam);
-            socket.write(msg);
-            socket.flush();
-            socket.close();
-        } else {
-            QTextStream(stderr) << "Already running. Terminating." << endl;
+    // Detect already running instance and optionally pass a search query to it.
+    if (!clParams.force) {
+        QScopedPointer<QLocalSocket> socket(new QLocalSocket());
+        socket->connectToServer(serverName);
+
+        if (socket->waitForConnected(500)) {
+            if (!clParams.query.isEmpty())
+                socket->write(clParams.query.toLocal8Bit());
+            else
+                QTextStream(stdout) << QObject::tr("Already running. Terminating.") << endl;
+
+            return 0;
         }
-        return -1; // Exit already a process running
     }
 
     // look for icons in:
@@ -83,23 +93,24 @@ int main(int argc, char *argv[])
     // 2. executable directory/icons
     // 3. on unix, standard/legacy install location
     // 4. current directory/icons
-    QDir::setSearchPaths("icons",
-                         QStandardPaths::locateAll(QStandardPaths::DataLocation, "icons",
-                                                   QStandardPaths::LocateDirectory));
-    QDir::addSearchPath("icons",
-                        QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("icons"));
+    QStringList searchPaths;
+    searchPaths << QStandardPaths::locateAll(QStandardPaths::DataLocation, QStringLiteral("icons"),
+                                             QStandardPaths::LocateDirectory);
+    searchPaths << QDir(QCoreApplication::applicationDirPath())
+                   .absoluteFilePath(QStringLiteral("icons"));
 #ifndef Q_OS_WIN32
-    QDir::addSearchPath("icons", "/usr/share/pixmaps/zeal");
+    searchPaths << QStringLiteral("/usr/share/pixmaps/zeal");
 #endif
-    QDir::addSearchPath("icons", "./icons");
+    searchPaths << QStringLiteral("./icons");
+    QDir::setSearchPaths(QStringLiteral("icons"), searchPaths);
 
-    MainWindow w;
+    QScopedPointer<MainWindow> mainWindow(new MainWindow());
 
-    if (!w.startHidden())
-        w.show();
+    if (!mainWindow->startHidden())
+        mainWindow->show();
 
-    if (!queryParam.isEmpty())
-        w.bringToFrontAndSearch(queryParam);
+    if (!clParams.query.isEmpty())
+        mainWindow->bringToFrontAndSearch(clParams.query);
 
-    return a.exec();
+    return qapp.exec();
 }
