@@ -50,12 +50,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_settings(new QSettings(this)),
-    settingsDialog(zealList)
+    m_settingsDialog(m_zealList)
 {
     // server for detecting already running instances
-    localServer = new QLocalServer(this);
-    connect(localServer, &QLocalServer::newConnection, [&]() {
-        QLocalSocket *connection = localServer->nextPendingConnection();
+    m_localServer = new QLocalServer(this);
+    connect(m_localServer, &QLocalServer::newConnection, [&]() {
+        QLocalSocket *connection = m_localServer->nextPendingConnection();
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
         QString indata = connection->readAll();
@@ -63,16 +63,16 @@ MainWindow::MainWindow(QWidget *parent) :
             bringToFrontAndSearch(indata);
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
-    localServer->listen(serverName);
+    m_localServer->listen(serverName);
 
     // initialise icons
 #if (defined(Q_OS_OSX) || defined(Q_OS_WIN32))
-    icon = QIcon(":/zeal.ico");
+    m_icon = QIcon(":/zeal.ico");
 #else
     QIcon::setThemeName("hicolor");
-    icon = QIcon::fromTheme("zeal");
+    m_icon = QIcon::fromTheme("zeal");
 #endif
-    setWindowIcon(icon);
+    setWindowIcon(m_icon);
     if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
         keySequence = m_settings->value("hotkey").value<QKeySequence>();
 
     // initialise key grabber
-    connect(&nativeFilter, &ZealNativeEventFilter::hotKeyPressed, [&]() {
+    connect(&m_nativeFilter, &ZealNativeEventFilter::hotKeyPressed, [&]() {
         if (!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
@@ -98,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
-    qApp->eventDispatcher()->installNativeEventFilter(&nativeFilter);
+    qApp->eventDispatcher()->installNativeEventFilter(&m_nativeFilter);
     setHotKey(keySequence);
 
     // initialise docsets
@@ -116,12 +116,12 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     applyWebPageStyle();
-    zealNaManager = new ZealNetworkAccessManager();
-    zealNaManager->setProxy(settingsDialog.httpProxy());
+    m_zealNetworkManager = new ZealNetworkAccessManager();
+    m_zealNetworkManager->setProxy(m_settingsDialog.httpProxy());
 #ifdef USE_WEBENGINE
     // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else
-    ui->webView->page()->setNetworkAccessManager(zealNaManager);
+    ui->webView->page()->setNetworkAccessManager(m_zealNetworkManager);
 #endif
 
     // menu
@@ -139,15 +139,15 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-    connect(&settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
-    connect(&settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
-    connect(&settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
+    connect(&m_settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
+    connect(&m_settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
+    connect(&m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
-        settingsDialog.setHotKey(hotKey);
-        nativeFilter.setEnabled(false);
-        if (settingsDialog.exec()) {
-            setHotKey(settingsDialog.hotKey());
+        m_settingsDialog.setHotKey(m_hotKey);
+        m_nativeFilter.setEnabled(false);
+        if (m_settingsDialog.exec()) {
+            setHotKey(m_settingsDialog.hotKey());
             if (m_settings->value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
             } else if (m_trayIcon) {
@@ -161,7 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
                                                  m_settings->value("minFontSize").toInt());
         }
-        nativeFilter.setEnabled(true);
+        m_nativeFilter.setEnabled(true);
         ui->treeView->reset();
     });
 
@@ -194,20 +194,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    ui->treeView->setModel(&zealList);
+    ui->treeView->setModel(&m_zealList);
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
                                                              ui->treeView));
-    treeViewClicked = false;
+    m_treeViewClicked = false;
 
     createTab();
 
     connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex &index) {
-        treeViewClicked = true;
+        m_treeViewClicked = true;
         ui->treeView->activated(index);
     });
     connect(ui->sections, &QListView::clicked, [&](const QModelIndex &index) {
-        treeViewClicked = true;
+        m_treeViewClicked = true;
         ui->sections->activated(index);
     });
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
@@ -216,13 +216,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
-        QString urlPath = url.path();
-        QString docsetName = docsetName(urlPath);
-        QIcon icon = docsetIcon(docsetName);
-        if (ZealDocsetsRegistry::instance()->names().contains(docsetName))
-            loadSections(docsetName, url);
+        const QString name = docsetName(url);
+        if (ZealDocsetsRegistry::instance()->names().contains(name))
+            loadSections(name, url);
 
-        tabBar.setTabIcon(tabBar.currentIndex(), icon);
+        m_tabBar.setTabIcon(m_tabBar.currentIndex(), docsetIcon(name));
         displayViewActions();
     });
 
@@ -241,16 +239,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->sections->hide();
     ui->sections_lab->hide();
-    ui->sections->setModel(&searchState->sectionsList);
+    ui->sections->setModel(&m_searchState->sectionsList);
     connect(ZealDocsetsRegistry::instance(), &ZealDocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
     connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
-        if (text == searchState->searchQuery)
+        if (text == m_searchState->searchQuery)
             return;
 
-        searchState->searchQuery = text;
-        searchState->zealSearch.setQuery(text);
+        m_searchState->searchQuery = text;
+        m_searchState->zealSearch.setQuery(text);
         if (text.isEmpty())
-            ui->treeView->setModel(&zealList);
+            ui->treeView->setModel(&m_zealList);
     });
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);
@@ -262,12 +260,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // save the expanded items:
     connect(ui->treeView, &QTreeView::expanded, [&](QModelIndex index) {
-        if (searchState->expansions.indexOf(index) == -1)
-            searchState->expansions.append(index);
+        if (m_searchState->expansions.indexOf(index) == -1)
+            m_searchState->expansions.append(index);
     });
 
     connect(ui->treeView, &QTreeView::collapsed, [&](QModelIndex index) {
-        searchState->expansions.removeOne(index);
+        m_searchState->expansions.removeOne(index);
     });
 
 #ifdef Q_OS_WIN32
@@ -280,15 +278,15 @@ MainWindow::MainWindow(QWidget *parent) :
         closeTab();
     });
 
-    tabBar.setTabsClosable(true);
-    tabBar.setExpanding(false);
-    tabBar.setUsesScrollButtons(true);
-    tabBar.setDrawBase(false);
+    m_tabBar.setTabsClosable(true);
+    m_tabBar.setExpanding(false);
+    m_tabBar.setUsesScrollButtons(true);
+    m_tabBar.setDrawBase(false);
 
-    connect(&tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
-    ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, &tabBar, 0, Qt::AlignBottom);
+    connect(&m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+    ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, &m_tabBar, 0, Qt::AlignBottom);
 
-    connect(&tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
+    connect(&m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
 
     connect(ui->openUrlButton, &QPushButton::clicked, [&]() {
         QUrl url(ui->webView->page()->history()->currentItem().url());
@@ -299,13 +297,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_NextTab->setShortcut(QKeySequence::NextChild);
     addAction(ui->action_NextTab);
     connect(ui->action_NextTab, &QAction::triggered, [&]() {
-        tabBar.setCurrentIndex((tabBar.currentIndex() + 1) % tabBar.count());
+        m_tabBar.setCurrentIndex((m_tabBar.currentIndex() + 1) % m_tabBar.count());
     });
 
     ui->action_PreviousTab->setShortcut(QKeySequence::PreviousChild);
     addAction(ui->action_PreviousTab);
     connect(ui->action_PreviousTab, &QAction::triggered, [&]() {
-        tabBar.setCurrentIndex((tabBar.currentIndex() - 1 + tabBar.count()) % tabBar.count());
+        m_tabBar.setCurrentIndex((m_tabBar.currentIndex() - 1 + m_tabBar.count()) % m_tabBar.count());
     });
 }
 
@@ -323,14 +321,20 @@ void MainWindow::openDocset(const QModelIndex &index)
             url.setFragment(url_l[1]);
         ui->webView->load(url);
 
-        if (!treeViewClicked)
+        if (!m_treeViewClicked)
             ui->webView->focus();
         else
-            treeViewClicked = false;
+            m_treeViewClicked = false;
     }
 }
 
-QIcon MainWindow::docsetIcon(const QString &docsetName)
+QString MainWindow::docsetName(const QUrl &url) const
+{
+    QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
+    return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QStringLiteral("");
+}
+
+QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
     if (ZealDocsetsRegistry::instance()->names().contains(docsetName))
         return ZealDocsetsRegistry::instance()->icon(docsetName).pixmap(32, 32);
@@ -340,33 +344,33 @@ QIcon MainWindow::docsetIcon(const QString &docsetName)
 
 void MainWindow::queryCompleted()
 {
-    treeViewClicked = true;
+    m_treeViewClicked = true;
 
-    ui->treeView->setModel(&searchState->zealSearch);
+    ui->treeView->setModel(&m_searchState->zealSearch);
     ui->treeView->reset();
     ui->treeView->setColumnHidden(1, true);
-    ui->treeView->setCurrentIndex(searchState->zealSearch.index(0, 0, QModelIndex()));
+    ui->treeView->setCurrentIndex(m_searchState->zealSearch.index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
 void MainWindow::goToTab(int index)
 {
     saveTabState();
-    searchState = tabs.at(index);
+    m_searchState = m_tabs.at(index);
     reloadTabState();
 }
 
 void MainWindow::closeTab(int index)
 {
     if (index == -1)
-        index = tabBar.currentIndex();
+        index = m_tabBar.currentIndex();
 
     // TODO: proper deletion here
-    tabs.removeAt(index);
+    m_tabs.removeAt(index);
 
-    if (tabs.count() == 0)
+    if (m_tabs.count() == 0)
         createTab();
-    tabBar.removeTab(index);
+    m_tabBar.removeTab(index);
 }
 
 void MainWindow::createTab()
@@ -385,18 +389,18 @@ void MainWindow::createTab()
     newTab->page = new QWebPage(ui->webView);
 #ifndef USE_WEBENGINE
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->page->setNetworkAccessManager(zealNaManager);
+    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
 #endif
 
     ui->treeView->setModel(NULL);
-    ui->treeView->setModel(&zealList);
+    ui->treeView->setModel(&m_zealList);
     ui->treeView->setColumnHidden(1, true);
 
-    tabs.append(newTab);
-    searchState = newTab;
+    m_tabs.append(newTab);
+    m_searchState = newTab;
 
-    tabBar.addTab("title");
-    tabBar.setCurrentIndex(tabs.size() - 1);
+    m_tabBar.addTab("title");
+    m_tabBar.setCurrentIndex(m_tabs.size() - 1);
 
     reloadTabState();
 #ifdef USE_WEBENGINE
@@ -416,11 +420,11 @@ void MainWindow::displayTabs()
     ui->menu_Tabs->addAction(ui->action_PreviousTab);
     ui->menu_Tabs->addSeparator();
 
-    ui->action_NextTab->setEnabled(tabBar.count() > 1);
-    ui->action_PreviousTab->setEnabled(tabBar.count() > 1);
+    ui->action_NextTab->setEnabled(m_tabBar.count() > 1);
+    ui->action_PreviousTab->setEnabled(m_tabBar.count() > 1);
 
-    for (int i = 0; i < tabs.count(); i++) {
-        SearchState *state = tabs.at(i);
+    for (int i = 0; i < m_tabs.count(); i++) {
+        SearchState *state = m_tabs.at(i);
 #ifdef USE_WEBENGINE
         QString title = state->page->title();
 #else
@@ -428,7 +432,7 @@ void MainWindow::displayTabs()
 #endif
         QAction *action = ui->menu_Tabs->addAction(title);
         action->setCheckable(true);
-        action->setChecked(i == tabBar.currentIndex());
+        action->setChecked(i == m_tabBar.currentIndex());
         if (i < 10) {
             QString shortcut;
             if (i == 9)
@@ -448,36 +452,36 @@ void MainWindow::displayTabs()
             title.truncate(17);
             title += "...";
         }
-        tabBar.setTabText(i, title);
+        m_tabBar.setTabText(i, title);
         connect(action, &QAction::triggered, [=]() {
-            tabBar.setCurrentIndex(i);
+            m_tabBar.setCurrentIndex(i);
         });
     }
 }
 
 void MainWindow::reloadTabState()
 {
-    ui->lineEdit->setText(searchState->searchQuery);
-    ui->sections->setModel(&searchState->sectionsList);
+    ui->lineEdit->setText(m_searchState->searchQuery);
+    ui->sections->setModel(&m_searchState->sectionsList);
     ui->treeView->reset();
 
-    if (!searchState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(&searchState->zealSearch);
+    if (!m_searchState->searchQuery.isEmpty()) {
+        ui->treeView->setModel(&m_searchState->zealSearch);
     } else {
-        ui->treeView->setModel(&zealList);
+        ui->treeView->setModel(&m_zealList);
         ui->treeView->setColumnHidden(1, true);
     }
 
     // Bring back the selections and expansions.
-    for (QModelIndex selection: searchState->selections)
+    for (QModelIndex selection: m_searchState->selections)
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (QModelIndex expandedIndex: searchState->expansions)
+    for (QModelIndex expandedIndex: m_searchState->expansions)
         ui->treeView->expand(expandedIndex);
 
-    ui->webView->setPage(searchState->page);
-    ui->webView->setZealZoomFactor(searchState->zoomFactor);
+    ui->webView->setPage(m_searchState->page);
+    ui->webView->setZealZoomFactor(m_searchState->zoomFactor);
 
-    int resultCount = searchState->sectionsList.rowCount(QModelIndex());
+    int resultCount = m_searchState->sectionsList.rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
     ui->sections_lab->setVisible(resultCount > 1);
 
@@ -489,22 +493,22 @@ void MainWindow::reloadTabState()
 
 void MainWindow::scrollSearch()
 {
-    ui->treeView->verticalScrollBar()->setValue(searchState->scrollPosition);
-    ui->sections->verticalScrollBar()->setValue(searchState->sectionsScroll);
+    ui->treeView->verticalScrollBar()->setValue(m_searchState->scrollPosition);
+    ui->sections->verticalScrollBar()->setValue(m_searchState->sectionsScroll);
 }
 
 void MainWindow::saveTabState()
 {
-    searchState->searchQuery = ui->lineEdit->text();
-    searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
-    searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
-    searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
-    searchState->zoomFactor = ui->webView->zealZoomFactor();
+    m_searchState->searchQuery = ui->lineEdit->text();
+    m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
+    m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
+    m_searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
+    m_searchState->zoomFactor = ui->webView->zealZoomFactor();
 }
 
 void MainWindow::onSearchComplete()
 {
-    searchState->zealSearch.onQueryCompleted(ZealDocsetsRegistry::instance()->queryResults());
+    m_searchState->zealSearch.onQueryCompleted(ZealDocsetsRegistry::instance()->queryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
@@ -515,7 +519,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
     QList<ZealSearchResult> results = ZealDocsetsRegistry::instance()->relatedLinks(docsetName, path);
-    searchState->sectionsList.onQueryCompleted(results);
+    m_searchState->sectionsList.onQueryCompleted(results);
 }
 
 // Sets up the search box autocompletions.
@@ -525,12 +529,6 @@ void MainWindow::setupSearchBoxCompletions()
     for (ZealDocsetsRegistry::DocsetEntry docset: ZealDocsetsRegistry::instance()->docsets())
         completions << QString("%1:").arg(docset.prefix);
     ui->lineEdit->setCompletions(completions);
-}
-
-QString MainWindow::docsetName(const QString &urlPath)
-{
-    QRegExp docsetRegex("/([^/]+)[.]docset");
-    return (docsetRegex.indexIn(urlPath) != -1) ? docsetRegex.cap(1) : "";
 }
 
 void MainWindow::displayViewActions()
@@ -573,9 +571,7 @@ void MainWindow::forward()
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
 {
-    QString docsetName = docsetName(item.url().toString());
-    QIcon icon = docsetIcon(docsetName);
-
+    const QIcon icon = docsetIcon(docsetName(item.url()));
     QAction *backAction = new QAction(icon, item.title(), ui->menu_View);
     ui->menu_View->addAction(backAction);
     connect(backAction, &QAction::triggered, [=](bool) {
@@ -630,7 +626,7 @@ void MainWindow::createTrayIcon()
         connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
         m_trayIcon = new QSystemTrayIcon(this);
         m_trayIcon->setContextMenu(m_trayIconMenu);
-        m_trayIcon->setIcon(icon);
+        m_trayIcon->setIcon(m_icon);
         m_trayIcon->setToolTip("Zeal");
         connect(m_trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
             if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
@@ -658,10 +654,10 @@ void MainWindow::bringToFront(bool withHack)
     // Very ugly workaround for the problem described at http://stackoverflow.com/questions/14553810/
     // (just show and hide a modal dialog box, which for some reason restores proper keyboard focus)
     if (withHack) {
-        hackDialog.setGeometry(0, 0, 0, 0);
-        hackDialog.setModal(true);
-        hackDialog.show();
-        QTimer::singleShot(100, &hackDialog, SLOT(reject()));
+        m_hackDialog.setGeometry(0, 0, 0, 0);
+        m_hackDialog.setModal(true);
+        m_hackDialog.show();
+        QTimer::singleShot(100, &m_hackDialog, SLOT(reject()));
     }
 #else
     Q_UNUSED(withHack)
@@ -671,7 +667,7 @@ void MainWindow::bringToFront(bool withHack)
 void MainWindow::bringToFrontAndSearch(const QString &query)
 {
     bringToFront(true);
-    searchState->zealSearch.setQuery(query);
+    m_searchState->zealSearch.setQuery(query);
     ui->lineEdit->setText(query);
     ui->treeView->setFocus();
     ui->treeView->activated(ui->treeView->currentIndex());
@@ -715,15 +711,16 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     // platform-specific code for global key grabbing
 #ifdef Q_OS_WIN32
     UINT i_vk, i_mod = 0;
-    if (!hotKey.isEmpty()) {
+    if (!m_hotKey.isEmpty()) {
         // disable previous hotkey
         UnregisterHotKey(NULL, 10);
     }
-    hotKey = hotKey_;
-    nativeFilter.setHotKey(hotKey);
-    m_settings->setValue("hotkey", hotKey);
-    if (hotKey.isEmpty()) return;
-    int key = hotKey[0];
+    m_hotKey = hotKey_;
+    m_nativeFilter.setHotKey(m_hotKey);
+    m_settings->setValue("hotkey", m_hotKey);
+    if (m_hotKey.isEmpty())
+        return;
+    int key = m_hotKey[0];
     if (key & Qt::ALT) i_mod |= MOD_ALT;
     if (key & Qt::CTRL) i_mod |= MOD_CONTROL;
     if (key & Qt::SHIFT) i_mod |= MOD_SHIFT;
@@ -847,9 +844,9 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     }
 
     if (!RegisterHotKey(NULL, 10, i_mod, i_vk)) {
-        hotKey = QKeySequence();
-        nativeFilter.setHotKey(hotKey);
-        m_settings->setValue("hotkey", hotKey);
+        m_hotKey = QKeySequence();
+        m_nativeFilter.setHotKey(m_hotKey);
+        m_settings->setValue("hotkey", m_hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
     }
 #endif // Q_OS_WIN32
@@ -861,26 +858,26 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
         = static_cast<xcb_connection_t *>(platform->nativeResourceForWindow("connection", 0));
     xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
 
-    if (!hotKey.isEmpty()) {
+    if (!m_hotKey.isEmpty()) {
         // remove previous bindings from all screens
         xcb_screen_iterator_t iter;
         iter = xcb_setup_roots_iterator(xcb_get_setup(c));
         for (; iter.rem; xcb_screen_next(&iter))
             xcb_ungrab_key(c, XCB_GRAB_ANY, iter.data->root, XCB_MOD_MASK_ANY);
     }
-    hotKey = hotKey_;
-    nativeFilter.setHotKey(hotKey);
-    m_settings->setValue("hotkey", hotKey);
+    m_hotKey = hotKey_;
+    m_nativeFilter.setHotKey(m_hotKey);
+    m_settings->setValue("hotkey", m_hotKey);
 
-    if (hotKey.isEmpty()) return;
+    if (m_hotKey.isEmpty()) return;
 
-    xcb_keysym_t keysym = GetX11Key(hotKey[0]);
+    xcb_keysym_t keysym = GetX11Key(m_hotKey[0]);
     xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, keysym), keycode;
 
     if (!keycodes) {
-        hotKey = QKeySequence();
-        nativeFilter.setHotKey(hotKey);
-        m_settings->setValue("hotkey", hotKey);
+        m_hotKey = QKeySequence();
+        m_nativeFilter.setHotKey(m_hotKey);
+        m_settings->setValue("hotkey", m_hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
         free(keysyms);
         return;
@@ -894,7 +891,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
         int i = 0;
         while (keycodes[i] != XCB_NO_SYMBOL) {
             keycode = keycodes[i];
-            for (auto modifier : GetX11Modifier(c, keysyms, hotKey[0])) {
+            for (auto modifier : GetX11Modifier(c, keysyms, m_hotKey[0])) {
                 auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
                                                    modifier, keycode, XCB_GRAB_MODE_SYNC,
                                                    XCB_GRAB_MODE_SYNC);
@@ -907,7 +904,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
     if (any_failed) {
         QMessageBox::warning(this, "Key binding warning",
                              "Warning: Global hotkey binding problem detected. Some other program might have a conflicting key binding with "
-                             "<strong>" + hotKey.toString() + "</strong>"
+                             "<strong>" + m_hotKey.toString() + "</strong>"
                                                               ". If the hotkey doesn't work, try closing some programs or using a different hotkey.");
     }
     free(keysyms);

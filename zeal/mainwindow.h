@@ -97,33 +97,34 @@ private:
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
-    QIcon docsetIcon(const QString &docsetName);
+    QString docsetName(const QUrl &url) const;
+    QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
     void createTrayIcon();
-    void setHotKey(const QKeySequence &hotKey);
+    void setHotKey(const QKeySequence &m_hotKey);
 
-    QList<SearchState *> tabs;
+    QList<SearchState *> m_tabs;
 
-    SearchState *searchState;
-    ZealNetworkAccessManager *zealNaManager;
+    SearchState *m_searchState = nullptr;
+    ZealNetworkAccessManager *m_zealNetworkManager = nullptr;
 
-    Ui::MainWindow *ui;
-    QIcon icon;
-    ZealListModel zealList;
+    Ui::MainWindow *ui = nullptr;
+    QIcon m_icon;
+    ZealListModel m_zealList;
 
-    QLocalServer *localServer;
+    QLocalServer *m_localServer = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
 
-    QDialog hackDialog;
-    bool treeViewClicked;
+    QDialog m_hackDialog;
+    bool m_treeViewClicked;
 
-    QKeySequence hotKey;
+    QKeySequence m_hotKey;
     QSettings *m_settings = nullptr;
-    QTabBar tabBar;
-    ZealNativeEventFilter nativeFilter;
-    ZealSettingsDialog settingsDialog;
+    QTabBar m_tabBar;
+    ZealNativeEventFilter m_nativeFilter;
+    ZealSettingsDialog m_settingsDialog;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayIconMenu = nullptr;
@@ -131,8 +132,6 @@ private:
 #ifdef USE_LIBAPPINDICATOR
     AppIndicator *m_indicator = nullptr;  // for Unity
 #endif
-
-    QString docsetName(const QString &urlPath);
 };
 
 #endif // MAINWINDOW_H
