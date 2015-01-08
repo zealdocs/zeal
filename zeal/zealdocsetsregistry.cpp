@@ -191,7 +191,7 @@ void ZealDocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
     QList<ZealSearchResult> results;
     ZealSearchQuery query(rawQuery);
 
-    QString preparedQuery = query.getSanitizedQuery();
+    QString preparedQuery = query.sanitizedQuery();
     bool hasDocsetFilter = query.hasDocsetFilter();
 
     for (const ZealDocsetsRegistry::DocsetEntry &docset : docsets()) {

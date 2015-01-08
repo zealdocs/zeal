@@ -9,10 +9,6 @@
 class ZealSearchQuery
 {
 public:
-    static const char DOCSET_FILTER_SEPARATOR = ':';
-
-    static const char MULTIPLE_DOCSET_SEPARATOR = ',';
-
     /// Creates a search query from a string. Single separator will be
     /// used to contstruct docset filter, but separator repeated twice
     /// will be left inside coreQuery part since double semicolon is
@@ -28,27 +24,27 @@ public:
     ///
     /// Multiple docsets are supported using the ',' character:
     ///   "java,android:setTypeFa #=> docsetFilters = ["java", "android"], coreQuery = "setTypeFa"
-    ZealSearchQuery(const QString &coreQuery);
+    explicit ZealSearchQuery(const QString &coreQuery);
 
     /// Returns true if there's a docset filter for the given query
-    bool hasDocsetFilter();
+    bool hasDocsetFilter() const;
 
     /// Returns true if the docset prefix match the ones given on query
-    bool docsetPrefixMatch(const QString &docsetPrefix);
+    bool docsetPrefixMatch(const QString &docsetPrefix) const;
 
     /// Returns the docset filter raw size for the given query
-    int getDocsetFilterSize();
+    int docsetFilterSize() const;
 
     /// Returns the core query, sanitized for use in SQL queries
-    QString getSanitizedQuery();
+    QString sanitizedQuery() const;
 
     /// Returns the query with any docset prefixes removed.
-    QString getCoreQuery();
+    QString coreQuery() const;
 
 private:
-    QString rawDocsetFilter;
-    QStringList docsetFilters;
-    QString coreQuery;
+    QString m_rawDocsetFilter;
+    QStringList m_docsetFilters;
+    QString m_coreQuery;
 };
 
 #endif // ZEALSEARCHQUERY_H
