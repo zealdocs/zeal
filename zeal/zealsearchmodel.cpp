@@ -23,18 +23,18 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(ZealDocsetsRegistry::instance()->icon(item->getDocsetName()));
+            return QVariant(ZealDocsetsRegistry::instance()->icon(item->docsetName()));
         return QVariant();
     }
 
     if (index.column() == 0) {
-        if (!item->getParentName().isEmpty())
-            return QVariant(QString("%1 (%2)").arg(item->getName(), item->getParentName()));
+        if (!item->parentName().isEmpty())
+            return QVariant(QString("%1 (%2)").arg(item->name(), item->parentName()));
         else
-            return QVariant(item->getName());
+            return QVariant(item->name());
 
     } else if (index.column() == 1) {
-        return QVariant(ZealDocsetsRegistry::instance()->dir(item->getDocsetName()).absoluteFilePath(item->getPath()));
+        return QVariant(ZealDocsetsRegistry::instance()->dir(item->docsetName()).absoluteFilePath(item->path()));
     }
     return QVariant();
 }

@@ -6,40 +6,23 @@
 class ZealSearchResult
 {
 public:
-
     ZealSearchResult();
+    ZealSearchResult(const QString &name, const QString &parentName, const QString &path,
+                     const QString &docset, const QString &query);
 
-    ZealSearchResult(const QString &name_, const QString &parentName_, const QString &path_,
-                     const QString &docset_, const QString &query_);
-
-    QString getName() const
-    {
-        return name;
-    }
-
-    QString getParentName() const
-    {
-        return parentName;
-    }
-
-    QString getPath() const
-    {
-        return path;
-    }
-
-    QString getDocsetName() const
-    {
-        return docset;
-    }
+    QString name() const;
+    QString parentName() const;
+    QString path() const;
+    QString docsetName() const;
 
     bool operator<(const ZealSearchResult &r) const;
 
 private:
-    QString name;
-    QString parentName;
-    QString path;
-    QString docset;
-    QString query;
+    QString m_name;
+    QString m_parentName;
+    QString m_path;
+    QString m_docset;
+    QString m_query;
 };
 
 #endif // ZEALSEARCHRESULT_H
