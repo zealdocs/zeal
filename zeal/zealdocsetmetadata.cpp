@@ -5,12 +5,14 @@
 #include <QJsonDocument>
 #include <QUrl>
 
-ZealDocsetMetadata::ZealDocsetMetadata() :
+using namespace Zeal;
+
+DocsetMetadata::DocsetMetadata() :
     m_valid(true)
 {
 }
 
-void ZealDocsetMetadata::read(QXmlStreamReader &xml)
+void DocsetMetadata::read(QXmlStreamReader &xml)
 {
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();
@@ -30,7 +32,7 @@ void ZealDocsetMetadata::read(QXmlStreamReader &xml)
     }
 }
 
-void ZealDocsetMetadata::read(const QString &path)
+void DocsetMetadata::read(const QString &path)
 {
     QScopedPointer<QFile> file(new QFile(path));
     if (!file->open(QIODevice::ReadOnly)) {
@@ -47,7 +49,7 @@ void ZealDocsetMetadata::read(const QString &path)
         m_urls.append(url.toString());
 }
 
-void ZealDocsetMetadata::write(const QString &path) const
+void DocsetMetadata::write(const QString &path) const
 {
     QScopedPointer<QFile> file(new QFile(path));
     if (!file->open(QIODevice::WriteOnly))
@@ -66,17 +68,17 @@ void ZealDocsetMetadata::write(const QString &path) const
     file->write(doc.toJson());
 }
 
-bool ZealDocsetMetadata::isValid() const
+bool DocsetMetadata::isValid() const
 {
     return m_valid;
 }
 
-QStringList ZealDocsetMetadata::urls() const
+QStringList DocsetMetadata::urls() const
 {
     return m_urls;
 }
 
-QString ZealDocsetMetadata::primaryUrl() const
+QString DocsetMetadata::primaryUrl() const
 {
     // Find preferred mirror from feed url host
     QUrl feedUrl(m_feedUrl);
@@ -93,32 +95,32 @@ QString ZealDocsetMetadata::primaryUrl() const
     return m_urls[idx];
 }
 
-void ZealDocsetMetadata::addUrl(const QString &url)
+void DocsetMetadata::addUrl(const QString &url)
 {
     m_urls.append(url);
 }
 
-int ZealDocsetMetadata::urlCount() const
+int DocsetMetadata::urlCount() const
 {
     return m_urls.size();
 }
 
-QString ZealDocsetMetadata::version() const
+QString DocsetMetadata::version() const
 {
     return m_version;
 }
 
-void ZealDocsetMetadata::setVersion(const QString &version)
+void DocsetMetadata::setVersion(const QString &version)
 {
     m_version = version;
 }
 
-QString ZealDocsetMetadata::feedUrl() const
+QString DocsetMetadata::feedUrl() const
 {
     return m_feedUrl;
 }
 
-void ZealDocsetMetadata::setFeedUrl(const QString &url)
+void DocsetMetadata::setFeedUrl(const QString &url)
 {
     m_feedUrl = url;
 }

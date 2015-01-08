@@ -3,9 +3,11 @@
 
 #include <QString>
 
-struct ZealDocsetInfo
+namespace Zeal {
+
+struct DocsetInfo
 {
-    explicit ZealDocsetInfo(const QString &filePath = QString());
+    explicit DocsetInfo(const QString &filePath = QString());
 
     bool readDocset(const QString &filePath);
 
@@ -15,5 +17,7 @@ struct ZealDocsetInfo
     QString bundleName;
     QString bundleIdentifier;
 };
+
+} // namespace Zeal
 
 #endif // ZEALDOCSETINFO_H

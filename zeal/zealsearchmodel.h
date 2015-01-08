@@ -5,11 +5,13 @@
 
 #include <QAbstractItemModel>
 
-class ZealSearchModel : public QAbstractItemModel
+namespace Zeal {
+
+class SearchModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit ZealSearchModel(QObject *parent = 0);
+    explicit SearchModel(QObject *parent = 0);
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -23,12 +25,14 @@ signals:
     void queryCompleted();
 
 public slots:
-    void onQueryCompleted(const QList<ZealSearchResult> &results);
+    void onQueryCompleted(const QList<SearchResult> &results);
 
 private:
     QString query;
-    QList<ZealSearchResult> dataList;
+    QList<SearchResult> dataList;
     void populateData();
 };
+
+} // namespace Zeal
 
 #endif // ZEALSEARCHMODEL_H

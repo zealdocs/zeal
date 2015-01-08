@@ -3,13 +3,15 @@
 #include <QDomDocument>
 #include <QFile>
 
-ZealDocsetInfo::ZealDocsetInfo(const QString &filePath)
+using namespace Zeal;
+
+DocsetInfo::DocsetInfo(const QString &filePath)
 {
     if (QFile::exists(filePath))
         readDocset(filePath);
 }
 
-bool ZealDocsetInfo::readDocset(const QString &filePath)
+bool DocsetInfo::readDocset(const QString &filePath)
 {
     QScopedPointer<QFile> file(new QFile(filePath));
     if (!file->open(QIODevice::ReadOnly))

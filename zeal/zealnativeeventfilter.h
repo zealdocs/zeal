@@ -5,11 +5,13 @@
 #include <QObject>
 #include <QKeySequence>
 
-class ZealNativeEventFilter : public QObject, public QAbstractNativeEventFilter
+namespace Zeal {
+
+class NativeEventFilter : public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 public:
-    explicit ZealNativeEventFilter(QObject *parent = nullptr);
+    explicit NativeEventFilter(QObject *parent = nullptr);
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
 
@@ -23,5 +25,7 @@ private:
     bool m_enabled;
     QKeySequence m_hotKey;
 };
+
+} // namespace Zeal
 
 #endif // ZEALNATIVEEVENTFILTER_H

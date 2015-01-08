@@ -1,12 +1,13 @@
 #include "zealsearchresult.h"
 
-ZealSearchResult::ZealSearchResult()
+using namespace Zeal;
+
+SearchResult::SearchResult()
 {
 }
 
-ZealSearchResult::ZealSearchResult(const QString &name, const QString &parentName,
-                                   const QString &path, const QString &docset,
-                                   const QString &query) :
+SearchResult::SearchResult(const QString &name, const QString &parentName, const QString &path,
+                           const QString &docset, const QString &query) :
     m_name(name),
     m_parentName(parentName),
     m_path(path),
@@ -15,27 +16,27 @@ ZealSearchResult::ZealSearchResult(const QString &name, const QString &parentNam
 {
 }
 
-QString ZealSearchResult::name() const
+QString SearchResult::name() const
 {
     return m_name;
 }
 
-QString ZealSearchResult::parentName() const
+QString SearchResult::parentName() const
 {
     return m_parentName;
 }
 
-QString ZealSearchResult::path() const
+QString SearchResult::path() const
 {
     return m_path;
 }
 
-QString ZealSearchResult::docsetName() const
+QString SearchResult::docsetName() const
 {
     return m_docset;
 }
 
-bool ZealSearchResult::operator<(const ZealSearchResult &r) const
+bool SearchResult::operator<(const SearchResult &r) const
 {
     const bool lhsStartsWithQuery = m_name.startsWith(m_query, Qt::CaseInsensitive);
     const bool rhsStartsWithQuery = r.m_name.startsWith(m_query, Qt::CaseInsensitive);

@@ -5,7 +5,9 @@
 #include <QHash>
 #include <QSet>
 
-class ZealListModel : public QAbstractItemModel
+namespace Zeal {
+
+class ListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
@@ -13,7 +15,7 @@ public:
         DocsetNameRole = Qt::UserRole
     };
 
-    explicit ZealListModel(QObject *parent = nullptr);
+    explicit ListModel(QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -37,5 +39,7 @@ private:
     QHash<QPair<QString, int>, QPair<QString, QString>> m_items;
     QSet<QString> m_strings;
 };
+
+} // namespace Zeal
 
 #endif // ZEALLISTMODEL_H

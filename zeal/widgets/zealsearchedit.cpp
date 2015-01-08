@@ -35,7 +35,7 @@ void ZealSearchEdit::setCompletions(const QStringList &completions)
 
 int ZealSearchEdit::queryStart()
 {
-    ZealSearchQuery currentQuery(text());
+    Zeal::SearchQuery currentQuery(text());
     // Keep the filter for the first esc press
     if (currentQuery.docsetFilterSize() > 0 && currentQuery.coreQuery().size() > 0)
         return currentQuery.docsetFilterSize() + 1;
@@ -108,7 +108,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
     QLineEdit::focusInEvent(evt);
 
     // Override the default selection.
-    ZealSearchQuery currentQuery(text());
+    Zeal::SearchQuery currentQuery(text());
     int selectionOffset = currentQuery.docsetFilterSize();
     if (selectionOffset > 0)
         selectionOffset++; // add the delimeter

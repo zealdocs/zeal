@@ -3,11 +3,13 @@
 
 #include <QString>
 
-class ZealSearchResult
+namespace Zeal {
+
+class SearchResult
 {
 public:
-    ZealSearchResult();
-    ZealSearchResult(const QString &name, const QString &parentName, const QString &path,
+    SearchResult();
+    SearchResult(const QString &name, const QString &parentName, const QString &path,
                      const QString &docset, const QString &query);
 
     QString name() const;
@@ -15,7 +17,7 @@ public:
     QString path() const;
     QString docsetName() const;
 
-    bool operator<(const ZealSearchResult &r) const;
+    bool operator<(const SearchResult &r) const;
 
 private:
     QString m_name;
@@ -24,5 +26,7 @@ private:
     QString m_docset;
     QString m_query;
 };
+
+} // namespace Zeal
 
 #endif // ZEALSEARCHRESULT_H

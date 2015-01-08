@@ -33,7 +33,9 @@ namespace Ui {
 class MainWindow;
 }
 
-class ZealNetworkAccessManager;
+namespace Zeal {
+class NetworkAccessManager;
+}
 
 extern const QString serverName;
 
@@ -43,9 +45,9 @@ struct SearchState
 {
     QWebPage *page;
     // model representing sections
-    ZealSearchModel sectionsList;
+    Zeal::SearchModel sectionsList;
     // model representing searched for items
-    ZealSearchModel zealSearch;
+    Zeal::SearchModel zealSearch;
     // query being searched for
     QString searchQuery;
 
@@ -106,11 +108,11 @@ private:
     QList<SearchState *> m_tabs;
 
     SearchState *m_searchState = nullptr;
-    ZealNetworkAccessManager *m_zealNetworkManager = nullptr;
+    Zeal::NetworkAccessManager *m_zealNetworkManager = nullptr;
 
     Ui::MainWindow *ui = nullptr;
     QIcon m_icon;
-    ZealListModel *m_zealListModel = nullptr;
+    Zeal::ListModel *m_zealListModel = nullptr;
 
     QLocalServer *m_localServer = nullptr;
 
@@ -123,8 +125,8 @@ private:
     QKeySequence m_hotKey;
     QSettings *m_settings = nullptr;
     QTabBar m_tabBar;
-    ZealNativeEventFilter m_nativeFilter;
-    ZealSettingsDialog m_settingsDialog;
+    Zeal::NativeEventFilter m_nativeFilter;
+    Zeal::SettingsDialog m_settingsDialog;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayIconMenu = nullptr;

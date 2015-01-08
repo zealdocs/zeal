@@ -3,10 +3,12 @@
 
 #include <QStringList>
 
+namespace Zeal {
+
 /**
  * @short The search query model.
  */
-class ZealSearchQuery
+class SearchQuery
 {
 public:
     /// Creates a search query from a string. Single separator will be
@@ -24,7 +26,7 @@ public:
     ///
     /// Multiple docsets are supported using the ',' character:
     ///   "java,android:setTypeFa #=> docsetFilters = ["java", "android"], coreQuery = "setTypeFa"
-    explicit ZealSearchQuery(const QString &coreQuery);
+    explicit SearchQuery(const QString &coreQuery);
 
     /// Returns true if there's a docset filter for the given query
     bool hasDocsetFilter() const;
@@ -46,5 +48,7 @@ private:
     QStringList m_docsetFilters;
     QString m_coreQuery;
 };
+
+} // namespace Zeal
 
 #endif // ZEALSEARCHQUERY_H

@@ -10,16 +10,18 @@
 #include <QThread>
 #include <QUrl>
 
-ZealDocsetsRegistry *ZealDocsetsRegistry::m_instance;
+using namespace Zeal;
 
-ZealDocsetsRegistry *ZealDocsetsRegistry::instance()
+DocsetsRegistry *DocsetsRegistry::m_instance;
+
+DocsetsRegistry *DocsetsRegistry::instance()
 {
     static QMutex mutex;
     if (!m_instance) {
         mutex.lock();
 
         if (!m_instance)
-            m_instance = new ZealDocsetsRegistry();
+            m_instance = new DocsetsRegistry();
 
         mutex.unlock();
     }
@@ -27,47 +29,47 @@ ZealDocsetsRegistry *ZealDocsetsRegistry::instance()
     return m_instance;
 }
 
-int ZealDocsetsRegistry::count() const
+int DocsetsRegistry::count() const
 {
     return m_docs.count();
 }
 
-QStringList ZealDocsetsRegistry::names() const
+QStringList DocsetsRegistry::names() const
 {
     return m_docs.keys();
 }
 
-void ZealDocsetsRegistry::remove(const QString &name)
+void DocsetsRegistry::remove(const QString &name)
 {
     m_docs[name].db.close();
     m_docs.remove(name);
 }
 
-void ZealDocsetsRegistry::clear()
+void DocsetsRegistry::clear()
 {
     for (const QString &key : m_docs.keys())
         remove(key);
 }
 
-QSqlDatabase &ZealDocsetsRegistry::db(const QString &name)
+QSqlDatabase &DocsetsRegistry::db(const QString &name)
 {
     Q_ASSERT(m_docs.contains(name));
     return m_docs[name].db;
 }
 
-const QDir &ZealDocsetsRegistry::dir(const QString &name)
+const QDir &DocsetsRegistry::dir(const QString &name)
 {
     Q_ASSERT(m_docs.contains(name));
     return m_docs[name].dir;
 }
 
-const ZealDocsetMetadata &ZealDocsetsRegistry::meta(const QString &name)
+const DocsetMetadata &DocsetsRegistry::meta(const QString &name)
 {
     Q_ASSERT(m_docs.contains(name));
     return m_docs[name].metadata;
 }
 
-QIcon ZealDocsetsRegistry::icon(const QString &docsetName) const
+QIcon DocsetsRegistry::icon(const QString &docsetName) const
 {
     const DocsetEntry &entry = m_docs[docsetName];
     QString bundleName = entry.info.bundleName;
@@ -89,13 +91,13 @@ QIcon ZealDocsetsRegistry::icon(const QString &docsetName) const
     return icon;
 }
 
-DocsetType ZealDocsetsRegistry::type(const QString &name) const
+DocsetType DocsetsRegistry::type(const QString &name) const
 {
     Q_ASSERT(m_docs.contains(name));
     return m_docs[name].type;
 }
 
-ZealDocsetsRegistry::ZealDocsetsRegistry()
+DocsetsRegistry::DocsetsRegistry()
 {
     /// FIXME: Only search should be performed in a separate thread
     auto thread = new QThread(this);
@@ -103,12 +105,12 @@ ZealDocsetsRegistry::ZealDocsetsRegistry()
     thread->start();
 }
 
-QList<ZealDocsetsRegistry::DocsetEntry> ZealDocsetsRegistry::docsets()
+QList<DocsetsRegistry::DocsetEntry> DocsetsRegistry::docsets()
 {
     return m_docs.values();
 }
 
-void ZealDocsetsRegistry::addDocset(const QString &path)
+void DocsetsRegistry::addDocset(const QString &path)
 {
     QDir dir(path);
     auto name = dir.dirName().replace(QStringLiteral(".docset"), QStringLiteral(""));
@@ -159,42 +161,42 @@ void ZealDocsetsRegistry::addDocset(const QString &path)
     entry.dir = dir;
 
     // Read metadata
-    ZealDocsetMetadata meta;
+    DocsetMetadata meta;
     meta.read(path+"/meta.json");
     entry.metadata = meta;
     m_docs[name] = entry;
 }
 
-ZealDocsetsRegistry::DocsetEntry *ZealDocsetsRegistry::entry(const QString &name)
+DocsetsRegistry::DocsetEntry *DocsetsRegistry::entry(const QString &name)
 {
     return &m_docs[name];
 }
 
-void ZealDocsetsRegistry::runQuery(const QString &query)
+void DocsetsRegistry::runQuery(const QString &query)
 {
     m_lastQuery += 1;
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query),
                               Q_ARG(int, m_lastQuery));
 }
 
-void ZealDocsetsRegistry::invalidateQueries()
+void DocsetsRegistry::invalidateQueries()
 {
     m_lastQuery += 1;
 }
 
-void ZealDocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
+void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
 {
     // If some other queries pending, ignore this one.
     if (queryNum != m_lastQuery)
         return;
 
-    QList<ZealSearchResult> results;
-    ZealSearchQuery query(rawQuery);
+    QList<SearchResult> results;
+    SearchQuery query(rawQuery);
 
     QString preparedQuery = query.sanitizedQuery();
     bool hasDocsetFilter = query.hasDocsetFilter();
 
-    for (const ZealDocsetsRegistry::DocsetEntry &docset : docsets()) {
+    for (const DocsetsRegistry::DocsetEntry &docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
         if (hasDocsetFilter && !query.docsetPrefixMatch(docset.prefix))
             continue;
@@ -264,13 +266,13 @@ void ZealDocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 parentName = row[1].toString();
 
             auto path = row[2].toString();
-            // FIXME: refactoring to use common code in ZealListModel and ZealDocsetsRegistry
+            // FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
             if (docset.type == ZDASH)
                 path += "#" + row[3].toString();
 
             auto itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
-            results.append(ZealSearchResult(itemName, parentName, path, docset.name,
+            results.append(SearchResult(itemName, parentName, path, docset.name,
                                             preparedQuery));
         }
     }
@@ -282,7 +284,7 @@ void ZealDocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
     emit queryCompleted();
 }
 
-void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
+void DocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
                                         const QString &initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
@@ -300,14 +302,14 @@ void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
     }
 }
 
-const QList<ZealSearchResult> &ZealDocsetsRegistry::queryResults()
+const QList<SearchResult> &DocsetsRegistry::queryResults()
 {
     return m_queryResults;
 }
 
-QList<ZealSearchResult> ZealDocsetsRegistry::relatedLinks(const QString &name, const QString &path)
+QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QString &path)
 {
-    QList<ZealSearchResult> results;
+    QList<SearchResult> results;
     // Get the url without the #anchor.
     QUrl mainUrl(path);
     mainUrl.setFragment(NULL);
@@ -341,13 +343,13 @@ QList<ZealSearchResult> ZealDocsetsRegistry::relatedLinks(const QString &name, c
 
         normalizeName(sectionName, parentName, "");
 
-        results.append(ZealSearchResult(sectionName, "", sectionPath, name, QString()));
+        results.append(SearchResult(sectionName, "", sectionPath, name, QString()));
     }
 
     return results;
 }
 
-QString ZealDocsetsRegistry::docsetsDir() const
+QString DocsetsRegistry::docsetsDir() const
 {
     const QScopedPointer<const QSettings> settings(new QSettings());
     if (settings->contains("docsetsDir"))
@@ -361,7 +363,7 @@ QString ZealDocsetsRegistry::docsetsDir() const
 }
 
 // Recursively finds and adds all docsets in a given directory.
-void ZealDocsetsRegistry::addDocsetsFromFolder(const QDir &folder)
+void DocsetsRegistry::addDocsetsFromFolder(const QDir &folder)
 {
     for (const QFileInfo &subdir : folder.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
         if (subdir.suffix() == "docset") {
@@ -373,7 +375,7 @@ void ZealDocsetsRegistry::addDocsetsFromFolder(const QDir &folder)
     }
 }
 
-void ZealDocsetsRegistry::initialiseDocsets()
+void DocsetsRegistry::initialiseDocsets()
 {
     clear();
     addDocsetsFromFolder(QDir(docsetsDir()));

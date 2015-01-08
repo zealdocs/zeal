@@ -2,28 +2,30 @@
 
 #include "zealdocsetsregistry.h"
 
-ZealSearchModel::ZealSearchModel(QObject *parent) :
+using namespace Zeal;
+
+SearchModel::SearchModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
 }
 
-Qt::ItemFlags ZealSearchModel::flags(const QModelIndex &index) const
+Qt::ItemFlags SearchModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
     return QAbstractItemModel::flags(index);
 }
 
-QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
+QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
         return QVariant();
 
-    auto item = static_cast<ZealSearchResult *>(index.internalPointer());
+    auto item = static_cast<SearchResult *>(index.internalPointer());
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(ZealDocsetsRegistry::instance()->icon(item->docsetName()));
+            return QVariant(DocsetsRegistry::instance()->icon(item->docsetName()));
         return QVariant();
     }
 
@@ -34,12 +36,12 @@ QVariant ZealSearchModel::data(const QModelIndex &index, int role) const
             return QVariant(item->name());
 
     } else if (index.column() == 1) {
-        return QVariant(ZealDocsetsRegistry::instance()->dir(item->docsetName()).absoluteFilePath(item->path()));
+        return QVariant(DocsetsRegistry::instance()->dir(item->docsetName()).absoluteFilePath(item->path()));
     }
     return QVariant();
 }
 
-QVariant ZealSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SearchModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_UNUSED(section)
     Q_UNUSED(orientation)
@@ -47,7 +49,7 @@ QVariant ZealSearchModel::headerData(int section, Qt::Orientation orientation, i
     return QVariant();
 }
 
-QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
         if (dataList.count() <= row) return QModelIndex();
@@ -59,40 +61,40 @@ QModelIndex ZealSearchModel::index(int row, int column, const QModelIndex &paren
     return QModelIndex();
 }
 
-QModelIndex ZealSearchModel::parent(const QModelIndex &child) const
+QModelIndex SearchModel::parent(const QModelIndex &child) const
 {
     Q_UNUSED(child)
     return QModelIndex();
 }
 
-int ZealSearchModel::rowCount(const QModelIndex &parent) const
+int SearchModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return dataList.count();
     return 0;
 }
 
-int ZealSearchModel::columnCount(const QModelIndex &parent) const
+int SearchModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
     return 2;
 }
 
-void ZealSearchModel::setQuery(const QString &q)
+void SearchModel::setQuery(const QString &q)
 {
     query = q;
     populateData();
 }
 
-void ZealSearchModel::populateData()
+void SearchModel::populateData()
 {
     if (query.isEmpty())
-        ZealDocsetsRegistry::instance()->invalidateQueries();
+        DocsetsRegistry::instance()->invalidateQueries();
     else
-        ZealDocsetsRegistry::instance()->runQuery(query);
+        DocsetsRegistry::instance()->runQuery(query);
 }
 
-void ZealSearchModel::onQueryCompleted(const QList<ZealSearchResult> &results)
+void SearchModel::onQueryCompleted(const QList<SearchResult> &results)
 {
     beginResetModel();
     dataList = results;

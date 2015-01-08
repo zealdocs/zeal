@@ -5,12 +5,14 @@
 #include <QStringList>
 #include <QXmlStreamReader>
 
+namespace Zeal {
+
 /// TODO: Use QUrl
 
-class ZealDocsetMetadata
+class DocsetMetadata
 {
 public:
-    explicit ZealDocsetMetadata();
+    explicit DocsetMetadata();
 
     void read(QXmlStreamReader &xml);
     void read(const QString &path);
@@ -38,6 +40,8 @@ private:
     QString m_feedUrl;
 };
 
-Q_DECLARE_METATYPE(ZealDocsetMetadata)
+} // namespace Zeal
+
+Q_DECLARE_METATYPE(Zeal::DocsetMetadata)
 
 #endif // ZEALDOCSETMETADATA_H

@@ -12,13 +12,15 @@
 #include <QSettings>
 #include <QUrl>
 
-class ZealSettingsDialog : public QDialog
+namespace Zeal {
+
+class SettingsDialog : public QDialog
 {
     Q_OBJECT
     Q_ENUMS(ProxyType)
 public:
-    explicit ZealSettingsDialog(ZealListModel *listModel, QWidget *parent = 0);
-    ~ZealSettingsDialog();
+    explicit SettingsDialog(ListModel *listModel, QWidget *parent = 0);
+    ~SettingsDialog();
 
     void setHotKey(const QKeySequence &keySequence);
     QKeySequence hotKey();
@@ -44,7 +46,7 @@ private:
     void updateDocsets();
     void resetProgress();
     QNetworkReply *startDownload(const QUrl &url, qint8 retries = 0);
-    QNetworkReply *startDownload(const ZealDocsetMetadata &meta, qint8 retries = 0);
+    QNetworkReply *startDownload(const DocsetMetadata &meta, qint8 retries = 0);
     void stopDownloads();
     void saveSettings();
     const QString tarPath() const;
@@ -97,21 +99,23 @@ private slots:
     void on_addFeedButton_clicked();
 
 private:
-    ZealListModel *m_zealListModel = nullptr;
+    ListModel *m_zealListModel = nullptr;
     QNetworkAccessManager naManager;
     QSettings settings;
     bool downloadedDocsetsList;
-    QMap<QString, ZealDocsetMetadata> availMetadata;
+    QMap<QString, DocsetMetadata> availMetadata;
     QHash<QNetworkReply *, qint8> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload;
     qint32 currentDownload;
     qint32 tasksRunning;
 
-    ZealSettingsDialog::ProxyType proxyType() const;
-    void setProxyType(ZealSettingsDialog::ProxyType type);
+    SettingsDialog::ProxyType proxyType() const;
+    void setProxyType(SettingsDialog::ProxyType type);
 };
 
-Q_DECLARE_METATYPE(ZealSettingsDialog::ProxyType)
+} // namespace Zeal
+
+Q_DECLARE_METATYPE(Zeal::SettingsDialog::ProxyType)
 
 #endif // ZEALSETTINGSDIALOG_H

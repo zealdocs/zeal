@@ -1,11 +1,13 @@
 #include "zealsearchquery.h"
 
+using namespace Zeal;
+
 namespace {
 const char DOCSET_FILTER_SEPARATOR = ':';
 const char MULTIPLE_DOCSET_SEPARATOR = ',';
 }
 
-ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
+SearchQuery::SearchQuery(const QString &rawQuery)
 {
     const int sepAt = rawQuery.indexOf(DOCSET_FILTER_SEPARATOR);
     const int next = sepAt + 1;
@@ -21,12 +23,12 @@ ZealSearchQuery::ZealSearchQuery(const QString &rawQuery)
     }
 }
 
-bool ZealSearchQuery::hasDocsetFilter() const
+bool SearchQuery::hasDocsetFilter() const
 {
     return !m_rawDocsetFilter.isEmpty();
 }
 
-bool ZealSearchQuery::docsetPrefixMatch(const QString &docsetPrefix) const
+bool SearchQuery::docsetPrefixMatch(const QString &docsetPrefix) const
 {
     for (const QString &docsetPrefixFilter : m_docsetFilters) {
         if (docsetPrefix.contains(docsetPrefixFilter, Qt::CaseInsensitive))
@@ -36,12 +38,12 @@ bool ZealSearchQuery::docsetPrefixMatch(const QString &docsetPrefix) const
     return false;
 }
 
-int ZealSearchQuery::docsetFilterSize() const
+int SearchQuery::docsetFilterSize() const
 {
     return m_rawDocsetFilter.size();
 }
 
-QString ZealSearchQuery::sanitizedQuery() const
+QString SearchQuery::sanitizedQuery() const
 {
     QString q = m_coreQuery;
     q.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
@@ -51,7 +53,7 @@ QString ZealSearchQuery::sanitizedQuery() const
     return q;
 }
 
-QString ZealSearchQuery::coreQuery() const
+QString SearchQuery::coreQuery() const
 {
     return m_coreQuery;
 }

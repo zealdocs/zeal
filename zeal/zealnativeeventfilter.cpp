@@ -14,6 +14,8 @@
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
 
+using namespace Zeal;
+
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
 // Copyright (C) 2009 the VideoLAN team
 static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p_symbols,
@@ -83,13 +85,13 @@ static unsigned GetModifier(xcb_connection_t *p_connection, xcb_key_symbols_t *p
 
 #endif // Q_OS_LINUX
 
-ZealNativeEventFilter::ZealNativeEventFilter(QObject *parent) :
+NativeEventFilter::NativeEventFilter(QObject *parent) :
     QObject(parent),
     QAbstractNativeEventFilter()
 {
 }
 
-bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *message,
+bool NativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *message,
                                               long *result)
 {
     Q_UNUSED(eventType)
@@ -191,12 +193,12 @@ bool ZealNativeEventFilter::nativeEventFilter(const QByteArray &eventType, void 
     return false;
 }
 
-void ZealNativeEventFilter::setEnabled(bool enabled)
+void NativeEventFilter::setEnabled(bool enabled)
 {
     m_enabled = enabled;
 }
 
-void ZealNativeEventFilter::setHotKey(const QKeySequence &key)
+void NativeEventFilter::setHotKey(const QKeySequence &key)
 {
     m_hotKey = key;
 }
