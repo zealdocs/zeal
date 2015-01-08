@@ -50,7 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_settings(new QSettings(this)),
-    m_settingsDialog(m_zealList)
+    m_zealListModel(new ZealListModel(this)),
+    m_settingsDialog(m_zealListModel)
 {
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
@@ -194,7 +195,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    ui->treeView->setModel(&m_zealList);
+    ui->treeView->setModel(m_zealListModel);
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
                                                              ui->treeView));
@@ -248,7 +249,7 @@ MainWindow::MainWindow(QWidget *parent) :
         m_searchState->searchQuery = text;
         m_searchState->zealSearch.setQuery(text);
         if (text.isEmpty())
-            ui->treeView->setModel(&m_zealList);
+            ui->treeView->setModel(m_zealListModel);
     });
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);
@@ -393,7 +394,7 @@ void MainWindow::createTab()
 #endif
 
     ui->treeView->setModel(NULL);
-    ui->treeView->setModel(&m_zealList);
+    ui->treeView->setModel(m_zealListModel);
     ui->treeView->setColumnHidden(1, true);
 
     m_tabs.append(newTab);
@@ -468,7 +469,7 @@ void MainWindow::reloadTabState()
     if (!m_searchState->searchQuery.isEmpty()) {
         ui->treeView->setModel(&m_searchState->zealSearch);
     } else {
-        ui->treeView->setModel(&m_zealList);
+        ui->treeView->setModel(m_zealListModel);
         ui->treeView->setColumnHidden(1, true);
     }
 

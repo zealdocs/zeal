@@ -23,10 +23,10 @@
 
 #include <QtConcurrent/QtConcurrent>
 
-ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
+ZealSettingsDialog::ZealSettingsDialog(ZealListModel *listModel, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ZealSettingsDialog),
-    zealList(zList),
+    m_zealListModel(listModel),
     settings("Zeal", "Zeal")
 {
     ui->setupUi(this);
@@ -34,7 +34,7 @@ ZealSettingsDialog::ZealSettingsDialog(ZealListModel &zList, QWidget *parent) :
     ui->downloadableGroup->hide();
     ui->docsetsProgress->hide();
 
-    ui->listView->setModel(&zealList);
+    ui->listView->setModel(m_zealListModel);
 
 
     ProgressItemDelegate *progressDelegate = new ProgressItemDelegate();
@@ -478,7 +478,7 @@ void ZealSettingsDialog::extractDocset()
                     // FIXME C&P (see "FIXME C&P" below)
                     QMetaObject::invokeMethod(ZealDocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
                                               Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
-                    zealList.resetModulesCounts();
+                    m_zealListModel->resetModulesCounts();
                     refreshRequested();
                     ui->listView->reset();
                     for (int i = 0; i < ui->docsetsList->count(); ++i) {
@@ -542,7 +542,7 @@ void ZealSettingsDialog::extractDocset()
                         QMetaObject::invokeMethod(ZealDocsetsRegistry::instance(), "addDocset",
                                                   Qt::BlockingQueuedConnection,
                                                   Q_ARG(QString, root.absolutePath()));
-                        zealList.resetModulesCounts();
+                        m_zealListModel->resetModulesCounts();
                         refreshRequested();
                         ui->listView->reset();
                         for (int i = 0; i < ui->docsetsList->count(); ++i) {
@@ -680,7 +680,7 @@ void ZealSettingsDialog::on_deleteButton_clicked()
     if (answer == QMessageBox::Yes) {
         auto dataDir = QDir(ZealDocsetsRegistry::instance()->docsetsDir());
         auto docsetName = ui->listView->currentIndex().data(ZealListModel::DocsetNameRole).toString();
-        zealList.removeRow(ui->listView->currentIndex().row());
+        m_zealListModel->removeRow(ui->listView->currentIndex().row());
         if (dataDir.exists()) {
             ui->docsetsProgress->show();
             ui->deleteButton->hide();

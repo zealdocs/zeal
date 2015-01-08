@@ -110,7 +110,7 @@ private:
 
     Ui::MainWindow *ui = nullptr;
     QIcon m_icon;
-    ZealListModel m_zealList;
+    ZealListModel *m_zealListModel = nullptr;
 
     QLocalServer *m_localServer = nullptr;
 

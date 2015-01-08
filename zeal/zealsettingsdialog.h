@@ -17,7 +17,7 @@ class ZealSettingsDialog : public QDialog
     Q_OBJECT
     Q_ENUMS(ProxyType)
 public:
-    explicit ZealSettingsDialog(ZealListModel &zlist, QWidget *parent = 0);
+    explicit ZealSettingsDialog(ZealListModel *listModel, QWidget *parent = 0);
     ~ZealSettingsDialog();
 
     void setHotKey(const QKeySequence &keySequence);
@@ -97,7 +97,7 @@ private slots:
     void on_addFeedButton_clicked();
 
 private:
-    ZealListModel &zealList;
+    ZealListModel *m_zealListModel = nullptr;
     QNetworkAccessManager naManager;
     QSettings settings;
     bool downloadedDocsetsList;
