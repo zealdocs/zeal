@@ -5,126 +5,119 @@
 #include <QJsonDocument>
 
 ZealDocsetMetadata::ZealDocsetMetadata() :
-    valid(true)
+    m_valid(true)
 {
-}
-
-void ZealDocsetMetadata::read(const QJsonObject &json)
-{
-    version = json["version"].toString();
-    feedUrl = json["feed_url"].toString();
-    QJsonArray urlArray = json["urls"].toArray();
-    foreach (auto url, urlArray)
-        urls.append(url.toString());
 }
 
 void ZealDocsetMetadata::read(QXmlStreamReader &xml)
 {
     while (!xml.atEnd()) {
-        QXmlStreamReader::TokenType token = xml.readNext();
-        if (token == QXmlStreamReader::StartDocument)
+        const QXmlStreamReader::TokenType token = xml.readNext();
+        if (token == QXmlStreamReader::StartDocument || token != QXmlStreamReader::StartElement)
             continue;
 
         // Try to pull out the relevant data
-        if (token == QXmlStreamReader::StartElement) {
-            if (xml.name() == "version") {
-                if (xml.readNext() != QXmlStreamReader::Characters) continue;
-                version = xml.text().toString();
-            } else if (xml.name() == "url") {
-                if (xml.readNext() != QXmlStreamReader::Characters) continue;
-                urls.append(xml.text().toString());
-            }
+        if (xml.name() == QStringLiteral("version")) {
+            if (xml.readNext() != QXmlStreamReader::Characters)
+                continue;
+            m_version = xml.text().toString();
+        } else if (xml.name() == QStringLiteral("url")) {
+            if (xml.readNext() != QXmlStreamReader::Characters)
+                continue;
+            m_urls.append(xml.text().toString());
         }
     }
 }
 
 void ZealDocsetMetadata::read(const QString &path)
 {
-    QFile file(path);
-    if (file.open(QIODevice::ReadOnly)) {
-        QByteArray data = file.readAll();
-        QJsonDocument doc(QJsonDocument::fromJson(data));
-        read(doc.object());
-        file.close();
-    } else {
-        valid = false;
+    QScopedPointer<QFile> file(new QFile(path));
+    if (!file->open(QIODevice::ReadOnly)) {
+        m_valid = false;
+        return;
     }
+
+    const QJsonObject json = QJsonDocument::fromJson(file->readAll()).object();
+    m_version = json[QStringLiteral("version")].toString();
+    m_feedUrl = json[QStringLiteral("feed_url")].toString();
+
+    const QJsonArray urlArray = json[QStringLiteral("urls")].toArray();
+    for (QJsonValue url : urlArray)
+        m_urls.append(url.toString());
 }
 
 void ZealDocsetMetadata::write(const QString &path) const
 {
-    QFile file(path);
-    if (file.open(QIODevice::WriteOnly)) {
-        QJsonObject meta;
-        write(meta);
-        QJsonDocument doc(meta);
-        file.write(doc.toJson());
-        file.close();
-    }
-}
+    QScopedPointer<QFile> file(new QFile(path));
+    if (!file->open(QIODevice::WriteOnly))
+        return;
 
-void ZealDocsetMetadata::write(QJsonObject &json) const
-{
-    json["version"] = version;
+    QJsonObject json;
+    json[QStringLiteral("version")] = m_version;
+    json[QStringLiteral("feed_url")] = m_feedUrl;
+
     QJsonArray urlArray;
-    foreach (auto url, urls)
+    for (auto url : m_urls)
         urlArray.append(url);
+    json[QStringLiteral("urls")] = urlArray;
 
-    json["urls"] = urlArray;
-    json["feed_url"] = feedUrl;
+    const QJsonDocument doc(json);
+    file->write(doc.toJson());
 }
 
 bool ZealDocsetMetadata::isValid() const
 {
-    return valid;
+    return m_valid;
 }
 
-QStringList ZealDocsetMetadata::getUrls() const
+QStringList ZealDocsetMetadata::urls() const
 {
-    return urls;
+    return m_urls;
 }
 
-QString ZealDocsetMetadata::getPrimaryUrl() const
+QString ZealDocsetMetadata::primaryUrl() const
 {
     // Find preferred mirror from feed url host
-    QUrl feedUrl(getFeedURL());
+    QUrl feedUrl(m_feedUrl);
 
-    QRegExp regex("[^:]+://"+feedUrl.host().replace(".", "\\.")+".*");
+    const QRegExp regex(QStringLiteral("[^:]+://")
+                        + feedUrl.host().replace(QStringLiteral("."), QStringLiteral("\\."))
+                        + QStringLiteral(".*"));
 
-    int idx = urls.indexOf(regex);
+    int idx = m_urls.indexOf(regex);
 
     if (idx < 0)
-        idx = qrand() % urls.count();
+        idx = qrand() % m_urls.count();
 
-    return urls[idx];
+    return m_urls[idx];
 }
 
 void ZealDocsetMetadata::addUrl(const QString &url)
 {
-    urls.append(url);
+    m_urls.append(url);
 }
 
-int ZealDocsetMetadata::getNumUrls() const
+int ZealDocsetMetadata::urlCount() const
 {
-    return urls.length();
+    return m_urls.size();
 }
 
-void ZealDocsetMetadata::setVersion(const QString &ver)
+QString ZealDocsetMetadata::version() const
 {
-    version = ver;
+    return m_version;
 }
 
-QString ZealDocsetMetadata::getVersion() const
+void ZealDocsetMetadata::setVersion(const QString &version)
 {
-    return version;
+    m_version = version;
 }
 
-QString ZealDocsetMetadata::getFeedURL() const
+QString ZealDocsetMetadata::feedUrl() const
 {
-    return feedUrl;
+    return m_feedUrl;
 }
 
-void ZealDocsetMetadata::setFeedURL(const QString &url)
+void ZealDocsetMetadata::setFeedUrl(const QString &url)
 {
-    feedUrl = url;
+    m_feedUrl = url;
 }

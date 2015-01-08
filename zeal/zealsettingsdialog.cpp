@@ -179,7 +179,7 @@ void ZealSettingsDialog::updateDocsets()
         if (!metadata.isValid())
             missingMetadata = true;
 
-        QString feedUrl = metadata.getFeedURL();
+        QString feedUrl = metadata.feedUrl();
         if (!feedUrl.isEmpty()) {
             auto reply = startDownload(feedUrl);
 
@@ -279,7 +279,7 @@ void ZealSettingsDialog::downloadDocsetList()
 
                 // urls[name] = feedUrl;
                 ZealDocsetMetadata meta;
-                meta.setFeedURL(feedUrl);
+                meta.setFeedUrl(feedUrl);
                 availMetadata[name] = meta;
                 auto url_list = url.split("/");
                 auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
@@ -387,7 +387,7 @@ void ZealSettingsDialog::extractDocset()
             ZealDocsetMetadata oldMetadata;
             metadata.read(feed);
 
-            if (!metadata.getNumUrls()) {
+            if (!metadata.urlCount()) {
                 QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
             } else {
 
@@ -395,10 +395,9 @@ void ZealSettingsDialog::extractDocset()
                 if (oldMeta.isValid())
                     oldMetadata = oldMeta.value<ZealDocsetMetadata>();
 
-                if (metadata.getVersion().isEmpty()
-                        || oldMetadata.getVersion() != metadata.getVersion()) {
-                    metadata.setFeedURL(reply->request().url().toString());
-                    auto reply2 = startDownload(metadata.getPrimaryUrl(), 1);
+                if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
+                    metadata.setFeedUrl(reply->request().url().toString());
+                    auto reply2 = startDownload(metadata.primaryUrl(), 1);
 
                     if (listItem != NULL) {
                         listItem->setHidden(false);
@@ -749,9 +748,9 @@ QNetworkReply *ZealSettingsDialog::startDownload(const QUrl &url, qint8 retries)
 
 QNetworkReply *ZealSettingsDialog::startDownload(const ZealDocsetMetadata &meta, qint8 retries)
 {
-    QString url = meta.getFeedURL();
+    QString url = meta.feedUrl();
     if (url.isEmpty())
-        url = meta.getPrimaryUrl();
+        url = meta.primaryUrl();
 
     QNetworkReply *reply = startDownload(url, retries);
     reply->setProperty("metadata", QVariant::fromValue(meta));

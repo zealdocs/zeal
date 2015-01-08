@@ -3,33 +3,39 @@
 
 #include <QJsonObject>
 #include <QStringList>
-#include <QUrl>
 #include <QXmlStreamReader>
 
-class ZealDocsetMetadata // : public QObject
+/// TODO: Use QUrl
+
+class ZealDocsetMetadata
 {
-    // Q_OBJECT
 public:
-    ZealDocsetMetadata();
-    void read(const QJsonObject &json);
+    explicit ZealDocsetMetadata();
+
     void read(QXmlStreamReader &xml);
     void read(const QString &path);
+
     void write(const QString &path) const;
-    void write(QJsonObject &json) const;
+
     bool isValid() const;
-    QStringList getUrls() const;
-    QString getPrimaryUrl() const;
+
+    QStringList urls() const;
+    QString primaryUrl() const;
+
     void addUrl(const QString &url);
-    int getNumUrls() const;
-    void setVersion(const QString &ver);
-    QString getVersion() const;
-    QString getFeedURL() const;
-    void setFeedURL(const QString &url);
+    int urlCount() const;
+
+    QString version() const;
+    void setVersion(const QString &version);
+
+    QString feedUrl() const;
+    void setFeedUrl(const QString &url);
+
 private:
-    QStringList urls;
-    QString version;
-    QString feedUrl;
-    bool valid;
+    bool m_valid;
+    QString m_version;
+    QStringList m_urls;
+    QString m_feedUrl;
 };
 
 Q_DECLARE_METATYPE(ZealDocsetMetadata)
