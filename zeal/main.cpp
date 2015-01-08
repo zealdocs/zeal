@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     QApplication qapp(argc, argv);
 
 #ifdef Q_OS_WIN32
-    a.setStyle(new ZealProxyStyle());
+    qapp.setStyle(new ZealProxyStyle());
 #endif
 
     const CommandLineParameters clParams = parseCommandLine(qapp);
