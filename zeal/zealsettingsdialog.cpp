@@ -339,7 +339,7 @@ void ZealSettingsDialog::downloadDocsetList()
     reply->deleteLater();
 }
 
-const QString ZealSettingsDialog::getTarPath() const
+const QString ZealSettingsDialog::tarPath() const
 {
 #ifdef Q_OS_WIN32
     QDir tardir(QCoreApplication::applicationDirPath());
@@ -419,7 +419,7 @@ void ZealSettingsDialog::extractDocset()
                                       QString("'%1' directory not found").arg(ZealDocsetsRegistry::instance()->docsetsDir()));
                 endTasks();
             } else {
-                const QString program = getTarPath();
+                const QString program = tarPath();
                 QTemporaryFile *tmp = new QTemporaryFile;
                 tmp->open();
                 qint64 read_len = 1;
@@ -624,7 +624,7 @@ void ZealSettingsDialog::on_downloadDocsetButton_clicked()
     }
 
     // Idle run of bsdtar to check if it is available
-    const QString program = getTarPath();
+    const QString program = tarPath();
     QProcess *tar = new QProcess();
     tar->start(program);
     if (!tar->waitForStarted()) {
