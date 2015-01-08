@@ -132,7 +132,7 @@ private:
     AppIndicator *m_indicator = nullptr;  // for Unity
 #endif
 
-    QString getDocsetName(const QString &urlPath);
+    QString docsetName(const QString &urlPath);
 };
 
 #endif // MAINWINDOW_H

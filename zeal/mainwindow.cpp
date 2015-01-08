@@ -217,7 +217,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
         QString urlPath = url.path();
-        QString docsetName = getDocsetName(urlPath);
+        QString docsetName = docsetName(urlPath);
         QIcon icon = docsetIcon(docsetName);
         if (ZealDocsetsRegistry::instance()->names().contains(docsetName))
             loadSections(docsetName, url);
@@ -527,7 +527,7 @@ void MainWindow::setupSearchBoxCompletions()
     ui->lineEdit->setCompletions(completions);
 }
 
-QString MainWindow::getDocsetName(const QString &urlPath)
+QString MainWindow::docsetName(const QString &urlPath)
 {
     QRegExp docsetRegex("/([^/]+)[.]docset");
     return (docsetRegex.indexIn(urlPath) != -1) ? docsetRegex.cap(1) : "";
@@ -573,7 +573,7 @@ void MainWindow::forward()
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
 {
-    QString docsetName = getDocsetName(item.url().toString());
+    QString docsetName = docsetName(item.url().toString());
     QIcon icon = docsetIcon(docsetName);
 
     QAction *backAction = new QAction(icon, item.title(), ui->menu_View);
