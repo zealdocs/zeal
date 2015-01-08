@@ -165,7 +165,7 @@ void ZealDocsetsRegistry::addDocset(const QString &path)
     m_docs[name] = entry;
 }
 
-ZealDocsetsRegistry::DocsetEntry *ZealDocsetsRegistry::getEntry(const QString &name)
+ZealDocsetsRegistry::DocsetEntry *ZealDocsetsRegistry::entry(const QString &name)
 {
     return &m_docs[name];
 }
@@ -300,12 +300,12 @@ void ZealDocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
     }
 }
 
-const QList<ZealSearchResult> &ZealDocsetsRegistry::getQueryResults()
+const QList<ZealSearchResult> &ZealDocsetsRegistry::queryResults()
 {
     return m_queryResults;
 }
 
-QList<ZealSearchResult> ZealDocsetsRegistry::getRelatedLinks(const QString &name, const QString &path)
+QList<ZealSearchResult> ZealDocsetsRegistry::relatedLinks(const QString &name, const QString &path)
 {
     QList<ZealSearchResult> results;
     // Get the url without the #anchor.

@@ -504,7 +504,7 @@ void MainWindow::saveTabState()
 
 void MainWindow::onSearchComplete()
 {
-    searchState->zealSearch.onQueryCompleted(ZealDocsetsRegistry::instance()->getQueryResults());
+    searchState->zealSearch.onQueryCompleted(ZealDocsetsRegistry::instance()->queryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
@@ -514,7 +514,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
     int dirPosition = urlPath.indexOf(dir);
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
-    QList<ZealSearchResult> results = ZealDocsetsRegistry::instance()->getRelatedLinks(docsetName, path);
+    QList<ZealSearchResult> results = ZealDocsetsRegistry::instance()->relatedLinks(docsetName, path);
     searchState->sectionsList.onQueryCompleted(results);
 }
 

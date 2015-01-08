@@ -27,7 +27,7 @@ QVariant ZealListModel::data(const QModelIndex &index, int role) const
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
-                retval = ZealDocsetsRegistry::instance()->getEntry(retval)->info.bundleName;
+                retval = ZealDocsetsRegistry::instance()->entry(retval)->info.bundleName;
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
@@ -46,7 +46,7 @@ QModelIndex ZealListModel::index(int row, int column, const QModelIndex &parent)
         if (column == 0) {
             return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            ZealDocsetsRegistry::DocsetEntry *entry = docsetRegistry->getEntry(docsetRegistry->names().at(row));
+            ZealDocsetsRegistry::DocsetEntry *entry = docsetRegistry->entry(docsetRegistry->names().at(row));
             QDir dir(entry->dir);
 
             if (!entry->info.indexPath.isEmpty()) {

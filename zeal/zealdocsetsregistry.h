@@ -42,14 +42,14 @@ public:
     QIcon icon(const QString &docsetName) const;
     DocsetType type(const QString &name) const;
 
-    DocsetEntry *getEntry(const QString &name);
+    DocsetEntry *entry(const QString &name);
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
-    QList<ZealSearchResult> getRelatedLinks(const QString &name, const QString &path);
+    QList<ZealSearchResult> relatedLinks(const QString &name, const QString &path);
     QString prepareQuery(const QString &rawQuery);
     void runQuery(const QString &query);
     void invalidateQueries();
-    const QList<ZealSearchResult> &getQueryResults();
+    const QList<ZealSearchResult> &queryResults();
     QList<DocsetEntry> docsets();
 
     QString docsetsDir() const;
