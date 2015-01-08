@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QUrl>
 
 ZealDocsetMetadata::ZealDocsetMetadata() :
     m_valid(true)
