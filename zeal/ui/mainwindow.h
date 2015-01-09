@@ -130,7 +130,6 @@ private:
     Zeal::NativeEventFilter *m_nativeFilter = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
-    QMenu *m_trayIconMenu = nullptr;
 
 #ifdef USE_LIBAPPINDICATOR
     AppIndicator *m_indicator = nullptr;  // for Unity

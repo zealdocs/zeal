@@ -150,10 +150,10 @@ MainWindow::MainWindow(QWidget *parent) :
             if (m_settings->value("hidingBehavior").toString() == "systray") {
                 createTrayIcon();
             } else if (m_trayIcon) {
-                m_trayIcon->deleteLater();
-                m_trayIconMenu->deleteLater();
+                QMenu *trayIconMenu = m_trayIcon->contextMenu();
+                delete m_trayIcon;
                 m_trayIcon = nullptr;
-                m_trayIconMenu = nullptr;
+                delete trayIconMenu;
             }
         } else {
             // cancelled - restore previous value
@@ -620,21 +620,26 @@ void MainWindow::createTrayIcon()
         app_indicator_set_menu(m_indicator, GTK_MENU(menu));
     } else {  // others
 #endif
-        m_trayIconMenu = new QMenu(this);
-        auto quitAction = m_trayIconMenu->addAction("&Quit");
-        connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
         m_trayIcon = new QSystemTrayIcon(this);
-        m_trayIcon->setContextMenu(m_trayIconMenu);
         m_trayIcon->setIcon(windowIcon());
-        m_trayIcon->setToolTip("Zeal");
+        m_trayIcon->setToolTip(QStringLiteral("Zeal"));
+
         connect(m_trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
-            if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
-                if (isVisible())
-                    hide();
-                else
-                    bringToFront(false);
-            }
+            if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
+                return;
+
+            if (isVisible())
+                hide();
+            else
+                bringToFront(false);
         });
+
+        QMenu *trayIconMenu = new QMenu(this);
+        QAction *quitAction = trayIconMenu->addAction(QStringLiteral("&Quit"));
+        connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+        m_trayIcon->setContextMenu(trayIconMenu);
+
         m_trayIcon->show();
 #ifdef USE_LIBAPPINDICATOR
     }
