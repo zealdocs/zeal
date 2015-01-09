@@ -3,12 +3,10 @@
 
 #include "zealdocsetsregistry.h"
 #include "zeallistmodel.h"
-#include "zealnativeeventfilter.h"
 #include "zealnetworkaccessmanager.h"
 #include "zealsearchitemdelegate.h"
 #include "zealsearchquery.h"
 #include "zealsettingsdialog.h"
-
 
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
@@ -30,22 +28,10 @@
     #include <QWebFrame>
 #endif
 
-#ifdef Q_OS_WIN32
-#include <windows.h>
-#endif
+#include <QxtGlobalShortcut>
 
 #ifdef USE_LIBAPPINDICATOR
 #include <gtk/gtk.h>
-#endif
-
-#ifdef Q_OS_LINUX
-#include "xcb_keysym.h"
-
-#include <qpa/qplatformnativeinterface.h>
-
-#include <xcb/xcb.h>
-#include <xcb/xcb_keysyms.h>
-#include <X11/keysym.h>
 #endif
 
 using namespace Zeal;
@@ -58,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_settings(new QSettings(this)),
     m_zealListModel(new ListModel(this)),
     m_settingsDialog(new SettingsDialog(m_zealListModel, this)),
-    m_nativeFilter(new NativeEventFilter(this))
+    m_globalShortcut(new QxtGlobalShortcut(this))
 {
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
@@ -82,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
             = m_settings->value(QStringLiteral("hotkey"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 
     // initialise key grabber
-    connect(m_nativeFilter, &NativeEventFilter::hotKeyPressed, [&]() {
+    connect(m_globalShortcut, &QxtGlobalShortcut::activated, [&]() {
         if (!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
@@ -97,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
-    qApp->eventDispatcher()->installNativeEventFilter(m_nativeFilter);
+
     setHotKey(keySequence);
 
     // initialise docsets
@@ -143,8 +129,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
-        m_settingsDialog->setHotKey(m_hotKey);
-        m_nativeFilter->setEnabled(false);
+        m_settingsDialog->setHotKey(m_globalShortcut->shortcut());
+
         if (m_settingsDialog->exec()) {
             setHotKey(m_settingsDialog->hotKey());
             if (m_settings->value("hidingBehavior").toString() == "systray") {
@@ -160,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
                                                  m_settings->value("minFontSize").toInt());
         }
-        m_nativeFilter->setEnabled(true);
+
         ui->treeView->reset();
     });
 
@@ -715,210 +701,10 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
-void MainWindow::setHotKey(const QKeySequence &hotKey_)
+void MainWindow::setHotKey(const QKeySequence &hotKey)
 {
-    // platform-specific code for global key grabbing
-#ifdef Q_OS_WIN32
-    UINT i_vk, i_mod = 0;
-    if (!m_hotKey.isEmpty()) {
-        // disable previous hotkey
-        UnregisterHotKey(NULL, 10);
-    }
-    m_hotKey = hotKey_;
-    m_nativeFilter->setHotKey(m_hotKey);
-    m_settings->setValue("hotkey", m_hotKey);
-    if (m_hotKey.isEmpty())
-        return;
-    int key = m_hotKey[0];
-    if (key & Qt::ALT) i_mod |= MOD_ALT;
-    if (key & Qt::CTRL) i_mod |= MOD_CONTROL;
-    if (key & Qt::SHIFT) i_mod |= MOD_SHIFT;
-    key = key & ~(Qt::ALT | Qt::CTRL | Qt::SHIFT | Qt::META);
-#ifndef VK_VOLUME_DOWN
-#define VK_VOLUME_DOWN          0xAE
-#define VK_VOLUME_UP            0xAF
-#endif
-
-#ifndef VK_MEDIA_NEXT_TRACK
-#define VK_MEDIA_NEXT_TRACK     0xB0
-#define VK_MEDIA_PREV_TRACK     0xB1
-#define VK_MEDIA_STOP           0xB2
-#define VK_MEDIA_PLAY_PAUSE     0xB3
-#endif
-
-#ifndef VK_PAGEUP
-#define VK_PAGEUP               0x21
-#define VK_PAGEDOWN             0x22
-#endif
-    switch (key) {
-    case Qt::Key_Left:
-        i_vk = VK_LEFT;
-        break;
-    case Qt::Key_Right:
-        i_vk = VK_RIGHT;
-        break;
-    case Qt::Key_Up:
-        i_vk = VK_UP;
-        break;
-    case Qt::Key_Down:
-        i_vk = VK_DOWN;
-        break;
-    case Qt::Key_Space:
-        i_vk = VK_SPACE;
-        break;
-    case Qt::Key_Escape:
-        i_vk = VK_ESCAPE;
-        break;
-    case Qt::Key_Enter:
-        i_vk = VK_RETURN;
-        break;
-    case Qt::Key_Return:
-        i_vk = VK_RETURN;
-        break;
-    case Qt::Key_F1:
-        i_vk = VK_F1;
-        break;
-    case Qt::Key_F2:
-        i_vk = VK_F2;
-        break;
-    case Qt::Key_F3:
-        i_vk = VK_F3;
-        break;
-    case Qt::Key_F4:
-        i_vk = VK_F4;
-        break;
-    case Qt::Key_F5:
-        i_vk = VK_F5;
-        break;
-    case Qt::Key_F6:
-        i_vk = VK_F6;
-        break;
-    case Qt::Key_F7:
-        i_vk = VK_F7;
-        break;
-    case Qt::Key_F8:
-        i_vk = VK_F8;
-        break;
-    case Qt::Key_F9:
-        i_vk = VK_F9;
-        break;
-    case Qt::Key_F10:
-        i_vk = VK_F10;
-        break;
-    case Qt::Key_F11:
-        i_vk = VK_F11;
-        break;
-    case Qt::Key_F12:
-        i_vk = VK_F12;
-        break;
-    case Qt::Key_PageUp:
-        i_vk = VK_PAGEUP;
-        break;
-    case Qt::Key_PageDown:
-        i_vk = VK_PAGEDOWN;
-        break;
-    case Qt::Key_Home:
-        i_vk = VK_HOME;
-        break;
-    case Qt::Key_End:
-        i_vk = VK_END;
-        break;
-    case Qt::Key_Insert:
-        i_vk = VK_INSERT;
-        break;
-    case Qt::Key_Delete:
-        i_vk = VK_DELETE;
-        break;
-    case Qt::Key_VolumeDown:
-        i_vk = VK_VOLUME_DOWN;
-        break;
-    case Qt::Key_VolumeUp:
-        i_vk = VK_VOLUME_UP;
-        break;
-    case Qt::Key_MediaTogglePlayPause:
-        i_vk = VK_MEDIA_PLAY_PAUSE;
-        break;
-    case Qt::Key_MediaStop:
-        i_vk = VK_MEDIA_STOP;
-        break;
-    case Qt::Key_MediaPrevious:
-        i_vk = VK_MEDIA_PREV_TRACK;
-        break;
-    case Qt::Key_MediaNext:
-        i_vk = VK_MEDIA_NEXT_TRACK;
-        break;
-    default:
-        i_vk = toupper(key);
-        break;
-    }
-
-    if (!RegisterHotKey(NULL, 10, i_mod, i_vk)) {
-        m_hotKey = QKeySequence();
-        m_nativeFilter->setHotKey(m_hotKey);
-        m_settings->setValue("hotkey", m_hotKey);
-        QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
-    }
-#endif // Q_OS_WIN32
-
-#ifdef Q_OS_LINUX
-    auto platform = qApp->platformNativeInterface();
-
-    xcb_connection_t *c
-        = static_cast<xcb_connection_t *>(platform->nativeResourceForWindow("connection", 0));
-    xcb_key_symbols_t *keysyms = xcb_key_symbols_alloc(c);
-
-    if (!m_hotKey.isEmpty()) {
-        // remove previous bindings from all screens
-        xcb_screen_iterator_t iter;
-        iter = xcb_setup_roots_iterator(xcb_get_setup(c));
-        for (; iter.rem; xcb_screen_next(&iter))
-            xcb_ungrab_key(c, XCB_GRAB_ANY, iter.data->root, XCB_MOD_MASK_ANY);
-    }
-    m_hotKey = hotKey_;
-    m_nativeFilter->setHotKey(m_hotKey);
-    m_settings->setValue("hotkey", m_hotKey);
-
-    if (m_hotKey.isEmpty()) return;
-
-    xcb_keysym_t keysym = GetX11Key(m_hotKey[0]);
-    xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(keysyms, keysym), keycode;
-
-    if (!keycodes) {
-        m_hotKey = QKeySequence();
-        m_nativeFilter->setHotKey(m_hotKey);
-        m_settings->setValue("hotkey", m_hotKey);
-        QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
-        free(keysyms);
-        return;
-    }
-
-    // add bindings for all screens
-    xcb_screen_iterator_t iter;
-    iter = xcb_setup_roots_iterator(xcb_get_setup(c));
-    bool any_failed = false;
-    for (; iter.rem; xcb_screen_next(&iter)) {
-        int i = 0;
-        while (keycodes[i] != XCB_NO_SYMBOL) {
-            keycode = keycodes[i];
-            for (auto modifier : GetX11Modifier(c, keysyms, m_hotKey[0])) {
-                auto cookie = xcb_grab_key_checked(c, true, iter.data->root,
-                                                   modifier, keycode, XCB_GRAB_MODE_SYNC,
-                                                   XCB_GRAB_MODE_SYNC);
-                if (xcb_request_check(c, cookie))
-                    any_failed = true;
-            }
-            i += 1;
-        }
-    }
-    if (any_failed) {
-        QMessageBox::warning(this, "Key binding warning",
-                             "Warning: Global hotkey binding problem detected. Some other program might have a conflicting key binding with "
-                             "<strong>" + m_hotKey.toString() + "</strong>"
-                                                              ". If the hotkey doesn't work, try closing some programs or using a different hotkey.");
-    }
-    free(keysyms);
-    free(keycodes);
-#endif // Q_OS_LINUX
+    m_globalShortcut->setShortcut(hotKey);
+    m_settings->setValue("hotkey", hotKey);
 }
 
 void MainWindow::refreshRequest()

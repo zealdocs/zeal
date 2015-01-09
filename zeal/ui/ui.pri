@@ -7,12 +7,13 @@ SOURCES += \
     $$files($$PWD/widgets/*.cpp)
 
 unix:!macx {
-    LIBS += -lxcb -lxcb-keysyms
+    CONFIG += link_pkgconfig
+    PKGCONFIG += x11
+
     QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
 
     !no_libappindicator {
-        CONFIG += link_pkgconfig
-        PKGCONFIG = gtk+-2.0
+        PKGCONFIG += gtk+-2.0
         INCLUDEPATH += /usr/include/libappindicator-0.1 \
             /usr/include/gtk-2.0 \
             /usr/lib/gtk-2.0/include
@@ -20,9 +21,6 @@ unix:!macx {
 
         DEFINES += USE_LIBAPPINDICATOR
     }
-} else {
-    HEADERS -= $$PWD/xcb_keysym.h
-    SOURCES -= $$PWD/xcb_keysym.cpp
 }
 
 FORMS += \

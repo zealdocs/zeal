@@ -76,6 +76,7 @@ desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
 
 include(quazip/quazip.pri)
+include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 RESOURCES += \
     zeal.qrc

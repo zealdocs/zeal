@@ -24,6 +24,8 @@
     #include <QWebHistory>
 #endif
 
+class QxtGlobalShortcut;
+
 class QLocalServer;
 class QSettings;
 class QSystemTrayIcon;
@@ -34,7 +36,6 @@ class MainWindow;
 
 namespace Zeal {
 class ListModel;
-class NativeEventFilter;
 class NetworkAccessManager;
 class SettingsDialog;
 }
@@ -105,7 +106,7 @@ private:
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
     void createTrayIcon();
-    void setHotKey(const QKeySequence &m_hotKey);
+    void setHotKey(const QKeySequence &hotKey);
 
     QList<SearchState *> m_tabs;
 
@@ -125,9 +126,9 @@ private:
     QDialog m_hackDialog;
     bool m_treeViewClicked;
 
-    QKeySequence m_hotKey;
+    QxtGlobalShortcut *m_globalShortcut = nullptr;
+
     QTabBar m_tabBar;
-    Zeal::NativeEventFilter *m_nativeFilter = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 
