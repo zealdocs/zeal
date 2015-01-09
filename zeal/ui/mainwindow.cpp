@@ -71,14 +71,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     m_localServer->listen(serverName);
 
-    // initialise icons
-#if (defined(Q_OS_OSX) || defined(Q_OS_WIN32))
-    m_icon = QIcon(":/zeal.ico");
-#else
-    QIcon::setThemeName("hicolor");
-    m_icon = QIcon::fromTheme("zeal");
-#endif
-    setWindowIcon(m_icon);
+    setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
+
     if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
@@ -632,7 +626,7 @@ void MainWindow::createTrayIcon()
         connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
         m_trayIcon = new QSystemTrayIcon(this);
         m_trayIcon->setContextMenu(m_trayIconMenu);
-        m_trayIcon->setIcon(m_icon);
+        m_trayIcon->setIcon(windowIcon());
         m_trayIcon->setToolTip("Zeal");
         connect(m_trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
             if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {

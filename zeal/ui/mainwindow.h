@@ -117,8 +117,6 @@ private:
     Zeal::ListModel *m_zealListModel = nullptr;
     Zeal::SettingsDialog *m_settingsDialog = nullptr;
 
-    QIcon m_icon;
-
     QLocalServer *m_localServer = nullptr;
 
     QMenu *m_backMenu = nullptr;
