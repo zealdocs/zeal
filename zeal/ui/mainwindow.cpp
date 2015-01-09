@@ -78,11 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
-    QKeySequence keySequence;
-    if (m_settings->value("hotkey").isNull())
-        keySequence = QKeySequence("Alt+Space");
-    else
-        keySequence = m_settings->value("hotkey").value<QKeySequence>();
+    QKeySequence keySequence
+            = m_settings->value(QStringLiteral("hotkey"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 
     // initialise key grabber
     connect(m_nativeFilter, &NativeEventFilter::hotKeyPressed, [&]() {
@@ -699,12 +696,17 @@ void MainWindow::setupShortcuts()
 // Captures global events in order to pass them to the search bar.
 void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 {
-    if (keyEvent->key() == Qt::Key_Escape) {
+    switch (keyEvent->key()) {
+    case Qt::Key_Escape:
         ui->lineEdit->setFocus();
         ui->lineEdit->clearQuery();
-    } else if (keyEvent->key() == Qt::Key_Question) {
+        break;
+    case Qt::Key_Question:
         ui->lineEdit->setFocus();
         ui->lineEdit->selectQuery();
+        break;
+    default:
+        break;
     }
 }
 
