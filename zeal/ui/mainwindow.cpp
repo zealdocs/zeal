@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
-    connect(m_localServer, &QLocalServer::newConnection, [&]() {
+    connect(m_localServer, &QLocalServer::newConnection, [this]() {
         QLocalSocket *connection = m_localServer->nextPendingConnection();
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
             = m_settings->value(QStringLiteral("hotkey"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 
     // initialise key grabber
-    connect(m_globalShortcut, &QxtGlobalShortcut::activated, [&]() {
+    connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
         if (!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
@@ -162,13 +162,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
-    connect(ui->action_About, &QAction::triggered, [&]() {
+    connect(ui->action_About, &QAction::triggered, [this]() {
         QMessageBox::about(this, "About Zeal",
                            QString("This is Zeal ") + ZEAL_VERSION
                            + " - a documentation browser.\n\n"
                            + "For details see http://zealdocs.org/");
     });
-    connect(ui->action_About_QT, &QAction::triggered, [&]() {
+    connect(ui->action_About_QT, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);
     });
 
@@ -192,11 +192,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, [&](const QModelIndex &index) {
+    connect(ui->treeView, &QTreeView::clicked, [this](const QModelIndex &index) {
         m_treeViewClicked = true;
         ui->treeView->activated(index);
     });
-    connect(ui->sections, &QListView::clicked, [&](const QModelIndex &index) {
+    connect(ui->sections, &QListView::clicked, [this](const QModelIndex &index) {
         m_treeViewClicked = true;
         ui->sections->activated(index);
     });
@@ -205,7 +205,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
     connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
 
-    connect(ui->webView, &SearchableWebView::urlChanged, [&](const QUrl &url) {
+    connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
         if (DocsetsRegistry::instance()->names().contains(name))
             loadSections(name, url);
@@ -214,11 +214,11 @@ MainWindow::MainWindow(QWidget *parent) :
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::titleChanged, [&](const QString &) {
+    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &) {
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::linkClicked, [&](const QUrl &url) {
+    connect(ui->webView, &SearchableWebView::linkClicked, [](const QUrl &url) {
         QMessageBox question;
         QString messageFormat = QString("Do you want to go to an external link?\nUrl: %1");
         question.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -231,7 +231,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sections_lab->hide();
     ui->sections->setModel(&m_searchState->sectionsList);
     connect(DocsetsRegistry::instance(), &DocsetsRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
-    connect(ui->lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
         if (text == m_searchState->searchQuery)
             return;
 
@@ -243,18 +243,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);
     addAction(ui->action_NewTab);
-    connect(ui->action_NewTab, &QAction::triggered, [&]() {
+    connect(ui->action_NewTab, &QAction::triggered, [this]() {
         saveTabState();
         createTab();
     });
 
     // save the expanded items:
-    connect(ui->treeView, &QTreeView::expanded, [&](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
         if (m_searchState->expansions.indexOf(index) == -1)
             m_searchState->expansions.append(index);
     });
 
-    connect(ui->treeView, &QTreeView::collapsed, [&](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::collapsed, [this](QModelIndex index) {
         m_searchState->expansions.removeOne(index);
     });
 
@@ -264,9 +264,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_CloseTab->setShortcut(QKeySequence::Close);
 #endif
     addAction(ui->action_CloseTab);
-    connect(ui->action_CloseTab, &QAction::triggered, [&]() {
-        closeTab();
-    });
+    connect(ui->action_CloseTab, &QAction::triggered, this, &MainWindow::closeTab);
 
     m_tabBar->setTabsClosable(true);
     m_tabBar->setExpanding(false);
@@ -278,7 +276,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
 
-    connect(ui->openUrlButton, &QPushButton::clicked, [&]() {
+    connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
         QUrl url(ui->webView->page()->history()->currentItem().url());
         if (url.scheme() != "qrc")
             QDesktopServices::openUrl(url);
@@ -286,13 +284,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->action_NextTab->setShortcut(QKeySequence::NextChild);
     addAction(ui->action_NextTab);
-    connect(ui->action_NextTab, &QAction::triggered, [&]() {
+    connect(ui->action_NextTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
     ui->action_PreviousTab->setShortcut(QKeySequence::PreviousChild);
     addAction(ui->action_PreviousTab);
-    connect(ui->action_PreviousTab, &QAction::triggered, [&]() {
+    connect(ui->action_PreviousTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
 }
@@ -615,7 +613,7 @@ void MainWindow::createTrayIcon()
         m_trayIcon->setIcon(windowIcon());
         m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
-        connect(m_trayIcon, &QSystemTrayIcon::activated, [&](QSystemTrayIcon::ActivationReason reason) {
+        connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
             if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
                 return;
 
