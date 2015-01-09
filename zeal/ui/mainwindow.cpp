@@ -3,6 +3,7 @@
 
 #include "zealdocsetsregistry.h"
 #include "zeallistmodel.h"
+#include "zealnativeeventfilter.h"
 #include "zealnetworkaccessmanager.h"
 #include "zealsearchitemdelegate.h"
 #include "zealsearchquery.h"
@@ -56,7 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_settings(new QSettings(this)),
     m_zealListModel(new ListModel(this)),
-    m_settingsDialog(new SettingsDialog(m_zealListModel, this))
+    m_settingsDialog(new SettingsDialog(m_zealListModel, this)),
+    m_nativeFilter(new NativeEventFilter(this))
 {
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
@@ -83,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
         keySequence = m_settings->value("hotkey").value<QKeySequence>();
 
     // initialise key grabber
-    connect(&m_nativeFilter, &NativeEventFilter::hotKeyPressed, [&]() {
+    connect(m_nativeFilter, &NativeEventFilter::hotKeyPressed, [&]() {
         if (!isVisible() || !isActiveWindow()) {
             bringToFront(true);
         } else {
@@ -98,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
         }
     });
-    qApp->eventDispatcher()->installNativeEventFilter(&m_nativeFilter);
+    qApp->eventDispatcher()->installNativeEventFilter(m_nativeFilter);
     setHotKey(keySequence);
 
     // initialise docsets
@@ -145,7 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
         m_settingsDialog->setHotKey(m_hotKey);
-        m_nativeFilter.setEnabled(false);
+        m_nativeFilter->setEnabled(false);
         if (m_settingsDialog->exec()) {
             setHotKey(m_settingsDialog->hotKey());
             if (m_settings->value("hidingBehavior").toString() == "systray") {
@@ -161,7 +163,7 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
                                                  m_settings->value("minFontSize").toInt());
         }
-        m_nativeFilter.setEnabled(true);
+        m_nativeFilter->setEnabled(true);
         ui->treeView->reset();
     });
 
@@ -716,7 +718,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
         UnregisterHotKey(NULL, 10);
     }
     m_hotKey = hotKey_;
-    m_nativeFilter.setHotKey(m_hotKey);
+    m_nativeFilter->setHotKey(m_hotKey);
     m_settings->setValue("hotkey", m_hotKey);
     if (m_hotKey.isEmpty())
         return;
@@ -845,7 +847,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
 
     if (!RegisterHotKey(NULL, 10, i_mod, i_vk)) {
         m_hotKey = QKeySequence();
-        m_nativeFilter.setHotKey(m_hotKey);
+        m_nativeFilter->setHotKey(m_hotKey);
         m_settings->setValue("hotkey", m_hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
     }
@@ -866,7 +868,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
             xcb_ungrab_key(c, XCB_GRAB_ANY, iter.data->root, XCB_MOD_MASK_ANY);
     }
     m_hotKey = hotKey_;
-    m_nativeFilter.setHotKey(m_hotKey);
+    m_nativeFilter->setHotKey(m_hotKey);
     m_settings->setValue("hotkey", m_hotKey);
 
     if (m_hotKey.isEmpty()) return;
@@ -876,7 +878,7 @@ void MainWindow::setHotKey(const QKeySequence &hotKey_)
 
     if (!keycodes) {
         m_hotKey = QKeySequence();
-        m_nativeFilter.setHotKey(m_hotKey);
+        m_nativeFilter->setHotKey(m_hotKey);
         m_settings->setValue("hotkey", m_hotKey);
         QMessageBox::warning(this, "Key binding failed", "Binding global hotkey failed.");
         free(keysyms);

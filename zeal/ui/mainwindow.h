@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include "zeallistmodel.h"
-#include "zealnativeeventfilter.h"
 #include "zealsearchmodel.h"
 #include "zealsettingsdialog.h"
 
@@ -35,6 +34,7 @@ class MainWindow;
 
 namespace Zeal {
 class ListModel;
+class NativeEventFilter;
 class NetworkAccessManager;
 class SettingsDialog;
 }
@@ -127,7 +127,7 @@ private:
 
     QKeySequence m_hotKey;
     QTabBar m_tabBar;
-    Zeal::NativeEventFilter m_nativeFilter;
+    Zeal::NativeEventFilter *m_nativeFilter = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayIconMenu = nullptr;
