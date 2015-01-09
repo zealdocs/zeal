@@ -2,6 +2,7 @@
 
 #include "../mainwindow.h"
 
+#include <QApplication>
 #include <QWheelEvent>
 
 ZealWebView::ZealWebView(QWidget *parent) :

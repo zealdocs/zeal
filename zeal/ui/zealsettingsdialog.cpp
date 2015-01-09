@@ -2,6 +2,8 @@
 
 #include "progressitemdelegate.h"
 #include "zealdocsetsregistry.h"
+#include "ui_settingsdialog.h"
+
 #include "quazip/quazip.h"
 #include "quazip/JlCompress.h"
 
@@ -29,7 +31,7 @@ using namespace Zeal;
 
 SettingsDialog::SettingsDialog(ListModel *listModel, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ZealSettingsDialog()),
+    ui(new Ui::SettingsDialog()),
     m_zealListModel(listModel),
     m_settings(new QSettings(this)),
     m_networkManager(new QNetworkAccessManager(this))

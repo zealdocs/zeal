@@ -3,16 +3,20 @@
 
 #include "zeallistmodel.h"
 #include "zealdocsetmetadata.h"
-#include "ui_settingsdialog.h"
 
 #include <QDialog>
 #include <QHash>
 #include <QNetworkProxy>
 #include <QUrl>
 
+class QAbstractButton;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QSettings;
+
+namespace Ui {
+class SettingsDialog;
+}
 
 namespace Zeal {
 
@@ -81,7 +85,7 @@ private:
         ZealDocsetDoneInstalling = Qt::UserRole + 20,
     };
 
-    Ui::ZealSettingsDialog *ui = nullptr;
+    Ui::SettingsDialog *ui = nullptr;
 
     ListModel *m_zealListModel = nullptr;
     QSettings *m_settings = nullptr;

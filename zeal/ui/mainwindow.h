@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QTabBar>
 
 #ifdef USE_LIBAPPINDICATOR
 #undef signals
