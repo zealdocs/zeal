@@ -79,10 +79,12 @@ int main(int argc, char *argv[])
         socket->connectToServer(serverName);
 
         if (socket->waitForConnected(500)) {
-            if (!clParams.query.isEmpty())
+            if (!clParams.query.isEmpty()) {
                 socket->write(clParams.query.toLocal8Bit());
-            else
+                socket->flush();
+            } else {
                 QTextStream(stdout) << QObject::tr("Already running. Terminating.") << endl;
+            }
 
             return 0;
         }

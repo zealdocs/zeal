@@ -55,9 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
         QLocalSocket *connection = m_localServer->nextPendingConnection();
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
-        QString indata = connection->readAll();
-        if (!indata.isEmpty())
-            bringToFrontAndSearch(indata);
+        if (connection->bytesAvailable())
+            bringToFrontAndSearch(QString::fromLocal8Bit(connection->readAll()));
     });
     QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
     m_localServer->listen(serverName);
