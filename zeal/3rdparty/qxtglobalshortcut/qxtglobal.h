@@ -1,4 +1,3 @@
-
 /****************************************************************************
 ** Copyright (c) 2006 - 2011, the LibQxt project.
 ** See the Qxt AUTHORS file for a list of authors and copyright holders.
@@ -34,33 +33,8 @@
 
 #include <QtGlobal>
 
-#define QXT_VERSION 0x000700
-#define QXT_VERSION_STR "0.7.0"
-
-//--------------------------global macros------------------------------
-
-#ifndef QXT_NO_MACROS
-
-#ifndef _countof
-#define _countof(x) (sizeof(x)/sizeof(*x))
-#endif
-
-#endif // QXT_NO_MACROS
-
 //--------------------------export macros------------------------------
 
-#define QXT_DLLEXPORT DO_NOT_USE_THIS_ANYMORE
-
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_CORE)
-#        define QXT_CORE_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_CORE_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_CORE_EXPORT
-#endif // BUILD_QXT_CORE
- 
 #if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
 #    if defined(BUILD_QXT_GUI)
 #        define QXT_GUI_EXPORT Q_DECL_EXPORT
@@ -70,74 +44,6 @@
 #else
 #    define QXT_GUI_EXPORT
 #endif // BUILD_QXT_GUI
- 
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_NETWORK)
-#        define QXT_NETWORK_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_NETWORK_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_NETWORK_EXPORT
-#endif // BUILD_QXT_NETWORK
- 
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_SQL)
-#        define QXT_SQL_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_SQL_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_SQL_EXPORT
-#endif // BUILD_QXT_SQL
- 
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_WEB)
-#        define QXT_WEB_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_WEB_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_WEB_EXPORT
-#endif // BUILD_QXT_WEB
- 
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_BERKELEY)
-#        define QXT_BERKELEY_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_BERKELEY_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_BERKELEY_EXPORT
-#endif // BUILD_QXT_BERKELEY
-
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
-#    if defined(BUILD_QXT_ZEROCONF)
-#        define QXT_ZEROCONF_EXPORT Q_DECL_EXPORT
-#    else
-#        define QXT_ZEROCONF_EXPORT Q_DECL_IMPORT
-#    endif
-#else
-#    define QXT_ZEROCONF_EXPORT
-#endif // QXT_ZEROCONF_EXPORT
-
-#if defined(BUILD_QXT_CORE) || defined(BUILD_QXT_GUI) || defined(BUILD_QXT_SQL) || defined(BUILD_QXT_NETWORK) || defined(BUILD_QXT_WEB) || defined(BUILD_QXT_BERKELEY) || defined(BUILD_QXT_ZEROCONF)
-#   define BUILD_QXT
-#endif
-
-QXT_CORE_EXPORT const char* qxtVersion();
-
-#ifndef QT_BEGIN_NAMESPACE
-#define QT_BEGIN_NAMESPACE
-#endif
-
-#ifndef QT_END_NAMESPACE
-#define QT_END_NAMESPACE
-#endif
-
-#ifndef QT_FORWARD_DECLARE_CLASS
-#define QT_FORWARD_DECLARE_CLASS(Class) class Class;
-#endif
 
 /****************************************************************************
 ** This file is derived from code bearing the following notice:
@@ -218,11 +124,11 @@ public:
     }
     inline PVT * operator->()
     {
-	return static_cast<PVT*>(pvt);
+        return static_cast<PVT*>(pvt);
     }
     inline const PVT * operator->() const
     {
-	return static_cast<PVT*>(pvt);
+        return static_cast<PVT*>(pvt);
     }
 private:
     QxtPrivateInterface(const QxtPrivateInterface&) { }
