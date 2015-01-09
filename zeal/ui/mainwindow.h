@@ -97,7 +97,7 @@ private slots:
     void applyWebPageStyle();
 
 private:
-    void bringToFront(bool withHack);
+    void bringToFront();
     void displayViewActions();
     void loadSections(const QString &docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
@@ -124,7 +124,6 @@ private:
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
 
-    QDialog m_hackDialog;
     bool m_treeViewClicked;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;

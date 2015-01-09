@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
         if (!isVisible() || !isActiveWindow()) {
-            bringToFront(true);
+            bringToFront();
         } else {
 #ifdef USE_LIBAPPINDICATOR
             if (m_trayIcon || m_indicator) {
@@ -619,7 +619,7 @@ void MainWindow::createTrayIcon()
             if (isVisible())
                 hide();
             else
-                bringToFront(false);
+                bringToFront();
         });
 
         QMenu *trayIconMenu = new QMenu(this);
@@ -634,31 +634,18 @@ void MainWindow::createTrayIcon()
 #endif
 }
 
-void MainWindow::bringToFront(bool withHack)
+void MainWindow::bringToFront()
 {
     show();
     setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
     raise();
     activateWindow();
     ui->lineEdit->setFocus();
-
-#ifndef Q_OS_WIN32
-    // Very ugly workaround for the problem described at http://stackoverflow.com/questions/14553810/
-    // (just show and hide a modal dialog box, which for some reason restores proper keyboard focus)
-    if (withHack) {
-        m_hackDialog.setGeometry(0, 0, 0, 0);
-        m_hackDialog.setModal(true);
-        m_hackDialog.show();
-        QTimer::singleShot(100, &m_hackDialog, SLOT(reject()));
-    }
-#else
-    Q_UNUSED(withHack)
-#endif
 }
 
 void MainWindow::bringToFrontAndSearch(const QString &query)
 {
-    bringToFront(true);
+    bringToFront();
     m_searchState->zealSearch.setQuery(query);
     ui->lineEdit->setText(query);
     ui->treeView->setFocus();
