@@ -8,7 +8,6 @@
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
-#include <QTabBar>
 
 #ifdef USE_LIBAPPINDICATOR
 #undef signals
@@ -30,6 +29,7 @@ class QxtGlobalShortcut;
 class QLocalServer;
 class QSettings;
 class QSystemTrayIcon;
+class QTabBar;
 
 namespace Ui {
 class MainWindow;
@@ -129,7 +129,7 @@ private:
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 
-    QTabBar m_tabBar;
+    QTabBar *m_tabBar = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 

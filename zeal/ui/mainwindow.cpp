@@ -20,6 +20,7 @@
 #include <QSettings>
 #include <QShortcut>
 #include <QSystemTrayIcon>
+#include <QTabBar>
 #include <QTimer>
 
 #ifdef USE_WEBENGINE
@@ -46,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_settingsDialog(new SettingsDialog(m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(this))
 {
+    m_tabBar = new QTabBar(this);
+
     // server for detecting already running instances
     m_localServer = new QLocalServer(this);
     connect(m_localServer, &QLocalServer::newConnection, [&]() {
@@ -207,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (DocsetsRegistry::instance()->names().contains(name))
             loadSections(name, url);
 
-        m_tabBar.setTabIcon(m_tabBar.currentIndex(), docsetIcon(name));
+        m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
         displayViewActions();
     });
 
@@ -265,15 +268,15 @@ MainWindow::MainWindow(QWidget *parent) :
         closeTab();
     });
 
-    m_tabBar.setTabsClosable(true);
-    m_tabBar.setExpanding(false);
-    m_tabBar.setUsesScrollButtons(true);
-    m_tabBar.setDrawBase(false);
+    m_tabBar->setTabsClosable(true);
+    m_tabBar->setExpanding(false);
+    m_tabBar->setUsesScrollButtons(true);
+    m_tabBar->setDrawBase(false);
 
-    connect(&m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
-    ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, &m_tabBar, 0, Qt::AlignBottom);
+    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+    ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 
-    connect(&m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
+    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
 
     connect(ui->openUrlButton, &QPushButton::clicked, [&]() {
         QUrl url(ui->webView->page()->history()->currentItem().url());
@@ -284,13 +287,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_NextTab->setShortcut(QKeySequence::NextChild);
     addAction(ui->action_NextTab);
     connect(ui->action_NextTab, &QAction::triggered, [&]() {
-        m_tabBar.setCurrentIndex((m_tabBar.currentIndex() + 1) % m_tabBar.count());
+        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
     ui->action_PreviousTab->setShortcut(QKeySequence::PreviousChild);
     addAction(ui->action_PreviousTab);
     connect(ui->action_PreviousTab, &QAction::triggered, [&]() {
-        m_tabBar.setCurrentIndex((m_tabBar.currentIndex() - 1 + m_tabBar.count()) % m_tabBar.count());
+        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
 }
 
@@ -350,14 +353,14 @@ void MainWindow::goToTab(int index)
 void MainWindow::closeTab(int index)
 {
     if (index == -1)
-        index = m_tabBar.currentIndex();
+        index = m_tabBar->currentIndex();
 
     // TODO: proper deletion here
     m_tabs.removeAt(index);
 
     if (m_tabs.count() == 0)
         createTab();
-    m_tabBar.removeTab(index);
+    m_tabBar->removeTab(index);
 }
 
 void MainWindow::createTab()
@@ -386,8 +389,8 @@ void MainWindow::createTab()
     m_tabs.append(newTab);
     m_searchState = newTab;
 
-    m_tabBar.addTab("title");
-    m_tabBar.setCurrentIndex(m_tabs.size() - 1);
+    m_tabBar->addTab("title");
+    m_tabBar->setCurrentIndex(m_tabs.size() - 1);
 
     reloadTabState();
 #ifdef USE_WEBENGINE
@@ -407,8 +410,8 @@ void MainWindow::displayTabs()
     ui->menu_Tabs->addAction(ui->action_PreviousTab);
     ui->menu_Tabs->addSeparator();
 
-    ui->action_NextTab->setEnabled(m_tabBar.count() > 1);
-    ui->action_PreviousTab->setEnabled(m_tabBar.count() > 1);
+    ui->action_NextTab->setEnabled(m_tabBar->count() > 1);
+    ui->action_PreviousTab->setEnabled(m_tabBar->count() > 1);
 
     for (int i = 0; i < m_tabs.count(); i++) {
         SearchState *state = m_tabs.at(i);
@@ -419,7 +422,7 @@ void MainWindow::displayTabs()
 #endif
         QAction *action = ui->menu_Tabs->addAction(title);
         action->setCheckable(true);
-        action->setChecked(i == m_tabBar.currentIndex());
+        action->setChecked(i == m_tabBar->currentIndex());
         if (i < 10) {
             QString shortcut;
             if (i == 9)
@@ -439,9 +442,9 @@ void MainWindow::displayTabs()
             title.truncate(17);
             title += "...";
         }
-        m_tabBar.setTabText(i, title);
+        m_tabBar->setTabText(i, title);
         connect(action, &QAction::triggered, [=]() {
-            m_tabBar.setCurrentIndex(i);
+            m_tabBar->setCurrentIndex(i);
         });
     }
 }
