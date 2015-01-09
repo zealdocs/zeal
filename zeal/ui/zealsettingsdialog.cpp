@@ -10,10 +10,12 @@
 #include <QFileDialog>
 #include <QFutureWatcher>
 #include <QInputDialog>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMessageBox>
 #include <QProcess>
+#include <QSettings>
 #include <QTemporaryFile>
 #include <QUrl>
 #include <QWebElementCollection>
@@ -27,9 +29,10 @@ using namespace Zeal;
 
 SettingsDialog::SettingsDialog(ListModel *listModel, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ZealSettingsDialog),
+    ui(new Ui::ZealSettingsDialog()),
     m_zealListModel(listModel),
-    settings("Zeal", "Zeal")
+    m_settings(new QSettings(this)),
+    m_networkManager(new QNetworkAccessManager(this))
 {
     ui->setupUi(this);
 
@@ -37,7 +40,6 @@ SettingsDialog::SettingsDialog(ListModel *listModel, QWidget *parent) :
     ui->docsetsProgress->hide();
 
     ui->listView->setModel(m_zealListModel);
-
 
     ProgressItemDelegate *progressDelegate = new ProgressItemDelegate();
     ui->docsetsList->setItemDelegate(progressDelegate);
@@ -67,13 +69,13 @@ QKeySequence SettingsDialog::hotKey()
 
 void SettingsDialog::loadSettings()
 {
-    ui->minFontSize->setValue(settings.value("minFontSize").toInt());
-    QString hiding = settings.value("hidingBehavior", "systray").toString();
+    ui->minFontSize->setValue(m_settings->value("minFontSize").toInt());
+    QString hiding = m_settings->value("hidingBehavior", "systray").toString();
     if (hiding == "systray")
         ui->radioSysTray->setChecked(true);
     else
         ui->radioMinimize->setChecked(true);
-    QString startup = settings.value("startupBehavior", "window").toString();
+    QString startup = m_settings->value("startupBehavior", "window").toString();
     if (startup == "systray")
         ui->radioStartTray->setChecked(true);
     else
@@ -86,20 +88,23 @@ void SettingsDialog::loadSettings()
 
     SettingsDialog::ProxyType proxyType
             = static_cast<SettingsDialog::ProxyType>(
-                settings.value("proxyType", SettingsDialog::NoProxy).toUInt());
+                m_settings->value("proxyType", SettingsDialog::NoProxy).toUInt());
 
-    QString httpProxyName = settings.value("httpProxy").toString();
-    quint16 httpProxyPort = settings.value("httpProxyPort", 0).toInt();
-    QString httpProxyUser = settings.value("httpProxyUser").toString();
-    QString httpProxyPass = settings.value("httpProxyPass").toString();
+    QString httpProxyName = m_settings->value("httpProxy").toString();
+    quint16 httpProxyPort = m_settings->value("httpProxyPort", 0).toInt();
+    QString httpProxyUser = m_settings->value("httpProxyUser").toString();
+    QString httpProxyPass = m_settings->value("httpProxyPass").toString();
 
-    if (proxyType == SettingsDialog::NoProxy) {
+    switch (proxyType) {
+    case NoProxy:
         ui->m_noProxySettings->setChecked(true);
         QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
-    } else if (proxyType == SettingsDialog::SystemProxy) {
+        break;
+    case SystemProxy:
         ui->m_systemProxySettings->setChecked(true);
         QNetworkProxyFactory::setUseSystemConfiguration(true);
-    } else {
+        break;
+    case UserDefinedProxy:
         ui->m_manualProxySettings->setChecked(true);
         ui->m_httpProxy->setText(httpProxyName);
         ui->m_httpProxyPort->setValue(httpProxyPort);
@@ -107,17 +112,15 @@ void SettingsDialog::loadSettings()
         ui->m_httpProxyPass->setText(httpProxyPass);
         ui->m_httpProxyNeedsAuth->setChecked(!httpProxyUser.isEmpty() | !httpProxyPass.isEmpty());
         QNetworkProxy::setApplicationProxy(httpProxy());
+        break;
     }
-
-    // Load prefixes.
-    prefixes = settings.value("prefixes").toHash();
 }
 
 // creates a total download progress for multiple QNetworkReplies
 void SettingsDialog::on_downloadProgress(quint64 recv, quint64 total)
 {
     if (recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
-        QNetworkReply *reply = (QNetworkReply *)sender();
+        QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
         // Try to get the item associated to the request
         QVariant itemId = reply->property("listItem");
         QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
@@ -356,12 +359,14 @@ void SettingsDialog::extractDocset()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     qint8 remainingRetries = replies.take(reply);
+
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
-        if (reply->request().url().host() == "raw.github.com") {
-            // allow github to fail
+
+        // Allow GitHub to fail
+        if (reply->request().url().host() == QStringLiteral("raw.github.com"))
             return;
-        }
+
         if (reply->error() != QNetworkReply::OperationCanceledError)
             QMessageBox::warning(this, "Network Error",
                                  "Failed to retrieve docset: " + reply->errorString());
@@ -373,8 +378,10 @@ void SettingsDialog::extractDocset()
     QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
     if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
         QUrl url(reply->rawHeader("Location"));
-        if (url.host() == "") url.setHost(reply->request().url().host());
-        if (url.scheme() == "") url.setScheme(reply->request().url().scheme());
+        if (url.host().isEmpty())
+            url.setHost(reply->request().url().host());
+        if (url.scheme().isEmpty())
+            url.setScheme(reply->request().url().scheme());
         auto reply3 = startDownload(url, 1);
         endTasks();
 
@@ -459,20 +466,17 @@ void SettingsDialog::extractDocset()
                 if (metavariant.isValid())
                     metadata = metavariant.value<DocsetMetadata>();
 
-                auto path = reply->request().url().path().split("/");
+                const QString fileName = reply->request().url().fileName();
+                connect(tar, (void (QProcess::*)(int))&QProcess::finished, [=](int) {
+                    QString docsetName = fileName;
+                    /// TODO: Use QFileInfo::baseName();
+                    if (docsetName.endsWith(QStringLiteral(".tgz")))
+                        docsetName.replace(QStringLiteral(".tgz"), QStringLiteral(".docset"));
+                    else
+                        docsetName.replace(QStringLiteral(".tar.bz2"), QStringLiteral(".docset"));
 
-                connect(tar, (void (QProcess::*)(int, QProcess::ExitStatus))&QProcess::finished,
-                        [=](int a, QProcess::ExitStatus b) {
-                    Q_UNUSED(a)
-                    Q_UNUSED(b)
-                    auto fileName = path[path.count()-1];
-                    auto docsetName = fileName.replace(".tgz", ".docset");
-                    docsetName = docsetName.replace(".tar.bz2", ".docset");
-
-                    if (outDir != docsetName) {
-                        QDir dataDir2(dataDir);
-                        dataDir2.rename(outDir, docsetName);
-                    }
+                    if (outDir != docsetName)
+                        QDir(dataDir).rename(outDir, docsetName);
 
                     // Write metadata about docset
                     metadata.write(dataDir.absoluteFilePath(docsetName)+"/meta.json");
@@ -493,6 +497,7 @@ void SettingsDialog::extractDocset()
                         }
                     }
                     endTasks();
+                    delete tar;
                 });
                 if (listItem) {
                     listItem->setData(ProgressItemDelegate::ProgressRole, 0);
@@ -620,19 +625,18 @@ void SettingsDialog::on_docsetsList_itemSelectionChanged()
 
 void SettingsDialog::on_downloadDocsetButton_clicked()
 {
-    if (replies.count() > 0) {
+    if (!replies.isEmpty()) {
         stopDownloads();
         return;
     }
 
     // Idle run of bsdtar to check if it is available
-    const QString program = tarPath();
-    QProcess *tar = new QProcess();
-    tar->start(program);
-    if (!tar->waitForStarted()) {
+    QScopedPointer<QProcess> tar(new QProcess());
+    tar->start(tarPath());
+    if (!tar->waitForFinished()) {
         QMessageBox::critical(this, "bsdtar executable not found",
                 (QString("'%1' executable not found. It is required to allow extracting docsets. ")
-               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(program));
+               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(tarPath()));
         stopDownloads();
         return;
     }
@@ -732,13 +736,12 @@ void SettingsDialog::resetProgress()
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 {
     startTasks(1);
-    naManager.setProxy(httpProxy());
-    QNetworkReply *reply = naManager.get(QNetworkRequest(url));
-    connect(reply, &QNetworkReply::downloadProgress, this,
-            &SettingsDialog::on_downloadProgress);
+    m_networkManager->setProxy(httpProxy());
+    QNetworkReply *reply = m_networkManager->get(QNetworkRequest(url));
+    connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     replies.insert(reply, retries);
 
-    if (replies.count() > 0) {
+    if (!replies.isEmpty()) {
         ui->downloadDocsetButton->setText("Stop downloads");
         ui->downloadButton->setEnabled(false);
         ui->updateButton->setEnabled(false);
@@ -763,11 +766,8 @@ void SettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply: replies.keys()) {
         // Hide progress bar
-        QVariant itemId = reply->property("listItem");
-        QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
-
+        QListWidgetItem *listItem = ui->docsetsList->item(reply->property("listItem").toInt());
         listItem->setData(ProgressItemDelegate::ProgressVisibleRole, false);
-
         reply->abort();
     }
 }
@@ -776,15 +776,15 @@ void SettingsDialog::saveSettings()
 {
     if (ui->storageEdit->text() != DocsetsRegistry::instance()->docsetsDir()) {
         // set new docsets dir
-        settings.setValue("docsetsDir", ui->storageEdit->text());
+        m_settings->setValue("docsetsDir", ui->storageEdit->text());
         // reload docsets:
         DocsetsRegistry::instance()->initialiseDocsets();
-        refreshRequested();
+        emit refreshRequested();
     }
 
-    settings.setValue("minFontSize", ui->minFontSize->text());
-    settings.setValue("hidingBehavior", ui->radioSysTray->isChecked() ? "systray" : "minimize");
-    settings.setValue("startupBehavior", ui->radioStartTray->isChecked() ? "systray" : "window");
+    m_settings->setValue("minFontSize", ui->minFontSize->text());
+    m_settings->setValue("hidingBehavior", ui->radioSysTray->isChecked() ? "systray" : "minimize");
+    m_settings->setValue("startupBehavior", ui->radioStartTray->isChecked() ? "systray" : "window");
 
     // Proxy settings
     SettingsDialog::ProxyType currentProxy;
@@ -794,14 +794,13 @@ void SettingsDialog::saveSettings()
         currentProxy = SettingsDialog::SystemProxy;
     else if (ui->m_manualProxySettings->isChecked())
         currentProxy = SettingsDialog::UserDefinedProxy;
-    settings.setValue("proxyType", (int)currentProxy);
-    settings.setValue("httpProxy", ui->m_httpProxy->text());
-    settings.setValue("httpProxyPort", ui->m_httpProxyPort->value());
-    settings.setValue("httpProxyUser", ui->m_httpProxyUser->text());
-    settings.setValue("httpProxyPass", ui->m_httpProxyPass->text());
-    settings.setValue("prefixes", prefixes);
+    m_settings->setValue("proxyType", static_cast<int>(currentProxy));
+    m_settings->setValue("httpProxy", ui->m_httpProxy->text());
+    m_settings->setValue("httpProxyPort", ui->m_httpProxyPort->value());
+    m_settings->setValue("httpProxyUser", ui->m_httpProxyUser->text());
+    m_settings->setValue("httpProxyPass", ui->m_httpProxyPass->text());
 
-    webPageStyleUpdated();
+    emit webPageStyleUpdated();
 }
 
 void SettingsDialog::on_tabWidget_currentChanged(int current)
@@ -850,8 +849,7 @@ void SettingsDialog::on_updateButton_clicked()
 
 void SettingsDialog::on_addFeedButton_clicked()
 {
-    QClipboard *clipboard = QApplication::clipboard();
-    QString txt = clipboard->text();
+    QString txt = QApplication::clipboard()->text();
     if (!txt.startsWith("dash-feed://"))
         txt = "";
 
@@ -863,6 +861,7 @@ void SettingsDialog::on_addFeedButton_clicked()
         feedUrl = feedUrl.remove(0, 12);
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
+
     auto reply = startDownload(feedUrl);
     connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
 }
@@ -870,7 +869,7 @@ void SettingsDialog::on_addFeedButton_clicked()
 SettingsDialog::ProxyType SettingsDialog::proxyType() const
 {
     return static_cast<SettingsDialog::ProxyType>(
-                settings.value("proxyType", SettingsDialog::NoProxy).toUInt());
+                m_settings->value("proxyType", SettingsDialog::NoProxy).toUInt());
 }
 
 QNetworkProxy SettingsDialog::httpProxy() const

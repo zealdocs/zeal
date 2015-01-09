@@ -7,10 +7,12 @@
 
 #include <QDialog>
 #include <QHash>
-#include <QNetworkAccessManager>
 #include <QNetworkProxy>
-#include <QSettings>
 #include <QUrl>
+
+class QNetworkAccessManager;
+class QNetworkReply;
+class QSettings;
 
 namespace Zeal {
 
@@ -19,24 +21,48 @@ class SettingsDialog : public QDialog
     Q_OBJECT
     Q_ENUMS(ProxyType)
 public:
-    explicit SettingsDialog(ListModel *listModel, QWidget *parent = 0);
-    ~SettingsDialog();
-
-    void setHotKey(const QKeySequence &keySequence);
-    QKeySequence hotKey();
-
-    Ui::ZealSettingsDialog *ui;
-
     enum ProxyType {
         NoProxy,
         SystemProxy,
         UserDefinedProxy
     };
 
+    explicit SettingsDialog(ListModel *listModel, QWidget *parent = 0);
+    ~SettingsDialog() override;
+
+    void setHotKey(const QKeySequence &keySequence);
+    QKeySequence hotKey();
+
     QNetworkProxy httpProxy() const;
 
+signals:
+    void refreshRequested();
+    void minFontSizeChanged(int minFont);
+    void webPageStyleUpdated();
+
 protected:
-    void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
+
+private slots:
+    void downloadDocsetList();
+    void extractDocset();
+    void downloadDocsetLists();
+
+    void on_downloadProgress(quint64 recv, quint64 total);
+    void on_downloadButton_clicked();
+    // void on_docsetsList_clicked(const QModelIndex &index);
+    void on_downloadDocsetButton_clicked();
+    void on_storageButton_clicked();
+    void on_deleteButton_clicked();
+    void on_listView_clicked(const QModelIndex &index);
+    void on_tabWidget_currentChanged(int current);
+    void on_buttonBox_accepted();
+    void on_minFontSize_valueChanged(int arg1);
+    void on_buttonBox_rejected();
+    void on_docsetsList_itemSelectionChanged();
+    void on_buttonBox_clicked(QAbstractButton *button);
+    void on_updateButton_clicked();
+    void on_addFeedButton_clicked();
 
 private:
     void startTasks(qint8 tasks = 1);
@@ -55,53 +81,11 @@ private:
         ZealDocsetDoneInstalling = Qt::UserRole + 20,
     };
 
-    // Stores prefix used to activate a specific docset.
-    QHash<QString, QVariant> prefixes;
+    Ui::ZealSettingsDialog *ui = nullptr;
 
-signals:
-    void refreshRequested();
-    void minFontSizeChanged(int minFont);
-    void webPageStyleUpdated();
-
-private slots:
-    void downloadDocsetList();
-    void extractDocset();
-    void downloadDocsetLists();
-
-    void on_downloadProgress(quint64 recv, quint64 total);
-
-    void on_downloadButton_clicked();
-
-    // void on_docsetsList_clicked(const QModelIndex &index);
-
-    void on_downloadDocsetButton_clicked();
-
-    void on_storageButton_clicked();
-
-    void on_deleteButton_clicked();
-
-    void on_listView_clicked(const QModelIndex &index);
-
-    void on_tabWidget_currentChanged(int current);
-
-    void on_buttonBox_accepted();
-
-    void on_minFontSize_valueChanged(int arg1);
-
-    void on_buttonBox_rejected();
-
-    void on_docsetsList_itemSelectionChanged();
-
-    void on_buttonBox_clicked(QAbstractButton *button);
-
-    void on_updateButton_clicked();
-
-    void on_addFeedButton_clicked();
-
-private:
     ListModel *m_zealListModel = nullptr;
-    QNetworkAccessManager naManager;
-    QSettings settings;
+    QSettings *m_settings = nullptr;
+    QNetworkAccessManager *m_networkManager = nullptr;
     bool downloadedDocsetsList;
     QMap<QString, DocsetMetadata> availMetadata;
     QHash<QNetworkReply *, qint8> replies;
