@@ -3,7 +3,7 @@
 
 #include "zeallistmodel.h"
 #include "zealdocsetmetadata.h"
-#include "ui_zealsettingsdialog.h"
+#include "ui_settingsdialog.h"
 
 #include <QDialog>
 #include <QHash>
