@@ -1,5 +1,7 @@
 #include "zealnativeeventfilter.h"
 
+using namespace Zeal;
+
 #ifdef Q_OS_WIN32
 #include <windows.h>
 #endif
@@ -13,8 +15,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 #include <X11/keysym.h>
-
-using namespace Zeal;
 
 // http://svn.tribler.org/vlc/trunk/modules/control/globalhotkeys/xcb.c
 // Copyright (C) 2009 the VideoLAN team
