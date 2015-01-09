@@ -129,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
+        m_globalShortcut->setEnabled(false);
         m_settingsDialog->setHotKey(m_globalShortcut->shortcut());
 
         if (m_settingsDialog->exec()) {
@@ -148,6 +149,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
 
         ui->treeView->reset();
+        m_globalShortcut->setEnabled(true);
     });
 
     ui->action_Back->setShortcut(QKeySequence::Back);
