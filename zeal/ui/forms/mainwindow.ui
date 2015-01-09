@@ -25,31 +25,6 @@ QSplitter::handle {
 	border-bottom: 1px solid black;
 	border-left: none;
 }
-
-QTabBar::tab {
-	height: 32px;
-	color: black;
-	border-image: url(&quot;:/chrome/chrome_tab.png&quot;) 0 16 0 16;
-	border-right: 16px black solid;
-	border-left: 16px black solid;
-	padding: 0 5px;
-	margin: 0 -8px -3px -8px;
-}
-
-QTabBar::tab::selected {
-	border-image: url(&quot;:/chrome/active_chrome_tab.png&quot;) 0 16 0 16 stretch;
-}
-
-QTabBar::tab::first, QTabBar::tab::only-one {
-	margin-left: 0;
-}
-
-QTabBar::close-button {
-    image: url(&quot;:/chrome/black_button_close.png&quot;);
-}
-QTabBar::close-button::hover {
-    image: url(&quot;:/chrome/red_button_close_hover.png&quot;);
-}
 </string>
   </property>
   <widget class="QWidget" name="centralWidget">
