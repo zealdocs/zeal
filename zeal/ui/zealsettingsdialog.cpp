@@ -318,7 +318,7 @@ void SettingsDialog::downloadDocsetList()
             availMetadata[docset[0]] = meta;
             if (!docset[1].startsWith("http")) {
                 availMetadata.clear();
-                QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.github.com/jkozera/zeal/master/docsets.txt: " + QString(docset[1]));
+                QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.githubusercontent.com/zealdocs/zeal/master/docsets.txt: " + QString(docset[1]));
                 break;
             }
             auto *lwi = new QListWidgetItem(docset[0], ui->docsetsList);
@@ -368,7 +368,7 @@ void SettingsDialog::extractDocset()
         endTasks();
 
         // Allow GitHub to fail
-        if (reply->request().url().host() == QStringLiteral("raw.github.com"))
+        if (reply->request().url().host() == QStringLiteral("raw.githubusercontent.com"))
             return;
 
         if (reply->error() != QNetworkReply::OperationCanceledError)
@@ -610,7 +610,7 @@ void SettingsDialog::downloadDocsetLists()
     downloadedDocsetsList = false;
     ui->downloadButton->hide();
     ui->docsetsList->clear();
-    auto reply = startDownload(QUrl("https://raw.github.com/jkozera/zeal/master/docsets.txt"));
+    auto reply = startDownload(QUrl("https://raw.githubusercontent.com/zealdocs/zeal/master/docsets.txt"));
     auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
 
     connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
