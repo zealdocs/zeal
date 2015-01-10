@@ -32,19 +32,14 @@
 #define QXTGLOBALSHORTCUT_P_H
 
 #include "qxtglobalshortcut.h"
+
 #include <QAbstractEventDispatcher>
+#include <QAbstractNativeEventFilter>
 #include <QKeySequence>
 #include <QHash>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-#include <QAbstractNativeEventFilter>
-#endif
-
-
-class QxtGlobalShortcutPrivate : public QxtPrivate<QxtGlobalShortcut>
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0) && !defined(Q_OS_MAC)
-        ,public QAbstractNativeEventFilter
-#endif
+class QxtGlobalShortcutPrivate : public QxtPrivate<QxtGlobalShortcut>,
+        public QAbstractNativeEventFilter
 {
 public:
     QXT_DECLARE_PUBLIC(QxtGlobalShortcut)
@@ -61,12 +56,7 @@ public:
     static bool error;
 #ifndef Q_OS_MAC
     static int ref;
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    static QAbstractEventDispatcher::EventFilter prevEventFilter;
-    static bool eventFilter(void* message);
-#else
     virtual bool nativeEventFilter(const QByteArray & eventType, void * message, long * result);
-#endif // QT_VERSION < QT_VERSION_CHECK(5,0,0)
 #endif // Q_OS_MAC
 
     static void activateShortcut(quint32 nativeKey, quint32 nativeMods);
