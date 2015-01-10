@@ -25,8 +25,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 #ifdef USE_WEBENGINE
         webView.findText(text);
 #else
-        webView.findText("");
-        webView.findText("", QWebPage::HighlightAllOccurrences);
+        webView.findText(QString());
+        webView.findText(QString(), QWebPage::HighlightAllOccurrences);
         if (!text.isEmpty()) {
             // select&scroll to one occurence:
             webView.findText(text, QWebPage::FindWrapsAroundDocument);

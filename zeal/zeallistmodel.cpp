@@ -57,7 +57,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
                 path.removeLast();
                 for (auto directory : path) {
                     if (!dir.cd(directory))
-                        return createIndex(row, column, (void *)string(""));
+                        return createIndex(row, column, (void *)string());
                 }
                 return createIndex(row, column, (void *)string(dir.absoluteFilePath(filename)));
             }

@@ -279,9 +279,9 @@ void SettingsDialog::downloadDocsetList()
             auto anchor = drowx.findFirst("a");
             auto url = anchor.attribute("href");
             auto name_list = url.split("/");
-            auto name = name_list[name_list.count()-1].replace(".tgz", "");
-            name = name.replace(".tar.bz2", "");
-            if (name != "") {
+            auto name = name_list[name_list.count()-1].replace(".tgz", QString());
+            name = name.replace(".tar.bz2", QString());
+            if (!name.isEmpty()) {
                 auto feedUrl = url;
                 if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
                     feedUrl = url.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
@@ -702,7 +702,7 @@ void SettingsDialog::on_deleteButton_clicked()
                 if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset"))
                     isDeleted = docsetDir.removeRecursively();
                 if (!isDeleted) {
-                    QMessageBox::information(nullptr, "",
+                    QMessageBox::information(nullptr, QString(),
                         QString("Delete docset %1 failed!").arg(docsetDisplayName));
                 }
             });
@@ -865,7 +865,7 @@ void SettingsDialog::on_addFeedButton_clicked()
 {
     QString txt = QApplication::clipboard()->text();
     if (!txt.startsWith("dash-feed://"))
-        txt = "";
+        txt.clear();
 
     QString feedUrl = QInputDialog::getText(this, "Zeal", "Feed URL:", QLineEdit::Normal, txt);
     if (feedUrl.isEmpty())

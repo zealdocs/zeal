@@ -71,7 +71,8 @@ private:
     Q_DISABLE_COPY(DocsetsRegistry)
 
     void addDocsetsFromFolder(const QDir &folder);
-    void normalizeName(QString &itemName, QString &parentName, const QString &initialParent);
+    void normalizeName(QString &itemName, QString &parentName,
+                       const QString &initialParent = QString());
 
     static DocsetsRegistry *m_instance;
     QMap<QString, DocsetEntry> m_docs;

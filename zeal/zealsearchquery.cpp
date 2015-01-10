@@ -17,7 +17,7 @@ SearchQuery::SearchQuery(const QString &rawQuery)
         m_coreQuery = rawQuery.midRef(next).toString().trimmed();
         m_docsetFilters = m_rawDocsetFilter.split(MULTIPLE_DOCSET_SEPARATOR);
     } else {
-        m_rawDocsetFilter = "";
+        m_rawDocsetFilter.clear();
         m_coreQuery = rawQuery.trimmed();
         m_docsetFilters.clear();
     }

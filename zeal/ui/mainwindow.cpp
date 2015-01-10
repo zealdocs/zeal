@@ -323,7 +323,7 @@ void MainWindow::openDocset(const QModelIndex &index)
 QString MainWindow::docsetName(const QUrl &url) const
 {
     QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
-    return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QStringLiteral("");
+    return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QString();
 }
 
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
@@ -376,7 +376,7 @@ void MainWindow::createTab()
         ui->sections_lab->setVisible(resultCount > 1);
     });
 
-    ui->lineEdit->setText("");
+    ui->lineEdit->clear();
 
     newTab->page = new QWebPage(ui->webView);
 #ifndef USE_WEBENGINE

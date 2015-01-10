@@ -14,7 +14,7 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
                                                    QIODevice *outgoingData)
 {
     const bool resourceFile = req.url().scheme() == "qrc";
-    const bool nonLocalFile = req.url().scheme() == "file" && req.url().host() != "";
+    const bool nonLocalFile = req.url().scheme() == "file" && !req.url().host().isEmpty();
     const bool nonFile = req.url().scheme() != "file";
     if (resourceFile)
         return QNetworkAccessManager::createRequest(op, req, outgoingData);

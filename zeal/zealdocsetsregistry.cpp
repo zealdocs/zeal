@@ -113,7 +113,7 @@ QList<DocsetsRegistry::DocsetEntry> DocsetsRegistry::docsets()
 void DocsetsRegistry::addDocset(const QString &path)
 {
     QDir dir(path);
-    auto name = dir.dirName().replace(QStringLiteral(".docset"), QStringLiteral(""));
+    auto name = dir.dirName().replace(QStringLiteral(".docset"), QString());
     QSqlDatabase db;
     DocsetEntry entry;
 
@@ -341,9 +341,9 @@ QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QSt
             sectionPath.append(result.value(3).toString());
         }
 
-        normalizeName(sectionName, parentName, "");
+        normalizeName(sectionName, parentName);
 
-        results.append(SearchResult(sectionName, "", sectionPath, name, QString()));
+        results.append(SearchResult(sectionName, QString(), sectionPath, name, QString()));
     }
 
     return results;

@@ -51,7 +51,7 @@ RazorShortcutButton::RazorShortcutButton(QWidget *parent) :
     setMenu(&d->mMenu);
 
     connect(this, SIGNAL(toggled(bool)), d, SLOT(activate(bool)));
-    setKeySequence("");
+    setKeySequence(QString());
 }
 
 /************************************************
@@ -203,5 +203,5 @@ void RazorShortcutButton::setKeySequence(const QString &sequence)
 void RazorShortcutButtonPrivate::clear()
 {
     Q_Q(RazorShortcutButton);
-    q->setKeySequence("");
+    q->setKeySequence(QString());
 }
