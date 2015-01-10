@@ -74,9 +74,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool())
         createTrayIcon();
 
-    const QKeySequence keySequence
-            = m_settings->value(QStringLiteral("hotkey"), defaultHotKey).value<QKeySequence>();
-
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
         if (!isVisible() || !isActiveWindow()) {
@@ -94,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    setHotKey(keySequence);
+    setHotKey(m_settings->value(QStringLiteral("hotkey"), defaultHotKey).value<QKeySequence>());
 
     // initialise docsets
     DocsetsRegistry::instance()->initialiseDocsets();
