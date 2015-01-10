@@ -37,6 +37,14 @@
 
 using namespace Zeal;
 
+namespace {
+#ifndef Q_OS_OSX
+const char *defaultHotKey = "Meta+Z";
+#else
+const char *defaultHotKey = "Alt+Space";
+#endif
+}
+
 const QString serverName = "zeal_process_running";
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -66,8 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
     if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
         createTrayIcon();
 
-    QKeySequence keySequence
-            = m_settings->value(QStringLiteral("hotkey"), QStringLiteral("Alt+Space")).value<QKeySequence>();
+    const QKeySequence keySequence
+            = m_settings->value(QStringLiteral("hotkey"), defaultHotKey).value<QKeySequence>();
 
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
