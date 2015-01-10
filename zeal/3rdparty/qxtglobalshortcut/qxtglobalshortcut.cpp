@@ -41,9 +41,8 @@ QHash<QPair<quint32, quint32>, QxtGlobalShortcut*> QxtGlobalShortcutPrivate::sho
 QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate() : enabled(true), key(Qt::Key(0)), mods(Qt::NoModifier)
 {
 #ifndef Q_OS_OSX
-    if (ref == 0) {
+    if (ref == 0)
         QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
-    }
     ++ref;
 #endif // Q_OS_OSX
 }
@@ -54,9 +53,8 @@ QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
     --ref;
     if (ref == 0) {
         QAbstractEventDispatcher *ed = QAbstractEventDispatcher::instance();
-        if (ed != 0) {
+        if (ed != 0)
             ed->removeNativeEventFilter(this);
-        }
     }
 #endif // Q_OS_OSX
 }
@@ -130,8 +128,8 @@ void QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
 /*!
     Constructs a new QxtGlobalShortcut with \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(QObject* parent)
-        : QObject(parent)
+QxtGlobalShortcut::QxtGlobalShortcut(QObject* parent) :
+    QObject(parent)
 {
     QXT_INIT_PRIVATE(QxtGlobalShortcut);
 }
@@ -139,8 +137,8 @@ QxtGlobalShortcut::QxtGlobalShortcut(QObject* parent)
 /*!
     Constructs a new QxtGlobalShortcut with \a shortcut and \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence& shortcut, QObject* parent)
-        : QObject(parent)
+QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence& shortcut, QObject* parent) :
+    QObject(parent)
 {
     QXT_INIT_PRIVATE(QxtGlobalShortcut);
     setShortcut(shortcut);
