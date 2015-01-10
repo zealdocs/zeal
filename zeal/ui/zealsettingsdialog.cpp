@@ -71,19 +71,21 @@ QKeySequence SettingsDialog::hotKey()
 
 void SettingsDialog::loadSettings()
 {
+    // General Tab
+    ui->startMinimizedCheckBox->setChecked(m_settings->value(QStringLiteral("StartMinimized"), false).toBool());
+    ui->restoreLastStateCheckBox->setChecked(m_settings->value(QStringLiteral("RestoreLastState"), true).toBool());
+
+    ui->systrayGroupBox->setChecked(m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool());
+    ui->minimizeToSystrayCheckBox->setChecked(m_settings->value(QStringLiteral("MinimizeToSystray"), false).toBool());
+    ui->hideToSystrayCheckBox->setChecked(m_settings->value(QStringLiteral("HideToSystrayOnClose"), false).toBool());
+
+    ui->globalHotKeyGroupBox->setChecked(m_settings->value(QStringLiteral("UseGlobalHotKey"), true).toBool());
+
+    //
     ui->minFontSize->setValue(m_settings->value("minFontSize").toInt());
-    QString hiding = m_settings->value("hidingBehavior", "systray").toString();
-    if (hiding == "systray")
-        ui->radioSysTray->setChecked(true);
-    else
-        ui->radioMinimize->setChecked(true);
-    QString startup = m_settings->value("startupBehavior", "window").toString();
-    if (startup == "systray")
-        ui->radioStartTray->setChecked(true);
-    else
-        ui->radioStartMax->setChecked(true);
     ui->storageEdit->setText(DocsetsRegistry::instance()->docsetsDir());
 
+    // Network Tab
     ui->m_noProxySettings->setChecked(false);
     ui->m_systemProxySettings->setChecked(false);
     ui->m_manualProxySettings->setChecked(false);
@@ -776,6 +778,19 @@ void SettingsDialog::stopDownloads()
 
 void SettingsDialog::saveSettings()
 {
+    // General Tab
+    m_settings->setValue(QStringLiteral("StartMinimized"), ui->startMinimizedCheckBox->isChecked());
+    m_settings->setValue(QStringLiteral("RestoreLastState"), ui->restoreLastStateCheckBox->isChecked());
+
+    m_settings->setValue(QStringLiteral("ShowSystrayIcon"), ui->systrayGroupBox->isChecked());
+    m_settings->setValue(QStringLiteral("MinimizeToSystray"), ui->minimizeToSystrayCheckBox->isChecked());
+    m_settings->setValue(QStringLiteral("HideToSystrayOnClose"), ui->hideToSystrayCheckBox->isChecked());
+
+    m_settings->setValue(QStringLiteral("UseGlobalHotKey"), ui->globalHotKeyGroupBox->isChecked());
+
+    //
+    m_settings->setValue("minFontSize", ui->minFontSize->text());
+
     if (ui->storageEdit->text() != DocsetsRegistry::instance()->docsetsDir()) {
         // set new docsets dir
         m_settings->setValue("docsetsDir", ui->storageEdit->text());
@@ -784,10 +799,7 @@ void SettingsDialog::saveSettings()
         emit refreshRequested();
     }
 
-    m_settings->setValue("minFontSize", ui->minFontSize->text());
-    m_settings->setValue("hidingBehavior", ui->radioSysTray->isChecked() ? "systray" : "minimize");
-    m_settings->setValue("startupBehavior", ui->radioStartTray->isChecked() ? "systray" : "window");
-
+    // Network Tab
     // Proxy settings
     SettingsDialog::ProxyType currentProxy;
     if (ui->m_noProxySettings->isChecked())

@@ -19,101 +19,135 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_3">
+     <widget class="QWidget" name="generalTab">
       <attribute name="title">
        <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Startup</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QCheckBox" name="startMinimizedCheckBox">
+            <property name="text">
+             <string>Start minimized</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="restoreLastStateCheckBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Restore last state (not implemented)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="systrayGroupBox">
+         <property name="title">
+          <string>Show system tray icon</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="minimizeToSystrayCheckBox">
+            <property name="text">
+             <string>Minimize to system tray instead of taskbar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="hideToSystrayCheckBox">
+            <property name="text">
+             <string>Hide to system tray on window close</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="globalHotKeyGroupBox">
+         <property name="title">
+          <string>Use global hot key</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Hot Key</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="RazorShortcutButton" name="toolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>General (old)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Hiding behavior</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QRadioButton" name="radioSysTray">
-             <property name="text">
-              <string>System Tray</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">hidingBehavior</string>
-             </attribute>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioMinimize">
-             <property name="text">
-              <string>Minimize</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">hidingBehavior</string>
-             </attribute>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Startup behavior</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QRadioButton" name="radioStartTray">
-             <property name="text">
-              <string>System Tray</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioStartMax">
-             <property name="text">
-              <string>Window</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Hotkey</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="RazorShortcutButton" name="toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Minimum font size</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
+         <item row="1" column="1">
           <widget class="QSpinBox" name="minFontSize"/>
          </item>
-         <item row="5" column="0">
+         <item row="2" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Docsets storage directory</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="2" column="1">
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -673,7 +707,4 @@
    </hints>
   </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="hidingBehavior"/>
- </buttongroups>
 </ui>

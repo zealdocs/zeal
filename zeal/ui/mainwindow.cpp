@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
-    if (m_settings->value("hidingBehavior", "systray").toString() == "systray")
+    if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool())
         createTrayIcon();
 
     const QKeySequence keySequence
@@ -144,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         if (m_settingsDialog->exec()) {
             setHotKey(m_settingsDialog->hotKey());
-            if (m_settings->value("hidingBehavior").toString() == "systray") {
+            if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool()) {
                 createTrayIcon();
             } else if (m_trayIcon) {
                 QMenu *trayIconMenu = m_trayIcon->contextMenu();
@@ -662,7 +662,7 @@ void MainWindow::bringToFrontAndSearch(const QString &query)
 
 bool MainWindow::startHidden()
 {
-    return m_settings->value("startupBehavior", "window").toString() == "systray";
+    return m_settings->value(QStringLiteral("StartMinimized"), false).toBool();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
