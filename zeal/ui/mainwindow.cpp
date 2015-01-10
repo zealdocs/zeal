@@ -660,7 +660,7 @@ void MainWindow::bringToFrontAndSearch(const QString &query)
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
-bool MainWindow::startHidden()
+bool MainWindow::startHidden() const
 {
     return m_settings->value(QStringLiteral("StartMinimized"), false).toBool();
 }

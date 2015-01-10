@@ -75,7 +75,7 @@ public:
 
     void bringToFrontAndSearch(const QString &query);
     void createTab();
-    bool startHidden();
+    bool startHidden() const;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
