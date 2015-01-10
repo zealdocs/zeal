@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_settings(new QSettings(this)),
     m_zealListModel(new ListModel(this)),
-    m_settingsDialog(new SettingsDialog(m_zealListModel, this)),
+    m_settingsDialog(new SettingsDialog(m_settings, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(this))
 {
     m_tabBar = new QTabBar(this);

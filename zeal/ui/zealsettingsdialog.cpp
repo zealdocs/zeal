@@ -29,11 +29,11 @@
 
 using namespace Zeal;
 
-SettingsDialog::SettingsDialog(ListModel *listModel, QWidget *parent) :
+SettingsDialog::SettingsDialog(QSettings *settings, ListModel *listModel, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
     m_zealListModel(listModel),
-    m_settings(new QSettings(this)),
+    m_settings(settings),
     m_networkManager(new QNetworkAccessManager(this))
 {
     ui->setupUi(this);

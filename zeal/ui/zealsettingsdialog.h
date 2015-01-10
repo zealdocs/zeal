@@ -31,7 +31,7 @@ public:
         UserDefinedProxy
     };
 
-    explicit SettingsDialog(ListModel *listModel, QWidget *parent = 0);
+    explicit SettingsDialog(QSettings *settings, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
 
     void setHotKey(const QKeySequence &keySequence);
