@@ -9,6 +9,7 @@
 
 #ifdef Q_OS_WIN32
 #include <QProxyStyle>
+#include <QStyleOption>
 #endif
 
 struct CommandLineParameters
