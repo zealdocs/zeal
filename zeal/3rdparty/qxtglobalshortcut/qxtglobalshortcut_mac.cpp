@@ -54,6 +54,12 @@ OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event,
     return noErr;
 }
 
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
+    void * message, long * result)
+{
+    return false;
+}
+
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
