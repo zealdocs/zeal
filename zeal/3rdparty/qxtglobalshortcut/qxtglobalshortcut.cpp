@@ -33,24 +33,24 @@
 #include <QAbstractEventDispatcher>
 #include <QtDebug>
 
-#ifndef Q_OS_MAC
+#ifndef Q_OS_OSX
 int QxtGlobalShortcutPrivate::ref = 0;
-#endif // Q_OS_MAC
+#endif // Q_OS_OSX
 QHash<QPair<quint32, quint32>, QxtGlobalShortcut*> QxtGlobalShortcutPrivate::shortcuts;
 
 QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate() : enabled(true), key(Qt::Key(0)), mods(Qt::NoModifier)
 {
-#ifndef Q_OS_MAC
+#ifndef Q_OS_OSX
     if (ref == 0) {
         QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
     }
     ++ref;
-#endif // Q_OS_MAC
+#endif // Q_OS_OSX
 }
 
 QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 {
-#ifndef Q_OS_MAC
+#ifndef Q_OS_OSX
     --ref;
     if (ref == 0) {
         QAbstractEventDispatcher *ed = QAbstractEventDispatcher::instance();
@@ -58,7 +58,7 @@ QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
             ed->removeNativeEventFilter(this);
         }
     }
-#endif // Q_OS_MAC
+#endif // Q_OS_OSX
 }
 
 bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence& shortcut)
