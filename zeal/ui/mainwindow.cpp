@@ -694,6 +694,7 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
         ui->lineEdit->selectQuery();
         break;
     default:
+        QMainWindow::keyPressEvent(keyEvent);
         break;
     }
 }
