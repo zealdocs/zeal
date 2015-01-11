@@ -274,7 +274,6 @@ void SettingsDialog::downloadDocsetList()
         auto url = anchor.attribute("href");
         auto name_list = url.split("/");
         auto name = name_list[name_list.count()-1].replace(".tgz", QString());
-        name = name.replace(".tar.bz2", QString());
         if (!name.isEmpty()) {
             auto feedUrl = url;
             if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
@@ -286,7 +285,6 @@ void SettingsDialog::downloadDocsetList()
             availMetadata[name] = meta;
             auto url_list = url.split("/");
             auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
-            iconfile = iconfile.replace(".tar.bz2", ".png");
 
             auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
             lwi->setCheckState(Qt::Unchecked);
@@ -385,8 +383,7 @@ void SettingsDialog::extractDocset()
                     connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
                 }
             }
-        } else if (reply->request().url().path().endsWith("tgz")
-                   || reply->request().url().path().endsWith("tar.bz2")) {
+        } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
             auto dataDir = QDir(DocsetsRegistry::instance()->docsetsDir());
             if (!dataDir.exists()) {
                 QMessageBox::critical(this, "No docsets directory found",
@@ -408,11 +405,7 @@ void SettingsDialog::extractDocset()
 
                 QProcess *tar = new QProcess();
                 tar->setWorkingDirectory(dataDir.absolutePath());
-                QStringList args;
-                if (reply->request().url().path().endsWith("tar.bz2"))
-                    args = QStringList("-jqtf");
-                else
-                    args = QStringList("-zqtf");
+                QStringList args(QStringLiteral("-zqtf"));
                 args.append(tmp->fileName());
                 args.append("*docset");
                 tar->start(program, args);
@@ -420,10 +413,7 @@ void SettingsDialog::extractDocset()
                 auto line_buf = tar->readLine();
                 auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
 
-                if (reply->request().url().path().endsWith("tar.bz2"))
-                    args = QStringList("-jxf");
-                else
-                    args = QStringList("-zxf");
+                args = QStringList(QStringLiteral("-zxf"));
                 args.append(tmp->fileName());
 
                 DocsetMetadata metadata;
@@ -435,10 +425,7 @@ void SettingsDialog::extractDocset()
                 connect(tar, (void (QProcess::*)(int))&QProcess::finished, [=](int) {
                     QString docsetName = fileName;
                     /// TODO: Use QFileInfo::baseName();
-                    if (docsetName.endsWith(QStringLiteral(".tgz")))
-                        docsetName.replace(QStringLiteral(".tgz"), QStringLiteral(".docset"));
-                    else
-                        docsetName.replace(QStringLiteral(".tar.bz2"), QStringLiteral(".docset"));
+                    docsetName.replace(QStringLiteral(".tgz"), QStringLiteral(".docset"));
 
                     if (outDir != docsetName)
                         QDir(dataDir).rename(outDir, docsetName);
@@ -531,7 +518,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
             tmp->setData(ProgressItemDelegate::ProgressVisibleRole, true);
             tmp->setData(ProgressItemDelegate::ProgressRole, 0);
             tmp->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-            if (url.path().endsWith((".tgz")) || url.path().endsWith((".tar.bz2"))) {
+            if (url.path().endsWith((".tgz"))) {
                 // Dash's docsets don't redirect, so we can start showing progress instantly
                 connect(reply, &QNetworkReply::downloadProgress, this,
                         &SettingsDialog::on_downloadProgress);
