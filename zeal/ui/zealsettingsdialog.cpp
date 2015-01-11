@@ -330,7 +330,7 @@ const QString SettingsDialog::tarPath() const
 void SettingsDialog::extractDocset()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    qint8 remainingRetries = replies.take(reply);
+    replies.remove(reply);
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
