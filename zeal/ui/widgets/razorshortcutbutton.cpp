@@ -43,14 +43,14 @@ RazorShortcutButton::RazorShortcutButton(QWidget *parent) :
 
     Q_D(RazorShortcutButton);
     QAction *a = d->mMenu.addAction("Clear");
-    connect(a, SIGNAL(triggered()), d, SLOT(clear()));
+    connect(a, &QAction::triggered, d, &RazorShortcutButtonPrivate::clear);
     QAction *a_def = d->mMenu.addAction("Default");
     connect(a_def, &QAction::triggered, [=]() {
         setKeySequence(QKeySequence("Alt+Space"));
     });
     setMenu(&d->mMenu);
 
-    connect(this, SIGNAL(toggled(bool)), d, SLOT(activate(bool)));
+    connect(this, &RazorShortcutButton::toggled, d, &RazorShortcutButtonPrivate::activate);
     setKeySequence(QString());
 }
 

@@ -129,11 +129,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Quit, &QAction::triggered, [=]() {
         m_settings->setValue("geometry", saveGeometry());
     });
-    connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(ui->action_Quit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-    connect(m_settingsDialog, SIGNAL(refreshRequested()), this, SLOT(refreshRequest()));
-    connect(m_settingsDialog, SIGNAL(minFontSizeChanged(int)), this, SLOT(changeMinFontSize(int)));
-    connect(m_settingsDialog, SIGNAL(webPageStyleUpdated()), this, SLOT(applyWebPageStyle()));
+    connect(m_settingsDialog, &SettingsDialog::refreshRequested,
+            this, &MainWindow::refreshRequest);
+    connect(m_settingsDialog, &SettingsDialog::minFontSizeChanged,
+            this, &MainWindow::changeMinFontSize);
+    connect(m_settingsDialog, &SettingsDialog::webPageStyleUpdated,
+            this, &MainWindow::applyWebPageStyle);
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
@@ -479,6 +482,7 @@ void MainWindow::reloadTabState()
     ui->sections_lab->setVisible(resultCount > 1);
 
     // scroll after the object gets loaded
+    /// TODO: [Qt 5.4] QTimer::singleShot(100, this, &MainWindow::scrollSearch);
     QTimer::singleShot(100, this, SLOT(scrollSearch()));
 
     displayViewActions();

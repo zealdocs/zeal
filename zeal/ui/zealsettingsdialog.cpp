@@ -206,7 +206,7 @@ void SettingsDialog::updateDocsets()
         }
 
         reply->setProperty("metadata", QVariant::fromValue(metadata));
-        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
     }
     if (missingMetadata) {
         int r = QMessageBox::information(this, "Zeal",
@@ -242,7 +242,7 @@ void SettingsDialog::updateDocsets()
                             reply->setProperty("listItem", ui->docsetsList->row(item));
                         }
 
-                        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+                        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
                     }
                 }
             });
@@ -350,7 +350,7 @@ void SettingsDialog::extractDocset()
 
         reply3->setProperty("listItem", itemId);
         reply3->setProperty("metadata", reply->property("metadata"));
-        connect(reply3, SIGNAL(finished()), SLOT(extractDocset()));
+        connect(reply3, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
     } else {
         if (reply->request().url().path().endsWith("xml")) {
             endTasks();
@@ -380,7 +380,7 @@ void SettingsDialog::extractDocset()
                     }
                     reply2->setProperty("listItem", itemId);
                     reply2->setProperty("metadata", QVariant::fromValue(metadata));
-                    connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
+                    connect(reply2, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
                 }
             }
         } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
@@ -473,7 +473,7 @@ void SettingsDialog::downloadDocsetLists()
     ui->downloadButton->hide();
     ui->docsetsList->clear();
     QNetworkReply *reply = startDownload(QUrl("http://kapeli.com/docset_links"));
-    connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadDocsetList);
 }
 
 void SettingsDialog::on_downloadButton_clicked()
@@ -512,7 +512,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
 
         QNetworkReply *reply = startDownload(availMetadata[item->text()], 1);
         reply->setProperty("listItem", i);
-        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 
         item->setData(ProgressItemDelegate::ProgressVisibleRole, true);
         item->setData(ProgressItemDelegate::ProgressRole, 0);
@@ -734,7 +734,7 @@ void SettingsDialog::on_addFeedButton_clicked()
     }
 
     QNetworkReply *reply = startDownload(feedUrl);
-    connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 }
 
 SettingsDialog::ProxyType SettingsDialog::proxyType() const
