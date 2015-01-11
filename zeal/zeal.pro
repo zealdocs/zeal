@@ -50,8 +50,6 @@ include(ui/ui.pri)
 !msvc:LIBS += -lz -L/usr/lib
 
 win32:RC_ICONS = zeal.ico
-win32:DEFINES += QUAZIP_BUILD
-msvc:INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 msvc:QMAKE_LIBS += user32.lib
 
 macx {
@@ -75,7 +73,6 @@ desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
 
-include(quazip/quazip.pri)
 include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 RESOURCES += \

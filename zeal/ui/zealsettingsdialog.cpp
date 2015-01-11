@@ -4,9 +4,6 @@
 #include "zealdocsetsregistry.h"
 #include "ui_settingsdialog.h"
 
-#include "quazip/quazip.h"
-#include "quazip/JlCompress.h"
-
 #include <QClipboard>
 #include <QDir>
 #include <QFileDialog>
@@ -472,73 +469,6 @@ void SettingsDialog::extractDocset()
                     listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
                 }
                 tar->start(program, args);
-            }
-        } else {
-            QTemporaryFile *tmp = new QTemporaryFile();
-            tmp->open();
-            tmp->write(reply->readAll());
-            tmp->seek(0);
-            QuaZip zipfile(tmp);
-            if (zipfile.open(QuaZip::mdUnzip)) {
-                tmp->close();
-                auto dataDir = QDir(DocsetsRegistry::instance()->docsetsDir());
-                if (!dataDir.exists()) {
-                    QMessageBox::critical(this, "No docsets directory found",
-                                          QString("'%1' directory not found").arg(DocsetsRegistry::instance()->docsetsDir()));
-                    endTasks();
-                } else {
-                    QStringList *files = new QStringList;
-                    if (listItem) {
-                        listItem->setData(ProgressItemDelegate::ProgressRole, 0);
-                        listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
-                    }
-                    auto future = QtConcurrent::run([=] {
-                        *files = JlCompress::extractDir(tmp->fileName(), dataDir.absolutePath());
-                        delete tmp;
-                    });
-                    QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-                    watcher->setFuture(future);
-                    DocsetMetadata metadata;
-                    QVariant metavariant = reply->property("metadata");
-                    if (metavariant.isValid())
-                        metadata = metavariant.value<DocsetMetadata>();
-
-                    connect(watcher, &QFutureWatcher<void>::finished, [=] {
-                        // extract finished - add docset
-                        QDir next((*files)[0]), root = next;
-                        delete files;
-                        next.cdUp();
-                        while (next.absolutePath() != dataDir.absolutePath()) {
-                            root = next;
-                            next.cdUp();
-                        }
-                        metadata.write(dataDir.absoluteFilePath(root.dirName())+"/meta.json");
-                        // FIXME C&P (see "FIXME C&P" above)
-                        QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset",
-                                                  Qt::BlockingQueuedConnection,
-                                                  Q_ARG(QString, root.absolutePath()));
-                        m_zealListModel->resetModulesCounts();
-                        refreshRequested();
-                        ui->listView->reset();
-                        for (int i = 0; i < ui->docsetsList->count(); ++i) {
-                            const QString itemText = ui->docsetsList->item(i)->text();
-                            if (itemText == root.dirName()
-                                    || itemText + ".docset" == root.dirName()) {
-                                listItem->setData(ZealDocsetDoneInstalling, true);
-                                listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
-                                listItem->setData(ProgressItemDelegate::ProgressRole, 1);
-                                listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-                                break;
-                            }
-                        }
-                        endTasks();
-                    });
-                }
-            } else {
-                tmp->close();
-                delete tmp;
-                QMessageBox::warning(this, "Error", "Download failed: invalid ZIP file.");
-                endTasks();
             }
         }
     }
