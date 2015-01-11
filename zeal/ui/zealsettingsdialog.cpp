@@ -233,7 +233,7 @@ void SettingsDialog::updateDocsets()
                         auto reply = startDownload(availMetadata[name]);
 
                         QList<QListWidgetItem *> items
-                            = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
+                                = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
                         if (items.count() > 0) {
                             items[0]->setCheckState(Qt::Checked);
                             items[0]->setHidden(false);
@@ -474,7 +474,7 @@ void SettingsDialog::extractDocset()
                 tar->start(program, args);
             }
         } else {
-            QTemporaryFile *tmp = new QTemporaryFile;
+            QTemporaryFile *tmp = new QTemporaryFile();
             tmp->open();
             tmp->write(reply->readAll());
             tmp->seek(0);
@@ -581,8 +581,8 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
     tar->start(tarPath());
     if (!tar->waitForFinished()) {
         QMessageBox::critical(this, "bsdtar executable not found",
-                (QString("'%1' executable not found. It is required to allow extracting docsets. ")
-               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(tarPath()));
+                              (QString("'%1' executable not found. It is required to allow extracting docsets. ")
+                               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(tarPath()));
         stopDownloads();
         return;
     }
@@ -625,9 +625,9 @@ void SettingsDialog::on_deleteButton_clicked()
 {
     const QString docsetDisplayName = ui->listView->currentIndex().data().toString();
     auto answer = QMessageBox::question(this, "Are you sure",
-        QString("Are you sure you want to permanently delete the '%1' docest? "
-                "Clicking 'Cancel' in this dialog box will not revert the deletion.")
-                .arg(docsetDisplayName));
+                                        QString("Are you sure you want to permanently delete the '%1' docest? "
+                                                "Clicking 'Cancel' in this dialog box will not revert the deletion.")
+                                        .arg(docsetDisplayName));
 
     if (answer == QMessageBox::Yes) {
         auto dataDir = QDir(DocsetsRegistry::instance()->docsetsDir());
@@ -645,7 +645,7 @@ void SettingsDialog::on_deleteButton_clicked()
                     isDeleted = docsetDir.removeRecursively();
                 if (!isDeleted) {
                     QMessageBox::information(nullptr, QString(),
-                        QString("Delete docset %1 failed!").arg(docsetDisplayName));
+                                             QString("Delete docset %1 failed!").arg(docsetDisplayName));
                 }
             });
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
@@ -843,7 +843,7 @@ QNetworkProxy SettingsDialog::httpProxy() const
         if (listOfProxies.size())
             proxy = listOfProxies[0];
     }
-    break;
+        break;
 
     case SettingsDialog::UserDefinedProxy:
         proxy = QNetworkProxy(QNetworkProxy::HttpProxy,
