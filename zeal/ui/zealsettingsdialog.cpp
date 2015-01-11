@@ -181,32 +181,32 @@ void SettingsDialog::endTasks(qint8 tasks)
 void SettingsDialog::updateDocsets()
 {
     ui->downloadableGroup->show();
-    QStringList docsetNames = DocsetsRegistry::instance()->names();
+    const QStringList docsetNames = DocsetsRegistry::instance()->names();
     bool missingMetadata = false;
-    foreach (auto name, docsetNames) {
+    foreach (const QString &name, docsetNames) {
         DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
         if (!metadata.isValid())
             missingMetadata = true;
 
-        QString feedUrl = metadata.feedUrl();
-        if (!feedUrl.isEmpty()) {
-            auto reply = startDownload(feedUrl);
+        const QString feedUrl = metadata.feedUrl();
+        if (feedUrl.isEmpty())
+            continue;
 
-            QList<QListWidgetItem *> items
-                    = ui->docsetsList->findItems(name, Qt::MatchFixedString);
-            if (items.count() > 0) {
-                reply->setProperty("listItem", ui->docsetsList->row(items[0]));
-            } else {
-                QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
-                item->setCheckState(Qt::Checked);
-                item->setHidden(true);
-                ui->docsetsList->addItem(item);
-                reply->setProperty("listItem", ui->docsetsList->row(item));
-            }
+        QNetworkReply *reply = startDownload(feedUrl);
 
-            reply->setProperty("metadata", QVariant::fromValue(metadata));
-            connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+        QList<QListWidgetItem *> items = ui->docsetsList->findItems(name, Qt::MatchFixedString);
+        if (!items.isEmpty()) {
+            reply->setProperty("listItem", ui->docsetsList->row(items[0]));
+        } else {
+            QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
+            item->setCheckState(Qt::Checked);
+            item->setHidden(true);
+            ui->docsetsList->addItem(item);
+            reply->setProperty("listItem", ui->docsetsList->row(item));
         }
+
+        reply->setProperty("metadata", QVariant::fromValue(metadata));
+        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
     }
     if (missingMetadata) {
         int r = QMessageBox::information(this, "Zeal",
@@ -224,10 +224,10 @@ void SettingsDialog::updateDocsets()
             QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
             watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
-                foreach (auto name, docsetNames) {
+                foreach (const QString &name, docsetNames) {
                     DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
                     if (!metadata.isValid() && availMetadata.contains(name)) {
-                        auto reply = startDownload(availMetadata[name]);
+                        QNetworkReply *reply = startDownload(availMetadata[name]);
 
                         QList<QListWidgetItem *> items
                                 = ui->docsetsList->findItems(name, Qt::MatchFixedString);
@@ -345,7 +345,7 @@ void SettingsDialog::extractDocset()
             url.setHost(reply->request().url().host());
         if (url.scheme().isEmpty())
             url.setScheme(reply->request().url().scheme());
-        auto reply3 = startDownload(url, 1);
+        QNetworkReply *reply3 = startDownload(url, 1);
         endTasks();
 
         reply3->setProperty("listItem", itemId);
@@ -369,7 +369,7 @@ void SettingsDialog::extractDocset()
 
                 if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
                     metadata.setFeedUrl(reply->request().url().toString());
-                    auto reply2 = startDownload(metadata.primaryUrl(), 1);
+                    QNetworkReply *reply2 = startDownload(metadata.primaryUrl(), 1);
 
                     if (listItem != NULL) {
                         listItem->setHidden(false);
@@ -472,7 +472,7 @@ void SettingsDialog::downloadDocsetLists()
     downloadedDocsetsList = false;
     ui->downloadButton->hide();
     ui->docsetsList->clear();
-    auto reply = startDownload(QUrl("http://kapeli.com/docset_links"));
+    QNetworkReply *reply = startDownload(QUrl("http://kapeli.com/docset_links"));
     connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
 }
 
@@ -506,23 +506,21 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
 
     // Find each checked item, and create a NetworkRequest for it.
     for (int i = 0; i < ui->docsetsList->count(); ++i) {
-        QListWidgetItem *tmp = ui->docsetsList->item(i);
-        if (tmp->checkState() == Qt::Checked) {
-            // QUrl url(urls[tmp->text()]);
+        QListWidgetItem *item = ui->docsetsList->item(i);
+        if (item->checkState() != Qt::Checked)
+            continue;
 
-            auto reply = startDownload(availMetadata[tmp->text()], 1);
-            QUrl url = reply->url();
-            reply->setProperty("listItem", i);
-            connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
+        QNetworkReply *reply = startDownload(availMetadata[item->text()], 1);
+        reply->setProperty("listItem", i);
+        connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
 
-            tmp->setData(ProgressItemDelegate::ProgressVisibleRole, true);
-            tmp->setData(ProgressItemDelegate::ProgressRole, 0);
-            tmp->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-            if (url.path().endsWith((".tgz"))) {
-                // Dash's docsets don't redirect, so we can start showing progress instantly
-                connect(reply, &QNetworkReply::downloadProgress, this,
-                        &SettingsDialog::on_downloadProgress);
-            }
+        item->setData(ProgressItemDelegate::ProgressVisibleRole, true);
+        item->setData(ProgressItemDelegate::ProgressRole, 0);
+        item->setData(ProgressItemDelegate::ProgressMaxRole, 1);
+        if (reply->url().path().endsWith((".tgz"))) {
+            // Dash's docsets don't redirect, so we can start showing progress instantly
+            connect(reply, &QNetworkReply::downloadProgress,
+                    this, &SettingsDialog::on_downloadProgress);
         }
     }
 
@@ -735,7 +733,7 @@ void SettingsDialog::on_addFeedButton_clicked()
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
 
-    auto reply = startDownload(feedUrl);
+    QNetworkReply *reply = startDownload(feedUrl);
     connect(reply, SIGNAL(finished()), SLOT(extractDocset()));
 }
 
