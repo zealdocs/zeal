@@ -123,27 +123,30 @@ void SettingsDialog::loadSettings()
 // creates a total download progress for multiple QNetworkReplies
 void SettingsDialog::on_downloadProgress(quint64 recv, quint64 total)
 {
-    if (recv > 10240) { // don't show progress for non-docset pages (like Google Drive first request)
-        QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-        // Try to get the item associated to the request
-        QVariant itemId = reply->property("listItem");
-        QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
-        QPair<qint32, qint32> *previousProgress = progress[reply];
-        if (previousProgress == nullptr) {
-            previousProgress = new QPair<qint32, qint32>(0, 0);
-            progress[reply] = previousProgress;
-        }
+    // Don't show progress for non-docset pages
+    if (recv < 10240)
+        return;
 
-        if (item != NULL) {
-            item->setData(ProgressItemDelegate::ProgressMaxRole, total);
-            item->setData(ProgressItemDelegate::ProgressRole, recv);
-        }
-        currentDownload += recv - previousProgress->first;
-        totalDownload += total - previousProgress->second;
-        previousProgress->first = recv;
-        previousProgress->second = total;
-        displayProgress();
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    // Try to get the item associated to the request
+    QVariant itemId = reply->property("listItem");
+    QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
+    QPair<qint32, qint32> *previousProgress = progress[reply];
+    if (previousProgress == nullptr) {
+        previousProgress = new QPair<qint32, qint32>(0, 0);
+        progress[reply] = previousProgress;
     }
+
+    if (item != NULL) {
+        item->setData(ProgressItemDelegate::ProgressMaxRole, total);
+        item->setData(ProgressItemDelegate::ProgressRole, recv);
+    }
+    currentDownload += recv - previousProgress->first;
+    totalDownload += total - previousProgress->second;
+    previousProgress->first = recv;
+    previousProgress->second = total;
+    displayProgress();
+
 }
 
 void SettingsDialog::displayProgress()
@@ -531,25 +534,6 @@ void SettingsDialog::extractDocset()
                         endTasks();
                     });
                 }
-            } else if (remainingRetries > 0) { // 3rd request - retry once for Google Drive
-                QFile file(tmp->fileName());
-                file.open(QIODevice::ReadOnly);
-                QWebView view;
-                view.setContent(file.readAll());
-                tmp->close();
-                delete tmp;
-
-                QString href = view.page()->mainFrame()->findFirstElement("#uc-download-link").attribute("href");
-                QString path = href.split("?")[0], query = href.split("?")[1];
-                QUrl url = reply->url();
-                url.setPath(path);
-                url.setQuery(query);
-                // retry with #uc-download-link - "Google Drive can't scan this file for viruses."
-                auto reply2 = startDownload(url, remainingRetries - 1); // naManager.get(QNetworkRequest(url));
-                endTasks();
-                reply2->setProperty("listItem", itemId);
-                reply2->setProperty("metadata", reply->property("metadata"));
-                connect(reply2, SIGNAL(finished()), SLOT(extractDocset()));
             } else {
                 tmp->close();
                 delete tmp;
