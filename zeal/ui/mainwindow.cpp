@@ -167,10 +167,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
     connect(ui->action_About, &QAction::triggered, [this]() {
-        QMessageBox::about(this, "About Zeal",
-                           QString("This is Zeal ") + ZEAL_VERSION
-                           + " - a documentation browser.\n\n"
-                           + "For details see http://zealdocs.org/");
+        QMessageBox::about(this, QStringLiteral("About Zeal"),
+                           QStringLiteral("This is Zeal "
+                                          ZEAL_VERSION
+                                          " - a documentation browser.\n\n"
+                                          "For details see http://zealdocs.org/"));
     });
     connect(ui->action_About_QT, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);

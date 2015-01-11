@@ -193,7 +193,7 @@ void SettingsDialog::updateDocsets()
             auto reply = startDownload(feedUrl);
 
             QList<QListWidgetItem *> items
-                    = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
+                    = ui->docsetsList->findItems(name, Qt::MatchFixedString);
             if (items.count() > 0) {
                 reply->setProperty("listItem", ui->docsetsList->row(items[0]));
             } else {
@@ -230,7 +230,7 @@ void SettingsDialog::updateDocsets()
                         auto reply = startDownload(availMetadata[name]);
 
                         QList<QListWidgetItem *> items
-                                = ui->docsetsList->findItems(QString(name), Qt::MatchFixedString);
+                                = ui->docsetsList->findItems(name, Qt::MatchFixedString);
                         if (items.count() > 0) {
                             items[0]->setCheckState(Qt::Checked);
                             items[0]->setHidden(false);
