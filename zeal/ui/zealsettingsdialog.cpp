@@ -258,84 +258,49 @@ void SettingsDialog::downloadDocsetList()
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
-        if (reply->request().url().host() == "raw.github.com") {
-            // allow github to fail
-            // downloadedDocsetsList will be set either here, or in "if (replies.isEmpty())" below
-            downloadedDocsetsList = ui->docsetsList->count() > 0;
-            return;
-        }
+
         if (reply->error() != QNetworkReply::OperationCanceledError)
             QMessageBox::warning(this, "No docsets found",
                                  "Failed retrieving list of docsets: " + reply->errorString());
         return;
     }
 
-    if (reply->request().url().host() == "kapeli.com") {
-        QWebView view;
-        view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
-        view.setContent(reply->readAll());
-        auto collection = view.page()->mainFrame()->findAllElements(".drowx");
-        for (auto drowx : collection) {
-            auto anchor = drowx.findFirst("a");
-            auto url = anchor.attribute("href");
-            auto name_list = url.split("/");
-            auto name = name_list[name_list.count()-1].replace(".tgz", QString());
-            name = name.replace(".tar.bz2", QString());
-            if (!name.isEmpty()) {
-                auto feedUrl = url;
-                if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
-                    feedUrl = url.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+    QWebView view;
+    view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
+    view.setContent(reply->readAll());
+    auto collection = view.page()->mainFrame()->findAllElements(".drowx");
+    for (auto drowx : collection) {
+        auto anchor = drowx.findFirst("a");
+        auto url = anchor.attribute("href");
+        auto name_list = url.split("/");
+        auto name = name_list[name_list.count()-1].replace(".tgz", QString());
+        name = name.replace(".tar.bz2", QString());
+        if (!name.isEmpty()) {
+            auto feedUrl = url;
+            if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
+                feedUrl = url.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
 
-                // urls[name] = feedUrl;
-                DocsetMetadata meta;
-                meta.setFeedUrl(feedUrl);
-                availMetadata[name] = meta;
-                auto url_list = url.split("/");
-                auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
-                iconfile = iconfile.replace(".tar.bz2", ".png");
-                auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
-                lwi->setCheckState(Qt::Unchecked);
-
-                if (DocsetsRegistry::instance()->names().contains(name)) {
-                    ui->docsetsList->insertItem(0, lwi);
-                    lwi->setHidden(true);
-                } else {
-                    ui->docsetsList->addItem(lwi);
-                }
-            }
-        }
-        if (availMetadata.size() > 0)
-            ui->downloadableGroup->show();
-    } else {
-        QString list = reply->readAll();
-        for (auto item : list.split("\n")) {
-            QStringList docset = item.split(" ");
-            if (docset.size() < 2)
-                break;
+            // urls[name] = feedUrl;
             DocsetMetadata meta;
-            meta.addUrl(docset[1]);
-            meta.setVersion(docset[2]);
-            availMetadata[docset[0]] = meta;
-            if (!docset[1].startsWith("http")) {
-                availMetadata.clear();
-                QMessageBox::warning(this, "No docsets found", "Failed retrieving https://raw.githubusercontent.com/zealdocs/zeal/master/docsets.txt: " + QString(docset[1]));
-                break;
-            }
-            auto *lwi = new QListWidgetItem(docset[0], ui->docsetsList);
+            meta.setFeedUrl(feedUrl);
+            availMetadata[name] = meta;
+            auto url_list = url.split("/");
+            auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
+            iconfile = iconfile.replace(".tar.bz2", ".png");
+
+            auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
             lwi->setCheckState(Qt::Unchecked);
-            if (DocsetsRegistry::instance()->names().contains(docset[0])) {
+
+            if (DocsetsRegistry::instance()->names().contains(name)) {
                 ui->docsetsList->insertItem(0, lwi);
                 lwi->setHidden(true);
             } else {
                 ui->docsetsList->addItem(lwi);
             }
         }
-        if (availMetadata.size() > 0)
-            ui->downloadableGroup->show();
-        else
-            QMessageBox::warning(this, "No docsets found",
-                                 QString("No downloadable docsets found."));
     }
+    if (availMetadata.size() > 0)
+        ui->downloadableGroup->show();
 
     endTasks();
 
@@ -366,10 +331,6 @@ void SettingsDialog::extractDocset()
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
-
-        // Allow GitHub to fail
-        if (reply->request().url().host() == QStringLiteral("raw.githubusercontent.com"))
-            return;
 
         if (reply->error() != QNetworkReply::OperationCanceledError)
             QMessageBox::warning(this, "Network Error",
@@ -610,11 +571,8 @@ void SettingsDialog::downloadDocsetLists()
     downloadedDocsetsList = false;
     ui->downloadButton->hide();
     ui->docsetsList->clear();
-    auto reply = startDownload(QUrl("https://raw.githubusercontent.com/zealdocs/zeal/master/docsets.txt"));
-    auto reply2 = startDownload(QUrl("http://kapeli.com/docset_links"));
-
+    auto reply = startDownload(QUrl("http://kapeli.com/docset_links"));
     connect(reply, SIGNAL(finished()), SLOT(downloadDocsetList()));
-    connect(reply2, SIGNAL(finished()), SLOT(downloadDocsetList()));
 }
 
 void SettingsDialog::on_downloadButton_clicked()
