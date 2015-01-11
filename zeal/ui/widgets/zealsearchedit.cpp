@@ -1,6 +1,6 @@
 #include "zealsearchedit.h"
 
-#include "../zealsearchquery.h"
+#include "../../zealsearchquery.h"
 
 #include <QKeyEvent>
 
