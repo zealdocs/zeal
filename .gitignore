@@ -1,10 +1,32 @@
-zeal-build-Desktop-Debug/
-zeal/zeal.pro.user
+# C++ objects and libs
+
+*.slo
+*.lo
 *.o
-zeal/zeal
-zeal/moc_*.cpp
-zeal/ui_*.h
-zeal/Makefile
-build-zeal-Desktop*
-*.swp
-zeal/qrc_zeal.cpp
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-es
+
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*-build-*
+
+# QtCreator
+
+*.autosave
+
+#QtCtreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
