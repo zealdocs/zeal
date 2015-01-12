@@ -1,8 +1,8 @@
 #ifndef ZEALSETTINGSDIALOG_H
 #define ZEALSETTINGSDIALOG_H
 
-#include "zeallistmodel.h"
-#include "zealdocsetmetadata.h"
+#include "registry/zeallistmodel.h"
+#include "registry/zealdocsetmetadata.h"
 
 #include <QDialog>
 #include <QHash>

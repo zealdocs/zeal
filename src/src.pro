@@ -22,25 +22,12 @@ DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 
 SOURCES += \
     main.cpp \
-    zealdocsetinfo.cpp \
-    zealdocsetmetadata.cpp \
-    zealdocsetsregistry.cpp \
-    zeallistmodel.cpp \
     zealnetworkaccessmanager.cpp \
-    zealsearchmodel.cpp \
-    zealsearchquery.cpp \
-    zealsearchresult.cpp
 
 HEADERS += \
-    zealdocsetinfo.h \
-    zealdocsetmetadata.h \
-    zealdocsetsregistry.h \
-    zeallistmodel.h \
     zealnetworkaccessmanager.h \
-    zealsearchmodel.h \
-    zealsearchquery.h \
-    zealsearchresult.h
 
+include(registry/registry.pri)
 include(ui/ui.pri)
 
 !msvc:LIBS += -lz -L/usr/lib

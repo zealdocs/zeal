@@ -1,12 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "zealdocsetsregistry.h"
-#include "zeallistmodel.h"
 #include "zealnetworkaccessmanager.h"
 #include "zealsearchitemdelegate.h"
-#include "zealsearchquery.h"
 #include "zealsettingsdialog.h"
+#include "registry/zealdocsetsregistry.h"
+#include "registry/zeallistmodel.h"
+#include "registry/zealsearchquery.h"
 
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>

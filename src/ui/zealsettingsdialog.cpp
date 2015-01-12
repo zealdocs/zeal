@@ -1,8 +1,8 @@
 #include "zealsettingsdialog.h"
 
 #include "progressitemdelegate.h"
-#include "zealdocsetsregistry.h"
 #include "ui_settingsdialog.h"
+#include "registry/zealdocsetsregistry.h"
 
 #include <QClipboard>
 #include <QDir>
