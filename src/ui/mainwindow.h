@@ -24,7 +24,6 @@
 
 class QxtGlobalShortcut;
 
-class QLocalServer;
 class QSettings;
 class QSystemTrayIcon;
 class QTabBar;
@@ -38,8 +37,6 @@ class ListModel;
 class NetworkAccessManager;
 class SettingsDialog;
 }
-
-extern const QString serverName;
 
 // Represents per tab search state.
 // needs to contain [search input, search model, section model, url]
@@ -116,8 +113,6 @@ private:
     QSettings *m_settings = nullptr;
     Zeal::ListModel *m_zealListModel = nullptr;
     Zeal::SettingsDialog *m_settingsDialog = nullptr;
-
-    QLocalServer *m_localServer = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;

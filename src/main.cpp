@@ -1,5 +1,4 @@
 #include "core/application.h"
-#include "ui/mainwindow.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -78,7 +77,7 @@ int main(int argc, char *argv[])
     // Detect already running instance and optionally pass a search query to it.
     if (!clParams.force) {
         QScopedPointer<QLocalSocket> socket(new QLocalSocket());
-        socket->connectToServer(serverName);
+        socket->connectToServer(Zeal::Core::Application::localServerName());
 
         if (socket->waitForConnected(500)) {
             if (!clParams.query.isEmpty()) {

@@ -12,8 +12,6 @@
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QKeyEvent>
-#include <QLocalServer>
-#include <QLocalSocket>
 #include <QMenu>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -45,8 +43,6 @@ const char *defaultHotKey = "Alt+Space";
 #endif
 }
 
-const QString serverName = "zeal_process_running";
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -56,18 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_globalShortcut(new QxtGlobalShortcut(this))
 {
     m_tabBar = new QTabBar(this);
-
-    // server for detecting already running instances
-    m_localServer = new QLocalServer(this);
-    connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QLocalSocket *connection = m_localServer->nextPendingConnection();
-        // Wait a little while the other side writes the bytes
-        connection->waitForReadyRead();
-        if (connection->bytesAvailable())
-            bringToFrontAndSearch(QString::fromLocal8Bit(connection->readAll()));
-    });
-    QLocalServer::removeServer(serverName);  // remove in case previous instance crashed
-    m_localServer->listen(serverName);
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
