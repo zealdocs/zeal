@@ -1,5 +1,5 @@
-#ifndef ZEALSETTINGSDIALOG_H
-#define ZEALSETTINGSDIALOG_H
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
 
 #include "registry/listmodel.h"
 #include "registry/docsetmetadata.h"
@@ -106,4 +106,4 @@ private:
 
 Q_DECLARE_METATYPE(Zeal::SettingsDialog::ProxyType)
 
-#endif // ZEALSETTINGSDIALOG_H
+#endif // SETTINGSDIALOG_H

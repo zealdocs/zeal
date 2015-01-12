@@ -1,5 +1,5 @@
-#ifndef ZEALDOCSETMETADATA_H
-#define ZEALDOCSETMETADATA_H
+#ifndef DOCSETMETADATA_H
+#define DOCSETMETADATA_H
 
 #include <QJsonObject>
 #include <QStringList>
@@ -44,4 +44,4 @@ private:
 
 Q_DECLARE_METATYPE(Zeal::DocsetMetadata)
 
-#endif // ZEALDOCSETMETADATA_H
+#endif // DOCSETMETADATA_H

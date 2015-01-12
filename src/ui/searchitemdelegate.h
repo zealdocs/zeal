@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHITEMDELEGATE_H
-#define ZEALSEARCHITEMDELEGATE_H
+#ifndef SEARCHITEMDELEGATE_H
+#define SEARCHITEMDELEGATE_H
 
 #include <QLineEdit>
 #include <QStyledItemDelegate>
@@ -18,4 +18,4 @@ private:
     QWidget *view;
 };
 
-#endif // ZEALSEARCHITEMDELEGATE_H
+#endif // SEARCHITEMDELEGATE_H

@@ -1,5 +1,5 @@
-#ifndef ZEALDOCSETINFO_H
-#define ZEALDOCSETINFO_H
+#ifndef DOCSETINFO_H
+#define DOCSETINFO_H
 
 #include <QString>
 
@@ -20,4 +20,4 @@ struct DocsetInfo
 
 } // namespace Zeal
 
-#endif // ZEALDOCSETINFO_H
+#endif // DOCSETINFO_H

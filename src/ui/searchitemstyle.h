@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHITEMSTYLE_H
-#define ZEALSEARCHITEMSTYLE_H
+#ifndef SEARCHITEMSTYLE_H
+#define SEARCHITEMSTYLE_H
 
 #include <QProxyStyle>
 
@@ -10,4 +10,4 @@ public:
                          const QWidget *widget) const;
 };
 
-#endif // ZEALSEARCHITEMSTYLE_H
+#endif // SEARCHITEMSTYLE_H

@@ -1,5 +1,5 @@
-#ifndef ZEALWEBVIEW_H
-#define ZEALWEBVIEW_H
+#ifndef WEBVIEW_H
+#define WEBVIEW_H
 
 #ifdef USE_WEBENGINE
     #include <QWebEngineView>
@@ -29,4 +29,4 @@ private:
     int m_zoomFactor = 0;
 };
 
-#endif // ZEALWEBVIEW_H
+#endif // WEBVIEW_H

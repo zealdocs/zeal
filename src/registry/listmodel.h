@@ -1,5 +1,5 @@
-#ifndef ZEALLISTMODEL_H
-#define ZEALLISTMODEL_H
+#ifndef LISTMODEL_H
+#define LISTMODEL_H
 
 #include <QAbstractListModel>
 #include <QHash>
@@ -42,4 +42,4 @@ private:
 
 } // namespace Zeal
 
-#endif // ZEALLISTMODEL_H
+#endif // LISTMODEL_H

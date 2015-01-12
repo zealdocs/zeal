@@ -1,5 +1,5 @@
-#ifndef ZEALDOCSETSREGISTRY_H
-#define ZEALDOCSETSREGISTRY_H
+#ifndef DOCSETSREGISTRY_H
+#define DOCSETSREGISTRY_H
 
 #include <QDir>
 #include <QIcon>
@@ -82,4 +82,4 @@ private:
 
 } // namespace Zeal
 
-#endif // ZEALDOCSETSREGISTRY_H
+#endif // DOCSETSREGISTRY_H

@@ -1,5 +1,5 @@
-#ifndef ZEALNETWORKACCESSMANAGER_H
-#define ZEALNETWORKACCESSMANAGER_H
+#ifndef NETWORKACCESSMANAGER_H
+#define NETWORKACCESSMANAGER_H
 
 #include <QNetworkAccessManager>
 
@@ -16,4 +16,4 @@ public:
 
 } // namespace Zeal
 
-#endif // ZEALNETWORKACCESSMANAGER_H
+#endif // NETWORKACCESSMANAGER_H

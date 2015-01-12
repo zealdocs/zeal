@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHQUERY_H
-#define ZEALSEARCHQUERY_H
+#ifndef SEARCHQUERY_H
+#define SEARCHQUERY_H
 
 #include <QStringList>
 
@@ -51,4 +51,4 @@ private:
 
 } // namespace Zeal
 
-#endif // ZEALSEARCHQUERY_H
+#endif // SEARCHQUERY_H

@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHRESULT_H
-#define ZEALSEARCHRESULT_H
+#ifndef SEARCHRESULT_H
+#define SEARCHRESULT_H
 
 #include <QString>
 
@@ -29,4 +29,4 @@ private:
 
 } // namespace Zeal
 
-#endif // ZEALSEARCHRESULT_H
+#endif // SEARCHRESULT_H

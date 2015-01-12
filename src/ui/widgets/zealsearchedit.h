@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHEDIT_H
-#define ZEALSEARCHEDIT_H
+#ifndef SEARCHEDIT_H
+#define SEARCHEDIT_H
 
 #include <QEvent>
 #include <QTreeView>
@@ -40,4 +40,4 @@ private:
     bool focusing;
 };
 
-#endif // ZEALSEARCHEDIT_H
+#endif // SEARCHEDIT_H

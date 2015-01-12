@@ -1,5 +1,5 @@
-#ifndef ZEALSEARCHMODEL_H
-#define ZEALSEARCHMODEL_H
+#ifndef SEARCHMODEL_H
+#define SEARCHMODEL_H
 
 #include "searchresult.h"
 
@@ -35,4 +35,4 @@ private:
 
 } // namespace Zeal
 
-#endif // ZEALSEARCHMODEL_H
+#endif // SEARCHMODEL_H
