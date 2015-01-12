@@ -1,6 +1,6 @@
-#include "zealsearchitemdelegate.h"
+#include "searchitemdelegate.h"
 
-#include "zealsearchitemstyle.h"
+#include "searchitemstyle.h"
 #include "registry/searchquery.h"
 
 #include <QApplication>

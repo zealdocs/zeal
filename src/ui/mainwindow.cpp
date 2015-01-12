@@ -2,8 +2,8 @@
 #include "ui_mainwindow.h"
 
 #include "zealnetworkaccessmanager.h"
-#include "zealsearchitemdelegate.h"
-#include "zealsettingsdialog.h"
+#include "searchitemdelegate.h"
+#include "settingsdialog.h"
 #include "registry/docsetsregistry.h"
 #include "registry/listmodel.h"
 #include "registry/searchquery.h"

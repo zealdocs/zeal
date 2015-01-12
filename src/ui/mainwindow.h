@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "zealsettingsdialog.h"
+#include "settingsdialog.h"
 #include "registry/listmodel.h"
 #include "registry/searchmodel.h"
 

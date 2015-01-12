@@ -1,4 +1,4 @@
-#include "zealsettingsdialog.h"
+#include "settingsdialog.h"
 
 #include "progressitemdelegate.h"
 #include "ui_settingsdialog.h"
