@@ -12,7 +12,8 @@ unix:!macx {
 
     QMAKE_DEL_DIR = rmdir --ignore-fail-on-non-empty
 
-    !no_libappindicator {
+    # TODO: Detect libappindicator automatically
+    appindicator {
         PKGCONFIG += gtk+-2.0
         INCLUDEPATH += /usr/include/libappindicator-0.1 \
             /usr/include/gtk-2.0 \
