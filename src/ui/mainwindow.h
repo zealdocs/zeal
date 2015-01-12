@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "settingsdialog.h"
 #include "registry/listmodel.h"
 #include "registry/searchmodel.h"
 
