@@ -25,7 +25,6 @@ install:
   - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 script:
-  - cd zeal
   - date +%Y%m%d > VERSION
   # a bit ugly version updating:
   - grep -v ZEAL_VERSION zeal.pro > zeal.pro.noversion
