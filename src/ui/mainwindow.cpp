@@ -654,8 +654,11 @@ bool MainWindow::startHidden() const
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     m_settings->setValue("geometry", saveGeometry());
-    event->ignore();
-    hide();
+    if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool()
+            && m_settings->value(QStringLiteral("HideToSystrayOnClose"), false).toBool()) {
+        event->ignore();
+        hide();
+    }
 }
 
 void MainWindow::setupShortcuts()
