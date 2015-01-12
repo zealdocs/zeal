@@ -1,6 +1,6 @@
-#include "zealsearchmodel.h"
+#include "searchmodel.h"
 
-#include "zealdocsetsregistry.h"
+#include "docsetsregistry.h"
 
 using namespace Zeal;
 

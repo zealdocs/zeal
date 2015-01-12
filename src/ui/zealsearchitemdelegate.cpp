@@ -1,7 +1,7 @@
 #include "zealsearchitemdelegate.h"
 
 #include "zealsearchitemstyle.h"
-#include "registry/zealsearchquery.h"
+#include "registry/searchquery.h"
 
 #include <QApplication>
 #include <QFontMetrics>

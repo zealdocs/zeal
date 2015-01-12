@@ -1,4 +1,4 @@
-#include "zealdocsetinfo.h"
+#include "docsetinfo.h"
 
 #include <QDomDocument>
 #include <QFile>

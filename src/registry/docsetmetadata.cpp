@@ -1,4 +1,4 @@
-#include "zealdocsetmetadata.h"
+#include "docsetmetadata.h"
 
 #include <QFile>
 #include <QJsonArray>

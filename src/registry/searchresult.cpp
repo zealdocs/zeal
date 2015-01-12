@@ -1,4 +1,4 @@
-#include "zealsearchresult.h"
+#include "searchresult.h"
 
 using namespace Zeal;
 

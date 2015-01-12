@@ -7,9 +7,9 @@
 #include <QMutex>
 #include <QSqlDatabase>
 
-#include "zealsearchresult.h"
-#include "zealdocsetinfo.h"
-#include "zealdocsetmetadata.h"
+#include "searchresult.h"
+#include "docsetinfo.h"
+#include "docsetmetadata.h"
 
 namespace Zeal {
 

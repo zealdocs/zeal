@@ -1,7 +1,7 @@
-#include "zealdocsetsregistry.h"
+#include "docsetsregistry.h"
 
-#include "zealsearchquery.h"
-#include "zealsearchresult.h"
+#include "searchquery.h"
+#include "searchresult.h"
 
 #include <QCoreApplication>
 #include <QSettings>

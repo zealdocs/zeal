@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include "zealsettingsdialog.h"
-#include "registry/zeallistmodel.h"
-#include "registry/zealsearchmodel.h"
+#include "registry/listmodel.h"
+#include "registry/searchmodel.h"
 
 #include <QDialog>
 #include <QMainWindow>

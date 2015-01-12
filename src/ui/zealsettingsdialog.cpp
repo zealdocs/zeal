@@ -2,7 +2,7 @@
 
 #include "progressitemdelegate.h"
 #include "ui_settingsdialog.h"
-#include "registry/zealdocsetsregistry.h"
+#include "registry/docsetsregistry.h"
 
 #include <QClipboard>
 #include <QDir>

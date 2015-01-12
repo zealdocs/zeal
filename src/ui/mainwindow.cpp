@@ -4,9 +4,9 @@
 #include "zealnetworkaccessmanager.h"
 #include "zealsearchitemdelegate.h"
 #include "zealsettingsdialog.h"
-#include "registry/zealdocsetsregistry.h"
-#include "registry/zeallistmodel.h"
-#include "registry/zealsearchquery.h"
+#include "registry/docsetsregistry.h"
+#include "registry/listmodel.h"
+#include "registry/searchquery.h"
 
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>

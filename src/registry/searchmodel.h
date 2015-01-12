@@ -1,7 +1,7 @@
 #ifndef ZEALSEARCHMODEL_H
 #define ZEALSEARCHMODEL_H
 
-#include "zealsearchresult.h"
+#include "searchresult.h"
 
 #include <QAbstractItemModel>
 

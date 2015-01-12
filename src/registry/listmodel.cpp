@@ -1,6 +1,6 @@
-#include "zeallistmodel.h"
+#include "listmodel.h"
 
-#include "zealdocsetsregistry.h"
+#include "docsetsregistry.h"
 
 #include <QSqlQuery>
 
