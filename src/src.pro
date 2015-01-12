@@ -23,6 +23,7 @@ DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 SOURCES += \
     main.cpp
 
+include(core/core.pri)
 include(registry/registry.pri)
 include(ui/ui.pri)
 

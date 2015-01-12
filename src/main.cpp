@@ -1,3 +1,4 @@
+#include "core/application.h"
 #include "ui/mainwindow.h"
 
 #include <QApplication>
@@ -107,13 +108,7 @@ int main(int argc, char *argv[])
     searchPaths << QStringLiteral("./icons");
     QDir::setSearchPaths(QStringLiteral("icons"), searchPaths);
 
-    QScopedPointer<MainWindow> mainWindow(new MainWindow());
-
-    if (!mainWindow->startHidden())
-        mainWindow->show();
-
-    if (!clParams.query.isEmpty())
-        mainWindow->bringToFrontAndSearch(clParams.query);
+    QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application());
 
     return qapp.exec();
 }
