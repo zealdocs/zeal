@@ -1,7 +1,5 @@
 # Zeal [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
 
----
-
 **zeal**
 *noun*
 
