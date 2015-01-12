@@ -32,6 +32,7 @@ script:
   - echo 'DEFINES += ZEAL_VERSION=\\\"'`cat VERSION`'\\\"' >> zeal.pro
   - wine qmake
   - wine mingw32-make
+  - cd src
   - mkdir zeal-$(cat VERSION)
   - cp release/zeal.exe zeal-$(cat VERSION)
   - cp -r icons zeal-$(cat VERSION)
