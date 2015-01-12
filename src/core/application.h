@@ -24,8 +24,8 @@ signals:
 public slots:
 
 private:
-    MainWindow *m_mainWindow;
     QLocalServer *m_localServer = nullptr;
+    MainWindow *m_mainWindow = nullptr;
 };
 
 } // namespace Core

@@ -37,6 +37,7 @@ Application::Application(const QString &query, QObject *parent) :
 
 Application::~Application()
 {
+    delete m_mainWindow;
 }
 
 QString Application::localServerName()
