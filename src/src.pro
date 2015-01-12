@@ -21,11 +21,7 @@ INSTALLS = target
 DEFINES += ZEAL_VERSION=\\\"20140215\\\"
 
 SOURCES += \
-    main.cpp \
-    zealnetworkaccessmanager.cpp \
-
-HEADERS += \
-    zealnetworkaccessmanager.h \
+    main.cpp
 
 include(registry/registry.pri)
 include(ui/ui.pri)

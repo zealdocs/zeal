@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "zealnetworkaccessmanager.h"
+#include "networkaccessmanager.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "registry/docsetsregistry.h"

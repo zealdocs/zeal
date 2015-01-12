@@ -1,4 +1,4 @@
-#include "zealnetworkaccessmanager.h"
+#include "networkaccessmanager.h"
 
 #include <QNetworkRequest>
 
