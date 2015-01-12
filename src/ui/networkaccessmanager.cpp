@@ -13,16 +13,18 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
                                                    const QNetworkRequest &req,
                                                    QIODevice *outgoingData)
 {
-    const bool resourceFile = req.url().scheme() == "qrc";
-    const bool nonLocalFile = req.url().scheme() == "file" && !req.url().host().isEmpty();
-    const bool nonFile = req.url().scheme() != "file";
-    if (resourceFile)
+    const QString scheme = req.url().scheme();
+
+    if (scheme == QLatin1String("qrc"))
         return QNetworkAccessManager::createRequest(op, req, outgoingData);
 
-    if (nonLocalFile || nonFile) {
-        // ignore requests which cause Zeal to hang
+    const bool nonFileScheme = scheme != QLatin1String("file");
+    const bool nonLocalFile = !nonFileScheme && !req.url().host().isEmpty();
+
+    // Ignore requests which cause Zeal to hang
+    if (nonLocalFile || nonFileScheme) {
         return QNetworkAccessManager::createRequest(QNetworkAccessManager::GetOperation,
-                                                    QNetworkRequest(QUrl()));
+                                                    QNetworkRequest());
     }
 #ifdef Q_OS_WIN32
     // Fix for AngularJS docset - Windows doesn't allow ':'s in filenames,
