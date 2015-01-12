@@ -117,46 +117,37 @@ void DocsetsRegistry::addDocset(const QString &path)
     QSqlDatabase db;
     DocsetEntry entry;
 
-    if (QFile::exists(dir.filePath("index.sqlite"))) {
-        db = QSqlDatabase::addDatabase("QSQLITE", name);
-        db.setDatabaseName(dir.filePath("index.sqlite"));
-        db.open();
-        entry.name = name;
-        entry.prefix = name;
-        entry.type = ZEAL;
-    } else {
-        QDir contentsDir(dir.filePath("Contents"));
-        entry.info.readDocset(contentsDir.absoluteFilePath("Info.plist"));
+    QDir contentsDir(dir.filePath("Contents"));
+    entry.info.readDocset(contentsDir.absoluteFilePath("Info.plist"));
 
-        if (entry.info.family == "cheatsheet")
-            name = QString("%1_cheats").arg(name);
-        entry.name = name;
+    if (entry.info.family == "cheatsheet")
+        name = QString("%1_cheats").arg(name);
+    entry.name = name;
 
-        auto dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
-        db = QSqlDatabase::addDatabase("QSQLITE", name);
-        db.setDatabaseName(dashFile);
-        db.open();
-        auto q = db.exec("select name from sqlite_master where type='table'");
-        QStringList tables;
-        while (q.next())
-            tables.append(q.value(0).toString());
+    auto dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
+    db = QSqlDatabase::addDatabase("QSQLITE", name);
+    db.setDatabaseName(dashFile);
+    db.open();
+    auto q = db.exec("select name from sqlite_master where type='table'");
+    QStringList tables;
+    while (q.next())
+        tables.append(q.value(0).toString());
 
-        if (tables.contains("searchIndex"))
-            entry.type = DASH;
-        else
-            entry.type = ZDASH;
+    if (tables.contains("searchIndex"))
+        entry.type = DASH;
+    else
+        entry.type = ZDASH;
 
-        dir.cd("Contents");
-        dir.cd("Resources");
-        dir.cd("Documents");
-    }
+    dir.cd("Contents");
+    dir.cd("Resources");
+    dir.cd("Documents");
 
     if (m_docs.contains(name))
         remove(name);
 
     entry.prefix = entry.info.bundleName.isEmpty()
-                   ? name
-                   : entry.info.bundleName;
+            ? name
+            : entry.info.bundleName;
     entry.db = db;
     entry.dir = dir;
 
@@ -219,23 +210,13 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%" + preparedQuery;
                 // don't return 'starting with' results twice
-                if (docset.type == ZDASH) {
+                if (docset.type == ZDASH)
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
-                } else {
-                    if (docset.type == ZEAL) {
-                        notQuery = QString(" and not (t.name like '%1%' escape '\\') ").arg(preparedQuery);
-                        parentQuery = QString(" or t2.name like '%1%' escape '\\' ").arg(preparedQuery);
-                    } else { // DASH
-                        notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
-                    }
-                }
+                else
+                    notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
             }
             int cols = 3;
-            if (docset.type == ZEAL) {
-                qstr = QString("select t.name, t2.name, t.path from things t left join things t2 on t2.id=t.parent where "
-                               "(t.name like '%1%' escape '\\'  %3) %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, parentQuery);
-
-            } else if (docset.type == DASH) {
+            if (docset.type == DASH) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
                                "like '%1%' escape '\\' %3)  %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
             } else if (docset.type == ZDASH) {
@@ -273,7 +254,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
             auto itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
             results.append(SearchResult(itemName, parentName, path, docset.name,
-                                            preparedQuery));
+                                        preparedQuery));
         }
     }
     qSort(results);
@@ -285,7 +266,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
 }
 
 void DocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
-                                        const QString &initialParent)
+                                    const QString &initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
     if (matchMethodName.indexIn(itemName) != -1)
@@ -327,8 +308,6 @@ QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QSt
                         "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                         "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
                         "WHERE zfilepath.zpath = \"%1\"").arg(pageUrl);
-    } else if (entry.type == ZEAL) {
-        query = QString("SELECT name type, path FROM things WHERE path LIKE \"%1%%\"").arg(pageUrl);
     }
 
     QSqlQuery result = entry.db.exec(query);

@@ -14,7 +14,8 @@
 namespace Zeal {
 
 enum DocsetType {
-    ZEAL, DASH, ZDASH
+    DASH,
+    ZDASH
 };
 
 class DocsetsRegistry : public QObject

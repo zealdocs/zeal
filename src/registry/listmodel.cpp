@@ -185,9 +185,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
         for (const QString &name : DocsetsRegistry::instance()->names()) {
             auto db = DocsetsRegistry::instance()->db(name);
             QSqlQuery q;
-            if (DocsetsRegistry::instance()->type(name) == ZEAL) {
-                q = db.exec("select type, count(*) from things group by type");
-            } else if (DocsetsRegistry::instance()->type(name) == DASH) {
+            if (DocsetsRegistry::instance()->type(name) == DASH) {
                 q = db.exec("select type, count(*) from searchIndex group by type");
             } else if (DocsetsRegistry::instance()->type(name) == ZDASH) {
                 q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
@@ -219,10 +217,6 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
 
     QString queryStr;
     switch (docsetRegistry->type(docsetName)) {
-    case ZEAL:
-        queryStr = QString("select name, path from things where type='%1' order by name asc")
-                .arg(type);
-        break;
     case DASH:
         queryStr = QString("select name, path from searchIndex where type='%1' order by name asc")
                 .arg(type);
