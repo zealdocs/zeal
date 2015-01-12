@@ -4,10 +4,6 @@
 #
 #-------------------------------------------------
 
-lessThan(QT_VERSION, "5.2.0") {
-    error("Qt 5.2.0 or above is required to build Zeal.")
-}
-
 TEMPLATE = app
 
 QT += gui gui-private widgets sql xml webkitwidgets
