@@ -596,9 +596,13 @@ void SettingsDialog::resetProgress()
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 {
+    QString USER_AGENT = QStringLiteral("Zeal " ZEAL_VERSION);
     startTasks(1);
     m_networkManager->setProxy(httpProxy());
-    QNetworkReply *reply = m_networkManager->get(QNetworkRequest(url));
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::UserAgentHeader, USER_AGENT);
+
+    QNetworkReply *reply = m_networkManager->get(request);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     replies.insert(reply, retries);
 
