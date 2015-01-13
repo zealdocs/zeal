@@ -44,6 +44,8 @@ script:
   - mkdir zeal-$(cat VERSION)/sqldrivers
   - cp $HOME/qt/Tools/mingw482_32/opt/bin/ssleay32.dll zeal-$(cat VERSION)
   - cp $HOME/qt/Tools/mingw482_32/opt/bin/libeay32.dll zeal-$(cat VERSION)
+  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qgif.dll zeal-$(cat VERSION)/imageformats
+  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qjpeg.dll zeal-$(cat VERSION)/imageformats
   - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qico.dll zeal-$(cat VERSION)/imageformats
   - cp $HOME/qt/5.3/mingw482_32/plugins/platforms/qwindows.dll zeal-$(cat VERSION)/platforms
   - cp $HOME/qt/5.3/mingw482_32/plugins/sqldrivers/qsqlite.dll zeal-$(cat VERSION)/sqldrivers
