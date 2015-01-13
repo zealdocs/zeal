@@ -10,6 +10,8 @@ class MainWindow;
 namespace Zeal {
 namespace Core {
 
+class Settings;
+
 class Application : public QObject
 {
     Q_OBJECT
@@ -25,6 +27,7 @@ public slots:
 
 private:
     QLocalServer *m_localServer = nullptr;
+    Settings *m_settings = nullptr;
     MainWindow *m_mainWindow = nullptr;
 };
 

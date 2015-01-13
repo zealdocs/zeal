@@ -4,11 +4,10 @@
 #include "searchresult.h"
 
 #include <QCoreApplication>
-#include <QSettings>
 #include <QSqlQuery>
-#include <QStandardPaths>
 #include <QThread>
 #include <QUrl>
+#include <QVariant>
 
 using namespace Zeal;
 
@@ -328,19 +327,6 @@ QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QSt
     return results;
 }
 
-QString DocsetsRegistry::docsetsDir() const
-{
-    const QScopedPointer<const QSettings> settings(new QSettings());
-    if (settings->contains("docsetsDir"))
-        return settings->value("docsetsDir").toString();
-
-    QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    if (!dataDir.cd("docsets"))
-        dataDir.mkpath("docsets");
-    dataDir.cd("docsets");
-    return dataDir.absolutePath();
-}
-
 // Recursively finds and adds all docsets in a given directory.
 void DocsetsRegistry::addDocsetsFromFolder(const QDir &folder)
 {
@@ -354,10 +340,10 @@ void DocsetsRegistry::addDocsetsFromFolder(const QDir &folder)
     }
 }
 
-void DocsetsRegistry::initialiseDocsets()
+void DocsetsRegistry::initialiseDocsets(const QString &path)
 {
     clear();
-    addDocsetsFromFolder(QDir(docsetsDir()));
+    addDocsetsFromFolder(path);
     QDir appDir(QCoreApplication::applicationDirPath());
     if (appDir.cd("docsets"))
         addDocsetsFromFolder(appDir);

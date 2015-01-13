@@ -4,6 +4,7 @@
 #include "networkaccessmanager.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
+#include "core/settings.h"
 #include "registry/docsetsregistry.h"
 #include "registry/listmodel.h"
 #include "registry/searchquery.h"
@@ -15,7 +16,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QScrollBar>
-#include <QSettings>
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
@@ -35,18 +35,10 @@
 
 using namespace Zeal;
 
-namespace {
-#ifndef Q_OS_OSX
-const char *defaultHotKey = "Meta+Z";
-#else
-const char *defaultHotKey = "Alt+Space";
-#endif
-}
-
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(Core::Settings *settings, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(new QSettings(this)),
+    m_settings(settings),
     m_zealListModel(new ListModel(this)),
     m_settingsDialog(new SettingsDialog(m_settings, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(this))
@@ -55,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
-    if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool())
+    if (m_settings->showSystrayIcon)
         createTrayIcon();
 
     // initialise key grabber
@@ -75,20 +67,17 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
-    setHotKey(m_settings->value(QStringLiteral("hotkey"), defaultHotKey).value<QKeySequence>());
-
-    // initialise docsets
-    DocsetsRegistry::instance()->initialiseDocsets();
+    DocsetsRegistry::instance()->initialiseDocsets(m_settings->docsetPath);
 
     // initialise ui
     ui->setupUi(this);
 
     setupShortcuts();
 
-    restoreGeometry(m_settings->value("geometry").toByteArray());
-    ui->splitter->restoreState(m_settings->value("splitter").toByteArray());
+    restoreGeometry(m_settings->windowGeometry);
+    ui->splitter->restoreState(m_settings->splitterGeometry);
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
-        m_settings->setValue("splitter", ui->splitter->saveState());
+        m_settings->splitterGeometry = ui->splitter->saveState();
     });
 
     applyWebPageStyle();
@@ -111,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     addAction(ui->action_Quit);
     connect(ui->action_Quit, &QAction::triggered, [=]() {
-        m_settings->setValue("geometry", saveGeometry());
+        m_settings->windowGeometry = saveGeometry();
     });
     connect(ui->action_Quit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
@@ -124,11 +113,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
-        m_settingsDialog->setHotKey(m_globalShortcut->shortcut());
 
         if (m_settingsDialog->exec()) {
-            setHotKey(m_settingsDialog->hotKey());
-            if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool()) {
+            m_settings->save();
+            m_globalShortcut->setShortcut(m_settings->searchShortcut);
+
+            if (m_settings->showSystrayIcon) {
                 createTrayIcon();
             } else if (m_trayIcon) {
                 QMenu *trayIconMenu = m_trayIcon->contextMenu();
@@ -139,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
         } else {
             // cancelled - restore previous value
             ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
-                                                 m_settings->value("minFontSize").toInt());
+                                                 m_settings->minimumFontSize);
         }
 
         ui->treeView->reset();
@@ -369,7 +359,7 @@ void MainWindow::createTab()
     newTab->page = new QWebPage(ui->webView);
 #ifndef USE_WEBENGINE
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
+    //newTab->page->setNetworkAccessManager(m_zealNetworkManager);
 #endif
 
     ui->treeView->setModel(NULL);
@@ -646,16 +636,10 @@ void MainWindow::bringToFrontAndSearch(const QString &query)
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
-bool MainWindow::startHidden() const
-{
-    return m_settings->value(QStringLiteral("StartMinimized"), false).toBool();
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    m_settings->setValue("geometry", saveGeometry());
-    if (m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool()
-            && m_settings->value(QStringLiteral("HideToSystrayOnClose"), false).toBool()) {
+    m_settings->windowGeometry = saveGeometry();
+    if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
         event->ignore();
         hide();
     }
@@ -688,12 +672,6 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
-void MainWindow::setHotKey(const QKeySequence &hotKey)
-{
-    m_globalShortcut->setShortcut(hotKey);
-    m_settings->setValue("hotkey", hotKey);
-}
-
 void MainWindow::refreshRequest()
 {
     ui->treeView->reset();
@@ -706,8 +684,6 @@ void MainWindow::changeMinFontSize(int minFont)
 
 void MainWindow::applyWebPageStyle()
 {
-    if (m_settings->contains("minFontSize")) {
-        int minFont = m_settings->value("minFontSize").toInt();
-        QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
-    }
+    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize,
+                                                m_settings->minimumFontSize);
 }

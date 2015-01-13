@@ -2,6 +2,7 @@
 
 #include "progressitemdelegate.h"
 #include "ui_settingsdialog.h"
+#include "core/settings.h"
 #include "registry/docsetsregistry.h"
 
 #include <QClipboard>
@@ -14,7 +15,6 @@
 #include <QNetworkRequest>
 #include <QMessageBox>
 #include <QProcess>
-#include <QSettings>
 #include <QTemporaryFile>
 #include <QUrl>
 #include <QWebElementCollection>
@@ -26,7 +26,7 @@
 
 using namespace Zeal;
 
-SettingsDialog::SettingsDialog(QSettings *settings, ListModel *listModel, QWidget *parent) :
+SettingsDialog::SettingsDialog(Core::Settings *settings, ListModel *listModel, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
     m_zealListModel(listModel),
@@ -56,62 +56,43 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::setHotKey(const QKeySequence &keySequence)
-{
-    ui->toolButton->setKeySequence(keySequence);
-}
-
-QKeySequence SettingsDialog::hotKey()
-{
-    return ui->toolButton->keySequence();
-}
-
 void SettingsDialog::loadSettings()
 {
     // General Tab
-    ui->startMinimizedCheckBox->setChecked(m_settings->value(QStringLiteral("StartMinimized"), false).toBool());
-    ui->restoreLastStateCheckBox->setChecked(m_settings->value(QStringLiteral("RestoreLastState"), true).toBool());
+    ui->startMinimizedCheckBox->setChecked(m_settings->startMinimized);
 
-    ui->systrayGroupBox->setChecked(m_settings->value(QStringLiteral("ShowSystrayIcon"), false).toBool());
-    ui->minimizeToSystrayCheckBox->setChecked(m_settings->value(QStringLiteral("MinimizeToSystray"), false).toBool());
-    ui->hideToSystrayCheckBox->setChecked(m_settings->value(QStringLiteral("HideToSystrayOnClose"), false).toBool());
+    ui->systrayGroupBox->setChecked(m_settings->showSystrayIcon);
+    ui->minimizeToSystrayCheckBox->setChecked(m_settings->minimizeToSystray);
+    ui->hideToSystrayCheckBox->setChecked(m_settings->hideOnClose);
 
-    ui->globalHotKeyGroupBox->setChecked(m_settings->value(QStringLiteral("UseGlobalHotKey"), true).toBool());
+    ui->toolButton->setKeySequence(m_settings->searchShortcut);
 
     //
-    ui->minFontSize->setValue(m_settings->value("minFontSize").toInt());
-    ui->storageEdit->setText(DocsetsRegistry::instance()->docsetsDir());
+    ui->minFontSize->setValue(m_settings->minimumFontSize);
+    ui->storageEdit->setText(m_settings->docsetPath);
 
     // Network Tab
     ui->m_noProxySettings->setChecked(false);
     ui->m_systemProxySettings->setChecked(false);
     ui->m_manualProxySettings->setChecked(false);
 
-    SettingsDialog::ProxyType proxyType
-            = static_cast<SettingsDialog::ProxyType>(
-                m_settings->value("proxyType", SettingsDialog::NoProxy).toUInt());
-
-    QString httpProxyName = m_settings->value("httpProxy").toString();
-    quint16 httpProxyPort = m_settings->value("httpProxyPort", 0).toInt();
-    QString httpProxyUser = m_settings->value("httpProxyUser").toString();
-    QString httpProxyPass = m_settings->value("httpProxyPass").toString();
-
-    switch (proxyType) {
-    case NoProxy:
+    switch (m_settings->proxyType) {
+    case Core::Settings::ProxyType::None:
         ui->m_noProxySettings->setChecked(true);
         QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
         break;
-    case SystemProxy:
+    case Core::Settings::ProxyType::System:
         ui->m_systemProxySettings->setChecked(true);
         QNetworkProxyFactory::setUseSystemConfiguration(true);
         break;
-    case UserDefinedProxy:
+    case Core::Settings::ProxyType::UserDefined:
         ui->m_manualProxySettings->setChecked(true);
-        ui->m_httpProxy->setText(httpProxyName);
-        ui->m_httpProxyPort->setValue(httpProxyPort);
-        ui->m_httpProxyUser->setText(httpProxyUser);
-        ui->m_httpProxyPass->setText(httpProxyPass);
-        ui->m_httpProxyNeedsAuth->setChecked(!httpProxyUser.isEmpty() | !httpProxyPass.isEmpty());
+        ui->m_httpProxy->setText(m_settings->proxyHost);
+        ui->m_httpProxyPort->setValue(m_settings->proxyPort);
+        ui->m_httpProxyUser->setText(m_settings->proxyUserName);
+        ui->m_httpProxyPass->setText(m_settings->proxyPassword);
+        ui->m_httpProxyNeedsAuth->setChecked(!m_settings->proxyUserName.isEmpty()
+                                             || !m_settings->proxyPassword.isEmpty());
         QNetworkProxy::setApplicationProxy(httpProxy());
         break;
     }
@@ -384,10 +365,10 @@ void SettingsDialog::extractDocset()
                 }
             }
         } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
-            auto dataDir = QDir(DocsetsRegistry::instance()->docsetsDir());
+            auto dataDir = QDir(m_settings->docsetPath);
             if (!dataDir.exists()) {
                 QMessageBox::critical(this, "No docsets directory found",
-                                      QString("'%1' directory not found").arg(DocsetsRegistry::instance()->docsetsDir()));
+                                      QString("'%1' directory not found").arg(m_settings->docsetPath));
                 endTasks();
             } else {
                 const QString program = tarPath();
@@ -545,7 +526,7 @@ void SettingsDialog::on_deleteButton_clicked()
                                         .arg(docsetDisplayName));
 
     if (answer == QMessageBox::Yes) {
-        auto dataDir = QDir(DocsetsRegistry::instance()->docsetsDir());
+        auto dataDir = QDir(m_settings->docsetPath);
         auto docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
         m_zealListModel->removeRow(ui->listView->currentIndex().row());
         if (dataDir.exists()) {
@@ -636,40 +617,35 @@ void SettingsDialog::stopDownloads()
 void SettingsDialog::saveSettings()
 {
     // General Tab
-    m_settings->setValue(QStringLiteral("StartMinimized"), ui->startMinimizedCheckBox->isChecked());
-    m_settings->setValue(QStringLiteral("RestoreLastState"), ui->restoreLastStateCheckBox->isChecked());
+    m_settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
 
-    m_settings->setValue(QStringLiteral("ShowSystrayIcon"), ui->systrayGroupBox->isChecked());
-    m_settings->setValue(QStringLiteral("MinimizeToSystray"), ui->minimizeToSystrayCheckBox->isChecked());
-    m_settings->setValue(QStringLiteral("HideToSystrayOnClose"), ui->hideToSystrayCheckBox->isChecked());
-
-    m_settings->setValue(QStringLiteral("UseGlobalHotKey"), ui->globalHotKeyGroupBox->isChecked());
+    m_settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
+    m_settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
+    m_settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
 
     //
-    m_settings->setValue("minFontSize", ui->minFontSize->text());
+    m_settings->minimumFontSize = ui->minFontSize->text().toInt();
 
-    if (ui->storageEdit->text() != DocsetsRegistry::instance()->docsetsDir()) {
-        // set new docsets dir
-        m_settings->setValue("docsetsDir", ui->storageEdit->text());
-        // reload docsets:
-        DocsetsRegistry::instance()->initialiseDocsets();
+    if (ui->storageEdit->text() != m_settings->docsetPath) {
+        m_settings->docsetPath = ui->storageEdit->text();
+        DocsetsRegistry::instance()->initialiseDocsets(m_settings->docsetPath);
         emit refreshRequested();
     }
 
     // Network Tab
     // Proxy settings
-    SettingsDialog::ProxyType currentProxy;
     if (ui->m_noProxySettings->isChecked())
-        currentProxy = SettingsDialog::NoProxy;
+        m_settings->proxyType = Core::Settings::ProxyType::None;
     else if (ui->m_systemProxySettings->isChecked())
-        currentProxy = SettingsDialog::SystemProxy;
+        m_settings->proxyType = Core::Settings::ProxyType::System;
     else if (ui->m_manualProxySettings->isChecked())
-        currentProxy = SettingsDialog::UserDefinedProxy;
-    m_settings->setValue("proxyType", static_cast<int>(currentProxy));
-    m_settings->setValue("httpProxy", ui->m_httpProxy->text());
-    m_settings->setValue("httpProxyPort", ui->m_httpProxyPort->value());
-    m_settings->setValue("httpProxyUser", ui->m_httpProxyUser->text());
-    m_settings->setValue("httpProxyPass", ui->m_httpProxyPass->text());
+        m_settings->proxyType = Core::Settings::ProxyType::UserDefined;
+
+    m_settings->proxyHost = ui->m_httpProxy->text();
+    m_settings->proxyPort = ui->m_httpProxyPort->text().toUInt();
+    m_settings->proxyAuthenticate = ui->m_httpProxyNeedsAuth->isChecked();
+    m_settings->proxyUserName = ui->m_httpProxyUser->text();
+    m_settings->proxyPassword = ui->m_httpProxyPass->text();
 
     emit webPageStyleUpdated();
 }
@@ -737,40 +713,30 @@ void SettingsDialog::on_addFeedButton_clicked()
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 }
 
-SettingsDialog::ProxyType SettingsDialog::proxyType() const
-{
-    return static_cast<SettingsDialog::ProxyType>(
-                m_settings->value("proxyType", SettingsDialog::NoProxy).toUInt());
-}
-
 QNetworkProxy SettingsDialog::httpProxy() const
 {
     QNetworkProxy proxy;
 
-    switch (proxyType()) {
-    case SettingsDialog::NoProxy:
+    switch (m_settings->proxyType) {
+    case Core::Settings::ProxyType::None:
         proxy = QNetworkProxy::NoProxy;
         break;
 
-    case SettingsDialog::SystemProxy: {
+    case Core::Settings::ProxyType::System: {
         QNetworkProxyQuery npq(QUrl("http://www.google.com"));
         QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
         if (listOfProxies.size())
             proxy = listOfProxies[0];
-    }
         break;
+    }
 
-    case SettingsDialog::UserDefinedProxy:
+    case Core::Settings::ProxyType::UserDefined:
         proxy = QNetworkProxy(QNetworkProxy::HttpProxy,
                               ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
         if (ui->m_httpProxyNeedsAuth->isChecked()) {
             proxy.setUser(ui->m_httpProxyUser->text());
             proxy.setPassword(ui->m_httpProxyPass->text());
         }
-        break;
-
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO, "Unknown proxy type given!");
         break;
     }
 

@@ -24,7 +24,6 @@
 
 class QxtGlobalShortcut;
 
-class QSettings;
 class QSystemTrayIcon;
 class QTabBar;
 
@@ -33,9 +32,15 @@ class MainWindow;
 }
 
 namespace Zeal {
+
+namespace Core {
+class Settings;
+}
+
 class ListModel;
 class NetworkAccessManager;
 class SettingsDialog;
+
 }
 
 // Represents per tab search state.
@@ -65,12 +70,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(Zeal::Core::Settings *settings, QWidget *parent = 0);
     ~MainWindow();
 
     void bringToFrontAndSearch(const QString &query);
     void createTab();
-    bool startHidden() const;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -102,7 +106,6 @@ private:
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
     void createTrayIcon();
-    void setHotKey(const QKeySequence &hotKey);
 
     QList<SearchState *> m_tabs;
 
@@ -110,7 +113,7 @@ private:
     Zeal::NetworkAccessManager *m_zealNetworkManager = nullptr;
 
     Ui::MainWindow *ui = nullptr;
-    QSettings *m_settings = nullptr;
+    Zeal::Core::Settings *m_settings = nullptr;
     Zeal::ListModel *m_zealListModel = nullptr;
     Zeal::SettingsDialog *m_settingsDialog = nullptr;
 

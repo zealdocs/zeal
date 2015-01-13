@@ -12,7 +12,6 @@
 class QAbstractButton;
 class QNetworkAccessManager;
 class QNetworkReply;
-class QSettings;
 
 namespace Ui {
 class SettingsDialog;
@@ -20,22 +19,16 @@ class SettingsDialog;
 
 namespace Zeal {
 
+namespace Core {
+class Settings;
+}
+
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
-    Q_ENUMS(ProxyType)
 public:
-    enum ProxyType {
-        NoProxy,
-        SystemProxy,
-        UserDefinedProxy
-    };
-
-    explicit SettingsDialog(QSettings *settings, ListModel *listModel, QWidget *parent = 0);
+    explicit SettingsDialog(Core::Settings *settings, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
-
-    void setHotKey(const QKeySequence &keySequence);
-    QKeySequence hotKey();
 
     QNetworkProxy httpProxy() const;
 
@@ -88,7 +81,7 @@ private:
     Ui::SettingsDialog *ui = nullptr;
 
     ListModel *m_zealListModel = nullptr;
-    QSettings *m_settings = nullptr;
+    Core::Settings *m_settings = nullptr;
     QNetworkAccessManager *m_networkManager = nullptr;
     bool downloadedDocsetsList;
     QMap<QString, DocsetMetadata> availMetadata;
@@ -97,13 +90,8 @@ private:
     qint32 totalDownload;
     qint32 currentDownload;
     qint32 tasksRunning;
-
-    SettingsDialog::ProxyType proxyType() const;
-    void setProxyType(SettingsDialog::ProxyType type);
 };
 
 } // namespace Zeal
-
-Q_DECLARE_METATYPE(Zeal::SettingsDialog::ProxyType)
 
 #endif // SETTINGSDIALOG_H

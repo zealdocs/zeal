@@ -1,5 +1,6 @@
 #include "application.h"
 
+#include "settings.h"
 #include "ui/mainwindow.h"
 
 #include <QLocalServer>
@@ -15,7 +16,8 @@ const char *LocalServerName = "ZealLocalServer";
 Application::Application(const QString &query, QObject *parent) :
     QObject(parent),
     m_localServer(new QLocalServer(this)),
-    m_mainWindow(new MainWindow())
+    m_settings(new Settings(this)),
+    m_mainWindow(new MainWindow(m_settings))
 {
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
@@ -31,7 +33,7 @@ Application::Application(const QString &query, QObject *parent) :
 
     if (!query.isEmpty())
         m_mainWindow->bringToFrontAndSearch(query);
-    else if (!m_mainWindow->startHidden())
+    else if (!m_settings->startMinimized)
         m_mainWindow->show();
 }
 

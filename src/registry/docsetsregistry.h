@@ -55,8 +55,7 @@ public:
     const QList<SearchResult> &queryResults();
     QList<DocsetEntry> docsets();
 
-    QString docsetsDir() const;
-    void initialiseDocsets();
+    void initialiseDocsets(const QString &path);
 
 public slots:
     void addDocset(const QString &path);
