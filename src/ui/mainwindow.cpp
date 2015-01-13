@@ -82,7 +82,6 @@ MainWindow::MainWindow(Core::Settings *settings, QWidget *parent) :
 
     applyWebPageStyle();
     m_zealNetworkManager = new NetworkAccessManager();
-    m_zealNetworkManager->setProxy(m_settingsDialog->httpProxy());
 #ifdef USE_WEBENGINE
     // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else

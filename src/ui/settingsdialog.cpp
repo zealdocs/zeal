@@ -579,7 +579,6 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 {
     QString USER_AGENT = QStringLiteral("Zeal " ZEAL_VERSION);
     startTasks(1);
-    m_networkManager->setProxy(httpProxy());
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::UserAgentHeader, USER_AGENT);
 
