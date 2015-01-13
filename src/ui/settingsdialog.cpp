@@ -137,7 +137,7 @@ void SettingsDialog::displayProgress()
 void SettingsDialog::startTasks(qint8 tasks)
 {
     tasksRunning += tasks;
-    if (tasksRunning == 0)
+    if (!tasksRunning)
         resetProgress();
 
     displayProgress();
@@ -147,14 +147,15 @@ void SettingsDialog::endTasks(qint8 tasks)
 {
     startTasks(-tasks);
 
-    if (tasksRunning <= 0) {
-        // Remove completed items
-        for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
-            QListWidgetItem *tmp = ui->docsetsList->item(i);
-            if (tmp->data(ZealDocsetDoneInstalling).toBool()) {
-                tmp->setCheckState(Qt::Unchecked);
-                tmp->setHidden(true);
-            }
+    if (tasksRunning > 0)
+        return;
+
+    // Remove completed items
+    for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
+        QListWidgetItem *item = ui->docsetsList->item(i);
+        if (item->data(ZealDocsetDoneInstalling).toBool()) {
+            item->setCheckState(Qt::Unchecked);
+            item->setHidden(true);
         }
     }
 }
@@ -520,38 +521,38 @@ void SettingsDialog::on_storageButton_clicked()
 void SettingsDialog::on_deleteButton_clicked()
 {
     const QString docsetDisplayName = ui->listView->currentIndex().data().toString();
-    auto answer = QMessageBox::question(this, "Are you sure",
-                                        QString("Are you sure you want to permanently delete the '%1' docest? "
-                                                "Clicking 'Cancel' in this dialog box will not revert the deletion.")
-                                        .arg(docsetDisplayName));
+    const int answer
+            = QMessageBox::question(this, tr("Remove Docset"),
+                                    QString("Do you want to permanently delete the '%1' docset? ")
+                                    .arg(docsetDisplayName));
+    if (answer == QMessageBox::No)
+        return;
 
-    if (answer == QMessageBox::Yes) {
-        auto dataDir = QDir(m_settings->docsetPath);
-        auto docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
-        m_zealListModel->removeRow(ui->listView->currentIndex().row());
-        if (dataDir.exists()) {
-            ui->docsetsProgress->show();
-            ui->deleteButton->hide();
-            startTasks();
-            auto future = QtConcurrent::run([=] {
-                QDir docsetDir(dataDir);
-                bool isDeleted = false;
+    QDir dataDir(m_settings->docsetPath);
+    const QString docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
+    m_zealListModel->removeRow(ui->listView->currentIndex().row());
+    if (dataDir.exists()) {
+        ui->docsetsProgress->show();
+        ui->deleteButton->hide();
+        startTasks();
+        auto future = QtConcurrent::run([=] {
+            QDir docsetDir(dataDir);
+            bool isDeleted = false;
 
-                if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset"))
-                    isDeleted = docsetDir.removeRecursively();
-                if (!isDeleted) {
-                    QMessageBox::information(nullptr, QString(),
-                                             QString("Delete docset %1 failed!").arg(docsetDisplayName));
-                }
-            });
-            QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-            watcher->setFuture(future);
-            connect(watcher, &QFutureWatcher<void>::finished, [=] {
-                endTasks();
-                ui->deleteButton->show();
-                watcher->deleteLater();
-            });
-        }
+            if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset"))
+                isDeleted = docsetDir.removeRecursively();
+            if (!isDeleted) {
+                QMessageBox::information(nullptr, QString(),
+                                         QString("Delete docset %1 failed!").arg(docsetDisplayName));
+            }
+        });
+        QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
+        watcher->setFuture(future);
+        connect(watcher, &QFutureWatcher<void>::finished, [=] {
+            endTasks();
+            ui->deleteButton->show();
+            watcher->deleteLater();
+        });
     }
 }
 
@@ -598,9 +599,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 
 QNetworkReply *SettingsDialog::startDownload(const DocsetMetadata &meta, qint8 retries)
 {
-    QString url = meta.feedUrl();
-    if (url.isEmpty())
-        url = meta.primaryUrl();
+    const QUrl url = meta.feedUrl().isEmpty() ? meta.primaryUrl() : meta.feedUrl();
 
     QNetworkReply *reply = startDownload(url, retries);
     reply->setProperty("metadata", QVariant::fromValue(meta));
