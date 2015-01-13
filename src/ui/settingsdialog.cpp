@@ -551,6 +551,11 @@ void SettingsDialog::on_deleteButton_clicked()
         connect(watcher, &QFutureWatcher<void>::finished, [=] {
             endTasks();
             ui->deleteButton->show();
+
+            QList<QListWidgetItem *> items = ui->docsetsList->findItems(docsetDisplayName, Qt::MatchExactly);
+            if (!items.isEmpty())
+                items[0]->setHidden(false);
+
             watcher->deleteLater();
         });
     }
