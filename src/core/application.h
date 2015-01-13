@@ -21,10 +21,6 @@ public:
 
     static QString localServerName();
 
-signals:
-
-public slots:
-
 private:
     QLocalServer *m_localServer = nullptr;
     Settings *m_settings = nullptr;
