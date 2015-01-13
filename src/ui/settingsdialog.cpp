@@ -623,6 +623,8 @@ void SettingsDialog::saveSettings()
     m_settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
     m_settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
 
+    m_settings->searchShortcut = ui->toolButton->keySequence();
+
     //
     m_settings->minimumFontSize = ui->minFontSize->text().toInt();
 
