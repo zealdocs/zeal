@@ -116,7 +116,7 @@ MainWindow::MainWindow(Core::Settings *settings, QWidget *parent) :
 
         if (m_settingsDialog->exec()) {
             m_settings->save();
-            m_globalShortcut->setShortcut(m_settings->searchShortcut);
+            m_globalShortcut->setShortcut(m_settings->showShortcut);
 
             if (m_settings->showSystrayIcon) {
                 createTrayIcon();

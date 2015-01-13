@@ -32,9 +32,9 @@ void Settings::load()
 
     m_settings->beginGroup(QStringLiteral("global_shortcuts"));
 #ifndef Q_OS_OSX
-    searchShortcut = m_settings->value(QStringLiteral("search"), QStringLiteral("Meta+Z")).value<QKeySequence>();
+    showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Meta+Z")).value<QKeySequence>();
 #else
-    searchShortcut = m_settings->value(QStringLiteral("search"), QStringLiteral("Alt+Space")).value<QKeySequence>();
+    showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 #endif
     m_settings->endGroup();
 
@@ -77,7 +77,7 @@ void Settings::save()
     m_settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
 
     m_settings->beginGroup(QStringLiteral("global_shortcuts"));
-    m_settings->setValue(QStringLiteral("search"), searchShortcut);
+    m_settings->setValue(QStringLiteral("show"), showShortcut);
     m_settings->endGroup();
 
 

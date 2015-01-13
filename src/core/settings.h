@@ -26,7 +26,7 @@ public:
     bool hideOnClose;
 
     // Global Shortcuts
-    QKeySequence searchShortcut;
+    QKeySequence showShortcut;
     /// TODO: QKeySequence searchSelectedTextShortcut;
 
     // Browser
