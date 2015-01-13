@@ -79,10 +79,7 @@
        <item>
         <widget class="QGroupBox" name="globalHotKeyGroupBox">
          <property name="title">
-          <string>Use global hot key</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
+          <string>Global shortcuts</string>
          </property>
          <layout class="QFormLayout" name="formLayout_2">
           <property name="fieldGrowthPolicy">
@@ -91,14 +88,17 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>Hot Key</string>
+             <string>Show Zeal:</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="RazorShortcutButton" name="toolButton">
-            <property name="text">
-             <string>...</string>
+           <widget class="ShortcutEdit" name="toolButton">
+            <property name="placeholderText">
+             <string>Click to set shortcut</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -507,9 +507,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>RazorShortcutButton</class>
-   <extends>QToolButton</extends>
-   <header>ui/widgets/razorshortcutbutton.h</header>
+   <class>ShortcutEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ui/widgets/shortcutedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
