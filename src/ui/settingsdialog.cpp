@@ -578,10 +578,10 @@ void SettingsDialog::resetProgress()
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 {
-    QString USER_AGENT = QStringLiteral("Zeal " ZEAL_VERSION);
     startTasks(1);
+
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, USER_AGENT);
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/" ZEAL_VERSION));
 
     QNetworkReply *reply = m_networkManager->get(request);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
