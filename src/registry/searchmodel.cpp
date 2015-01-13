@@ -9,13 +9,6 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
-Qt::ItemFlags SearchModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-    return QAbstractItemModel::flags(index);
-}
-
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
@@ -38,14 +31,6 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     } else if (index.column() == 1) {
         return QVariant(DocsetsRegistry::instance()->dir(item->docsetName()).absoluteFilePath(item->path()));
     }
-    return QVariant();
-}
-
-QVariant SearchModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    Q_UNUSED(section)
-    Q_UNUSED(orientation)
-    Q_UNUSED(role)
     return QVariant();
 }
 
