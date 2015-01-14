@@ -371,7 +371,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="docsetsTab">
       <attribute name="title">
        <string>Docsets</string>
       </attribute>

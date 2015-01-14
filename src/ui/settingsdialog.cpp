@@ -661,6 +661,9 @@ void SettingsDialog::saveSettings()
 
 void SettingsDialog::on_tabWidget_currentChanged(int current)
 {
+    if (ui->tabWidget->widget(current) != ui->docsetsTab)
+        return;
+
     // Ensure the list is completely up to date
     QModelIndex index = ui->listView->currentIndex();
     ui->listView->reset();
@@ -668,7 +671,7 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
     if (index.isValid())
         ui->listView->setCurrentIndex(index);
 
-    if (ui->docsetsList->count() == 0 && current == 2)
+    if (!ui->docsetsList->count())
         downloadDocsetLists();
 }
 
