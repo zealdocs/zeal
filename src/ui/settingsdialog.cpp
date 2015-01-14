@@ -79,21 +79,17 @@ void SettingsDialog::loadSettings()
     switch (m_settings->proxyType) {
     case Core::Settings::ProxyType::None:
         ui->m_noProxySettings->setChecked(true);
-        QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
         break;
     case Core::Settings::ProxyType::System:
         ui->m_systemProxySettings->setChecked(true);
-        QNetworkProxyFactory::setUseSystemConfiguration(true);
         break;
     case Core::Settings::ProxyType::UserDefined:
         ui->m_manualProxySettings->setChecked(true);
         ui->m_httpProxy->setText(m_settings->proxyHost);
         ui->m_httpProxyPort->setValue(m_settings->proxyPort);
+        ui->m_httpProxyNeedsAuth->setChecked(m_settings->proxyAuthenticate);
         ui->m_httpProxyUser->setText(m_settings->proxyUserName);
         ui->m_httpProxyPass->setText(m_settings->proxyPassword);
-        ui->m_httpProxyNeedsAuth->setChecked(!m_settings->proxyUserName.isEmpty()
-                                             || !m_settings->proxyPassword.isEmpty());
-        QNetworkProxy::setApplicationProxy(httpProxy());
         break;
     }
 }
@@ -725,34 +721,4 @@ void SettingsDialog::on_addFeedButton_clicked()
 
     QNetworkReply *reply = startDownload(feedUrl);
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
-}
-
-QNetworkProxy SettingsDialog::httpProxy() const
-{
-    QNetworkProxy proxy;
-
-    switch (m_settings->proxyType) {
-    case Core::Settings::ProxyType::None:
-        proxy = QNetworkProxy::NoProxy;
-        break;
-
-    case Core::Settings::ProxyType::System: {
-        QNetworkProxyQuery npq(QUrl("http://www.google.com"));
-        QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
-        if (listOfProxies.size())
-            proxy = listOfProxies[0];
-        break;
-    }
-
-    case Core::Settings::ProxyType::UserDefined:
-        proxy = QNetworkProxy(QNetworkProxy::HttpProxy,
-                              ui->m_httpProxy->text(), ui->m_httpProxyPort->text().toShort());
-        if (ui->m_httpProxyNeedsAuth->isChecked()) {
-            proxy.setUser(ui->m_httpProxyUser->text());
-            proxy.setPassword(ui->m_httpProxyPass->text());
-        }
-        break;
-    }
-
-    return proxy;
 }

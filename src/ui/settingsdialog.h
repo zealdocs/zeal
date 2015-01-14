@@ -6,7 +6,6 @@
 
 #include <QDialog>
 #include <QHash>
-#include <QNetworkProxy>
 #include <QUrl>
 
 class QAbstractButton;
@@ -29,8 +28,6 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(Core::Settings *settings, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
-
-    QNetworkProxy httpProxy() const;
 
 signals:
     void refreshRequested();

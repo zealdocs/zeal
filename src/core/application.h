@@ -21,6 +21,9 @@ public:
 
     static QString localServerName();
 
+private slots:
+    void applySettings();
+
 private:
     QLocalServer *m_localServer = nullptr;
     Settings *m_settings = nullptr;

@@ -5,6 +5,7 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QNetworkProxy>
 
 using namespace Zeal;
 using namespace Zeal::Core;
@@ -31,6 +32,9 @@ Application::Application(const QString &query, QObject *parent) :
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
     m_localServer->listen(LocalServerName);
 
+    connect(m_settings, &Settings::updated, this, &Application::applySettings);
+    applySettings();
+
     if (!query.isEmpty())
         m_mainWindow->bringToFrontAndSearch(query);
     else if (!m_settings->startMinimized)
@@ -45,5 +49,29 @@ Application::~Application()
 QString Application::localServerName()
 {
     return LocalServerName;
+}
+
+void Application::applySettings()
+{
+    // HTTP Proxy Settings
+    switch (m_settings->proxyType) {
+    case Core::Settings::ProxyType::None:
+        QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
+        break;
+
+    case Core::Settings::ProxyType::System:
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+        break;
+
+    case Core::Settings::ProxyType::UserDefined: {
+        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_settings->proxyHost, m_settings->proxyPort);
+        if (m_settings->proxyAuthenticate) {
+            proxy.setUser(m_settings->proxyUserName);
+            proxy.setPassword(m_settings->proxyPassword);
+        }
+        QNetworkProxy::setApplicationProxy(proxy);
+        break;
+    }
+    }
 }
 
