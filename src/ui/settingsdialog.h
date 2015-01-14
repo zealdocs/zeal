@@ -68,8 +68,8 @@ private:
     void loadSettings();
     void updateDocsets();
     void resetProgress();
-    QNetworkReply *startDownload(const QUrl &url, qint8 retries = 0);
-    QNetworkReply *startDownload(const DocsetMetadata &meta, qint8 retries = 0);
+    QNetworkReply *startDownload(const QUrl &url);
+    QNetworkReply *startDownload(const DocsetMetadata &meta);
     void stopDownloads();
     void saveSettings();
     const QString tarPath() const;
@@ -85,7 +85,7 @@ private:
     QNetworkAccessManager *m_networkManager = nullptr;
     bool downloadedDocsetsList;
     QMap<QString, DocsetMetadata> availMetadata;
-    QHash<QNetworkReply *, qint8> replies;
+    QList<QNetworkReply *> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload;
     qint32 currentDownload;

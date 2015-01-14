@@ -236,7 +236,7 @@ void SettingsDialog::downloadDocsetList()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-    replies.remove(reply);
+    replies.removeOne(reply);
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
@@ -307,7 +307,7 @@ const QString SettingsDialog::tarPath() const
 void SettingsDialog::extractDocset()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    replies.remove(reply);
+    replies.removeOne(reply);
 
     if (reply->error() != QNetworkReply::NoError) {
         endTasks();
@@ -327,7 +327,7 @@ void SettingsDialog::extractDocset()
             url.setHost(reply->request().url().host());
         if (url.scheme().isEmpty())
             url.setScheme(reply->request().url().scheme());
-        QNetworkReply *reply3 = startDownload(url, 1);
+        QNetworkReply *reply3 = startDownload(url);
         endTasks();
 
         reply3->setProperty("listItem", itemId);
@@ -351,7 +351,7 @@ void SettingsDialog::extractDocset()
 
                 if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
                     metadata.setFeedUrl(reply->request().url().toString());
-                    QNetworkReply *reply2 = startDownload(metadata.primaryUrl(), 1);
+                    QNetworkReply *reply2 = startDownload(metadata.primaryUrl());
 
                     if (listItem != NULL) {
                         listItem->setHidden(false);
@@ -492,7 +492,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         if (item->checkState() != Qt::Checked)
             continue;
 
-        QNetworkReply *reply = startDownload(availMetadata[item->text()], 1);
+        QNetworkReply *reply = startDownload(availMetadata[item->text()]);
         reply->setProperty("listItem", i);
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 
@@ -581,7 +581,7 @@ void SettingsDialog::resetProgress()
     displayProgress();
 }
 
-QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
+QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
 {
     startTasks(1);
 
@@ -590,7 +590,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
 
     QNetworkReply *reply = m_networkManager->get(request);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
-    replies.insert(reply, retries);
+    replies.append(reply);
 
     if (!replies.isEmpty()) {
         ui->downloadDocsetButton->setText("Stop downloads");
@@ -602,18 +602,18 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url, qint8 retries)
     return reply;
 }
 
-QNetworkReply *SettingsDialog::startDownload(const DocsetMetadata &meta, qint8 retries)
+QNetworkReply *SettingsDialog::startDownload(const DocsetMetadata &meta)
 {
     const QUrl url = meta.feedUrl().isEmpty() ? meta.primaryUrl() : meta.feedUrl();
 
-    QNetworkReply *reply = startDownload(url, retries);
+    QNetworkReply *reply = startDownload(url);
     reply->setProperty("metadata", QVariant::fromValue(meta));
     return reply;
 }
 
 void SettingsDialog::stopDownloads()
 {
-    for (QNetworkReply *reply: replies.keys()) {
+    for (QNetworkReply *reply: replies) {
         // Hide progress bar
         QListWidgetItem *listItem = ui->docsetsList->item(reply->property("listItem").toInt());
         listItem->setData(ProgressItemDelegate::ProgressVisibleRole, false);
