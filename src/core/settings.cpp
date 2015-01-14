@@ -80,7 +80,6 @@ void Settings::save()
     m_settings->setValue(QStringLiteral("show"), showShortcut);
     m_settings->endGroup();
 
-
     m_settings->beginGroup(QStringLiteral("browser"));
     m_settings->setValue("minimum_font_size", minimumFontSize);
     m_settings->endGroup();
@@ -104,5 +103,7 @@ void Settings::save()
     m_settings->endGroup();
 
     m_settings->sync();
+
+    emit updated();
 }
 

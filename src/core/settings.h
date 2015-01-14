@@ -63,6 +63,9 @@ public slots:
     void load();
     void save();
 
+signals:
+    void updated();
+
 private:
     QSettings *m_settings = nullptr;
 };

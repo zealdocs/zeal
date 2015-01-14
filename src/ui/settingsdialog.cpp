@@ -656,6 +656,8 @@ void SettingsDialog::saveSettings()
     m_settings->proxyUserName = ui->m_httpProxyUser->text();
     m_settings->proxyPassword = ui->m_httpProxyPass->text();
 
+    m_settings->save();
+
     emit webPageStyleUpdated();
 }
 
