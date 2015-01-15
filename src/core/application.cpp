@@ -19,8 +19,8 @@ Application *Application::m_instance = nullptr;
 
 Application::Application(const QString &query, QObject *parent) :
     QObject(parent),
-    m_localServer(new QLocalServer(this)),
     m_settings(new Settings(this)),
+    m_localServer(new QLocalServer(this)),
     m_networkManager(new QNetworkAccessManager(this)),
     m_mainWindow(new MainWindow(this))
 {

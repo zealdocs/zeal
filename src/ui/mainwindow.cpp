@@ -301,7 +301,7 @@ void MainWindow::openDocset(const QModelIndex &index)
 
 QString MainWindow::docsetName(const QUrl &url) const
 {
-    QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
+    const QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
     return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QString();
 }
 

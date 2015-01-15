@@ -6,7 +6,6 @@
 #include <QStandardPaths>
 #include <QWebSettings>
 
-using namespace Zeal;
 using namespace Zeal::Core;
 
 Settings::Settings(QObject *parent) :
