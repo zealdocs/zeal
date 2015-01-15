@@ -143,6 +143,11 @@ void SettingsDialog::endTasks(qint8 tasks)
         if (item->data(ZealDocsetDoneInstalling).toBool()) {
             item->setCheckState(Qt::Unchecked);
             item->setHidden(true);
+            item->setData(ProgressItemDelegate::ProgressVisibleRole, false);
+            item->setData(ZealDocsetDoneInstalling, false);
+            item->setData(ProgressItemDelegate::ProgressFormatRole, QVariant());
+            item->setData(ProgressItemDelegate::ProgressRole, QVariant());
+            item->setData(ProgressItemDelegate::ProgressMaxRole, QVariant());
         }
     }
 }
@@ -538,7 +543,7 @@ void SettingsDialog::on_deleteButton_clicked()
             endTasks();
             ui->deleteButton->show();
 
-            QList<QListWidgetItem *> items = ui->docsetsList->findItems(docsetDisplayName, Qt::MatchExactly);
+            QList<QListWidgetItem *> items = ui->docsetsList->findItems(docsetName, Qt::MatchExactly);
             if (!items.isEmpty())
                 items[0]->setHidden(false);
 
