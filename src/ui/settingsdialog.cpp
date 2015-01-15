@@ -420,6 +420,7 @@ void SettingsDialog::downloadDocsetList()
 
     QNetworkReply *reply = startDownload(QUrl(QStringLiteral("http://kapeli.com/docset_links")));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        replies.removeOne(reply);
         if (reply->error() != QNetworkReply::NoError) {
             endTasks();
 
