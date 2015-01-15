@@ -20,7 +20,7 @@ Application::Application(const QString &query, QObject *parent) :
     m_localServer(new QLocalServer(this)),
     m_settings(new Settings(this)),
     m_networkManager(new QNetworkAccessManager(this)),
-    m_mainWindow(new MainWindow(m_settings))
+    m_mainWindow(new MainWindow(this))
 {
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {

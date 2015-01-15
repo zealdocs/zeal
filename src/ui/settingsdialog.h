@@ -9,7 +9,6 @@
 #include <QUrl>
 
 class QAbstractButton;
-class QNetworkAccessManager;
 class QNetworkReply;
 
 namespace Ui {
@@ -19,14 +18,14 @@ class SettingsDialog;
 namespace Zeal {
 
 namespace Core {
-class Settings;
+class Application;
 }
 
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit SettingsDialog(Core::Settings *settings, ListModel *listModel, QWidget *parent = 0);
+    explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
 
 signals:
@@ -73,10 +72,9 @@ private:
     };
 
     Ui::SettingsDialog *ui = nullptr;
+    Core::Application *m_application = nullptr;
 
     ListModel *m_zealListModel = nullptr;
-    Core::Settings *m_settings = nullptr;
-    QNetworkAccessManager *m_networkManager = nullptr;
     bool downloadedDocsetsList = false;
     QMap<QString, DocsetMetadata> availMetadata;
     QList<QNetworkReply *> replies;

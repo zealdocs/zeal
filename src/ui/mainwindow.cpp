@@ -4,6 +4,7 @@
 #include "networkaccessmanager.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
+#include "core/application.h"
 #include "core/settings.h"
 #include "registry/docsetsregistry.h"
 #include "registry/listmodel.h"
@@ -35,12 +36,13 @@
 
 using namespace Zeal;
 
-MainWindow::MainWindow(Core::Settings *settings, QWidget *parent) :
+MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_settings(settings),
+    m_application(app),
+    m_settings(app->settings()),
     m_zealListModel(new ListModel(this)),
-    m_settingsDialog(new SettingsDialog(m_settings, m_zealListModel, this)),
+    m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(this))
 {
     m_tabBar = new QTabBar(this);

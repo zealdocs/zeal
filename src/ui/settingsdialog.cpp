@@ -2,6 +2,7 @@
 
 #include "progressitemdelegate.h"
 #include "ui_settingsdialog.h"
+#include "core/application.h"
 #include "core/settings.h"
 #include "registry/docsetsregistry.h"
 
@@ -10,7 +11,6 @@
 #include <QFileDialog>
 #include <QFutureWatcher>
 #include <QInputDialog>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMessageBox>
@@ -26,12 +26,11 @@
 
 using namespace Zeal;
 
-SettingsDialog::SettingsDialog(Core::Settings *settings, ListModel *listModel, QWidget *parent) :
+SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
-    m_zealListModel(listModel),
-    m_settings(settings),
-    m_networkManager(new QNetworkAccessManager(this))
+    m_application(app),
+    m_zealListModel(listModel)
 {
     ui->setupUi(this);
 
@@ -54,21 +53,22 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::loadSettings()
 {
+    const Core::Settings * const settings = m_application->settings();
     // General Tab
-    ui->startMinimizedCheckBox->setChecked(m_settings->startMinimized);
+    ui->startMinimizedCheckBox->setChecked(settings->startMinimized);
 
-    ui->systrayGroupBox->setChecked(m_settings->showSystrayIcon);
-    ui->minimizeToSystrayCheckBox->setChecked(m_settings->minimizeToSystray);
-    ui->hideToSystrayCheckBox->setChecked(m_settings->hideOnClose);
+    ui->systrayGroupBox->setChecked(settings->showSystrayIcon);
+    ui->minimizeToSystrayCheckBox->setChecked(settings->minimizeToSystray);
+    ui->hideToSystrayCheckBox->setChecked(settings->hideOnClose);
 
-    ui->toolButton->setKeySequence(m_settings->showShortcut);
+    ui->toolButton->setKeySequence(settings->showShortcut);
 
     //
-    ui->minFontSize->setValue(m_settings->minimumFontSize);
-    ui->storageEdit->setText(m_settings->docsetPath);
+    ui->minFontSize->setValue(settings->minimumFontSize);
+    ui->storageEdit->setText(settings->docsetPath);
 
     // Network Tab
-    switch (m_settings->proxyType) {
+    switch (settings->proxyType) {
     case Core::Settings::ProxyType::None:
         ui->m_noProxySettings->setChecked(true);
         break;
@@ -77,11 +77,11 @@ void SettingsDialog::loadSettings()
         break;
     case Core::Settings::ProxyType::UserDefined:
         ui->m_manualProxySettings->setChecked(true);
-        ui->m_httpProxy->setText(m_settings->proxyHost);
-        ui->m_httpProxyPort->setValue(m_settings->proxyPort);
-        ui->m_httpProxyNeedsAuth->setChecked(m_settings->proxyAuthenticate);
-        ui->m_httpProxyUser->setText(m_settings->proxyUserName);
-        ui->m_httpProxyPass->setText(m_settings->proxyPassword);
+        ui->m_httpProxy->setText(settings->proxyHost);
+        ui->m_httpProxyPort->setValue(settings->proxyPort);
+        ui->m_httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
+        ui->m_httpProxyUser->setText(settings->proxyUserName);
+        ui->m_httpProxyPass->setText(settings->proxyPassword);
         break;
     }
 }
@@ -351,10 +351,11 @@ void SettingsDialog::extractDocset()
                 }
             }
         } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
-            auto dataDir = QDir(m_settings->docsetPath);
+            auto dataDir = QDir(m_application->settings()->docsetPath);
             if (!dataDir.exists()) {
                 QMessageBox::critical(this, "No docsets directory found",
-                                      QString("'%1' directory not found").arg(m_settings->docsetPath));
+                                      QString("'%1' directory not found")
+                                      .arg(m_application->settings()->docsetPath));
                 endTasks();
             } else {
                 const QString program = tarPath();
@@ -513,7 +514,7 @@ void SettingsDialog::on_deleteButton_clicked()
     if (answer == QMessageBox::No)
         return;
 
-    QDir dataDir(m_settings->docsetPath);
+    QDir dataDir(m_application->settings()->docsetPath);
     const QString docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
     m_zealListModel->removeRow(ui->listView->currentIndex().row());
     if (dataDir.exists()) {
@@ -570,10 +571,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
 {
     startTasks(1);
 
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/" ZEAL_VERSION));
-
-    QNetworkReply *reply = m_networkManager->get(request);
+    QNetworkReply *reply = m_application->download(url);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     replies.append(reply);
 
@@ -608,40 +606,41 @@ void SettingsDialog::stopDownloads()
 
 void SettingsDialog::saveSettings()
 {
+    Core::Settings * const settings = m_application->settings();
     // General Tab
-    m_settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
+    settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
 
-    m_settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
-    m_settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
-    m_settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
+    settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
+    settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
+    settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
 
-    m_settings->showShortcut = ui->toolButton->keySequence();
+    settings->showShortcut = ui->toolButton->keySequence();
 
     //
-    m_settings->minimumFontSize = ui->minFontSize->text().toInt();
+    settings->minimumFontSize = ui->minFontSize->text().toInt();
 
-    if (ui->storageEdit->text() != m_settings->docsetPath) {
-        m_settings->docsetPath = ui->storageEdit->text();
-        DocsetsRegistry::instance()->initialiseDocsets(m_settings->docsetPath);
+    if (ui->storageEdit->text() != settings->docsetPath) {
+        settings->docsetPath = ui->storageEdit->text();
+        DocsetsRegistry::instance()->initialiseDocsets(settings->docsetPath);
         emit refreshRequested();
     }
 
     // Network Tab
     // Proxy settings
     if (ui->m_noProxySettings->isChecked())
-        m_settings->proxyType = Core::Settings::ProxyType::None;
+        settings->proxyType = Core::Settings::ProxyType::None;
     else if (ui->m_systemProxySettings->isChecked())
-        m_settings->proxyType = Core::Settings::ProxyType::System;
+        settings->proxyType = Core::Settings::ProxyType::System;
     else if (ui->m_manualProxySettings->isChecked())
-        m_settings->proxyType = Core::Settings::ProxyType::UserDefined;
+        settings->proxyType = Core::Settings::ProxyType::UserDefined;
 
-    m_settings->proxyHost = ui->m_httpProxy->text();
-    m_settings->proxyPort = ui->m_httpProxyPort->text().toUInt();
-    m_settings->proxyAuthenticate = ui->m_httpProxyNeedsAuth->isChecked();
-    m_settings->proxyUserName = ui->m_httpProxyUser->text();
-    m_settings->proxyPassword = ui->m_httpProxyPass->text();
+    settings->proxyHost = ui->m_httpProxy->text();
+    settings->proxyPort = ui->m_httpProxyPort->text().toUInt();
+    settings->proxyAuthenticate = ui->m_httpProxyNeedsAuth->isChecked();
+    settings->proxyUserName = ui->m_httpProxyUser->text();
+    settings->proxyPassword = ui->m_httpProxyPass->text();
 
-    m_settings->save();
+    settings->save();
 
     emit webPageStyleUpdated();
 }
