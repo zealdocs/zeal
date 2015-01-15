@@ -1,4 +1,4 @@
-# Zeal [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
+# Zeal [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](irc://irc.freenode.net/zealdocs)
 
 **zeal**
 *noun*
