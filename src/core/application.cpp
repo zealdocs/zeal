@@ -15,6 +15,8 @@ namespace {
 const char *LocalServerName = "ZealLocalServer";
 }
 
+Application *Application::m_instance = nullptr;
+
 Application::Application(const QString &query, QObject *parent) :
     QObject(parent),
     m_localServer(new QLocalServer(this)),
@@ -22,6 +24,10 @@ Application::Application(const QString &query, QObject *parent) :
     m_networkManager(new QNetworkAccessManager(this)),
     m_mainWindow(new MainWindow(this))
 {
+    // Ensure only one instance of Application
+    Q_ASSERT(!m_instance);
+    m_instance = this;
+
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
         QLocalSocket *connection = m_localServer->nextPendingConnection();

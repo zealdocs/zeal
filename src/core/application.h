@@ -34,6 +34,8 @@ private slots:
     void applySettings();
 
 private:
+    static Application *m_instance;
+
     QLocalServer *m_localServer = nullptr;
     Settings *m_settings = nullptr;
     QNetworkAccessManager *m_networkManager = nullptr;
