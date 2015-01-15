@@ -7,6 +7,9 @@ class QLocalServer;
 
 class MainWindow;
 
+class QNetworkAccessManager;
+class QNetworkReply;
+
 namespace Zeal {
 namespace Core {
 
@@ -21,12 +24,18 @@ public:
 
     static QString localServerName();
 
+    QNetworkAccessManager *networkManager() const;
+
+public slots:
+    QNetworkReply *download(const QUrl &url);
+
 private slots:
     void applySettings();
 
 private:
     QLocalServer *m_localServer = nullptr;
     Settings *m_settings = nullptr;
+    QNetworkAccessManager *m_networkManager = nullptr;
     MainWindow *m_mainWindow = nullptr;
 };
 

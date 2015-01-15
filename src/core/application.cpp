@@ -5,6 +5,7 @@
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QNetworkAccessManager>
 #include <QNetworkProxy>
 
 using namespace Zeal;
@@ -18,6 +19,7 @@ Application::Application(const QString &query, QObject *parent) :
     QObject(parent),
     m_localServer(new QLocalServer(this)),
     m_settings(new Settings(this)),
+    m_networkManager(new QNetworkAccessManager(this)),
     m_mainWindow(new MainWindow(m_settings))
 {
     // Server for detecting already running instances
@@ -49,6 +51,18 @@ Application::~Application()
 QString Application::localServerName()
 {
     return LocalServerName;
+}
+
+QNetworkAccessManager *Application::networkManager() const
+{
+    return m_networkManager;
+}
+
+QNetworkReply *Application::download(const QUrl &url)
+{
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/" ZEAL_VERSION));
+    return m_networkManager->get(request);
 }
 
 void Application::applySettings()
