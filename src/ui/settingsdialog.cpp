@@ -43,6 +43,20 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     ui->docsetsList->setItemDelegate(progressDelegate);
     ui->listView->setItemDelegate(progressDelegate);
 
+    // Setup signals & slots
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::loadSettings);
+    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
+        if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
+            saveSettings();
+    });
+
+    connect(ui->minFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, &SettingsDialog::minFontSizeChanged);
+
+    connect(ui->downloadButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
+    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
+
     loadSettings();
 }
 
@@ -382,7 +396,7 @@ void SettingsDialog::extractDocset()
                     QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
                                               Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
                     m_zealListModel->resetModulesCounts();
-                    refreshRequested();
+                    emit refreshRequested();
                     ui->listView->reset();
                     for (int i = 0; i < ui->docsetsList->count(); ++i) {
                         if (ui->docsetsList->item(i)->text()+".docset" == docsetName) {
@@ -445,11 +459,6 @@ void SettingsDialog::downloadDocsetList()
 
         reply->deleteLater();
     });
-}
-
-void SettingsDialog::on_downloadButton_clicked()
-{
-    downloadDocsetList();
 }
 
 void SettingsDialog::on_docsetsList_itemSelectionChanged()
@@ -653,32 +662,6 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
 
     if (!ui->docsetsList->count())
         downloadDocsetList();
-}
-
-void SettingsDialog::on_buttonBox_accepted()
-{
-    saveSettings();
-}
-
-void SettingsDialog::on_minFontSize_valueChanged(int arg1)
-{
-    minFontSizeChanged(arg1);
-}
-
-void SettingsDialog::on_buttonBox_rejected()
-{
-    loadSettings();
-}
-
-void SettingsDialog::on_buttonBox_clicked(QAbstractButton *button)
-{
-    if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
-        saveSettings();
-}
-
-void SettingsDialog::on_updateButton_clicked()
-{
-    updateDocsets();
 }
 
 void SettingsDialog::on_addFeedButton_clicked()

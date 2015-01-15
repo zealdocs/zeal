@@ -37,19 +37,12 @@ private slots:
     void extractDocset();
 
     void on_downloadProgress(quint64 received, quint64 total);
-    void on_downloadButton_clicked();
-    // void on_docsetsList_clicked(const QModelIndex &index);
     void on_downloadDocsetButton_clicked();
     void on_storageButton_clicked();
     void on_deleteButton_clicked();
     void on_listView_clicked(const QModelIndex &index);
     void on_tabWidget_currentChanged(int current);
-    void on_buttonBox_accepted();
-    void on_minFontSize_valueChanged(int arg1);
-    void on_buttonBox_rejected();
     void on_docsetsList_itemSelectionChanged();
-    void on_buttonBox_clicked(QAbstractButton *button);
-    void on_updateButton_clicked();
     void on_addFeedButton_clicked();
 
 private:
