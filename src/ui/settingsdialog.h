@@ -62,7 +62,6 @@ private:
     void updateDocsets();
     void resetProgress();
     QNetworkReply *startDownload(const QUrl &url);
-    QNetworkReply *startDownload(const DocsetMetadata &meta);
     void stopDownloads();
     void saveSettings();
     QString tarPath() const;
@@ -76,7 +75,7 @@ private:
 
     ListModel *m_zealListModel = nullptr;
     bool downloadedDocsetsList = false;
-    QMap<QString, DocsetMetadata> availMetadata;
+    QMap<QString, QUrl> m_feeds;
     QList<QNetworkReply *> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload = 0;

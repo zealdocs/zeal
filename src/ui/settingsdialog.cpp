@@ -200,8 +200,8 @@ void SettingsDialog::updateDocsets()
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 foreach (const QString &name, docsetNames) {
                     DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-                    if (!metadata.isValid() && availMetadata.contains(name)) {
-                        QNetworkReply *reply = startDownload(availMetadata[name]);
+                    if (!metadata.isValid() && m_feeds.contains(name)) {
+                        QNetworkReply *reply = startDownload(m_feeds[name]);
 
                         QList<QListWidgetItem *> items
                                 = ui->docsetsList->findItems(name, Qt::MatchFixedString);
@@ -251,12 +251,9 @@ void SettingsDialog::downloadDocsetList()
             if (feedUrl.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
                 feedUrl = feedUrl.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
 
-            // urls[name] = feedUrl;
-            DocsetMetadata meta;
-            meta.setFeedUrl(feedUrl);
-            availMetadata[name] = meta;
-            auto iconfile = url.fileName().replace(".tgz", ".png");
+            m_feeds.insert(name, feedUrl);
 
+            auto iconfile = url.fileName().replace(".tgz", ".png");
             auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
             lwi->setCheckState(Qt::Unchecked);
 
@@ -268,7 +265,7 @@ void SettingsDialog::downloadDocsetList()
             }
         }
     }
-    if (availMetadata.size() > 0)
+    if (!m_feeds.isEmpty())
         ui->downloadableGroup->show();
 
     endTasks();
@@ -483,7 +480,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         if (item->checkState() != Qt::Checked)
             continue;
 
-        QNetworkReply *reply = startDownload(availMetadata[item->text()]);
+        QNetworkReply *reply = startDownload(m_feeds[item->text()]);
         reply->setProperty("listItem", i);
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 
@@ -587,15 +584,6 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
         ui->addFeedButton->setEnabled(false);
     }
 
-    return reply;
-}
-
-QNetworkReply *SettingsDialog::startDownload(const DocsetMetadata &meta)
-{
-    const QUrl url = meta.feedUrl().isEmpty() ? meta.primaryUrl() : meta.feedUrl();
-
-    QNetworkReply *reply = startDownload(url);
-    reply->setProperty("metadata", QVariant::fromValue(meta));
     return reply;
 }
 
