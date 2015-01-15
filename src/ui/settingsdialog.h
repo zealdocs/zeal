@@ -34,15 +34,12 @@ signals:
     void minFontSizeChanged(int minFont);
     void webPageStyleUpdated();
 
-protected:
-    void showEvent(QShowEvent *) override;
-
 private slots:
     void downloadDocsetList();
     void extractDocset();
     void downloadDocsetLists();
 
-    void on_downloadProgress(quint64 recv, quint64 total);
+    void on_downloadProgress(quint64 received, quint64 total);
     void on_downloadButton_clicked();
     // void on_docsetsList_clicked(const QModelIndex &index);
     void on_downloadDocsetButton_clicked();
@@ -69,7 +66,7 @@ private:
     QNetworkReply *startDownload(const DocsetMetadata &meta);
     void stopDownloads();
     void saveSettings();
-    const QString tarPath() const;
+    QString tarPath() const;
 
     enum DocsetProgressRoles {
         ZealDocsetDoneInstalling = Qt::UserRole + 20,
@@ -80,13 +77,13 @@ private:
     ListModel *m_zealListModel = nullptr;
     Core::Settings *m_settings = nullptr;
     QNetworkAccessManager *m_networkManager = nullptr;
-    bool downloadedDocsetsList;
+    bool downloadedDocsetsList = false;
     QMap<QString, DocsetMetadata> availMetadata;
     QList<QNetworkReply *> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
-    qint32 totalDownload;
-    qint32 currentDownload;
-    qint32 tasksRunning;
+    qint32 totalDownload = 0;
+    qint32 currentDownload = 0;
+    qint32 tasksRunning = 0;
 };
 
 } // namespace Zeal

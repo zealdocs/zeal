@@ -44,10 +44,6 @@ SettingsDialog::SettingsDialog(Core::Settings *settings, ListModel *listModel, Q
     ui->docsetsList->setItemDelegate(progressDelegate);
     ui->listView->setItemDelegate(progressDelegate);
 
-    tasksRunning = 0;
-    totalDownload = 0;
-    currentDownload = 0;
-    downloadedDocsetsList = false;
     loadSettings();
 }
 
@@ -72,10 +68,6 @@ void SettingsDialog::loadSettings()
     ui->storageEdit->setText(m_settings->docsetPath);
 
     // Network Tab
-    ui->m_noProxySettings->setChecked(false);
-    ui->m_systemProxySettings->setChecked(false);
-    ui->m_manualProxySettings->setChecked(false);
-
     switch (m_settings->proxyType) {
     case Core::Settings::ProxyType::None:
         ui->m_noProxySettings->setChecked(true);
@@ -95,32 +87,31 @@ void SettingsDialog::loadSettings()
 }
 
 // creates a total download progress for multiple QNetworkReplies
-void SettingsDialog::on_downloadProgress(quint64 recv, quint64 total)
+void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
 {
     // Don't show progress for non-docset pages
-    if (recv < 10240)
+    if (received < 10240)
         return;
 
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     // Try to get the item associated to the request
-    QVariant itemId = reply->property("listItem");
-    QListWidgetItem *item = ui->docsetsList->item(itemId.toInt());
+    QListWidgetItem *item = ui->docsetsList->item(reply->property("listItem").toInt());
     QPair<qint32, qint32> *previousProgress = progress[reply];
     if (previousProgress == nullptr) {
         previousProgress = new QPair<qint32, qint32>(0, 0);
         progress[reply] = previousProgress;
     }
 
-    if (item != NULL) {
+    if (item) {
         item->setData(ProgressItemDelegate::ProgressMaxRole, total);
-        item->setData(ProgressItemDelegate::ProgressRole, recv);
+        item->setData(ProgressItemDelegate::ProgressRole, received);
     }
-    currentDownload += recv - previousProgress->first;
+
+    currentDownload += received - previousProgress->first;
     totalDownload += total - previousProgress->second;
-    previousProgress->first = recv;
+    previousProgress->first = received;
     previousProgress->second = total;
     displayProgress();
-
 }
 
 void SettingsDialog::displayProgress()
@@ -162,7 +153,7 @@ void SettingsDialog::updateDocsets()
     const QStringList docsetNames = DocsetsRegistry::instance()->names();
     bool missingMetadata = false;
     foreach (const QString &name, docsetNames) {
-        DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
+        const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
         if (!metadata.isValid())
             missingMetadata = true;
 
@@ -246,23 +237,20 @@ void SettingsDialog::downloadDocsetList()
     QWebView view;
     view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
     view.setContent(reply->readAll());
-    auto collection = view.page()->mainFrame()->findAllElements(".drowx");
-    for (auto drowx : collection) {
-        auto anchor = drowx.findFirst("a");
-        auto url = anchor.attribute("href");
-        auto name_list = url.split("/");
-        auto name = name_list[name_list.count()-1].replace(".tgz", QString());
+    QWebElementCollection collection = view.page()->mainFrame()->findAllElements(".drowx");
+    for (const QWebElement &drowx : collection) {
+        const QUrl url(drowx.findFirst("a").attribute("href"));
+        const QString name = url.fileName().replace(".tgz", QString());
         if (!name.isEmpty()) {
-            auto feedUrl = url;
-            if (url.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
-                feedUrl = url.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+            QString feedUrl = url.toString();
+            if (feedUrl.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
+                feedUrl = feedUrl.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
 
             // urls[name] = feedUrl;
             DocsetMetadata meta;
             meta.setFeedUrl(feedUrl);
             availMetadata[name] = meta;
-            auto url_list = url.split("/");
-            auto iconfile = url_list[url_list.count()-1].replace(".tgz", ".png");
+            auto iconfile = url.fileName().replace(".tgz", ".png");
 
             auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
             lwi->setCheckState(Qt::Unchecked);
@@ -289,7 +277,7 @@ void SettingsDialog::downloadDocsetList()
     reply->deleteLater();
 }
 
-const QString SettingsDialog::tarPath() const
+QString SettingsDialog::tarPath() const
 {
 #ifdef Q_OS_WIN32
     QDir tardir(QCoreApplication::applicationDirPath());
@@ -317,8 +305,9 @@ void SettingsDialog::extractDocset()
     // Try to get the item associated to the request
     QVariant itemId = reply->property("listItem");
     QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
+    /// TODO: Use QNetworkRequest::RedirectionTargetAttribute
     if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
-        QUrl url(reply->rawHeader("Location"));
+        QUrl url(reply->header(QNetworkRequest::LocationHeader).toUrl());
         if (url.host().isEmpty())
             url.setHost(reply->request().url().host());
         if (url.scheme().isEmpty())
@@ -349,7 +338,7 @@ void SettingsDialog::extractDocset()
                     metadata.setFeedUrl(reply->request().url().toString());
                     QNetworkReply *reply2 = startDownload(metadata.primaryUrl());
 
-                    if (listItem != NULL) {
+                    if (listItem) {
                         listItem->setHidden(false);
 
                         listItem->setData(ProgressItemDelegate::ProgressVisibleRole, true);
@@ -671,11 +660,6 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
 
     if (!ui->docsetsList->count())
         downloadDocsetLists();
-}
-
-void SettingsDialog::showEvent(QShowEvent *)
-{
-    on_tabWidget_currentChanged(0);
 }
 
 void SettingsDialog::on_buttonBox_accepted()
