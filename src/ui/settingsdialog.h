@@ -34,9 +34,7 @@ signals:
     void webPageStyleUpdated();
 
 private slots:
-    void downloadDocsetList();
     void extractDocset();
-    void downloadDocsetLists();
 
     void on_downloadProgress(quint64 received, quint64 total);
     void on_downloadButton_clicked();
@@ -55,6 +53,9 @@ private slots:
     void on_addFeedButton_clicked();
 
 private:
+    void downloadDocsetList();
+    void parseDocsetList(const QByteArray &content);
+
     void startTasks(qint8 tasks = 1);
     void endTasks(qint8 tasks = 1);
     void displayProgress();

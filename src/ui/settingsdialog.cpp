@@ -188,7 +188,7 @@ void SettingsDialog::updateDocsets()
                                          QMessageBox::Yes | QMessageBox::No);
         if (r == QMessageBox::Yes) {
             if (!downloadedDocsetsList)
-                downloadDocsetLists();
+                downloadDocsetList();
 
             // There must be a better way to do this.
             auto future = QtConcurrent::run([=] {
@@ -224,26 +224,13 @@ void SettingsDialog::updateDocsets()
     }
 }
 
-void SettingsDialog::downloadDocsetList()
+void SettingsDialog::parseDocsetList(const QByteArray &content)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-
-    replies.removeOne(reply);
-
-    if (reply->error() != QNetworkReply::NoError) {
-        endTasks();
-
-        if (reply->error() != QNetworkReply::OperationCanceledError)
-            QMessageBox::warning(this, "No docsets found",
-                                 "Failed retrieving list of docsets: " + reply->errorString());
-        return;
-    }
-
     QWebView view;
     view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
-    view.setContent(reply->readAll());
-    QWebElementCollection collection = view.page()->mainFrame()->findAllElements(".drowx");
-    for (const QWebElement &drowx : collection) {
+    view.setContent(content);
+
+    for (const QWebElement &drowx : view.page()->mainFrame()->findAllElements(".drowx")) {
         const QUrl url(drowx.findFirst("a").attribute("href"));
         const QString name = url.fileName().replace(".tgz", QString());
         if (!name.isEmpty()) {
@@ -265,18 +252,6 @@ void SettingsDialog::downloadDocsetList()
             }
         }
     }
-    if (!m_feeds.isEmpty())
-        ui->downloadableGroup->show();
-
-    endTasks();
-
-    // if all enqueued downloads have finished executing
-    if (replies.isEmpty()) {
-        downloadedDocsetsList = ui->docsetsList->count() > 0;
-        resetProgress();
-    }
-
-    reply->deleteLater();
 }
 
 QString SettingsDialog::tarPath() const
@@ -437,18 +412,43 @@ void SettingsDialog::extractDocset()
     reply->deleteLater();
 }
 
-void SettingsDialog::downloadDocsetLists()
+void SettingsDialog::downloadDocsetList()
 {
     downloadedDocsetsList = false;
     ui->downloadButton->hide();
     ui->docsetsList->clear();
-    QNetworkReply *reply = startDownload(QUrl("http://kapeli.com/docset_links"));
-    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadDocsetList);
+
+    QNetworkReply *reply = startDownload(QUrl(QStringLiteral("http://kapeli.com/docset_links")));
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            endTasks();
+
+            if (reply->error() != QNetworkReply::OperationCanceledError)
+                QMessageBox::warning(this, "No docsets found",
+                                     "Failed retrieving list of docsets: " + reply->errorString());
+            return;
+        }
+
+        parseDocsetList(reply->readAll());
+
+        if (!m_feeds.isEmpty())
+            ui->downloadableGroup->show();
+
+        endTasks();
+
+        // if all enqueued downloads have finished executing
+        if (replies.isEmpty()) {
+            downloadedDocsetsList = ui->docsetsList->count() > 0;
+            resetProgress();
+        }
+
+        reply->deleteLater();
+    });
 }
 
 void SettingsDialog::on_downloadButton_clicked()
 {
-    downloadDocsetLists();
+    downloadDocsetList();
 }
 
 void SettingsDialog::on_docsetsList_itemSelectionChanged()
@@ -651,7 +651,7 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         ui->listView->setCurrentIndex(index);
 
     if (!ui->docsetsList->count())
-        downloadDocsetLists();
+        downloadDocsetList();
 }
 
 void SettingsDialog::on_buttonBox_accepted()
