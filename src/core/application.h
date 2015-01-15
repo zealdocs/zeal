@@ -25,6 +25,7 @@ public:
     static QString localServerName();
 
     QNetworkAccessManager *networkManager() const;
+    Settings *settings() const;
 
 public slots:
     QNetworkReply *download(const QUrl &url);

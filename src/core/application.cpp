@@ -58,6 +58,11 @@ QNetworkAccessManager *Application::networkManager() const
     return m_networkManager;
 }
 
+Settings *Application::settings() const
+{
+    return m_settings;
+}
+
 QNetworkReply *Application::download(const QUrl &url)
 {
     QNetworkRequest request(url);
