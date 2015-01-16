@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     searchPaths << QStringLiteral("./icons");
     QDir::setSearchPaths(QStringLiteral("icons"), searchPaths);
 
-    QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application());
+    QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application(clParams.query));
 
     return qapp.exec();
 }
