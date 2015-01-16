@@ -52,15 +52,6 @@ If you prefer, you can start with Zeal queries from command line, for this, use 
 
 `zeal --query python:bomb`
 
-## TODO
-
- * [Issues](https://github.com/zealdocs/zeal/issues)
- * Search enhancements - some ideas:
-   * Allow selecting subset of docsets to search in (enable/disable docsets, docset groups)
-   * Grouping of similar results (like overloaded functions)
- * Code cleanup
-   * Refactoring to reuse common code between `ZealDocsetsRegistry` and `ZealListModel`
-
 ## Creating your own docsets
 
 You can use [Dash's instructions for generating docsets](http://kapeli.com/docsets).
