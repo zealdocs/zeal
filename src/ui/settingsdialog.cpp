@@ -228,7 +228,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         const QJsonObject docsetJson = v.toObject();
         DocsetInfo docsetInfo;
         docsetInfo.name = docsetJson.value(QStringLiteral("name")).toString();
-        docsetInfo.icon = docsetJson.value(QStringLiteral("name")).toString();
+        docsetInfo.icon = docsetJson.value(QStringLiteral("icon")).toString();
         docsetInfo.title = docsetJson.value(QStringLiteral("title")).toString();
         docsetInfo.version = docsetJson.value(QStringLiteral("version")).toString();
         docsetInfo.revision = docsetJson.value(QStringLiteral("revision")).toString();
