@@ -46,18 +46,8 @@ private slots:
     void on_addFeedButton_clicked();
 
 private:
-    /// TODO: Merge into DocsetMetadata
-    struct DocsetInfo {
-        QString name;
-        QString icon;
-        QString title;
-        QStringList aliases;
-        QString version;
-        QString revision;
-        QStringList oldVersions;
-    };
     /// TODO: Create a special model
-    QMap<QString, DocsetInfo> m_availableDocsets;
+    QMap<QString, DocsetMetadata> m_availableDocsets;
 
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);

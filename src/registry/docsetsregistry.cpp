@@ -151,9 +151,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     entry.dir = dir;
 
     // Read metadata
-    DocsetMetadata meta;
-    meta.read(path+"/meta.json");
-    entry.metadata = meta;
+    entry.metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
     m_docs[name] = entry;
 }
 

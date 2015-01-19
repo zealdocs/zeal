@@ -173,10 +173,10 @@ void SettingsDialog::updateDocsets()
     bool missingMetadata = false;
     foreach (const QString &name, docsetNames) {
         const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-        if (!metadata.isValid())
+        if (!metadata.source().isEmpty())
             missingMetadata = true;
 
-        const QString feedUrl = metadata.feedUrl();
+        const QUrl feedUrl = metadata.feedUrl();
         if (feedUrl.isEmpty())
             continue;
 
@@ -214,7 +214,7 @@ void SettingsDialog::updateDocsets()
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 foreach (const QString &name, docsetNames) {
                     DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-                    if (!metadata.isValid() && m_availableDocsets.contains(name))
+                    if (!metadata.source().isEmpty() && m_availableDocsets.contains(name))
                         downloadDocset(name);
                 }
             });
@@ -225,32 +225,22 @@ void SettingsDialog::updateDocsets()
 void SettingsDialog::processDocsetList(const QJsonArray &list)
 {
     for (const QJsonValue &v : list) {
-        const QJsonObject docsetJson = v.toObject();
-        DocsetInfo docsetInfo;
-        docsetInfo.name = docsetJson.value(QStringLiteral("name")).toString();
-        docsetInfo.icon = docsetJson.value(QStringLiteral("icon")).toString();
-        docsetInfo.title = docsetJson.value(QStringLiteral("title")).toString();
-        docsetInfo.version = docsetJson.value(QStringLiteral("version")).toString();
-        docsetInfo.revision = docsetJson.value(QStringLiteral("revision")).toString();
+        QJsonObject docsetJson = v.toObject();
+        docsetJson[QStringLiteral("source")] = QStringLiteral("kapeli");
 
-        for (const QJsonValue &vv : docsetJson.value(QStringLiteral("aliases")).toArray())
-            docsetInfo.aliases << vv.toString();
-
-        for (const QJsonValue &vv : docsetJson.value(QStringLiteral("oldVersions")).toArray())
-            docsetInfo.oldVersions << vv.toString();
-
-        m_availableDocsets.insert(docsetInfo.name, docsetInfo);
+        DocsetMetadata metadata(docsetJson);
+        m_availableDocsets.insert(metadata.name(), metadata);
     }
 
     /// TODO: Move into a dedicated method
-    for (const DocsetInfo &docsetInfo : m_availableDocsets) {
-        const QIcon icon(QString(QStringLiteral("icons:%1.png")).arg(docsetInfo.icon));
+    for (const DocsetMetadata &metadata : m_availableDocsets) {
+        const QIcon icon(QString(QStringLiteral("icons:%1.png")).arg(metadata.icon()));
 
-        QListWidgetItem *listItem = new QListWidgetItem(icon, docsetInfo.title, ui->docsetsList);
-        listItem->setData(ListModel::DocsetNameRole, docsetInfo.name);
+        QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->docsetsList);
+        listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
-        if (DocsetsRegistry::instance()->names().contains(docsetInfo.name))
+        if (DocsetsRegistry::instance()->names().contains(metadata.name()))
             listItem->setHidden(true);
     }
 }
@@ -334,13 +324,11 @@ void SettingsDialog::extractDocset()
         connect(reply3, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
     } else {
         if (reply->request().url().path().endsWith("xml")) {
-            endTasks();
-            QXmlStreamReader feed(reply->readAll());
-            DocsetMetadata metadata;
+            /*endTasks();
+            DocsetMetadata metadata = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
             DocsetMetadata oldMetadata;
-            metadata.read(feed);
 
-            if (!metadata.urlCount()) {
+            if (metadata.urls().isEmpty()) {
                 QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
             } else {
 
@@ -363,7 +351,7 @@ void SettingsDialog::extractDocset()
                     reply2->setProperty("metadata", QVariant::fromValue(metadata));
                     connect(reply2, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
                 }
-            }
+            }*/
         } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
             auto dataDir = QDir(m_application->settings()->docsetPath);
             if (!dataDir.exists()) {
@@ -413,7 +401,7 @@ void SettingsDialog::extractDocset()
                         QDir(dataDir).rename(outDir, docsetName);
 
                     // Write metadata about docset
-                    metadata.write(dataDir.absoluteFilePath(docsetName)+"/meta.json");
+                    metadata.toFile(dataDir.absoluteFilePath(docsetName) + QStringLiteral("/meta.json"));
 
                     // FIXME C&P (see "FIXME C&P" below)
                     QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,

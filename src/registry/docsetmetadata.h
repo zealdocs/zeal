@@ -1,9 +1,10 @@
 #ifndef DOCSETMETADATA_H
 #define DOCSETMETADATA_H
 
-#include <QJsonObject>
 #include <QStringList>
-#include <QXmlStreamReader>
+#include <QUrl>
+
+class QJsonObject;
 
 namespace Zeal {
 
@@ -13,31 +14,40 @@ class DocsetMetadata
 {
 public:
     explicit DocsetMetadata();
+    explicit DocsetMetadata(const QJsonObject &jsonObject);
 
-    void read(QXmlStreamReader &xml);
-    void read(const QString &path);
+    QString source() const;
 
-    void write(const QString &path) const;
+    void toFile(const QString &fileName) const;
+    QByteArray toJson() const;
 
-    bool isValid() const;
-
-    QStringList urls() const;
-    QString primaryUrl() const;
-
-    void addUrl(const QString &url);
-    int urlCount() const;
-
+    QString name() const;
+    QString icon() const;
+    QString title() const;
+    QStringList aliases() const;
     QString version() const;
-    void setVersion(const QString &version);
+    QString revision() const;
+    QStringList oldVersions() const;
 
-    QString feedUrl() const;
-    void setFeedUrl(const QString &url);
+    QUrl feedUrl() const;
+    QList<QUrl> urls() const;
+
+    static DocsetMetadata fromFile(const QString &fileName);
+    static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
 private:
-    bool m_valid;
+    QString m_source;
+
+    QString m_name;
+    QString m_icon;
+    QString m_title;
+    QStringList m_aliases;
     QString m_version;
-    QStringList m_urls;
-    QString m_feedUrl;
+    QString m_revision;
+    QStringList m_oldVersions;
+
+    QUrl m_feedUrl;
+    QList<QUrl> m_urls;
 };
 
 } // namespace Zeal
