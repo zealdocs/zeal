@@ -171,9 +171,10 @@ void SettingsDialog::updateDocsets()
     ui->downloadableGroup->show();
     const QStringList docsetNames = DocsetsRegistry::instance()->names();
     bool missingMetadata = false;
+
     foreach (const QString &name, docsetNames) {
         const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-        if (!metadata.source().isEmpty())
+        if (metadata.source().isEmpty())
             missingMetadata = true;
 
         const QUrl feedUrl = metadata.feedUrl();
