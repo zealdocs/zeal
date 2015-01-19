@@ -46,8 +46,22 @@ private slots:
     void on_addFeedButton_clicked();
 
 private:
+    /// TODO: Merge into DocsetMetadata
+    struct DocsetInfo {
+        QString name;
+        QString icon;
+        QString title;
+        QStringList aliases;
+        QString version;
+        QString revision;
+        QStringList oldVersions;
+    };
+    /// TODO: Create a special model
+    QMap<QString, DocsetInfo> m_availableDocsets;
+
     void downloadDocsetList();
-    void parseDocsetList(const QByteArray &content);
+    void processDocsetList(const QJsonArray &list);
+    void downloadDocset(const QString &name);
 
     void startTasks(qint8 tasks = 1);
     void endTasks(qint8 tasks = 1);
@@ -61,7 +75,7 @@ private:
     QString tarPath() const;
 
     enum DocsetProgressRoles {
-        ZealDocsetDoneInstalling = Qt::UserRole + 20,
+        ZealDocsetDoneInstalling = Qt::UserRole + 20
     };
 
     Ui::SettingsDialog *ui = nullptr;
@@ -69,7 +83,6 @@ private:
 
     ListModel *m_zealListModel = nullptr;
     bool downloadedDocsetsList = false;
-    QMap<QString, QUrl> m_feeds;
     QList<QNetworkReply *> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload = 0;

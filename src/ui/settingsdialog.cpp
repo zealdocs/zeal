@@ -17,14 +17,14 @@
 #include <QProcess>
 #include <QTemporaryFile>
 #include <QUrl>
-#include <QWebElementCollection>
-#include <QWebFrame>
-#include <QWebSettings>
-#include <QWebView>
 
 #include <QtConcurrent/QtConcurrent>
 
 using namespace Zeal;
+
+namespace {
+const char *ApiUrl = "http://api.zealdocs.org";
+}
 
 SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent) :
     QDialog(parent),
@@ -214,58 +214,81 @@ void SettingsDialog::updateDocsets()
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 foreach (const QString &name, docsetNames) {
                     DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-                    if (!metadata.isValid() && m_feeds.contains(name)) {
-                        QNetworkReply *reply = startDownload(m_feeds[name]);
-
-                        QList<QListWidgetItem *> items
-                                = ui->docsetsList->findItems(name, Qt::MatchFixedString);
-                        if (items.count() > 0) {
-                            items[0]->setCheckState(Qt::Checked);
-                            items[0]->setHidden(false);
-                            reply->setProperty("listItem", ui->docsetsList->row(items[0]));
-                        } else {
-                            QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
-                            item->setCheckState(Qt::Checked);
-                            ui->docsetsList->addItem(item);
-                            reply->setProperty("listItem", ui->docsetsList->row(item));
-                        }
-
-                        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
-                    }
+                    if (!metadata.isValid() && m_availableDocsets.contains(name))
+                        downloadDocset(name);
                 }
             });
         }
     }
 }
 
-void SettingsDialog::parseDocsetList(const QByteArray &content)
+void SettingsDialog::processDocsetList(const QJsonArray &list)
 {
-    QWebView view;
-    view.settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
-    view.setContent(content);
+    for (const QJsonValue &v : list) {
+        const QJsonObject docsetJson = v.toObject();
+        DocsetInfo docsetInfo;
+        docsetInfo.name = docsetJson.value(QStringLiteral("name")).toString();
+        docsetInfo.icon = docsetJson.value(QStringLiteral("name")).toString();
+        docsetInfo.title = docsetJson.value(QStringLiteral("title")).toString();
+        docsetInfo.version = docsetJson.value(QStringLiteral("version")).toString();
+        docsetInfo.revision = docsetJson.value(QStringLiteral("revision")).toString();
 
-    for (const QWebElement &drowx : view.page()->mainFrame()->findAllElements(".drowx")) {
-        const QUrl url(drowx.findFirst("a").attribute("href"));
-        const QString name = url.fileName().replace(".tgz", QString());
-        if (!name.isEmpty()) {
-            QString feedUrl = url.toString();
-            if (feedUrl.contains("feeds")) // TODO: There must be a better way to do this, or a valid list of available docset feeds.
-                feedUrl = feedUrl.section("/", 0, -2) + "/" + name + ".xml"; // Attempt to generate a docset feed url.
+        for (const QJsonValue &vv : docsetJson.value(QStringLiteral("aliases")).toArray())
+            docsetInfo.aliases << vv.toString();
 
-            m_feeds.insert(name, feedUrl);
+        for (const QJsonValue &vv : docsetJson.value(QStringLiteral("oldVersions")).toArray())
+            docsetInfo.oldVersions << vv.toString();
 
-            auto iconfile = url.fileName().replace(".tgz", ".png");
-            auto *lwi = new QListWidgetItem(QIcon(QString("icons:") + iconfile), name);
-            lwi->setCheckState(Qt::Unchecked);
-
-            if (DocsetsRegistry::instance()->names().contains(name)) {
-                ui->docsetsList->insertItem(0, lwi);
-                lwi->setHidden(true);
-            } else {
-                ui->docsetsList->addItem(lwi);
-            }
-        }
+        m_availableDocsets.insert(docsetInfo.name, docsetInfo);
     }
+
+    /// TODO: Move into a dedicated method
+    for (const DocsetInfo &docsetInfo : m_availableDocsets) {
+        const QIcon icon(QString(QStringLiteral("icons:%1.png")).arg(docsetInfo.icon));
+
+        QListWidgetItem *listItem = new QListWidgetItem(icon, docsetInfo.title, ui->docsetsList);
+        listItem->setData(ListModel::DocsetNameRole, docsetInfo.name);
+        listItem->setCheckState(Qt::Unchecked);
+
+        if (DocsetsRegistry::instance()->names().contains(docsetInfo.name))
+            listItem->setHidden(true);
+    }
+}
+
+void SettingsDialog::downloadDocset(const QString &name)
+{
+    static QStringList urls = {
+        QStringLiteral("http://sanfrancisco.kapeli.com"),
+        QStringLiteral("http://sanfrancisco2.kapeli.com"),
+        QStringLiteral("http://london.kapeli.com"),
+        QStringLiteral("http://london2.kapeli.com"),
+        QStringLiteral("http://london3.kapeli.com"),
+        QStringLiteral("http://newyork.kapeli.com"),
+        QStringLiteral("http://newyork2.kapeli.com"),
+        QStringLiteral("http://sydney.kapeli.com"),
+        QStringLiteral("http://tokyo.kapeli.com"),
+        QStringLiteral("http://tokyo2.kapeli.com")
+    };
+
+    /// TODO: Select fastest mirror
+    QNetworkReply *reply = startDownload(QString(QStringLiteral("%1/feeds/%2.tgz"))
+                                         .arg(urls.at(qrand() % urls.size()))
+                                         .arg(name));
+
+    QList<QListWidgetItem *> items
+            = ui->docsetsList->findItems(name, Qt::MatchFixedString);
+    if (items.count()) {
+        items[0]->setCheckState(Qt::Checked);
+        items[0]->setHidden(false);
+        reply->setProperty("listItem", ui->docsetsList->row(items[0]));
+    } else {
+        QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
+        item->setCheckState(Qt::Checked);
+        ui->docsetsList->addItem(item);
+        reply->setProperty("listItem", ui->docsetsList->row(item));
+    }
+
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
 }
 
 QString SettingsDialog::tarPath() const
@@ -432,21 +455,36 @@ void SettingsDialog::downloadDocsetList()
     ui->downloadButton->hide();
     ui->docsetsList->clear();
 
-    QNetworkReply *reply = startDownload(QUrl(QStringLiteral("http://kapeli.com/docset_links")));
+    QNetworkReply *reply = startDownload(QUrl(ApiUrl + QStringLiteral("/docsets")));
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> replyGuard(reply);
+        Q_UNUSED(replyGuard);
+
         replies.removeOne(reply);
+
         if (reply->error() != QNetworkReply::NoError) {
             endTasks();
 
-            if (reply->error() != QNetworkReply::OperationCanceledError)
+            if (reply->error() != QNetworkReply::OperationCanceledError) {
                 QMessageBox::warning(this, "No docsets found",
                                      "Failed retrieving list of docsets: " + reply->errorString());
+            }
             return;
         }
 
-        parseDocsetList(reply->readAll());
+        QJsonParseError jsonError;
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
-        if (!m_feeds.isEmpty())
+        if (jsonError.error != QJsonParseError::NoError) {
+            QMessageBox::warning(this, QStringLiteral("Error"),
+                                 QStringLiteral("Corrupted docset list: ")
+                                 + jsonError.errorString());
+            return;
+        }
+
+        processDocsetList(jsonDoc.array());
+
+        if (!m_availableDocsets.isEmpty())
             ui->downloadableGroup->show();
 
         endTasks();
@@ -456,8 +494,6 @@ void SettingsDialog::downloadDocsetList()
             downloadedDocsetsList = ui->docsetsList->count() > 0;
             resetProgress();
         }
-
-        reply->deleteLater();
     });
 }
 
@@ -490,18 +526,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         if (item->checkState() != Qt::Checked)
             continue;
 
-        QNetworkReply *reply = startDownload(m_feeds[item->text()]);
-        reply->setProperty("listItem", i);
-        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
-
-        item->setData(ProgressItemDelegate::ProgressVisibleRole, true);
-        item->setData(ProgressItemDelegate::ProgressRole, 0);
-        item->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-        if (reply->url().path().endsWith((".tgz"))) {
-            // Dash's docsets don't redirect, so we can start showing progress instantly
-            connect(reply, &QNetworkReply::downloadProgress,
-                    this, &SettingsDialog::on_downloadProgress);
-        }
+        downloadDocset(item->data(ListModel::DocsetNameRole).toString());
     }
 
     if (replies.count() > 0)
