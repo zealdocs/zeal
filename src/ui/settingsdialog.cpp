@@ -245,7 +245,6 @@ void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
 
 void SettingsDialog::displayProgress()
 {
-    qDebug() << tasksRunning;
     ui->docsetsProgress->setValue(currentDownload);
     ui->docsetsProgress->setMaximum(totalDownload);
     ui->docsetsProgress->setVisible(tasksRunning > 0);
