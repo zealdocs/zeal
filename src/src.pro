@@ -18,7 +18,12 @@ TARGET = zeal
 target.path = /usr/bin
 INSTALLS = target
 
-DEFINES += ZEAL_VERSION=\\\"20140215\\\"
+# TODO: Obtain version number from Git tags
+VERSION = $$(ZEAL_VERSION)
+isEmpty(VERSION) {
+    VERSION = 0.0.0
+}
+DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 SOURCES += \
     main.cpp
