@@ -121,6 +121,11 @@ QUrl DocsetMetadata::feedUrl() const
     return m_feedUrl;
 }
 
+QUrl DocsetMetadata::url() const
+{
+    return m_urls.at(qrand() % m_urls.size());
+}
+
 QList<QUrl> DocsetMetadata::urls() const
 {
     return m_urls;

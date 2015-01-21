@@ -9,7 +9,9 @@
 #include <QUrl>
 
 class QAbstractButton;
+class QListWidgetItem;
 class QNetworkReply;
+class QTemporaryFile;
 
 namespace Ui {
 class SettingsDialog;
@@ -34,7 +36,8 @@ signals:
     void webPageStyleUpdated();
 
 private slots:
-    void extractDocset();
+    void downloadCompleted();
+
 
     void on_downloadProgress(quint64 received, quint64 total);
     void on_downloadDocsetButton_clicked();
@@ -43,21 +46,33 @@ private slots:
     void on_listView_clicked(const QModelIndex &index);
     void on_tabWidget_currentChanged(int current);
     void on_docsetsList_itemSelectionChanged();
-    void on_addFeedButton_clicked();
+    void addDashFeed();
 
 private:
+    enum DownloadType {
+        DownloadDashFeed,
+        DownloadDocset,
+        DownloadDocsetList
+    };
+
+    QListWidgetItem *findDocsetListItem(const QString &title) const;
+
     /// TODO: Create a special model
     QMap<QString, DocsetMetadata> m_availableDocsets;
+    QMap<QString, DocsetMetadata> m_userFeeds;
+
+    QHash<QString, QTemporaryFile *> m_tmpFiles;
 
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
-    void downloadDocset(const QString &name);
+    void downloadDashDocset(const QString &name);
+    void extractDocset(const DocsetMetadata &metadata);
 
     void startTasks(qint8 tasks = 1);
     void endTasks(qint8 tasks = 1);
     void displayProgress();
     void loadSettings();
-    void updateDocsets();
+    void updateFeedDocsets();
     void resetProgress();
     QNetworkReply *startDownload(const QUrl &url);
     void stopDownloads();
@@ -72,7 +87,6 @@ private:
     Core::Application *m_application = nullptr;
 
     ListModel *m_zealListModel = nullptr;
-    bool downloadedDocsetsList = false;
     QList<QNetworkReply *> replies;
     QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
     qint32 totalDownload = 0;

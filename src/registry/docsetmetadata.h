@@ -30,6 +30,7 @@ public:
     QStringList oldVersions() const;
 
     QUrl feedUrl() const;
+    QUrl url() const;
     QList<QUrl> urls() const;
 
     static DocsetMetadata fromFile(const QString &fileName);

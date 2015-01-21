@@ -16,7 +16,6 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QTemporaryFile>
-#include <QUrl>
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -24,6 +23,11 @@ using namespace Zeal;
 
 namespace {
 const char *ApiUrl = "http://api.zealdocs.org";
+
+// QNetworkReply properties
+const char *DocsetMetadataProperty = "docsetMetadata";
+const char *DownloadTypeProperty = "downloadType";
+const char *ListItemIndexProperty = "listItem";
 }
 
 SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent) :
@@ -54,8 +58,9 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     connect(ui->minFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, &SettingsDialog::minFontSizeChanged);
 
+    connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
     connect(ui->downloadButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
-    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
+    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateFeedDocsets);
 
     loadSettings();
 }
@@ -63,6 +68,115 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+/*!
+  \internal
+  Should be connected to all \l QNetworkReply::finished signals in order to process possible
+  HTTP-redirects correctly.
+*/
+void SettingsDialog::downloadCompleted()
+{
+    QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
+                qobject_cast<QNetworkReply *>(sender()));
+
+    replies.removeOne(reply.data());
+
+    if (reply->error() != QNetworkReply::NoError) {
+        if (reply->error() != QNetworkReply::OperationCanceledError)
+            QMessageBox::warning(this, QStringLiteral("Network Error"), reply->errorString());
+
+        return;
+    }
+
+    QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    if (redirectUrl.isValid()) {
+        if (redirectUrl.isRelative())
+            redirectUrl = reply->request().url().resolved(redirectUrl);
+
+        /// TODO: Verify if scheme can be missing
+        if (redirectUrl.scheme().isEmpty())
+            redirectUrl.setScheme(reply->request().url().scheme());
+
+        QNetworkReply *newReply = startDownload(redirectUrl);
+
+        // Copy properties
+        newReply->setProperty(DocsetMetadataProperty, reply->property(DocsetMetadataProperty));
+        newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
+        newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
+
+        connect(newReply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
+
+        return;
+    }
+
+    switch (static_cast<DownloadType>(reply->property(DownloadTypeProperty).toUInt())) {
+    case DownloadDocsetList: {
+        QJsonParseError jsonError;
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
+
+        if (jsonError.error != QJsonParseError::NoError) {
+            QMessageBox::warning(this, QStringLiteral("Error"),
+                                 QStringLiteral("Corrupted docset list: ")
+                                 + jsonError.errorString());
+            break;
+        }
+
+        processDocsetList(jsonDoc.array());
+
+        if (!m_availableDocsets.isEmpty())
+            ui->downloadableGroup->show();
+
+        endTasks();
+        break;
+    }
+
+    case DownloadDashFeed: {
+        DocsetMetadata metadata = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
+        DocsetMetadata oldMetadata;
+
+        if (metadata.urls().isEmpty()) {
+            QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
+            break;
+        }
+
+        QVariant oldMeta = reply->property(DocsetMetadataProperty);
+        if (oldMeta.isValid())
+            oldMetadata = oldMeta.value<DocsetMetadata>();
+
+        if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
+            QNetworkReply *newReply = startDownload(metadata.url());
+            newReply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
+            newReply->setProperty(DownloadTypeProperty, DownloadDocset);
+            connect(newReply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
+        }
+        break;
+    }
+
+    case DownloadDocset: {
+        const DocsetMetadata metadata = reply->property(DocsetMetadataProperty).value<DocsetMetadata>();
+
+        QTemporaryFile *tmpFile = new QTemporaryFile();
+        tmpFile->open();
+        qint64 readBytes = 1;
+        const int BUFSIZE = 1024*1024;
+        char buf[BUFSIZE];
+        while (readBytes > 0) {
+            readBytes = reply->read(buf, BUFSIZE);
+            if (readBytes > 0)
+                tmpFile->write(buf, readBytes);
+        }
+        tmpFile->close();
+
+        m_tmpFiles.insert(metadata.name(), tmpFile);
+        extractDocset(metadata);
+        break;
+    }
+    }
+
+    // If all enqueued downloads have finished executing
+    if (replies.isEmpty())
+        resetProgress();
 }
 
 void SettingsDialog::loadSettings()
@@ -108,14 +222,15 @@ void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
         return;
 
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    // Try to get the item associated to the request
-    QListWidgetItem *item = ui->docsetsList->item(reply->property("listItem").toInt());
+
     QPair<qint32, qint32> *previousProgress = progress[reply];
     if (previousProgress == nullptr) {
         previousProgress = new QPair<qint32, qint32>(0, 0);
         progress[reply] = previousProgress;
     }
 
+    // Try to get the item associated to the request
+    QListWidgetItem *item = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
     if (item) {
         item->setData(ProgressItemDelegate::ProgressMaxRole, total);
         item->setData(ProgressItemDelegate::ProgressRole, received);
@@ -130,6 +245,7 @@ void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
 
 void SettingsDialog::displayProgress()
 {
+    qDebug() << tasksRunning;
     ui->docsetsProgress->setValue(currentDownload);
     ui->docsetsProgress->setMaximum(totalDownload);
     ui->docsetsProgress->setVisible(tasksRunning > 0);
@@ -166,7 +282,7 @@ void SettingsDialog::endTasks(qint8 tasks)
     }
 }
 
-void SettingsDialog::updateDocsets()
+void SettingsDialog::updateFeedDocsets()
 {
     ui->downloadableGroup->show();
     const QStringList docsetNames = DocsetsRegistry::instance()->names();
@@ -178,49 +294,48 @@ void SettingsDialog::updateDocsets()
             missingMetadata = true;
 
         const QUrl feedUrl = metadata.feedUrl();
+        // Skip not manually added feeds
         if (feedUrl.isEmpty())
             continue;
 
         QNetworkReply *reply = startDownload(feedUrl);
+        reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
 
-        QList<QListWidgetItem *> items = ui->docsetsList->findItems(name, Qt::MatchFixedString);
-        if (!items.isEmpty()) {
-            reply->setProperty("listItem", ui->docsetsList->row(items[0]));
-        } else {
-            QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
-            item->setCheckState(Qt::Checked);
-            item->setHidden(true);
-            ui->docsetsList->addItem(item);
-            reply->setProperty("listItem", ui->docsetsList->row(item));
-        }
+        QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+        if (listItem)
+            reply->setProperty(ListItemIndexProperty, ui->docsetsList->row(listItem));
 
-        reply->setProperty("metadata", QVariant::fromValue(metadata));
-        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
+        reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
+        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
     }
-    if (missingMetadata) {
-        int r = QMessageBox::information(this, "Zeal",
-                                         "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
-                                         QMessageBox::Yes | QMessageBox::No);
-        if (r == QMessageBox::Yes) {
-            if (!downloadedDocsetsList)
-                downloadDocsetList();
 
-            // There must be a better way to do this.
-            auto future = QtConcurrent::run([=] {
-                while (!downloadedDocsetsList || replies.size())
-                    QThread::yieldCurrentThread();
-            });
-            QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-            watcher->setFuture(future);
-            connect(watcher, &QFutureWatcher<void>::finished, [=] {
-                foreach (const QString &name, docsetNames) {
-                    DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
-                    if (!metadata.source().isEmpty() && m_availableDocsets.contains(name))
-                        downloadDocset(name);
-                }
-            });
+    if (!missingMetadata)
+        return;
+
+    int r = QMessageBox::information(this, "Zeal",
+                                     "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
+                                     QMessageBox::Yes | QMessageBox::No);
+    if (r == QMessageBox::No)
+        return;
+
+    if (m_availableDocsets.isEmpty())
+        downloadDocsetList();
+
+    // There must be a better way to do this.
+    auto future = QtConcurrent::run([=] {
+        while (m_availableDocsets.isEmpty() || replies.size())
+            QThread::yieldCurrentThread();
+    });
+
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
+    watcher->setFuture(future);
+    connect(watcher, &QFutureWatcher<void>::finished, [=] {
+        foreach (const QString &name, docsetNames) {
+            const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
+            if (!metadata.source().isEmpty() && m_availableDocsets.contains(name))
+                downloadDashDocset(name);
         }
-    }
+    });
 }
 
 void SettingsDialog::processDocsetList(const QJsonArray &list)
@@ -246,9 +361,10 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
     }
 }
 
-void SettingsDialog::downloadDocset(const QString &name)
+void SettingsDialog::downloadDashDocset(const QString &name)
 {
-    static QStringList urls = {
+    /// TODO: Select fastest mirror
+    static const QStringList kapeliUrls = {
         QStringLiteral("http://sanfrancisco.kapeli.com"),
         QStringLiteral("http://sanfrancisco2.kapeli.com"),
         QStringLiteral("http://london.kapeli.com"),
@@ -261,25 +377,20 @@ void SettingsDialog::downloadDocset(const QString &name)
         QStringLiteral("http://tokyo2.kapeli.com")
     };
 
-    /// TODO: Select fastest mirror
-    QNetworkReply *reply = startDownload(QString(QStringLiteral("%1/feeds/%2.tgz"))
-                                         .arg(urls.at(qrand() % urls.size()))
-                                         .arg(name));
+    if (!m_availableDocsets.contains(name))
+        return;
 
-    QList<QListWidgetItem *> items
-            = ui->docsetsList->findItems(name, Qt::MatchFixedString);
-    if (items.count()) {
-        items[0]->setCheckState(Qt::Checked);
-        items[0]->setHidden(false);
-        reply->setProperty("listItem", ui->docsetsList->row(items[0]));
-    } else {
-        QListWidgetItem *item = new QListWidgetItem(name, ui->docsetsList);
-        item->setCheckState(Qt::Checked);
-        ui->docsetsList->addItem(item);
-        reply->setProperty("listItem", ui->docsetsList->row(item));
-    }
+    const QUrl url = QString(QStringLiteral("%1/feeds/%2.tgz"))
+            .arg(kapeliUrls.at(qrand() % kapeliUrls.size()))
+            .arg(name);
 
-    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
+    QNetworkReply *reply = startDownload(url);
+    reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(m_availableDocsets[name]));
+    reply->setProperty(DownloadTypeProperty, DownloadDocset);
+    reply->setProperty(ListItemIndexProperty,
+                       ui->docsetsList->row(findDocsetListItem(m_availableDocsets[name].title())));
+
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
 QString SettingsDialog::tarPath() const
@@ -293,197 +404,73 @@ QString SettingsDialog::tarPath() const
 #endif
 }
 
-void SettingsDialog::extractDocset()
+void SettingsDialog::extractDocset(const DocsetMetadata &metadata)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    replies.removeOne(reply);
+    QTemporaryFile *tmpFile = m_tmpFiles.take(metadata.name());
 
-    if (reply->error() != QNetworkReply::NoError) {
+    const QDir dataDir(m_application->settings()->docsetPath);
+    if (!dataDir.exists()) {
+        QMessageBox::critical(this, "No docsets directory found",
+                              QString("'%1' directory not found")
+                              .arg(m_application->settings()->docsetPath));
         endTasks();
-
-        if (reply->error() != QNetworkReply::OperationCanceledError)
-            QMessageBox::warning(this, "Network Error",
-                                 "Failed to retrieve docset: " + reply->errorString());
         return;
     }
 
-    // Try to get the item associated to the request
-    QVariant itemId = reply->property("listItem");
-    QListWidgetItem *listItem = ui->docsetsList->item(itemId.toInt());
-    /// TODO: Use QNetworkRequest::RedirectionTargetAttribute
-    if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
-        QUrl url(reply->header(QNetworkRequest::LocationHeader).toUrl());
-        if (url.host().isEmpty())
-            url.setHost(reply->request().url().host());
-        if (url.scheme().isEmpty())
-            url.setScheme(reply->request().url().scheme());
-        QNetworkReply *reply3 = startDownload(url);
-        endTasks();
+    const QString program = tarPath();
+    QProcess *tar = new QProcess();
+    tar->setWorkingDirectory(dataDir.absolutePath());
+    QStringList args(QStringLiteral("-zqtf"));
+    args.append(tmpFile->fileName());
+    args.append("*docset");
+    tar->start(program, args);
+    tar->waitForFinished();
+    auto line_buf = tar->readLine();
+    auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
 
-        reply3->setProperty("listItem", itemId);
-        reply3->setProperty("metadata", reply->property("metadata"));
-        connect(reply3, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
-    } else {
-        if (reply->request().url().path().endsWith("xml")) {
-            /*endTasks();
-            DocsetMetadata metadata = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
-            DocsetMetadata oldMetadata;
+    args = QStringList(QStringLiteral("-zxf"));
+    args.append(tmpFile->fileName());
 
-            if (metadata.urls().isEmpty()) {
-                QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
-            } else {
+    connect(tar, (void (QProcess::*)(int))&QProcess::finished, [this, metadata, outDir, dataDir, tar, tmpFile](int) {
+        QString docsetName = metadata.name() + QStringLiteral(".docset");
 
-                QVariant oldMeta = reply->property("metadata");
-                if (oldMeta.isValid())
-                    oldMetadata = oldMeta.value<DocsetMetadata>();
+        if (outDir != docsetName)
+            QDir(dataDir).rename(outDir, docsetName);
 
-                if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
-                    metadata.setFeedUrl(reply->request().url().toString());
-                    QNetworkReply *reply2 = startDownload(metadata.primaryUrl());
+        // Write metadata about docset
+        metadata.toFile(dataDir.absoluteFilePath(docsetName) + QStringLiteral("/meta.json"));
 
-                    if (listItem) {
-                        listItem->setHidden(false);
+        // FIXME C&P (see "FIXME C&P" below)
+        QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
+                                  Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
+        m_zealListModel->resetModulesCounts();
+        emit refreshRequested();
+        ui->listView->reset();
 
-                        listItem->setData(ProgressItemDelegate::ProgressVisibleRole, true);
-                        listItem->setData(ProgressItemDelegate::ProgressRole, 0);
-                        listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-                    }
-                    reply2->setProperty("listItem", itemId);
-                    reply2->setProperty("metadata", QVariant::fromValue(metadata));
-                    connect(reply2, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
-                }
-            }*/
-        } else if (reply->request().url().path().endsWith(QLatin1Literal("tgz"))) {
-            auto dataDir = QDir(m_application->settings()->docsetPath);
-            if (!dataDir.exists()) {
-                QMessageBox::critical(this, "No docsets directory found",
-                                      QString("'%1' directory not found")
-                                      .arg(m_application->settings()->docsetPath));
-                endTasks();
-            } else {
-                const QString program = tarPath();
-                QTemporaryFile *tmp = new QTemporaryFile;
-                tmp->open();
-                qint64 read_len = 1;
-                const int BUFSIZE = 1024*1024;
-                char buf[BUFSIZE];
-                while (read_len > 0) {
-                    read_len = reply->read(buf, BUFSIZE);
-                    if (read_len > 0)
-                        tmp->write(buf, read_len);
-                }
-                tmp->flush();
-
-                QProcess *tar = new QProcess();
-                tar->setWorkingDirectory(dataDir.absolutePath());
-                QStringList args(QStringLiteral("-zqtf"));
-                args.append(tmp->fileName());
-                args.append("*docset");
-                tar->start(program, args);
-                tar->waitForFinished();
-                auto line_buf = tar->readLine();
-                auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
-
-                args = QStringList(QStringLiteral("-zxf"));
-                args.append(tmp->fileName());
-
-                DocsetMetadata metadata;
-                QVariant metavariant = reply->property("metadata");
-                if (metavariant.isValid())
-                    metadata = metavariant.value<DocsetMetadata>();
-
-                const QString fileName = reply->request().url().fileName();
-                connect(tar, (void (QProcess::*)(int))&QProcess::finished, [=](int) {
-                    QString docsetName = fileName;
-                    /// TODO: Use QFileInfo::baseName();
-                    docsetName.replace(QStringLiteral(".tgz"), QStringLiteral(".docset"));
-
-                    if (outDir != docsetName)
-                        QDir(dataDir).rename(outDir, docsetName);
-
-                    // Write metadata about docset
-                    metadata.toFile(dataDir.absoluteFilePath(docsetName) + QStringLiteral("/meta.json"));
-
-                    // FIXME C&P (see "FIXME C&P" below)
-                    QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
-                                              Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
-                    m_zealListModel->resetModulesCounts();
-                    emit refreshRequested();
-                    ui->listView->reset();
-                    for (int i = 0; i < ui->docsetsList->count(); ++i) {
-                        if (ui->docsetsList->item(i)->text()+".docset" == docsetName) {
-                            listItem->setData(ZealDocsetDoneInstalling, true);
-                            listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
-                            listItem->setData(ProgressItemDelegate::ProgressRole, 1);
-                            listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-                            break;
-                        }
-                    }
-                    endTasks();
-                    delete tar;
-                });
-                if (listItem) {
-                    listItem->setData(ProgressItemDelegate::ProgressRole, 0);
-                    listItem->setData(ProgressItemDelegate::ProgressMaxRole, 0);
-                }
-                tar->start(program, args);
-            }
+        QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+        if (listItem) {
+            listItem->setData(ZealDocsetDoneInstalling, true);
+            listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
+            listItem->setData(ProgressItemDelegate::ProgressRole, 1);
+            listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
         }
-    }
+        endTasks();
+        delete tar;
+        delete tmpFile;
+    });
 
-    // if all enqueued downloads have finished executing
-    if (replies.isEmpty())
-        resetProgress();
-
-    reply->deleteLater();
+    tar->start(program, args);
 }
 
 void SettingsDialog::downloadDocsetList()
 {
-    downloadedDocsetsList = false;
     ui->downloadButton->hide();
     ui->docsetsList->clear();
+    m_availableDocsets.clear();
 
     QNetworkReply *reply = startDownload(QUrl(ApiUrl + QStringLiteral("/docsets")));
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> replyGuard(reply);
-        Q_UNUSED(replyGuard);
-
-        replies.removeOne(reply);
-
-        if (reply->error() != QNetworkReply::NoError) {
-            endTasks();
-
-            if (reply->error() != QNetworkReply::OperationCanceledError) {
-                QMessageBox::warning(this, "No docsets found",
-                                     "Failed retrieving list of docsets: " + reply->errorString());
-            }
-            return;
-        }
-
-        QJsonParseError jsonError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
-
-        if (jsonError.error != QJsonParseError::NoError) {
-            QMessageBox::warning(this, QStringLiteral("Error"),
-                                 QStringLiteral("Corrupted docset list: ")
-                                 + jsonError.errorString());
-            return;
-        }
-
-        processDocsetList(jsonDoc.array());
-
-        if (!m_availableDocsets.isEmpty())
-            ui->downloadableGroup->show();
-
-        endTasks();
-
-        // if all enqueued downloads have finished executing
-        if (replies.isEmpty()) {
-            downloadedDocsetsList = ui->docsetsList->count() > 0;
-            resetProgress();
-        }
-    });
+    reply->setProperty(DownloadTypeProperty, DownloadDocsetList);
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
 void SettingsDialog::on_docsetsList_itemSelectionChanged()
@@ -515,7 +502,11 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         if (item->checkState() != Qt::Checked)
             continue;
 
-        downloadDocset(item->data(ListModel::DocsetNameRole).toString());
+        item->setData(ProgressItemDelegate::ProgressVisibleRole, true);
+        item->setData(ProgressItemDelegate::ProgressRole, 0);
+        item->setData(ProgressItemDelegate::ProgressMaxRole, 1);
+
+        downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
     }
 
     if (replies.count() > 0)
@@ -532,15 +523,15 @@ void SettingsDialog::on_storageButton_clicked()
 
 void SettingsDialog::on_deleteButton_clicked()
 {
-    const QString docsetDisplayName = ui->listView->currentIndex().data().toString();
+    const QString docsetTitle = ui->listView->currentIndex().data().toString();
     const int answer
             = QMessageBox::question(this, tr("Remove Docset"),
                                     QString("Do you want to permanently delete the '%1' docset? ")
-                                    .arg(docsetDisplayName));
+                                    .arg(docsetTitle));
     if (answer == QMessageBox::No)
         return;
 
-    QDir dataDir(m_application->settings()->docsetPath);
+    const QDir dataDir(m_application->settings()->docsetPath);
     const QString docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
     m_zealListModel->removeRow(ui->listView->currentIndex().row());
     if (dataDir.exists()) {
@@ -555,7 +546,7 @@ void SettingsDialog::on_deleteButton_clicked()
                 isDeleted = docsetDir.removeRecursively();
             if (!isDeleted) {
                 QMessageBox::information(nullptr, QString(),
-                                         QString("Delete docset %1 failed!").arg(docsetDisplayName));
+                                         QString("Delete docset %1 failed!").arg(docsetTitle));
             }
         });
         QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
@@ -564,9 +555,9 @@ void SettingsDialog::on_deleteButton_clicked()
             endTasks();
             ui->deleteButton->show();
 
-            QList<QListWidgetItem *> items = ui->docsetsList->findItems(docsetName, Qt::MatchExactly);
-            if (!items.isEmpty())
-                items[0]->setHidden(false);
+            QListWidgetItem *listItem = findDocsetListItem(docsetTitle);
+            if (listItem)
+                listItem->setHidden(false);
 
             watcher->deleteLater();
         });
@@ -584,7 +575,7 @@ void SettingsDialog::resetProgress()
     progress.clear();
     totalDownload = 0;
     currentDownload = 0;
-    ui->downloadButton->setVisible(!downloadedDocsetsList);
+    ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
     ui->downloadDocsetButton->setText("Download");
     ui->downloadButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
@@ -601,12 +592,10 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     replies.append(reply);
 
-    if (!replies.isEmpty()) {
-        ui->downloadDocsetButton->setText("Stop downloads");
-        ui->downloadButton->setEnabled(false);
-        ui->updateButton->setEnabled(false);
-        ui->addFeedButton->setEnabled(false);
-    }
+    ui->downloadDocsetButton->setText("Stop downloads");
+    ui->downloadButton->setEnabled(false);
+    ui->updateButton->setEnabled(false);
+    ui->addFeedButton->setEnabled(false);
 
     return reply;
 }
@@ -615,7 +604,10 @@ void SettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply: replies) {
         // Hide progress bar
-        QListWidgetItem *listItem = ui->docsetsList->item(reply->property("listItem").toInt());
+        QListWidgetItem *listItem = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
+        if (!listItem)
+            continue;
+
         listItem->setData(ProgressItemDelegate::ProgressVisibleRole, false);
         reply->abort();
     }
@@ -678,21 +670,33 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         downloadDocsetList();
 }
 
-void SettingsDialog::on_addFeedButton_clicked()
+void SettingsDialog::addDashFeed()
 {
     QString txt = QApplication::clipboard()->text();
-    if (!txt.startsWith("dash-feed://"))
+    if (!txt.startsWith(QStringLiteral("dash-feed://")))
         txt.clear();
 
     QString feedUrl = QInputDialog::getText(this, "Zeal", "Feed URL:", QLineEdit::Normal, txt);
     if (feedUrl.isEmpty())
         return;
 
-    if (feedUrl.startsWith("dash-feed://")) {
+    if (feedUrl.startsWith(QStringLiteral("dash-feed://"))) {
         feedUrl = feedUrl.remove(0, 12);
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
 
     QNetworkReply *reply = startDownload(feedUrl);
-    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::extractDocset);
+    reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
+    connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
+}
+
+QListWidgetItem *SettingsDialog::findDocsetListItem(const QString &title) const
+{
+    const QList<QListWidgetItem *> items
+            = ui->docsetsList->findItems(title, Qt::MatchFixedString);
+
+    if (items.isEmpty())
+        return nullptr;
+
+    return items.first();
 }
