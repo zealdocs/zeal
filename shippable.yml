@@ -6,21 +6,21 @@ before_install:
 install:
   - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip git curl
   - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe'
+  - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
   - bash -c '[ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_essentials.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.53.win32_mingw482/5.3.2-0qt5_addons.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw482/4.8.2i686-4.8.2-release-posix-dwarf-rt_v3-rev3.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1i686-4.9.1-release-posix-dwarf-rt_v3-rev2-runtime.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1icu_53_1_mingw_builds_4_9_1_posix_dwarf_32.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_addons.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_essentials.7z -o$HOME/qt'
+  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw491/4.9.1-2i686-4.9.1-release-posix-dwarf-rt_v3-rev2.7z -o$HOME/qt'
   - rm -rf $HOME/qt/OUT
   - rm -f $HOME/qt/qt.exe
-  - echo "[Paths]" > $HOME/qt/5.3/mingw482_32/bin/qt.conf
-  - echo "Prefix=.." >> $HOME/qt/5.3/mingw482_32/bin/qt.conf
+  - echo "[Paths]" > $HOME/qt/5.4/mingw491_32/bin/qt.conf
+  - echo "Prefix=.." >> $HOME/qt/5.4/mingw491_32/bin/qt.conf
   - echo '[HKEY_CURRENT_USER\Environment]' > $HOME/qt/temp.reg
-  - echo '"QMAKESPEC"="BASEDIR\\5.3\\mingw482_32\\mkspecs\\win32-g++"' >> $HOME/qt/temp.reg
-  - echo '"QTDIR"="BASEDIR\\5.3\\mingw482_32"' >> $HOME/qt/temp.reg
-  - echo '"PATH"="BASEDIR\\Tools\\mingw482_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw482_32\\bin;BASEDIR\\5.3\\mingw482_32\\bin"' >> $HOME/qt/temp.reg
+  - echo '"QMAKESPEC"="BASEDIR\\5.4\\mingw491_32\\mkspecs\\win32-g++"' >> $HOME/qt/temp.reg
+  - echo '"QTDIR"="BASEDIR\\5.4\\mingw491_32"' >> $HOME/qt/temp.reg
+  - echo '"PATH"="BASEDIR\\Tools\\mingw491_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw491_32\\bin;BASEDIR\\5.4\\mingw491_32\\bin"' >> $HOME/qt/temp.reg
   - sed -i "s.BASEDIR.Z:$HOME/qt.g" $HOME/qt/temp.reg
   - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
@@ -35,18 +35,18 @@ script:
   - mkdir zeal-$ZEAL_VERSION/imageformats
   - mkdir zeal-$ZEAL_VERSION/platforms
   - mkdir zeal-$ZEAL_VERSION/sqldrivers
-  - cp $HOME/qt/Tools/mingw482_32/opt/bin/ssleay32.dll zeal-$ZEAL_VERSION
-  - cp $HOME/qt/Tools/mingw482_32/opt/bin/libeay32.dll zeal-$ZEAL_VERSION
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qgif.dll zeal-$ZEAL_VERSION/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qjpeg.dll zeal-$ZEAL_VERSION/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qico.dll zeal-$ZEAL_VERSION/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/platforms/qwindows.dll zeal-$ZEAL_VERSION/platforms
-  - cp $HOME/qt/5.3/mingw482_32/plugins/sqldrivers/qsqlite.dll zeal-$ZEAL_VERSION/sqldrivers
-  - cp $HOME/qt/5.3/mingw482_32/bin/libstdc++-6.dll zeal-$ZEAL_VERSION
-  - cp $HOME/qt/5.3/mingw482_32/bin/libgcc_s_dw2-1.dll zeal-$ZEAL_VERSION
-  - cp $HOME/qt/5.3/mingw482_32/bin/libwinpthread-1.dll zeal-$ZEAL_VERSION
-  - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$ZEAL_VERSION
-  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$ZEAL_VERSION; done
+  - cp $HOME/qt/Tools/mingw491_32/opt/bin/ssleay32.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/Tools/mingw491_32/opt/bin/libeay32.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.4/mingw491_32/plugins/imageformats/qgif.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.4/mingw491_32/plugins/imageformats/qjpeg.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.4/mingw491_32/plugins/imageformats/qico.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.4/mingw491_32/plugins/platforms/qwindows.dll zeal-$ZEAL_VERSION/platforms
+  - cp $HOME/qt/5.4/mingw491_32/plugins/sqldrivers/qsqlite.dll zeal-$ZEAL_VERSION/sqldrivers
+  - cp $HOME/qt/5.4/mingw491_32/bin/libstdc++-6.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.4/mingw491_32/bin/libgcc_s_dw2-1.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.4/mingw491_32/bin/libwinpthread-1.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.4/mingw491_32/bin/icu*.dll zeal-$ZEAL_VERSION
+  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.4/mingw491_32/bin/Qt5$l.dll zeal-$ZEAL_VERSION; done
   - rm -f zeal*.zip
   - zip -r zeal-$ZEAL_VERSION.zip zeal-$ZEAL_VERSION
   - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @zeal-$ZEAL_VERSION.zip $ZEAL_UPLOAD_URL || true'
