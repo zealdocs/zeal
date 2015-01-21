@@ -25,38 +25,34 @@ install:
   - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 script:
-  - date +%Y%m%d > VERSION
-  # a bit ugly version updating:
-  - grep -v ZEAL_VERSION zeal.pro > zeal.pro.noversion
-  - mv zeal.pro.noversion zeal.pro
-  - echo 'DEFINES += ZEAL_VERSION=\\\"'`cat VERSION`'\\\"' >> zeal.pro
+  - export ZEAL_VERSION=`date +%Y%m%d`
   - wine qmake
   - wine mingw32-make
   - cd src
-  - mkdir zeal-$(cat VERSION)
-  - cp release/zeal.exe zeal-$(cat VERSION)
-  - cp -r icons zeal-$(cat VERSION)
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bsdtar.exe -O zeal-$(cat VERSION)/bsdtar.exe
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bzip2.dll -O zeal-$(cat VERSION)/bzip2.dll
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/zlib1.dll -O zeal-$(cat VERSION)/zlib1.dll
-  - mkdir zeal-$(cat VERSION)/imageformats
-  - mkdir zeal-$(cat VERSION)/platforms
-  - mkdir zeal-$(cat VERSION)/sqldrivers
-  - cp $HOME/qt/Tools/mingw482_32/opt/bin/ssleay32.dll zeal-$(cat VERSION)
-  - cp $HOME/qt/Tools/mingw482_32/opt/bin/libeay32.dll zeal-$(cat VERSION)
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qgif.dll zeal-$(cat VERSION)/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qjpeg.dll zeal-$(cat VERSION)/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qico.dll zeal-$(cat VERSION)/imageformats
-  - cp $HOME/qt/5.3/mingw482_32/plugins/platforms/qwindows.dll zeal-$(cat VERSION)/platforms
-  - cp $HOME/qt/5.3/mingw482_32/plugins/sqldrivers/qsqlite.dll zeal-$(cat VERSION)/sqldrivers
-  - cp $HOME/qt/5.3/mingw482_32/bin/libstdc++-6.dll zeal-$(cat VERSION)
-  - cp $HOME/qt/5.3/mingw482_32/bin/libgcc_s_dw2-1.dll zeal-$(cat VERSION)
-  - cp $HOME/qt/5.3/mingw482_32/bin/libwinpthread-1.dll zeal-$(cat VERSION)
-  - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$(cat VERSION)
-  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$(cat VERSION); done
+  - mkdir zeal-$ZEAL_VERSION
+  - cp release/zeal.exe zeal-$ZEAL_VERSION
+  - cp -r icons zeal-$ZEAL_VERSION
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bsdtar.exe -O zeal-$ZEAL_VERSION/bsdtar.exe
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bzip2.dll -O zeal-$ZEAL_VERSION/bzip2.dll
+  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/zlib1.dll -O zeal-$ZEAL_VERSION/zlib1.dll
+  - mkdir zeal-$ZEAL_VERSION/imageformats
+  - mkdir zeal-$ZEAL_VERSION/platforms
+  - mkdir zeal-$ZEAL_VERSION/sqldrivers
+  - cp $HOME/qt/Tools/mingw482_32/opt/bin/ssleay32.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/Tools/mingw482_32/opt/bin/libeay32.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qgif.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qjpeg.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.3/mingw482_32/plugins/imageformats/qico.dll zeal-$ZEAL_VERSION/imageformats
+  - cp $HOME/qt/5.3/mingw482_32/plugins/platforms/qwindows.dll zeal-$ZEAL_VERSION/platforms
+  - cp $HOME/qt/5.3/mingw482_32/plugins/sqldrivers/qsqlite.dll zeal-$ZEAL_VERSION/sqldrivers
+  - cp $HOME/qt/5.3/mingw482_32/bin/libstdc++-6.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.3/mingw482_32/bin/libgcc_s_dw2-1.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.3/mingw482_32/bin/libwinpthread-1.dll zeal-$ZEAL_VERSION
+  - cp $HOME/qt/5.3/mingw482_32/bin/icu*.dll zeal-$ZEAL_VERSION
+  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.3/mingw482_32/bin/Qt5$l.dll zeal-$ZEAL_VERSION; done
   - rm -f zeal*.zip
-  - zip -r zeal-$(cat VERSION).zip zeal-$(cat VERSION)
-  - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @zeal-$(cat VERSION).zip $ZEAL_UPLOAD_URL || true'
+  - zip -r zeal-$ZEAL_VERSION.zip zeal-$ZEAL_VERSION
+  - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @zeal-$ZEAL_VERSION.zip $ZEAL_UPLOAD_URL || true'
   - rm -rf zeal-*
 
 env:
