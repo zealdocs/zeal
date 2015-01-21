@@ -14,6 +14,8 @@ DocsetMetadata::DocsetMetadata()
 
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
+    m_source = jsonObject[QStringLiteral("source")].toString();
+
     m_name = jsonObject[QStringLiteral("name")].toString();
     m_icon = jsonObject[QStringLiteral("icon")].toString();
     m_title = jsonObject[QStringLiteral("title")].toString();
