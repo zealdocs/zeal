@@ -32,9 +32,6 @@ script:
   - mkdir zeal-$ZEAL_VERSION
   - cp release/zeal.exe zeal-$ZEAL_VERSION
   - cp -r icons zeal-$ZEAL_VERSION
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bsdtar.exe -O zeal-$ZEAL_VERSION/bsdtar.exe
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/bzip2.dll -O zeal-$ZEAL_VERSION/bzip2.dll
-  - wget -nv https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads/zlib1.dll -O zeal-$ZEAL_VERSION/zlib1.dll
   - mkdir zeal-$ZEAL_VERSION/imageformats
   - mkdir zeal-$ZEAL_VERSION/platforms
   - mkdir zeal-$ZEAL_VERSION/sqldrivers
