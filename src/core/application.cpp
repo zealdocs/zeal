@@ -1,12 +1,15 @@
 #include "application.h"
 
+#include "extractor.h"
 #include "settings.h"
 #include "ui/mainwindow.h"
 
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
+#include <QThread>
 
 using namespace Zeal;
 using namespace Zeal::Core;
@@ -22,6 +25,8 @@ Application::Application(const QString &query, QObject *parent) :
     m_settings(new Settings(this)),
     m_localServer(new QLocalServer(this)),
     m_networkManager(new QNetworkAccessManager(this)),
+    m_extractorThread(new QThread(this)),
+    m_extractor(new Extractor()),
     m_mainWindow(new MainWindow(this))
 {
     // Ensure only one instance of Application
@@ -40,6 +45,12 @@ Application::Application(const QString &query, QObject *parent) :
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
     m_localServer->listen(LocalServerName);
 
+    // Extractor setup
+    m_extractor->moveToThread(m_extractorThread);
+    m_extractorThread->start();
+    connect(m_extractor, &Extractor::completed, this, &Application::extractionCompleted);
+    connect(m_extractor, &Extractor::error, this, &Application::extractionError);
+
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
 
@@ -51,6 +62,9 @@ Application::Application(const QString &query, QObject *parent) :
 
 Application::~Application()
 {
+    m_extractorThread->quit();
+    m_extractorThread->wait();
+    delete m_extractor;
     delete m_mainWindow;
 }
 
@@ -67,6 +81,12 @@ QNetworkAccessManager *Application::networkManager() const
 Settings *Application::settings() const
 {
     return m_settings;
+}
+
+void Application::extract(const QString &filePath, const QString &destination)
+{
+    QMetaObject::invokeMethod(m_extractor, "extract", Qt::QueuedConnection,
+                              Q_ARG(QString, filePath), Q_ARG(QString, destination));
 }
 
 QNetworkReply *Application::download(const QUrl &url)
@@ -99,4 +119,3 @@ void Application::applySettings()
     }
     }
 }
-

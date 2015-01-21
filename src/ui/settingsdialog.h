@@ -36,8 +36,10 @@ signals:
     void webPageStyleUpdated();
 
 private slots:
-    void downloadCompleted();
+    void extractionCompleted(const QString &filePath);
+    void extractionError(const QString &filePath, const QString &errorString);
 
+    void downloadCompleted();
 
     void on_downloadProgress(quint64 received, quint64 total);
     void on_downloadDocsetButton_clicked();
@@ -66,7 +68,6 @@ private:
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
     void downloadDashDocset(const QString &name);
-    void extractDocset(const DocsetMetadata &metadata);
 
     void startTasks(qint8 tasks = 1);
     void endTasks(qint8 tasks = 1);
@@ -77,7 +78,6 @@ private:
     QNetworkReply *startDownload(const QUrl &url);
     void stopDownloads();
     void saveSettings();
-    QString tarPath() const;
 
     enum DocsetProgressRoles {
         ZealDocsetDoneInstalling = Qt::UserRole + 20

@@ -14,7 +14,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QMessageBox>
-#include <QProcess>
 #include <QTemporaryFile>
 
 #include <QtConcurrent/QtConcurrent>
@@ -62,12 +61,65 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     connect(ui->downloadButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
     connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateFeedDocsets);
 
+    connect(m_application, &Core::Application::extractionCompleted,
+            this, &SettingsDialog::extractionCompleted);
+    connect(m_application, &Core::Application::extractionError,
+            this, &SettingsDialog::extractionError);
+
     loadSettings();
 }
 
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+void SettingsDialog::extractionCompleted(const QString &filePath)
+{
+    QString docsetName;
+
+    /// FIXME: Come up with a better approach
+    for (const QString &key : m_tmpFiles.keys()) {
+        if (m_tmpFiles[key]->fileName() == filePath) {
+            docsetName = key;
+            break;
+        }
+    }
+
+    const QDir dataDir(m_application->settings()->docsetPath);
+    const QString docsetPath = dataDir.absoluteFilePath(docsetName + QStringLiteral(".docset"));
+
+
+    // Write metadata about docset
+    DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+            ? m_availableDocsets[docsetName]
+            : m_userFeeds[docsetName];
+    metadata.toFile(docsetPath + QStringLiteral("/meta.json"));
+
+    QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
+                              Q_ARG(QString, docsetPath));
+
+    m_zealListModel->resetModulesCounts();
+    emit refreshRequested();
+    ui->listView->reset();
+
+    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    if (listItem) {
+        listItem->setData(ZealDocsetDoneInstalling, true);
+        listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
+        listItem->setData(ProgressItemDelegate::ProgressRole, 1);
+        listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
+    }
+    endTasks();
+    delete m_tmpFiles.take(docsetName);
+}
+
+void SettingsDialog::extractionError(const QString &filePath, const QString &errorString)
+{
+    QString docsetName = QFileInfo(filePath).baseName() + QStringLiteral(".docset");
+    QMessageBox::warning(this, QStringLiteral("Extraction Error"),
+                         QString(QStringLiteral("Cannot extract docset '%1': %2")).arg(docsetName).arg(errorString));
+    delete m_tmpFiles.take(docsetName);
 }
 
 /*!
@@ -144,7 +196,9 @@ void SettingsDialog::downloadCompleted()
         if (oldMeta.isValid())
             oldMetadata = oldMeta.value<DocsetMetadata>();
 
+        /// TODO: Check revision
         if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
+            m_userFeeds[metadata.name()] = metadata;
             QNetworkReply *newReply = startDownload(metadata.url());
             newReply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
             newReply->setProperty(DownloadTypeProperty, DownloadDocset);
@@ -169,7 +223,7 @@ void SettingsDialog::downloadCompleted()
         tmpFile->close();
 
         m_tmpFiles.insert(metadata.name(), tmpFile);
-        extractDocset(metadata);
+        m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath);
         break;
     }
     }
@@ -392,75 +446,6 @@ void SettingsDialog::downloadDashDocset(const QString &name)
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
-QString SettingsDialog::tarPath() const
-{
-#ifdef Q_OS_WIN32
-    QDir tardir(QCoreApplication::applicationDirPath());
-    // quotes required for paths with spaces, like "C:\Program Files"
-    return "\"" + tardir.filePath("bsdtar.exe") + "\"";
-#else
-    return "bsdtar";
-#endif
-}
-
-void SettingsDialog::extractDocset(const DocsetMetadata &metadata)
-{
-    QTemporaryFile *tmpFile = m_tmpFiles.take(metadata.name());
-
-    const QDir dataDir(m_application->settings()->docsetPath);
-    if (!dataDir.exists()) {
-        QMessageBox::critical(this, "No docsets directory found",
-                              QString("'%1' directory not found")
-                              .arg(m_application->settings()->docsetPath));
-        endTasks();
-        return;
-    }
-
-    const QString program = tarPath();
-    QProcess *tar = new QProcess();
-    tar->setWorkingDirectory(dataDir.absolutePath());
-    QStringList args(QStringLiteral("-zqtf"));
-    args.append(tmpFile->fileName());
-    args.append("*docset");
-    tar->start(program, args);
-    tar->waitForFinished();
-    auto line_buf = tar->readLine();
-    auto outDir = QString::fromLocal8Bit(line_buf).split("/")[0];
-
-    args = QStringList(QStringLiteral("-zxf"));
-    args.append(tmpFile->fileName());
-
-    connect(tar, (void (QProcess::*)(int))&QProcess::finished, [this, metadata, outDir, dataDir, tar, tmpFile](int) {
-        QString docsetName = metadata.name() + QStringLiteral(".docset");
-
-        if (outDir != docsetName)
-            QDir(dataDir).rename(outDir, docsetName);
-
-        // Write metadata about docset
-        metadata.toFile(dataDir.absoluteFilePath(docsetName) + QStringLiteral("/meta.json"));
-
-        // FIXME C&P (see "FIXME C&P" below)
-        QMetaObject::invokeMethod(DocsetsRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
-                                  Q_ARG(QString, dataDir.absoluteFilePath(docsetName)));
-        m_zealListModel->resetModulesCounts();
-        emit refreshRequested();
-        ui->listView->reset();
-
-        QListWidgetItem *listItem = findDocsetListItem(metadata.title());
-        if (listItem) {
-            listItem->setData(ZealDocsetDoneInstalling, true);
-            listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
-            listItem->setData(ProgressItemDelegate::ProgressRole, 1);
-            listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
-        }
-        endTasks();
-        delete tar;
-        delete tmpFile;
-    });
-
-    tar->start(program, args);
-}
-
 void SettingsDialog::downloadDocsetList()
 {
     ui->downloadButton->hide();
@@ -480,17 +465,6 @@ void SettingsDialog::on_docsetsList_itemSelectionChanged()
 void SettingsDialog::on_downloadDocsetButton_clicked()
 {
     if (!replies.isEmpty()) {
-        stopDownloads();
-        return;
-    }
-
-    // Idle run of bsdtar to check if it is available
-    QScopedPointer<QProcess> tar(new QProcess());
-    tar->start(tarPath());
-    if (!tar->waitForFinished()) {
-        QMessageBox::critical(this, "bsdtar executable not found",
-                              (QString("'%1' executable not found. It is required to allow extracting docsets. ")
-                               + QString("Please install it if you want to extract docsets from within Zeal.")).arg(tarPath()));
         stopDownloads();
         return;
     }
