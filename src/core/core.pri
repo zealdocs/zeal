@@ -6,5 +6,5 @@ unix:!macx {
     PKGCONFIG += libarchive
 }
 win32: {
-    LIBS += -larchive
+    LIBS += -larchive_static
 }
