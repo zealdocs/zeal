@@ -10,6 +10,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QThread>
+#include <QUrlQuery>
 
 using namespace Zeal;
 using namespace Zeal::Core;
@@ -34,22 +35,8 @@ Application::Application(const QString &query, QObject *parent) :
     m_instance = this;
 
     // Server for detecting already running instances
-    connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QLocalSocket *connection = m_localServer->nextPendingConnection();
-        // Wait a little while the other side writes the bytes
-        connection->waitForReadyRead();
-        if (connection->bytesAvailable()) {
-            QueryType queryType;
-            connection->read(reinterpret_cast<char*>(&queryType), sizeof(QueryType));
-            QString query = QString::fromLocal8Bit(connection->readAll());
+    connect(m_localServer, &QLocalServer::newConnection, this, &Application::socketConnected);
 
-            switch (queryType) {
-            case QueryType::DASH:
-                m_mainWindow->bringToFront(query);
-            }
-        } else
-            m_mainWindow->bringToFront();
-    });
     /// TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
     m_localServer->listen(LocalServerName);
@@ -126,5 +113,46 @@ void Application::applySettings()
         QNetworkProxy::setApplicationProxy(proxy);
         break;
     }
+    }
+}
+
+void Application::socketConnected() {
+    QLocalSocket *connection = m_localServer->nextPendingConnection();
+    // Wait a little while the other side writes the bytes
+    connection->waitForReadyRead();
+    if (connection->bytesAvailable()) {
+        QueryType queryType;
+        connection->read(reinterpret_cast<char*>(&queryType), sizeof(QueryType));
+        QString query = QString::fromLocal8Bit(connection->readAll());
+
+        switch (queryType) {
+        case QueryType::DASH_PLUGIN:
+            query = processPluginQuery(query);
+            // fall through
+        case QueryType::DASH:
+            m_mainWindow->bringToFront(query);
+            break;
+        }
+    }
+}
+
+QString Application::processPluginQuery(QString query)
+{
+    QUrl url(query);
+    if (url.scheme() != QStringLiteral("dash-plugin")) {
+        return QString();
+    }
+
+    size_t queryIndex = query.indexOf(QStringLiteral("dash-plugin://"));
+    query.remove(0, queryIndex + 14);
+    QUrlQuery parsedQuery(query);
+
+    QString key = parsedQuery.queryItemValue(QStringLiteral("keys"));
+    QString queryString = parsedQuery.queryItemValue(QStringLiteral("query"));
+
+    if (key.isEmpty()) {
+        return queryString;
+    } else {
+        return QString("%1:%2").arg(key, queryString);
     }
 }

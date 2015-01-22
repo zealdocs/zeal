@@ -44,6 +44,10 @@ signals:
 
 private slots:
     void applySettings();
+    void socketConnected();
+
+private:
+    static QString processPluginQuery(QString url);
 
 private:
     static Application *m_instance;
