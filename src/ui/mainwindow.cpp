@@ -360,7 +360,7 @@ void MainWindow::createTab()
     newTab->page = new QWebPage(ui->webView);
 #ifndef USE_WEBENGINE
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    //newTab->page->setNetworkAccessManager(m_zealNetworkManager);
+    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
 #endif
 
     ui->treeView->setModel(NULL);
