@@ -5,6 +5,7 @@
 #include "core/application.h"
 #include "core/settings.h"
 #include "registry/docsetsregistry.h"
+#include "registry/listmodel.h"
 
 #include <QClipboard>
 #include <QDir>

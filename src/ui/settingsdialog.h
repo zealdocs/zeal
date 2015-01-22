@@ -1,11 +1,11 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "registry/listmodel.h"
 #include "registry/docsetmetadata.h"
 
 #include <QDialog>
 #include <QHash>
+#include <QMap>
 #include <QUrl>
 
 class QAbstractButton;
@@ -18,6 +18,8 @@ class SettingsDialog;
 }
 
 namespace Zeal {
+
+class ListModel;
 
 namespace Core {
 class Application;
