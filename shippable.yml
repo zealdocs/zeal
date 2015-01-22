@@ -21,7 +21,6 @@ install:
   - 7z x libarchive-3.1.2-win32-mingw491.7z -o$HOME/qt/Tools/mingw491_32/i686-w64-mingw32
   - rm -r libarchive-3.1.2-win32-mingw491.7z
   # Setup environment
-  - ls $HOME/qt
   - echo "[Paths]" > $HOME/qt/5.4/mingw491_32/bin/qt.conf
   - echo "Prefix=.." >> $HOME/qt/5.4/mingw491_32/bin/qt.conf
   - echo '[HKEY_CURRENT_USER\Environment]' > $HOME/qt/temp.reg
