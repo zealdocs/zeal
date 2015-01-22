@@ -18,7 +18,7 @@ Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.
 
 ## Download
 
-For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html). Also, the latest unstable builds are available [here]( https://bitbucket.org/jerzykozera/zeal-win32-binary-downloads/downloads).
+For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html). Also, the latest unstable builds are available [here]( https://bitbucket.org/zealdocs/zeal-win32-binary-downloads/downloads).
 
 ## How to use
 
