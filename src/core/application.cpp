@@ -38,9 +38,16 @@ Application::Application(const QString &query, QObject *parent) :
         QLocalSocket *connection = m_localServer->nextPendingConnection();
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
-        if (connection->bytesAvailable())
-            m_mainWindow->bringToFront(QString::fromLocal8Bit(connection->readAll()));
-        else
+        if (connection->bytesAvailable()) {
+            QueryType queryType;
+            connection->read(reinterpret_cast<char*>(&queryType), sizeof(QueryType));
+            QString query = QString::fromLocal8Bit(connection->readAll());
+
+            switch (queryType) {
+            case QueryType::DASH:
+                m_mainWindow->bringToFront(query);
+            }
+        } else
             m_mainWindow->bringToFront();
     });
     /// TODO: Verify if removeServer() is needed

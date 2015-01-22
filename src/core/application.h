@@ -17,6 +17,11 @@ namespace Core {
 class Extractor;
 class Settings;
 
+enum class QueryType {
+    DASH,
+    DASH_PLUGIN
+};
+
 class Application : public QObject
 {
     Q_OBJECT
