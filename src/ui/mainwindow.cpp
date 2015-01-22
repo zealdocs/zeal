@@ -619,22 +619,20 @@ void MainWindow::createTrayIcon()
 #endif
 }
 
-void MainWindow::bringToFront()
+void MainWindow::bringToFront(const QString &query)
 {
     show();
     setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
     raise();
     activateWindow();
     ui->lineEdit->setFocus();
-}
 
-void MainWindow::bringToFrontAndSearch(const QString &query)
-{
-    bringToFront();
-    m_searchState->zealSearch.setQuery(query);
-    ui->lineEdit->setText(query);
-    ui->treeView->setFocus();
-    ui->treeView->activated(ui->treeView->currentIndex());
+    if (!query.isEmpty()) {
+        m_searchState->zealSearch.setQuery(query);
+        ui->lineEdit->setText(query);
+        ui->treeView->setFocus();
+        ui->treeView->activated(ui->treeView->currentIndex());
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

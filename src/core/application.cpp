@@ -39,7 +39,9 @@ Application::Application(const QString &query, QObject *parent) :
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
         if (connection->bytesAvailable())
-            m_mainWindow->bringToFrontAndSearch(QString::fromLocal8Bit(connection->readAll()));
+            m_mainWindow->bringToFront(QString::fromLocal8Bit(connection->readAll()));
+        else
+            m_mainWindow->bringToFront();
     });
     /// TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
@@ -55,7 +57,7 @@ Application::Application(const QString &query, QObject *parent) :
     applySettings();
 
     if (!query.isEmpty())
-        m_mainWindow->bringToFrontAndSearch(query);
+        m_mainWindow->bringToFront(query);
     else if (!m_settings->startMinimized)
         m_mainWindow->show();
 }

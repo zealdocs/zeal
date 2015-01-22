@@ -80,13 +80,8 @@ int main(int argc, char *argv[])
         socket->connectToServer(Zeal::Core::Application::localServerName());
 
         if (socket->waitForConnected(500)) {
-            if (!clParams.query.isEmpty()) {
-                socket->write(clParams.query.toLocal8Bit());
-                socket->flush();
-            } else {
-                QTextStream(stdout) << QObject::tr("Already running. Terminating.") << endl;
-            }
-
+            socket->write(clParams.query.toLocal8Bit());
+            socket->flush();
             return 0;
         }
     }

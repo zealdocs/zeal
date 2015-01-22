@@ -74,7 +74,7 @@ public:
     explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = 0);
     ~MainWindow();
 
-    void bringToFrontAndSearch(const QString &query);
+    void bringToFront(const QString &query = QString());
     void createTab();
 
 protected:
@@ -97,7 +97,6 @@ private slots:
     void applyWebPageStyle();
 
 private:
-    void bringToFront();
     void displayViewActions();
     void loadSections(const QString &docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
