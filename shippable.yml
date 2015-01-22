@@ -4,7 +4,7 @@ before_install:
   - dpkg --add-architecture i386
   - shippable_retry sudo apt-get -y -q update
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip git curl
+  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip curl
   # Install Qt
   - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
   - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
