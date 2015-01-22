@@ -48,6 +48,7 @@ private slots:
 
 private:
     static QString processPluginQuery(QString url);
+    static void associateProtocolHandler();
 
 private:
     static Application *m_instance;
