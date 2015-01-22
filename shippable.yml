@@ -18,7 +18,7 @@ install:
   - rm -f $HOME/qt/qt.exe
   # Install libarchive headers and library
   - wget -nv https://bitbucket.org/zealdocs/zeal-win32-binary-downloads/downloads/libarchive-3.1.2-win32-mingw491.7z
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x libarchive-3.1.2-win32-mingw491.7z -o$HOME/qt/Tools/mingw491_32/i686-w64-mingw32'
+  - bash -c '[ -f $HOME/qt/Tools/mingw491_32/i686-w64-mingw32/include/libarchive.h ] || 7z x libarchive-3.1.2-win32-mingw491.7z -o$HOME/qt/Tools/mingw491_32/i686-w64-mingw32'
   - rm -r libarchive-3.1.2-win32-mingw491.7z
   # Setup environment
   - echo "[Paths]" > $HOME/qt/5.4/mingw491_32/bin/qt.conf
