@@ -202,47 +202,41 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QRadioButton" name="m_noProxySettings">
-         <property name="text">
-          <string>No proxy</string>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>HTTP Proxy</string>
          </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="m_systemProxySettings">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>System proxy settings</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="m_manualProxySettings">
-         <property name="text">
-          <string>Manual proxy configuration</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="m_rootWidget" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_6">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QRadioButton" name="m_noProxySettings">
+            <property name="text">
+             <string>No proxy</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="m_systemProxySettings">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>System proxy settings</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="m_manualProxySettings">
+            <property name="text">
+             <string>Manual proxy configuration</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <layout class="QVBoxLayout" name="m_httpRootLayout">
             <item>
@@ -361,7 +355,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>0</height>
+              <height>40</height>
              </size>
             </property>
            </spacer>
