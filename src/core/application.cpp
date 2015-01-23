@@ -121,7 +121,8 @@ void Application::applySettings()
     }
 }
 
-void Application::socketConnected() {
+void Application::socketConnected()
+{
     QLocalSocket *connection = m_localServer->nextPendingConnection();
     // Wait a little while the other side writes the bytes
     connection->waitForReadyRead();
@@ -185,6 +186,9 @@ void Application::associateProtocolHandler()
         settings.beginGroup(QStringLiteral("command"));
         settings.setValue(QStringLiteral("Default"),
             QString("\"%1\" %2").arg(path, command));
+    };
+#else
+    auto registerProtocol = [](const QString&, const QString&, const QString&) {
     };
 #endif
 
