@@ -26,7 +26,8 @@ class Application : public QObject
 {
     Q_OBJECT
 public:
-    explicit Application(const QString &query = QString(), QObject *parent = nullptr);
+    explicit Application(const QString &query = QString(), const QString& pluginQuery = QString(),
+        QObject *parent = nullptr);
     ~Application() override;
 
     static QString localServerName();

@@ -23,7 +23,7 @@ const char *LocalServerName = "ZealLocalServer";
 
 Application *Application::m_instance = nullptr;
 
-Application::Application(const QString &query, QObject *parent) :
+Application::Application(const QString &query, const QString& pluginQuery, QObject *parent) :
     QObject(parent),
     m_settings(new Settings(this)),
     m_localServer(new QLocalServer(this)),
@@ -57,6 +57,8 @@ Application::Application(const QString &query, QObject *parent) :
 
     if (!query.isEmpty())
         m_mainWindow->bringToFront(query);
+    else if (!pluginQuery.isEmpty())
+        m_mainWindow->bringToFront(processPluginQuery(pluginQuery));
     else if (!m_settings->startMinimized)
         m_mainWindow->show();
 }
@@ -170,8 +172,10 @@ QString Application::processPluginQuery(QString query)
 void Application::associateProtocolHandler()
 {
 #ifdef Q_OS_WIN32
-    auto registerProtocol = [](const QString& protocol, const QString& description, const QString& command) {
-        QSettings settings(QString("HKEY_CURRENT_USER\\Software\\Classes\\%1").arg(protocol), QSettings::NativeFormat);
+    auto registerProtocol = [](const QString& protocol, const QString& description,
+            const QString& command) {
+        QSettings settings(QString("HKEY_CURRENT_USER\\Software\\Classes\\%1").arg(protocol),
+            QSettings::NativeFormat);
         settings.setValue(QStringLiteral("Default"), description);
         settings.setValue(QStringLiteral("URL Protocol"), QString());
 
