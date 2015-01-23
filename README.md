@@ -1,5 +1,6 @@
-# Zeal [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
+# Zeal
 
+[![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
 
 **zeal**
 *noun*
@@ -14,7 +15,7 @@ Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.
 
 ![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
-[More screenshots (imgur)](http://imgur.com/a/eVi97)
+[More screenshots](http://imgur.com/a/eVi97)
 
 ## Download
 
@@ -29,9 +30,9 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 If you prefer to compile Zeal manually.
 
 ### Requirements
-* Qt 5.2+
-* `libappindicator` and `libappindicator-devel` for notifications
-* you may need to install `libqt5webkit5-dev` and `qtbase5-private-dev`
+* [Qt](https://www.qt.io/) (version 5.2.0 or above is required)
+* [libarchive](http://libarchive.org/)
+* Optionally [libappindicator](https://launchpad.net/libappindicator) for Unity users
 
 To compile it, run `qmake` and `make`. On Linux, a final `make install` is required to install icons.
 
