@@ -146,10 +146,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->action_About, &QAction::triggered, [this]() {
         QMessageBox::about(this, QStringLiteral("About Zeal"),
-                           QStringLiteral("This is Zeal "
-                                          ZEAL_VERSION
-                                          " - a documentation browser.\n\n"
-                                          "For details see http://zealdocs.org/"));
+                           QStringLiteral("This is Zeal ") +
+                           QStringLiteral(ZEAL_VERSION) +
+                           QStringLiteral(" - a documentation browser.\n\n") +
+                           QStringLiteral("For details see http://zealdocs.org/"));
     });
     connect(ui->action_About_QT, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);

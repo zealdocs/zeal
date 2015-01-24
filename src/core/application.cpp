@@ -94,7 +94,7 @@ void Application::extract(const QString &filePath, const QString &destination)
 QNetworkReply *Application::download(const QUrl &url)
 {
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/" ZEAL_VERSION));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/") + QStringLiteral(ZEAL_VERSION));
     return m_networkManager->get(request);
 }
 
