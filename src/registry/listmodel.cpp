@@ -44,7 +44,9 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
 {
     DocsetsRegistry * const docsetRegistry = DocsetsRegistry::instance();
     if (!parent.isValid()) {
-        if (row >= docsetRegistry->count() || row == -1) return QModelIndex();
+        if (row >= docsetRegistry->count() || row == -1)
+            return QModelIndex();
+
         if (column == 0) {
             return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
         } else if (column == 1) {
@@ -63,6 +65,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             }
             return createIndex(row, column, (void *)string(dir.absoluteFilePath("index.html")));
         }
+
         return QModelIndex();
     } else {
         QString docsetName;
@@ -121,7 +124,9 @@ int ListModel::columnCount(const QModelIndex &parent) const
 
 int ListModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.column() > 0 && !i2s(parent)->endsWith("/Modules")) return 0;
+    if (parent.column() > 0 && !i2s(parent)->endsWith("/Modules"))
+        return 0;
+
     if (!parent.isValid()) {
         // root
         return DocsetsRegistry::instance()->count();
@@ -181,23 +186,24 @@ const QString *ListModel::i2s(const QModelIndex &index) const
 
 const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
 {
-    if (m_modulesCounts.isEmpty()) {
-        for (const QString &name : DocsetsRegistry::instance()->names()) {
-            auto db = DocsetsRegistry::instance()->db(name);
-            QSqlQuery q;
-            if (DocsetsRegistry::instance()->type(name) == DASH) {
-                q = db.exec("select type, count(*) from searchIndex group by type");
-            } else if (DocsetsRegistry::instance()->type(name) == ZDASH) {
-                q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
-                            " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
-            }
+    if (!m_modulesCounts.isEmpty())
+        return m_modulesCounts;
 
-            while (q.next()) {
-                int count = q.value(1).toInt();
-                QString typeName = q.value(0).toString();
-                const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
-                        [QPair<QString, QString>(name, typeName)] = count;
-            }
+    for (const QString &name : DocsetsRegistry::instance()->names()) {
+        const QSqlDatabase &db = DocsetsRegistry::instance()->db(name);
+        QSqlQuery q;
+        if (DocsetsRegistry::instance()->type(name) == DASH) {
+            q = db.exec("select type, count(*) from searchIndex group by type");
+        } else if (DocsetsRegistry::instance()->type(name) == ZDASH) {
+            q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
+                        " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
+        }
+
+        while (q.next()) {
+            int count = q.value(1).toInt();
+            QString typeName = q.value(0).toString();
+            const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
+                    [QPair<QString, QString>(name, typeName)] = count;
         }
     }
     return m_modulesCounts;

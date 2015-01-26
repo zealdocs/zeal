@@ -112,8 +112,8 @@ QList<DocsetsRegistry::DocsetEntry> DocsetsRegistry::docsets()
 void DocsetsRegistry::addDocset(const QString &path)
 {
     QDir dir(path);
-    auto name = dir.dirName().replace(QStringLiteral(".docset"), QString());
-    QSqlDatabase db;
+    QString name = dir.dirName().replace(QStringLiteral(".docset"), QString());
+
     DocsetEntry entry;
 
     QDir contentsDir(dir.filePath("Contents"));
@@ -123,19 +123,18 @@ void DocsetsRegistry::addDocset(const QString &path)
         name = QString("%1_cheats").arg(name);
     entry.name = name;
 
-    auto dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
-    db = QSqlDatabase::addDatabase("QSQLITE", name);
+    QString dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", name);
     db.setDatabaseName(dashFile);
     db.open();
     auto q = db.exec("select name from sqlite_master where type='table'");
+
     QStringList tables;
     while (q.next())
         tables.append(q.value(0).toString());
 
-    if (tables.contains("searchIndex"))
-        entry.type = DASH;
-    else
-        entry.type = ZDASH;
+    entry.type = tables.contains("searchIndex") ? DASH : ZDASH;
 
     dir.cd("Contents");
     dir.cd("Resources");
@@ -144,9 +143,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     if (m_docs.contains(name))
         remove(name);
 
-    entry.prefix = entry.info.bundleName.isEmpty()
-            ? name
-            : entry.info.bundleName;
+    entry.prefix = entry.info.bundleName.isEmpty() ? name : entry.info.bundleName;
     entry.db = db;
     entry.dir = dir;
 
