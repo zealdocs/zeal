@@ -221,22 +221,9 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
-           <widget class="QRadioButton" name="m_noProxySettings">
+           <widget class="QRadioButton" name="noProxySettings">
             <property name="text">
              <string>No proxy</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="m_systemProxySettings">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>System proxy settings</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -244,18 +231,31 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="m_manualProxySettings">
+           <widget class="QRadioButton" name="systemProxySettings">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>System proxy settings</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="manualProxySettings">
             <property name="text">
              <string>Manual proxy configuration</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="m_httpRootLayout">
+           <layout class="QVBoxLayout" name="httpRootLayout">
             <item>
-             <layout class="QHBoxLayout" name="m_httpProxyLayout">
+             <layout class="QHBoxLayout" name="httpProxyLayout">
               <item>
-               <widget class="QLabel" name="m_httpProxyLabel">
+               <widget class="QLabel" name="httpProxyLabel">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -265,14 +265,14 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="m_httpProxy">
+               <widget class="QLineEdit" name="httpProxy">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="m_httpProxyPortLabel">
+               <widget class="QLabel" name="httpProxyPortLabel">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -282,7 +282,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="m_httpProxyPort">
+               <widget class="QSpinBox" name="httpProxyPort">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -294,7 +294,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="m_httpProxyNeedsAuth">
+             <widget class="QCheckBox" name="httpProxyNeedsAuth">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -304,7 +304,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="m_httpAuthWidget" native="true">
+             <widget class="QWidget" name="httpAuthWidget" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -319,7 +319,7 @@
                 <number>0</number>
                </property>
                <item row="0" column="0">
-                <widget class="QLabel" name="m_httpProxyUserLabel">
+                <widget class="QLabel" name="httpProxyUserLabel">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -329,14 +329,14 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLineEdit" name="m_httpProxyUser">
+                <widget class="QLineEdit" name="httpProxyUser">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="m_httpProxyPassLabel">
+                <widget class="QLabel" name="httpProxyPassLabel">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -346,7 +346,7 @@
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QLineEdit" name="m_httpProxyPass">
+                <widget class="QLineEdit" name="httpProxyPass">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -557,9 +557,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyLabel</receiver>
+   <receiver>httpProxyLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -573,9 +573,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxy</receiver>
+   <receiver>httpProxy</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -589,9 +589,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyPortLabel</receiver>
+   <receiver>httpProxyPortLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -605,9 +605,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyPort</receiver>
+   <receiver>httpProxyPort</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -621,9 +621,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyNeedsAuth</receiver>
+   <receiver>httpProxyNeedsAuth</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -637,9 +637,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_manualProxySettings</sender>
+   <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpAuthWidget</receiver>
+   <receiver>httpAuthWidget</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -653,9 +653,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_httpProxyNeedsAuth</sender>
+   <sender>httpProxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyUserLabel</receiver>
+   <receiver>httpProxyUserLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -669,9 +669,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_httpProxyNeedsAuth</sender>
+   <sender>httpProxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyPassLabel</receiver>
+   <receiver>httpProxyPassLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -685,9 +685,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_httpProxyNeedsAuth</sender>
+   <sender>httpProxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyUser</receiver>
+   <receiver>httpProxyUser</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -701,9 +701,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_httpProxyNeedsAuth</sender>
+   <sender>httpProxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_httpProxyPass</receiver>
+   <receiver>httpProxyPass</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
