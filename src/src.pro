@@ -6,7 +6,7 @@
 
 TEMPLATE = app
 
-QT += gui gui-private widgets sql xml webkitwidgets
+QT += gui gui-private widgets sql webkitwidgets
 CONFIG += c++11
 
 use_webengine {
