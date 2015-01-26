@@ -7,15 +7,17 @@ namespace Zeal {
 
 struct DocsetInfo
 {
-    explicit DocsetInfo(const QString &filePath = QString());
+    explicit DocsetInfo();
 
-    bool readDocset(const QString &filePath);
+    static DocsetInfo fromPlist(const QString &filePath);
 
+    QString bundleName;
+    QString bundleIdentifier;
     QString indexPath;
     QString family;
     QString keyword;
-    QString bundleName;
-    QString bundleIdentifier;
+    bool isDashDocset = false;
+    bool isJavaScriptEnabled = false;
 };
 
 } // namespace Zeal

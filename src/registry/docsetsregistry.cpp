@@ -117,7 +117,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     DocsetEntry entry;
 
     QDir contentsDir(dir.filePath("Contents"));
-    entry.info.readDocset(contentsDir.absoluteFilePath("Info.plist"));
+    entry.info = DocsetInfo::fromPlist(contentsDir.absoluteFilePath("Info.plist"));
 
     if (entry.info.family == "cheatsheet")
         name = QString("%1_cheats").arg(name);

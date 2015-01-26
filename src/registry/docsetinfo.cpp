@@ -1,41 +1,66 @@
 #include "docsetinfo.h"
 
-#include <QDomDocument>
 #include <QFile>
+#include <QVariant>
+#include <QXmlStreamReader>
 
 using namespace Zeal;
 
-DocsetInfo::DocsetInfo(const QString &filePath)
+DocsetInfo::DocsetInfo()
 {
-    if (QFile::exists(filePath))
-        readDocset(filePath);
 }
 
-bool DocsetInfo::readDocset(const QString &filePath)
+DocsetInfo DocsetInfo::fromPlist(const QString &filePath)
 {
+    DocsetInfo docsetInfo;
+
     QScopedPointer<QFile> file(new QFile(filePath));
     if (!file->open(QIODevice::ReadOnly))
-        return false;
+        return docsetInfo;
 
-    QDomDocument infoplist(QStringLiteral("infoplist"));
-    if (!infoplist.setContent(file.data()))
-        return false;
+    QXmlStreamReader xml(file.data());
 
-    const QDomNodeList keys = infoplist.elementsByTagName(QStringLiteral("key"));
-    for (int i = 0; i < keys.count(); ++i) {
-        const QDomNode key = keys.at(i);
-        const QString nodeValue = key.firstChild().nodeValue();
+    while (!xml.atEnd()) {
+        const QXmlStreamReader::TokenType token = xml.readNext();
+        if (token == QXmlStreamReader::StartDocument || token != QXmlStreamReader::StartElement)
+            continue;
 
-        if (nodeValue == QStringLiteral("dashIndexFilePath"))
-            indexPath = key.nextSibling().firstChild().nodeValue();
-        else if (nodeValue == QStringLiteral("DashDocSetKeyword"))
-            keyword = key.nextSibling().firstChild().nodeValue();
-        else if (nodeValue == QStringLiteral("DashDocSetFamily"))
-            family = key.nextSibling().firstChild().nodeValue();
-        else if (nodeValue == QStringLiteral("CFBundleName"))
-            bundleName = key.nextSibling().firstChild().nodeValue();
-        else if (nodeValue == QStringLiteral("CFBundleIdentifier"))
-            bundleIdentifier = key.nextSibling().firstChild().nodeValue();
+        if (xml.name() != QStringLiteral("key"))
+            continue;
+
+        const QString key = xml.readElementText();
+
+        // Skip whitespaces between tags
+        while (xml.readNext() == QXmlStreamReader::Characters);
+
+        if (xml.tokenType() != QXmlStreamReader::StartElement)
+            continue;
+
+        QVariant value;
+        if (xml.name() == QStringLiteral("string"))
+            value = xml.readElementText();
+        else if (xml.name() == QStringLiteral("true"))
+            value = true;
+        else
+            continue; // Skip unknown types
+
+        if (key == QStringLiteral("dashIndexFilePath"))
+            docsetInfo.indexPath = value.toString();
+        else if (key == QStringLiteral("DashDocSetKeyword"))
+            docsetInfo.keyword = value.toString();
+        else if (key == QStringLiteral("DashDocSetFamily"))
+            docsetInfo.family = value.toString();
+        else if (key == QStringLiteral("CFBundleName"))
+            docsetInfo.bundleName = value.toString();
+        else if (key == QStringLiteral("CFBundleIdentifier"))
+            docsetInfo.bundleIdentifier = value.toString();
+        else if (key == QStringLiteral("isDashDocset"))
+            docsetInfo.isDashDocset = value.toBool();
+        else if (key == QStringLiteral("isJavaScriptEnabled"))
+            docsetInfo.isJavaScriptEnabled = value.toBool();
     }
-    return true;
+
+    /// TODO: Check xml.hasError()
+
+    return docsetInfo;
 }
