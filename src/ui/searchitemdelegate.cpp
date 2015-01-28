@@ -7,18 +7,18 @@
 #include <QFontMetrics>
 #include <QPainter>
 
-ZealSearchItemDelegate::ZealSearchItemDelegate(QObject *parent, QLineEdit *lineEdit_,
-                                               QWidget *view_) :
-    QStyledItemDelegate(parent),
-    lineEdit(lineEdit_),
-    view(view_)
+SearchItemDelegate::SearchItemDelegate(QLineEdit *lineEdit, QWidget *view) :
+    QStyledItemDelegate(view),
+    m_lineEdit(lineEdit),
+    m_view(view)
 {
 }
 
-void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
+void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
                                    const QModelIndex &index) const
 {
     painter->save();
+
     QStyleOptionViewItem option(option_);
     option.text = index.data().toString();
     option.features |= QStyleOptionViewItem::HasDisplay;
@@ -29,7 +29,7 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     }
 
     ZealSearchItemStyle style;
-    style.drawControl(QStyle::CE_ItemViewItem, &option, painter, view);
+    style.drawControl(QStyle::CE_ItemViewItem, &option, painter, m_view);
 
     if (option.state & QStyle::State_Selected) {
 #ifdef Q_OS_WIN32
@@ -39,31 +39,31 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
         painter->setPen(QPen(option.palette.highlightedText(), 1));
     }
 
-    auto rect = static_cast<QApplication *>(QApplication::instance())->style()->subElementRect(
-        QStyle::SE_ItemViewItemText, &option, view);
-    const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, view);
+    QRect rect = qApp->style()->subElementRect(QStyle::SE_ItemViewItemText, &option, m_view);
+    const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, m_view);
     rect.adjust(margin, 0, 2, 0); // +2px for bold text
 
-    QFontMetrics metrics(painter->font());
     QFont bold(painter->font());
     bold.setBold(true);
-    QFontMetrics metricsBold(bold);
-    auto elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
+    const QFontMetrics metricsBold(bold);
+
+    const QFontMetrics metrics(painter->font());
+    QString elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
+
     QString highlight;
-    if (lineEdit)
-        highlight = Zeal::SearchQuery(lineEdit->text()).coreQuery();
+    if (m_lineEdit)
+        highlight = Zeal::SearchQuery(m_lineEdit->text()).coreQuery();
 
     int from = 0;
     while (from < elided.size()) {
-        int until = elided.toLower().indexOf(highlight.toLower(), from);
-        if (!highlight.size()) until = -1;
+        const int until = highlight.isEmpty() ? -1 : elided.toLower().indexOf(highlight.toLower(), from);
 
         if (until == -1) {
             painter->drawText(rect, elided.mid(from));
             from = elided.size();
         } else {
-            painter->drawText(rect, elided.mid(from, until-from));
-            rect.setLeft(rect.left() + metrics.width(elided.mid(from, until-from)));
+            painter->drawText(rect, elided.mid(from, until - from));
+            rect.setLeft(rect.left() + metrics.width(elided.mid(from, until - from)));
             QFont old(painter->font());
             painter->setFont(bold);
             painter->drawText(rect, elided.mid(until, highlight.size()));
@@ -72,5 +72,6 @@ void ZealSearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
             from = until + highlight.size();
         }
     }
+
     painter->restore();
 }

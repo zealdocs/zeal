@@ -4,18 +4,17 @@
 #include <QLineEdit>
 #include <QStyledItemDelegate>
 
-class ZealSearchItemDelegate : public QStyledItemDelegate
+class SearchItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ZealSearchItemDelegate(QObject *parent = 0, QLineEdit *lineEdit_ = nullptr,
-                                    QWidget *view_ = nullptr);
+    explicit SearchItemDelegate(QLineEdit *lineEdit_ = nullptr, QWidget *view = nullptr);
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
 
 private:
-    QLineEdit *lineEdit;
-    QWidget *view;
+    QLineEdit *m_lineEdit;
+    QWidget *m_view;
 };
 
 #endif // SEARCHITEMDELEGATE_H

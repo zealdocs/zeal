@@ -169,8 +169,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     setupSearchBoxCompletions();
     ui->treeView->setModel(m_zealListModel);
     ui->treeView->setColumnHidden(1, true);
-    ui->treeView->setItemDelegate(new ZealSearchItemDelegate(ui->treeView, ui->lineEdit,
-                                                             ui->treeView));
+    ui->treeView->setItemDelegate(new SearchItemDelegate(ui->lineEdit, ui->treeView));
     m_treeViewClicked = false;
 
     createTab();
