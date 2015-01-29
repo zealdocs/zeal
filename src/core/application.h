@@ -17,11 +17,17 @@ namespace Core {
 class Extractor;
 class Settings;
 
+enum class QueryType {
+    DASH,
+    DASH_PLUGIN
+};
+
 class Application : public QObject
 {
     Q_OBJECT
 public:
-    explicit Application(const QString &query = QString(), QObject *parent = nullptr);
+    explicit Application(const QString &query = QString(), const QString& pluginQuery = QString(),
+        QObject *parent = nullptr);
     ~Application() override;
 
     static QString localServerName();
@@ -39,6 +45,11 @@ signals:
 
 private slots:
     void applySettings();
+    void socketConnected();
+
+private:
+    static QString processPluginQuery(QString url);
+    static void associateProtocolHandler();
 
 private:
     static Application *m_instance;

@@ -16,6 +16,7 @@ struct CommandLineParameters
 {
     bool force;
     QString query;
+    QString pluginQuery;
 };
 
 CommandLineParameters parseCommandLine(const QCoreApplication &app)
@@ -31,12 +32,23 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
                                         QObject::tr("Query <search term>."),
                                         QStringLiteral("term")));
+    parser.addOption(QCommandLineOption({QStringLiteral("p"), QStringLiteral("plugin-query") },
+                                        QObject::tr("dash-plugin Query <query>."),
+                                        QStringLiteral("query")));
     parser.process(app);
 
     return {
         parser.isSet(QStringLiteral("force")),
-        parser.value(QStringLiteral("query"))
+        parser.value(QStringLiteral("query")),
+        parser.value(QStringLiteral("plugin-query"))
     };
+}
+
+void sendQuery(QLocalSocket& socket, const QString& query, Zeal::Core::QueryType type)
+{
+    socket.write(reinterpret_cast<const char*>(&type), sizeof(type));
+    socket.write(query.toLocal8Bit());
+    socket.flush();
 }
 
 /// TODO: Verify if this bug still exists in Qt 5.2+
@@ -80,8 +92,12 @@ int main(int argc, char *argv[])
         socket->connectToServer(Zeal::Core::Application::localServerName());
 
         if (socket->waitForConnected(500)) {
-            socket->write(clParams.query.toLocal8Bit());
-            socket->flush();
+            if (!clParams.query.isEmpty()) {
+                sendQuery(*socket, clParams.query, Zeal::Core::QueryType::DASH);
+            } else {
+                sendQuery(*socket, clParams.pluginQuery, Zeal::Core::QueryType::DASH_PLUGIN);
+            }
+
             return 0;
         }
     }

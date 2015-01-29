@@ -4,12 +4,15 @@
 #include "settings.h"
 #include "ui/mainwindow.h"
 
+#include <QApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
+#include <QSettings>
 #include <QThread>
+#include <QUrlQuery>
 
 using namespace Zeal;
 using namespace Zeal::Core;
@@ -20,7 +23,7 @@ const char *LocalServerName = "ZealLocalServer";
 
 Application *Application::m_instance = nullptr;
 
-Application::Application(const QString &query, QObject *parent) :
+Application::Application(const QString &query, const QString& pluginQuery, QObject *parent) :
     QObject(parent),
     m_settings(new Settings(this)),
     m_localServer(new QLocalServer(this)),
@@ -34,18 +37,14 @@ Application::Application(const QString &query, QObject *parent) :
     m_instance = this;
 
     // Server for detecting already running instances
-    connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QLocalSocket *connection = m_localServer->nextPendingConnection();
-        // Wait a little while the other side writes the bytes
-        connection->waitForReadyRead();
-        if (connection->bytesAvailable())
-            m_mainWindow->bringToFront(QString::fromLocal8Bit(connection->readAll()));
-        else
-            m_mainWindow->bringToFront();
-    });
+    connect(m_localServer, &QLocalServer::newConnection, this, &Application::socketConnected);
+
     /// TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
     m_localServer->listen(LocalServerName);
+
+    // Register for protocol queries
+    associateProtocolHandler();
 
     // Extractor setup
     m_extractor->moveToThread(m_extractorThread);
@@ -58,6 +57,8 @@ Application::Application(const QString &query, QObject *parent) :
 
     if (!query.isEmpty())
         m_mainWindow->bringToFront(query);
+    else if (!pluginQuery.isEmpty())
+        m_mainWindow->bringToFront(processPluginQuery(pluginQuery));
     else if (!m_settings->startMinimized)
         m_mainWindow->show();
 }
@@ -121,4 +122,85 @@ void Application::applySettings()
         break;
     }
     }
+}
+
+void Application::socketConnected()
+{
+    QLocalSocket *connection = m_localServer->nextPendingConnection();
+    // Wait a little while the other side writes the bytes
+    connection->waitForReadyRead();
+    if (connection->bytesAvailable()) {
+        QueryType queryType;
+        connection->read(reinterpret_cast<char*>(&queryType), sizeof(QueryType));
+        QString query = QString::fromLocal8Bit(connection->readAll());
+
+        switch (queryType) {
+        case QueryType::DASH_PLUGIN:
+            query = processPluginQuery(query);
+            // fall through
+        case QueryType::DASH:
+            m_mainWindow->bringToFront(query);
+            break;
+        }
+    }
+}
+
+QString Application::processPluginQuery(QString query)
+{
+    QUrl url(query);
+    if (url.scheme() != QStringLiteral("dash-plugin")) {
+        return QString();
+    }
+
+    size_t queryIndex = query.indexOf(QStringLiteral("dash-plugin://"));
+    query.remove(0, queryIndex + 14);
+    if (query.endsWith('/')) {
+        query.remove(query.length() - 1, 1);
+    }
+
+    QUrlQuery parsedQuery(query);
+
+    QString key = parsedQuery.queryItemValue(QStringLiteral("keys"));
+    QString queryString = parsedQuery.queryItemValue(QStringLiteral("query"));
+
+    if (key.isEmpty()) {
+        return queryString;
+    } else {
+        return QString("%1:%2").arg(key, queryString);
+    }
+}
+
+void Application::associateProtocolHandler()
+{
+#ifdef Q_OS_WIN32
+    auto registerProtocol = [](const QString& protocol, const QString& description,
+            const QString& command) {
+        QSettings settings(QString("HKEY_CURRENT_USER\\Software\\Classes\\%1").arg(protocol),
+            QSettings::NativeFormat);
+        settings.setValue(QStringLiteral("Default"), description);
+        settings.setValue(QStringLiteral("URL Protocol"), QString());
+
+        QString path(QApplication::applicationFilePath());
+        path.replace('/', '\\');
+        settings.beginGroup(QStringLiteral("DefaultIcon"));
+        settings.setValue(QStringLiteral("Default"), QString("%1,1").arg(path));
+        settings.endGroup();
+
+        settings.beginGroup(QStringLiteral("shell"));
+        settings.beginGroup(QStringLiteral("open"));
+        settings.beginGroup(QStringLiteral("command"));
+        settings.setValue(QStringLiteral("Default"),
+            QString("\"%1\" %2").arg(path, command));
+    };
+#else
+    auto registerProtocol = [](const QString&, const QString&, const QString&) {
+    };
+#endif
+
+    registerProtocol(QStringLiteral("dash"),
+        QStringLiteral("Zeal Search (Dash Protocol)"),
+        QStringLiteral("--query \"%1\""));
+    registerProtocol(QStringLiteral("dash-plugin"),
+        QStringLiteral("Zeal Search (Dash Plugin Protocol)"),
+        QStringLiteral("--plugin-query \"%1\""));
 }
