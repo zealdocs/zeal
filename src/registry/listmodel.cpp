@@ -29,7 +29,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
-                retval = DocsetsRegistry::instance()->entry(retval)->info.bundleName;
+                retval = DocsetsRegistry::instance()->entry(retval).info.bundleName;
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
@@ -50,11 +50,11 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         if (column == 0) {
             return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            DocsetsRegistry::DocsetEntry *entry = docsetRegistry->entry(docsetRegistry->names().at(row));
-            QDir dir(entry->documentPath);
+            const DocsetsRegistry::DocsetEntry &entry = docsetRegistry->entry(docsetRegistry->names().at(row));
+            QDir dir(entry.documentPath);
 
-            if (!entry->info.indexPath.isEmpty()) {
-                auto path = entry->info.indexPath.split("/");
+            if (!entry.info.indexPath.isEmpty()) {
+                auto path = entry.info.indexPath.split("/");
                 auto filename = path.last();
                 path.removeLast();
                 for (auto directory : path) {
@@ -248,7 +248,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         /// TODO: parent name, splitting by '.', as in DocsetsRegistry
         if (docsetRegistry->type(docsetName) == ZDASH)
             filePath += QStringLiteral("#") + query.value(2).toString();
-        item.second = QDir(docsetRegistry->entry(docsetName)->documentPath).absoluteFilePath(filePath);
+        item.second = QDir(docsetRegistry->entry(docsetName).documentPath).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
                 [QPair<QString, int>(path, i)] = item;
         ++i;

@@ -29,7 +29,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return QVariant(item->name());
 
     } else if (index.column() == 1) {
-        const QDir dir(DocsetsRegistry::instance()->entry(item->docsetName())->documentPath);
+        const QDir dir(DocsetsRegistry::instance()->entry(item->docsetName()).documentPath);
         return QVariant(dir.absoluteFilePath(item->path()));
     }
     return QVariant();

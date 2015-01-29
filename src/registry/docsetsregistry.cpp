@@ -149,9 +149,9 @@ void DocsetsRegistry::addDocset(const QString &path)
     m_docs[name] = entry;
 }
 
-DocsetsRegistry::DocsetEntry *DocsetsRegistry::entry(const QString &name)
+const DocsetsRegistry::DocsetEntry &DocsetsRegistry::entry(const QString &name)
 {
-    return &m_docs[name];
+    return m_docs[name];
 }
 
 void DocsetsRegistry::runQuery(const QString &query)
