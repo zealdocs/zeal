@@ -50,12 +50,6 @@ void DocsetsRegistry::clear()
         remove(key);
 }
 
-const DocsetMetadata &DocsetsRegistry::meta(const QString &name)
-{
-    Q_ASSERT(m_docs.contains(name));
-    return m_docs[name].metadata;
-}
-
 QIcon DocsetsRegistry::icon(const QString &docsetName) const
 {
     const DocsetEntry &entry = m_docs[docsetName];

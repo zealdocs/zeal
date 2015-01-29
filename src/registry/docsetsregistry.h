@@ -39,7 +39,6 @@ public:
     void remove(const QString &name);
     void clear();
 
-    const DocsetMetadata &meta(const QString &name);
     QIcon icon(const QString &docsetName) const;
     DocsetType type(const QString &name) const;
 

@@ -344,7 +344,7 @@ void SettingsDialog::updateFeedDocsets()
     bool missingMetadata = false;
 
     foreach (const QString &name, docsetNames) {
-        const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
+        const DocsetMetadata metadata = DocsetsRegistry::instance()->entry(name).metadata;
         if (metadata.source().isEmpty())
             missingMetadata = true;
 
@@ -386,7 +386,7 @@ void SettingsDialog::updateFeedDocsets()
     watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
         foreach (const QString &name, docsetNames) {
-            const DocsetMetadata metadata = DocsetsRegistry::instance()->meta(name);
+            const DocsetMetadata metadata = DocsetsRegistry::instance()->entry(name).metadata;
             if (!metadata.source().isEmpty() && m_availableDocsets.contains(name))
                 downloadDashDocset(name);
         }
