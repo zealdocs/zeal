@@ -190,13 +190,13 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
         return m_modulesCounts;
 
     for (const QString &name : DocsetsRegistry::instance()->names()) {
-        const QSqlDatabase &db = DocsetsRegistry::instance()->db(name);
+        const DocsetsRegistry::DocsetEntry &docset = DocsetsRegistry::instance()->entry(name);
         QSqlQuery q;
         if (DocsetsRegistry::instance()->type(name) == DASH) {
-            q = db.exec("select type, count(*) from searchIndex group by type");
+            q = docset.db.exec("select type, count(*) from searchIndex group by type");
         } else if (DocsetsRegistry::instance()->type(name) == ZDASH) {
-            q = db.exec("select ztypename, count(*) from ztoken join ztokentype"
-                        " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
+            q = docset.db.exec("select ztypename, count(*) from ztoken join ztokentype"
+                               " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
         }
 
         while (q.next()) {
@@ -215,14 +215,13 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
     if (m_items.contains(pair))
         return m_items[pair];
 
-    DocsetsRegistry * const docsetRegistry = DocsetsRegistry::instance();
-
     const QString docsetName = path.split('/')[0];
+    const DocsetsRegistry::DocsetEntry &docset = DocsetsRegistry::instance()->entry(docsetName);
+
     const QString type = singularize(path.split('/')[1]);
-    QSqlDatabase &db = docsetRegistry->db(docsetName);
 
     QString queryStr;
-    switch (docsetRegistry->type(docsetName)) {
+    switch (docset.type) {
     case DASH:
         queryStr = QString("select name, path from searchIndex where type='%1' order by name asc")
                 .arg(type);
@@ -236,7 +235,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         break;
     }
 
-    QSqlQuery query = db.exec(queryStr);
+    QSqlQuery query = docset.db.exec(queryStr);
 
     int i = 0;
     while (query.next()) {
@@ -246,9 +245,9 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
 
         /// FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
         /// TODO: parent name, splitting by '.', as in DocsetsRegistry
-        if (docsetRegistry->type(docsetName) == ZDASH)
+        if (docset.type == ZDASH)
             filePath += QStringLiteral("#") + query.value(2).toString();
-        item.second = QDir(docsetRegistry->entry(docsetName).documentPath).absoluteFilePath(filePath);
+        item.second = QDir(docset.documentPath).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
                 [QPair<QString, int>(path, i)] = item;
         ++i;

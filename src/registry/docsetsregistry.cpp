@@ -50,12 +50,6 @@ void DocsetsRegistry::clear()
         remove(key);
 }
 
-QSqlDatabase &DocsetsRegistry::db(const QString &name)
-{
-    Q_ASSERT(m_docs.contains(name));
-    return m_docs[name].db;
-}
-
 const DocsetMetadata &DocsetsRegistry::meta(const QString &name)
 {
     Q_ASSERT(m_docs.contains(name));
@@ -219,7 +213,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
                                "zanchor asc limit 100").arg(curQuery, notQuery,
                                                             subNames.arg("ztokenname", curQuery));
             }
-            q = db(docset.name).exec(qstr);
+            q = docset.db.exec(qstr);
             while (q.next()) {
                 QList<QVariant> values;
                 for (int i = 0; i < cols; ++i)
