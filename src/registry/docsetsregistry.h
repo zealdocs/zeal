@@ -25,9 +25,9 @@ public:
     struct DocsetEntry {
         QString name;
         QString prefix;
-        QSqlDatabase db;
-        QDir dir;
         DocsetType type;
+        QString documentPath;
+        QSqlDatabase db;
         DocsetMetadata metadata;
         DocsetInfo info;
     };
@@ -40,7 +40,6 @@ public:
     void clear();
 
     QSqlDatabase &db(const QString &name);
-    const QDir &dir(const QString &name);
     const DocsetMetadata &meta(const QString &name);
     QIcon icon(const QString &docsetName) const;
     DocsetType type(const QString &name) const;

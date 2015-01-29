@@ -51,7 +51,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
         } else if (column == 1) {
             DocsetsRegistry::DocsetEntry *entry = docsetRegistry->entry(docsetRegistry->names().at(row));
-            QDir dir(entry->dir);
+            QDir dir(entry->documentPath);
 
             if (!entry->info.indexPath.isEmpty()) {
                 auto path = entry->info.indexPath.split("/");
@@ -248,7 +248,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         /// TODO: parent name, splitting by '.', as in DocsetsRegistry
         if (docsetRegistry->type(docsetName) == ZDASH)
             filePath += QStringLiteral("#") + query.value(2).toString();
-        item.second = docsetRegistry->dir(docsetName).absoluteFilePath(filePath);
+        item.second = QDir(docsetRegistry->entry(docsetName)->documentPath).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
                 [QPair<QString, int>(path, i)] = item;
         ++i;
