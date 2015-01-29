@@ -35,6 +35,7 @@ public:
     static DocsetsRegistry *instance();
 
     int count() const;
+    bool contains(const QString &name) const;
     QStringList names() const;
     void remove(const QString &name);
     void clear();

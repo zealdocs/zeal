@@ -189,8 +189,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     if (!m_modulesCounts.isEmpty())
         return m_modulesCounts;
 
-    for (const QString &name : DocsetsRegistry::instance()->names()) {
-        const DocsetsRegistry::DocsetEntry &docset = DocsetsRegistry::instance()->entry(name);
+    for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
         QSqlQuery q;
         if (docset.type == DASH) {
             q = docset.db.exec("select type, count(*) from searchIndex group by type");
@@ -203,7 +202,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
             int count = q.value(1).toInt();
             QString typeName = q.value(0).toString();
             const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
-                    [QPair<QString, QString>(name, typeName)] = count;
+                    [QPair<QString, QString>(docset.name, typeName)] = count;
         }
     }
     return m_modulesCounts;

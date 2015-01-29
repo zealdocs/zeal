@@ -340,11 +340,10 @@ void SettingsDialog::endTasks(qint8 tasks)
 void SettingsDialog::updateFeedDocsets()
 {
     ui->downloadableGroup->show();
-    const QStringList docsetNames = DocsetsRegistry::instance()->names();
     bool missingMetadata = false;
 
-    foreach (const QString &name, docsetNames) {
-        const DocsetMetadata metadata = DocsetsRegistry::instance()->entry(name).metadata;
+    for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
+        const DocsetMetadata metadata = docset.metadata;
         if (metadata.source().isEmpty())
             missingMetadata = true;
 
@@ -385,10 +384,9 @@ void SettingsDialog::updateFeedDocsets()
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
     watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
-        foreach (const QString &name, docsetNames) {
-            const DocsetMetadata metadata = DocsetsRegistry::instance()->entry(name).metadata;
-            if (!metadata.source().isEmpty() && m_availableDocsets.contains(name))
-                downloadDashDocset(name);
+        for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
+            if (!docset.metadata.source().isEmpty() && m_availableDocsets.contains(docset.name))
+                downloadDashDocset(docset.name);
         }
     });
 }
@@ -412,7 +410,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
-        if (DocsetsRegistry::instance()->names().contains(metadata.name()))
+        if (DocsetsRegistry::instance()->contains(metadata.name()))
             listItem->setHidden(true);
     }
 }

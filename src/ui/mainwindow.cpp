@@ -189,7 +189,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
-        if (DocsetsRegistry::instance()->names().contains(name))
+        if (DocsetsRegistry::instance()->contains(name))
             loadSections(name, url);
 
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
@@ -306,7 +306,7 @@ QString MainWindow::docsetName(const QUrl &url) const
 
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
-    if (DocsetsRegistry::instance()->names().contains(docsetName))
+    if (DocsetsRegistry::instance()->contains(docsetName))
         return DocsetsRegistry::instance()->icon(docsetName).pixmap(32, 32);
     else
         return QIcon();

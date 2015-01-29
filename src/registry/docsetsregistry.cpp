@@ -33,6 +33,11 @@ int DocsetsRegistry::count() const
     return m_docs.count();
 }
 
+bool DocsetsRegistry::contains(const QString &name) const
+{
+    return m_docs.contains(name);
+}
+
 QStringList DocsetsRegistry::names() const
 {
     return m_docs.keys();
