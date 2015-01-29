@@ -24,16 +24,14 @@ void Extractor::extract(const QString &filePath, const QString &destination)
         return;
     }
 
-    // Save old working directory
-    /// TODO: It's better to use archive_entry_set_pathname() instead of changing cwd
-    const QString cwd = QDir::currentPath();
-    QDir::setCurrent(destination);
+    const QDir destinationDir(destination);
 
     archive_entry *entry;
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        const QString pathname = destinationDir.absoluteFilePath(archive_entry_pathname(entry));
+        archive_entry_set_pathname(entry, qPrintable(pathname));
         archive_read_extract(a, entry, 0);
-
-    QDir::setCurrent(cwd);
+    }
 
     emit completed(filePath);
     archive_read_free(a);
