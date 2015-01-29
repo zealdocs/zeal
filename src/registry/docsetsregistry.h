@@ -40,7 +40,6 @@ public:
     void clear();
 
     QIcon icon(const QString &docsetName) const;
-    DocsetType type(const QString &name) const;
 
     const DocsetEntry &entry(const QString &name);
     // Returns the list of links available in a given webpage.

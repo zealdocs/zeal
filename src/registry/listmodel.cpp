@@ -192,9 +192,9 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     for (const QString &name : DocsetsRegistry::instance()->names()) {
         const DocsetsRegistry::DocsetEntry &docset = DocsetsRegistry::instance()->entry(name);
         QSqlQuery q;
-        if (DocsetsRegistry::instance()->type(name) == DASH) {
+        if (docset.type == DASH) {
             q = docset.db.exec("select type, count(*) from searchIndex group by type");
-        } else if (DocsetsRegistry::instance()->type(name) == ZDASH) {
+        } else if (docset.type == ZDASH) {
             q = docset.db.exec("select ztypename, count(*) from ztoken join ztokentype"
                                " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
         }

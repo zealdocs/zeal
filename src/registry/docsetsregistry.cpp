@@ -75,12 +75,6 @@ QIcon DocsetsRegistry::icon(const QString &docsetName) const
     return icon;
 }
 
-DocsetType DocsetsRegistry::type(const QString &name) const
-{
-    Q_ASSERT(m_docs.contains(name));
-    return m_docs[name].type;
-}
-
 DocsetsRegistry::DocsetsRegistry()
 {
     /// FIXME: Only search should be performed in a separate thread
