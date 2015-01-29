@@ -30,7 +30,7 @@ public:
     Settings *settings() const;
 
 public slots:
-    void extract(const QString &filePath, const QString &destination);
+    void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
 
 signals:

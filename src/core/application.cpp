@@ -85,10 +85,11 @@ Settings *Application::settings() const
     return m_settings;
 }
 
-void Application::extract(const QString &filePath, const QString &destination)
+void Application::extract(const QString &filePath, const QString &destination, const QString &root)
 {
     QMetaObject::invokeMethod(m_extractor, "extract", Qt::QueuedConnection,
-                              Q_ARG(QString, filePath), Q_ARG(QString, destination));
+                              Q_ARG(QString, filePath), Q_ARG(QString, destination),
+                              Q_ARG(QString, root));
 }
 
 QNetworkReply *Application::download(const QUrl &url)

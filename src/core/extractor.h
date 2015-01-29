@@ -13,7 +13,7 @@ public:
     explicit Extractor(QObject *parent = 0);
 
 public slots:
-    void extract(const QString &filePath, const QString &destination);
+    void extract(const QString &filePath, const QString &destination, const QString &root = QString());
 
 signals:
     void error(const QString &filePath, const QString &message);

@@ -224,7 +224,8 @@ void SettingsDialog::downloadCompleted()
         tmpFile->close();
 
         m_tmpFiles.insert(metadata.name(), tmpFile);
-        m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath);
+        m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
+                               metadata.name() + QStringLiteral(".docset"));
         break;
     }
     }

@@ -12,7 +12,7 @@ Extractor::Extractor(QObject *parent) :
 {
 }
 
-void Extractor::extract(const QString &filePath, const QString &destination)
+void Extractor::extract(const QString &filePath, const QString &destination, const QString &root)
 {
     archive *a = archive_read_new();
     archive_read_support_filter_all(a);
@@ -24,12 +24,17 @@ void Extractor::extract(const QString &filePath, const QString &destination)
         return;
     }
 
-    const QDir destinationDir(destination);
+    QDir destinationDir(destination);
+    if (!root.isEmpty())
+        destinationDir = destinationDir.absoluteFilePath(root);
 
+    // TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry;
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-        const QString pathname = destinationDir.absoluteFilePath(archive_entry_pathname(entry));
-        archive_entry_set_pathname(entry, qPrintable(pathname));
+        QString pathname = archive_entry_pathname(entry);
+        if (!root.isEmpty())
+            pathname.remove(0, pathname.indexOf(QLatin1String("/")) + 1);
+        archive_entry_set_pathname(entry, qPrintable(destinationDir.absoluteFilePath(pathname)));
         archive_read_extract(a, entry, 0);
     }
 
