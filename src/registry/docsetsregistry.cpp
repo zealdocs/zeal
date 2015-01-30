@@ -60,7 +60,7 @@ void DocsetsRegistry::clear()
 DocsetsRegistry::DocsetsRegistry()
 {
     /// FIXME: Only search should be performed in a separate thread
-    auto thread = new QThread(this);
+    QThread *thread = new QThread(this);
     moveToThread(thread);
     thread->start();
 }
@@ -89,7 +89,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", name);
     db.setDatabaseName(dashFile);
     db.open();
-    auto q = db.exec("select name from sqlite_master where type='table'");
+    QSqlQuery q = db.exec("select name from sqlite_master where type='table'");
 
     QStringList tables;
     while (q.next())
@@ -158,9 +158,8 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
         subNames += QStringLiteral(" or %1 like '%::%2%' escape '\\'");
         subNames += QStringLiteral(" or %1 like '%/%2%' escape '\\'");
         while (found.size() < 100) {
-            auto curQuery = preparedQuery;
+            QString curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
-            QString parentQuery;
             if (withSubStrings) {
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%" + preparedQuery;
@@ -196,17 +195,17 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
             withSubStrings = true;  // try again searching for substrings
         }
 
-        for (const auto &row : found) {
+        for (const QList<QVariant> &row : found) {
             QString parentName;
             if (!row[1].isNull())
                 parentName = row[1].toString();
 
-            auto path = row[2].toString();
+            QString path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
             if (docset.type == Docset::Type::ZDash)
                 path += "#" + row[3].toString();
 
-            auto itemName = row[0].toString();
+            QString itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
             results.append(SearchResult(itemName, parentName, path, docset.name,
                                         preparedQuery));
@@ -231,7 +230,7 @@ void DocsetsRegistry::normalizeName(QString &itemName, QString &parentName,
     for (unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
         QString sep = separators[i];
         if (itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && initialParent.isNull()) {
-            auto splitted = itemName.split(sep);
+            const QStringList splitted = itemName.split(sep);
             itemName = splitted.at(splitted.size()-1);
             parentName = splitted.at(splitted.size()-2);
         }

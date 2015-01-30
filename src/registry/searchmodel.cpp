@@ -16,7 +16,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
         return QVariant();
 
-    auto item = static_cast<SearchResult *>(index.internalPointer());
+    SearchResult *item = static_cast<SearchResult *>(index.internalPointer());
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
@@ -41,7 +41,7 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
 {
     if (!parent.isValid()) {
         if (dataList.count() <= row) return QModelIndex();
-        auto &item = dataList.at(row);
+        const SearchResult &item = dataList.at(row);
 
         if (column == 0 || column == 1)
             return createIndex(row, column, (void *)&item);

@@ -376,7 +376,7 @@ void SettingsDialog::updateFeedDocsets()
         downloadDocsetList();
 
     // There must be a better way to do this.
-    auto future = QtConcurrent::run([=] {
+    QFuture<void> future = QtConcurrent::run([=] {
         while (m_availableDocsets.isEmpty() || replies.size())
             QThread::yieldCurrentThread();
     });
@@ -512,7 +512,7 @@ void SettingsDialog::on_deleteButton_clicked()
         ui->docsetsProgress->show();
         ui->deleteButton->hide();
         startTasks();
-        auto future = QtConcurrent::run([=] {
+        QFuture<void> future = QtConcurrent::run([=] {
             QDir docsetDir(dataDir);
             bool isDeleted = false;
 

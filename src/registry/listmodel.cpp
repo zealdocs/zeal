@@ -55,10 +55,10 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             QDir dir(entry.documentPath);
 
             if (!entry.info.indexPath.isEmpty()) {
-                auto path = entry.info.indexPath.split("/");
-                auto filename = path.last();
+                QStringList path = entry.info.indexPath.split("/");
+                const QString filename = path.last();
                 path.removeLast();
-                for (auto directory : path) {
+                for (const QString &directory : path) {
                     if (!dir.cd(directory))
                         return createIndex(row, column, (void *)string());
                 }
@@ -78,7 +78,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             // i2s(parent) == docsetName
             if (column == 0) {
                 QList<QString> types;
-                for (auto &pair : modulesCounts().keys()) {
+                for (const QPair<QString, QString> &pair : modulesCounts().keys()) {
                     if (pair.first == *i2s(parent))
                         types.append(pair.second);
                 }
@@ -132,19 +132,19 @@ int ListModel::rowCount(const QModelIndex &parent) const
         // root
         return DocsetsRegistry::instance()->count();
     } else {
-        auto parentStr = i2s(parent);
+        const QString *parentStr = i2s(parent);
         if (parentStr->indexOf("/") == -1) {
             // docset - show types
             int numTypes = 0;
-            auto keys = modulesCounts().keys();
-            for (auto &key : keys) {
+            const QList<QPair<QString, QString>> keys = modulesCounts().keys();
+            for (const QPair<QString, QString> &key : keys) {
                 if (parentStr == key.first)
                     numTypes += 1;
             }
             return numTypes;
         } else if (parentStr->count("/") == 1) { // parent is docset/type
             // type count
-            auto type = singularize(parentStr->split("/")[1]);
+            QString type = singularize(parentStr->split("/")[1]);
             return modulesCounts()[QPair<QString, QString>(parentStr->split('/')[0], type)];
         }
         // module - no sub items

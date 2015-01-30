@@ -39,7 +39,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
         searchText = text;
     });
 
-    auto shortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
     connect(shortcut, &QShortcut::activated, [&] {
         lineEdit.show();
         lineEdit.setFocus();

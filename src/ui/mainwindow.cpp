@@ -409,7 +409,7 @@ void MainWindow::displayTabs()
                 shortcut = QString("Ctrl+%1").arg(QString::number(0));
             else
                 shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
-            auto actions_ = actions();
+            QList<QAction *> actions_ = actions();
             for (int i = 0; i < actions_.length(); ++i) {
                 if (actions_[i]->shortcut().toString() == shortcut)
                     removeAction(actions_[i]);
