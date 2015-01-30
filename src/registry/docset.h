@@ -19,8 +19,10 @@ public:
     };
 
     explicit Docset();
+    explicit Docset(const QString &path);
     ~Docset();
 
+    bool isValid() const;
     QIcon icon() const;
 
     QString name;
@@ -30,6 +32,9 @@ public:
     QSqlDatabase db;
     DocsetMetadata metadata;
     DocsetInfo info;
+
+private:
+    bool m_isValid = false;
 };
 
 } // namespace Zeal

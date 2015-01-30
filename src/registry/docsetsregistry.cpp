@@ -47,7 +47,6 @@ QStringList DocsetsRegistry::names() const
 
 void DocsetsRegistry::remove(const QString &name)
 {
-    m_docs[name].db.close();
     m_docs.remove(name);
 }
 
@@ -72,45 +71,16 @@ QList<Docset> DocsetsRegistry::docsets()
 
 void DocsetsRegistry::addDocset(const QString &path)
 {
-    QDir dir(path);
-    QString name = dir.dirName().replace(QStringLiteral(".docset"), QString());
+    Docset docset(path);
 
-    Docset entry;
+    /// TODO: Emit error
+    if (!docset.isValid())
+        return;
 
-    QDir contentsDir(dir.filePath("Contents"));
-    entry.info = DocsetInfo::fromPlist(contentsDir.absoluteFilePath("Info.plist"));
+    if (m_docs.contains(docset.name))
+        remove(docset.name);
 
-    if (entry.info.family == "cheatsheet")
-        name = QString("%1_cheats").arg(name);
-    entry.name = name;
-
-    QString dashFile = QDir(contentsDir.filePath("Resources")).filePath("docSet.dsidx");
-
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", name);
-    db.setDatabaseName(dashFile);
-    db.open();
-    QSqlQuery q = db.exec("select name from sqlite_master where type='table'");
-
-    QStringList tables;
-    while (q.next())
-        tables.append(q.value(0).toString());
-
-    entry.type = tables.contains("searchIndex") ? Docset::Type::Dash : Docset::Type::ZDash;
-
-    dir.cd("Contents");
-    dir.cd("Resources");
-    dir.cd("Documents");
-
-    if (m_docs.contains(name))
-        remove(name);
-
-    entry.prefix = entry.info.bundleName.isEmpty() ? name : entry.info.bundleName;
-    entry.db = db;
-    entry.documentPath = dir.absolutePath();
-
-    // Read metadata
-    entry.metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
-    m_docs[name] = entry;
+    m_docs[docset.name] = docset;
 }
 
 const Docset &DocsetsRegistry::entry(const QString &name)
