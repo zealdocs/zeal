@@ -47,6 +47,8 @@ QStringList DocsetsRegistry::names() const
 
 void DocsetsRegistry::remove(const QString &name)
 {
+    /// TODO: db close should be in ~Docset(), when it stop being a value type
+    m_docs[name].db.close();
     m_docs.remove(name);
 }
 
