@@ -4,6 +4,7 @@
 #include "docsetinfo.h"
 #include "docsetmetadata.h"
 
+#include <QIcon>
 #include <QString>
 #include <QSqlDatabase>
 
@@ -19,6 +20,8 @@ public:
 
     explicit Docset();
     ~Docset();
+
+    QIcon icon() const;
 
     QString name;
     QString prefix;

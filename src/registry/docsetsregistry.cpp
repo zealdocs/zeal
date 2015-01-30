@@ -55,31 +55,6 @@ void DocsetsRegistry::clear()
         remove(key);
 }
 
-QIcon DocsetsRegistry::icon(const QString &docsetName) const
-{
-    const Docset &entry = m_docs[docsetName];
-    const QDir dir(entry.documentPath);
-
-    QIcon icon(dir.absoluteFilePath("favicon.ico"));
-
-    if (icon.availableSizes().isEmpty())
-        icon = QIcon(dir.absoluteFilePath("icon.png"));
-
-    if (icon.availableSizes().isEmpty()) {
-        QString bundleName = entry.info.bundleName;
-        bundleName.replace(" ", "_");
-
-        icon = QIcon(QString("icons:%1.png").arg(bundleName));
-
-        // Fallback to identifier and docset file name.
-        if (icon.availableSizes().isEmpty())
-            icon = QIcon(QString("icons:%1.png").arg(entry.info.bundleIdentifier));
-        if (icon.availableSizes().isEmpty())
-            icon = QIcon(QString("icons:%1.png").arg(docsetName));
-    }
-    return icon;
-}
-
 DocsetsRegistry::DocsetsRegistry()
 {
     /// FIXME: Only search should be performed in a separate thread

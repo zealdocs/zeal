@@ -307,7 +307,7 @@ QString MainWindow::docsetName(const QUrl &url) const
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
     if (DocsetsRegistry::instance()->contains(docsetName))
-        return DocsetsRegistry::instance()->icon(docsetName).pixmap(32, 32);
+        return DocsetsRegistry::instance()->entry(docsetName).icon().pixmap(32, 32);
     else
         return QIcon();
 }

@@ -20,7 +20,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1)
-            return QVariant(DocsetsRegistry::instance()->icon(*i2s(index)));
+            return QVariant(DocsetsRegistry::instance()->entry(*i2s(index)).icon());
         else
             return QVariant();
     }

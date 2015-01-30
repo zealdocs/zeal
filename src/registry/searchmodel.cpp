@@ -18,7 +18,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(DocsetsRegistry::instance()->icon(item->docsetName()));
+            return QVariant(DocsetsRegistry::instance()->entry(item->docsetName()).icon());
         return QVariant();
     }
 

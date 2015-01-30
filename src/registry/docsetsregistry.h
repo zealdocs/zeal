@@ -24,8 +24,6 @@ public:
     void remove(const QString &name);
     void clear();
 
-    QIcon icon(const QString &docsetName) const;
-
     const Docset &entry(const QString &name);
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
