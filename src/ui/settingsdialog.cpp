@@ -512,20 +512,18 @@ void SettingsDialog::on_deleteButton_clicked()
         ui->docsetsProgress->show();
         ui->deleteButton->hide();
         startTasks();
-        QFuture<void> future = QtConcurrent::run([=] {
+        QFuture<bool> future = QtConcurrent::run([=] {
             QDir docsetDir(dataDir);
-            bool isDeleted = false;
-
-            if (docsetDir.cd(docsetName) || docsetDir.cd(docsetName + ".docset"))
-                isDeleted = docsetDir.removeRecursively();
-            if (!isDeleted) {
-                QMessageBox::information(nullptr, QString(),
-                                         QString("Delete docset %1 failed!").arg(docsetTitle));
-            }
+            return !docsetDir.cd(docsetName + ".docset") || docsetDir.removeRecursively();
         });
-        QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
+        QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
         watcher->setFuture(future);
         connect(watcher, &QFutureWatcher<void>::finished, [=] {
+            if (!watcher->result()) {
+                QMessageBox::warning(this, QStringLiteral("Error"),
+                                     QString("Cannot delete docset <strong>%1</strong>!").arg(docsetTitle));
+            }
+
             endTasks();
             ui->deleteButton->show();
 
