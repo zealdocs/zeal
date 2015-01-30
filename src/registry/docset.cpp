@@ -17,7 +17,7 @@ Docset::Docset(const QString &path)
         return;
 
     /// TODO: Use metadata
-    name = dir.dirName().replace(QStringLiteral(".docset"), QString());
+    m_name = dir.dirName().replace(QStringLiteral(".docset"), QString());
 
     /// TODO: Report errors here and below
     if (!dir.cd("Contents"))
@@ -29,13 +29,12 @@ Docset::Docset(const QString &path)
     metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
 
     if (info.family == QStringLiteral("cheatsheet"))
-        name = QString("%1_cheats").arg(name);
-    name = name;
+        m_name = QString("%1_cheats").arg(m_name);
 
     if (!dir.cd("Resources"))
         return;
 
-    db = QSqlDatabase::addDatabase("QSQLITE", name);
+    db = QSqlDatabase::addDatabase("QSQLITE", m_name);
     db.setDatabaseName(dir.absoluteFilePath("docSet.dsidx"));
 
     if (!db.open())
@@ -54,7 +53,7 @@ Docset::Docset(const QString &path)
     if (!dir.cd("Documents"))
         return;
 
-    prefix = info.bundleName.isEmpty() ? name : info.bundleName;
+    prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
     documentPath = dir.absolutePath();
 
     m_isValid = true;
@@ -67,6 +66,11 @@ Docset::~Docset()
 bool Docset::isValid() const
 {
     return m_isValid;
+}
+
+QString Docset::name() const
+{
+    return m_name;
 }
 
 QIcon Docset::icon() const
@@ -88,7 +92,7 @@ QIcon Docset::icon() const
         if (icon.availableSizes().isEmpty())
             icon = QIcon(QString("icons:%1.png").arg(info.bundleIdentifier));
         if (icon.availableSizes().isEmpty())
-            icon = QIcon(QString("icons:%1.png").arg(name));
+            icon = QIcon(QString("icons:%1.png").arg(m_name));
     }
     return icon;
 }

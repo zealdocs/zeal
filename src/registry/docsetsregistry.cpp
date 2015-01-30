@@ -77,10 +77,10 @@ void DocsetsRegistry::addDocset(const QString &path)
     if (!docset.isValid())
         return;
 
-    if (m_docs.contains(docset.name))
-        remove(docset.name);
+    if (m_docs.contains(docset.name()))
+        remove(docset.name());
 
-    m_docs[docset.name] = docset;
+    m_docs[docset.name()] = docset;
 }
 
 const Docset &DocsetsRegistry::entry(const QString &name)
@@ -177,7 +177,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             QString itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
-            results.append(SearchResult(itemName, parentName, path, docset.name,
+            results.append(SearchResult(itemName, parentName, path, docset.name(),
                                         preparedQuery));
         }
     }

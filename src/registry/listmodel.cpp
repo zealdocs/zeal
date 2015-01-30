@@ -203,7 +203,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
             int count = q.value(1).toInt();
             QString typeName = q.value(0).toString();
             const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
-                    [QPair<QString, QString>(docset.name, typeName)] = count;
+                    [QPair<QString, QString>(docset.name(), typeName)] = count;
         }
     }
     return m_modulesCounts;

@@ -385,8 +385,8 @@ void SettingsDialog::updateFeedDocsets()
     watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
         for (const Docset &docset : DocsetsRegistry::instance()->docsets()) {
-            if (!docset.metadata.source().isEmpty() && m_availableDocsets.contains(docset.name))
-                downloadDashDocset(docset.name);
+            if (!docset.metadata.source().isEmpty() && m_availableDocsets.contains(docset.name()))
+                downloadDashDocset(docset.name());
         }
     });
 }

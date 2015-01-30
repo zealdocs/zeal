@@ -23,9 +23,10 @@ public:
     ~Docset();
 
     bool isValid() const;
+
+    QString name() const;
     QIcon icon() const;
 
-    QString name;
     QString prefix;
     Type type;
     QString documentPath;
@@ -35,6 +36,8 @@ public:
 
 private:
     bool m_isValid = false;
+
+    QString m_name;
 };
 
 } // namespace Zeal
