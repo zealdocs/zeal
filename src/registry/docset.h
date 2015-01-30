@@ -36,10 +36,13 @@ public:
     DocsetInfo info;
 
 private:
+    void findIcon();
+
     bool m_isValid = false;
 
     QString m_name;
     QString m_path;
+    QIcon m_icon;
 };
 
 } // namespace Zeal

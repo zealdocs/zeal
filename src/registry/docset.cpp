@@ -56,6 +56,8 @@ Docset::Docset(const QString &path) :
 
     prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
 
+    findIcon();
+
     m_isValid = true;
 }
 
@@ -85,25 +87,33 @@ QString Docset::documentPath() const
 
 QIcon Docset::icon() const
 {
-    const QDir dir(documentPath());
+    return m_icon;
+}
 
-    QIcon icon(dir.absoluteFilePath("favicon.ico"));
+void Docset::findIcon()
+{
+    m_icon = QIcon(QDir(m_path).absoluteFilePath(QStringLiteral("icon.png")));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
 
-    if (icon.availableSizes().isEmpty())
-        icon = QIcon(dir.absoluteFilePath("icon.png"));
 
-    if (icon.availableSizes().isEmpty()) {
-        QString bundleName = info.bundleName;
-        bundleName.replace(" ", "_");
+    m_icon = QIcon(QDir(documentPath()).absoluteFilePath(QStringLiteral("favicon.ico")));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
 
-        icon = QIcon(QString("icons:%1.png").arg(bundleName));
+    QString bundleName = info.bundleName;
+    bundleName.replace(" ", "_");
+    m_icon = QIcon(QString("icons:%1.png").arg(bundleName));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
 
-        // Fallback to identifier and docset file name.
-        if (icon.availableSizes().isEmpty())
-            icon = QIcon(QString("icons:%1.png").arg(info.bundleIdentifier));
-        if (icon.availableSizes().isEmpty())
-            icon = QIcon(QString("icons:%1.png").arg(m_name));
-    }
-    return icon;
+    // Fallback to identifier and docset file name.
+    m_icon = QIcon(QString("icons:%1.png").arg(info.bundleIdentifier));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
+
+    m_icon = QIcon(QString("icons:%1.png").arg(m_name));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
 }
 
