@@ -2,6 +2,7 @@
 
 #include "extractor.h"
 #include "settings.h"
+#include "registry/docsetregistry.h"
 #include "ui/mainwindow.h"
 
 #include <QLocalServer>
@@ -27,6 +28,7 @@ Application::Application(const QString &query, QObject *parent) :
     m_networkManager(new QNetworkAccessManager(this)),
     m_extractorThread(new QThread(this)),
     m_extractor(new Extractor()),
+    m_docsetRegistry(new DocsetRegistry(this)),
     m_mainWindow(new MainWindow(this))
 {
     // Ensure only one instance of Application
@@ -83,6 +85,11 @@ QNetworkAccessManager *Application::networkManager() const
 Settings *Application::settings() const
 {
     return m_settings;
+}
+
+DocsetRegistry *Application::docsetRegistry()
+{
+    return m_instance->m_docsetRegistry;
 }
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)

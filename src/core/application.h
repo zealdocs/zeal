@@ -1,8 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "registry/docsetregistry.h"
-
 #include <QObject>
 
 class QLocalServer;
@@ -14,6 +12,9 @@ class QNetworkReply;
 class QThread;
 
 namespace Zeal {
+
+class DocsetRegistry;
+
 namespace Core {
 
 class Extractor;
@@ -30,6 +31,8 @@ public:
 
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
+
+    static DocsetRegistry *docsetRegistry();
 
 public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
@@ -52,6 +55,8 @@ private:
 
     QThread *m_extractorThread = nullptr;
     Extractor *m_extractor = nullptr;
+
+    DocsetRegistry *m_docsetRegistry = nullptr;
 
     MainWindow *m_mainWindow = nullptr;
 };

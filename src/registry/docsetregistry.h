@@ -14,7 +14,7 @@ class DocsetRegistry : public QObject
 {
     Q_OBJECT
 public:
-    static DocsetRegistry *instance();
+    DocsetRegistry(QObject *parent = nullptr);
 
     int count() const;
     bool contains(const QString &name) const;
@@ -44,14 +44,10 @@ private slots:
     void _runQuery(const QString &query, int queryNum);
 
 private:
-    DocsetRegistry();
-    Q_DISABLE_COPY(DocsetRegistry)
-
     void addDocsetsFromFolder(const QDir &folder);
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 
-    static DocsetRegistry *m_instance;
     QMap<QString, Docset> m_docs;
     QList<SearchResult> m_queryResults;
     int m_lastQuery = -1;

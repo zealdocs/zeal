@@ -41,7 +41,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui(new Ui::MainWindow),
     m_application(app),
     m_settings(app->settings()),
-    m_zealListModel(new ListModel(this)),
+    m_zealListModel(new ListModel(app->docsetRegistry(), this)),
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(this))
 {
@@ -69,7 +69,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
-    DocsetRegistry::instance()->initialiseDocsets(m_settings->docsetPath);
+    m_application->docsetRegistry()->initialiseDocsets(m_settings->docsetPath);
 
     // initialise ui
     ui->setupUi(this);
@@ -189,7 +189,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
-        if (DocsetRegistry::instance()->contains(name))
+        if (m_application->docsetRegistry()->contains(name))
             loadSections(name, url);
 
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
@@ -212,7 +212,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->sections->hide();
     ui->sections_lab->hide();
     ui->sections->setModel(&m_searchState->sectionsList);
-    connect(DocsetRegistry::instance(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
+    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
         if (text == m_searchState->searchQuery)
             return;
@@ -306,8 +306,8 @@ QString MainWindow::docsetName(const QUrl &url) const
 
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
-    if (DocsetRegistry::instance()->contains(docsetName))
-        return DocsetRegistry::instance()->entry(docsetName).icon().pixmap(32, 32);
+    if (m_application->docsetRegistry()->contains(docsetName))
+        return m_application->docsetRegistry()->entry(docsetName).icon().pixmap(32, 32);
     else
         return QIcon();
 }
@@ -479,17 +479,17 @@ void MainWindow::saveTabState()
 
 void MainWindow::onSearchComplete()
 {
-    m_searchState->zealSearch.onQueryCompleted(DocsetRegistry::instance()->queryResults());
+    m_searchState->zealSearch.onQueryCompleted(m_application->docsetRegistry()->queryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
-    QString dir = DocsetRegistry::instance()->entry(docsetName).documentPath();
+    QString dir = m_application->docsetRegistry()->entry(docsetName).documentPath();
     QString urlPath = url.path();
     int dirPosition = urlPath.indexOf(dir);
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
-    QList<SearchResult> results = DocsetRegistry::instance()->relatedLinks(docsetName, path);
+    QList<SearchResult> results = m_application->docsetRegistry()->relatedLinks(docsetName, path);
     m_searchState->sectionsList.onQueryCompleted(results);
 }
 
@@ -497,7 +497,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
-    for (const Docset &docset: DocsetRegistry::instance()->docsets())
+    for (const Docset &docset: m_application->docsetRegistry()->docsets())
         completions << QString("%1:").arg(docset.prefix);
     ui->lineEdit->setCompletions(completions);
 }

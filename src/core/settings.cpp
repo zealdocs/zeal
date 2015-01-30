@@ -1,7 +1,5 @@
 #include "settings.h"
 
-#include "registry/docsetregistry.h"
-
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>

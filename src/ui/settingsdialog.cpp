@@ -34,6 +34,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
     m_application(app),
+    m_docsetRegistry(app->docsetRegistry()),
     m_zealListModel(listModel)
 {
     ui->setupUi(this);
@@ -97,7 +98,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
             : m_userFeeds[docsetName];
     metadata.toFile(docsetPath + QStringLiteral("/meta.json"));
 
-    QMetaObject::invokeMethod(DocsetRegistry::instance(), "addDocset", Qt::BlockingQueuedConnection,
+    QMetaObject::invokeMethod(m_docsetRegistry, "addDocset", Qt::BlockingQueuedConnection,
                               Q_ARG(QString, docsetPath));
 
     m_zealListModel->resetModulesCounts();
@@ -342,7 +343,7 @@ void SettingsDialog::updateFeedDocsets()
     ui->downloadableGroup->show();
     bool missingMetadata = false;
 
-    for (const Docset &docset : DocsetRegistry::instance()->docsets()) {
+    for (const Docset &docset : m_docsetRegistry->docsets()) {
         const DocsetMetadata metadata = docset.metadata;
         if (metadata.source().isEmpty())
             missingMetadata = true;
@@ -384,7 +385,7 @@ void SettingsDialog::updateFeedDocsets()
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
     watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
-        for (const Docset &docset : DocsetRegistry::instance()->docsets()) {
+        for (const Docset &docset : m_docsetRegistry->docsets()) {
             if (!docset.metadata.source().isEmpty() && m_availableDocsets.contains(docset.name()))
                 downloadDashDocset(docset.name());
         }
@@ -410,7 +411,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
-        if (DocsetRegistry::instance()->contains(metadata.name()))
+        if (m_docsetRegistry->contains(metadata.name()))
             listItem->setHidden(true);
     }
 }
@@ -602,7 +603,7 @@ void SettingsDialog::saveSettings()
 
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
-        DocsetRegistry::instance()->initialiseDocsets(settings->docsetPath);
+        m_docsetRegistry->initialiseDocsets(settings->docsetPath);
         emit refreshRequested();
     }
 

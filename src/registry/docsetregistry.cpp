@@ -5,7 +5,6 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QMutex>
 #include <QSqlQuery>
 #include <QThread>
 #include <QUrl>
@@ -13,21 +12,13 @@
 
 using namespace Zeal;
 
-DocsetRegistry *DocsetRegistry::m_instance;
-
-DocsetRegistry *DocsetRegistry::instance()
+DocsetRegistry::DocsetRegistry(QObject *parent) :
+    QObject(parent)
 {
-    static QMutex mutex;
-    if (!m_instance) {
-        mutex.lock();
-
-        if (!m_instance)
-            m_instance = new DocsetRegistry();
-
-        mutex.unlock();
-    }
-
-    return m_instance;
+    /// FIXME: Only search should be performed in a separate thread
+    QThread *thread = new QThread(this);
+    moveToThread(thread);
+    thread->start();
 }
 
 int DocsetRegistry::count() const
@@ -56,14 +47,6 @@ void DocsetRegistry::clear()
 {
     for (const QString &key : m_docs.keys())
         remove(key);
-}
-
-DocsetRegistry::DocsetRegistry()
-{
-    /// FIXME: Only search should be performed in a separate thread
-    QThread *thread = new QThread(this);
-    moveToThread(thread);
-    thread->start();
 }
 
 QList<Docset> DocsetRegistry::docsets()

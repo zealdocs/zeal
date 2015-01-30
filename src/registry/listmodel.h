@@ -7,6 +7,8 @@
 
 namespace Zeal {
 
+class DocsetRegistry;
+
 class ListModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -15,7 +17,7 @@ public:
         DocsetNameRole = Qt::UserRole
     };
 
-    explicit ListModel(QObject *parent = nullptr);
+    explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -35,6 +37,7 @@ private:
     const QPair<QString, QString> item(const QString &path, int index) const;
     const QString *string(const QString &str = QString()) const;
 
+    DocsetRegistry *m_docsetRegistry;
     QHash<QPair<QString, QString>, int> m_modulesCounts;
     QHash<QPair<QString, int>, QPair<QString, QString>> m_items;
     QSet<QString> m_strings;

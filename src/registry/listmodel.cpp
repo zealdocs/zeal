@@ -9,8 +9,9 @@ using namespace Zeal;
 
 /// TODO: Get rid of const_casts
 
-ListModel::ListModel(QObject *parent) :
-    QAbstractItemModel(parent)
+ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
+    QAbstractItemModel(parent),
+    m_docsetRegistry(docsetRegistry)
 {
 }
 
@@ -21,7 +22,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1)
-            return QVariant(DocsetRegistry::instance()->entry(*i2s(index)).icon());
+            return QVariant(m_docsetRegistry->entry(*i2s(index)).icon());
         else
             return QVariant();
     }
@@ -30,7 +31,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
-                retval = DocsetRegistry::instance()->entry(retval).info.bundleName;
+                retval = m_docsetRegistry->entry(retval).info.bundleName;
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
@@ -43,7 +44,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    DocsetRegistry * const docsetRegistry = DocsetRegistry::instance();
+    DocsetRegistry * const docsetRegistry = m_docsetRegistry;
     if (!parent.isValid()) {
         if (row >= docsetRegistry->count() || row == -1)
             return QModelIndex();
@@ -130,7 +131,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
 
     if (!parent.isValid()) {
         // root
-        return DocsetRegistry::instance()->count();
+        return m_docsetRegistry->count();
     } else {
         const QString *parentStr = i2s(parent);
         if (parentStr->indexOf("/") == -1) {
@@ -159,7 +160,7 @@ bool ListModel::removeRows(int row, int count, const QModelIndex &parent)
 
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = 0; i < count; ++i)
-        DocsetRegistry::instance()->remove(DocsetRegistry::instance()->names()[row + i]);
+        m_docsetRegistry->remove(m_docsetRegistry->names()[row + i]);
     endRemoveRows();
 
     return true;
@@ -190,7 +191,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     if (!m_modulesCounts.isEmpty())
         return m_modulesCounts;
 
-    for (const Docset &docset : DocsetRegistry::instance()->docsets()) {
+    for (const Docset &docset : m_docsetRegistry->docsets()) {
         QSqlQuery q;
         if (docset.type == Docset::Type::Dash) {
             q = docset.db.exec("select type, count(*) from searchIndex group by type");
@@ -216,7 +217,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         return m_items[pair];
 
     const QString docsetName = path.split('/')[0];
-    const Docset &docset = DocsetRegistry::instance()->entry(docsetName);
+    const Docset &docset = m_docsetRegistry->entry(docsetName);
 
     const QString type = singularize(path.split('/')[1]);
 
