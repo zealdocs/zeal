@@ -99,10 +99,6 @@ void Docset::findIcon()
             return;
     }
 
-    m_icon = QIcon(QDir(documentPath()).absoluteFilePath(QStringLiteral("favicon.ico")));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
-
     QString bundleName = info.bundleName;
     bundleName.replace(" ", "_");
     m_icon = QIcon(QString("icons:%1.png").arg(bundleName));
