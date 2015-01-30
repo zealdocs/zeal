@@ -600,6 +600,12 @@ void MainWindow::createTrayIcon()
             if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
                 return;
 
+            // Disable, when settings window is open
+            if (m_settingsDialog->isVisible()) {
+                m_settingsDialog->activateWindow();
+                return;
+            }
+
             if (isVisible())
                 hide();
             else
