@@ -50,7 +50,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         if (column == 0) {
             return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            const DocsetsRegistry::DocsetEntry &entry = docsetRegistry->entry(docsetRegistry->names().at(row));
+            const Docset &entry = docsetRegistry->entry(docsetRegistry->names().at(row));
             QDir dir(entry.documentPath);
 
             if (!entry.info.indexPath.isEmpty()) {
@@ -189,11 +189,11 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     if (!m_modulesCounts.isEmpty())
         return m_modulesCounts;
 
-    for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
+    for (const Docset &docset : DocsetsRegistry::instance()->docsets()) {
         QSqlQuery q;
-        if (docset.type == DASH) {
+        if (docset.type == Docset::Type::Dash) {
             q = docset.db.exec("select type, count(*) from searchIndex group by type");
-        } else if (docset.type == ZDASH) {
+        } else if (docset.type == Docset::Type::ZDash) {
             q = docset.db.exec("select ztypename, count(*) from ztoken join ztokentype"
                                " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
         }
@@ -215,17 +215,17 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         return m_items[pair];
 
     const QString docsetName = path.split('/')[0];
-    const DocsetsRegistry::DocsetEntry &docset = DocsetsRegistry::instance()->entry(docsetName);
+    const Docset &docset = DocsetsRegistry::instance()->entry(docsetName);
 
     const QString type = singularize(path.split('/')[1]);
 
     QString queryStr;
     switch (docset.type) {
-    case DASH:
+    case Docset::Type::Dash:
         queryStr = QString("select name, path from searchIndex where type='%1' order by name asc")
                 .arg(type);
         break;
-    case ZDASH:
+    case Docset::Type::ZDash:
         queryStr = QString("select ztokenname, zpath, zanchor from ztoken "
                            "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
                            "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
@@ -244,7 +244,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
 
         /// FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
         /// TODO: parent name, splitting by '.', as in DocsetsRegistry
-        if (docset.type == ZDASH)
+        if (docset.type == Docset::Type::ZDash)
             filePath += QStringLiteral("#") + query.value(2).toString();
         item.second = QDir(docset.documentPath).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)

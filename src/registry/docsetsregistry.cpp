@@ -57,7 +57,7 @@ void DocsetsRegistry::clear()
 
 QIcon DocsetsRegistry::icon(const QString &docsetName) const
 {
-    const DocsetEntry &entry = m_docs[docsetName];
+    const Docset &entry = m_docs[docsetName];
     const QDir dir(entry.documentPath);
 
     QIcon icon(dir.absoluteFilePath("favicon.ico"));
@@ -88,7 +88,7 @@ DocsetsRegistry::DocsetsRegistry()
     thread->start();
 }
 
-QList<DocsetsRegistry::DocsetEntry> DocsetsRegistry::docsets()
+QList<Docset> DocsetsRegistry::docsets()
 {
     return m_docs.values();
 }
@@ -98,7 +98,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     QDir dir(path);
     QString name = dir.dirName().replace(QStringLiteral(".docset"), QString());
 
-    DocsetEntry entry;
+    Docset entry;
 
     QDir contentsDir(dir.filePath("Contents"));
     entry.info = DocsetInfo::fromPlist(contentsDir.absoluteFilePath("Info.plist"));
@@ -118,7 +118,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     while (q.next())
         tables.append(q.value(0).toString());
 
-    entry.type = tables.contains("searchIndex") ? DASH : ZDASH;
+    entry.type = tables.contains("searchIndex") ? Docset::Type::Dash : Docset::Type::ZDash;
 
     dir.cd("Contents");
     dir.cd("Resources");
@@ -136,7 +136,7 @@ void DocsetsRegistry::addDocset(const QString &path)
     m_docs[name] = entry;
 }
 
-const DocsetsRegistry::DocsetEntry &DocsetsRegistry::entry(const QString &name)
+const Docset &DocsetsRegistry::entry(const QString &name)
 {
     return m_docs[name];
 }
@@ -165,7 +165,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
     QString preparedQuery = query.sanitizedQuery();
     bool hasDocsetFilter = query.hasDocsetFilter();
 
-    for (const DocsetsRegistry::DocsetEntry &docset : docsets()) {
+    for (const Docset &docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
         if (hasDocsetFilter && !query.docsetPrefixMatch(docset.prefix))
             continue;
@@ -188,16 +188,16 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%" + preparedQuery;
                 // don't return 'starting with' results twice
-                if (docset.type == ZDASH)
+                if (docset.type == Docset::Type::ZDash)
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 else
                     notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
             }
             int cols = 3;
-            if (docset.type == DASH) {
+            if (docset.type == Docset::Type::Dash) {
                 qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
                                "like '%1%' escape '\\' %3)  %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if (docset.type == ZDASH) {
+            } else if (docset.type == Docset::Type::ZDash) {
                 cols = 4;
                 qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
                                "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -226,7 +226,7 @@ void DocsetsRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             auto path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
-            if (docset.type == ZDASH)
+            if (docset.type == Docset::Type::ZDash)
                 path += "#" + row[3].toString();
 
             auto itemName = row[0].toString();
@@ -273,13 +273,13 @@ QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QSt
     QUrl mainUrl(path);
     mainUrl.setFragment(NULL);
     QString pageUrl(mainUrl.toString());
-    DocsetEntry entry = m_docs[name];
+    Docset entry = m_docs[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
-    if (entry.type == DASH) {
+    if (entry.type == Docset::Type::Dash) {
         query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
-    } else if (entry.type == ZDASH) {
+    } else if (entry.type == Docset::Type::ZDash) {
         query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                         "FROM ztoken "
                         "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -293,7 +293,7 @@ QList<SearchResult> DocsetsRegistry::relatedLinks(const QString &name, const QSt
         QString sectionName = result.value(0).toString();
         QString sectionPath = result.value(2).toString();
         QString parentName;
-        if (entry.type == ZDASH) {
+        if (entry.type == Docset::Type::ZDash) {
             sectionPath.append("#");
             sectionPath.append(result.value(3).toString());
         }

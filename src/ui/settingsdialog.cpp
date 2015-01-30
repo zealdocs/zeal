@@ -342,7 +342,7 @@ void SettingsDialog::updateFeedDocsets()
     ui->downloadableGroup->show();
     bool missingMetadata = false;
 
-    for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
+    for (const Docset &docset : DocsetsRegistry::instance()->docsets()) {
         const DocsetMetadata metadata = docset.metadata;
         if (metadata.source().isEmpty())
             missingMetadata = true;
@@ -384,7 +384,7 @@ void SettingsDialog::updateFeedDocsets()
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
     watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
-        for (const DocsetsRegistry::DocsetEntry &docset : DocsetsRegistry::instance()->docsets()) {
+        for (const Docset &docset : DocsetsRegistry::instance()->docsets()) {
             if (!docset.metadata.source().isEmpty() && m_availableDocsets.contains(docset.name))
                 downloadDashDocset(docset.name);
         }

@@ -497,7 +497,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
-    for (DocsetsRegistry::DocsetEntry docset: DocsetsRegistry::instance()->docsets())
+    for (const Docset &docset: DocsetsRegistry::instance()->docsets())
         completions << QString("%1:").arg(docset.prefix);
     ui->lineEdit->setCompletions(completions);
 }
