@@ -22,18 +22,19 @@ const char *LocalServerName = "ZealLocalServer";
 Application *Application::m_instance = nullptr;
 
 Application::Application(const QString &query, QObject *parent) :
-    QObject(parent),
-    m_settings(new Settings(this)),
-    m_localServer(new QLocalServer(this)),
-    m_networkManager(new QNetworkAccessManager(this)),
-    m_extractorThread(new QThread(this)),
-    m_extractor(new Extractor()),
-    m_docsetRegistry(new DocsetRegistry(this)),
-    m_mainWindow(new MainWindow(this))
+    QObject(parent)
 {
     // Ensure only one instance of Application
     Q_ASSERT(!m_instance);
     m_instance = this;
+
+    m_settings = new Settings(this);
+    m_localServer = new QLocalServer(this);
+    m_networkManager = new QNetworkAccessManager(this);
+    m_extractorThread = new QThread(this);
+    m_extractor = new Extractor();
+    m_docsetRegistry = new DocsetRegistry();
+    m_mainWindow = new MainWindow(this);
 
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
@@ -70,6 +71,7 @@ Application::~Application()
     m_extractorThread->wait();
     delete m_extractor;
     delete m_mainWindow;
+    delete m_docsetRegistry;
 }
 
 QString Application::localServerName()
