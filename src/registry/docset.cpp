@@ -92,10 +92,12 @@ QIcon Docset::icon() const
 
 void Docset::findIcon()
 {
-    m_icon = QIcon(QDir(m_path).absoluteFilePath(QStringLiteral("icon.png")));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
-
+    const QDir dir(m_path);
+    for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
+        m_icon = QIcon(dir.absoluteFilePath(iconFile));
+        if (!m_icon.availableSizes().isEmpty())
+            return;
+    }
 
     m_icon = QIcon(QDir(documentPath()).absoluteFilePath(QStringLiteral("favicon.ico")));
     if (!m_icon.availableSizes().isEmpty())
