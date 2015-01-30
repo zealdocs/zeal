@@ -4,11 +4,9 @@
 #include "docset.h"
 #include "searchresult.h"
 
-#include <QDir>
-#include <QIcon>
 #include <QMap>
-#include <QMutex>
-#include <QSqlDatabase>
+
+class QDir;
 
 namespace Zeal {
 

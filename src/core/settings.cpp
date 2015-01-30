@@ -2,6 +2,7 @@
 
 #include "registry/docsetsregistry.h"
 
+#include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QWebSettings>

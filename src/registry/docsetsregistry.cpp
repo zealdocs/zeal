@@ -4,6 +4,8 @@
 #include "searchresult.h"
 
 #include <QCoreApplication>
+#include <QDir>
+#include <QMutex>
 #include <QSqlQuery>
 #include <QThread>
 #include <QUrl>

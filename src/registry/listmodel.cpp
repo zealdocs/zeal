@@ -2,6 +2,7 @@
 
 #include "docsetsregistry.h"
 
+#include <QDir>
 #include <QSqlQuery>
 
 using namespace Zeal;
