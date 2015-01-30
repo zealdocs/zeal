@@ -484,7 +484,7 @@ void MainWindow::onSearchComplete()
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
-    QString dir = DocsetsRegistry::instance()->entry(docsetName).documentPath;
+    QString dir = DocsetsRegistry::instance()->entry(docsetName).documentPath();
     QString urlPath = url.path();
     int dirPosition = urlPath.indexOf(dir);
     QString path = url.path().mid(dirPosition + dir.size() + 1);

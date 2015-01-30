@@ -10,9 +10,10 @@ Docset::Docset()
 {
 }
 
-Docset::Docset(const QString &path)
+Docset::Docset(const QString &path) :
+    m_path(path)
 {
-    QDir dir(path);
+    QDir dir(m_path);
     if (!dir.exists())
         return;
 
@@ -54,7 +55,6 @@ Docset::Docset(const QString &path)
         return;
 
     prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
-    documentPath = dir.absolutePath();
 
     m_isValid = true;
 }
@@ -73,9 +73,19 @@ QString Docset::name() const
     return m_name;
 }
 
+QString Docset::path() const
+{
+    return m_path;
+}
+
+QString Docset::documentPath() const
+{
+    return QDir(m_path).absoluteFilePath(QStringLiteral("Contents/Resources/Documents"));
+}
+
 QIcon Docset::icon() const
 {
-    const QDir dir(documentPath);
+    const QDir dir(documentPath());
 
     QIcon icon(dir.absoluteFilePath("favicon.ico"));
 

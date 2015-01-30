@@ -25,11 +25,12 @@ public:
     bool isValid() const;
 
     QString name() const;
+    QString path() const;
+    QString documentPath() const;
     QIcon icon() const;
 
     QString prefix;
     Type type;
-    QString documentPath;
     QSqlDatabase db;
     DocsetMetadata metadata;
     DocsetInfo info;
@@ -38,6 +39,7 @@ private:
     bool m_isValid = false;
 
     QString m_name;
+    QString m_path;
 };
 
 } // namespace Zeal
