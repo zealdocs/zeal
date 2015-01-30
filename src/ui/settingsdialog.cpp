@@ -249,7 +249,7 @@ void SettingsDialog::loadSettings()
 
     //
     ui->minFontSize->setValue(settings->minimumFontSize);
-    ui->storageEdit->setText(settings->docsetPath);
+    ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
 
     // Network Tab
     switch (settings->proxyType) {
@@ -491,7 +491,7 @@ void SettingsDialog::on_storageButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(0, "Open Directory");
     if (!dir.isEmpty())
-        ui->storageEdit->setText(dir);
+        ui->storageEdit->setText(QDir::toNativeSeparators(dir));
 
 }
 
@@ -602,8 +602,8 @@ void SettingsDialog::saveSettings()
     //
     settings->minimumFontSize = ui->minFontSize->text().toInt();
 
-    if (ui->storageEdit->text() != settings->docsetPath) {
-        settings->docsetPath = ui->storageEdit->text();
+    if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
+        settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
         DocsetsRegistry::instance()->initialiseDocsets(settings->docsetPath);
         emit refreshRequested();
     }
