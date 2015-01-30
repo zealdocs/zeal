@@ -1,6 +1,6 @@
 #include "listmodel.h"
 
-#include "docsetsregistry.h"
+#include "docsetregistry.h"
 
 #include <QDir>
 #include <QSqlQuery>
@@ -21,7 +21,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1)
-            return QVariant(DocsetsRegistry::instance()->entry(*i2s(index)).icon());
+            return QVariant(DocsetRegistry::instance()->entry(*i2s(index)).icon());
         else
             return QVariant();
     }
@@ -30,7 +30,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
-                retval = DocsetsRegistry::instance()->entry(retval).info.bundleName;
+                retval = DocsetRegistry::instance()->entry(retval).info.bundleName;
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
@@ -43,7 +43,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    DocsetsRegistry * const docsetRegistry = DocsetsRegistry::instance();
+    DocsetRegistry * const docsetRegistry = DocsetRegistry::instance();
     if (!parent.isValid()) {
         if (row >= docsetRegistry->count() || row == -1)
             return QModelIndex();
@@ -130,7 +130,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
 
     if (!parent.isValid()) {
         // root
-        return DocsetsRegistry::instance()->count();
+        return DocsetRegistry::instance()->count();
     } else {
         const QString *parentStr = i2s(parent);
         if (parentStr->indexOf("/") == -1) {
@@ -159,7 +159,7 @@ bool ListModel::removeRows(int row, int count, const QModelIndex &parent)
 
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = 0; i < count; ++i)
-        DocsetsRegistry::instance()->remove(DocsetsRegistry::instance()->names()[row + i]);
+        DocsetRegistry::instance()->remove(DocsetRegistry::instance()->names()[row + i]);
     endRemoveRows();
 
     return true;
@@ -190,7 +190,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     if (!m_modulesCounts.isEmpty())
         return m_modulesCounts;
 
-    for (const Docset &docset : DocsetsRegistry::instance()->docsets()) {
+    for (const Docset &docset : DocsetRegistry::instance()->docsets()) {
         QSqlQuery q;
         if (docset.type == Docset::Type::Dash) {
             q = docset.db.exec("select type, count(*) from searchIndex group by type");
@@ -216,7 +216,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         return m_items[pair];
 
     const QString docsetName = path.split('/')[0];
-    const Docset &docset = DocsetsRegistry::instance()->entry(docsetName);
+    const Docset &docset = DocsetRegistry::instance()->entry(docsetName);
 
     const QString type = singularize(path.split('/')[1]);
 
@@ -243,8 +243,8 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         item.first = query.value(0).toString();
         QString filePath = query.value(1).toString();
 
-        /// FIXME: refactoring to use common code in ZealListModel and DocsetsRegistry
-        /// TODO: parent name, splitting by '.', as in DocsetsRegistry
+        /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
+        /// TODO: parent name, splitting by '.', as in DocsetRegistry
         if (docset.type == Docset::Type::ZDash)
             filePath += QStringLiteral("#") + query.value(2).toString();
         item.second = QDir(docset.documentPath()).absoluteFilePath(filePath);

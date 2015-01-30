@@ -1,6 +1,6 @@
 #include "searchmodel.h"
 
-#include "docsetsregistry.h"
+#include "docsetregistry.h"
 
 #include <QDir>
 
@@ -20,7 +20,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(DocsetsRegistry::instance()->entry(item->docsetName()).icon());
+            return QVariant(DocsetRegistry::instance()->entry(item->docsetName()).icon());
         return QVariant();
     }
 
@@ -31,7 +31,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return QVariant(item->name());
 
     } else if (index.column() == 1) {
-        const QDir dir(DocsetsRegistry::instance()->entry(item->docsetName()).documentPath());
+        const QDir dir(DocsetRegistry::instance()->entry(item->docsetName()).documentPath());
         return QVariant(dir.absoluteFilePath(item->path()));
     }
     return QVariant();
@@ -77,9 +77,9 @@ void SearchModel::setQuery(const QString &q)
 void SearchModel::populateData()
 {
     if (query.isEmpty())
-        DocsetsRegistry::instance()->invalidateQueries();
+        DocsetRegistry::instance()->invalidateQueries();
     else
-        DocsetsRegistry::instance()->runQuery(query);
+        DocsetRegistry::instance()->runQuery(query);
 }
 
 void SearchModel::onQueryCompleted(const QList<SearchResult> &results)

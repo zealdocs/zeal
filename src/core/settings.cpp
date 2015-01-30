@@ -1,6 +1,6 @@
 #include "settings.h"
 
-#include "registry/docsetsregistry.h"
+#include "registry/docsetregistry.h"
 
 #include <QDir>
 #include <QSettings>

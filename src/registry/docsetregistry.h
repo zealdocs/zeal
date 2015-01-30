@@ -1,5 +1,5 @@
-#ifndef DOCSETSREGISTRY_H
-#define DOCSETSREGISTRY_H
+#ifndef DOCSETREGISTRY_H
+#define DOCSETREGISTRY_H
 
 #include "docset.h"
 #include "searchresult.h"
@@ -10,11 +10,11 @@ class QDir;
 
 namespace Zeal {
 
-class DocsetsRegistry : public QObject
+class DocsetRegistry : public QObject
 {
     Q_OBJECT
 public:
-    static DocsetsRegistry *instance();
+    static DocsetRegistry *instance();
 
     int count() const;
     bool contains(const QString &name) const;
@@ -44,14 +44,14 @@ private slots:
     void _runQuery(const QString &query, int queryNum);
 
 private:
-    DocsetsRegistry();
-    Q_DISABLE_COPY(DocsetsRegistry)
+    DocsetRegistry();
+    Q_DISABLE_COPY(DocsetRegistry)
 
     void addDocsetsFromFolder(const QDir &folder);
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 
-    static DocsetsRegistry *m_instance;
+    static DocsetRegistry *m_instance;
     QMap<QString, Docset> m_docs;
     QList<SearchResult> m_queryResults;
     int m_lastQuery = -1;
@@ -59,4 +59,4 @@ private:
 
 } // namespace Zeal
 
-#endif // DOCSETSREGISTRY_H
+#endif // DOCSETREGISTRY_H
