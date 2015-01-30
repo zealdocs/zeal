@@ -24,7 +24,12 @@ Docset::Docset(const QString &path) :
     if (!dir.cd("Contents"))
         return;
 
-    info = DocsetInfo::fromPlist(dir.absoluteFilePath("Info.plist"));
+    if (dir.exists(QStringLiteral("Info.plist")))
+        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+    else if (dir.exists(QStringLiteral("info.plist")))
+        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
+    else
+        return;
 
     // Read metadata
     metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
