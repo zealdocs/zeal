@@ -31,19 +31,19 @@
 
 #define QXTGLOBALSHORTCUT_P_H
 
-#include "qxtglobalshortcut.h"
-
 #include <QAbstractEventDispatcher>
 #include <QAbstractNativeEventFilter>
 #include <QKeySequence>
 #include <QHash>
 
-class QxtGlobalShortcutPrivate : public QxtPrivate<QxtGlobalShortcut>,
-        public QAbstractNativeEventFilter
+class QxtGlobalShortcut;
+
+class QxtGlobalShortcutPrivate : public QAbstractNativeEventFilter
 {
+    QxtGlobalShortcut *q_ptr;
+    Q_DECLARE_PUBLIC(QxtGlobalShortcut)
 public:
-    QXT_DECLARE_PUBLIC(QxtGlobalShortcut)
-    QxtGlobalShortcutPrivate();
+    QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
     ~QxtGlobalShortcutPrivate();
 
     bool enabled;
