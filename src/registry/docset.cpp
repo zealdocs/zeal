@@ -21,7 +21,7 @@ Docset::Docset(const QString &path) :
     m_name = dir.dirName().replace(QStringLiteral(".docset"), QString());
 
     /// TODO: Report errors here and below
-    if (!dir.cd("Contents"))
+    if (!dir.cd(QStringLiteral("Contents")))
         return;
 
     if (dir.exists(QStringLiteral("Info.plist")))
@@ -35,18 +35,18 @@ Docset::Docset(const QString &path) :
     metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
 
     if (info.family == QStringLiteral("cheatsheet"))
-        m_name = QString("%1_cheats").arg(m_name);
+        m_name = QString(QStringLiteral("%1_cheats")).arg(m_name);
 
-    if (!dir.cd("Resources"))
+    if (!dir.cd(QStringLiteral("Resources")))
         return;
 
-    db = QSqlDatabase::addDatabase("QSQLITE", m_name);
-    db.setDatabaseName(dir.absoluteFilePath("docSet.dsidx"));
+    db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_name);
+    db.setDatabaseName(dir.absoluteFilePath(QStringLiteral("docSet.dsidx")));
 
     if (!db.open())
         return;
 
-    QSqlQuery q = db.exec("select name from sqlite_master where type='table'");
+    QSqlQuery q = db.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
 
     type = Docset::Type::ZDash;
     while (q.next()) {
@@ -56,7 +56,7 @@ Docset::Docset(const QString &path) :
         }
     }
 
-    if (!dir.cd("Documents"))
+    if (!dir.cd(QStringLiteral("Documents")))
         return;
 
     prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
@@ -105,17 +105,17 @@ void Docset::findIcon()
     }
 
     QString bundleName = info.bundleName;
-    bundleName.replace(" ", "_");
-    m_icon = QIcon(QString("icons:%1.png").arg(bundleName));
+    bundleName.replace(QLatin1String(" "), QLatin1String("_"));
+    m_icon = QIcon(QString(QStringLiteral("icons:%1.png")).arg(bundleName));
     if (!m_icon.availableSizes().isEmpty())
         return;
 
     // Fallback to identifier and docset file name.
-    m_icon = QIcon(QString("icons:%1.png").arg(info.bundleIdentifier));
+    m_icon = QIcon(QString(QStringLiteral("icons:%1.png")).arg(info.bundleIdentifier));
     if (!m_icon.availableSizes().isEmpty())
         return;
 
-    m_icon = QIcon(QString("icons:%1.png").arg(m_name));
+    m_icon = QIcon(QString(QStringLiteral("icons:%1.png")).arg(m_name));
     if (!m_icon.availableSizes().isEmpty())
         return;
 }
