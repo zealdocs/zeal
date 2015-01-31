@@ -205,13 +205,13 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
     QUrl mainUrl(path);
     mainUrl.setFragment(NULL);
     QString pageUrl(mainUrl.toString());
-    Docset entry = m_docs[name];
+    const Docset &docset = m_docs[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
-    if (entry.type == Docset::Type::Dash) {
+    if (docset.type == Docset::Type::Dash) {
         query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
-    } else if (entry.type == Docset::Type::ZDash) {
+    } else if (docset.type == Docset::Type::ZDash) {
         query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                         "FROM ztoken "
                         "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -220,12 +220,12 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
                         "WHERE zfilepath.zpath = \"%1\"").arg(pageUrl);
     }
 
-    QSqlQuery result = entry.db.exec(query);
+    QSqlQuery result = docset.db.exec(query);
     while (result.next()) {
         QString sectionName = result.value(0).toString();
         QString sectionPath = result.value(2).toString();
         QString parentName;
-        if (entry.type == Docset::Type::ZDash) {
+        if (docset.type == Docset::Type::ZDash) {
             sectionPath.append("#");
             sectionPath.append(result.value(3).toString());
         }
