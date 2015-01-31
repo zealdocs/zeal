@@ -35,7 +35,7 @@
 
 //--------------------------export macros------------------------------
 
-#if !defined(QXT_STATIC) && !defined(QXT_DOXYGEN_RUN)
+#if !defined(QXT_STATIC)
 #    if defined(BUILD_QXT_GUI)
 #        define QXT_GUI_EXPORT Q_DECL_EXPORT
 #    else

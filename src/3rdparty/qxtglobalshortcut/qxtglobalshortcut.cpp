@@ -30,8 +30,8 @@
 *****************************************************************************/
 
 #include "qxtglobalshortcut_p.h"
+
 #include <QAbstractEventDispatcher>
-#include <QtDebug>
 
 #ifndef Q_OS_OSX
 int QxtGlobalShortcutPrivate::ref = 0;
@@ -75,7 +75,7 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence& shortcut)
     if (res)
         shortcuts.insert(qMakePair(nativeKey, nativeMods), q);
     else
-        qWarning() << "QxtGlobalShortcut failed to register:" << QKeySequence(key + mods).toString();
+        qWarning("QxtGlobalShortcut failed to register: %s", qPrintable(QKeySequence(key + mods).toString()));
     return res;
 }
 
@@ -90,7 +90,7 @@ bool QxtGlobalShortcutPrivate::unsetShortcut()
     if (res)
         shortcuts.remove(qMakePair(nativeKey, nativeMods));
     else
-        qWarning() << "QxtGlobalShortcut failed to unregister:" << QKeySequence(key + mods).toString();
+        qWarning("QxtGlobalShortcut failed to unregister: %s", qPrintable(QKeySequence(key + mods).toString()));
     key = Qt::Key(0);
     mods = Qt::KeyboardModifiers(0);
     return res;
@@ -209,15 +209,4 @@ void QxtGlobalShortcut::setEnabled(bool enabled)
 {
     Q_D(QxtGlobalShortcut);
     d->enabled = enabled;
-}
-
-/*!
-    Sets the shortcut \a disabled.
-
-    \sa enabled
- */
-void QxtGlobalShortcut::setDisabled(bool disabled)
-{
-    Q_D(QxtGlobalShortcut);
-    d->enabled = !disabled;
 }

@@ -32,8 +32,10 @@
 #define QXTGLOBALSHORTCUT_H
 
 #include "qxtglobal.h"
-#include <QObject>
+
 #include <QKeySequence>
+#include <QObject>
+
 class QxtGlobalShortcutPrivate;
 
 class QXT_GUI_EXPORT QxtGlobalShortcut : public QObject
@@ -47,9 +49,9 @@ class QXT_GUI_EXPORT QxtGlobalShortcut : public QObject
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
 
 public:
-    explicit QxtGlobalShortcut(QObject* parent = 0);
-    explicit QxtGlobalShortcut(const QKeySequence& shortcut, QObject* parent = 0);
-    virtual ~QxtGlobalShortcut();
+    explicit QxtGlobalShortcut(QObject* parent = nullptr);
+    explicit QxtGlobalShortcut(const QKeySequence& shortcut, QObject* parent = nullptr);
+    ~QxtGlobalShortcut();
 
     QKeySequence shortcut() const;
     bool setShortcut(const QKeySequence& shortcut);
@@ -58,7 +60,6 @@ public:
 
 public Q_SLOTS:
     void setEnabled(bool enabled = true);
-    void setDisabled(bool disabled = true);
 
 Q_SIGNALS:
     void activated();

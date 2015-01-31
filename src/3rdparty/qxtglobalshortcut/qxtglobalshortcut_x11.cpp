@@ -31,6 +31,7 @@
 
 
 #include <QApplication>
+#include <QKeySequence>
 #include <QVector>
 
 #include <qpa/qplatformnativeinterface.h>
@@ -174,7 +175,7 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
             // Mod1Mask == Alt, Mod4Mask == Meta
             keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
     }
-	return false;
+    return false;
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)

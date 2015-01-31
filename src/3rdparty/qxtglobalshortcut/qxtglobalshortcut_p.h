@@ -31,10 +31,10 @@
 
 #define QXTGLOBALSHORTCUT_P_H
 
-#include <QAbstractEventDispatcher>
 #include <QAbstractNativeEventFilter>
-#include <QKeySequence>
 #include <QHash>
+
+class QKeySequence;
 
 class QxtGlobalShortcut;
 
