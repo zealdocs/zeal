@@ -43,7 +43,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
-    m_globalShortcut(new QxtGlobalShortcut(this))
+    m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     m_tabBar = new QTabBar(this);
 
