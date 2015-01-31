@@ -194,10 +194,10 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     for (const Docset &docset : m_docsetRegistry->docsets()) {
         QSqlQuery q;
         if (docset.type == Docset::Type::Dash) {
-            q = docset.db.exec("select type, count(*) from searchIndex group by type");
+            q = docset.db.exec("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
         } else if (docset.type == Docset::Type::ZDash) {
-            q = docset.db.exec("select ztypename, count(*) from ztoken join ztokentype"
-                               " on ztoken.ztokentype = ztokentype.z_pk group by ztypename");
+            q = docset.db.exec("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+                               " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
         }
 
         while (q.next()) {
@@ -224,15 +224,15 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
     QString queryStr;
     switch (docset.type) {
     case Docset::Type::Dash:
-        queryStr = QString("select name, path from searchIndex where type='%1' order by name asc")
+        queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
                 .arg(type);
         break;
     case Docset::Type::ZDash:
-        queryStr = QString("select ztokenname, zpath, zanchor from ztoken "
-                           "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                           "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk "
-                           "join ztokentype on ztoken.ztokentype = ztokentype.z_pk where ztypename='%1' "
-                           "order by ztokenname asc").arg(type);
+        queryStr = QString("SELECT ztokenname, zpath, zanchor FROM ztoken "
+                           "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                           "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                           "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
+                           "ORDER BY ztokenname ASC").arg(type);
         break;
     }
 

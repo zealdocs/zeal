@@ -126,15 +126,16 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
             }
             int cols = 3;
             if (docset.type == Docset::Type::Dash) {
-                qstr = QString("select t.name, null, t.path from searchIndex t where (t.name "
-                               "like '%1%' escape '\\' %3)  %2 order by length(t.name), lower(t.name) asc, t.path asc limit 100").arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
+                qstr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
+                               "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
+                        .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
             } else if (docset.type == Docset::Type::ZDash) {
                 cols = 4;
-                qstr = QString("select ztokenname, null, zpath, zanchor from ztoken "
-                               "join ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "join zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk where (ztokenname "
-                               "like '%1%' escape '\\' %3) %2 order by length(ztokenname), lower(ztokenname) asc, zpath asc, "
-                               "zanchor asc limit 100").arg(curQuery, notQuery,
+                qstr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
+                               "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                               "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
+                               "LIKE '%1%' escape '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
+                               "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
                                                             subNames.arg("ztokenname", curQuery));
             }
             q = docset.db.exec(qstr);
