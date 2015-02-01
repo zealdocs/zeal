@@ -119,17 +119,17 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%" + preparedQuery;
                 // don't return 'starting with' results twice
-                if (docset.type == Docset::Type::ZDash)
+                if (docset.type() == Docset::Type::ZDash)
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 else
                     notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
             }
             int cols = 3;
-            if (docset.type == Docset::Type::Dash) {
+            if (docset.type() == Docset::Type::Dash) {
                 qstr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
                                "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
                         .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if (docset.type == Docset::Type::ZDash) {
+            } else if (docset.type() == Docset::Type::ZDash) {
                 cols = 4;
                 qstr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
                                "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -158,7 +158,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             QString path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
-            if (docset.type == Docset::Type::ZDash)
+            if (docset.type() == Docset::Type::ZDash)
                 path += "#" + row[3].toString();
 
             QString itemName = row[0].toString();
@@ -209,9 +209,9 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
 
     // Prepare the query to look up all pages with the same url.
     QString query;
-    if (docset.type == Docset::Type::Dash) {
+    if (docset.type() == Docset::Type::Dash) {
         query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
-    } else if (docset.type == Docset::Type::ZDash) {
+    } else if (docset.type() == Docset::Type::ZDash) {
         query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                         "FROM ztoken "
                         "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -225,7 +225,7 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
         QString sectionName = result.value(0).toString();
         QString sectionPath = result.value(2).toString();
         QString parentName;
-        if (docset.type == Docset::Type::ZDash) {
+        if (docset.type() == Docset::Type::ZDash) {
             sectionPath.append("#");
             sectionPath.append(result.value(3).toString());
         }

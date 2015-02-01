@@ -25,12 +25,12 @@ public:
     bool isValid() const;
 
     QString name() const;
+    Docset::Type type() const;
     QString path() const;
     QString documentPath() const;
     QIcon icon() const;
 
     QString prefix;
-    Type type;
     QSqlDatabase db;
     DocsetMetadata metadata;
     DocsetInfo info;
@@ -41,6 +41,7 @@ private:
     bool m_isValid = false;
 
     QString m_name;
+    Docset::Type m_type;
     QString m_path;
     QIcon m_icon;
 };

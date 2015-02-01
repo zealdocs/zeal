@@ -48,10 +48,10 @@ Docset::Docset(const QString &path) :
 
     QSqlQuery q = db.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
 
-    type = Docset::Type::ZDash;
+    m_type = Docset::Type::ZDash;
     while (q.next()) {
         if (q.value(0).toString() == QStringLiteral("searchIndex")) {
-            type = Docset::Type::Dash;
+            m_type = Docset::Type::Dash;
             break;
         }
     }
@@ -78,6 +78,11 @@ bool Docset::isValid() const
 QString Docset::name() const
 {
     return m_name;
+}
+
+Docset::Type Docset::type() const
+{
+    return m_type;
 }
 
 QString Docset::path() const

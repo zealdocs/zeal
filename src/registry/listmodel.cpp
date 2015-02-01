@@ -193,9 +193,9 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
 
     for (const Docset &docset : m_docsetRegistry->docsets()) {
         QSqlQuery q;
-        if (docset.type == Docset::Type::Dash) {
+        if (docset.type() == Docset::Type::Dash) {
             q = docset.db.exec("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
-        } else if (docset.type == Docset::Type::ZDash) {
+        } else if (docset.type() == Docset::Type::ZDash) {
             q = docset.db.exec("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
                                " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
         }
@@ -222,7 +222,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
     const QString type = singularize(path.split('/')[1]);
 
     QString queryStr;
-    switch (docset.type) {
+    switch (docset.type()) {
     case Docset::Type::Dash:
         queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
                 .arg(type);
@@ -246,7 +246,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
 
         /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
         /// TODO: parent name, splitting by '.', as in DocsetRegistry
-        if (docset.type == Docset::Type::ZDash)
+        if (docset.type() == Docset::Type::ZDash)
             filePath += QStringLiteral("#") + query.value(2).toString();
         item.second = QDir(docset.documentPath()).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
