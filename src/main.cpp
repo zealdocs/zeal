@@ -86,21 +86,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    // look for icons in:
-    // 1. user's data directory (same as docsets dir, but in icons/)
-    // 2. executable directory/icons
-    // 3. on unix, standard/legacy install location
-    // 4. current directory/icons
-    QStringList searchPaths;
-    searchPaths << QStandardPaths::locateAll(QStandardPaths::DataLocation, QStringLiteral("icons"),
-                                             QStandardPaths::LocateDirectory);
-    searchPaths << QDir(QCoreApplication::applicationDirPath())
-                   .absoluteFilePath(QStringLiteral("icons"));
-#ifndef Q_OS_WIN32
-    searchPaths << QStringLiteral("/usr/share/pixmaps/zeal");
-#endif
-    searchPaths << QStringLiteral("./icons");
-    QDir::setSearchPaths(QStringLiteral("icons"), searchPaths);
+    QDir::setSearchPaths(QStringLiteral("docsetIcon"), {QStringLiteral(":/icons/docset")});
 
     QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application(clParams.query));
 

@@ -405,7 +405,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
 
     /// TODO: Move into a dedicated method
     for (const DocsetMetadata &metadata : m_availableDocsets) {
-        const QIcon icon(QString(QStringLiteral("icons:%1.png")).arg(metadata.icon()));
+        const QIcon icon(QString(QStringLiteral("docsetIcon:%1.png")).arg(metadata.icon()));
 
         QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->docsetsList);
         listItem->setData(ListModel::DocsetNameRole, metadata.name());

@@ -52,11 +52,9 @@ appicons24.files=appicons/24/*
 appicons32.files=appicons/32/*
 appicons64.files=appicons/64/*
 appicons128.files=appicons/128/*
-icons.path=/usr/share/pixmaps/zeal
-icons.files=icons/*
 desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
-unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 icons desktop
+unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
 
 include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
