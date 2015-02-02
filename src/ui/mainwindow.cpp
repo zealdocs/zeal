@@ -8,7 +8,6 @@
 #include "core/settings.h"
 #include "registry/docsetregistry.h"
 #include "registry/listmodel.h"
-#include "registry/searchquery.h"
 
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
