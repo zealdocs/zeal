@@ -20,14 +20,16 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole && role != DocsetNameRole)
             || !index.isValid())
         return QVariant();
+
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1)
             return QVariant(m_docsetRegistry->entry(*i2s(index)).icon());
         else
             return QVariant();
     }
+
     if (index.column() == 0) {
-        QStringList retlist = i2s(index)->split('/');
+        const QStringList retlist = i2s(index)->split('/');
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
@@ -44,34 +46,28 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    DocsetRegistry * const docsetRegistry = m_docsetRegistry;
     if (!parent.isValid()) {
-        if (row >= docsetRegistry->count() || row == -1)
+        if (row >= m_docsetRegistry->count() || row == -1)
             return QModelIndex();
 
         if (column == 0) {
-            return createIndex(row, column, (void *)string(docsetRegistry->names().at(row)));
+            return createIndex(row, column, (void *)string(m_docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            const Docset &entry = docsetRegistry->entry(docsetRegistry->names().at(row));
-            QDir dir(entry.documentPath());
+            const Docset &docset = m_docsetRegistry->entry(m_docsetRegistry->names().at(row));
 
-            if (!entry.info.indexPath.isEmpty()) {
-                QStringList path = entry.info.indexPath.split("/");
-                const QString filename = path.last();
-                path.removeLast();
-                for (const QString &directory : path) {
-                    if (!dir.cd(directory))
-                        return createIndex(row, column, (void *)string());
-                }
-                return createIndex(row, column, (void *)string(dir.absoluteFilePath(filename)));
-            }
-            return createIndex(row, column, (void *)string(dir.absoluteFilePath("index.html")));
+            QString indexPath = docset.info.indexPath.isEmpty()
+                    ? QStringLiteral("index.html")
+                    : docset.info.indexPath;
+
+            /// TODO: Check if file exists
+            const QDir dir(docset.documentPath());
+            return createIndex(row, column, (void *)string(dir.absoluteFilePath(indexPath)));
         }
 
         return QModelIndex();
     } else {
         QString docsetName;
-        for (const QString &name : docsetRegistry->names()) {
+        for (const QString &name : m_docsetRegistry->names()) {
             if (i2s(parent)->startsWith(name + "/"))
                 docsetName = name;
         }
@@ -216,8 +212,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
     if (m_items.contains(pair))
         return m_items[pair];
 
-    const QString docsetName = path.split('/')[0];
-    const Docset &docset = m_docsetRegistry->entry(docsetName);
+    const Docset &docset = m_docsetRegistry->entry(path.split('/')[0]);
 
     const QString type = singularize(path.split('/')[1]);
 
