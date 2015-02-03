@@ -175,7 +175,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 }
 
 void DocsetRegistry::normalizeName(QString &itemName, QString &parentName,
-                                    const QString &initialParent)
+                                   const QString &initialParent)
 {
     QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
     if (matchMethodName.indexIn(itemName) != -1)
