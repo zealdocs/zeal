@@ -18,7 +18,6 @@ public:
         ZDash
     };
 
-    explicit Docset();
     explicit Docset(const QString &path);
     ~Docset();
 

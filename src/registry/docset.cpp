@@ -6,10 +6,6 @@
 
 using namespace Zeal;
 
-Docset::Docset()
-{
-}
-
 Docset::Docset(const QString &path) :
     m_path(path)
 {
@@ -68,6 +64,7 @@ Docset::Docset(const QString &path) :
 
 Docset::~Docset()
 {
+    db.close();
 }
 
 bool Docset::isValid() const

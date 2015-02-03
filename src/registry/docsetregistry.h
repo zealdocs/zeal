@@ -22,7 +22,7 @@ public:
     void remove(const QString &name);
     void clear();
 
-    const Docset &entry(const QString &name);
+    Docset *entry(const QString &name) const;
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
     QList<SearchResult> relatedLinks(const QString &name, const QString &path);
@@ -30,7 +30,7 @@ public:
     void runQuery(const QString &query);
     void invalidateQueries();
     const QList<SearchResult> &queryResults();
-    QList<Docset> docsets();
+    QList<Docset *> docsets() const;
 
     void initialiseDocsets(const QString &path);
 
@@ -48,7 +48,7 @@ private:
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 
-    QMap<QString, Docset> m_docs;
+    QMap<QString, Docset *> m_docs;
     QList<SearchResult> m_queryResults;
     int m_lastQuery = -1;
 };

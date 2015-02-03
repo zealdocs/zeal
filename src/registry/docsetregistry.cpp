@@ -38,9 +38,7 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::remove(const QString &name)
 {
-    /// TODO: db close should be in ~Docset(), when it stop being a value type
-    m_docs[name].db.close();
-    m_docs.remove(name);
+    delete m_docs.take(name);
 }
 
 void DocsetRegistry::clear()
@@ -49,28 +47,30 @@ void DocsetRegistry::clear()
         remove(key);
 }
 
-QList<Docset> DocsetRegistry::docsets()
+Docset *DocsetRegistry::entry(const QString &name) const
+{
+    return m_docs[name];
+}
+
+QList<Docset *> DocsetRegistry::docsets() const
 {
     return m_docs.values();
 }
 
 void DocsetRegistry::addDocset(const QString &path)
 {
-    Docset docset(path);
+    Docset *docset = new Docset(path);
 
     /// TODO: Emit error
-    if (!docset.isValid())
+    if (!docset->isValid()) {
+        delete docset;
         return;
+    }
 
-    if (m_docs.contains(docset.name()))
-        remove(docset.name());
+    if (m_docs.contains(docset->name()))
+        remove(docset->name());
 
-    m_docs[docset.name()] = docset;
-}
-
-const Docset &DocsetRegistry::entry(const QString &name)
-{
-    return m_docs[name];
+    m_docs[docset->name()] = docset;
 }
 
 void DocsetRegistry::runQuery(const QString &query)
@@ -96,9 +96,9 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
     const QString preparedQuery = query.sanitizedQuery();
 
-    for (const Docset &docset : docsets()) {
+    for (const Docset * const docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
-        if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset.prefix))
+        if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset->prefix))
             continue;
 
         QString qstr;
@@ -118,17 +118,17 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = "%" + preparedQuery;
                 // don't return 'starting with' results twice
-                if (docset.type() == Docset::Type::ZDash)
+                if (docset->type() == Docset::Type::ZDash)
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
                 else
                     notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
             }
             int cols = 3;
-            if (docset.type() == Docset::Type::Dash) {
+            if (docset->type() == Docset::Type::Dash) {
                 qstr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
                                "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
                         .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if (docset.type() == Docset::Type::ZDash) {
+            } else if (docset->type() == Docset::Type::ZDash) {
                 cols = 4;
                 qstr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
                                "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -137,7 +137,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                                "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
                                                             subNames.arg("ztokenname", curQuery));
             }
-            q = docset.db.exec(qstr);
+            q = docset->db.exec(qstr);
             while (q.next()) {
                 QList<QVariant> values;
                 for (int i = 0; i < cols; ++i)
@@ -157,12 +157,12 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             QString path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
-            if (docset.type() == Docset::Type::ZDash)
+            if (docset->type() == Docset::Type::ZDash)
                 path += "#" + row[3].toString();
 
             QString itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
-            results.append(SearchResult(itemName, parentName, path, docset.name(),
+            results.append(SearchResult(itemName, parentName, path, docset->name(),
                                         preparedQuery));
         }
     }
@@ -204,13 +204,13 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
     QUrl mainUrl(path);
     mainUrl.setFragment(NULL);
     QString pageUrl(mainUrl.toString());
-    const Docset &docset = m_docs[name];
+    const Docset *docset = m_docs[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
-    if (docset.type() == Docset::Type::Dash) {
+    if (docset->type() == Docset::Type::Dash) {
         query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
-    } else if (docset.type() == Docset::Type::ZDash) {
+    } else if (docset->type() == Docset::Type::ZDash) {
         query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                         "FROM ztoken "
                         "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
@@ -219,12 +219,12 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
                         "WHERE zfilepath.zpath = \"%1\"").arg(pageUrl);
     }
 
-    QSqlQuery result = docset.db.exec(query);
+    QSqlQuery result = docset->db.exec(query);
     while (result.next()) {
         QString sectionName = result.value(0).toString();
         QString sectionPath = result.value(2).toString();
         QString parentName;
-        if (docset.type() == Docset::Type::ZDash) {
+        if (docset->type() == Docset::Type::ZDash) {
             sectionPath.append("#");
             sectionPath.append(result.value(3).toString());
         }

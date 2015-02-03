@@ -23,7 +23,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (i2s(index)->indexOf('/') == -1)
-            return QVariant(m_docsetRegistry->entry(*i2s(index)).icon());
+            return QVariant(m_docsetRegistry->entry(*i2s(index))->icon());
         else
             return QVariant();
     }
@@ -33,7 +33,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         QString retval = retlist.last();
         if (retlist.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
-                retval = m_docsetRegistry->entry(retval).info.bundleName;
+                retval = m_docsetRegistry->entry(retval)->info.bundleName;
         } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
             for (int i = retlist.length() - 2; i > 1; --i)
                 retval = retlist[i] + "/" + retval;
@@ -53,14 +53,14 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         if (column == 0) {
             return createIndex(row, column, (void *)string(m_docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            const Docset &docset = m_docsetRegistry->entry(m_docsetRegistry->names().at(row));
+            const Docset * const docset = m_docsetRegistry->entry(m_docsetRegistry->names().at(row));
 
-            QString indexPath = docset.info.indexPath.isEmpty()
+            QString indexPath = docset->info.indexPath.isEmpty()
                     ? QStringLiteral("index.html")
-                    : docset.info.indexPath;
+                    : docset->info.indexPath;
 
             /// TODO: Check if file exists
-            const QDir dir(docset.documentPath());
+            const QDir dir(docset->documentPath());
             return createIndex(row, column, (void *)string(dir.absoluteFilePath(indexPath)));
         }
 
@@ -187,12 +187,12 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
     if (!m_modulesCounts.isEmpty())
         return m_modulesCounts;
 
-    for (const Docset &docset : m_docsetRegistry->docsets()) {
+    for (const Docset * const docset : m_docsetRegistry->docsets()) {
         QSqlQuery q;
-        if (docset.type() == Docset::Type::Dash) {
-            q = docset.db.exec("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
-        } else if (docset.type() == Docset::Type::ZDash) {
-            q = docset.db.exec("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+        if (docset->type() == Docset::Type::Dash) {
+            q = docset->db.exec("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
+        } else if (docset->type() == Docset::Type::ZDash) {
+            q = docset->db.exec("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
                                " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
         }
 
@@ -200,7 +200,7 @@ const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
             int count = q.value(1).toInt();
             QString typeName = q.value(0).toString();
             const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
-                    [QPair<QString, QString>(docset.name(), typeName)] = count;
+                    [QPair<QString, QString>(docset->name(), typeName)] = count;
         }
     }
     return m_modulesCounts;
@@ -212,12 +212,12 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
     if (m_items.contains(pair))
         return m_items[pair];
 
-    const Docset &docset = m_docsetRegistry->entry(path.split('/')[0]);
+    const Docset * const docset = m_docsetRegistry->entry(path.split('/')[0]);
 
     const QString type = singularize(path.split('/')[1]);
 
     QString queryStr;
-    switch (docset.type()) {
+    switch (docset->type()) {
     case Docset::Type::Dash:
         queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
                 .arg(type);
@@ -231,7 +231,7 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
         break;
     }
 
-    QSqlQuery query = docset.db.exec(queryStr);
+    QSqlQuery query = docset->db.exec(queryStr);
 
     int i = 0;
     while (query.next()) {
@@ -241,9 +241,9 @@ const QPair<QString, QString> ListModel::item(const QString &path, int index) co
 
         /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
         /// TODO: parent name, splitting by '.', as in DocsetRegistry
-        if (docset.type() == Docset::Type::ZDash)
+        if (docset->type() == Docset::Type::ZDash)
             filePath += QStringLiteral("#") + query.value(2).toString();
-        item.second = QDir(docset.documentPath()).absoluteFilePath(filePath);
+        item.second = QDir(docset->documentPath()).absoluteFilePath(filePath);
         const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
                 [QPair<QString, int>(path, i)] = item;
         ++i;
