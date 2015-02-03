@@ -181,9 +181,8 @@ void DocsetRegistry::normalizeName(QString &itemName, QString &parentName,
     if (matchMethodName.indexIn(itemName) != -1)
         itemName = matchMethodName.cap(1);
 
-    QString separators[] = {".", "::", "/"};
-    for (unsigned i = 0; i < sizeof separators / sizeof *separators; ++i) {
-        QString sep = separators[i];
+    const QStringList separators = {QStringLiteral("."), QStringLiteral("::"), QStringLiteral("/")};
+    for (const QString &sep : separators) {
         if (itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && initialParent.isNull()) {
             const QStringList splitted = itemName.split(sep);
             itemName = splitted.at(splitted.size()-1);
