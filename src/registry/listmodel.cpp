@@ -79,7 +79,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
                     if (pair.first == *i2s(parent))
                         types.append(pair.second);
                 }
-                qSort(types);
+                std::sort(types.begin(), types.end());
                 return createIndex(row, column,
                                    (void *)string(*i2s(parent) + "/" + pluralize(types[row])));
             }

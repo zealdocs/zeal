@@ -166,7 +166,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                                         preparedQuery));
         }
     }
-    qSort(results);
+    std::sort(results.begin(), results.end());
     if (queryNum != m_lastQuery)
         return; // some other queries pending - ignore this one
 
