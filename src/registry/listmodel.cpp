@@ -66,34 +66,26 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
 
         return QModelIndex();
     } else {
-        QString docsetName;
-        for (const QString &name : m_docsetRegistry->names()) {
-            if (i2s(parent)->startsWith(name + "/"))
-                docsetName = name;
-        }
-        if (docsetName.isEmpty()) {
+        const QStringList parts = i2s(parent)->split(QLatin1String("/"));
+        const Docset * const docset = m_docsetRegistry->entry(parts[0]);
+        if (parts.size() == 1) {
             // i2s(parent) == docsetName
             if (column == 0) {
-                QList<QString> types;
-                for (const QPair<QString, QString> &pair : modulesCounts().keys()) {
-                    if (pair.first == *i2s(parent))
-                        types.append(pair.second);
-                }
-                std::sort(types.begin(), types.end());
-                return createIndex(row, column,
-                                   (void *)string(*i2s(parent) + "/" + pluralize(types[row])));
+                const QString type = Docset::symbolTypeToStr(docset->symbolCounts().keys().at(row));
+                return createIndex(row, column, (void *)string(*i2s(parent) + "/" + pluralize(type)));
             }
         } else {
-            const QString type = singularize(i2s(parent)->split('/')[1]);
-            if (row >= modulesCounts()[QPair<QString, QString>(docsetName, type)])
+            const QString type = singularize(parts[1]);
+            if (row >= docset->symbolCount(type))
                 return QModelIndex();
+
+            auto it = docset->symbols(Docset::strToSymbolType(type)).cbegin();
+            it += row;
             if (column == 0) {
-                return createIndex(row, column,
-                                   (void *)string(
-                                       QString("%1/%2/%3").arg(docsetName, pluralize(type),
-                                                               item(*i2s(parent), row).first)));
+                return createIndex(row, column, (void *)string(
+                                       QString("%1/%2/%3").arg(docset->name(), parts[1], it.key())));
             } else if (column == 1) {
-                return createIndex(row, column, (void *)string(item(*i2s(parent), row).second));
+                return createIndex(row, column, (void *)string(it.value()));
             }
         }
         return QModelIndex();
@@ -129,23 +121,14 @@ int ListModel::rowCount(const QModelIndex &parent) const
         // root
         return m_docsetRegistry->count();
     } else {
-        const QString *parentStr = i2s(parent);
-        if (parentStr->indexOf("/") == -1) {
-            // docset - show types
-            int numTypes = 0;
-            const QList<QPair<QString, QString>> keys = modulesCounts().keys();
-            for (const QPair<QString, QString> &key : keys) {
-                if (parentStr == key.first)
-                    numTypes += 1;
-            }
-            return numTypes;
-        } else if (parentStr->count("/") == 1) { // parent is docset/type
-            // type count
-            QString type = singularize(parentStr->split("/")[1]);
-            return modulesCounts()[QPair<QString, QString>(parentStr->split('/')[0], type)];
-        }
-        // module - no sub items
-        return 0;
+        const QStringList parts = i2s(parent)->split(QLatin1String("/"));
+        const Docset * const docset = m_docsetRegistry->entry(parts[0]);
+        if (parts.size() == 1)
+            return docset->symbolCounts().size();
+        else if (parts.size() == 2)  // parent is docset/type
+            return docset->symbolCount(singularize(parts[1]));
+        else // module - no sub items
+            return 0;
     }
 }
 
@@ -162,11 +145,6 @@ bool ListModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-void ListModel::resetModulesCounts()
-{
-    m_modulesCounts.clear();
-}
-
 QString ListModel::pluralize(const QString &s)
 {
     return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
@@ -180,75 +158,6 @@ QString ListModel::singularize(const QString &s)
 const QString *ListModel::i2s(const QModelIndex &index) const
 {
     return static_cast<const QString *>(index.internalPointer());
-}
-
-const QHash<QPair<QString, QString>, int> ListModel::modulesCounts() const
-{
-    if (!m_modulesCounts.isEmpty())
-        return m_modulesCounts;
-
-    for (const Docset * const docset : m_docsetRegistry->docsets()) {
-        QSqlQuery q;
-        if (docset->type() == Docset::Type::Dash) {
-            q = docset->db.exec("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
-        } else if (docset->type() == Docset::Type::ZDash) {
-            q = docset->db.exec("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
-                               " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
-        }
-
-        while (q.next()) {
-            int count = q.value(1).toInt();
-            QString typeName = q.value(0).toString();
-            const_cast<QHash<QPair<QString, QString>, int> &>(m_modulesCounts)
-                    [QPair<QString, QString>(docset->name(), typeName)] = count;
-        }
-    }
-    return m_modulesCounts;
-}
-
-const QPair<QString, QString> ListModel::item(const QString &path, int index) const
-{
-    QPair<QString, int> pair(path, index);
-    if (m_items.contains(pair))
-        return m_items[pair];
-
-    const Docset * const docset = m_docsetRegistry->entry(path.split('/')[0]);
-
-    const QString type = singularize(path.split('/')[1]);
-
-    QString queryStr;
-    switch (docset->type()) {
-    case Docset::Type::Dash:
-        queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
-                .arg(type);
-        break;
-    case Docset::Type::ZDash:
-        queryStr = QString("SELECT ztokenname, zpath, zanchor FROM ztoken "
-                           "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                           "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                           "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
-                           "ORDER BY ztokenname ASC").arg(type);
-        break;
-    }
-
-    QSqlQuery query = docset->db.exec(queryStr);
-
-    int i = 0;
-    while (query.next()) {
-        QPair<QString, QString> item;
-        item.first = query.value(0).toString();
-        QString filePath = query.value(1).toString();
-
-        /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
-        /// TODO: parent name, splitting by '.', as in DocsetRegistry
-        if (docset->type() == Docset::Type::ZDash)
-            filePath += QStringLiteral("#") + query.value(2).toString();
-        item.second = QDir(docset->documentPath()).absoluteFilePath(filePath);
-        const_cast<QHash<QPair<QString, int>, QPair<QString, QString>> &>(m_items)
-                [QPair<QString, int>(path, i)] = item;
-        ++i;
-    }
-    return m_items[pair];
 }
 
 const QString *ListModel::string(const QString &str) const

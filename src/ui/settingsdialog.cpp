@@ -101,7 +101,6 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     QMetaObject::invokeMethod(m_docsetRegistry, "addDocset", Qt::BlockingQueuedConnection,
                               Q_ARG(QString, docsetPath));
 
-    m_zealListModel->resetModulesCounts();
     emit refreshRequested();
     ui->listView->reset();
 

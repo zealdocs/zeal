@@ -1,6 +1,7 @@
 #include "docset.h"
 
 #include <QDir>
+#include <QMetaEnum>
 #include <QSqlQuery>
 #include <QVariant>
 
@@ -58,6 +59,7 @@ Docset::Docset(const QString &path) :
     prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
 
     findIcon();
+    countSymbols();
 
     m_isValid = true;
 }
@@ -97,6 +99,88 @@ QIcon Docset::icon() const
     return m_icon;
 }
 
+QMap<Docset::SymbolType, int> Docset::symbolCounts() const
+{
+    return m_symbolCounts;
+}
+
+int Docset::symbolCount(Docset::SymbolType type) const
+{
+    return m_symbolCounts.value(type);
+}
+
+int Docset::symbolCount(const QString &typeStr) const
+{
+    return m_symbolCounts.value(strToSymbolType(typeStr));
+}
+
+const QMap<QString, QString> &Docset::symbols(Docset::SymbolType type) const
+{
+    if (!m_symbols.contains(type))
+        loadSymbols(type);
+    if (!m_symbols.contains(type))
+        qFatal("!!!!!!!!!");
+    return m_symbols[type];
+}
+
+/// TODO: Remove after refactoring in ListModel
+QString Docset::symbolTypeToStr(SymbolType symbolType)
+{
+    QMetaEnum types = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("SymbolType"));
+    return types.valueToKey(static_cast<int>(symbolType));
+}
+
+/// TODO: Make private
+Docset::SymbolType Docset::strToSymbolType(const QString &str)
+{
+    const static QHash<QString, SymbolType> typeStrings = {
+        {QStringLiteral("attribute"), SymbolType::Attribute},
+        {QStringLiteral("cl"), SymbolType::Class},
+        {QStringLiteral("class"), SymbolType::Class},
+        {QStringLiteral("command"), SymbolType::Command},
+        {QStringLiteral("clconst"), SymbolType::Constant},
+        {QStringLiteral("constant"), SymbolType::Constant},
+        {QStringLiteral("constructor"), SymbolType::Constructor},
+        {QStringLiteral("conversion"), SymbolType::Conversion},
+        {QStringLiteral("delegate"), SymbolType::Delegate},
+        {QStringLiteral("directive"), SymbolType::Directive},
+        {QStringLiteral("enum"), SymbolType::Enumeration},
+        {QStringLiteral("enumeration"), SymbolType::Enumeration},
+        {QStringLiteral("event"), SymbolType::Event},
+        {QStringLiteral("exception"), SymbolType::Exception},
+        {QStringLiteral("field"), SymbolType::Field},
+        {QStringLiteral("filter"), SymbolType::Filter},
+        {QStringLiteral("func"), SymbolType::Function},
+        {QStringLiteral("function"), SymbolType::Function},
+        {QStringLiteral("guide"), SymbolType::Guide},
+        {QStringLiteral("interface"), SymbolType::Interface},
+        {QStringLiteral("macro"), SymbolType::Macro},
+        {QStringLiteral("clm"), SymbolType::Method},
+        {QStringLiteral("method"), SymbolType::Method},
+        {QStringLiteral("module"), SymbolType::Module},
+        {QStringLiteral("namespace"), SymbolType::Namespace},
+        {QStringLiteral("object"), SymbolType::Object},
+        {QStringLiteral("operator"), SymbolType::Operator},
+        {QStringLiteral("option"), SymbolType::Option},
+        {QStringLiteral("package"), SymbolType::Package},
+        {QStringLiteral("property"), SymbolType::Property},
+        {QStringLiteral("setting"), SymbolType::Setting},
+        {QStringLiteral("specialization"), SymbolType::Specialization},
+        {QStringLiteral("struct"), SymbolType::Structure},
+        {QStringLiteral("structure"), SymbolType::Structure},
+        {QStringLiteral("tag"), SymbolType::Tag},
+        {QStringLiteral("trait"), SymbolType::Trait},
+        {QStringLiteral("tdef"), SymbolType::Type},
+        {QStringLiteral("type"), SymbolType::Type},
+        {QStringLiteral("variable"), SymbolType::Variable}
+    };
+
+    if (!typeStrings.contains(str.toLower()))
+        qWarning("Unknown symbol: %s", qPrintable(str));
+
+    return typeStrings.value(str.toLower(), SymbolType::Invalid);
+}
+
 void Docset::findIcon()
 {
     const QDir dir(m_path);
@@ -122,3 +206,53 @@ void Docset::findIcon()
         return;
 }
 
+void Docset::countSymbols()
+{
+    QSqlQuery q;
+    if (m_type == Docset::Type::Dash) {
+        q = db.exec(QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type"));
+    } else if (m_type == Docset::Type::ZDash) {
+        q = db.exec(QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+                                   " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename"));
+    }
+
+    while (q.next()) {
+        const QString symbolTypeStr = q.value(0).toString();
+        const SymbolType symbolType = strToSymbolType(symbolTypeStr);
+        if (symbolType == SymbolType::Invalid)
+            continue;
+
+        m_symbolStrings.insert(symbolType, symbolTypeStr);
+        m_symbolCounts.insert(symbolType, q.value(1).toInt());
+    }
+}
+
+/// TODO: Fetch and cache only portions of symbols
+void Docset::loadSymbols(SymbolType symbolType) const
+{
+    QString queryStr;
+    switch (m_type) {
+    case Docset::Type::Dash:
+        queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
+                .arg(m_symbolStrings[symbolType]);
+        break;
+    case Docset::Type::ZDash:
+        queryStr = QString("SELECT ztokenname, zpath, zanchor FROM ztoken "
+                           "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                           "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                           "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
+                           "ORDER BY ztokenname ASC").arg(m_symbolStrings[symbolType]);
+        break;
+    }
+
+    QSqlQuery query = db.exec(queryStr);
+
+    QMap<QString, QString> &symbols = m_symbols[symbolType];
+    while (query.next()) {
+        QString filePath = query.value(1).toString();
+        if (m_type == Docset::Type::ZDash)
+            filePath += QStringLiteral("#") + query.value(2).toString();
+
+        symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(filePath));
+    }
+}
