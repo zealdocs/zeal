@@ -148,12 +148,18 @@ bool ListModel::removeRows(int row, int count, const QModelIndex &parent)
 
 QString ListModel::pluralize(const QString &s)
 {
-    return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
+    if (s.endsWith(QLatin1String("y")))
+        return s.left(s.length() - 1) + QLatin1String("ies");
+    else
+        return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
 }
 
 QString ListModel::singularize(const QString &s)
 {
-    return s.left(s.length() - (s.endsWith(QStringLiteral("ses")) ? 2 : 1));
+    if (s.endsWith(QLatin1String("ies")))
+        return s.left(s.length() - 3) + QLatin1String("y");
+    else
+        return s.left(s.length() - (s.endsWith(QStringLiteral("ses")) ? 2 : 1));
 }
 
 const QString *ListModel::i2s(const QModelIndex &index) const
