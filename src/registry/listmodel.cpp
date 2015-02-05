@@ -21,26 +21,27 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             || !index.isValid())
         return QVariant();
 
+    const QStringList parts = i2s(index)->split('/');
+
     if (role == Qt::DecorationRole) {
-        if (i2s(index)->indexOf('/') == -1)
-            return QVariant(m_docsetRegistry->entry(*i2s(index))->icon());
+        if (parts.size() == 1)
+            return m_docsetRegistry->entry(*i2s(index))->icon();
         else
             return QVariant();
     }
 
     if (index.column() == 0) {
-        const QStringList retlist = i2s(index)->split('/');
-        QString retval = retlist.last();
-        if (retlist.size() == 1) { // docset name
+        QString retval = parts.last();
+        if (parts.size() == 1) { // docset name
             if (role == Qt::DisplayRole)
                 retval = m_docsetRegistry->entry(retval)->info.bundleName;
-        } else if (retlist.size() > 2) {  // name with slashes - trim only "docset/type"
-            for (int i = retlist.length() - 2; i > 1; --i)
-                retval = retlist[i] + "/" + retval;
+        } else if (parts.size() > 2) {  // name with slashes - trim only "docset/type"
+            for (int i = parts.length() - 2; i > 1; --i)
+                retval = parts[i] + "/" + retval;
         }
-        return QVariant(retval);
+        return retval;
     } else {
-        return QVariant(*i2s(index));
+        return *i2s(index);
     }
 }
 

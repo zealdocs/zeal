@@ -91,7 +91,6 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     const QDir dataDir(m_application->settings()->docsetPath);
     const QString docsetPath = dataDir.absoluteFilePath(docsetName + QStringLiteral(".docset"));
 
-
     // Write metadata about docset
     DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
