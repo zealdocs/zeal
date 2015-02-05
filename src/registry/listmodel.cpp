@@ -26,8 +26,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DecorationRole) {
         if (parts.size() == 1)
             return m_docsetRegistry->entry(*i2s(index))->icon();
-        else
-            return QVariant();
+        else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
+            return QIcon(QString(QStringLiteral("typeIcon:%1.png")).arg(singularize(parts[1])));
     }
 
     if (index.column() == 0) {
