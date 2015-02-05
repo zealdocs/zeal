@@ -237,7 +237,10 @@ void Docset::loadSymbols(SymbolType symbolType) const
                 .arg(m_symbolStrings[symbolType]);
         break;
     case Docset::Type::ZDash:
-        queryStr = QString("SELECT ztokenname, zpath, zanchor FROM ztoken "
+        queryStr = QString("SELECT ztokenname AS name, "
+                           "CASE WHEN (zanchor IS NULL) THEN zpath "
+                           "ELSE (zpath || '#' || zanchor) "
+                           "END AS path FROM ztoken "
                            "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                            "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                            "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
@@ -248,11 +251,6 @@ void Docset::loadSymbols(SymbolType symbolType) const
     QSqlQuery query = db.exec(queryStr);
 
     QMap<QString, QString> &symbols = m_symbols[symbolType];
-    while (query.next()) {
-        QString filePath = query.value(1).toString();
-        if (m_type == Docset::Type::ZDash)
-            filePath += QStringLiteral("#") + query.value(2).toString();
-
-        symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(filePath));
-    }
+    while (query.next())
+        symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(query.value(1).toString()));
 }
