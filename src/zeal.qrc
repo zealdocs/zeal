@@ -397,8 +397,8 @@
         <file>icons/type/Element@2x.png</file>
         <file>icons/type/Entry.png</file>
         <file>icons/type/Entry@2x.png</file>
-        <file>icons/type/Enum.png</file>
-        <file>icons/type/Enum@2x.png</file>
+        <file>icons/type/Enumeration.png</file>
+        <file>icons/type/Enumeration@2x.png</file>
         <file>icons/type/Environment.png</file>
         <file>icons/type/Environment@2x.png</file>
         <file>icons/type/Error.png</file>
@@ -515,8 +515,8 @@
         <file>icons/type/Snippet@2x.png</file>
         <file>icons/type/Statement.png</file>
         <file>icons/type/Statement@2x.png</file>
-        <file>icons/type/Struct.png</file>
-        <file>icons/type/Struct@2x.png</file>
+        <file>icons/type/Structure.png</file>
+        <file>icons/type/Structure@2x.png</file>
         <file>icons/type/Style.png</file>
         <file>icons/type/Style@2x.png</file>
         <file>icons/type/Subroutine.png</file>
