@@ -118,8 +118,6 @@ const QMap<QString, QString> &Docset::symbols(Docset::SymbolType type) const
 {
     if (!m_symbols.contains(type))
         loadSymbols(type);
-    if (!m_symbols.contains(type))
-        qFatal("!!!!!!!!!");
     return m_symbols[type];
 }
 
