@@ -28,7 +28,6 @@ public:
 
 private:
     inline static QString pluralize(const QString &s);
-    inline static QString singularize(const QString &s);
 
     const QString *i2s(const QModelIndex &index) const;
     const QString *string(const QString &str = QString()) const;

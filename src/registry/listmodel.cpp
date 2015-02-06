@@ -27,7 +27,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         if (parts.size() == 1)
             return m_docsetRegistry->entry(*i2s(index))->icon();
         else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
-            return QIcon(QString(QStringLiteral("typeIcon:%1.png")).arg(singularize(parts[1])));
+            return QIcon(QString(QStringLiteral("typeIcon:%1.png")).arg(parts[1]));
     case Qt::DisplayRole:
         if (index.column() > 0)
             return *i2s(index);
@@ -36,7 +36,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case 1: // Docset name
             return m_docsetRegistry->entry(parts[0])->metadata.title();
         case 2: // Symbol group
-            return parts[1];
+            return pluralize(parts[1]);
         default: // Symbol name with slashes (trim only "docset/type")
             QString text = parts.last();
             for (int i = parts.length() - 2; i > 1; --i)
@@ -75,10 +75,10 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             // i2s(parent) == docsetName
             if (column == 0) {
                 const QString type = Docset::symbolTypeToStr(docset->symbolCounts().keys().at(row));
-                return createIndex(row, column, (void *)string(*i2s(parent) + "/" + pluralize(type)));
+                return createIndex(row, column, (void *)string(*i2s(parent) + "/" + type));
             }
         } else {
-            const QString type = singularize(parts[1]);
+            const QString type = parts[1];
             if (row >= docset->symbolCount(type))
                 return QModelIndex();
 
@@ -131,7 +131,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
         if (parts.size() == 1)
             return docset->symbolCounts().size();
         else if (parts.size() == 2)  // parent is docset/type
-            return docset->symbolCount(singularize(parts[1]));
+            return docset->symbolCount(parts[1]);
         else // module - no sub items
             return 0;
     }
@@ -156,14 +156,6 @@ QString ListModel::pluralize(const QString &s)
         return s.left(s.length() - 1) + QLatin1String("ies");
     else
         return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
-}
-
-QString ListModel::singularize(const QString &s)
-{
-    if (s.endsWith(QLatin1String("ies")))
-        return s.left(s.length() - 3) + QLatin1String("y");
-    else
-        return s.left(s.length() - (s.endsWith(QStringLiteral("ses")) ? 2 : 1));
 }
 
 const QString *ListModel::i2s(const QModelIndex &index) const
