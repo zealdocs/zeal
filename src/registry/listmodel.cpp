@@ -17,32 +17,34 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
 
 QVariant ListModel::data(const QModelIndex &index, int role) const
 {
-    if ((role != Qt::DisplayRole && role != Qt::DecorationRole && role != DocsetNameRole)
-            || !index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     const QStringList parts = i2s(index)->split('/');
 
-    if (role == Qt::DecorationRole) {
+    switch (role) {
+    case Qt::DecorationRole:
         if (parts.size() == 1)
             return m_docsetRegistry->entry(*i2s(index))->icon();
         else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
             return QIcon(QString(QStringLiteral("typeIcon:%1.png")).arg(singularize(parts[1])));
-    }
+    case Qt::DisplayRole:
+        if (index.column() > 0)
+            return *i2s(index);
 
-    if (index.column() == 0) {
-        QString retval = parts.last();
-        if (parts.size() == 1) { // docset name
-            if (role == Qt::DisplayRole)
-                retval = m_docsetRegistry->entry(retval)->info.bundleName;
-        } else if (parts.size() > 2) {  // name with slashes - trim only "docset/type"
+        switch (parts.size()) {
+        case 1: // Docset name
+            return m_docsetRegistry->entry(parts[0])->metadata.title();
+        case 2: // Symbol group
+            return parts[1];
+        default: // Symbol name with slashes (trim only "docset/type")
+            QString text = parts.last();
             for (int i = parts.length() - 2; i > 1; --i)
-                retval = parts[i] + "/" + retval;
+                text = parts[i] + "/" + text;
+            return text;
         }
-        return retval;
-    } else {
-        return *i2s(index);
     }
+    return QVariant();
 }
 
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
