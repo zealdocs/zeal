@@ -119,7 +119,7 @@ int ListModel::columnCount(const QModelIndex &parent) const
 
 int ListModel::rowCount(const QModelIndex &parent) const
 {
-    if (parent.column() > 0 && !i2s(parent)->endsWith("/Modules"))
+    if (parent.column() > 0)
         return 0;
 
     if (!parent.isValid()) {
