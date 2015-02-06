@@ -14,7 +14,7 @@ namespace Zeal {
 
 class Docset : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
     Q_ENUMS(SymbolType)
 public:
     enum class Type {
