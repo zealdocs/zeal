@@ -2,6 +2,7 @@
 
 #include <QDir>
 #include <QMetaEnum>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
 
@@ -43,11 +44,16 @@ Docset::Docset(const QString &path) :
     if (!db.open())
         return;
 
-    QSqlQuery q = db.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
+    QSqlQuery query = db.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
+
+    if (query.lastError().type() != QSqlError::NoError) {
+        qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
+        return;
+    }
 
     m_type = Docset::Type::ZDash;
-    while (q.next()) {
-        if (q.value(0).toString() == QStringLiteral("searchIndex")) {
+    while (query.next()) {
+        if (query.value(0).toString() == QStringLiteral("searchIndex")) {
             m_type = Docset::Type::Dash;
             break;
         }
@@ -206,22 +212,27 @@ void Docset::findIcon()
 
 void Docset::countSymbols()
 {
-    QSqlQuery q;
+    QSqlQuery query;
     if (m_type == Docset::Type::Dash) {
-        q = db.exec(QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type"));
+        query = db.exec(QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type"));
     } else if (m_type == Docset::Type::ZDash) {
-        q = db.exec(QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
-                                   " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename"));
+        query = db.exec(QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+                                       " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename"));
     }
 
-    while (q.next()) {
-        const QString symbolTypeStr = q.value(0).toString();
+    if (query.lastError().type() != QSqlError::NoError) {
+        qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
+        return;
+    }
+
+    while (query.next()) {
+        const QString symbolTypeStr = query.value(0).toString();
         const SymbolType symbolType = strToSymbolType(symbolTypeStr);
         if (symbolType == SymbolType::Invalid)
             continue;
 
         m_symbolStrings.insert(symbolType, symbolTypeStr);
-        m_symbolCounts.insert(symbolType, q.value(1).toInt());
+        m_symbolCounts.insert(symbolType, query.value(1).toInt());
     }
 }
 
@@ -247,6 +258,11 @@ void Docset::loadSymbols(SymbolType symbolType) const
     }
 
     QSqlQuery query = db.exec(queryStr);
+
+    if (query.lastError().type() != QSqlError::NoError) {
+        qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
+        return;
+    }
 
     QMap<QString, QString> &symbols = m_symbols[symbolType];
     while (query.next())

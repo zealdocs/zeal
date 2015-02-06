@@ -80,8 +80,10 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             if (row >= docset->symbolCount(type))
                 return QModelIndex();
 
-            auto it = docset->symbols(Docset::strToSymbolType(type)).cbegin();
-            it += row;
+            const QMap<QString, QString> &symbols = docset->symbols(Docset::strToSymbolType(type));
+            if (symbols.isEmpty())
+                return QModelIndex();
+            auto it = symbols.cbegin() + row;
             if (column == 0) {
                 return createIndex(row, column, (void *)string(
                                        QString("%1/%2/%3").arg(docset->name(), parts[1], it.key())));
