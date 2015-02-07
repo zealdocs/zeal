@@ -27,7 +27,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         if (parts.size() == 1)
             return m_docsetRegistry->entry(*i2s(index))->icon();
         else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
-            return QIcon(QString(QStringLiteral("typeIcon:%1.png")).arg(parts[1]));
+            return QIcon(QString(QLatin1String("typeIcon:%1.png")).arg(parts[1]));
     case Qt::DisplayRole:
         if (index.column() > 0)
             return *i2s(index);
@@ -50,7 +50,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
-        if (row >= m_docsetRegistry->count() || row == -1)
+        if (row == -1 || row >= m_docsetRegistry->count() || column > 1)
             return QModelIndex();
 
         if (column == 0) {
@@ -59,15 +59,13 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
             const Docset * const docset = m_docsetRegistry->entry(m_docsetRegistry->names().at(row));
 
             QString indexPath = docset->info.indexPath.isEmpty()
-                    ? QStringLiteral("index.html")
+                    ? QLatin1String("index.html")
                     : docset->info.indexPath;
 
             /// TODO: Check if file exists
             const QDir dir(docset->documentPath());
             return createIndex(row, column, (void *)string(dir.absoluteFilePath(indexPath)));
         }
-
-        return QModelIndex();
     } else {
         const QStringList parts = i2s(parent)->split(QLatin1String("/"));
         const Docset * const docset = m_docsetRegistry->entry(parts[0]);
@@ -93,19 +91,24 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
                 return createIndex(row, column, (void *)string(it.value()));
             }
         }
-        return QModelIndex();
     }
+    return QModelIndex();
 }
 
 QModelIndex ListModel::parent(const QModelIndex &child) const
 {
-    if (child.isValid() && i2s(child)->count("/") == 1) {  // docset/type
-        return createIndex(0, 0, (void *)string(i2s(child)->split('/')[0]));
-    } else if (child.isValid() && i2s(child)->count("/") >= 2) {    // docset/type/item (item can contain slashes)
-        return createIndex(0, 0, (void *)string(i2s(child)->split('/')[0] + "/"
-                           + i2s(child)->split('/')[1]));
-    } else {
+    if (!child.isValid())
         return QModelIndex();
+
+    const QStringList parts = i2s(child)->split(QLatin1String("/"));
+
+    switch (parts.size()) {
+    case 1:
+        return QModelIndex();
+    case 2: // Docset/type
+        return createIndex(0, 0, (void *)string(parts[0]));
+    default: // Docset/type/item (item can contain slashes)
+        return createIndex(0, 0, (void *)string(parts[0] + QLatin1String("/") + parts[1]));
     }
 }
 
@@ -155,7 +158,7 @@ QString ListModel::pluralize(const QString &s)
     if (s.endsWith(QLatin1String("y")))
         return s.left(s.length() - 1) + QLatin1String("ies");
     else
-        return s + (s.endsWith('s') ? QStringLiteral("es") : QStringLiteral("s"));
+        return s + (s.endsWith('s') ? QLatin1String("es") : QLatin1String("s"));
 }
 
 const QString *ListModel::i2s(const QModelIndex &index) const
