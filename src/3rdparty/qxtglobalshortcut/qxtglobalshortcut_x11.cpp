@@ -42,7 +42,7 @@
 namespace {
 
 const QVector<quint32> maskModifiers = QVector<quint32>()
-    << 0 << Mod2Mask << LockMask << (Mod2Mask | LockMask);
+        << 0 << Mod2Mask << LockMask << (Mod2Mask | LockMask);
 
 typedef int (*X11ErrorHandler)(Display *display, XErrorEvent *event);
 
@@ -55,17 +55,17 @@ public:
         Q_UNUSED(display);
         switch (event->error_code)
         {
-            case BadAccess:
-            case BadValue:
-            case BadWindow:
-                if (event->request_code == 33 /* X_GrabKey */ ||
-                        event->request_code == 34 /* X_UngrabKey */)
-                {
-                    error = true;
-                    //TODO:
-                    //char errstr[256];
-                    //XGetErrorText(dpy, err->error_code, errstr, 256);
-                }
+        case BadAccess:
+        case BadValue:
+        case BadWindow:
+            if (event->request_code == 33 /* X_GrabKey */ ||
+                    event->request_code == 34 /* X_UngrabKey */)
+            {
+                error = true;
+                //TODO:
+                //char errstr[256];
+                //XGetErrorText(dpy, err->error_code, errstr, 256);
+            }
         }
         return 0;
     }
@@ -134,9 +134,8 @@ public:
     {
         QxtX11ErrorHandler errorHandler;
 
-        foreach (quint32 maskMods, maskModifiers) {
+        for (quint32 maskMods : maskModifiers)
             XUngrabKey(display(), keycode, modifiers | maskMods, window);
-        }
 
         return !errorHandler.error;
     }
@@ -148,7 +147,7 @@ private:
 } // namespace
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
-    void *message, long *result)
+                                                 void *message, long *result)
 {
     Q_UNUSED(result);
 
@@ -172,8 +171,8 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
             keystate |= ShiftMask;
 
         activateShortcut(keycode,
-            // Mod1Mask == Alt, Mod4Mask == Meta
-            keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+                         // Mod1Mask == Alt, Mod4Mask == Meta
+                         keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
     }
     return false;
 }
