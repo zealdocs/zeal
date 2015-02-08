@@ -23,7 +23,7 @@ public:
     };
 
     enum class SymbolType {
-        Invalid, // Internal use only
+        Unknown, // Internal use only
         Attribute,
         Class,
         Command,

@@ -182,7 +182,7 @@ Docset::SymbolType Docset::strToSymbolType(const QString &str)
     if (!typeStrings.contains(str.toLower()))
         qWarning("Unknown symbol: %s", qPrintable(str));
 
-    return typeStrings.value(str.toLower(), SymbolType::Invalid);
+    return typeStrings.value(str.toLower(), SymbolType::Unknown);
 }
 
 void Docset::findIcon()
@@ -228,7 +228,7 @@ void Docset::countSymbols()
     while (query.next()) {
         const QString symbolTypeStr = query.value(0).toString();
         const SymbolType symbolType = strToSymbolType(symbolTypeStr);
-        if (symbolType == SymbolType::Invalid)
+        if (symbolType == SymbolType::Unknown)
             continue;
 
         m_symbolStrings.insert(symbolType, symbolTypeStr);
