@@ -515,7 +515,7 @@ void SettingsDialog::on_deleteButton_clicked()
         startTasks();
         QFuture<bool> future = QtConcurrent::run([=] {
             QDir docsetDir(dataDir);
-            return !docsetDir.cd(docsetName + ".docset") || docsetDir.removeRecursively();
+            return docsetDir.cd(docsetName + ".docset") && docsetDir.removeRecursively();
         });
         QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
         watcher->setFuture(future);

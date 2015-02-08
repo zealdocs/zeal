@@ -43,6 +43,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
                 text = parts[i] + "/" + text;
             return text;
         }
+    case DocsetNameRole:
+        return parts[0];
     }
     return QVariant();
 }
