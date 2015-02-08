@@ -23,12 +23,17 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
 
 void DocsetRegistry::init(const QString &path)
 {
+    blockSignals(true);
+
     clear();
     addDocsetsFromFolder(path);
 
     QDir appDir(QCoreApplication::applicationDirPath());
     if (appDir.cd(QStringLiteral("docsets")))
         addDocsetsFromFolder(appDir);
+
+    blockSignals(false);
+    emit reset();
 }
 
 
@@ -50,15 +55,7 @@ QStringList DocsetRegistry::names() const
 void DocsetRegistry::remove(const QString &name)
 {
     delete m_docs.take(name);
-    emit changed();
-}
-
-void DocsetRegistry::clear()
-{
-    for (const QString &name : m_docs.keys())
-        delete m_docs.take(name);
-
-    emit changed();
+    emit docsetRemoved(name);
 }
 
 Docset *DocsetRegistry::docset(const QString &name) const
@@ -81,11 +78,13 @@ void DocsetRegistry::addDocset(const QString &path)
         return;
     }
 
-    if (m_docs.contains(docset->name()))
-        remove(docset->name());
+    const QString name = docset->name();
 
-    m_docs[docset->name()] = docset;
-    emit changed();
+    if (m_docs.contains(name))
+        remove(name);
+
+    m_docs[name] = docset;
+    emit docsetAdded(name);
 }
 
 void DocsetRegistry::runQuery(const QString &query)
@@ -264,4 +263,10 @@ void DocsetRegistry::addDocsetsFromFolder(const QDir &folder)
             addDocsetsFromFolder(QDir(subdir.absoluteFilePath()));
         }
     }
+}
+
+void DocsetRegistry::clear()
+{
+    for (const QString &name : m_docs.keys())
+        delete m_docs.take(name);
 }

@@ -508,7 +508,7 @@ void SettingsDialog::on_deleteButton_clicked()
 
     const QDir dataDir(m_application->settings()->docsetPath);
     const QString docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
-    m_zealListModel->removeRow(ui->listView->currentIndex().row());
+    m_docsetRegistry->remove(docsetName);
     if (dataDir.exists()) {
         ui->docsetsProgress->show();
         ui->deleteButton->hide();

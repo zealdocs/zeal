@@ -22,7 +22,6 @@ public:
     bool contains(const QString &name) const;
     QStringList names() const;
     void remove(const QString &name);
-    void clear();
 
     Docset *docset(const QString &name) const;
     // Returns the list of links available in a given webpage.
@@ -39,7 +38,9 @@ public slots:
     void addDocset(const QString &path);
 
 signals:
-    void changed();
+    void docsetAdded(const QString &name);
+    void docsetRemoved(const QString &name);
+    void reset();
     void queryCompleted();
 
 private slots:
@@ -47,6 +48,7 @@ private slots:
 
 private:
     void addDocsetsFromFolder(const QDir &folder);
+    void clear();
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 

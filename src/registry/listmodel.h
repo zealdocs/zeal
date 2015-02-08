@@ -24,7 +24,6 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
-    bool removeRows(int row, int count, const QModelIndex &parent);
 
 private:
     inline static QString pluralize(const QString &s);

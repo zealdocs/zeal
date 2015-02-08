@@ -103,9 +103,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
     connect(ui->action_Quit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-    connect(m_application->docsetRegistry(), &DocsetRegistry::changed,
-            ui->treeView, &QTreeView::reset);
-
     connect(ui->action_Options, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
 

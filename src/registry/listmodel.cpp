@@ -13,6 +13,22 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),
     m_docsetRegistry(docsetRegistry)
 {
+    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, [this](const QString &name) {
+        const int index = m_docsetRegistry->names().indexOf(name);
+        beginInsertRows(QModelIndex(), index, index);
+        endInsertRows();
+    });
+
+    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, [this](const QString &name) {
+        const int index = m_docsetRegistry->names().indexOf(name);
+        beginRemoveRows(QModelIndex(), index, index);
+        endRemoveRows();
+    });
+
+    connect(m_docsetRegistry, &DocsetRegistry::reset, [this]() {
+        beginResetModel();
+        endResetModel();
+    });
 }
 
 QVariant ListModel::data(const QModelIndex &index, int role) const
@@ -140,19 +156,6 @@ int ListModel::rowCount(const QModelIndex &parent) const
         else // module - no sub items
             return 0;
     }
-}
-
-bool ListModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    if (parent.isValid())
-        return false;
-
-    beginRemoveRows(parent, row, row + count - 1);
-    for (int i = 0; i < count; ++i)
-        m_docsetRegistry->remove(m_docsetRegistry->names()[row + i]);
-    endRemoveRows();
-
-    return true;
 }
 
 QString ListModel::pluralize(const QString &s)
