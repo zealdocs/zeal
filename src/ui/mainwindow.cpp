@@ -22,9 +22,9 @@
 #include <QTimer>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineSettings>
+#include <QWebEngineSettings>
 #else
-    #include <QWebFrame>
+#include <QWebFrame>
 #endif
 
 #include <QxtGlobalShortcut>
@@ -91,7 +91,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // menu
     if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
         ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence(
-                                                              "Ctrl+Q"), QKeySequence::Quit});
+                                                          "Ctrl+Q"), QKeySequence::Quit});
     } else {
         // Quit == Ctrl+Q - don't set the same sequence twice because it causes
         // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
@@ -579,7 +579,7 @@ void MainWindow::createTrayIcon()
         gtk_widget_show(quitItem);
 
         m_indicator = app_indicator_new("zeal",
-                                      icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
+                                        icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
 
         app_indicator_set_status(m_indicator, APP_INDICATOR_STATUS_ACTIVE);
         app_indicator_set_menu(m_indicator, GTK_MENU(menu));
