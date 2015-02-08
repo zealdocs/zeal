@@ -79,6 +79,12 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
+void SettingsDialog::reject()
+{
+    loadSettings();
+    QDialog::reject();
+}
+
 void SettingsDialog::extractionCompleted(const QString &filePath)
 {
     QString docsetName;

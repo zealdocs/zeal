@@ -33,6 +33,9 @@ public:
     explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
 
+public slots:
+    void reject() override;
+
 signals:
     void refreshRequested();
 
