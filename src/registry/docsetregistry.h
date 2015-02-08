@@ -52,7 +52,7 @@ private:
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 
-    QMap<QString, Docset *> m_docs;
+    QMap<QString, Docset *> m_docsets;
     QList<SearchResult> m_queryResults;
     int m_lastQuery = -1;
 };

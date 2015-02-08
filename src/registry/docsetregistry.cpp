@@ -39,33 +39,33 @@ void DocsetRegistry::init(const QString &path)
 
 int DocsetRegistry::count() const
 {
-    return m_docs.count();
+    return m_docsets.count();
 }
 
 bool DocsetRegistry::contains(const QString &name) const
 {
-    return m_docs.contains(name);
+    return m_docsets.contains(name);
 }
 
 QStringList DocsetRegistry::names() const
 {
-    return m_docs.keys();
+    return m_docsets.keys();
 }
 
 void DocsetRegistry::remove(const QString &name)
 {
-    delete m_docs.take(name);
+    delete m_docsets.take(name);
     emit docsetRemoved(name);
 }
 
 Docset *DocsetRegistry::docset(const QString &name) const
 {
-    return m_docs[name];
+    return m_docsets[name];
 }
 
 QList<Docset *> DocsetRegistry::docsets() const
 {
-    return m_docs.values();
+    return m_docsets.values();
 }
 
 void DocsetRegistry::addDocset(const QString &path)
@@ -80,10 +80,10 @@ void DocsetRegistry::addDocset(const QString &path)
 
     const QString name = docset->name();
 
-    if (m_docs.contains(name))
+    if (m_docsets.contains(name))
         remove(name);
 
-    m_docs[name] = docset;
+    m_docsets[name] = docset;
     emit docsetAdded(name);
 }
 
@@ -218,7 +218,7 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
     QUrl url(path);
     url.setFragment(QString());
 
-    const Docset *docset = m_docs[name];
+    const Docset *docset = m_docsets[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
@@ -267,6 +267,6 @@ void DocsetRegistry::addDocsetsFromFolder(const QDir &folder)
 
 void DocsetRegistry::clear()
 {
-    for (const QString &name : m_docs.keys())
-        delete m_docs.take(name);
+    for (const QString &name : m_docsets.keys())
+        delete m_docsets.take(name);
 }
