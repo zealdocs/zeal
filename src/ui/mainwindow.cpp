@@ -169,7 +169,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->treeView->setModel(m_zealListModel);
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setItemDelegate(new SearchItemDelegate(ui->lineEdit, ui->treeView));
-    m_treeViewClicked = false;
 
     createTab();
 
@@ -305,10 +304,10 @@ QString MainWindow::docsetName(const QUrl &url) const
 
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
-    if (m_application->docsetRegistry()->contains(docsetName))
-        return m_application->docsetRegistry()->docset(docsetName)->icon().pixmap(32, 32);
-    else
+    const Docset * const docset = m_application->docsetRegistry()->docset(docsetName);
+    if (!docset)
         return QIcon();
+    return docset->icon();
 }
 
 void MainWindow::queryCompleted()

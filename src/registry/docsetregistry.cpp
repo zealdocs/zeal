@@ -210,23 +210,25 @@ const QList<SearchResult> &DocsetRegistry::queryResults()
 QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QString &path)
 {
     QList<SearchResult> results;
+
     // Get the url without the #anchor.
-    QUrl mainUrl(path);
-    mainUrl.setFragment(NULL);
-    QString pageUrl(mainUrl.toString());
+    QUrl url(path);
+    url.setFragment(QString());
+
     const Docset *docset = m_docs[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
     if (docset->type() == Docset::Type::Dash) {
-        query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"").arg(pageUrl);
+        query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"")
+                .arg(url.toString());
     } else if (docset->type() == Docset::Type::ZDash) {
         query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                         "FROM ztoken "
                         "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                         "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                         "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                        "WHERE zfilepath.zpath = \"%1\"").arg(pageUrl);
+                        "WHERE zfilepath.zpath = \"%1\"").arg(url.toString());
     }
 
     QSqlQuery result = docset->db.exec(query);
