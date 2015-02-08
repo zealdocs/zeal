@@ -16,6 +16,7 @@
 #include <QNetworkRequest>
 #include <QMessageBox>
 #include <QTemporaryFile>
+#include <QWebSettings>
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -57,7 +58,9 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     });
 
     connect(ui->minFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, &SettingsDialog::minFontSizeChanged);
+            this, [](int value) {
+        QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, value);
+    });
 
     connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
     connect(ui->downloadButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
@@ -621,8 +624,6 @@ void SettingsDialog::saveSettings()
     settings->proxyPassword = ui->httpProxyPass->text();
 
     settings->save();
-
-    emit webPageStyleUpdated();
 }
 
 void SettingsDialog::on_tabWidget_currentChanged(int current)

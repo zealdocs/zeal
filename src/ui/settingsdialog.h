@@ -35,8 +35,6 @@ public:
 
 signals:
     void refreshRequested();
-    void minFontSizeChanged(int minFont);
-    void webPageStyleUpdated();
 
 private slots:
     void extractionCompleted(const QString &filePath);

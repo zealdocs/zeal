@@ -84,7 +84,6 @@ protected:
 
 private slots:
     void refreshRequest();
-    void changeMinFontSize(int minFont);
     void back();
     void forward();
     void onSearchComplete();
@@ -94,7 +93,6 @@ private slots:
     void saveTabState();
     void goToTab(int index);
     void closeTab(int index = -1);
-    void applyWebPageStyle();
 
 private:
     void displayViewActions();

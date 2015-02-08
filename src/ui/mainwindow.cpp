@@ -81,7 +81,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_settings->splitterGeometry = ui->splitter->saveState();
     });
 
-    applyWebPageStyle();
     m_zealNetworkManager = new NetworkAccessManager();
 #ifdef USE_WEBENGINE
     // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
@@ -106,10 +105,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_settingsDialog, &SettingsDialog::refreshRequested,
             this, &MainWindow::refreshRequest);
-    connect(m_settingsDialog, &SettingsDialog::minFontSizeChanged,
-            this, &MainWindow::changeMinFontSize);
-    connect(m_settingsDialog, &SettingsDialog::webPageStyleUpdated,
-            this, &MainWindow::applyWebPageStyle);
 
     connect(ui->action_Options, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
@@ -677,15 +672,4 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 void MainWindow::refreshRequest()
 {
     ui->treeView->reset();
-}
-
-void MainWindow::changeMinFontSize(int minFont)
-{
-    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minFont);
-}
-
-void MainWindow::applyWebPageStyle()
-{
-    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize,
-                                                m_settings->minimumFontSize);
 }
