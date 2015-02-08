@@ -50,7 +50,6 @@ public:
         Package,
         Property,
         Setting,
-        Specialization,
         Structure,
         Tag,
         Trait,

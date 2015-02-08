@@ -139,6 +139,7 @@ Docset::SymbolType Docset::strToSymbolType(const QString &str)
 {
     const static QHash<QString, SymbolType> typeStrings = {
         {QStringLiteral("cl"), SymbolType::Class},
+        {QStringLiteral("specialization"), SymbolType::Class},
         {QStringLiteral("clconst"), SymbolType::Constant},
         {QStringLiteral("enum"), SymbolType::Enumeration},
         {QStringLiteral("func"), SymbolType::Function},
