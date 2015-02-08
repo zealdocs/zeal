@@ -36,9 +36,6 @@ public:
 public slots:
     void reject() override;
 
-signals:
-    void refreshRequested();
-
 private slots:
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);

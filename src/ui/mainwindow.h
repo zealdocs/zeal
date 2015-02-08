@@ -83,7 +83,6 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent);
 
 private slots:
-    void refreshRequest();
     void back();
     void forward();
     void onSearchComplete();

@@ -109,7 +109,6 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     QMetaObject::invokeMethod(m_docsetRegistry, "addDocset", Qt::BlockingQueuedConnection,
                               Q_ARG(QString, docsetPath));
 
-    emit refreshRequested();
     ui->listView->reset();
 
     QListWidgetItem *listItem = findDocsetListItem(metadata.title());
@@ -611,7 +610,6 @@ void SettingsDialog::saveSettings()
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
         m_docsetRegistry->init(settings->docsetPath);
-        emit refreshRequested();
     }
 
     // Network Tab

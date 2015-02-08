@@ -39,6 +39,7 @@ public slots:
     void addDocset(const QString &path);
 
 signals:
+    void changed();
     void queryCompleted();
 
 private slots:

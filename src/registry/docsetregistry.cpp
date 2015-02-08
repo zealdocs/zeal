@@ -50,12 +50,15 @@ QStringList DocsetRegistry::names() const
 void DocsetRegistry::remove(const QString &name)
 {
     delete m_docs.take(name);
+    emit changed();
 }
 
 void DocsetRegistry::clear()
 {
-    for (const QString &key : m_docs.keys())
-        remove(key);
+    for (const QString &name : m_docs.keys())
+        delete m_docs.take(name);
+
+    emit changed();
 }
 
 Docset *DocsetRegistry::docset(const QString &name) const
@@ -82,6 +85,7 @@ void DocsetRegistry::addDocset(const QString &path)
         remove(docset->name());
 
     m_docs[docset->name()] = docset;
+    emit changed();
 }
 
 void DocsetRegistry::runQuery(const QString &query)
