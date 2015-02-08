@@ -138,51 +138,33 @@ QString Docset::symbolTypeToStr(SymbolType symbolType)
 Docset::SymbolType Docset::strToSymbolType(const QString &str)
 {
     const static QHash<QString, SymbolType> typeStrings = {
-        {QStringLiteral("attribute"), SymbolType::Attribute},
         {QStringLiteral("cl"), SymbolType::Class},
-        {QStringLiteral("class"), SymbolType::Class},
-        {QStringLiteral("command"), SymbolType::Command},
         {QStringLiteral("clconst"), SymbolType::Constant},
-        {QStringLiteral("constant"), SymbolType::Constant},
-        {QStringLiteral("constructor"), SymbolType::Constructor},
-        {QStringLiteral("conversion"), SymbolType::Conversion},
-        {QStringLiteral("delegate"), SymbolType::Delegate},
-        {QStringLiteral("directive"), SymbolType::Directive},
         {QStringLiteral("enum"), SymbolType::Enumeration},
-        {QStringLiteral("enumeration"), SymbolType::Enumeration},
-        {QStringLiteral("event"), SymbolType::Event},
-        {QStringLiteral("exception"), SymbolType::Exception},
-        {QStringLiteral("field"), SymbolType::Field},
-        {QStringLiteral("filter"), SymbolType::Filter},
         {QStringLiteral("func"), SymbolType::Function},
-        {QStringLiteral("function"), SymbolType::Function},
-        {QStringLiteral("guide"), SymbolType::Guide},
-        {QStringLiteral("interface"), SymbolType::Interface},
-        {QStringLiteral("macro"), SymbolType::Macro},
         {QStringLiteral("clm"), SymbolType::Method},
-        {QStringLiteral("method"), SymbolType::Method},
-        {QStringLiteral("module"), SymbolType::Module},
-        {QStringLiteral("namespace"), SymbolType::Namespace},
-        {QStringLiteral("object"), SymbolType::Object},
-        {QStringLiteral("operator"), SymbolType::Operator},
-        {QStringLiteral("option"), SymbolType::Option},
-        {QStringLiteral("package"), SymbolType::Package},
-        {QStringLiteral("property"), SymbolType::Property},
-        {QStringLiteral("setting"), SymbolType::Setting},
-        {QStringLiteral("specialization"), SymbolType::Specialization},
         {QStringLiteral("struct"), SymbolType::Structure},
-        {QStringLiteral("structure"), SymbolType::Structure},
-        {QStringLiteral("tag"), SymbolType::Tag},
-        {QStringLiteral("trait"), SymbolType::Trait},
-        {QStringLiteral("tdef"), SymbolType::Type},
-        {QStringLiteral("type"), SymbolType::Type},
-        {QStringLiteral("variable"), SymbolType::Variable}
+        {QStringLiteral("tdef"), SymbolType::Type}
     };
 
-    if (!typeStrings.contains(str.toLower()))
-        qWarning("Unknown symbol: %s", qPrintable(str));
+    QString typeStr = str.toLower();
+    if (typeStrings.contains(typeStr))
+        return typeStrings.value(typeStr);
 
-    return typeStrings.value(str.toLower(), SymbolType::Unknown);
+    QMetaEnum types = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("SymbolType"));
+
+    bool ok;
+    SymbolType type = static_cast<SymbolType>(types.keyToValue(qPrintable(str), &ok));
+    if (ok)
+        return type;
+
+    typeStr[0] = typeStr[0].toUpper();
+    type = static_cast<SymbolType>(types.keyToValue(qPrintable(typeStr), &ok));
+    if (ok)
+        return type;
+
+    qWarning("Unknown symbol: %s", qPrintable(str));
+    return SymbolType::Unknown;
 }
 
 void Docset::findIcon()
