@@ -88,6 +88,7 @@ private:
     void findIcon();
     void countSymbols();
     void loadSymbols(SymbolType symbolType) const;
+    void loadSymbols(SymbolType symbolType, const QString &symbolString) const;
 
     bool m_isValid = false;
 

@@ -213,19 +213,25 @@ void Docset::countSymbols()
         if (symbolType == SymbolType::Unknown)
             continue;
 
-        m_symbolStrings.insert(symbolType, symbolTypeStr);
-        m_symbolCounts.insert(symbolType, query.value(1).toInt());
+        m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
+        m_symbolCounts[symbolType] += query.value(1).toInt();
     }
 }
 
 /// TODO: Fetch and cache only portions of symbols
 void Docset::loadSymbols(SymbolType symbolType) const
 {
+    for (const QString &symbol : m_symbolStrings.values(symbolType))
+        loadSymbols(symbolType, symbol);
+}
+
+void Docset::loadSymbols(SymbolType symbolType, const QString &symbolString) const
+{
     QString queryStr;
     switch (m_type) {
     case Docset::Type::Dash:
         queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
-                .arg(m_symbolStrings[symbolType]);
+                .arg(symbolString);
         break;
     case Docset::Type::ZDash:
         queryStr = QString("SELECT ztokenname AS name, "
@@ -235,7 +241,7 @@ void Docset::loadSymbols(SymbolType symbolType) const
                            "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                            "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                            "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
-                           "ORDER BY ztokenname ASC").arg(m_symbolStrings[symbolType]);
+                           "ORDER BY ztokenname ASC").arg(symbolString);
         break;
     }
 
