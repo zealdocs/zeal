@@ -37,11 +37,12 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const QStringList parts = i2s(index)->split('/');
+    const Docset * const docset = m_docsetRegistry->docset(parts[0]);
 
     switch (role) {
     case Qt::DecorationRole:
         if (parts.size() == 1)
-            return m_docsetRegistry->docset(*i2s(index))->icon();
+            return docset->icon();
         else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
             return QIcon(QString(QLatin1String("typeIcon:%1.png")).arg(parts[1]));
     case Qt::DisplayRole:
@@ -52,7 +53,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case 1: // Docset name
             return m_docsetRegistry->docset(parts[0])->metadata.title();
         case 2: // Symbol group
-            return pluralize(parts[1]);
+            return QString(QLatin1String("%1 (%2)")).arg(pluralize(parts[1]),
+                    QString::number(docset->symbolCount(parts[1])));
         default: // Symbol name with slashes (trim only "docset/type")
             QString text = parts.last();
             for (int i = parts.length() - 2; i > 1; --i)
