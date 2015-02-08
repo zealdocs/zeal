@@ -601,7 +601,7 @@ void SettingsDialog::saveSettings()
 
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
-        m_docsetRegistry->initialiseDocsets(settings->docsetPath);
+        m_docsetRegistry->init(settings->docsetPath);
         emit refreshRequested();
     }
 

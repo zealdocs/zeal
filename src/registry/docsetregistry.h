@@ -16,6 +16,8 @@ class DocsetRegistry : public QObject
 public:
     DocsetRegistry(QObject *parent = nullptr);
 
+    void init(const QString &path);
+
     int count() const;
     bool contains(const QString &name) const;
     QStringList names() const;
@@ -32,7 +34,6 @@ public:
     const QList<SearchResult> &queryResults();
     QList<Docset *> docsets() const;
 
-    void initialiseDocsets(const QString &path);
 
 public slots:
     void addDocset(const QString &path);

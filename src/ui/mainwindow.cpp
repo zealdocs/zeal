@@ -68,7 +68,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
-    m_application->docsetRegistry()->initialiseDocsets(m_settings->docsetPath);
+    m_application->docsetRegistry()->init(m_settings->docsetPath);
 
     // initialise ui
     ui->setupUi(this);

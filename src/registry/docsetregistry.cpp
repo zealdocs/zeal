@@ -21,6 +21,17 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
     thread->start();
 }
 
+void DocsetRegistry::init(const QString &path)
+{
+    clear();
+    addDocsetsFromFolder(path);
+
+    QDir appDir(QCoreApplication::applicationDirPath());
+    if (appDir.cd(QStringLiteral("docsets")))
+        addDocsetsFromFolder(appDir);
+}
+
+
 int DocsetRegistry::count() const
 {
     return m_docs.count();
@@ -247,13 +258,4 @@ void DocsetRegistry::addDocsetsFromFolder(const QDir &folder)
             addDocsetsFromFolder(QDir(subdir.absoluteFilePath()));
         }
     }
-}
-
-void DocsetRegistry::initialiseDocsets(const QString &path)
-{
-    clear();
-    addDocsetsFromFolder(path);
-    QDir appDir(QCoreApplication::applicationDirPath());
-    if (appDir.cd("docsets"))
-        addDocsetsFromFolder(appDir);
 }
