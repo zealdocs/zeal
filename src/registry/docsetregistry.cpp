@@ -47,7 +47,7 @@ void DocsetRegistry::clear()
         remove(key);
 }
 
-Docset *DocsetRegistry::entry(const QString &name) const
+Docset *DocsetRegistry::docset(const QString &name) const
 {
     return m_docs[name];
 }

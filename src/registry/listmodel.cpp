@@ -25,7 +25,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DecorationRole:
         if (parts.size() == 1)
-            return m_docsetRegistry->entry(*i2s(index))->icon();
+            return m_docsetRegistry->docset(*i2s(index))->icon();
         else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
             return QIcon(QString(QLatin1String("typeIcon:%1.png")).arg(parts[1]));
     case Qt::DisplayRole:
@@ -34,7 +34,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
         switch (parts.size()) {
         case 1: // Docset name
-            return m_docsetRegistry->entry(parts[0])->metadata.title();
+            return m_docsetRegistry->docset(parts[0])->metadata.title();
         case 2: // Symbol group
             return pluralize(parts[1]);
         default: // Symbol name with slashes (trim only "docset/type")
@@ -56,7 +56,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         if (column == 0) {
             return createIndex(row, column, (void *)string(m_docsetRegistry->names().at(row)));
         } else if (column == 1) {
-            const Docset * const docset = m_docsetRegistry->entry(m_docsetRegistry->names().at(row));
+            const Docset * const docset = m_docsetRegistry->docset(m_docsetRegistry->names().at(row));
 
             QString indexPath = docset->info.indexPath.isEmpty()
                     ? QLatin1String("index.html")
@@ -68,7 +68,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         }
     } else {
         const QStringList parts = i2s(parent)->split(QLatin1String("/"));
-        const Docset * const docset = m_docsetRegistry->entry(parts[0]);
+        const Docset * const docset = m_docsetRegistry->docset(parts[0]);
         if (parts.size() == 1) {
             // i2s(parent) == docsetName
             if (column == 0) {
@@ -130,7 +130,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
         return m_docsetRegistry->count();
     } else {
         const QStringList parts = i2s(parent)->split(QLatin1String("/"));
-        const Docset * const docset = m_docsetRegistry->entry(parts[0]);
+        const Docset * const docset = m_docsetRegistry->docset(parts[0]);
         if (parts.size() == 1)
             return docset->symbolCounts().size();
         else if (parts.size() == 2)  // parent is docset/type

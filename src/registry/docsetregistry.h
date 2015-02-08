@@ -22,7 +22,7 @@ public:
     void remove(const QString &name);
     void clear();
 
-    Docset *entry(const QString &name) const;
+    Docset *docset(const QString &name) const;
     // Returns the list of links available in a given webpage.
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
     QList<SearchResult> relatedLinks(const QString &name, const QString &path);

@@ -21,7 +21,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return QVariant(Core::Application::docsetRegistry()->entry(item->docsetName())->icon());
+            return Core::Application::docsetRegistry()->docset(item->docsetName())->icon();
         return QVariant();
     }
 
@@ -32,8 +32,8 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return QVariant(item->name());
 
     } else if (index.column() == 1) {
-        const QDir dir(Core::Application::docsetRegistry()->entry(item->docsetName())->documentPath());
-        return QVariant(dir.absoluteFilePath(item->path()));
+        const QDir dir(Core::Application::docsetRegistry()->docset(item->docsetName())->documentPath());
+        return dir.absoluteFilePath(item->path());
     }
     return QVariant();
 }

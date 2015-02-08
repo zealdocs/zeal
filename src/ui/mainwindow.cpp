@@ -306,7 +306,7 @@ QString MainWindow::docsetName(const QUrl &url) const
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
     if (m_application->docsetRegistry()->contains(docsetName))
-        return m_application->docsetRegistry()->entry(docsetName)->icon().pixmap(32, 32);
+        return m_application->docsetRegistry()->docset(docsetName)->icon().pixmap(32, 32);
     else
         return QIcon();
 }
@@ -483,7 +483,7 @@ void MainWindow::onSearchComplete()
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
-    const QString dir = m_application->docsetRegistry()->entry(docsetName)->documentPath();
+    const QString dir = m_application->docsetRegistry()->docset(docsetName)->documentPath();
     QString urlPath = url.path();
     int dirPosition = urlPath.indexOf(dir);
     QString path = url.path().mid(dirPosition + dir.size() + 1);
