@@ -12,6 +12,12 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
+void SearchModel::setQuery(const QString &q)
+{
+    m_query = q;
+    populateData();
+}
+
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
@@ -27,9 +33,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (index.column() == 0) {
         if (!item->parentName().isEmpty())
-            return QVariant(QString("%1 (%2)").arg(item->name(), item->parentName()));
+            return QString("%1 (%2)").arg(item->name(), item->parentName());
         else
-            return QVariant(item->name());
+            return item->name();
 
     } else if (index.column() == 1) {
         const QDir dir(Core::Application::docsetRegistry()->docset(item->docsetName())->documentPath());
@@ -40,14 +46,10 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!parent.isValid()) {
-        if (dataList.count() <= row) return QModelIndex();
-        const SearchResult &item = dataList.at(row);
+    if (parent.isValid() || m_dataList.count() <= row || column > 1)
+        return QModelIndex();
 
-        if (column == 0 || column == 1)
-            return createIndex(row, column, (void *)&item);
-    }
-    return QModelIndex();
+    return createIndex(row, column, (void *)&m_dataList.at(row));
 }
 
 QModelIndex SearchModel::parent(const QModelIndex &child) const
@@ -59,7 +61,7 @@ QModelIndex SearchModel::parent(const QModelIndex &child) const
 int SearchModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return dataList.count();
+        return m_dataList.count();
     return 0;
 }
 
@@ -69,24 +71,18 @@ int SearchModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-void SearchModel::setQuery(const QString &q)
+void SearchModel::onQueryCompleted(const QList<SearchResult> &results)
 {
-    query = q;
-    populateData();
+    beginResetModel();
+    m_dataList = results;
+    endResetModel();
+    emit queryCompleted();
 }
 
 void SearchModel::populateData()
 {
-    if (query.isEmpty())
+    if (m_query.isEmpty())
         Core::Application::docsetRegistry()->invalidateQueries();
     else
-        Core::Application::docsetRegistry()->runQuery(query);
-}
-
-void SearchModel::onQueryCompleted(const QList<SearchResult> &results)
-{
-    beginResetModel();
-    dataList = results;
-    endResetModel();
-    emit queryCompleted();
+        Core::Application::docsetRegistry()->runQuery(m_query);
 }
