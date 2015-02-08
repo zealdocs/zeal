@@ -110,7 +110,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_globalShortcut->setEnabled(false);
 
         if (m_settingsDialog->exec()) {
-            m_settings->save();
             m_globalShortcut->setShortcut(m_settings->showShortcut);
 
             if (m_settings->showSystrayIcon) {
@@ -121,13 +120,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                 m_trayIcon = nullptr;
                 delete trayIconMenu;
             }
-        } else {
-            // cancelled - restore previous value
-            ui->webView->settings()->setFontSize(QWebSettings::MinimumFontSize,
-                                                 m_settings->minimumFontSize);
         }
 
-        ui->treeView->reset();
         m_globalShortcut->setEnabled(true);
     });
 

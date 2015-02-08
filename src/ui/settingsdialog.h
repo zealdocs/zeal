@@ -33,9 +33,6 @@ public:
     explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = 0);
     ~SettingsDialog() override;
 
-public slots:
-    void reject() override;
-
 private slots:
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);
