@@ -41,24 +41,12 @@ Docset::Docset(const QString &path) :
     QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_name);
     db.setDatabaseName(dir.absoluteFilePath(QStringLiteral("docSet.dsidx")));
 
-    if (!db.open())
-        return;
-
-    QSqlQuery query(db);
-    query.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
-
-    if (query.lastError().type() != QSqlError::NoError) {
-        qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
+    if (!db.open()) {
+        qWarning("SQL Error: %s", qPrintable(db.lastError().text()));
         return;
     }
 
-    m_type = Docset::Type::ZDash;
-    while (query.next()) {
-        if (query.value(0).toString() == QStringLiteral("searchIndex")) {
-            m_type = Docset::Type::Dash;
-            break;
-        }
-    }
+    m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 
     if (!dir.cd(QStringLiteral("Documents")))
         return;
