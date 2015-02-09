@@ -25,6 +25,7 @@ public:
     enum class SymbolType {
         Unknown, // Internal use only
         Attribute,
+        Builtin,
         Class,
         Command,
         Constant,
@@ -48,13 +49,16 @@ public:
         Operator,
         Option,
         Package,
+        Parameter,
         Property,
+        Service,
         Setting,
         Structure,
         Tag,
         Trait,
         Type,
-        Variable
+        Variable,
+        Word
     };
 
     explicit Docset(const QString &path);
