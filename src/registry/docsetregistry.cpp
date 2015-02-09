@@ -122,6 +122,10 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset->prefix))
             continue;
 
+        QSqlDatabase db = docset->database();
+        if (!db.isOpen())
+            continue;
+
         QString qstr;
         QSqlQuery q;
         QList<QList<QVariant>> found;
@@ -158,7 +162,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                                "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
                                                             subNames.arg("ztokenname", curQuery));
             }
-            q = docset->db.exec(qstr);
+            db.exec(qstr);
             while (q.next()) {
                 QList<QVariant> values;
                 for (int i = 0; i < cols; ++i)
@@ -219,13 +223,17 @@ const QList<SearchResult> &DocsetRegistry::queryResults()
 
 QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QString &path)
 {
+    const Docset *docset = m_docsets[name];
+    QSqlDatabase db = docset->database();
+    if (!db.isOpen())
+        return QList<SearchResult>();
+
     QList<SearchResult> results;
 
     // Get the url without the #anchor.
     QUrl url(path);
     url.setFragment(QString());
 
-    const Docset *docset = m_docsets[name];
 
     // Prepare the query to look up all pages with the same url.
     QString query;
@@ -241,7 +249,7 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
                         "WHERE zfilepath.zpath = \"%1\"").arg(url.toString());
     }
 
-    QSqlQuery result = docset->db.exec(query);
+    QSqlQuery result = db.exec(query);
     while (result.next()) {
         QString sectionName = result.value(0).toString();
         QString sectionPath = result.value(2).toString();

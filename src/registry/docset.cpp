@@ -38,7 +38,7 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Resources")))
         return;
 
-    db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_name);
+    QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_name);
     db.setDatabaseName(dir.absoluteFilePath(QStringLiteral("docSet.dsidx")));
 
     if (!db.open())
@@ -72,7 +72,7 @@ Docset::Docset(const QString &path) :
 
 Docset::~Docset()
 {
-    db.close();
+    QSqlDatabase::removeDatabase(m_name);
 }
 
 bool Docset::isValid() const
@@ -170,6 +170,11 @@ Docset::SymbolType Docset::strToSymbolType(const QString &str)
     return SymbolType::Unknown;
 }
 
+QSqlDatabase Docset::database() const
+{
+    return QSqlDatabase::database(m_name, true);
+}
+
 void Docset::findIcon()
 {
     const QDir dir(m_path);
@@ -197,6 +202,10 @@ void Docset::findIcon()
 
 void Docset::countSymbols()
 {
+    QSqlDatabase db = database();
+    if (!db.isOpen())
+        return;
+
     QSqlQuery query;
     if (m_type == Docset::Type::Dash) {
         query = db.exec(QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type"));
@@ -230,6 +239,10 @@ void Docset::loadSymbols(SymbolType symbolType) const
 
 void Docset::loadSymbols(SymbolType symbolType, const QString &symbolString) const
 {
+    QSqlDatabase db = database();
+    if (!db.isOpen())
+        return;
+
     QString queryStr;
     switch (m_type) {
     case Docset::Type::Dash:
@@ -247,6 +260,7 @@ void Docset::loadSymbols(SymbolType symbolType, const QString &symbolString) con
                            "ORDER BY ztokenname ASC").arg(symbolString);
         break;
     }
+
 
     QSqlQuery query = db.exec(queryStr);
 

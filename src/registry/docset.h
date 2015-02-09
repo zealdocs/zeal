@@ -81,8 +81,9 @@ public:
     static QString symbolTypeToStr(SymbolType symbolType);
     static SymbolType strToSymbolType(const QString &str);
 
+    QSqlDatabase database() const;
+
     QString prefix;
-    QSqlDatabase db;
     DocsetMetadata metadata;
     DocsetInfo info;
 
