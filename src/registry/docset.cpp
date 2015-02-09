@@ -234,25 +234,111 @@ QString Docset::parseSymbolType(const QString &str)
 {
     /// Dash symbol aliases
     const static QHash<QString, QString> aliases = {
+        // Attribute
+        {QStringLiteral("Package Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Private Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Protected Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Public Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Static Package Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Static Private Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Static Protected Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("Static Public Attributes"), QStringLiteral("Attribute")},
+        {QStringLiteral("XML Attributes"), QStringLiteral("Attribute")},
+        // Binding
+        {QStringLiteral("binding"), QStringLiteral("Binding")},
+        // Category
+        {QStringLiteral("cat"), QStringLiteral("Category")},
+        {QStringLiteral("Groups"), QStringLiteral("Category")},
+        {QStringLiteral("Pages"), QStringLiteral("Category")},
         // Class
         {QStringLiteral("cl"), QStringLiteral("Class")},
         {QStringLiteral("specialization"), QStringLiteral("Class")},
+        {QStringLiteral("tmplt"), QStringLiteral("Class")},
         // Constant
+        {QStringLiteral("data"), QStringLiteral("Constant")},
+        {QStringLiteral("econst"), QStringLiteral("Constant")},
+        {QStringLiteral("enumelt"), QStringLiteral("Constant")},
         {QStringLiteral("clconst"), QStringLiteral("Constant")},
+        {QStringLiteral("structdata"), QStringLiteral("Constant")},
+        {QStringLiteral("Notifications"), QStringLiteral("Constant")},
+        // Constructor
+        {QStringLiteral("Public Constructors"), QStringLiteral("Constructor")},
         // Enumeration
         {QStringLiteral("enum"), QStringLiteral("Enumeration")},
         {QStringLiteral("Enum"), QStringLiteral("Enumeration")},
+        {QStringLiteral("Enumerations"), QStringLiteral("Enumeration")},
+        // Event
+        {QStringLiteral("event"), QStringLiteral("Event")},
+        {QStringLiteral("Public Events"), QStringLiteral("Event")},
+        {QStringLiteral("Inherited Events"), QStringLiteral("Event")},
+        {QStringLiteral("Private Events"), QStringLiteral("Event")},
+        // Field
+        {QStringLiteral("Data Fields"), QStringLiteral("Field")},
         // Function
+        {QStringLiteral("dcop"), QStringLiteral("Function")},
         {QStringLiteral("func"), QStringLiteral("Function")},
+        {QStringLiteral("ffunc"), QStringLiteral("Function")},
+        {QStringLiteral("signal"), QStringLiteral("Function")},
+        {QStringLiteral("slot"), QStringLiteral("Function")},
+        {QStringLiteral("grammar"), QStringLiteral("Function")},
+        {QStringLiteral("Function Prototypes"), QStringLiteral("Function")},
+        {QStringLiteral("Functions/Subroutines"), QStringLiteral("Function")},
+        {QStringLiteral("Members"), QStringLiteral("Function")},
+        {QStringLiteral("Package Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Private Member Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Private Slots"), QStringLiteral("Function")},
+        {QStringLiteral("Protected Member Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Protected Slots"), QStringLiteral("Function")},
+        {QStringLiteral("Public Member Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Public Slots"), QStringLiteral("Function")},
+        {QStringLiteral("Signals"), QStringLiteral("Function")},
+        {QStringLiteral("Static Package Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Static Private Member Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Static Protected Member Functions"), QStringLiteral("Function")},
+        {QStringLiteral("Static Public Member Functions"), QStringLiteral("Function")},
+        // Guide
+        {QStringLiteral("doc"), QStringLiteral("Guide")},
+        // Namespace
+        {QStringLiteral("ns"), QStringLiteral("Namespace")},
         // Macro
         {QStringLiteral("macro"), QStringLiteral("Macro")},
         // Method
         {QStringLiteral("clm"), QStringLiteral("Method")},
+        {QStringLiteral("intfctr"), QStringLiteral("Method")},
+        {QStringLiteral("intfcm"), QStringLiteral("Method")},
+        {QStringLiteral("intfm"), QStringLiteral("Method")},
+        {QStringLiteral("instctr"), QStringLiteral("Method")},
+        {QStringLiteral("instm"), QStringLiteral("Method")},
+        {QStringLiteral("Class Methods"), QStringLiteral("Method")},
+        {QStringLiteral("Inherited Methods"), QStringLiteral("Method")},
+        {QStringLiteral("Instance Methods"), QStringLiteral("Method")},
+        {QStringLiteral("Private Methods"), QStringLiteral("Method")},
+        {QStringLiteral("Protected Methods"), QStringLiteral("Method")},
+        {QStringLiteral("Public Methods"), QStringLiteral("Method")},
+        // Property
+        {QStringLiteral("intfp"), QStringLiteral("Property")},
+        {QStringLiteral("instp"), QStringLiteral("Property")},
+        {QStringLiteral("Inherited Properties"), QStringLiteral("Property")},
+        {QStringLiteral("Private Properties"), QStringLiteral("Property")},
+        {QStringLiteral("Protected Properties"), QStringLiteral("Property")},
+        {QStringLiteral("Public Properties"), QStringLiteral("Property")},
+        // Protocol
+        {QStringLiteral("intf"), QStringLiteral("Protocol")},
         // Structure
         {QStringLiteral("struct"), QStringLiteral("Structure")},
+        {QStringLiteral("Data Structures"), QStringLiteral("Structure")},
         {QStringLiteral("Struct"), QStringLiteral("Structure")},
         // Type
-        {QStringLiteral("tdef"), QStringLiteral("Type")}
+        {QStringLiteral("tag"), QStringLiteral("Type")},
+        {QStringLiteral("tdef"), QStringLiteral("Type")},
+        {QStringLiteral("Data Types"), QStringLiteral("Type")},
+        {QStringLiteral("Package Types"), QStringLiteral("Type")},
+        {QStringLiteral("Private Types"), QStringLiteral("Type")},
+        {QStringLiteral("Protected Types"), QStringLiteral("Type")},
+        {QStringLiteral("Public Types"), QStringLiteral("Type")},
+        {QStringLiteral("Typedefs"), QStringLiteral("Type")},
+        // Variable
+        {QStringLiteral("var"), QStringLiteral("Variable")}
     };
 
     return aliases.value(str, str);
