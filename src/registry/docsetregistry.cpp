@@ -63,6 +63,13 @@ Docset *DocsetRegistry::docset(const QString &name) const
     return m_docsets[name];
 }
 
+Docset *DocsetRegistry::docset(int index) const
+{
+    if (index < 0 || index >= m_docsets.size())
+        return nullptr;
+    return (m_docsets.cbegin() + index).value();
+}
+
 QList<Docset *> DocsetRegistry::docsets() const
 {
     return m_docsets.values();

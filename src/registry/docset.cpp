@@ -105,6 +105,13 @@ QIcon Docset::icon() const
     return m_icon;
 }
 
+QString Docset::indexFilePath() const
+{
+    /// TODO: Check if file exists
+    const QDir dir(documentPath());
+    return dir.absoluteFilePath(info.indexPath.isEmpty() ? QStringLiteral("index.html") : info.indexPath);
+}
+
 QMap<Docset::SymbolType, int> Docset::symbolCounts() const
 {
     return m_symbolCounts;
@@ -113,11 +120,6 @@ QMap<Docset::SymbolType, int> Docset::symbolCounts() const
 int Docset::symbolCount(Docset::SymbolType type) const
 {
     return m_symbolCounts.value(type);
-}
-
-int Docset::symbolCount(const QString &typeStr) const
-{
-    return m_symbolCounts.value(strToSymbolType(typeStr));
 }
 
 const QMap<QString, QString> &Docset::symbols(Docset::SymbolType type) const

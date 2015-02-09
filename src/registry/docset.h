@@ -71,11 +71,10 @@ public:
     QString path() const;
     QString documentPath() const;
     QIcon icon() const;
+    QString indexFilePath() const;
 
     QMap<SymbolType, int> symbolCounts() const;
-    QList<Docset::SymbolType> symbolTypes() const;
     int symbolCount(Docset::SymbolType type) const;
-    int symbolCount(const QString &typeStr) const;
 
     const QMap<QString, QString> &symbols(Docset::SymbolType type) const;
 

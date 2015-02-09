@@ -1,9 +1,10 @@
 #ifndef LISTMODEL_H
 #define LISTMODEL_H
 
+#include "docset.h"
+
 #include <QAbstractListModel>
-#include <QHash>
-#include <QSet>
+#include <QMap>
 
 namespace Zeal {
 
@@ -25,14 +26,37 @@ public:
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
 
-private:
-    inline static QString pluralize(const QString &s);
+private slots:
+    void addDocset(const QString &name);
+    void removeDocset(const QString &name);
 
-    const QString *i2s(const QModelIndex &index) const;
-    const QString *string(const QString &str = QString()) const;
+private:
+    enum Level {
+        RootLevel,
+        DocsetLevel,
+        GroupLevel,
+        SymbolLevel
+    };
+
+    inline static QString pluralize(const QString &s);
+    inline static Level indexLevel(const QModelIndex &index);
 
     DocsetRegistry *m_docsetRegistry;
-    QSet<QString> m_strings;
+
+    struct DocsetItem;
+    struct GroupItem {
+        const Level level = Level::GroupLevel;
+        DocsetItem *docsetItem = nullptr;
+        Docset::SymbolType symbolType;
+    };
+
+    struct DocsetItem {
+        const Level level = Level::DocsetLevel;
+        Docset *docset = nullptr;
+        QList<GroupItem *> groups;
+    };
+
+    QMap<QString, DocsetItem *> m_docsetItems;
 };
 
 } // namespace Zeal

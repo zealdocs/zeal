@@ -2,9 +2,6 @@
 
 #include "docsetregistry.h"
 
-#include <QDir>
-#include <QSqlQuery>
-
 using namespace Zeal;
 
 /// TODO: Get rid of const_casts
@@ -13,22 +10,21 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),
     m_docsetRegistry(docsetRegistry)
 {
-    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, [this](const QString &name) {
-        const int index = m_docsetRegistry->names().indexOf(name);
-        beginInsertRows(QModelIndex(), index, index);
-        endInsertRows();
-    });
-
-    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, [this](const QString &name) {
-        const int index = m_docsetRegistry->names().indexOf(name);
-        beginRemoveRows(QModelIndex(), index, index);
-        endRemoveRows();
-    });
+    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, &ListModel::addDocset);
+    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, &ListModel::removeDocset);
 
     connect(m_docsetRegistry, &DocsetRegistry::reset, [this]() {
         beginResetModel();
+        m_docsetItems.clear();
+
+        for (const QString &name : m_docsetRegistry->names())
+            addDocset(name);
+
         endResetModel();
     });
+
+    for (const QString &name : m_docsetRegistry->names())
+        addDocset(name);
 }
 
 QVariant ListModel::data(const QModelIndex &index, int role) const
@@ -36,108 +32,98 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const QStringList parts = i2s(index)->split('/');
-    const Docset * const docset = m_docsetRegistry->docset(parts[0]);
-
     switch (role) {
     case Qt::DecorationRole:
-        if (parts.size() == 1)
-            return docset->icon();
-        else /// TODO: Show Unknown.png for non-existent icons (e.g. specialization)
-            return QIcon(QString(QLatin1String("typeIcon:%1.png")).arg(parts[1]));
+        switch (indexLevel(index)) {
+        case Level::DocsetLevel:
+            return m_docsetRegistry->docset(index.row())->icon();
+        case Level::GroupLevel: {
+            DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
+            Docset::SymbolType symbolType = docsetItem->groups.at(index.row())->symbolType;
+            return QIcon(QString("typeIcon:%1.png").arg(Docset::symbolTypeToStr(symbolType)));
+        }
+        case Level::SymbolLevel: {
+            GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
+            return QIcon(QString("typeIcon:%1.png").arg(Docset::symbolTypeToStr(groupItem->symbolType)));
+        }
+        default:
+            return QVariant();
+        }
     case Qt::DisplayRole:
-        if (index.column() > 0)
-            return *i2s(index);
-
-        switch (parts.size()) {
-        case 1: // Docset name
-            return m_docsetRegistry->docset(parts[0])->metadata.title();
-        case 2: // Symbol group
-            return QString(QLatin1String("%1 (%2)")).arg(pluralize(parts[1]),
-                    QString::number(docset->symbolCount(parts[1])));
-        default: // Symbol name with slashes (trim only "docset/type")
-            QString text = parts.last();
-            for (int i = parts.length() - 2; i > 1; --i)
-                text = parts[i] + "/" + text;
-            return text;
+        switch (indexLevel(index)) {
+        case Level::DocsetLevel:
+            if (!index.column())
+                return m_docsetRegistry->docset(index.row())->metadata.title();
+            else
+                return m_docsetRegistry->docset(index.row())->indexFilePath();
+        case Level::GroupLevel: {
+            DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
+            Docset::SymbolType type = docsetItem->groups.at(index.row())->symbolType;
+            return QString(QLatin1String("%1 (%2)")).arg(pluralize(Docset::symbolTypeToStr(type)),
+                                                         QString::number(docsetItem->docset->symbolCount(type)));
+        }
+        case Level::SymbolLevel: {
+            GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
+            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin() + index.row();
+            if (!index.column())
+                return it.key();
+            else
+                return it.value();
+        }
+        default:
+            return QVariant();
         }
     case DocsetNameRole:
-        return parts[0];
+        if (!index.parent().isValid())
+            return m_docsetRegistry->docset(index.row())->name();
+    default:
+        return QVariant();
     }
-    return QVariant();
 }
 
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!parent.isValid()) {
-        if (row == -1 || row >= m_docsetRegistry->count() || column > 1)
-            return QModelIndex();
+    if (!hasIndex(row, column, parent))
+        return QModelIndex();
 
-        if (column == 0) {
-            return createIndex(row, column, (void *)string(m_docsetRegistry->names().at(row)));
-        } else if (column == 1) {
-            const Docset * const docset = m_docsetRegistry->docset(m_docsetRegistry->names().at(row));
-
-            QString indexPath = docset->info.indexPath.isEmpty()
-                    ? QLatin1String("index.html")
-                    : docset->info.indexPath;
-
-            /// TODO: Check if file exists
-            const QDir dir(docset->documentPath());
-            return createIndex(row, column, (void *)string(dir.absoluteFilePath(indexPath)));
-        }
-    } else {
-        const QStringList parts = i2s(parent)->split(QLatin1String("/"));
-        const Docset * const docset = m_docsetRegistry->docset(parts[0]);
-        if (parts.size() == 1) {
-            // i2s(parent) == docsetName
-            if (column == 0) {
-                const QString type = Docset::symbolTypeToStr(docset->symbolCounts().keys().at(row));
-                return createIndex(row, column, (void *)string(*i2s(parent) + "/" + type));
-            }
-        } else {
-            const QString type = parts[1];
-            if (row >= docset->symbolCount(type))
-                return QModelIndex();
-
-            const QMap<QString, QString> &symbols = docset->symbols(Docset::strToSymbolType(type));
-            if (symbols.isEmpty())
-                return QModelIndex();
-            auto it = symbols.cbegin() + row;
-            if (column == 0) {
-                return createIndex(row, column, (void *)string(
-                                       QString("%1/%2/%3").arg(docset->name(), parts[1], it.key())));
-            } else if (column == 1) {
-                return createIndex(row, column, (void *)string(it.value()));
-            }
-        }
+    switch (indexLevel(parent)) {
+    case Level::RootLevel:
+        return createIndex(row, column);
+    case Level::DocsetLevel: {
+        auto it = m_docsetItems.begin() + parent.row();
+        return createIndex(row, column, reinterpret_cast<void *>(it.value()));
     }
-    return QModelIndex();
+    case Level::GroupLevel: {
+        DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(parent.internalPointer());
+        return createIndex(row, column, docsetItem->groups.at(parent.row()));
+    }
+    default:
+        return QModelIndex();
+    }
 }
 
 QModelIndex ListModel::parent(const QModelIndex &child) const
 {
-    if (!child.isValid())
+    switch (indexLevel(child)) {
+    case Level::GroupLevel: {
+        DocsetItem *item = reinterpret_cast<DocsetItem *>(child.internalPointer());
+        return createIndex(m_docsetItems.keys().indexOf(item->docset->name()), 0);
+    }
+    case SymbolLevel: {
+        GroupItem *item = reinterpret_cast<GroupItem *>(child.internalPointer());
+        return createIndex(item->docsetItem->groups.indexOf(item), 0, item->docsetItem);
+    }
+    default:
         return QModelIndex();
-
-    const QStringList parts = i2s(child)->split(QLatin1String("/"));
-
-    switch (parts.size()) {
-    case 1:
-        return QModelIndex();
-    case 2: // Docset/type
-        return createIndex(0, 0, (void *)string(parts[0]));
-    default: // Docset/type/item (item can contain slashes)
-        return createIndex(0, 0, (void *)string(parts[0] + QLatin1String("/") + parts[1]));
     }
 }
 
 int ListModel::columnCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid() || i2s(parent)->count("/") == 1) // child of docset/type
-        return 2;
-    else
+    if (indexLevel(parent) == Level::DocsetLevel)
         return 1;
+    else
+        return 2;
 }
 
 int ListModel::rowCount(const QModelIndex &parent) const
@@ -145,19 +131,50 @@ int ListModel::rowCount(const QModelIndex &parent) const
     if (parent.column() > 0)
         return 0;
 
-    if (!parent.isValid()) {
-        // root
+    switch (indexLevel(parent)) {
+    case Level::RootLevel:
         return m_docsetRegistry->count();
-    } else {
-        const QStringList parts = i2s(parent)->split(QLatin1String("/"));
-        const Docset * const docset = m_docsetRegistry->docset(parts[0]);
-        if (parts.size() == 1)
-            return docset->symbolCounts().size();
-        else if (parts.size() == 2)  // parent is docset/type
-            return docset->symbolCount(parts[1]);
-        else // module - no sub items
-            return 0;
+    case Level::DocsetLevel:
+        return m_docsetRegistry->docset(parent.row())->symbolCounts().count();
+    case Level::GroupLevel: {
+        DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(parent.internalPointer());
+        return docsetItem->docset->symbolCount(docsetItem->groups.at(parent.row())->symbolType);
     }
+    default:
+        return 0;
+    }
+}
+
+void ListModel::addDocset(const QString &name)
+{
+    const int index = m_docsetRegistry->names().indexOf(name);
+    beginInsertRows(QModelIndex(), index, index);
+
+    DocsetItem *docsetItem = new DocsetItem();
+    docsetItem->docset = m_docsetRegistry->docset(name);
+
+    for (Docset::SymbolType type : docsetItem->docset->symbolCounts().keys()) {
+        GroupItem *groupItem = new GroupItem();
+        groupItem->docsetItem = docsetItem;
+        groupItem->symbolType = type;
+        docsetItem->groups.append(groupItem);
+    }
+
+    m_docsetItems.insert(name, docsetItem);
+
+    endInsertRows();
+}
+
+void ListModel::removeDocset(const QString &name)
+{
+    const int index = m_docsetItems.keys().indexOf(name);
+    beginRemoveRows(QModelIndex(), index, index);
+
+    DocsetItem *docsetItem = m_docsetItems.take(name);
+    qDeleteAll(docsetItem->groups);
+    delete docsetItem;
+
+    endRemoveRows();
 }
 
 QString ListModel::pluralize(const QString &s)
@@ -168,14 +185,14 @@ QString ListModel::pluralize(const QString &s)
         return s + (s.endsWith('s') ? QLatin1String("es") : QLatin1String("s"));
 }
 
-const QString *ListModel::i2s(const QModelIndex &index) const
+ListModel::Level ListModel::indexLevel(const QModelIndex &index)
 {
-    return static_cast<const QString *>(index.internalPointer());
-}
-
-const QString *ListModel::string(const QString &str) const
-{
-    if (m_strings.find(str) == m_strings.end())
-        const_cast<QSet<QString> &>(m_strings).insert(str);
-    return &*m_strings.find(str);
+    if (!index.isValid())
+        return Level::RootLevel;
+    else if (!index.internalPointer())
+        return Level::DocsetLevel;
+    else if (*reinterpret_cast<Level *>(index.internalPointer()) == Level::DocsetLevel)
+        return Level::GroupLevel;
+    else
+        return Level::SymbolLevel;
 }
