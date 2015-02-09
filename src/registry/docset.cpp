@@ -44,7 +44,8 @@ Docset::Docset(const QString &path) :
     if (!db.open())
         return;
 
-    QSqlQuery query = db.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
+    QSqlQuery query(db);
+    query.exec(QStringLiteral("SELECT name FROM sqlite_master WHERE type='table'"));
 
     if (query.lastError().type() != QSqlError::NoError) {
         qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
@@ -161,18 +162,15 @@ void Docset::findIcon()
 
 void Docset::countSymbols()
 {
-    QSqlDatabase db = database();
-    if (!db.isOpen())
-        return;
-
-    QSqlQuery query;
+    QString queryStr;
     if (m_type == Docset::Type::Dash) {
-        query = db.exec(QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type"));
+        queryStr = QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
     } else if (m_type == Docset::Type::ZDash) {
-        query = db.exec(QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
-                                       " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename"));
+        queryStr = QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+                                  " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
     }
 
+    QSqlQuery query(queryStr, database());
     if (query.lastError().type() != QSqlError::NoError) {
         qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
         return;
@@ -217,9 +215,7 @@ void Docset::loadSymbols(QString symbolType, const QString &symbolString) const
         break;
     }
 
-
-    QSqlQuery query = db.exec(queryStr);
-
+    QSqlQuery query(queryStr, database());
     if (query.lastError().type() != QSqlError::NoError) {
         qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
         return;

@@ -122,12 +122,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset->prefix))
             continue;
 
-        QSqlDatabase db = docset->database();
-        if (!db.isOpen())
-            continue;
-
-        QString qstr;
-        QSqlQuery q;
+        QString queryStr;
         QList<QList<QVariant>> found;
         bool withSubStrings = false;
         // %.%1% for long Django docset values like django.utils.http
@@ -150,23 +145,24 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
             }
             int cols = 3;
             if (docset->type() == Docset::Type::Dash) {
-                qstr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
-                               "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
+                queryStr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
+                                   "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
                         .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
             } else if (docset->type() == Docset::Type::ZDash) {
                 cols = 4;
-                qstr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
-                               "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
-                               "LIKE '%1%' escape '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
-                               "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
-                                                            subNames.arg("ztokenname", curQuery));
+                queryStr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
+                                   "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                   "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
+                                   "LIKE '%1%' escape '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
+                                   "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
+                                                                subNames.arg("ztokenname", curQuery));
             }
-            db.exec(qstr);
-            while (q.next()) {
+
+            QSqlQuery query(queryStr, docset->database());
+            while (query.next()) {
                 QList<QVariant> values;
                 for (int i = 0; i < cols; ++i)
-                    values.append(q.value(i));
+                    values.append(query.value(i));
                 found.append(values);
             }
 
@@ -223,10 +219,7 @@ const QList<SearchResult> &DocsetRegistry::queryResults()
 
 QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QString &path)
 {
-    const Docset *docset = m_docsets[name];
-    QSqlDatabase db = docset->database();
-    if (!db.isOpen())
-        return QList<SearchResult>();
+    const Docset * const docset = m_docsets[name];
 
     QList<SearchResult> results;
 
@@ -234,29 +227,29 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
     QUrl url(path);
     url.setFragment(QString());
 
-
     // Prepare the query to look up all pages with the same url.
-    QString query;
+    QString queryStr;
     if (docset->type() == Docset::Type::Dash) {
-        query = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"")
+        queryStr = QString("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"")
                 .arg(url.toString());
     } else if (docset->type() == Docset::Type::ZDash) {
-        query = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
-                        "FROM ztoken "
-                        "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                        "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                        "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                        "WHERE zfilepath.zpath = \"%1\"").arg(url.toString());
+        queryStr = QString("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
+                           "FROM ztoken "
+                           "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                           "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                           "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
+                           "WHERE zfilepath.zpath = \"%1\"").arg(url.toString());
     }
 
-    QSqlQuery result = db.exec(query);
-    while (result.next()) {
-        QString sectionName = result.value(0).toString();
-        QString sectionPath = result.value(2).toString();
+    QSqlQuery query(queryStr, docset->database());
+
+    while (query.next()) {
+        QString sectionName = query.value(0).toString();
+        QString sectionPath = query.value(2).toString();
         QString parentName;
         if (docset->type() == Docset::Type::ZDash) {
             sectionPath.append("#");
-            sectionPath.append(result.value(3).toString());
+            sectionPath.append(query.value(3).toString());
         }
 
         normalizeName(sectionName, parentName);
