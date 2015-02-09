@@ -1,5 +1,6 @@
 #include "listmodel.h"
 
+#include "docset.h"
 #include "docsetregistry.h"
 
 using namespace Zeal;
@@ -29,12 +30,12 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return m_docsetRegistry->docset(index.row())->icon();
         case Level::GroupLevel: {
             DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
-            Docset::SymbolType symbolType = docsetItem->groups.at(index.row())->symbolType;
-            return QIcon(QString("typeIcon:%1.png").arg(Docset::symbolTypeToStr(symbolType)));
+            const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
+            return QIcon(QString("typeIcon:%1.png").arg(symbolType));
         }
         case Level::SymbolLevel: {
             GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
-            return QIcon(QString("typeIcon:%1.png").arg(Docset::symbolTypeToStr(groupItem->symbolType)));
+            return QIcon(QString("typeIcon:%1.png").arg(groupItem->symbolType));
         }
         default:
             return QVariant();
@@ -48,9 +49,9 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
                 return m_docsetRegistry->docset(index.row())->indexFilePath();
         case Level::GroupLevel: {
             DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
-            Docset::SymbolType type = docsetItem->groups.at(index.row())->symbolType;
-            return QString(QLatin1String("%1 (%2)")).arg(pluralize(Docset::symbolTypeToStr(type)),
-                                                         QString::number(docsetItem->docset->symbolCount(type)));
+            const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
+            return QString(QLatin1String("%1 (%2)")).arg(pluralize(symbolType),
+                                                         QString::number(docsetItem->docset->symbolCount(symbolType)));
         }
         case Level::SymbolLevel: {
             GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
@@ -143,10 +144,10 @@ void ListModel::addDocset(const QString &name)
     DocsetItem *docsetItem = new DocsetItem();
     docsetItem->docset = m_docsetRegistry->docset(name);
 
-    for (Docset::SymbolType type : docsetItem->docset->symbolCounts().keys()) {
+    for (const QString &symbolType : docsetItem->docset->symbolCounts().keys()) {
         GroupItem *groupItem = new GroupItem();
         groupItem->docsetItem = docsetItem;
-        groupItem->symbolType = type;
+        groupItem->symbolType = symbolType;
         docsetItem->groups.append(groupItem);
     }
 
@@ -180,10 +181,10 @@ void ListModel::reset()
         DocsetItem *docsetItem = new DocsetItem();
         docsetItem->docset = docset;
 
-        for (Docset::SymbolType type : docset->symbolCounts().keys()) {
+        for (const QString &symbolType : docset->symbolCounts().keys()) {
             GroupItem *groupItem = new GroupItem();
             groupItem->docsetItem = docsetItem;
-            groupItem->symbolType = type;
+            groupItem->symbolType = symbolType;
             docsetItem->groups.append(groupItem);
         }
 

@@ -112,62 +112,21 @@ QString Docset::indexFilePath() const
     return dir.absoluteFilePath(info.indexPath.isEmpty() ? QStringLiteral("index.html") : info.indexPath);
 }
 
-QMap<Docset::SymbolType, int> Docset::symbolCounts() const
+QMap<QString, int> Docset::symbolCounts() const
 {
     return m_symbolCounts;
 }
 
-int Docset::symbolCount(Docset::SymbolType type) const
+int Docset::symbolCount(const QString &symbolType) const
 {
-    return m_symbolCounts.value(type);
+    return m_symbolCounts.value(symbolType);
 }
 
-const QMap<QString, QString> &Docset::symbols(Docset::SymbolType type) const
+const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
 {
-    if (!m_symbols.contains(type))
-        loadSymbols(type);
-    return m_symbols[type];
-}
-
-/// TODO: Remove after refactoring in ListModel
-QString Docset::symbolTypeToStr(SymbolType symbolType)
-{
-    QMetaEnum types = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("SymbolType"));
-    return types.valueToKey(static_cast<int>(symbolType));
-}
-
-/// TODO: Make private
-Docset::SymbolType Docset::strToSymbolType(const QString &str)
-{
-    const static QHash<QString, SymbolType> typeStrings = {
-        {QStringLiteral("cl"), SymbolType::Class},
-        {QStringLiteral("specialization"), SymbolType::Class},
-        {QStringLiteral("clconst"), SymbolType::Constant},
-        {QStringLiteral("enum"), SymbolType::Enumeration},
-        {QStringLiteral("func"), SymbolType::Function},
-        {QStringLiteral("clm"), SymbolType::Method},
-        {QStringLiteral("struct"), SymbolType::Structure},
-        {QStringLiteral("tdef"), SymbolType::Type}
-    };
-
-    QString typeStr = str.toLower();
-    if (typeStrings.contains(typeStr))
-        return typeStrings.value(typeStr);
-
-    QMetaEnum types = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("SymbolType"));
-
-    bool ok;
-    SymbolType type = static_cast<SymbolType>(types.keyToValue(qPrintable(str), &ok));
-    if (ok)
-        return type;
-
-    typeStr[0] = typeStr[0].toUpper();
-    type = static_cast<SymbolType>(types.keyToValue(qPrintable(typeStr), &ok));
-    if (ok)
-        return type;
-
-    qWarning("Unknown symbol: %s", qPrintable(str));
-    return SymbolType::Unknown;
+    if (!m_symbols.contains(symbolType))
+        loadSymbols(symbolType);
+    return m_symbols[symbolType];
 }
 
 QSqlDatabase Docset::database() const
@@ -221,23 +180,20 @@ void Docset::countSymbols()
 
     while (query.next()) {
         const QString symbolTypeStr = query.value(0).toString();
-        const SymbolType symbolType = strToSymbolType(symbolTypeStr);
-        if (symbolType == SymbolType::Unknown)
-            continue;
-
+        const QString symbolType = parseSymbolType(symbolTypeStr);
         m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += query.value(1).toInt();
     }
 }
 
 /// TODO: Fetch and cache only portions of symbols
-void Docset::loadSymbols(SymbolType symbolType) const
+void Docset::loadSymbols(QString symbolType) const
 {
     for (const QString &symbol : m_symbolStrings.values(symbolType))
         loadSymbols(symbolType, symbol);
 }
 
-void Docset::loadSymbols(SymbolType symbolType, const QString &symbolString) const
+void Docset::loadSymbols(QString symbolType, const QString &symbolString) const
 {
     QSqlDatabase db = database();
     if (!db.isOpen())
@@ -272,4 +228,32 @@ void Docset::loadSymbols(SymbolType symbolType, const QString &symbolString) con
     QMap<QString, QString> &symbols = m_symbols[symbolType];
     while (query.next())
         symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(query.value(1).toString()));
+}
+
+QString Docset::parseSymbolType(const QString &str)
+{
+    /// Dash symbol aliases
+    const static QHash<QString, QString> aliases = {
+        // Class
+        {QStringLiteral("cl"), QStringLiteral("Class")},
+        {QStringLiteral("specialization"), QStringLiteral("Class")},
+        // Constant
+        {QStringLiteral("clconst"), QStringLiteral("Constant")},
+        // Enumeration
+        {QStringLiteral("enum"), QStringLiteral("Enumeration")},
+        {QStringLiteral("Enum"), QStringLiteral("Enumeration")},
+        // Function
+        {QStringLiteral("func"), QStringLiteral("Function")},
+        // Macro
+        {QStringLiteral("macro"), QStringLiteral("Macro")},
+        // Method
+        {QStringLiteral("clm"), QStringLiteral("Method")},
+        // Structure
+        {QStringLiteral("struct"), QStringLiteral("Structure")},
+        {QStringLiteral("Struct"), QStringLiteral("Structure")},
+        // Type
+        {QStringLiteral("tdef"), QStringLiteral("Type")}
+    };
+
+    return aliases.value(str, str);
 }

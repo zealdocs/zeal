@@ -1,13 +1,12 @@
 #ifndef LISTMODEL_H
 #define LISTMODEL_H
 
-#include "docset.h"
-
 #include <QAbstractListModel>
 #include <QMap>
 
 namespace Zeal {
 
+class Docset;
 class DocsetRegistry;
 
 class ListModel : public QAbstractItemModel
@@ -48,7 +47,7 @@ private:
     struct GroupItem {
         const Level level = Level::GroupLevel;
         DocsetItem *docsetItem = nullptr;
-        Docset::SymbolType symbolType;
+        QString symbolType;
     };
 
     struct DocsetItem {

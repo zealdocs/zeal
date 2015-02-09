@@ -15,50 +15,10 @@ namespace Zeal {
 class Docset : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(SymbolType)
 public:
     enum class Type {
         Dash,
         ZDash
-    };
-
-    enum class SymbolType {
-        Unknown, // Internal use only
-        Attribute,
-        Builtin,
-        Class,
-        Command,
-        Constant,
-        Constructor,
-        Conversion,
-        Delegate,
-        Directive,
-        Enumeration,
-        Event,
-        Exception,
-        Field,
-        Filter,
-        Function,
-        Guide,
-        Interface,
-        Macro,
-        Method,
-        Module,
-        Namespace,
-        Object,
-        Operator,
-        Option,
-        Package,
-        Parameter,
-        Property,
-        Service,
-        Setting,
-        Structure,
-        Tag,
-        Trait,
-        Type,
-        Variable,
-        Word
     };
 
     explicit Docset(const QString &path);
@@ -73,13 +33,10 @@ public:
     QIcon icon() const;
     QString indexFilePath() const;
 
-    QMap<SymbolType, int> symbolCounts() const;
-    int symbolCount(Docset::SymbolType type) const;
+    QMap<QString, int> symbolCounts() const;
+    int symbolCount(const QString &symbolType) const;
 
-    const QMap<QString, QString> &symbols(Docset::SymbolType type) const;
-
-    static QString symbolTypeToStr(SymbolType symbolType);
-    static SymbolType strToSymbolType(const QString &str);
+    const QMap<QString, QString> &symbols(const QString &symbolType) const;
 
     QSqlDatabase database() const;
 
@@ -90,8 +47,10 @@ public:
 private:
     void findIcon();
     void countSymbols();
-    void loadSymbols(SymbolType symbolType) const;
-    void loadSymbols(SymbolType symbolType, const QString &symbolString) const;
+    void loadSymbols(QString symbolType) const;
+    void loadSymbols(QString symbolType, const QString &symbolString) const;
+
+    static QString parseSymbolType(const QString &str);
 
     bool m_isValid = false;
 
@@ -100,9 +59,9 @@ private:
     QString m_path;
     QIcon m_icon;
 
-    QMap<SymbolType, QString> m_symbolStrings;
-    QMap<SymbolType, int> m_symbolCounts;
-    mutable QMap<SymbolType, QMap<QString, QString>> m_symbols;
+    QMap<QString, QString> m_symbolStrings;
+    QMap<QString, int> m_symbolCounts;
+    mutable QMap<QString, QMap<QString, QString>> m_symbols;
 };
 
 } // namespace Zeal
