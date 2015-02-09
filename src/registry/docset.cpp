@@ -188,22 +188,21 @@ void Docset::loadSymbols(QString symbolType, const QString &symbolString) const
     QString queryStr;
     switch (m_type) {
     case Docset::Type::Dash:
-        queryStr = QString("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC")
-                .arg(symbolString);
+        queryStr = QStringLiteral("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC");
         break;
     case Docset::Type::ZDash:
-        queryStr = QString("SELECT ztokenname AS name, "
-                           "CASE WHEN (zanchor IS NULL) THEN zpath "
-                           "ELSE (zpath || '#' || zanchor) "
-                           "END AS path FROM ztoken "
-                           "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                           "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                           "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
-                           "ORDER BY ztokenname ASC").arg(symbolString);
+        queryStr = QStringLiteral("SELECT ztokenname AS name, "
+                                  "CASE WHEN (zanchor IS NULL) THEN zpath "
+                                  "ELSE (zpath || '#' || zanchor) "
+                                  "END AS path FROM ztoken "
+                                  "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                                  "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
+                                  "ORDER BY ztokenname ASC");
         break;
     }
 
-    QSqlQuery query(queryStr, database());
+    QSqlQuery query(queryStr.arg(symbolString), database());
     if (query.lastError().type() != QSqlError::NoError) {
         qWarning("SQL Error: %s", qPrintable(query.lastError().text()));
         return;
