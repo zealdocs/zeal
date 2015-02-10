@@ -53,6 +53,7 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::remove(const QString &name)
 {
+    emit docsetAboutToBeRemoved(name);
     delete m_docsets.take(name);
     emit docsetRemoved(name);
 }

@@ -40,6 +40,7 @@ public slots:
 
 signals:
     void docsetAdded(const QString &name);
+    void docsetAboutToBeRemoved(const QString &name);
     void docsetRemoved(const QString &name);
     void reset();
     void queryCompleted();

@@ -12,7 +12,7 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     m_docsetRegistry(docsetRegistry)
 {
     connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, &ListModel::addDocset);
-    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, &ListModel::removeDocset);
+    connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeRemoved, this, &ListModel::removeDocset);
     connect(m_docsetRegistry, &DocsetRegistry::reset, this, &ListModel::reset);
 
     reset();
