@@ -16,10 +16,6 @@ webengine {
     QT += webkitwidgets
 }
 
-TARGET = zeal
-target.path = /usr/bin
-INSTALLS = target
-
 # TODO: Obtain version number from Git tags
 VERSION = $$(ZEAL_VERSION)
 isEmpty(VERSION) {
@@ -40,6 +36,9 @@ win32:RC_ICONS = zeal.ico
 msvc:QMAKE_LIBS += user32.lib
 macx:ICON = zeal.icns
 
+TARGET = $$BUILD_ROOT/bin/zeal
+target.path = /usr/bin
+INSTALLS = target
 
 appicons16.path=/usr/share/icons/hicolor/16x16/apps
 appicons24.path=/usr/share/icons/hicolor/24x24/apps
@@ -59,3 +58,9 @@ include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 RESOURCES += \
     zeal.qrc
+
+# Keep build directory organised
+MOC_DIR = $$BUILD_ROOT/.moc
+OBJECTS_DIR = $$BUILD_ROOT/.obj
+RCC_DIR = $$BUILD_ROOT/.rcc
+UI_DIR = $$BUILD_ROOT/.ui
