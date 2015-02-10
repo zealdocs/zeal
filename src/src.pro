@@ -16,8 +16,16 @@ webengine {
     QT += webkitwidgets
 }
 
+isEmpty(PREFIX_USR_SHARE) {
+    PREFIX_USR_SHARE = /usr/share
+}
+
+isEmpty(PREFIX) {
+    PREFIX = /usr/bin
+}
+
 TARGET = zeal
-target.path = /usr/bin
+target.path = $$PREFIX
 INSTALLS = target
 
 # TODO: Obtain version number from Git tags
@@ -41,17 +49,17 @@ msvc:QMAKE_LIBS += user32.lib
 macx:ICON = zeal.icns
 
 
-appicons16.path=/usr/share/icons/hicolor/16x16/apps
-appicons24.path=/usr/share/icons/hicolor/24x24/apps
-appicons32.path=/usr/share/icons/hicolor/32x32/apps
-appicons64.path=/usr/share/icons/hicolor/64x64/apps
-appicons128.path=/usr/share/icons/hicolor/128x128/apps
+appicons16.path=$$PREFIX_USR_SHARE/icons/hicolor/16x16/apps
+appicons24.path=$$PREFIX_USR_SHARE/icons/hicolor/24x24/apps
+appicons32.path=$$PREFIX_USR_SHARE/icons/hicolor/32x32/apps
+appicons64.path=$$PREFIX_USR_SHARE/icons/hicolor/64x64/apps
+appicons128.path=$$PREFIX_USR_SHARE/icons/hicolor/128x128/apps
 appicons16.files=appicons/16/*
 appicons24.files=appicons/24/*
 appicons32.files=appicons/32/*
 appicons64.files=appicons/64/*
 appicons128.files=appicons/128/*
-desktop.path=/usr/share/applications
+desktop.path=$$PREFIX_USR_SHARE/applications
 desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
 
