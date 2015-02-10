@@ -217,6 +217,8 @@ QSplitter::handle {
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionReportProblem"/>
+    <addaction name="separator"/>
     <addaction name="actionAboutZeal"/>
     <addaction name="actionAboutQt"/>
    </widget>
@@ -293,6 +295,11 @@ QSplitter::handle {
   <action name="action_PreviousTab">
    <property name="text">
     <string>Previous Tab</string>
+   </property>
+  </action>
+  <action name="actionReportProblem">
+   <property name="text">
+    <string>&amp;Report Problem...</string>
    </property>
   </action>
  </widget>

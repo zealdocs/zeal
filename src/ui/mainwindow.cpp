@@ -130,6 +130,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
     // Help Menu
+    connect(ui->actionReportProblem, &QAction::triggered, [this]() {
+        QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
+    });
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QMessageBox::about(this, QStringLiteral("About Zeal"),
                            QStringLiteral("This is Zeal ") +
