@@ -241,14 +241,14 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);
 
+    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+
     ((QHBoxLayout *)ui->frame_2->layout())->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 
-    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
-
     connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
-        QUrl url(ui->webView->page()->history()->currentItem().url());
-        if (url.scheme() != "qrc")
+        const QUrl url(ui->webView->page()->history()->currentItem().url());
+        if (url.scheme() != QStringLiteral("qrc"))
             QDesktopServices::openUrl(url);
     });
 

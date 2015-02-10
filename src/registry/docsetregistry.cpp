@@ -36,7 +36,6 @@ void DocsetRegistry::init(const QString &path)
     emit reset();
 }
 
-
 int DocsetRegistry::count() const
 {
     return m_docsets.count();
