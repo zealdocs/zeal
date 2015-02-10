@@ -272,7 +272,8 @@ void MainWindow::openDocset(const QModelIndex &index)
         QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
         QUrl url = QUrl::fromLocalFile(url_l[0]);
         if (url_l.count() > 1)
-            url.setFragment(url_l[1]);
+            /// NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
+            url.setFragment(url_l[1], QUrl::DecodedMode);
         ui->webView->load(url);
 
         if (!m_treeViewClicked)
