@@ -35,6 +35,10 @@
 
 using namespace Zeal;
 
+namespace {
+const char indexPageUrl[] = "qrc:///webpage/Welcome.html";
+}
+
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -201,6 +205,18 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->sections_lab->hide();
     ui->sections->setModel(&m_searchState->sectionsList);
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
+
+    connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
+            [this](const QString &name) {
+        for (SearchState * searchState : m_tabs) {
+            if (docsetName(searchState->page->mainFrame()->url()) != name)
+                continue;
+
+            searchState->page->mainFrame()->load(QUrl(indexPageUrl));
+            /// TODO: Cleanup history
+        }
+    });
+
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
         if (text == m_searchState->searchQuery)
             return;
@@ -367,9 +383,9 @@ void MainWindow::createTab()
 
     reloadTabState();
 #ifdef USE_WEBENGINE
-    newTab->page->load(QUrl("qrc:///webpage/Welcome.html"));
+    newTab->page->load(QUrl(indexPageUrl));
 #else
-    newTab->page->mainFrame()->load(QUrl("qrc:///webpage/Welcome.html"));
+    newTab->page->mainFrame()->load(QUrl(indexPageUrl));
 #endif
 }
 
