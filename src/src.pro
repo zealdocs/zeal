@@ -38,11 +38,8 @@ include(ui/ui.pri)
 
 win32:RC_ICONS = zeal.ico
 msvc:QMAKE_LIBS += user32.lib
+macx:ICON = zeal.icns
 
-macx {
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -stdlib=libc+
-    ICON = zeal.icns
-}
 
 appicons16.path=/usr/share/icons/hicolor/16x16/apps
 appicons24.path=/usr/share/icons/hicolor/24x24/apps
