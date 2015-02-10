@@ -6,12 +6,14 @@
 
 TEMPLATE = app
 
-QT += gui gui-private widgets sql webkitwidgets
+QT += gui gui-private widgets sql
 CONFIG += c++11
 
-use_webengine {
-    QT      += webenginewidgets
+webengine {
+    QT += webenginewidgets
     DEFINES += USE_WEBENGINE
+} else {
+    QT += webkitwidgets
 }
 
 TARGET = zeal
