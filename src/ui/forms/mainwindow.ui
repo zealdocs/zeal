@@ -217,8 +217,8 @@ QSplitter::handle {
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_About"/>
-    <addaction name="action_About_QT"/>
+    <addaction name="actionAboutZeal"/>
+    <addaction name="actionAboutQt"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -252,12 +252,12 @@ QSplitter::handle {
     <string>&amp;Options</string>
    </property>
   </action>
-  <action name="action_About">
+  <action name="actionAboutZeal">
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;About Zeal</string>
    </property>
   </action>
-  <action name="action_About_QT">
+  <action name="actionAboutQt">
    <property name="text">
     <string>About &amp;Qt</string>
    </property>

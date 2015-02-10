@@ -129,14 +129,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
     connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
 
-    connect(ui->action_About, &QAction::triggered, [this]() {
+    // Help Menu
+    connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QMessageBox::about(this, QStringLiteral("About Zeal"),
                            QStringLiteral("This is Zeal ") +
                            QStringLiteral(ZEAL_VERSION) +
                            QStringLiteral(" - a documentation browser.\n\n") +
                            QStringLiteral("For details see http://zealdocs.org/"));
     });
-    connect(ui->action_About_QT, &QAction::triggered, [this]() {
+    connect(ui->actionAboutQt, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);
     });
 
