@@ -268,19 +268,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::openDocset(const QModelIndex &index)
 {
-    if (!index.sibling(index.row(), 1).data().isNull()) {
-        QStringList url_l = index.sibling(index.row(), 1).data().toString().split('#');
-        QUrl url = QUrl::fromLocalFile(url_l[0]);
-        if (url_l.count() > 1)
-            /// NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
-            url.setFragment(url_l[1], QUrl::DecodedMode);
-        ui->webView->load(url);
+    const QVariant urlStr = index.sibling(index.row(), 1).data();
+    if (urlStr.isNull())
+        return;
 
-        if (!m_treeViewClicked)
-            ui->webView->focus();
-        else
-            m_treeViewClicked = false;
-    }
+    /// TODO: Keep anchor separately from file address
+    QStringList urlParts = urlStr.toString().split(QLatin1Char('#'));
+    QUrl url = QUrl::fromLocalFile(urlParts[0]);
+    if (urlParts.count() > 1)
+        /// NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
+        url.setFragment(urlParts[1], QUrl::DecodedMode);
+
+    ui->webView->load(url);
+
+    if (!m_treeViewClicked)
+        ui->webView->focus();
+    else
+        m_treeViewClicked = false;
 }
 
 QString MainWindow::docsetName(const QUrl &url) const
