@@ -34,7 +34,6 @@ script:
   - export ZEAL_VERSION=`date +%Y%m%d`
   - wine qmake
   - wine mingw32-make
-  - cd src
   - mkdir zeal-$ZEAL_VERSION
   - cp bin/Zeal.exe zeal-$ZEAL_VERSION
   - cp -r icons zeal-$ZEAL_VERSION
