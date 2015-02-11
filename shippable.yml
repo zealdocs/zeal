@@ -39,11 +39,10 @@ script:
   - wine qmake
   - wine mingw32-make
 after_success:
+  # Prepare ZIP package
   - mkdir $ZEAL_DIR
   - cp bin/Zeal.exe $ZEAL_DIR
-  - mkdir $ZEAL_DIR/imageformats
-  - mkdir $ZEAL_DIR/platforms
-  - mkdir $ZEAL_DIR/sqldrivers
+  - for dir in imageformats platforms sqldrivers; do mkdir $ZEAL_DIR/$dir; done
   - cp $HOME/qt/Tools/mingw491_32/opt/bin/ssleay32.dll $ZEAL_DIR
   - cp $HOME/qt/Tools/mingw491_32/opt/bin/libeay32.dll $ZEAL_DIR
   - for l in gif ico jpeg tiff; do cp $QT_DIR/plugins/imageformats/q$l.dll $ZEAL_DIR/imageformats; done
@@ -54,10 +53,12 @@ after_success:
   - cp $QT_DIR/bin/libwinpthread-1.dll $ZEAL_DIR
   - cp $QT_DIR/bin/icu*.dll $ZEAL_DIR
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets WebChannel Widgets Positioning PrintSupport Sensors; do cp $QT_DIR/bin/Qt5$l.dll $ZEAL_DIR; done
-  - rm -f zeal*.zip
+  # Pack everything into ZIP
   - 7z a -mx=9 $ZEAL_DIR.zip $ZEAL_DIR
+  # Upload to BitBucket
   - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @$ZEAL_DIR.zip $ZEAL_UPLOAD_URL || true'
-  - rm -rf $ZEAL_DIR
+  # Cleanup
+  - rm -rf $ZEAL_DIR*
 
 env:
   global:
