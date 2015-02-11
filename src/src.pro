@@ -34,23 +34,32 @@ win32:RC_ICONS = zeal.ico
 msvc:QMAKE_LIBS += user32.lib
 macx:ICON = zeal.icns
 
-TARGET = $$BUILD_ROOT/bin/zeal
-target.path = /usr/bin
-INSTALLS = target
+DESTDIR = $$BUILD_ROOT/bin
 
-appicons16.path=/usr/share/icons/hicolor/16x16/apps
-appicons24.path=/usr/share/icons/hicolor/24x24/apps
-appicons32.path=/usr/share/icons/hicolor/32x32/apps
-appicons64.path=/usr/share/icons/hicolor/64x64/apps
-appicons128.path=/usr/share/icons/hicolor/128x128/apps
-appicons16.files=appicons/16/*
-appicons24.files=appicons/24/*
-appicons32.files=appicons/32/*
-appicons64.files=appicons/64/*
-appicons128.files=appicons/128/*
-desktop.path=/usr/share/applications
-desktop.files=zeal.desktop
-unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
+unix:!macx {
+    TARGET = zeal
+    target.path = /usr/bin
+    INSTALLS = target
+
+    appicons16.files=appicons/16/*
+    appicons24.files=appicons/24/*
+    appicons32.files=appicons/32/*
+    appicons64.files=appicons/64/*
+    appicons128.files=appicons/128/*
+
+    appicons16.path=/usr/share/icons/hicolor/16x16/apps
+    appicons24.path=/usr/share/icons/hicolor/24x24/apps
+    appicons32.path=/usr/share/icons/hicolor/32x32/apps
+    appicons64.path=/usr/share/icons/hicolor/64x64/apps
+    appicons128.path=/usr/share/icons/hicolor/128x128/apps
+
+    desktop.files=zeal.desktop
+    desktop.path=/usr/share/applications
+
+    INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
+}
+
+if(win32|macx): TARGET = Zeal
 
 # Keep build directory organised
 MOC_DIR = $$BUILD_ROOT/.moc
