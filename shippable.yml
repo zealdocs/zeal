@@ -6,7 +6,7 @@ before_install:
 before_install:
   - export QT_DIR=$HOME/qt/5.4/mingw491_32
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates zip curl
+  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates curl
   # Install Qt
   - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
   - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
@@ -55,7 +55,7 @@ after_success:
   - cp $QT_DIR/bin/icu*.dll $ZEAL_DIR
   - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets WebChannel Widgets Positioning PrintSupport Sensors; do cp $QT_DIR/bin/Qt5$l.dll $ZEAL_DIR; done
   - rm -f zeal*.zip
-  - zip -r $ZEAL_DIR.zip $ZEAL_DIR
+  - 7z a -mx=9 $ZEAL_DIR.zip $ZEAL_DIR
   - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @$ZEAL_DIR.zip $ZEAL_UPLOAD_URL || true'
   - rm -rf $ZEAL_DIR
 
