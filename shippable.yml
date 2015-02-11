@@ -36,7 +36,7 @@ script:
   - wine mingw32-make
   - cd src
   - mkdir zeal-$ZEAL_VERSION
-  - cp release/zeal.exe zeal-$ZEAL_VERSION
+  - cp bin/Zeal.exe zeal-$ZEAL_VERSION
   - cp -r icons zeal-$ZEAL_VERSION
   - mkdir zeal-$ZEAL_VERSION/imageformats
   - mkdir zeal-$ZEAL_VERSION/platforms
