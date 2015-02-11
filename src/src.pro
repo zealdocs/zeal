@@ -1,9 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-01-18T22:28:41
-#
-#-------------------------------------------------
-
 TEMPLATE = app
 
 QT += gui gui-private widgets sql
@@ -29,6 +23,10 @@ SOURCES += \
 include(core/core.pri)
 include(registry/registry.pri)
 include(ui/ui.pri)
+include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
+
+RESOURCES += \
+    zeal.qrc
 
 !msvc:LIBS += -lz -L/usr/lib
 
@@ -53,11 +51,6 @@ appicons128.files=appicons/128/*
 desktop.path=/usr/share/applications
 desktop.files=zeal.desktop
 unix:INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
-
-include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
-
-RESOURCES += \
-    zeal.qrc
 
 # Keep build directory organised
 MOC_DIR = $$BUILD_ROOT/.moc
