@@ -1,4 +1,4 @@
-build_image: shippableimages/ubuntu1404_python
+build_image: shippableimages/ubuntu1404_base
 cache: true
 before_install:
   - dpkg --add-architecture i386
