@@ -38,7 +38,8 @@ DESTDIR = $$BUILD_ROOT/bin
 
 unix:!macx {
     TARGET = zeal
-    target.path = /usr/bin
+    isEmpty(PREFIX): PREFIX = /usr
+    target.path = $$PREFIX/bin
     INSTALLS = target
 
     appicons16.files=appicons/16/*
@@ -47,14 +48,14 @@ unix:!macx {
     appicons64.files=appicons/64/*
     appicons128.files=appicons/128/*
 
-    appicons16.path=/usr/share/icons/hicolor/16x16/apps
-    appicons24.path=/usr/share/icons/hicolor/24x24/apps
-    appicons32.path=/usr/share/icons/hicolor/32x32/apps
-    appicons64.path=/usr/share/icons/hicolor/64x64/apps
-    appicons128.path=/usr/share/icons/hicolor/128x128/apps
+    appicons16.path=$$PREFIX/share/icons/hicolor/16x16/apps
+    appicons24.path=$$PREFIX/share/icons/hicolor/24x24/apps
+    appicons32.path=$$PREFIX/share/icons/hicolor/32x32/apps
+    appicons64.path=$$PREFIX/share/icons/hicolor/64x64/apps
+    appicons128.path=$$PREFIX/share/icons/hicolor/128x128/apps
 
     desktop.files=zeal.desktop
-    desktop.path=/usr/share/applications
+    desktop.path=$$PREFIX/share/applications
 
     INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
 }
