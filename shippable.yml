@@ -3,7 +3,6 @@ cache: true
 before_install:
   - dpkg --add-architecture i386
   - shippable_retry sudo apt-get -y -q update
-before_install:
   - export QT_DIR=$HOME/qt/5.4/mingw491_32
 install:
   - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full
