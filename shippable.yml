@@ -50,7 +50,7 @@ script:
   - cp $HOME/qt/5.4/mingw491_32/bin/libgcc_s_dw2-1.dll zeal-$ZEAL_VERSION
   - cp $HOME/qt/5.4/mingw491_32/bin/libwinpthread-1.dll zeal-$ZEAL_VERSION
   - cp $HOME/qt/5.4/mingw491_32/bin/icu*.dll zeal-$ZEAL_VERSION
-  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets WebChannel Widgets Xml Positioning PrintSupport Sensors; do cp $HOME/qt/5.4/mingw491_32/bin/Qt5$l.dll zeal-$ZEAL_VERSION; done
+  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets WebChannel Widgets Positioning PrintSupport Sensors; do cp $HOME/qt/5.4/mingw491_32/bin/Qt5$l.dll zeal-$ZEAL_VERSION; done
   - rm -f zeal*.zip
   - zip -r zeal-$ZEAL_VERSION.zip zeal-$ZEAL_VERSION
   - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @zeal-$ZEAL_VERSION.zip $ZEAL_UPLOAD_URL || true'
