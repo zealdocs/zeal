@@ -2,7 +2,7 @@ DEFINES += BUILD_QXT_GUI
 
 INCLUDEPATH += $$PWD
 
-HEADERS += $$files($$PWD/*h)
+HEADERS += $$files($$PWD/*.h)
 
 SOURCES += $$PWD/qxtglobalshortcut.cpp
 macx:SOURCES += $$PWD/qxtglobalshortcut_mac.cpp
