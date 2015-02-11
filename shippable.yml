@@ -6,7 +6,7 @@ before_install:
 before_install:
   - export QT_DIR=$HOME/qt/5.4/mingw491_32
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full wget ca-certificates curl
+  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full
   # Install Qt
   - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
   - bash -c '[ -d $HOME/qt/Tools ] || wget -nv -O $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
