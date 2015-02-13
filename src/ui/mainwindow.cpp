@@ -649,7 +649,6 @@ void MainWindow::bringToFront(const QString &query)
     ui->lineEdit->setFocus();
 
     if (!query.isEmpty()) {
-        m_searchState->zealSearch->setQuery(query);
         ui->lineEdit->setText(query);
         ui->treeView->setFocus();
         ui->treeView->activated(ui->treeView->currentIndex());
