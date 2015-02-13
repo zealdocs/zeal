@@ -47,8 +47,8 @@ public:
 private:
     void findIcon();
     void countSymbols();
-    void loadSymbols(QString symbolType) const;
-    void loadSymbols(QString symbolType, const QString &symbolString) const;
+    void loadSymbols(const QString &symbolType) const;
+    void loadSymbols(const QString &symbolType, const QString &symbolString) const;
 
     static QString parseSymbolType(const QString &str);
 

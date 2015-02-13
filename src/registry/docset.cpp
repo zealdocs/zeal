@@ -173,13 +173,13 @@ void Docset::countSymbols()
 }
 
 /// TODO: Fetch and cache only portions of symbols
-void Docset::loadSymbols(QString symbolType) const
+void Docset::loadSymbols(const QString &symbolType) const
 {
     for (const QString &symbol : m_symbolStrings.values(symbolType))
         loadSymbols(symbolType, symbol);
 }
 
-void Docset::loadSymbols(QString symbolType, const QString &symbolString) const
+void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const
 {
     QSqlDatabase db = database();
     if (!db.isOpen())
