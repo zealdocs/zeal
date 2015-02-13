@@ -26,9 +26,7 @@ public:
 
     Docset *docset(const QString &name) const;
     Docset *docset(int index) const;
-    // Returns the list of links available in a given webpage.
-    // Scans the list of related links for a given page. This lets you view the methods of a given object.
-    QList<SearchResult> relatedLinks(const QString &name, const QString &path);
+
     QString prepareQuery(const QString &rawQuery);
     void search(const QString &query);
     const QList<SearchResult> &queryResults();
@@ -49,8 +47,6 @@ private slots:
 
 private:
     void addDocsetsFromFolder(const QString &path);
-    void normalizeName(QString &itemName, QString &parentName,
-                       const QString &initialParent = QString());
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;

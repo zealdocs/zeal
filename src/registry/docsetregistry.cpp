@@ -186,7 +186,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 path += "#" + row[3].toString();
 
             QString itemName = row[0].toString();
-            normalizeName(itemName, parentName, row[1].toString());
+            Docset::normalizeName(itemName, parentName);
             results.append(SearchResult(itemName, parentName, docset, path,
                                         preparedQuery));
         }
@@ -199,68 +199,9 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
     emit queryCompleted();
 }
 
-void DocsetRegistry::normalizeName(QString &itemName, QString &parentName,
-                                   const QString &initialParent)
-{
-    QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
-    if (matchMethodName.indexIn(itemName) != -1)
-        itemName = matchMethodName.cap(1);
-
-    const QStringList separators = {QStringLiteral("."), QStringLiteral("::"), QStringLiteral("/")};
-    for (const QString &sep : separators) {
-        if (itemName.indexOf(sep) != -1 && itemName.indexOf(sep) != 0 && initialParent.isNull()) {
-            const QStringList splitted = itemName.split(sep);
-            itemName = splitted.at(splitted.size()-1);
-            parentName = splitted.at(splitted.size()-2);
-        }
-    }
-}
-
 const QList<SearchResult> &DocsetRegistry::queryResults()
 {
     return m_queryResults;
-}
-
-QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QString &path)
-{
-    Docset *docset = m_docsets[name];
-
-    QList<SearchResult> results;
-
-    // Get the url without the #anchor.
-    QUrl url(path);
-    url.setFragment(QString());
-
-    // Prepare the query to look up all pages with the same url.
-    QString queryStr;
-    if (docset->type() == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"");
-    } else if (docset->type() == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
-                                  "FROM ztoken "
-                                  "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE zfilepath.zpath = \"%1\"");
-    }
-
-    QSqlQuery query(queryStr.arg(url.toString()), docset->database());
-
-    while (query.next()) {
-        QString sectionName = query.value(0).toString();
-        QString sectionPath = query.value(2).toString();
-        QString parentName;
-        if (docset->type() == Docset::Type::ZDash) {
-            sectionPath.append("#");
-            sectionPath.append(query.value(3).toString());
-        }
-
-        normalizeName(sectionName, parentName);
-
-        results.append(SearchResult(sectionName, QString(), docset, sectionPath, QString()));
-    }
-
-    return results;
 }
 
 // Recursively finds and adds all docsets in a given directory.

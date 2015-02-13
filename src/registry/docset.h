@@ -3,6 +3,7 @@
 
 #include "docsetinfo.h"
 #include "docsetmetadata.h"
+#include "searchresult.h"
 
 #include <QIcon>
 #include <QMap>
@@ -37,11 +38,16 @@ public:
 
     const QMap<QString, QString> &symbols(const QString &symbolType) const;
 
+    QList<SearchResult> relatedLinks(const QUrl &url) const;
+
     QSqlDatabase database() const;
 
     QString prefix;
     DocsetMetadata metadata;
     DocsetInfo info;
+
+    /// FIXME: Get rid of it
+    static void normalizeName(QString &name, QString &parentName);
 
 private:
     void findIcon();

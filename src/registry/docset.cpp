@@ -118,9 +118,71 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
+QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
+{
+    QList<SearchResult> results;
+
+    // Strip docset path and anchor from url
+    const QString dir = documentPath();
+    QString urlPath = url.path();
+    int dirPosition = urlPath.indexOf(dir);
+    QString path = url.path().mid(dirPosition + dir.size() + 1);
+
+    // Get the url without the #anchor.
+    QUrl cleanUrl(path);
+    cleanUrl.setFragment(QString());
+
+    // Prepare the query to look up all pages with the same url.
+    QString queryStr;
+    if (m_type == Docset::Type::Dash) {
+        queryStr = QStringLiteral("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"");
+    } else if (m_type == Docset::Type::ZDash) {
+        queryStr = QStringLiteral("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
+                                  "FROM ztoken "
+                                  "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                                  "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
+                                  "WHERE zfilepath.zpath = \"%1\"");
+    }
+
+    QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
+
+    while (query.next()) {
+        QString sectionName = query.value(0).toString();
+        QString sectionPath = query.value(2).toString();
+        QString parentName;
+        if (m_type == Docset::Type::ZDash) {
+            sectionPath.append("#");
+            sectionPath.append(query.value(3).toString());
+        }
+
+        normalizeName(sectionName, parentName);
+
+        results.append(SearchResult(sectionName, QString(), const_cast<Docset *>(this), sectionPath, QString()));
+    }
+
+    return results;
+}
+
 QSqlDatabase Docset::database() const
 {
     return QSqlDatabase::database(m_name, true);
+}
+
+void Docset::normalizeName(QString &name, QString &parentName)
+{
+    QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
+    if (matchMethodName.indexIn(name) != -1)
+        name = matchMethodName.cap(1);
+
+    const QStringList separators = {QStringLiteral("."), QStringLiteral("::"), QStringLiteral("/")};
+    for (const QString &sep : separators) {
+        if (name.indexOf(sep) != -1 && name.indexOf(sep) != 0) {
+            const QStringList splitted = name.split(sep);
+            name = splitted.at(splitted.size()-1);
+            parentName = splitted.at(splitted.size()-2);
+        }
+    }
 }
 
 void Docset::findIcon()

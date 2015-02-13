@@ -182,9 +182,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
-        if (m_application->docsetRegistry()->contains(name))
-            loadSections(name, url);
-
+        loadSections(name, url);
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
         displayViewActions();
     });
@@ -500,13 +498,11 @@ void MainWindow::onSearchComplete()
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
 {
-    const QString dir = m_application->docsetRegistry()->docset(docsetName)->documentPath();
-    QString urlPath = url.path();
-    int dirPosition = urlPath.indexOf(dir);
-    QString path = url.path().mid(dirPosition + dir.size() + 1);
-    // resolve the url to use the docset related path.
-    QList<SearchResult> results = m_application->docsetRegistry()->relatedLinks(docsetName, path);
-    m_searchState->sectionsList->setResults(results);
+    Docset *docset = m_application->docsetRegistry()->docset(docsetName);
+    if (!docset)
+        return;
+
+    m_searchState->sectionsList->setResults(docset->relatedLinks(url));
 }
 
 // Sets up the search box autocompletions.
