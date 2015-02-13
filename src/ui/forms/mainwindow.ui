@@ -256,7 +256,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
   </action>
   <action name="actionAboutZeal">
    <property name="text">
-    <string>&amp;About Zeal</string>
+    <string>About &amp;Zeal</string>
    </property>
   </action>
   <action name="actionAboutQt">

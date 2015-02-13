@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "aboutdialog.h"
 #include "networkaccessmanager.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
@@ -139,11 +140,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
     });
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
-        QMessageBox::about(this, QStringLiteral("About Zeal"),
-                           QStringLiteral("This is Zeal ") +
-                           QStringLiteral(ZEAL_VERSION) +
-                           QStringLiteral(" - a documentation browser.\n\n") +
-                           QStringLiteral("For details see http://zealdocs.org/"));
+        QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
+        dialog->exec();
     });
     connect(ui->actionAboutQt, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);
