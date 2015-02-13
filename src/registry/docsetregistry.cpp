@@ -30,7 +30,7 @@ void DocsetRegistry::init(const QString &path)
 
     QDir appDir(QCoreApplication::applicationDirPath());
     if (appDir.cd(QStringLiteral("docsets")))
-        addDocsetsFromFolder(appDir);
+        addDocsetsFromFolder(appDir.absolutePath());
 
     blockSignals(false);
     emit reset();
@@ -260,14 +260,15 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
 }
 
 // Recursively finds and adds all docsets in a given directory.
-void DocsetRegistry::addDocsetsFromFolder(const QDir &folder)
+void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
-    for (const QFileInfo &subdir : folder.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+    const QDir dir(path);
+    for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
         if (subdir.suffix() == "docset") {
             QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
                                       Q_ARG(QString, subdir.absoluteFilePath()));
         } else {
-            addDocsetsFromFolder(QDir(subdir.absoluteFilePath()));
+            addDocsetsFromFolder(subdir.absoluteFilePath());
         }
     }
 }

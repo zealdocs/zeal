@@ -6,10 +6,6 @@
 
 using namespace Zeal;
 
-DocsetInfo::DocsetInfo()
-{
-}
-
 DocsetInfo DocsetInfo::fromPlist(const QString &filePath)
 {
     DocsetInfo docsetInfo;

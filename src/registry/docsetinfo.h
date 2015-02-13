@@ -7,8 +7,6 @@ namespace Zeal {
 
 struct DocsetInfo
 {
-    explicit DocsetInfo();
-
     static DocsetInfo fromPlist(const QString &filePath);
 
     QString bundleName;

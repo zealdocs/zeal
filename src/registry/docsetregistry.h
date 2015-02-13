@@ -6,8 +6,6 @@
 
 #include <QMap>
 
-class QDir;
-
 namespace Zeal {
 
 class DocsetRegistry : public QObject
@@ -49,7 +47,7 @@ private slots:
     void _runQuery(const QString &query, int queryNum);
 
 private:
-    void addDocsetsFromFolder(const QDir &folder);
+    void addDocsetsFromFolder(const QString &path);
     void clear();
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
