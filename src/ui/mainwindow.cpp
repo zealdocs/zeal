@@ -222,8 +222,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         m_searchState->searchQuery = text;
         m_application->docsetRegistry()->search(text);
-        if (text.isEmpty())
+        if (text.isEmpty()) {
+            m_searchState->sectionsList->setResults();
             ui->treeView->setModel(m_zealListModel);
+        }
     });
 
     ui->action_NewTab->setShortcut(QKeySequence::AddTab);

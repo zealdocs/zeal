@@ -20,7 +20,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
 
 public slots:
-    void setResults(const QList<SearchResult> &results);
+    void setResults(const QList<SearchResult> &results = QList<SearchResult>());
 
 signals:
     void queryCompleted();
