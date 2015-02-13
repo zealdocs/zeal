@@ -70,7 +70,7 @@ int SearchModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-void SearchModel::onQueryCompleted(const QList<SearchResult> &results)
+void SearchModel::setResults(const QList<SearchResult> &results)
 {
     beginResetModel();
     m_dataList = results;

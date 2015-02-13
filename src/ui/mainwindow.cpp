@@ -495,7 +495,7 @@ void MainWindow::saveTabState()
 
 void MainWindow::onSearchComplete()
 {
-    m_searchState->zealSearch->onQueryCompleted(m_application->docsetRegistry()->queryResults());
+    m_searchState->zealSearch->setResults(m_application->docsetRegistry()->queryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
@@ -506,7 +506,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
     QList<SearchResult> results = m_application->docsetRegistry()->relatedLinks(docsetName, path);
-    m_searchState->sectionsList->onQueryCompleted(results);
+    m_searchState->sectionsList->setResults(results);
 }
 
 // Sets up the search box autocompletions.

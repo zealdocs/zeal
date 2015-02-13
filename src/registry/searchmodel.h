@@ -23,7 +23,7 @@ public:
 
 
 public slots:
-    void onQueryCompleted(const QList<SearchResult> &results);
+    void setResults(const QList<SearchResult> &results);
 
 signals:
     void queryCompleted();
