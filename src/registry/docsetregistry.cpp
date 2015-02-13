@@ -29,17 +29,15 @@ DocsetRegistry::~DocsetRegistry()
 
 void DocsetRegistry::init(const QString &path)
 {
-    blockSignals(true);
+    for (const QString &name : m_docsets.keys())
+        remove(name);
 
-    clear();
     addDocsetsFromFolder(path);
 
+    /// TODO: Add a portable config option, instead of always checking application directory
     QDir appDir(QCoreApplication::applicationDirPath());
     if (appDir.cd(QStringLiteral("docsets")))
         addDocsetsFromFolder(appDir.absolutePath());
-
-    blockSignals(false);
-    emit reset();
 }
 
 int DocsetRegistry::count() const
@@ -277,10 +275,4 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
             addDocsetsFromFolder(subdir.absoluteFilePath());
         }
     }
-}
-
-void DocsetRegistry::clear()
-{
-    for (const QString &name : m_docsets.keys())
-        delete m_docsets.take(name);
 }

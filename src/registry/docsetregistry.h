@@ -43,7 +43,6 @@ signals:
     void docsetAdded(const QString &name);
     void docsetAboutToBeRemoved(const QString &name);
     void docsetRemoved(const QString &name);
-    void reset();
     void queryCompleted();
 
 private slots:
@@ -51,7 +50,6 @@ private slots:
 
 private:
     void addDocsetsFromFolder(const QString &path);
-    void clear();
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 

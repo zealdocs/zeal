@@ -13,9 +13,9 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
 {
     connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, &ListModel::addDocset);
     connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeRemoved, this, &ListModel::removeDocset);
-    connect(m_docsetRegistry, &DocsetRegistry::reset, this, &ListModel::reset);
 
-    reset();
+    for (const QString &name : m_docsetRegistry->names())
+        addDocset(name);
 }
 
 QVariant ListModel::data(const QModelIndex &index, int role) const
@@ -166,32 +166,6 @@ void ListModel::removeDocset(const QString &name)
     delete docsetItem;
 
     endRemoveRows();
-}
-
-void ListModel::reset()
-{
-    beginResetModel();
-
-    for (DocsetItem *docsetItem : m_docsetItems)
-        qDeleteAll(docsetItem->groups);
-    qDeleteAll(m_docsetItems);
-    m_docsetItems.clear();
-
-    for (Docset *docset : m_docsetRegistry->docsets()) {
-        DocsetItem *docsetItem = new DocsetItem();
-        docsetItem->docset = docset;
-
-        for (const QString &symbolType : docset->symbolCounts().keys()) {
-            GroupItem *groupItem = new GroupItem();
-            groupItem->docsetItem = docsetItem;
-            groupItem->symbolType = symbolType;
-            docsetItem->groups.append(groupItem);
-        }
-
-        m_docsetItems.insert(docset->name(), docsetItem);
-    }
-
-    endResetModel();
 }
 
 QString ListModel::pluralize(const QString &s)

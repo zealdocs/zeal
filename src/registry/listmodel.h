@@ -28,7 +28,6 @@ public:
 private slots:
     void addDocset(const QString &name);
     void removeDocset(const QString &name);
-    void reset();
 
 private:
     enum Level {
