@@ -13,3 +13,10 @@ CONFIG += ordered
 
 SUBDIRS += \
     src
+
+# Ease access to these files from Qt Creator
+OTHER_FILES += \
+    .gitignore \
+    .qmake.conf \
+    .shippable.yml \
+    README.md
