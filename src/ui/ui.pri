@@ -6,6 +6,9 @@ SOURCES += \
     $$files($$PWD/*.cpp) \
     $$files($$PWD/widgets/*.cpp)
 
+FORMS += \
+    $$files($$PWD/forms/*.ui)
+
 unix:!macx {
     CONFIG += link_pkgconfig
     PKGCONFIG += x11
@@ -17,6 +20,3 @@ unix:!macx {
         DEFINES += USE_LIBAPPINDICATOR
     }
 }
-
-FORMS += \
-    $$files($$PWD/forms/*.ui)
