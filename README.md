@@ -34,7 +34,7 @@ If you prefer to compile Zeal manually.
 * [libarchive](http://libarchive.org/)
 * Optionally [libappindicator](https://launchpad.net/libappindicator) for Unity users
 
-To compile it, run `qmake` and `make`. On Linux, a final `make install` is required to install icons.
+To compile it, run `qmake` and `make`.
 
 ## Query & Filter docsets
 
