@@ -13,14 +13,11 @@ class SearchModel : public QAbstractItemModel
 public:
     explicit SearchModel(QObject *parent = 0);
 
-    void setQuery(const QString &q);
-
     QVariant data(const QModelIndex &index, int role) const;
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
-
 
 public slots:
     void setResults(const QList<SearchResult> &results);
@@ -29,9 +26,6 @@ signals:
     void queryCompleted();
 
 private:
-    void populateData();
-
-    QString m_query;
     QList<SearchResult> m_dataList;
 };
 

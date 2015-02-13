@@ -98,16 +98,16 @@ void DocsetRegistry::addDocset(const QString &path)
     emit docsetAdded(name);
 }
 
-void DocsetRegistry::runQuery(const QString &query)
+void DocsetRegistry::search(const QString &query)
 {
     m_lastQuery += 1;
+
+    // Only invalidate queries
+    if (query.isEmpty())
+        return;
+
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query),
                               Q_ARG(int, m_lastQuery));
-}
-
-void DocsetRegistry::invalidateQueries()
-{
-    m_lastQuery += 1;
 }
 
 void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)

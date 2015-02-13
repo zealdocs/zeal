@@ -12,12 +12,6 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
-void SearchModel::setQuery(const QString &q)
-{
-    m_query = q;
-    populateData();
-}
-
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
@@ -76,12 +70,4 @@ void SearchModel::setResults(const QList<SearchResult> &results)
     m_dataList = results;
     endResetModel();
     emit queryCompleted();
-}
-
-void SearchModel::populateData()
-{
-    if (m_query.isEmpty())
-        Core::Application::docsetRegistry()->invalidateQueries();
-    else
-        Core::Application::docsetRegistry()->runQuery(m_query);
 }

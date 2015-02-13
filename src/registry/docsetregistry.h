@@ -30,8 +30,7 @@ public:
     // Scans the list of related links for a given page. This lets you view the methods of a given object.
     QList<SearchResult> relatedLinks(const QString &name, const QString &path);
     QString prepareQuery(const QString &rawQuery);
-    void runQuery(const QString &query);
-    void invalidateQueries();
+    void search(const QString &query);
     const QList<SearchResult> &queryResults();
     QList<Docset *> docsets() const;
 
@@ -46,7 +45,7 @@ signals:
     void queryCompleted();
 
 private slots:
-    void _runQuery(const QString &query, int queryNum);
+    void _runQuery(const QString &rawQuery, int queryNum);
 
 private:
     void addDocsetsFromFolder(const QString &path);

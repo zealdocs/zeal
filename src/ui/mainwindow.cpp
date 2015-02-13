@@ -223,7 +223,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
 
         m_searchState->searchQuery = text;
-        m_searchState->zealSearch->setQuery(text);
+        m_application->docsetRegistry()->search(text);
         if (text.isEmpty())
             ui->treeView->setModel(m_zealListModel);
     });
