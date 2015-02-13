@@ -7,7 +7,6 @@
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
-#include <QString>
 #include <QSqlDatabase>
 
 namespace Zeal {

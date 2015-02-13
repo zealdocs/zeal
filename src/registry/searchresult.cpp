@@ -2,10 +2,6 @@
 
 using namespace Zeal;
 
-SearchResult::SearchResult()
-{
-}
-
 SearchResult::SearchResult(const QString &name, const QString &parentName, const QString &path,
                            const QString &docset, const QString &query) :
     m_name(name),

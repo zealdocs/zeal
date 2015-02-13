@@ -8,7 +8,6 @@ namespace Zeal {
 class SearchResult
 {
 public:
-    SearchResult();
     SearchResult(const QString &name, const QString &parentName, const QString &path,
                  const QString &docset, const QString &query);
 
