@@ -6,6 +6,8 @@
 
 #include <QMap>
 
+class QThread;
+
 namespace Zeal {
 
 class DocsetRegistry : public QObject
@@ -13,6 +15,7 @@ class DocsetRegistry : public QObject
     Q_OBJECT
 public:
     explicit DocsetRegistry(QObject *parent = nullptr);
+    ~DocsetRegistry() override;
 
     void init(const QString &path);
 
@@ -52,6 +55,7 @@ private:
     void normalizeName(QString &itemName, QString &parentName,
                        const QString &initialParent = QString());
 
+    QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
     QList<SearchResult> m_queryResults;
     int m_lastQuery = -1;

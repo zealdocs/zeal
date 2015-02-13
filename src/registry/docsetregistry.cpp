@@ -13,12 +13,18 @@
 using namespace Zeal;
 
 DocsetRegistry::DocsetRegistry(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_thread(new QThread(this))
 {
     /// FIXME: Only search should be performed in a separate thread
-    QThread *thread = new QThread(this);
-    moveToThread(thread);
-    thread->start();
+    moveToThread(m_thread);
+    m_thread->start();
+}
+
+DocsetRegistry::~DocsetRegistry()
+{
+    m_thread->exit();
+    m_thread->wait();
 }
 
 void DocsetRegistry::init(const QString &path)
