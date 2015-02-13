@@ -2,12 +2,12 @@
 
 using namespace Zeal;
 
-SearchResult::SearchResult(const QString &name, const QString &parentName, const QString &path,
-                           const QString &docset, const QString &query) :
+SearchResult::SearchResult(const QString &name, const QString &parentName, Docset *docset,
+                           const QString &path, const QString &query) :
     m_name(name),
     m_parentName(parentName),
-    m_path(path),
     m_docset(docset),
+    m_path(path),
     m_query(query)
 {
 }
@@ -27,7 +27,7 @@ QString SearchResult::path() const
     return m_path;
 }
 
-QString SearchResult::docsetName() const
+Docset *SearchResult::docset() const
 {
     return m_docset;
 }

@@ -121,7 +121,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
     const QString preparedQuery = query.sanitizedQuery();
 
-    for (const Docset * const docset : docsets()) {
+    for (Docset *docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
         if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset->prefix))
             continue;
@@ -187,7 +187,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             QString itemName = row[0].toString();
             normalizeName(itemName, parentName, row[1].toString());
-            results.append(SearchResult(itemName, parentName, path, docset->name(),
+            results.append(SearchResult(itemName, parentName, docset, path,
                                         preparedQuery));
         }
     }
@@ -223,7 +223,7 @@ const QList<SearchResult> &DocsetRegistry::queryResults()
 
 QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QString &path)
 {
-    const Docset * const docset = m_docsets[name];
+    Docset *docset = m_docsets[name];
 
     QList<SearchResult> results;
 
@@ -257,7 +257,7 @@ QList<SearchResult> DocsetRegistry::relatedLinks(const QString &name, const QStr
 
         normalizeName(sectionName, parentName);
 
-        results.append(SearchResult(sectionName, QString(), sectionPath, name, QString()));
+        results.append(SearchResult(sectionName, QString(), docset, sectionPath, QString()));
     }
 
     return results;
