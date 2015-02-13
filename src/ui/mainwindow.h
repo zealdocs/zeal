@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "registry/searchmodel.h"
-
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
@@ -40,6 +38,7 @@ class Settings;
 
 class ListModel;
 class NetworkAccessManager;
+class SearchModel;
 class SettingsDialog;
 
 }
@@ -50,9 +49,9 @@ struct SearchState
 {
     QWebPage *page;
     // model representing sections
-    Zeal::SearchModel sectionsList;
+    Zeal::SearchModel *sectionsList;
     // model representing searched for items
-    Zeal::SearchModel zealSearch;
+    Zeal::SearchModel *zealSearch;
     // query being searched for
     QString searchQuery;
 

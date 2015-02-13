@@ -8,6 +8,7 @@
 #include "core/settings.h"
 #include "registry/docsetregistry.h"
 #include "registry/listmodel.h"
+#include "registry/searchmodel.h"
 
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
@@ -203,7 +204,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     ui->sections->hide();
     ui->sections_lab->hide();
-    ui->sections->setModel(&m_searchState->sectionsList);
+    ui->sections->setModel(m_searchState->sectionsList);
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
@@ -222,7 +223,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
 
         m_searchState->searchQuery = text;
-        m_searchState->zealSearch.setQuery(text);
+        m_searchState->zealSearch->setQuery(text);
         if (text.isEmpty())
             ui->treeView->setModel(m_zealListModel);
     });
@@ -325,10 +326,10 @@ void MainWindow::queryCompleted()
 {
     m_treeViewClicked = true;
 
-    ui->treeView->setModel(&m_searchState->zealSearch);
+    ui->treeView->setModel(m_searchState->zealSearch);
     ui->treeView->reset();
     ui->treeView->setColumnHidden(1, true);
-    ui->treeView->setCurrentIndex(m_searchState->zealSearch.index(0, 0, QModelIndex()));
+    ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
@@ -345,7 +346,10 @@ void MainWindow::closeTab(int index)
         index = m_tabBar->currentIndex();
 
     // TODO: proper deletion here
-    m_tabs.removeAt(index);
+    SearchState *tab = m_tabs.takeAt(index);
+    delete tab->zealSearch;
+    delete tab->sectionsList;
+    delete tab;
 
     if (m_tabs.count() == 0)
         createTab();
@@ -355,10 +359,13 @@ void MainWindow::closeTab(int index)
 void MainWindow::createTab()
 {
     SearchState *newTab = new SearchState();
-    connect(&newTab->zealSearch, &SearchModel::queryCompleted, this,
+    newTab->zealSearch = new Zeal::SearchModel();
+    newTab->sectionsList = new Zeal::SearchModel();
+
+    connect(newTab->zealSearch, &SearchModel::queryCompleted, this,
             &MainWindow::queryCompleted);
-    connect(&newTab->sectionsList, &SearchModel::queryCompleted, [=]() {
-        int resultCount = newTab->sectionsList.rowCount(QModelIndex());
+    connect(newTab->sectionsList, &SearchModel::queryCompleted, [=]() {
+        int resultCount = newTab->sectionsList->rowCount(QModelIndex());
         ui->sections->setVisible(resultCount > 1);
         ui->sections_lab->setVisible(resultCount > 1);
     });
@@ -441,11 +448,11 @@ void MainWindow::displayTabs()
 void MainWindow::reloadTabState()
 {
     ui->lineEdit->setText(m_searchState->searchQuery);
-    ui->sections->setModel(&m_searchState->sectionsList);
+    ui->sections->setModel(m_searchState->sectionsList);
     ui->treeView->reset();
 
     if (!m_searchState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(&m_searchState->zealSearch);
+        ui->treeView->setModel(m_searchState->zealSearch);
     } else {
         ui->treeView->setModel(m_zealListModel);
         ui->treeView->setColumnHidden(1, true);
@@ -460,7 +467,7 @@ void MainWindow::reloadTabState()
     ui->webView->setPage(m_searchState->page);
     ui->webView->setZealZoomFactor(m_searchState->zoomFactor);
 
-    int resultCount = m_searchState->sectionsList.rowCount(QModelIndex());
+    int resultCount = m_searchState->sectionsList->rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
     ui->sections_lab->setVisible(resultCount > 1);
 
@@ -488,7 +495,7 @@ void MainWindow::saveTabState()
 
 void MainWindow::onSearchComplete()
 {
-    m_searchState->zealSearch.onQueryCompleted(m_application->docsetRegistry()->queryResults());
+    m_searchState->zealSearch->onQueryCompleted(m_application->docsetRegistry()->queryResults());
 }
 
 void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
@@ -499,7 +506,7 @@ void MainWindow::loadSections(const QString &docsetName, const QUrl &url)
     QString path = url.path().mid(dirPosition + dir.size() + 1);
     // resolve the url to use the docset related path.
     QList<SearchResult> results = m_application->docsetRegistry()->relatedLinks(docsetName, path);
-    m_searchState->sectionsList.onQueryCompleted(results);
+    m_searchState->sectionsList->onQueryCompleted(results);
 }
 
 // Sets up the search box autocompletions.
@@ -642,7 +649,7 @@ void MainWindow::bringToFront(const QString &query)
     ui->lineEdit->setFocus();
 
     if (!query.isEmpty()) {
-        m_searchState->zealSearch.setQuery(query);
+        m_searchState->zealSearch->setQuery(query);
         ui->lineEdit->setText(query);
         ui->treeView->setFocus();
         ui->treeView->activated(ui->treeView->currentIndex());
