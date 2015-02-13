@@ -14,16 +14,16 @@
    <string>Zeal</string>
   </property>
   <property name="styleSheet">
-      <string notr="true">
+   <string notr="true">
 QSplitter::handle {
-	background: black;
+    background: black;
 }
 
-#frame, #frame_2{
-	border-top: none;
-	border-right: none;
-	border-bottom: 1px solid black;
-	border-left: none;
+QFrame#searchEditFrame, QFrame#tabBarFrame {
+    border-top: none;
+    border-right: none;
+    border-bottom: 1px solid black;
+    border-left: none;
 }
 </string>
   </property>
@@ -58,7 +58,7 @@ QSplitter::handle {
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="frame">
+         <widget class="QFrame" name="searchEditFrame">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -129,7 +129,7 @@ QSplitter::handle {
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="frame_2">
+         <widget class="QFrame" name="tabBarFrame">
           <property name="minimumSize">
            <size>
             <width>0</width>
