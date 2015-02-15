@@ -325,7 +325,6 @@ void MainWindow::queryCompleted()
     m_treeViewClicked = true;
 
     ui->treeView->setModel(m_searchState->zealSearch);
-    ui->treeView->reset();
     ui->treeView->setColumnHidden(1, true);
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
