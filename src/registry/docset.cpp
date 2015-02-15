@@ -194,6 +194,10 @@ void Docset::findIcon()
             return;
     }
 
+    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(m_name));
+    if (!m_icon.availableSizes().isEmpty())
+        return;
+
     QString bundleName = info.bundleName;
     bundleName.replace(QLatin1String(" "), QLatin1String("_"));
     m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(bundleName));
@@ -202,10 +206,6 @@ void Docset::findIcon()
 
     // Fallback to identifier and docset file name.
     m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(info.bundleIdentifier));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
-
-    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(m_name));
     if (!m_icon.availableSizes().isEmpty())
         return;
 }
