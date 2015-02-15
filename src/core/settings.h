@@ -49,7 +49,6 @@ public:
     QString proxyPassword;
 
     // Other
-    /// TODO: Convert into list
     QString docsetPath;
 
     // State
