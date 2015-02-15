@@ -11,15 +11,20 @@ ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
 void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
-    QStyleOptionViewItem tempOption = option;
-    QVariant itemProgress = index.model()->data(index, ProgressRole);
-    QVariant maxProgress = index.model()->data(index, ProgressMaxRole);
-    QVariant visible = index.model()->data(index, ProgressVisibleRole);
+    const bool showProgress = index.model()->data(index, ShowProgressRole).toBool();
 
-    if (itemProgress.isValid() && maxProgress.isValid()
-            && (visible.isValid() && visible.toBool())) {
+    if (!showProgress) {
+        QItemDelegate::paint(painter, option, index);
+        return;
+    }
+
+    QStyleOptionViewItem tempOption = option;
+    QVariant itemProgress = index.model()->data(index, ValueRole);
+    QVariant maxProgress = index.model()->data(index, MaximumRole);
+
+    if (itemProgress.isValid() && maxProgress.isValid()) {
         QProgressBar renderer;
-        QVariant formatProgress = index.model()->data(index, ProgressFormatRole);
+        QVariant formatProgress = index.model()->data(index, FormatRole);
         int progressAmnt = itemProgress.toInt();
 
         // Adjust maximum text width
@@ -42,5 +47,5 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     }
 
     // Paint text
-    QItemDelegate::paint(painter, dynamic_cast<const QStyleOptionViewItem &>(tempOption), index);
+    QItemDelegate::paint(painter, tempOption, index);
 }

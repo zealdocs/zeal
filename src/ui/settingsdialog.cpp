@@ -108,9 +108,9 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     QListWidgetItem *listItem = findDocsetListItem(metadata.title());
     if (listItem) {
         listItem->setData(ZealDocsetDoneInstalling, true);
-        listItem->setData(ProgressItemDelegate::ProgressFormatRole, "Done");
-        listItem->setData(ProgressItemDelegate::ProgressRole, 1);
-        listItem->setData(ProgressItemDelegate::ProgressMaxRole, 1);
+        listItem->setData(ProgressItemDelegate::FormatRole, "Done");
+        listItem->setData(ProgressItemDelegate::ValueRole, 1);
+        listItem->setData(ProgressItemDelegate::MaximumRole, 1);
     }
     endTasks();
     delete m_tmpFiles.take(docsetName);
@@ -283,8 +283,8 @@ void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
     // Try to get the item associated to the request
     QListWidgetItem *item = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
     if (item) {
-        item->setData(ProgressItemDelegate::ProgressMaxRole, total);
-        item->setData(ProgressItemDelegate::ProgressRole, received);
+        item->setData(ProgressItemDelegate::MaximumRole, total);
+        item->setData(ProgressItemDelegate::ValueRole, received);
     }
 
     currentDownload += received - previousProgress->first;
@@ -323,11 +323,11 @@ void SettingsDialog::endTasks(qint8 tasks)
         if (item->data(ZealDocsetDoneInstalling).toBool()) {
             item->setCheckState(Qt::Unchecked);
             item->setHidden(true);
-            item->setData(ProgressItemDelegate::ProgressVisibleRole, false);
             item->setData(ZealDocsetDoneInstalling, false);
-            item->setData(ProgressItemDelegate::ProgressFormatRole, QVariant());
-            item->setData(ProgressItemDelegate::ProgressRole, QVariant());
-            item->setData(ProgressItemDelegate::ProgressMaxRole, QVariant());
+            item->setData(ProgressItemDelegate::ShowProgressRole, false);
+            item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
+            item->setData(ProgressItemDelegate::ValueRole, QVariant());
+            item->setData(ProgressItemDelegate::MaximumRole, QVariant());
         }
     }
 }
@@ -471,9 +471,10 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         if (item->checkState() != Qt::Checked)
             continue;
 
-        item->setData(ProgressItemDelegate::ProgressVisibleRole, true);
-        item->setData(ProgressItemDelegate::ProgressRole, 0);
-        item->setData(ProgressItemDelegate::ProgressMaxRole, 1);
+        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
+        item->setData(ProgressItemDelegate::ShowProgressRole, true);
+        item->setData(ProgressItemDelegate::ValueRole, 0);
+        item->setData(ProgressItemDelegate::MaximumRole, 1);
 
         downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
     }
@@ -575,7 +576,7 @@ void SettingsDialog::stopDownloads()
         if (!listItem)
             continue;
 
-        listItem->setData(ProgressItemDelegate::ProgressVisibleRole, false);
+        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         reply->abort();
     }
 }
