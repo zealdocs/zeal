@@ -77,10 +77,6 @@ private:
     void stopDownloads();
     void saveSettings();
 
-    enum DocsetProgressRoles {
-        ZealDocsetDoneInstalling = Qt::UserRole + 20
-    };
-
     Ui::SettingsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
     DocsetRegistry *m_docsetRegistry = nullptr;

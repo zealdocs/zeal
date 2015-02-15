@@ -107,9 +107,12 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
 
     QListWidgetItem *listItem = findDocsetListItem(metadata.title());
     if (listItem) {
-        listItem->setData(ZealDocsetDoneInstalling, true);
-        listItem->setData(ProgressItemDelegate::FormatRole, "Done");
-        listItem->setData(ProgressItemDelegate::ValueRole, 1);
+        listItem->setHidden(true);
+
+        listItem->setCheckState(Qt::Unchecked);
+        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        listItem->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
+        listItem->setData(ProgressItemDelegate::ValueRole, 0);
         listItem->setData(ProgressItemDelegate::MaximumRole, 1);
     }
     endTasks();
@@ -121,6 +124,7 @@ void SettingsDialog::extractionError(const QString &filePath, const QString &err
     QString docsetName = QFileInfo(filePath).baseName() + QStringLiteral(".docset");
     QMessageBox::warning(this, QStringLiteral("Extraction Error"),
                          QString(QStringLiteral("Cannot extract docset '%1': %2")).arg(docsetName).arg(errorString));
+    /// TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
 }
 
@@ -316,20 +320,6 @@ void SettingsDialog::endTasks(qint8 tasks)
 
     if (tasksRunning > 0)
         return;
-
-    // Remove completed items
-    for (int i = ui->docsetsList->count() - 1; i >= 0; --i) {
-        QListWidgetItem *item = ui->docsetsList->item(i);
-        if (item->data(ZealDocsetDoneInstalling).toBool()) {
-            item->setCheckState(Qt::Unchecked);
-            item->setHidden(true);
-            item->setData(ZealDocsetDoneInstalling, false);
-            item->setData(ProgressItemDelegate::ShowProgressRole, false);
-            item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-            item->setData(ProgressItemDelegate::ValueRole, QVariant());
-            item->setData(ProgressItemDelegate::MaximumRole, QVariant());
-        }
-    }
 }
 
 void SettingsDialog::updateFeedDocsets()
