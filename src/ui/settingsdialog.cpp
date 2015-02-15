@@ -214,14 +214,8 @@ void SettingsDialog::downloadCompleted()
 
         QTemporaryFile *tmpFile = new QTemporaryFile();
         tmpFile->open();
-        qint64 readBytes = 1;
-        const int BUFSIZE = 1024*1024;
-        char buf[BUFSIZE];
-        while (readBytes > 0) {
-            readBytes = reply->read(buf, BUFSIZE);
-            if (readBytes > 0)
-                tmpFile->write(buf, readBytes);
-        }
+        while (reply->bytesAvailable())
+            tmpFile->write(reply->read(1024 * 1024)); // Use small chunks
         tmpFile->close();
 
         m_tmpFiles.insert(metadata.name(), tmpFile);
