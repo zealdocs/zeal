@@ -45,7 +45,7 @@ class ZealProxyStyle : public QProxyStyle
 {
 public:
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                       const QWidget *widget = 0) const
+                       const QWidget *widget = nullptr) const
     {
         if (element == PE_FrameLineEdit && option->styleObject) {
             option->styleObject->setProperty("_q_no_animation", true);

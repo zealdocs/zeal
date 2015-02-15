@@ -11,13 +11,13 @@ class SearchModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit SearchModel(QObject *parent = 0);
+    explicit SearchModel(QObject *parent = nullptr);
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
 
 public slots:
     void setResults(const QList<SearchResult> &results = QList<SearchResult>());

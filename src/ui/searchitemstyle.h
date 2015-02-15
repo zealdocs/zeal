@@ -7,7 +7,7 @@ class ZealSearchItemStyle : public QProxyStyle
 {
 public:
     QRect subElementRect(SubElement element, const QStyleOption *option,
-                         const QWidget *widget) const;
+                         const QWidget *widget) const override;
 };
 
 #endif // SEARCHITEMSTYLE_H

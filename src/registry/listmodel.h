@@ -19,11 +19,11 @@ public:
 
     explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int columnCount(const QModelIndex &parent) const;
-    int rowCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    int rowCount(const QModelIndex &parent) const override;
 
 private slots:
     void addDocset(const QString &name);
@@ -40,7 +40,7 @@ private:
     inline static QString pluralize(const QString &s);
     inline static Level indexLevel(const QModelIndex &index);
 
-    DocsetRegistry *m_docsetRegistry;
+    DocsetRegistry *m_docsetRegistry = nullptr;
 
     struct DocsetItem;
     struct GroupItem {

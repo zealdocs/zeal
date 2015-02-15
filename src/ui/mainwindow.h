@@ -68,10 +68,9 @@ struct SearchState
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = nullptr);
+    ~MainWindow() override;
 
     void bringToFront(const QString &query = QString());
     void createTab();
@@ -79,7 +78,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
     void setupShortcuts();
-    void keyPressEvent(QKeyEvent *keyEvent);
+    void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private slots:
     void back();

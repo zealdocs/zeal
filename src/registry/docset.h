@@ -22,7 +22,7 @@ public:
     };
 
     explicit Docset(const QString &path);
-    ~Docset();
+    ~Docset() override;
 
     bool isValid() const;
 

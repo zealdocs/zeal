@@ -30,7 +30,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = 0);
+    explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = nullptr);
     ~SettingsDialog() override;
 
 private slots:

@@ -10,7 +10,7 @@ class Extractor : public QObject
 {
     Q_OBJECT
 public:
-    explicit Extractor(QObject *parent = 0);
+    explicit Extractor(QObject *parent = nullptr);
 
 public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());

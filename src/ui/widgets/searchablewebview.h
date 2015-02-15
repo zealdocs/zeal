@@ -18,10 +18,11 @@ class SearchableWebView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SearchableWebView(QWidget *parent = 0);
+    explicit SearchableWebView(QWidget *parent = nullptr);
+
     void load(const QUrl &url);
     void focus();
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
     QWebSettings *settings() const;
     QWebPage *page() const;
     bool canGoBack();
@@ -38,8 +39,8 @@ public:
     }
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
-    void resizeEvent(QResizeEvent *);
+    void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *) override;
 
 signals:
     void urlChanged(const QUrl &url);

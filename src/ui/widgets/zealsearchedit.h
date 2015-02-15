@@ -11,20 +11,18 @@ class ZealSearchEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit ZealSearchEdit(QWidget *parent = 0);
+    explicit ZealSearchEdit(QWidget *parent = nullptr);
     void setTreeView(QTreeView *view);
     void clearQuery();
     void selectQuery();
     void setCompletions(const QStringList &completions);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *ev);
-    void focusInEvent(QFocusEvent *);
-    void keyPressEvent(QKeyEvent *keyEvent);
-    void mousePressEvent(QMouseEvent *ev);
-    void resizeEvent(QResizeEvent *ev);
-
-signals:
+    bool eventFilter(QObject *obj, QEvent *ev) override;
+    void focusInEvent(QFocusEvent *) override;
+    void keyPressEvent(QKeyEvent *keyEvent) override;
+    void mousePressEvent(QMouseEvent *ev) override;
+    void resizeEvent(QResizeEvent *ev) override;
 
 public slots:
     void clear();
