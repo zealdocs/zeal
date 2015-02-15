@@ -28,6 +28,7 @@ const char *ApiUrl = "http://api.zealdocs.org";
 // QNetworkReply properties
 const char *DocsetMetadataProperty = "docsetMetadata";
 const char *DownloadTypeProperty = "downloadType";
+const char *DownloadAddedTotal = "downloadAddedTotal";
 const char *ListItemIndexProperty = "listItem";
 }
 
@@ -270,19 +271,15 @@ void SettingsDialog::loadSettings()
 }
 
 // creates a total download progress for multiple QNetworkReplies
-void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
+void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
 {
     // Don't show progress for non-docset pages
-    if (received < 10240)
+    if (total == -1 || received < 10240)
         return;
 
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-
-    QPair<qint32, qint32> *previousProgress = progress[reply];
-    if (previousProgress == nullptr) {
-        previousProgress = new QPair<qint32, qint32>(0, 0);
-        progress[reply] = previousProgress;
-    }
+    if (!reply)
+        return;
 
     // Try to get the item associated to the request
     QListWidgetItem *item = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
@@ -291,10 +288,12 @@ void SettingsDialog::on_downloadProgress(quint64 received, quint64 total)
         item->setData(ProgressItemDelegate::ValueRole, received);
     }
 
-    currentDownload += received - previousProgress->first;
-    totalDownload += total - previousProgress->second;
-    previousProgress->first = received;
-    previousProgress->second = total;
+    if (!reply->property(DownloadAddedTotal).isValid()) {
+        totalDownload += total;
+        reply->setProperty(DownloadAddedTotal, true);
+    }
+
+    currentDownload += received;
     displayProgress();
 }
 
@@ -302,24 +301,17 @@ void SettingsDialog::displayProgress()
 {
     ui->docsetsProgress->setValue(currentDownload);
     ui->docsetsProgress->setMaximum(totalDownload);
-    ui->docsetsProgress->setVisible(tasksRunning > 0);
+    ui->docsetsProgress->setVisible(!replies.isEmpty());
 }
 
-void SettingsDialog::startTasks(qint8 tasks)
+void SettingsDialog::startTasks()
 {
-    tasksRunning += tasks;
-    if (!tasksRunning)
-        resetProgress();
-
     displayProgress();
 }
 
-void SettingsDialog::endTasks(qint8 tasks)
+void SettingsDialog::endTasks()
 {
-    startTasks(-tasks);
-
-    if (tasksRunning > 0)
-        return;
+    resetProgress();
 }
 
 void SettingsDialog::updateFeedDocsets()
@@ -530,7 +522,6 @@ void SettingsDialog::on_listView_clicked(const QModelIndex &index)
 
 void SettingsDialog::resetProgress()
 {
-    progress.clear();
     totalDownload = 0;
     currentDownload = 0;
     ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
@@ -544,7 +535,7 @@ void SettingsDialog::resetProgress()
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
 {
-    startTasks(1);
+    startTasks();
 
     QNetworkReply *reply = m_application->download(url);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);

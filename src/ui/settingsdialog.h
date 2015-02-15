@@ -39,7 +39,7 @@ private slots:
 
     void downloadCompleted();
 
-    void on_downloadProgress(quint64 received, quint64 total);
+    void on_downloadProgress(qint64 received, qint64 total);
     void on_downloadDocsetButton_clicked();
     void on_storageButton_clicked();
     void on_deleteButton_clicked();
@@ -67,8 +67,8 @@ private:
     void processDocsetList(const QJsonArray &list);
     void downloadDashDocset(const QString &name);
 
-    void startTasks(qint8 tasks = 1);
-    void endTasks(qint8 tasks = 1);
+    void startTasks();
+    void endTasks();
     void displayProgress();
     void loadSettings();
     void updateFeedDocsets();
@@ -83,10 +83,8 @@ private:
 
     ListModel *m_zealListModel = nullptr;
     QList<QNetworkReply *> replies;
-    QHash<QNetworkReply *, QPair<qint32, qint32> *> progress;
-    qint32 totalDownload = 0;
-    qint32 currentDownload = 0;
-    qint32 tasksRunning = 0;
+    qint64 totalDownload = 0;
+    qint64 currentDownload = 0;
 };
 
 } // namespace Zeal
