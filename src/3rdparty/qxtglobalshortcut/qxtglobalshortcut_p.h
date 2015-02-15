@@ -50,15 +50,15 @@ public:
     Qt::Key key;
     Qt::KeyboardModifiers mods;
 
-    bool setShortcut(const QKeySequence& shortcut);
+    bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
     static bool error;
 #ifndef Q_OS_OSX
     static int ref;
 #endif // Q_OS_OSX
-    virtual bool nativeEventFilter(const QByteArray & eventType, void * message,
-                                   long * result) override;
+    virtual bool nativeEventFilter(const QByteArray &eventType, void *message,
+                                   long *result) override;
 
     static void activateShortcut(quint32 nativeKey, quint32 nativeMods);
 
@@ -69,7 +69,7 @@ private:
     static bool registerShortcut(quint32 nativeKey, quint32 nativeMods);
     static bool unregisterShortcut(quint32 nativeKey, quint32 nativeMods);
 
-    static QHash<QPair<quint32, quint32>, QxtGlobalShortcut*> shortcuts;
+    static QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> shortcuts;
 };
 
 #endif // QXTGLOBALSHORTCUT_P_H

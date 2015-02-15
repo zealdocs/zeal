@@ -36,7 +36,7 @@
 #ifndef Q_OS_OSX
 int QxtGlobalShortcutPrivate::ref = 0;
 #endif // Q_OS_OSX
-QHash<QPair<quint32, quint32>, QxtGlobalShortcut*> QxtGlobalShortcutPrivate::shortcuts;
+QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> QxtGlobalShortcutPrivate::shortcuts;
 
 QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq) :
     q_ptr(qq),
@@ -63,7 +63,7 @@ QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 #endif // Q_OS_OSX
 }
 
-bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence& shortcut)
+bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 {
     Q_Q(QxtGlobalShortcut);
     Qt::KeyboardModifiers allMods = Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier;
@@ -134,7 +134,7 @@ void QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
 /*!
     Constructs a new QxtGlobalShortcut with \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(QObject* parent) :
+QxtGlobalShortcut::QxtGlobalShortcut(QObject *parent) :
     QObject(parent),
     d_ptr(new QxtGlobalShortcutPrivate(this))
 {
@@ -143,7 +143,7 @@ QxtGlobalShortcut::QxtGlobalShortcut(QObject* parent) :
 /*!
     Constructs a new QxtGlobalShortcut with \a shortcut and \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence& shortcut, QObject* parent) :
+QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *parent) :
     QObject(parent),
     d_ptr(new QxtGlobalShortcutPrivate(this))
 {
@@ -181,7 +181,7 @@ QKeySequence QxtGlobalShortcut::shortcut() const
     return QKeySequence(d->key | d->mods);
 }
 
-bool QxtGlobalShortcut::setShortcut(const QKeySequence& shortcut)
+bool QxtGlobalShortcut::setShortcut(const QKeySequence &shortcut)
 {
     Q_D(QxtGlobalShortcut);
     if (d->key != 0)

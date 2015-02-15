@@ -32,21 +32,20 @@
 #include <qt_windows.h>
 
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
-    void * message, long * result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
+                                                 void *message, long *result)
 {
     Q_UNUSED(eventType);
     Q_UNUSED(result);
 
-    MSG* msg = static_cast<MSG*>(message);
-    if (msg->message == WM_HOTKEY)
-    {
+    MSG *msg = static_cast<MSG *>(message);
+    if (msg->message == WM_HOTKEY) {
         const quint32 keycode = HIWORD(msg->lParam);
         const quint32 modifiers = LOWORD(msg->lParam);
         activateShortcut(keycode, modifiers);
     }
 
-	return false;
+    return false;
 }
 
 
@@ -70,8 +69,7 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
 
 quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
 {
-    switch (key)
-    {
+    switch (key) {
     case Qt::Key_Escape:
         return VK_ESCAPE;
     case Qt::Key_Tab:

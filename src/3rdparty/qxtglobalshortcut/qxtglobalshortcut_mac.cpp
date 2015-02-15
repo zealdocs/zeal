@@ -41,7 +41,7 @@ static QHash<Identifier, quint32> keyIDs;
 static quint32 hotKeySerial = 0;
 static bool qxt_mac_handler_installed = false;
 
-OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event, void* data)
+OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event, void *data)
 {
     Q_UNUSED(nextHandler);
     Q_UNUSED(data);
@@ -55,7 +55,7 @@ OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event,
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
-    void * message, long * result)
+                                                 void *message, long *result)
 {
     return false;
 }
@@ -191,29 +191,29 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
     if (currentLayoutData == NULL)
         return 0;
 
-    UCKeyboardLayout* header = (UCKeyboardLayout*)CFDataGetBytePtr(currentLayoutData);
-    UCKeyboardTypeHeader* table = header->keyboardTypeList;
+    UCKeyboardLayout *header = (UCKeyboardLayout *)CFDataGetBytePtr(currentLayoutData);
+    UCKeyboardTypeHeader *table = header->keyboardTypeList;
 
     uint8_t *data = (uint8_t*)header;
     // God, would a little documentation for this shit kill you...
     for (quint32 i = 0; i < header->keyboardTypeCount; ++i) {
-        UCKeyStateRecordsIndex* stateRec = 0;
+        UCKeyStateRecordsIndex *stateRec = 0;
         if (table[i].keyStateRecordsIndexOffset != 0) {
-            stateRec = reinterpret_cast<UCKeyStateRecordsIndex*>(data + table[i].keyStateRecordsIndexOffset);
+            stateRec = reinterpret_cast<UCKeyStateRecordsIndex *>(data + table[i].keyStateRecordsIndexOffset);
             if (stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat) stateRec = 0;
         }
 
-        UCKeyToCharTableIndex* charTable = reinterpret_cast<UCKeyToCharTableIndex*>(data + table[i].keyToCharTableIndexOffset);
+        UCKeyToCharTableIndex *charTable = reinterpret_cast<UCKeyToCharTableIndex *>(data + table[i].keyToCharTableIndexOffset);
         if (charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat)
             continue;
 
         for (quint32 j=0; j < charTable->keyToCharTableCount; ++j) {
-            UCKeyOutput* keyToChar = reinterpret_cast<UCKeyOutput*>(data + charTable->keyToCharTableOffsets[j]);
+            UCKeyOutput *keyToChar = reinterpret_cast<UCKeyOutput *>(data + charTable->keyToCharTableOffsets[j]);
             for (quint32 k=0; k < charTable->keyToCharTableSize; ++k) {
                 if (keyToChar[k] & kUCKeyOutputTestForIndexMask) {
                     long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
                     if (stateRec && idx < stateRec->keyStateRecordCount) {
-                        UCKeyStateRecord* rec = reinterpret_cast<UCKeyStateRecord*>(data + stateRec->keyStateRecordOffsets[idx]);
+                        UCKeyStateRecord *rec = reinterpret_cast<UCKeyStateRecord *>(data + stateRec->keyStateRecordOffsets[idx]);
                         if (rec->stateZeroCharData == ch) return k;
                     }
                 } else if (!(keyToChar[k] & kUCKeyOutputSequenceIndexMask) && keyToChar[k] < 0xFFFE) {

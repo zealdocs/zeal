@@ -59,8 +59,7 @@ public:
         case BadValue:
         case BadWindow:
             if (event->request_code == 33 /* X_GrabKey */ ||
-                    event->request_code == 34 /* X_UngrabKey */)
-            {
+                    event->request_code == 34 /* X_UngrabKey */) {
                 error = true;
                 //TODO:
                 //char errstr[256];
@@ -146,7 +145,7 @@ private:
 
 } // namespace
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, long *result)
 {
     Q_UNUSED(result);

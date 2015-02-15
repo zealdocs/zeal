@@ -205,7 +205,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             [this](const QString &name) {
-        for (SearchState * searchState : m_tabs) {
+        for (SearchState *searchState : m_tabs) {
             if (docsetName(searchState->page->mainFrame()->url()) != name)
                 continue;
 
