@@ -28,7 +28,7 @@ const char *ApiUrl = "http://api.zealdocs.org";
 // QNetworkReply properties
 const char *DocsetMetadataProperty = "docsetMetadata";
 const char *DownloadTypeProperty = "downloadType";
-const char *DownloadAddedTotal = "downloadAddedTotal";
+const char *DownloadPreviousReceived = "downloadPreviousReceived";
 const char *ListItemIndexProperty = "listItem";
 }
 
@@ -288,19 +288,25 @@ void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
         item->setData(ProgressItemDelegate::ValueRole, received);
     }
 
-    if (!reply->property(DownloadAddedTotal).isValid()) {
-        totalDownload += total;
-        reply->setProperty(DownloadAddedTotal, true);
-    }
+    qint64 previousReceived = 0;
+    const QVariant previousReceivedVariant = reply->property(DownloadPreviousReceived);
+    if (!previousReceivedVariant.isValid())
+        m_combinedTotal += total;
+    else
+        previousReceived = previousReceivedVariant.toLongLong();
 
-    currentDownload += received;
+    m_combinedReceived += received - previousReceived;
+    reply->setProperty(DownloadPreviousReceived, received);
+
     displayProgress();
 }
 
 void SettingsDialog::displayProgress()
 {
-    ui->docsetsProgress->setValue(currentDownload);
-    ui->docsetsProgress->setMaximum(totalDownload);
+    if (m_combinedTotal)
+        ui->docsetsProgress->setValue(percent(m_combinedReceived, m_combinedTotal));
+
+    ui->docsetsProgress->setMaximum(100);
     ui->docsetsProgress->setVisible(!replies.isEmpty());
 }
 
@@ -522,15 +528,16 @@ void SettingsDialog::on_listView_clicked(const QModelIndex &index)
 
 void SettingsDialog::resetProgress()
 {
-    totalDownload = 0;
-    currentDownload = 0;
+    m_combinedReceived = 0;
+    m_combinedTotal = 0;
+    displayProgress();
+
     ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
     ui->downloadDocsetButton->setText("Download");
     ui->downloadButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
     ui->addFeedButton->setEnabled(true);
     ui->docsetsList->setEnabled(true);
-    displayProgress();
 }
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
@@ -598,6 +605,14 @@ void SettingsDialog::saveSettings()
     settings->proxyPassword = ui->httpProxyPass->text();
 
     settings->save();
+}
+
+int SettingsDialog::percent(qint64 fraction, qint64 total)
+{
+    if (!total)
+        return 0;
+
+    return fraction / static_cast<double>(total) * 100;
 }
 
 void SettingsDialog::on_tabWidget_currentChanged(int current)

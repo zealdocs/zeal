@@ -76,6 +76,7 @@ private:
     QNetworkReply *startDownload(const QUrl &url);
     void stopDownloads();
     void saveSettings();
+    static inline int percent(qint64 fraction, qint64 total);
 
     Ui::SettingsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
@@ -83,8 +84,8 @@ private:
 
     ListModel *m_zealListModel = nullptr;
     QList<QNetworkReply *> replies;
-    qint64 totalDownload = 0;
-    qint64 currentDownload = 0;
+    qint64 m_combinedTotal = 0;
+    qint64 m_combinedReceived = 0;
 };
 
 } // namespace Zeal
