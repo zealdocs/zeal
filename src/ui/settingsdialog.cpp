@@ -555,6 +555,7 @@ void SettingsDialog::stopDownloads()
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         reply->abort();
     }
+    resetProgress();
 }
 
 void SettingsDialog::saveSettings()
