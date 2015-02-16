@@ -32,7 +32,6 @@ public:
     const QList<SearchResult> &queryResults();
     QList<Docset *> docsets() const;
 
-
 public slots:
     void addDocset(const QString &path);
 

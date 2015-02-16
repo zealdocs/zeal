@@ -215,10 +215,9 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
     const QDir dir(path);
     for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
-        if (subdir.suffix() == "docset") {
+        if (subdir.suffix() == "docset")
             addDocset(subdir.absoluteFilePath());
-        } else {
+        else
             addDocsetsFromFolder(subdir.absoluteFilePath());
-        }
     }
 }

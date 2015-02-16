@@ -98,7 +98,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     // Write metadata about docset
     DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
-            : m_userFeeds[docsetName];
+              : m_userFeeds[docsetName];
     metadata.toFile(docsetPath + QStringLiteral("/meta.json"));
 
     m_docsetRegistry->addDocset(docsetPath);
@@ -297,9 +297,7 @@ void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
 
 void SettingsDialog::displayProgress()
 {
-    if (m_combinedTotal)
-        ui->docsetsProgress->setValue(percent(m_combinedReceived, m_combinedTotal));
-
+    ui->docsetsProgress->setValue(percent(m_combinedReceived, m_combinedTotal));
     ui->docsetsProgress->setMaximum(100);
     ui->docsetsProgress->setVisible(!replies.isEmpty());
 }
