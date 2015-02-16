@@ -103,11 +103,8 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     QListWidgetItem *listItem = findDocsetListItem(metadata.title());
     if (listItem) {
         listItem->setHidden(true);
-
         listItem->setCheckState(Qt::Unchecked);
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
-        listItem->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-        listItem->setData(ProgressItemDelegate::ValueRole, 0);
     }
     endTasks();
     delete m_tmpFiles.take(docsetName);
@@ -215,6 +212,12 @@ void SettingsDialog::downloadCompleted()
         while (reply->bytesAvailable())
             tmpFile->write(reply->read(1024 * 1024)); // Use small chunks
         tmpFile->close();
+
+        QListWidgetItem *item = findDocsetListItem(metadata.title());
+        if (item) {
+            item->setData(ProgressItemDelegate::ValueRole, 0);
+            item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
+        }
 
         m_tmpFiles.insert(metadata.name(), tmpFile);
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
@@ -449,8 +452,8 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
             continue;
 
         item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-        item->setData(ProgressItemDelegate::ShowProgressRole, true);
         item->setData(ProgressItemDelegate::ValueRole, 0);
+        item->setData(ProgressItemDelegate::ShowProgressRole, true);
 
         downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
     }
@@ -546,7 +549,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
 
 void SettingsDialog::stopDownloads()
 {
-    for (QNetworkReply *reply: replies) {
+    for (QNetworkReply *reply : replies) {
         // Hide progress bar
         QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (!listItem)
