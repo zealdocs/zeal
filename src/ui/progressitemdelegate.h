@@ -9,7 +9,6 @@ class ProgressItemDelegate : public QItemDelegate
 public:
     enum ProgressRoles {
         ValueRole = Qt::UserRole + 10,
-        MaximumRole,
         FormatRole,
         ShowProgressRole
     };

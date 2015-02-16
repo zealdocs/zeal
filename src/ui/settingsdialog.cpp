@@ -114,7 +114,6 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         listItem->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
         listItem->setData(ProgressItemDelegate::ValueRole, 0);
-        listItem->setData(ProgressItemDelegate::MaximumRole, 1);
     }
     endTasks();
     delete m_tmpFiles.take(docsetName);
@@ -283,10 +282,8 @@ void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
 
     // Try to get the item associated to the request
     QListWidgetItem *item = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
-    if (item) {
-        item->setData(ProgressItemDelegate::MaximumRole, total);
-        item->setData(ProgressItemDelegate::ValueRole, received);
-    }
+    if (item)
+        item->setData(ProgressItemDelegate::ValueRole, percent(received, total));
 
     qint64 previousReceived = 0;
     const QVariant previousReceivedVariant = reply->property(DownloadPreviousReceived);
@@ -462,7 +459,6 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
         item->setData(ProgressItemDelegate::ShowProgressRole, true);
         item->setData(ProgressItemDelegate::ValueRole, 0);
-        item->setData(ProgressItemDelegate::MaximumRole, 1);
 
         downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
     }

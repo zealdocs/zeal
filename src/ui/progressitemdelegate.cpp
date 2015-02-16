@@ -18,7 +18,6 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     bool ok;
     const int value = index.model()->data(index, ValueRole).toInt(&ok);
-    const int max = index.model()->data(index, MaximumRole).toInt(&ok);
 
     if (!ok) {
         QItemDelegate::paint(painter, option, index);
@@ -32,8 +31,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     // Size progress bar
     QScopedPointer<QProgressBar> renderer(new QProgressBar());
     renderer->resize(progressBarWidth, styleOption.rect.height());
-    renderer->setMinimum(0);
-    renderer->setMaximum(max);
+    renderer->setRange(0, 100);
     renderer->setValue(value);
 
     const QString format = index.model()->data(index, FormatRole).toString();
