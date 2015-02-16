@@ -446,7 +446,6 @@ void MainWindow::reloadTabState()
 {
     ui->lineEdit->setText(m_searchState->searchQuery);
     ui->sections->setModel(m_searchState->sectionsList);
-    ui->treeView->reset();
 
     if (!m_searchState->searchQuery.isEmpty()) {
         ui->treeView->setModel(m_searchState->zealSearch);

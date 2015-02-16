@@ -36,19 +36,16 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
     m_application(app),
-    m_docsetRegistry(app->docsetRegistry()),
-    m_zealListModel(listModel)
+    m_docsetRegistry(app->docsetRegistry())
 {
     ui->setupUi(this);
 
     ui->downloadableGroup->hide();
     ui->docsetsProgress->hide();
 
-    ui->installedDocsetList->setModel(m_zealListModel);
+    ui->installedDocsetList->setModel(listModel);
 
-    ProgressItemDelegate *progressDelegate = new ProgressItemDelegate();
-    ui->availableDocsetList->setItemDelegate(progressDelegate);
-    ui->installedDocsetList->setItemDelegate(progressDelegate);
+    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
 
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
@@ -608,18 +605,10 @@ int SettingsDialog::percent(qint64 fraction, qint64 total)
 
 void SettingsDialog::on_tabWidget_currentChanged(int current)
 {
-    if (ui->tabWidget->widget(current) != ui->docsetsTab)
+    if (ui->tabWidget->widget(current) != ui->docsetsTab || ui->availableDocsetList->count())
         return;
 
-    // Ensure the list is completely up to date
-    QModelIndex index = ui->installedDocsetList->currentIndex();
-    ui->installedDocsetList->reset();
-
-    if (index.isValid())
-        ui->installedDocsetList->setCurrentIndex(index);
-
-    if (!ui->availableDocsetList->count())
-        downloadDocsetList();
+    downloadDocsetList();
 }
 
 void SettingsDialog::addDashFeed()

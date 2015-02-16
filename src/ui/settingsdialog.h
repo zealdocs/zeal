@@ -82,7 +82,6 @@ private:
     Core::Application *m_application = nullptr;
     DocsetRegistry *m_docsetRegistry = nullptr;
 
-    ListModel *m_zealListModel = nullptr;
     QList<QNetworkReply *> replies;
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
