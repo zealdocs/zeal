@@ -101,10 +101,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
             : m_userFeeds[docsetName];
     metadata.toFile(docsetPath + QStringLiteral("/meta.json"));
 
-    QMetaObject::invokeMethod(m_docsetRegistry, "addDocset", Qt::BlockingQueuedConnection,
-                              Q_ARG(QString, docsetPath));
-
-    ui->listView->reset();
+    m_docsetRegistry->addDocset(docsetPath);
 
     QListWidgetItem *listItem = findDocsetListItem(metadata.title());
     if (listItem) {

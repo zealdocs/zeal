@@ -43,6 +43,7 @@ signals:
     void queryCompleted();
 
 private slots:
+    void _addDocset(const QString &path);
     void _runQuery(const QString &rawQuery, int queryNum);
 
 private:

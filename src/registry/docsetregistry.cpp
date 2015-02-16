@@ -81,6 +81,12 @@ QList<Docset *> DocsetRegistry::docsets() const
 
 void DocsetRegistry::addDocset(const QString &path)
 {
+    QMetaObject::invokeMethod(this, "_addDocset", Qt::BlockingQueuedConnection,
+                              Q_ARG(QString, path));
+}
+
+void DocsetRegistry::_addDocset(const QString &path)
+{
     Docset *docset = new Docset(path);
 
     /// TODO: Emit error
@@ -210,8 +216,7 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
     const QDir dir(path);
     for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
         if (subdir.suffix() == "docset") {
-            QMetaObject::invokeMethod(this, "addDocset", Qt::BlockingQueuedConnection,
-                                      Q_ARG(QString, subdir.absoluteFilePath()));
+            addDocset(subdir.absoluteFilePath());
         } else {
             addDocsetsFromFolder(subdir.absoluteFilePath());
         }
