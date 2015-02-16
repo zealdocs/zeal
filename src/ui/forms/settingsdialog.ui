@@ -387,7 +387,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QListView" name="listView"/>
+        <widget class="QListView" name="installedDocsetList"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="docsetsActions">
@@ -454,7 +454,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QListWidget" name="docsetsList"/>
+           <widget class="QListWidget" name="availableDocsetList"/>
           </item>
           <item>
            <widget class="QLabel" name="label_4">

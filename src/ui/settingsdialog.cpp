@@ -44,11 +44,11 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     ui->downloadableGroup->hide();
     ui->docsetsProgress->hide();
 
-    ui->listView->setModel(m_zealListModel);
+    ui->installedDocsetList->setModel(m_zealListModel);
 
     ProgressItemDelegate *progressDelegate = new ProgressItemDelegate();
-    ui->docsetsList->setItemDelegate(progressDelegate);
-    ui->listView->setItemDelegate(progressDelegate);
+    ui->availableDocsetList->setItemDelegate(progressDelegate);
+    ui->installedDocsetList->setItemDelegate(progressDelegate);
 
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
@@ -278,7 +278,7 @@ void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
         return;
 
     // Try to get the item associated to the request
-    QListWidgetItem *item = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
+    QListWidgetItem *item = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
     if (item)
         item->setData(ProgressItemDelegate::ValueRole, percent(received, total));
 
@@ -332,7 +332,7 @@ void SettingsDialog::updateFeedDocsets()
 
         QListWidgetItem *listItem = findDocsetListItem(metadata.title());
         if (listItem)
-            reply->setProperty(ListItemIndexProperty, ui->docsetsList->row(listItem));
+            reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(listItem));
 
         reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
@@ -381,7 +381,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
     for (const DocsetMetadata &metadata : m_availableDocsets) {
         const QIcon icon(QString(QStringLiteral("docsetIcon:%1.png")).arg(metadata.icon()));
 
-        QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->docsetsList);
+        QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->availableDocsetList);
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
@@ -417,7 +417,7 @@ void SettingsDialog::downloadDashDocset(const QString &name)
     reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(m_availableDocsets[name]));
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
-                       ui->docsetsList->row(findDocsetListItem(m_availableDocsets[name].title())));
+                       ui->availableDocsetList->row(findDocsetListItem(m_availableDocsets[name].title())));
 
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
@@ -425,7 +425,7 @@ void SettingsDialog::downloadDashDocset(const QString &name)
 void SettingsDialog::downloadDocsetList()
 {
     ui->downloadButton->hide();
-    ui->docsetsList->clear();
+    ui->availableDocsetList->clear();
     m_availableDocsets.clear();
 
     QNetworkReply *reply = startDownload(QUrl(ApiUrl + QStringLiteral("/docsets")));
@@ -433,9 +433,9 @@ void SettingsDialog::downloadDocsetList()
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
-void SettingsDialog::on_docsetsList_itemSelectionChanged()
+void SettingsDialog::on_availableDocsetList_itemSelectionChanged()
 {
-    ui->downloadDocsetButton->setEnabled(ui->docsetsList->selectedItems().count() > 0);
+    ui->downloadDocsetButton->setEnabled(ui->availableDocsetList->selectedItems().count() > 0);
 }
 
 void SettingsDialog::on_downloadDocsetButton_clicked()
@@ -446,8 +446,8 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
     }
 
     // Find each checked item, and create a NetworkRequest for it.
-    for (int i = 0; i < ui->docsetsList->count(); ++i) {
-        QListWidgetItem *item = ui->docsetsList->item(i);
+    for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
+        QListWidgetItem *item = ui->availableDocsetList->item(i);
         if (item->checkState() != Qt::Checked)
             continue;
 
@@ -472,7 +472,7 @@ void SettingsDialog::on_storageButton_clicked()
 
 void SettingsDialog::on_deleteButton_clicked()
 {
-    const QString docsetTitle = ui->listView->currentIndex().data().toString();
+    const QString docsetTitle = ui->installedDocsetList->currentIndex().data().toString();
     const int answer
             = QMessageBox::question(this, tr("Remove Docset"),
                                     QString("Do you want to permanently delete the '%1' docset? ")
@@ -481,7 +481,7 @@ void SettingsDialog::on_deleteButton_clicked()
         return;
 
     const QDir dataDir(m_application->settings()->docsetPath);
-    const QString docsetName = ui->listView->currentIndex().data(ListModel::DocsetNameRole).toString();
+    const QString docsetName = ui->installedDocsetList->currentIndex().data(ListModel::DocsetNameRole).toString();
     m_docsetRegistry->remove(docsetName);
     if (dataDir.exists()) {
         ui->docsetsProgress->show();
@@ -511,7 +511,7 @@ void SettingsDialog::on_deleteButton_clicked()
     }
 }
 
-void SettingsDialog::on_listView_clicked(const QModelIndex &index)
+void SettingsDialog::on_installedDocsetList_clicked(const QModelIndex &index)
 {
     Q_UNUSED(index)
     ui->deleteButton->setEnabled(true);
@@ -528,7 +528,7 @@ void SettingsDialog::resetProgress()
     ui->downloadButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
     ui->addFeedButton->setEnabled(true);
-    ui->docsetsList->setEnabled(true);
+    ui->availableDocsetList->setEnabled(true);
 }
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
@@ -551,7 +551,7 @@ void SettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply: replies) {
         // Hide progress bar
-        QListWidgetItem *listItem = ui->docsetsList->item(reply->property(ListItemIndexProperty).toInt());
+        QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (!listItem)
             continue;
 
@@ -612,13 +612,13 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         return;
 
     // Ensure the list is completely up to date
-    QModelIndex index = ui->listView->currentIndex();
-    ui->listView->reset();
+    QModelIndex index = ui->installedDocsetList->currentIndex();
+    ui->installedDocsetList->reset();
 
     if (index.isValid())
-        ui->listView->setCurrentIndex(index);
+        ui->installedDocsetList->setCurrentIndex(index);
 
-    if (!ui->docsetsList->count())
+    if (!ui->availableDocsetList->count())
         downloadDocsetList();
 }
 
@@ -645,7 +645,7 @@ void SettingsDialog::addDashFeed()
 QListWidgetItem *SettingsDialog::findDocsetListItem(const QString &title) const
 {
     const QList<QListWidgetItem *> items
-            = ui->docsetsList->findItems(title, Qt::MatchFixedString);
+            = ui->availableDocsetList->findItems(title, Qt::MatchFixedString);
 
     if (items.isEmpty())
         return nullptr;
