@@ -55,6 +55,7 @@ Application::Application(const QString &query, QObject *parent) :
     m_extractorThread->start();
     connect(m_extractor, &Extractor::completed, this, &Application::extractionCompleted);
     connect(m_extractor, &Extractor::error, this, &Application::extractionError);
+    connect(m_extractor, &Extractor::progress, this, &Application::extractionProgress);
 
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();

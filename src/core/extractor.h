@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+struct archive;
+
 namespace Zeal {
 namespace Core {
 
@@ -18,6 +20,18 @@ public slots:
 signals:
     void error(const QString &filePath, const QString &message);
     void completed(const QString &filePath);
+    void progress(const QString &filePath, qint64 extracted, qint64 total);
+
+private:
+    struct ExtractInfo {
+        Extractor *extractor;
+        archive *archiveHandle;
+        QString filePath;
+        qint64 totalBytes;
+        qint64 extractedBytes;
+    };
+
+    static void progressCallback(void *ptr);
 };
 
 } // namespace Core

@@ -68,6 +68,8 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
             this, &SettingsDialog::extractionCompleted);
     connect(m_application, &Core::Application::extractionError,
             this, &SettingsDialog::extractionError);
+    connect(m_application, &Core::Application::extractionProgress,
+            this, &SettingsDialog::extractionProgress);
 
     loadSettings();
 }
@@ -117,6 +119,27 @@ void SettingsDialog::extractionError(const QString &filePath, const QString &err
                          QString(QStringLiteral("Cannot extract docset '%1': %2")).arg(docsetName).arg(errorString));
     /// TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
+}
+
+void SettingsDialog::extractionProgress(const QString &filePath, qint64 extracted, qint64 total)
+{
+    QString docsetName;
+
+    /// FIXME: Come up with a better approach
+    for (const QString &key : m_tmpFiles.keys()) {
+        if (m_tmpFiles[key]->fileName() == filePath) {
+            docsetName = key;
+            break;
+        }
+    }
+
+    DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+            ? m_availableDocsets[docsetName]
+              : m_userFeeds[docsetName];
+
+    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    if (listItem)
+        listItem->setData(ProgressItemDelegate::ValueRole, percent(extracted, total));
 }
 
 /*!

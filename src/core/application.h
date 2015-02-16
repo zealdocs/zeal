@@ -41,6 +41,7 @@ public slots:
 signals:
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);
+    void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
 
 private slots:
     void applySettings();
