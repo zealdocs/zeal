@@ -21,7 +21,6 @@ void ZealSearchEdit::setTreeView(QTreeView *view)
 {
     treeView = view;
     focusing = false;
-    installEventFilter(this);
 }
 
 // Makes the line edit use autocompletions.
@@ -33,7 +32,24 @@ void ZealSearchEdit::setCompletions(const QStringList &completions)
     prefixCompleter->setWidget(this);
 }
 
-int ZealSearchEdit::queryStart()
+bool ZealSearchEdit::event(QEvent *event)
+{
+    if (event->type() != QEvent::KeyPress)
+        return QLineEdit::event(event);
+
+    QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
+    if (keyEvent->key() != Qt::Key_Tab)
+        return QLineEdit::event(event);
+
+    QString currentText = text();
+    QString completed = currentCompletion(currentText);
+    if (!completed.isEmpty())
+        setText(completed);
+
+    return true;
+}
+
+int ZealSearchEdit::queryStart() const
 {
     Zeal::SearchQuery currentQuery(text());
     // Keep the filter for the first esc press
@@ -46,9 +62,7 @@ int ZealSearchEdit::queryStart()
 // Clear input with consideration to docset filters
 void ZealSearchEdit::clearQuery()
 {
-    QString query = text();
-    query.chop(query.size() - queryStart());
-    setText(query);
+    setText(text().left(queryStart()));
 }
 
 void ZealSearchEdit::selectQuery()
@@ -59,47 +73,6 @@ void ZealSearchEdit::selectQuery()
 void ZealSearchEdit::clear()
 {
     clearQuery();
-}
-
-bool ZealSearchEdit::eventFilter(QObject *obj, QEvent *ev)
-{
-    if (obj == this && ev->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
-
-        if (keyEvent->key() == Qt::Key_Down || keyEvent->key() == Qt::Key_Up) {
-            QModelIndex index = treeView->currentIndex();
-            int nextRow = keyEvent->key() == Qt::Key_Down
-                          ? index.row() + 1
-                          : index.row() - 1;
-            QModelIndex sibling = index.sibling(nextRow, 0);
-            if (nextRow >= 0 && nextRow < treeView->model()->rowCount()) {
-                treeView->setCurrentIndex(sibling);
-                return true;
-            }
-        }
-
-        if (keyEvent->key() == Qt::Key_Return) {
-            emit treeView->activated(treeView->selectionModel()->currentIndex());
-            return true;
-        }
-
-        // Autocompletes the prefixes.
-        if (keyEvent->key() == Qt::Key_Tab) {
-            QString currentText = text();
-            QString completed = currentCompletion(currentText);
-            if (!completed.isEmpty()) {
-                setText(completed);
-                return true;
-            }
-        }
-    }
-    return QLineEdit::eventFilter(obj, ev);
-}
-
-void ZealSearchEdit::resizeEvent(QResizeEvent *ev)
-{
-    showCompletions(text());
-    QLineEdit::resizeEvent(ev);
 }
 
 void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
@@ -116,12 +89,32 @@ void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
     focusing = true;
 }
 
-void ZealSearchEdit::keyPressEvent(QKeyEvent *keyEvent)
+void ZealSearchEdit::keyPressEvent(QKeyEvent *event)
 {
-    if (keyEvent->key() == Qt::Key_Escape) {
+    switch (event->key()) {
+    case Qt::Key_Escape:
         clear();
-    } else {
-        QLineEdit::keyPressEvent(keyEvent);
+        event->accept();
+        break;
+    case Qt::Key_Return:
+        emit treeView->activated(treeView->selectionModel()->currentIndex());
+        event->accept();
+        break;
+    case Qt::Key_Down:
+    case Qt::Key_Up: {
+        QModelIndex index = treeView->currentIndex();
+        int nextRow = event->key() == Qt::Key_Down
+                ? index.row() + 1
+                : index.row() - 1;
+        QModelIndex sibling = index.sibling(nextRow, 0);
+        if (nextRow >= 0 && nextRow < treeView->model()->rowCount())
+            treeView->setCurrentIndex(sibling);
+        event->accept();
+        break;
+    }
+    default:
+        QLineEdit::keyPressEvent(event);
+        break;
     }
 }
 
