@@ -549,5 +549,7 @@
         <file>icons/type/Web@2x.png</file>
         <file>icons/type/Word.png</file>
         <file>icons/type/Word@2x.png</file>
+        <file>icons/logo/64x64.png</file>
+        <file>icons/logo/128x128.png</file>
     </qresource>
 </RCC>
