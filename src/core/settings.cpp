@@ -30,7 +30,7 @@ void Settings::load()
     /// TODO: Put everything in groups
     startMinimized = m_settings->value(QStringLiteral("start_minimized"), false).toBool();
 
-    showSystrayIcon = m_settings->value(QStringLiteral("show_systray_icon"), false).toBool();
+    showSystrayIcon = m_settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = m_settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = m_settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
