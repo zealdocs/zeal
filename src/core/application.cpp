@@ -3,6 +3,7 @@
 #include "extractor.h"
 #include "settings.h"
 #include "registry/docsetregistry.h"
+#include "registry/searchquery.h"
 #include "ui/mainwindow.h"
 
 #include <QLocalServer>
@@ -21,7 +22,12 @@ const char *LocalServerName = "ZealLocalServer";
 
 Application *Application::m_instance = nullptr;
 
-Application::Application(const QString &query, QObject *parent) :
+Application::Application(QObject *parent) :
+    Application(SearchQuery(), parent)
+{
+}
+
+Application::Application(const SearchQuery &query, QObject *parent) :
     QObject(parent)
 {
     // Ensure only one instance of Application
@@ -41,10 +47,14 @@ Application::Application(const QString &query, QObject *parent) :
         QLocalSocket *connection = m_localServer->nextPendingConnection();
         // Wait a little while the other side writes the bytes
         connection->waitForReadyRead();
-        if (connection->bytesAvailable())
-            m_mainWindow->bringToFront(QString::fromLocal8Bit(connection->readAll()));
-        else
+        if (connection->bytesAvailable()) {
+            QDataStream in(connection);
+            Zeal::SearchQuery query;
+            in >> query;
+            m_mainWindow->bringToFront(query);
+        } else {
             m_mainWindow->bringToFront();
+        }
     });
     /// TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed

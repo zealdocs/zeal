@@ -14,6 +14,7 @@ class QThread;
 namespace Zeal {
 
 class DocsetRegistry;
+class SearchQuery;
 
 namespace Core {
 
@@ -24,7 +25,8 @@ class Application : public QObject
 {
     Q_OBJECT
 public:
-    explicit Application(const QString &query = QString(), QObject *parent = nullptr);
+    explicit Application(QObject *parent = nullptr);
+    explicit Application(const SearchQuery &query, QObject *parent = nullptr);
     ~Application() override;
 
     static QString localServerName();

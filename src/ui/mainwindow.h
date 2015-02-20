@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "registry/searchquery.h"
+
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
@@ -72,7 +74,7 @@ public:
     explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    void bringToFront(const QString &query = QString());
+    void bringToFront(const Zeal::SearchQuery &query = Zeal::SearchQuery());
     void createTab();
 
 protected:

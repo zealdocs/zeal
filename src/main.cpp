@@ -1,4 +1,5 @@
 #include "core/application.h"
+#include "registry/searchquery.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -15,7 +16,7 @@
 struct CommandLineParameters
 {
     bool force;
-    QString query;
+    Zeal::SearchQuery query;
 };
 
 CommandLineParameters parseCommandLine(const QCoreApplication &app)
@@ -35,7 +36,7 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
 
     return {
         parser.isSet(QStringLiteral("force")),
-        parser.value(QStringLiteral("query"))
+        Zeal::SearchQuery(parser.value(QStringLiteral("query")))
     };
 }
 
@@ -80,7 +81,8 @@ int main(int argc, char *argv[])
         socket->connectToServer(Zeal::Core::Application::localServerName());
 
         if (socket->waitForConnected(500)) {
-            socket->write(clParams.query.toLocal8Bit());
+            QDataStream out(socket.data());
+            out << clParams.query;
             socket->flush();
             return 0;
         }

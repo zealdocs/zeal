@@ -634,7 +634,7 @@ void MainWindow::createTrayIcon()
 #endif
 }
 
-void MainWindow::bringToFront(const QString &query)
+void MainWindow::bringToFront(const Zeal::SearchQuery &query)
 {
     show();
     setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
@@ -643,7 +643,7 @@ void MainWindow::bringToFront(const QString &query)
     ui->lineEdit->setFocus();
 
     if (!query.isEmpty()) {
-        ui->lineEdit->setText(query);
+        ui->lineEdit->setText(query.toString());
         ui->treeView->setFocus();
         ui->treeView->activated(ui->treeView->currentIndex());
     }
