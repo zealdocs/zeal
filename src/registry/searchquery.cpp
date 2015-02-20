@@ -50,6 +50,16 @@ bool SearchQuery::isEmpty() const
     return m_query.isEmpty() && m_keywords.isEmpty();
 }
 
+QStringList SearchQuery::keywords() const
+{
+    return m_keywords;
+}
+
+void SearchQuery::setKeywords(const QStringList &list)
+{
+    m_keywords = list;
+}
+
 bool SearchQuery::hasKeywords() const
 {
     return !m_keywords.isEmpty();
@@ -70,6 +80,16 @@ int SearchQuery::keywordPrefixSize() const
     return m_keywordPrefix.size();
 }
 
+QString SearchQuery::query() const
+{
+    return m_query;
+}
+
+void SearchQuery::setQuery(const QString &str)
+{
+    m_query = str;
+}
+
 QString SearchQuery::sanitizedQuery() const
 {
     QString q = m_query;
@@ -78,11 +98,6 @@ QString SearchQuery::sanitizedQuery() const
     q.replace(QStringLiteral("%"), QStringLiteral("\\%"));
     q.replace(QStringLiteral("'"), QStringLiteral("''"));
     return q;
-}
-
-QString SearchQuery::query() const
-{
-    return m_query;
 }
 
 QDataStream &Zeal::operator<<(QDataStream &out, const SearchQuery &query)

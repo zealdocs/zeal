@@ -36,6 +36,9 @@ public:
 
     bool isEmpty() const;
 
+    QStringList keywords() const;
+    void setKeywords(const QStringList &list);
+
     /// Returns true if there's a docset filter for the given query
     bool hasKeywords() const;
 
@@ -45,11 +48,11 @@ public:
     /// Returns the docset filter raw size for the given query
     int keywordPrefixSize() const;
 
+    QString query() const;
+    void setQuery(const QString &str);
+
     /// Returns the core query, sanitized for use in SQL queries
     QString sanitizedQuery() const;
-
-    /// Returns the query with any docset prefixes removed.
-    QString query() const;
 
 private:
     QString m_query;
