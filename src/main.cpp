@@ -30,27 +30,32 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
     /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
     parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
                                         QObject::tr("Force the application run.")));
+    /// TODO: [0.2.0] Remove --query support
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
-                                        QObject::tr("Query <search term>."),
+                                        QObject::tr("[DEPRECATED] Query <search term>."),
                                         QStringLiteral("term")));
     parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
     parser.process(app);
 
     Zeal::SearchQuery query;
 
-    /// TODO: Support dash-feed:// protocol
-    const QString arg = parser.positionalArguments().value(0);
-    if (arg.startsWith(QLatin1String("dash://"))) {
-        query.setQuery(arg.mid(7));
-    } else if (arg.startsWith(QLatin1String("dash-plugin://"))) {
-        QUrlQuery urlQuery(arg.mid(14));
-
-        const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
-        if (!keys.isEmpty())
-            query.setKeywords(keys.split(QLatin1Char(',')));
-        query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
-    } else {
+    if (parser.isSet(QStringLiteral("query"))) {
         query.setQuery(parser.value(QStringLiteral("query")));
+    } else {
+        /// TODO: Support dash-feed:// protocol
+        const QString arg = parser.positionalArguments().value(0);
+        if (arg.startsWith(QLatin1String("dash://"))) {
+            query.setQuery(arg.mid(7));
+        } else if (arg.startsWith(QLatin1String("dash-plugin://"))) {
+            QUrlQuery urlQuery(arg.mid(14));
+
+            const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
+            if (!keys.isEmpty())
+                query.setKeywords(keys.split(QLatin1Char(',')));
+            query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
+        } else {
+            query.setQuery(arg);
+        }
     }
 
     return CommandLineParameters{parser.isSet(QStringLiteral("force")), query};
