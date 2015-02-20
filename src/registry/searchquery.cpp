@@ -76,3 +76,17 @@ QString SearchQuery::query() const
 {
     return m_query;
 }
+
+QDataStream &Zeal::operator<<(QDataStream &out, const SearchQuery &query)
+{
+    out << query.toString();
+    return out;
+}
+
+QDataStream &Zeal::operator>>(QDataStream &in, SearchQuery &query)
+{
+    QString str;
+    in >> str;
+    query = SearchQuery::fromString(str);
+    return in;
+}

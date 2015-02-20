@@ -55,6 +55,9 @@ private:
     QString m_keywordPrefix;
 };
 
+QDataStream &operator<<(QDataStream &out, const SearchQuery &query);
+QDataStream &operator>>(QDataStream &in, SearchQuery &query);
+
 } // namespace Zeal
 
 #endif // SEARCHQUERY_H
