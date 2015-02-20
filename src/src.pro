@@ -3,11 +3,16 @@ TEMPLATE = app
 QT += gui gui-private widgets sql
 CONFIG += c++11
 
+# Build features
 webengine {
     QT += webenginewidgets
     DEFINES += USE_WEBENGINE
 } else {
     QT += webkitwidgets
+}
+
+portable {
+    DEFINES += PORTABLE_BUILD
 }
 
 # TODO: Obtain version number from Git tags

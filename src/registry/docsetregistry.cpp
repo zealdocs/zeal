@@ -3,7 +3,6 @@
 #include "searchquery.h"
 #include "searchresult.h"
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QSqlQuery>
 #include <QThread>
@@ -33,11 +32,6 @@ void DocsetRegistry::init(const QString &path)
         remove(name);
 
     addDocsetsFromFolder(path);
-
-    /// TODO: Add a portable config option, instead of always checking application directory
-    QDir appDir(QCoreApplication::applicationDirPath());
-    if (appDir.cd(QStringLiteral("docsets")))
-        addDocsetsFromFolder(appDir.absolutePath());
 }
 
 int DocsetRegistry::count() const

@@ -1,5 +1,6 @@
 #include "settings.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
@@ -9,7 +10,12 @@ using namespace Zeal::Core;
 
 Settings::Settings(QObject *parent) :
     QObject(parent),
+#ifndef PORTABLE_BUILD
     m_settings(new QSettings(this))
+#else
+    m_settings(new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
+                             QSettings::IniFormat, this))
+#endif
 {
     load();
 }
@@ -53,8 +59,12 @@ void Settings::load()
     if (m_settings->contains("path")) {
         docsetPath = m_settings->value("path").toString();
     } else {
+#ifndef PORTABLE_BUILD
         docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
                 + QLatin1String("/docsets");
+#else
+        docsetPath = QCoreApplication::applicationDirPath() + QLatin1String("/docsets");
+#endif
         QDir().mkpath(docsetPath);
     }
     m_settings->endGroup();
@@ -91,9 +101,11 @@ void Settings::save()
     m_settings->setValue("password", proxyPassword);
     m_settings->endGroup();
 
+#ifndef PORTABLE_BUILD
     m_settings->beginGroup(QStringLiteral("docsets"));
     m_settings->setValue("path", docsetPath);
     m_settings->endGroup();
+#endif
 
     m_settings->beginGroup(QStringLiteral("state"));
     m_settings->setValue("window_geometry", windowGeometry);
