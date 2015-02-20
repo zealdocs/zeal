@@ -51,10 +51,10 @@ bool ZealSearchEdit::event(QEvent *event)
 
 int ZealSearchEdit::queryStart() const
 {
-    Zeal::SearchQuery currentQuery(text());
+    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
     // Keep the filter for the first esc press
-    if (currentQuery.docsetFilterSize() > 0 && currentQuery.coreQuery().size() > 0)
-        return currentQuery.docsetFilterSize() + 1;
+    if (currentQuery.keywordPrefixSize() > 0 && currentQuery.query().size() > 0)
+        return currentQuery.keywordPrefixSize() + 1;
     else
         return 0;
 }
@@ -82,7 +82,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
 
     // Override the default selection.
     Zeal::SearchQuery currentQuery(text());
-    int selectionOffset = currentQuery.docsetFilterSize();
+    int selectionOffset = currentQuery.keywordPrefixSize();
     if (selectionOffset > 0)
         selectionOffset++; // add the delimeter
     setSelection(selectionOffset, text().size() - selectionOffset);

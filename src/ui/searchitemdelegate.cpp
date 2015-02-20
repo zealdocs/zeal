@@ -52,7 +52,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     QString highlight;
     if (m_lineEdit)
-        highlight = Zeal::SearchQuery(m_lineEdit->text()).coreQuery();
+        highlight = Zeal::SearchQuery::fromString(m_lineEdit->text()).query();
 
     int from = 0;
     while (from < elided.size()) {

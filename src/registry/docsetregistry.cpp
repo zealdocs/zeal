@@ -117,13 +117,13 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         return;
 
     QList<SearchResult> results;
-    const SearchQuery query(rawQuery);
+    const SearchQuery query = SearchQuery::fromString(rawQuery);
 
     const QString preparedQuery = query.sanitizedQuery();
 
     for (Docset *docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
-        if (query.hasDocsetFilter() && !query.docsetPrefixMatch(docset->prefix))
+        if (query.hasKeywords() && !query.hasKeyword(docset->prefix))
             continue;
 
         QString queryStr;

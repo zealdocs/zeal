@@ -3,47 +3,68 @@
 using namespace Zeal;
 
 namespace {
-const char DOCSET_FILTER_SEPARATOR = ':';
-const char MULTIPLE_DOCSET_SEPARATOR = ',';
+const char prefixSeparator = ':';
+const char keywordSeparator = ',';
 }
 
-SearchQuery::SearchQuery(const QString &rawQuery)
+SearchQuery::SearchQuery()
 {
-    const int sepAt = rawQuery.indexOf(DOCSET_FILTER_SEPARATOR);
+}
+
+SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
+    m_query(query),
+    m_keywords(keywords),
+    m_keywordPrefix(keywords.join(keywordSeparator))
+{
+}
+
+SearchQuery SearchQuery::fromString(const QString &str)
+{
+    const int sepAt = str.indexOf(prefixSeparator);
     const int next = sepAt + 1;
 
-    if (sepAt >= 1 && (next >= rawQuery.size() || rawQuery.at(next) != DOCSET_FILTER_SEPARATOR)) {
-        m_rawDocsetFilter = rawQuery.leftRef(sepAt).toString().trimmed();
-        m_coreQuery = rawQuery.midRef(next).toString().trimmed();
-        m_docsetFilters = m_rawDocsetFilter.split(MULTIPLE_DOCSET_SEPARATOR);
+    QString query;
+    QStringList keywords;
+    if (sepAt >= 1 && (next >= str.size() || str.at(next) != prefixSeparator)) {
+        query = str.midRef(next).toString().trimmed();
+
+        const QString keywordStr = str.leftRef(sepAt).toString().trimmed();
+        keywords = keywordStr.split(keywordSeparator);
     } else {
-        m_coreQuery = rawQuery.trimmed();
+        query = str.trimmed();
     }
+
+    return SearchQuery(query, keywords);
 }
 
-bool SearchQuery::hasDocsetFilter() const
+QString SearchQuery::toString() const
 {
-    return !m_docsetFilters.isEmpty();
+    return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
 }
 
-bool SearchQuery::docsetPrefixMatch(const QString &docsetPrefix) const
+bool SearchQuery::hasKeywords() const
 {
-    for (const QString &docsetPrefixFilter : m_docsetFilters) {
-        if (docsetPrefix.contains(docsetPrefixFilter, Qt::CaseInsensitive))
+    return !m_keywords.isEmpty();
+}
+
+bool SearchQuery::hasKeyword(const QString &keyword) const
+{
+    for (const QString &kw : m_keywords) {
+        if (keyword.contains(kw, Qt::CaseInsensitive))
             return true;
     }
 
     return false;
 }
 
-int SearchQuery::docsetFilterSize() const
+int SearchQuery::keywordPrefixSize() const
 {
-    return m_rawDocsetFilter.size();
+    return m_keywordPrefix.size();
 }
 
 QString SearchQuery::sanitizedQuery() const
 {
-    QString q = m_coreQuery;
+    QString q = m_query;
     q.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
     q.replace(QStringLiteral("_"), QStringLiteral("\\_"));
     q.replace(QStringLiteral("%"), QStringLiteral("\\%"));
@@ -51,7 +72,7 @@ QString SearchQuery::sanitizedQuery() const
     return q;
 }
 
-QString SearchQuery::coreQuery() const
+QString SearchQuery::query() const
 {
-    return m_coreQuery;
+    return m_query;
 }

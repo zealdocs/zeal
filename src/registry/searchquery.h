@@ -11,6 +11,9 @@ namespace Zeal {
 class SearchQuery
 {
 public:
+    explicit SearchQuery();
+    explicit SearchQuery(const QString &query, const QStringList &keywords = QStringList());
+
     /// Creates a search query from a string. Single separator will be
     /// used to contstruct docset filter, but separator repeated twice
     /// will be left inside coreQuery part since double semicolon is
@@ -26,27 +29,30 @@ public:
     ///
     /// Multiple docsets are supported using the ',' character:
     ///   "java,android:setTypeFa #=> docsetFilters = ["java", "android"], coreQuery = "setTypeFa"
-    explicit SearchQuery(const QString &coreQuery);
+
+    static SearchQuery fromString(const QString &str);
+
+    QString toString() const;
 
     /// Returns true if there's a docset filter for the given query
-    bool hasDocsetFilter() const;
+    bool hasKeywords() const;
 
     /// Returns true if the docset prefix match the ones given on query
-    bool docsetPrefixMatch(const QString &docsetPrefix) const;
+    bool hasKeyword(const QString &keyword) const;
 
     /// Returns the docset filter raw size for the given query
-    int docsetFilterSize() const;
+    int keywordPrefixSize() const;
 
     /// Returns the core query, sanitized for use in SQL queries
     QString sanitizedQuery() const;
 
     /// Returns the query with any docset prefixes removed.
-    QString coreQuery() const;
+    QString query() const;
 
 private:
-    QString m_rawDocsetFilter;
-    QStringList m_docsetFilters;
-    QString m_coreQuery;
+    QString m_query;
+    QStringList m_keywords;
+    QString m_keywordPrefix;
 };
 
 } // namespace Zeal
