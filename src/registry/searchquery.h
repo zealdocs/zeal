@@ -34,6 +34,8 @@ public:
 
     QString toString() const;
 
+    bool isEmpty() const;
+
     /// Returns true if there's a docset filter for the given query
     bool hasKeywords() const;
 

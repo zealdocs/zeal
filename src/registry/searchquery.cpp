@@ -45,6 +45,11 @@ QString SearchQuery::toString() const
         return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
 }
 
+bool SearchQuery::isEmpty() const
+{
+    return m_query.isEmpty() && m_keywords.isEmpty();
+}
+
 bool SearchQuery::hasKeywords() const
 {
     return !m_keywords.isEmpty();
