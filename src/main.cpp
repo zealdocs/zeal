@@ -7,6 +7,7 @@
 #include <QLocalSocket>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QUrlQuery>
 
 #ifdef Q_OS_WIN32
 #include <QProxyStyle>
@@ -32,12 +33,27 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
                                         QObject::tr("Query <search term>."),
                                         QStringLiteral("term")));
+    parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
     parser.process(app);
 
-    return {
-        parser.isSet(QStringLiteral("force")),
-        Zeal::SearchQuery(parser.value(QStringLiteral("query")))
-    };
+    Zeal::SearchQuery query;
+
+    /// TODO: Support dash-feed:// protocol
+    const QString arg = parser.positionalArguments().value(0);
+    if (arg.startsWith(QLatin1String("dash://"))) {
+        query.setQuery(arg.mid(7));
+    } else if (arg.startsWith(QLatin1String("dash-plugin://"))) {
+        QUrlQuery urlQuery(arg.mid(14));
+
+        const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
+        if (!keys.isEmpty())
+            query.setKeywords(keys.split(QLatin1Char(',')));
+        query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
+    } else {
+        query.setQuery(parser.value(QStringLiteral("query")));
+    }
+
+    return CommandLineParameters{parser.isSet(QStringLiteral("force")), query};
 }
 
 /// TODO: Verify if this bug still exists in Qt 5.2+
