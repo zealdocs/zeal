@@ -39,7 +39,10 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
 QString SearchQuery::toString() const
 {
-    return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
+    if (m_keywords.isEmpty())
+        return m_query;
+    else
+        return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
 }
 
 bool SearchQuery::hasKeywords() const
