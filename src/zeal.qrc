@@ -551,5 +551,7 @@
         <file>icons/type/Word@2x.png</file>
         <file>icons/logo/64x64.png</file>
         <file>icons/logo/128x128.png</file>
+        <file>icons/logo/icon.png</file>
+        <file>icons/logo/icon@2x.png</file>
     </qresource>
 </RCC>

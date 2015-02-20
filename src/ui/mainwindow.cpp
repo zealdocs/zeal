@@ -316,7 +316,7 @@ QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
     const Docset * const docset = m_application->docsetRegistry()->docset(docsetName);
     if (!docset)
-        return QIcon();
+        return QIcon(QStringLiteral(":/icons/logo/icon.png"));
     return docset->icon();
 }
 
