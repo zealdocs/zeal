@@ -184,8 +184,10 @@ QKeySequence QxtGlobalShortcut::shortcut() const
 bool QxtGlobalShortcut::setShortcut(const QKeySequence &shortcut)
 {
     Q_D(QxtGlobalShortcut);
-    if (d->key != 0)
-        d->unsetShortcut();
+    if (d->key != 0 && !d->unsetShortcut())
+        return false;
+    if (shortcut.isEmpty())
+        return true;
     return d->setShortcut(shortcut);
 }
 
