@@ -60,6 +60,8 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
 
     CommandLineParameters clParams;
     clParams.force = parser.isSet(QStringLiteral("force"));
+
+#ifdef Q_OS_WIN32
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
     clParams.unregisterProtocolHandlers = parser.isSet(QStringLiteral("unregister"));
 
@@ -67,6 +69,7 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
         QTextStream(stderr) << QObject::tr("Parameter conflict: --register and --unregister.\n");
         ::exit(EXIT_FAILURE);
     }
+#endif
 
     if (parser.isSet(QStringLiteral("query"))) {
         clParams.query.setQuery(parser.value(QStringLiteral("query")));
