@@ -11,6 +11,7 @@
 
 #ifdef Q_OS_WIN32
 #include <QProxyStyle>
+#include <QSettings>
 #include <QStyleOption>
 #endif
 
@@ -18,6 +19,10 @@ struct CommandLineParameters
 {
     bool force;
     Zeal::SearchQuery query;
+#ifdef Q_OS_WIN32
+    bool registerProtocolHandlers;
+    bool unregisterProtocolHandlers;
+#endif
 };
 
 QString stripParameterUrl(const QString &url, const QString &scheme)
@@ -44,34 +49,89 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
                                         QObject::tr("[DEPRECATED] Query <search term>."),
                                         QStringLiteral("term")));
+#ifdef Q_OS_WIN32
+    parser.addOption(QCommandLineOption({QStringLiteral("register")},
+                                        QObject::tr("Register protocol handlers")));
+    parser.addOption(QCommandLineOption({QStringLiteral("unregister")},
+                                        QObject::tr("Unregister protocol handlers")));
+#endif
     parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
     parser.process(app);
 
-    Zeal::SearchQuery query;
+    CommandLineParameters clParams;
+    clParams.force = parser.isSet(QStringLiteral("force"));
+    clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
+    clParams.unregisterProtocolHandlers = parser.isSet(QStringLiteral("unregister"));
+
+    if (clParams.registerProtocolHandlers && clParams.unregisterProtocolHandlers) {
+        QTextStream(stderr) << QObject::tr("Parameter conflict: --register and --unregister.\n");
+        ::exit(EXIT_FAILURE);
+    }
 
     if (parser.isSet(QStringLiteral("query"))) {
-        query.setQuery(parser.value(QStringLiteral("query")));
+        clParams.query.setQuery(parser.value(QStringLiteral("query")));
     } else {
         /// TODO: Support dash-feed:// protocol
         const QString arg = parser.positionalArguments().value(0);
         if (arg.startsWith(QLatin1String("dash:"))) {
-            query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
+            clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
         } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
             const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
             const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
             if (!keys.isEmpty())
-                query.setKeywords(keys.split(QLatin1Char(',')));
-            query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
+                clParams.query.setKeywords(keys.split(QLatin1Char(',')));
+            clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
         } else {
-            query.setQuery(arg);
+            clParams.query.setQuery(arg);
         }
     }
 
-    return CommandLineParameters{parser.isSet(QStringLiteral("force")), query};
+    return clParams;
+}
+
+#ifdef Q_OS_WIN32
+void registerProtocolHandler(const QString &scheme, const QString &description)
+{
+    const QString appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
+    const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes\\") + scheme;
+
+    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+
+    reg->setValue(QStringLiteral("Default"), description);
+    reg->setValue(QStringLiteral("URL Protocol"), QString());
+
+    reg->beginGroup(QStringLiteral("DefaultIcon"));
+    reg->setValue(QStringLiteral("Default"), QString("%1,1").arg(appPath));
+    reg->endGroup();
+
+    reg->beginGroup(QStringLiteral("shell"));
+    reg->beginGroup(QStringLiteral("open"));
+    reg->beginGroup(QStringLiteral("command"));
+    reg->setValue(QStringLiteral("Default"), appPath + QLatin1String(" %1"));
+}
+
+void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool force = false)
+{
+    const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
+    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+
+    const QStringList groups = reg->childGroups();
+    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
+        if (force || !groups.contains(it.key()))
+            registerProtocolHandler(it.key(), it.value());
+    }
+}
+
+void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
+{
+    const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
+    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+
+    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it)
+        reg->remove(it.key());
 }
 
 /// TODO: Verify if this bug still exists in Qt 5.2+
-#ifdef Q_OS_WIN32
 class ZealProxyStyle : public QProxyStyle
 {
 public:
@@ -99,11 +159,26 @@ int main(int argc, char *argv[])
 
     QApplication qapp(argc, argv);
 
+    const CommandLineParameters clParams = parseCommandLine(qapp);
+
 #ifdef Q_OS_WIN32
+    const static QHash<QString, QString> protocols = {
+        {QStringLiteral("dash"), QStringLiteral("Dash Protocol")},
+        {QStringLiteral("dash-plugin"), QStringLiteral("Dash Plugin Protocol")}
+    };
+
+    if (clParams.unregisterProtocolHandlers) {
+        unregisterProtocolHandlers(protocols);
+        ::exit(EXIT_SUCCESS);
+    } else {
+        registerProtocolHandlers(protocols, clParams.registerProtocolHandlers);
+        if (clParams.registerProtocolHandlers)
+            ::exit(EXIT_SUCCESS);
+    }
+
     qapp.setStyle(new ZealProxyStyle());
 #endif
 
-    const CommandLineParameters clParams = parseCommandLine(qapp);
 
     // Detect already running instance and optionally pass a search query to it.
     if (!clParams.force) {
