@@ -44,10 +44,16 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
     } else {
         /// TODO: Support dash-feed:// protocol
         const QString arg = parser.positionalArguments().value(0);
-        if (arg.startsWith(QLatin1String("dash://"))) {
-            query.setQuery(arg.mid(7));
-        } else if (arg.startsWith(QLatin1String("dash-plugin://"))) {
-            QUrlQuery urlQuery(arg.mid(14));
+        if (arg.startsWith(QLatin1String("dash:"))) {
+            const QStringRef ref = arg.midRef(5);
+            query.setQuery(ref.startsWith(QLatin1String("//"))
+                           ? ref.mid(2).toString()
+                           : ref.toString());
+        } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
+            const QStringRef ref = arg.midRef(12);
+            const QUrlQuery urlQuery(ref.startsWith(QLatin1String("//"))
+                               ? ref.mid(2).toString()
+                               : ref.toString());
 
             const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
             if (!keys.isEmpty())
