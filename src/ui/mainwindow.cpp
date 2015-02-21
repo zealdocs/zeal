@@ -29,7 +29,7 @@
 #include <QWebFrame>
 #endif
 
-#include <QxtGlobalShortcut>
+#include <qxtglobalshortcut.h>
 
 #ifdef USE_LIBAPPINDICATOR
 #include <gtk/gtk.h>
