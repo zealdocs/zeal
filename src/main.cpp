@@ -20,6 +20,16 @@ struct CommandLineParameters
     Zeal::SearchQuery query;
 };
 
+QString stripParameterUrl(const QString &url, const QString &scheme)
+{
+    QStringRef ref = url.midRef(scheme.length() + 1);
+    if (ref.startsWith(QLatin1String("//")))
+        ref = ref.mid(2);
+    if (ref.endsWith(QLatin1Char('/')))
+        ref = ref.left(ref.length() - 1);
+    return ref.toString();
+}
+
 CommandLineParameters parseCommandLine(const QCoreApplication &app)
 {
     QCommandLineParser parser;
@@ -45,16 +55,9 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
         /// TODO: Support dash-feed:// protocol
         const QString arg = parser.positionalArguments().value(0);
         if (arg.startsWith(QLatin1String("dash:"))) {
-            const QStringRef ref = arg.midRef(5);
-            query.setQuery(ref.startsWith(QLatin1String("//"))
-                           ? ref.mid(2).toString()
-                           : ref.toString());
+            query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
         } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
-            const QStringRef ref = arg.midRef(12);
-            const QUrlQuery urlQuery(ref.startsWith(QLatin1String("//"))
-                               ? ref.mid(2).toString()
-                               : ref.toString());
-
+            const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
             const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
             if (!keys.isEmpty())
                 query.setKeywords(keys.split(QLatin1Char(',')));
