@@ -6,11 +6,13 @@
 #include "registry/searchquery.h"
 #include "ui/mainwindow.h"
 
+#include <QCoreApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
+#include <QSysInfo>
 #include <QThread>
 
 using namespace Zeal;
@@ -114,8 +116,14 @@ void Application::extract(const QString &filePath, const QString &destination, c
 
 QNetworkReply *Application::download(const QUrl &url)
 {
+    const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
+            .arg(QCoreApplication::applicationVersion())
+            .arg(QSysInfo::prettyProductName())
+            .arg(QSysInfo::currentCpuArchitecture())
+            .arg(qVersion());
+
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Zeal/") + QStringLiteral(ZEAL_VERSION));
+    request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
     return m_networkManager->get(request);
 }
 
