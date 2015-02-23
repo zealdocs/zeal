@@ -23,7 +23,10 @@
 
 #include "searchmodel.h"
 
-#include "registry/docset.h"
+#include "core/application.h"
+#include "core/lcs.h"
+#include "registry/docsetregistry.h"
+#include "registry/docsettoken.h"
 
 #include <QDir>
 
@@ -62,6 +65,10 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         if (index.column() != 0)
             return QVariant();
         return QIcon(QString("typeIcon:%1.png").arg(item->type));
+
+    case Roles::HlPositionsRole: 
+        // Return position of characters to display in bold
+        return listHlPositions(*item);
 
     default:
         return QVariant();
@@ -103,4 +110,40 @@ void SearchModel::setResults(const QList<SearchResult> &results)
     m_dataList = results;
     endResetModel();
     emit queryCompleted();
+}
+
+QList<QVariant> SearchModel::listHlPositions(const SearchResult &result) const
+{
+    QList<QVariant> hlPositions;
+    QString query = result.query.toLower();
+    Core::LCS lcs;
+    int offset = result.name.length() + 2; // " ("
+
+    switch (result.match) {
+    case SearchResult::NameMatch:
+        lcs = Core::LCS(result.name.toLower(), query);
+        for (const int i: lcs.subsequencePositions(0))
+            hlPositions << i;
+        break;
+    case SearchResult::ParentNameMatch:
+        lcs = Core::LCS(result.parentName.toLower(), query);
+        for (const int i: lcs.subsequencePositions(0))
+            hlPositions << i + offset;
+        break;
+    case SearchResult::BothMatch: 
+        {
+            DocsetToken queryToken(query);
+            lcs = Core::LCS(result.name.toLower(), queryToken.name());
+            for (const int i: lcs.subsequencePositions(0))
+                hlPositions << i;
+            lcs = Core::LCS(result.parentName.toLower(), queryToken.parentName());
+            for (const int i: lcs.subsequencePositions(0))
+                hlPositions << i + offset;
+            break;
+        }
+    case SearchResult::NoMatch:
+        break;
+    }
+
+    return hlPositions;
 }

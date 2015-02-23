@@ -22,6 +22,8 @@
 ****************************************************************************/
 
 #include "docset.h"
+#include "docsettoken.h"
+#include "zrelevancy.h"
 
 #include "searchquery.h"
 #include "util/plist.h"
@@ -32,6 +34,7 @@
 #include <QJsonObject>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlDriver>
 #include <QUrl>
 #include <QVariant>
 
@@ -120,6 +123,11 @@ Docset::Docset(const QString &path) :
         qWarning("SQL Error: %s", qPrintable(db.lastError().text()));
         return;
     }
+
+    // Load sqlite extension
+    QVariant v = db.driver()->handle();
+    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
+    sqlite3_extension_init(handle, NULL, NULL);
 
     m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 
@@ -245,64 +253,48 @@ QList<SearchResult> Docset::search(const QString &query) const
 
     QString queryStr;
 
-    bool withSubStrings = false;
-    // %.%1% for long Django docset values like django.utils.http
-    // %::%1% for long C++ docset values like std::set
-    // %/%1% for long Go docset values like archive/tar
-    QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (results.size() < 100) {
-        QString curQuery = sanitizedQuery;
-        QString notQuery; // don't return the same result twice
-        if (withSubStrings) {
-            // if less than 100 found starting with query, search all substrings
-            curQuery = QLatin1Char('%') + sanitizedQuery;
-            // don't return 'starting with' results twice
-            if (m_type == Docset::Type::Dash)
-                notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("name", sanitizedQuery));
-            else
-                notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
-        }
-        if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, type, path "
-                               "    FROM searchIndex "
-                               "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY name COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("name", curQuery));
-        } else {
-            queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
-                               "    FROM ztoken "
-                               "JOIN ztokenmetainformation "
-                               "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath "
-                               "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                               "JOIN ztokentype "
-                               "    ON ztoken.ztokentype = ztokentype.z_pk "
-                               "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY ztokenname COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
+    // Use ZRELEVANCY sqlite extension to permit fast fuzzy searching
+    if (m_type == Docset::Type::Dash) {
+        queryStr = QStringLiteral("SELECT name, type, path, ZRELEVANCY(name, '%1') as zrelevancy "
+                                  "    FROM searchIndex "
+                                  "WHERE zrelevancy > 0 "
+                                  "ORDER BY zrelevancy DESC, LENGTH(name), name COLLATE NOCASE ASC "
+                                  "LIMIT %2").arg(sanitizedQuery).arg(100);
+    } else if (m_type == Docset::Type::ZDash) {
+        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, ZRELEVANCY(ztokenname, '%1') as zrelevancy, zanchor "
+                                  "   FROM ztoken "
+                                  "JOIN ztokenmetainformation "
+                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "JOIN zfilepath "
+                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk " 
+                                  "JOIN ztokentype "
+                                  "    ON ztoken.ztokentype = ztokentype.z_pk "
+                                  "WHERE zrelevancy > 0 "
+                                  "ORDER BY zrelevancy DESC, LENGTH(ztokenname) ASC, ztokenname COLLATE NOCASE ASC "
+                                  "LIMIT %2").arg(sanitizedQuery).arg(100);
+    }
+    
+    QSqlQuery sqlQuery(queryStr, database());
+    while (sqlQuery.next()) {
+        QString itemName = sqlQuery.value(0).toString();
+        QString parentName;
+
+        QString path = sqlQuery.value(2).toString();
+        if (m_type == Docset::Type::ZDash) {
+            const QString anchor = sqlQuery.value(4).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
         }
 
-        QSqlQuery query(queryStr, database());
-        while (query.next()) {
-            const QString itemName = query.value(0).toString();
-            QString path = query.value(2).toString();
-            if (m_type == Docset::Type::ZDash) {
-                const QString anchor = query.value(3).toString();
-                if (!anchor.isEmpty())
-                    path += QLatin1Char('#') + anchor;
-            }
+        int zrelevancy = sqlQuery.value(3).toInt();
 
-            /// TODO: Third should be type
-            results.append(SearchResult{itemName, QString(),
-                                        parseSymbolType(query.value(1).toString()),
-                                        const_cast<Docset *>(this), path, sanitizedQuery});
-        }
-
-        if (withSubStrings)
-            break;
-        withSubStrings = true;  // try again searching for substrings
+        normalizeName(itemName, parentName);
+        /// TODO: Third should be type
+        results.append(SearchResult{itemName, parentName,
+                                    parseSymbolType(sqlQuery.value(1).toString()),
+                                    const_cast<Docset *>(this), path, sanitizedQuery,
+                                    ZRelevancy::decodeRelevancy(zrelevancy),
+                                    ZRelevancy::decodeMatchType(zrelevancy)});
     }
 
     return results;
@@ -339,16 +331,19 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
 
     while (query.next()) {
-        const QString sectionName = query.value(0).toString();
+        QString sectionName = query.value(0).toString();
+        QString parentName;
         QString sectionPath = query.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
             sectionPath += QLatin1Char('#');
             sectionPath += query.value(3).toString();
         }
 
-        results.append(SearchResult{sectionName, QString(),
+        normalizeName(sectionName, parentName);
+
+        results.append(SearchResult{sectionName, parentName,
                                     parseSymbolType(query.value(1).toString()),
-                                    const_cast<Docset *>(this), sectionPath, QString()});
+                                    const_cast<Docset *>(this), sectionPath, QString(), 0, SearchResult::MatchType::NoMatch});
     }
 
     if (results.size() == 1)
@@ -360,6 +355,13 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 QSqlDatabase Docset::database() const
 {
     return QSqlDatabase::database(m_name, true);
+}
+
+void Docset::normalizeName(QString &name, QString &parentName) const
+{
+    DocsetToken token(name);
+    name = token.name();
+    parentName = token.parentName();
 }
 
 void Docset::loadMetadata()

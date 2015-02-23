@@ -25,13 +25,19 @@
 
 using namespace Zeal;
 
+
 bool SearchResult::operator<(const SearchResult &r) const
 {
-    const bool lhsStartsWithQuery = name.startsWith(query, Qt::CaseInsensitive);
-    const bool rhsStartsWithQuery = r.name.startsWith(query, Qt::CaseInsensitive);
+    if (relevancy != r.relevancy)
+        return relevancy > r.relevancy;
 
-    if (lhsStartsWithQuery != rhsStartsWithQuery)
-        return lhsStartsWithQuery > rhsStartsWithQuery;
+    if (match != r.match)
+        return match > r.match;
+
+    const int lhsLength = name.length() + parentName.length();
+    const int rhsLength = r.name.length() + r.parentName.length();
+    if (lhsLength != rhsLength)
+        return lhsLength < rhsLength;
 
     const int namesCmp = QString::compare(name, r.name, Qt::CaseInsensitive);
     if (namesCmp)

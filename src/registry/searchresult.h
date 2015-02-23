@@ -43,6 +43,16 @@ struct SearchResult
     /// TODO: Remove
     QString query;
 
+    double relevancy;
+
+    enum MatchType {
+        NoMatch = 0,
+        ParentNameMatch,
+        NameMatch,
+        BothMatch
+    };
+    MatchType match;
+
     bool operator<(const SearchResult &r) const;
 };
 

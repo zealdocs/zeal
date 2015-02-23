@@ -17,6 +17,7 @@ portable {
 
 VERSION = 0.2.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
+DEFINES += SQLITE_CORE
 
 HEADERS += \
     util/version.h \
@@ -34,6 +35,7 @@ include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 RESOURCES += \
     resources/zeal.qrc
+    LIBS += -lsqlite3
 
 DESTDIR = $$BUILD_ROOT/bin
 
