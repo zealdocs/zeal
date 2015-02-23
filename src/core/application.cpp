@@ -118,8 +118,13 @@ QNetworkReply *Application::download(const QUrl &url)
 {
     const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
             .arg(QCoreApplication::applicationVersion())
+#if QT_VERSION >= 0x050400
             .arg(QSysInfo::prettyProductName())
             .arg(QSysInfo::currentCpuArchitecture())
+#else
+            .arg("uknown-product")
+            .arg("unknown-arch")
+#endif
             .arg(qVersion());
 
     QNetworkRequest request(url);
