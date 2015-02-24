@@ -9,13 +9,11 @@ class DocsetToken
 {
 public:
     DocsetToken(const QString &token);
-    QString name() const;
-    QString parentName() const;
+    QString full;
+    QString name;
+    QString parentName;
 
 private:
-    QString m_name;
-    QString m_parentName;
-
     QString stripParens(const QString &token) const;
 };
 

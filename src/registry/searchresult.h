@@ -24,6 +24,9 @@
 #ifndef SEARCHRESULT_H
 #define SEARCHRESULT_H
 
+#include "docsettoken.h"
+#include "searchrelevancy.h"
+
 #include <QString>
 
 namespace Zeal {
@@ -32,26 +35,16 @@ class Docset;
 
 struct SearchResult
 {
-    QString name;
-    QString parentName;
+    DocsetToken token;
+    DocsetToken query;
+
     QString type;
 
     Docset *docset;
 
     QString path;
 
-    /// TODO: Remove
-    QString query;
-
-    double relevancy;
-
-    enum MatchType {
-        NoMatch = 0,
-        ParentNameMatch,
-        NameMatch,
-        BothMatch
-    };
-    MatchType match;
+    SearchRelevancy searchRelevancy;
 
     bool operator<(const SearchResult &r) const;
 };

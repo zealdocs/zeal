@@ -23,7 +23,6 @@
 
 #include "docset.h"
 #include "docsettoken.h"
-#include "zrelevancy.h"
 
 #include "searchquery.h"
 #include "util/plist.h"
@@ -34,7 +33,6 @@
 #include <QJsonObject>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QSqlDriver>
 #include <QUrl>
 #include <QVariant>
 
@@ -123,11 +121,6 @@ Docset::Docset(const QString &path) :
         qWarning("SQL Error: %s", qPrintable(db.lastError().text()));
         return;
     }
-
-    // Load sqlite extension
-    QVariant v = db.driver()->handle();
-    sqlite3 *handle = *static_cast<sqlite3 **>(v.data());
-    sqlite3_extension_init(handle, NULL, NULL);
 
     m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 
@@ -245,40 +238,40 @@ QList<SearchResult> Docset::search(const QString &query) const
 {
     QList<SearchResult> results;
 
-    const SearchQuery searchQuery = SearchQuery::fromString(query);
-    const QString sanitizedQuery = searchQuery.sanitizedQuery();
+    const SearchQuery searchQuery = SearchQuery::fromString(query.toLower());
 
     if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
         return results;
 
-    QString queryStr;
+    const DocsetToken queryToken(searchQuery.query());
+    const QString queryPattern = searchQuery.sanitizedQuery();
 
-    // Use ZRELEVANCY sqlite extension to permit fast fuzzy searching
+    // Select possible search results
+    QString queryStr;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path, ZRELEVANCY(name, '%1') as zrelevancy "
-                                  "    FROM searchIndex "
-                                  "WHERE zrelevancy > 0 "
-                                  "ORDER BY zrelevancy DESC, LENGTH(name), name COLLATE NOCASE ASC "
-                                  "LIMIT %2").arg(sanitizedQuery).arg(100);
+        queryStr = QStringLiteral("SELECT name, type, path "
+                                  "FROM searchIndex "
+                                  "WHERE name LIKE :queryPattern ESCAPE '\\' ");
     } else if (m_type == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, ZRELEVANCY(ztokenname, '%1') as zrelevancy, zanchor "
-                                  "   FROM ztoken "
+        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
+                                  "FROM ztoken "
                                   "JOIN ztokenmetainformation "
                                   "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                   "JOIN zfilepath "
                                   "    ON ztokenmetainformation.zfile = zfilepath.z_pk " 
                                   "JOIN ztokentype "
                                   "    ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE zrelevancy > 0 "
-                                  "ORDER BY zrelevancy DESC, LENGTH(ztokenname) ASC, ztokenname COLLATE NOCASE ASC "
-                                  "LIMIT %2").arg(sanitizedQuery).arg(100);
+                                  "WHERE ztokenname LIKE :queryPattern ESCAPE '\\' ");
     }
-    
-    QSqlQuery sqlQuery(queryStr, database());
-    while (sqlQuery.next()) {
-        QString itemName = sqlQuery.value(0).toString();
-        QString parentName;
 
+    QSqlQuery sqlQuery(database());
+    sqlQuery.prepare(queryStr);
+    sqlQuery.bindValue(":queryPattern", queryPattern);
+    sqlQuery.exec();
+
+    while (sqlQuery.next()) {
+        DocsetToken token(sqlQuery.value(0).toString());
+        QString type = parseSymbolType(sqlQuery.value(1).toString());
         QString path = sqlQuery.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
             const QString anchor = sqlQuery.value(4).toString();
@@ -286,15 +279,13 @@ QList<SearchResult> Docset::search(const QString &query) const
                 path += QLatin1Char('#') + anchor;
         }
 
-        int zrelevancy = sqlQuery.value(3).toInt();
-
-        normalizeName(itemName, parentName);
-        /// TODO: Third should be type
-        results.append(SearchResult{itemName, parentName,
-                                    parseSymbolType(sqlQuery.value(1).toString()),
-                                    const_cast<Docset *>(this), path, sanitizedQuery,
-                                    ZRelevancy::decodeRelevancy(zrelevancy),
-                                    ZRelevancy::decodeMatchType(zrelevancy)});
+        // Only actually return relevant ones
+        SearchRelevancy searchRelevancy = SearchRelevancy::fromQuery(token, queryToken);
+        if (searchRelevancy.relevancy > 0) {
+            results.append(SearchResult{token, queryToken, type,
+                    const_cast<Docset *>(this), path,
+                    searchRelevancy});
+        }
     }
 
     return results;
@@ -330,20 +321,21 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 
     QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
 
+    DocsetToken queryToken(QString(""));
     while (query.next()) {
-        QString sectionName = query.value(0).toString();
-        QString parentName;
+        DocsetToken token(query.value(0).toString());
+        QString type = parseSymbolType(query.value(1).toString());
         QString sectionPath = query.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
-            sectionPath += QLatin1Char('#');
-            sectionPath += query.value(3).toString();
+            const QString anchor = query.value(3).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
         }
 
-        normalizeName(sectionName, parentName);
-
-        results.append(SearchResult{sectionName, parentName,
-                                    parseSymbolType(query.value(1).toString()),
-                                    const_cast<Docset *>(this), sectionPath, QString(), 0, SearchResult::MatchType::NoMatch});
+        SearchRelevancy searchRelevancy = SearchRelevancy::fromQuery(token, queryToken);
+        results.append(SearchResult{token, queryToken, type,
+                const_cast<Docset *>(this), sectionPath,
+                searchRelevancy});
     }
 
     if (results.size() == 1)
@@ -355,13 +347,6 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 QSqlDatabase Docset::database() const
 {
     return QSqlDatabase::database(m_name, true);
-}
-
-void Docset::normalizeName(QString &name, QString &parentName) const
-{
-    DocsetToken token(name);
-    name = token.name();
-    parentName = token.parentName();
 }
 
 void Docset::loadMetadata()

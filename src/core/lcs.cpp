@@ -18,7 +18,10 @@ LCS::LCS(const QString &a, const QString &b):
     
     int **lengthMatrix = createLengthMatrix();
     fillLengthMatrix(lengthMatrix);
-    m_subsequence = backtrackLengthMatrix(lengthMatrix, m_a.length(), m_b.length());
+
+    if (lengthMatrix[m_a.length()][m_b.length()] > 0)
+        m_subsequence = backtrackLengthMatrix(lengthMatrix, m_a.length(), m_b.length());
+
     freeLengthMatrix(lengthMatrix);
 }
 
@@ -54,10 +57,15 @@ double LCS::calcSpread(int arg) const
         return 0;
     QString target = arg == 0 ? m_a : m_b;
 
+    // handle cases like "*S*VGs*tring*" being identified as best subsequence 
+    // for "string"
+    if (target.indexOf(m_subsequence) != -1)
+        return 1;
+
     int start = target.indexOf(m_subsequence[0]);
     int end = start;
     for (int i = start, j = 0; j < m_subsequence.length(); i++) {
-        if (target[i] == m_subsequence[j]){
+        if (target[i] == m_subsequence[j]) {
             end = i;
             j++;
         }
@@ -73,10 +81,18 @@ QList<int> LCS::subsequencePositions(int arg) const
     QString target = arg == 0 ? m_a : m_b;
     QList<int> positions;
 
-    for (int i = 0, j = 0; j < m_subsequence.length(); i++) {
-        if (target[i] == m_subsequence[j]){
-            positions.append(i);
-            j++;
+    int start = target.indexOf(m_subsequence);
+    // handle cases like "*S*VGs*tring*"
+    if (start != -1) {
+        for (int j = 0; j < m_subsequence.length(); j++) {
+            positions.append(start + j);
+        }
+    } else {
+        for (int i = 0, j = 0; j < m_subsequence.length(); i++) {
+            if (target[i] == m_subsequence[j]) {
+                positions.append(i);
+                j++;
+            }
         }
     }
 
