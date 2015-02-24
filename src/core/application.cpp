@@ -118,8 +118,33 @@ QNetworkReply *Application::download(const QUrl &url)
 {
     const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
             .arg(QCoreApplication::applicationVersion())
+            /// TODO: [Qt 5.4] Remove #else block
+#if QT_VERSION >= 0x050400
             .arg(QSysInfo::prettyProductName())
             .arg(QSysInfo::currentCpuArchitecture())
+#else
+#if defined(Q_OS_LINUX)
+            .arg(QStringLiteral("Linux"))
+#elif defined(Q_OS_WIN32)
+            .arg(QStringLiteral("Windows"))
+#elif defined(Q_OS_OSX)
+            .arg(QStringLiteral("Mac OS X"))
+#else
+            .arg(QStringLiteral("unknown"))
+#endif // Q_OS_*
+
+
+#if defined(Q_PROCESSOR_ARM)
+            .arg(QStringLiteral("arm"))
+#elif defined(Q_PROCESSOR_X86_32)
+            .arg(QStringLiteral("i386"))
+#elif defined(Q_PROCESSOR_X86_64)
+            .arg(QStringLiteral("x86_64"))
+#else
+            .arg(QStringLiteral("unknown"))
+#endif // Q_PROCESSOR_*
+
+#endif
             .arg(qVersion());
 
     QNetworkRequest request(url);
