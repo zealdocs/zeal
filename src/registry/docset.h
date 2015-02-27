@@ -25,8 +25,10 @@ public:
     ~Docset() override;
 
     bool isValid() const;
+    bool hasMetadata() const;
 
     QString name() const;
+    QString title() const;
     Docset::Type type() const;
     QString path() const;
     QString documentPath() const;
@@ -58,8 +60,10 @@ private:
     static QString parseSymbolType(const QString &str);
 
     bool m_isValid = false;
+    bool m_hasMetadata = false;
 
     QString m_name;
+    QString m_title;
     Docset::Type m_type;
     QString m_path;
     QIcon m_icon;

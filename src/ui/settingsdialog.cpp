@@ -341,11 +341,12 @@ void SettingsDialog::updateFeedDocsets()
     bool missingMetadata = false;
 
     for (const Docset * const docset : m_docsetRegistry->docsets()) {
-        const DocsetMetadata metadata = docset->metadata;
-        if (metadata.source().isEmpty())
+        if (!docset->hasMetadata()) {
             missingMetadata = true;
+            continue;
+        }
 
-        const QUrl feedUrl = metadata.feedUrl();
+        const QUrl feedUrl = docset->metadata.feedUrl();
         // Skip not manually added feeds
         if (feedUrl.isEmpty())
             continue;
@@ -353,11 +354,11 @@ void SettingsDialog::updateFeedDocsets()
         QNetworkReply *reply = startDownload(feedUrl);
         reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
 
-        QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+        QListWidgetItem *listItem = findDocsetListItem(docset->title());
         if (listItem)
             reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(listItem));
 
-        reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
+        reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(docset->metadata));
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
     }
 

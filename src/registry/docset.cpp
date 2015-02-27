@@ -15,8 +15,17 @@ Docset::Docset(const QString &path) :
     if (!dir.exists())
         return;
 
-    /// TODO: Use metadata
-    m_name = dir.dirName().replace(QStringLiteral(".docset"), QString());
+    // Read metadata
+    if (dir.exists(QStringLiteral("meta.json"))) {
+        /// TODO: Validate metadata
+        metadata = DocsetMetadata::fromFile(dir.filePath(QStringLiteral("meta.json")));
+        m_name = metadata.name();
+        m_title = metadata.title();
+        m_hasMetadata = true;
+    } else {
+        m_name = m_title = dir.dirName().remove(QStringLiteral(".docset"));
+        m_title = m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
+    }
 
     /// TODO: Report errors here and below
     if (!dir.cd(QStringLiteral("Contents")))
@@ -28,9 +37,6 @@ Docset::Docset(const QString &path) :
         info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
     else
         return;
-
-    // Read metadata
-    metadata = DocsetMetadata::fromFile(path + QStringLiteral("/meta.json"));
 
     if (info.family == QStringLiteral("cheatsheet"))
         m_name = QString(QStringLiteral("%1_cheats")).arg(m_name);
@@ -69,9 +75,19 @@ bool Docset::isValid() const
     return m_isValid;
 }
 
+bool Docset::hasMetadata() const
+{
+    return m_hasMetadata;
+}
+
 QString Docset::name() const
 {
     return m_name;
+}
+
+QString Docset::title() const
+{
+    return m_title;
 }
 
 Docset::Type Docset::type() const

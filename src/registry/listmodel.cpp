@@ -44,7 +44,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         switch (indexLevel(index)) {
         case Level::DocsetLevel:
             if (!index.column())
-                return m_docsetRegistry->docset(index.row())->metadata.title();
+                return m_docsetRegistry->docset(index.row())->title();
             else
                 return m_docsetRegistry->docset(index.row())->indexFilePath();
         case Level::GroupLevel: {
