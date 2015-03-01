@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QTemporaryFile>
 #include <QWebSettings>
+#include <QUrl>
 
 #include <QtConcurrent/QtConcurrent>
 

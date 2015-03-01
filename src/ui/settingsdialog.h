@@ -6,12 +6,12 @@
 #include <QDialog>
 #include <QHash>
 #include <QMap>
-#include <QUrl>
 
 class QAbstractButton;
 class QListWidgetItem;
 class QNetworkReply;
 class QTemporaryFile;
+class QUrl;
 
 namespace Ui {
 class SettingsDialog;
