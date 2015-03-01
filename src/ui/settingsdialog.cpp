@@ -92,13 +92,13 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     }
 
     const QDir dataDir(m_application->settings()->docsetPath);
-    const QString docsetPath = dataDir.absoluteFilePath(docsetName + QStringLiteral(".docset"));
+    const QString docsetPath = dataDir.absoluteFilePath(docsetName + QLatin1String(".docset"));
 
     // Write metadata about docset
     DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
               : m_userFeeds[docsetName];
-    metadata.toFile(docsetPath + QStringLiteral("/meta.json"));
+    metadata.toFile(docsetPath + QLatin1String("/meta.json"));
 
     m_docsetRegistry->addDocset(docsetPath);
 
@@ -114,9 +114,9 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
 
 void SettingsDialog::extractionError(const QString &filePath, const QString &errorString)
 {
-    QString docsetName = QFileInfo(filePath).baseName() + QStringLiteral(".docset");
-    QMessageBox::warning(this, QStringLiteral("Extraction Error"),
-                         QString(QStringLiteral("Cannot extract docset '%1': %2")).arg(docsetName).arg(errorString));
+    const QString docsetName = QFileInfo(filePath).baseName() + QLatin1String(".docset");
+    QMessageBox::warning(this, tr("Extraction Error"),
+                         QString(tr("Cannot extract docset <b>%1</b>: %2")).arg(docsetName, errorString));
     /// TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
 }
@@ -156,7 +156,7 @@ void SettingsDialog::downloadCompleted()
 
     if (reply->error() != QNetworkReply::NoError) {
         if (reply->error() != QNetworkReply::OperationCanceledError)
-            QMessageBox::warning(this, QStringLiteral("Network Error"), reply->errorString());
+            QMessageBox::warning(this, tr("Network Error"), reply->errorString());
 
         return;
     }
@@ -188,9 +188,8 @@ void SettingsDialog::downloadCompleted()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            QMessageBox::warning(this, QStringLiteral("Error"),
-                                 QStringLiteral("Corrupted docset list: ")
-                                 + jsonError.errorString());
+            QMessageBox::warning(this, tr("Error"),
+                                 tr("Corrupted docset list: ") + jsonError.errorString());
             break;
         }
 
@@ -208,7 +207,7 @@ void SettingsDialog::downloadCompleted()
         DocsetMetadata oldMetadata;
 
         if (metadata.urls().isEmpty()) {
-            QMessageBox::critical(this, "Zeal", "Could not read docset feed!");
+            QMessageBox::critical(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
             break;
         }
 
@@ -244,7 +243,7 @@ void SettingsDialog::downloadCompleted()
 
         m_tmpFiles.insert(metadata.name(), tmpFile);
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
-                               metadata.name() + QStringLiteral(".docset"));
+                               metadata.name() + QLatin1String(".docset"));
         break;
     }
     }
@@ -332,7 +331,7 @@ void SettingsDialog::resetProgress()
     displayProgress();
 
     ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
-    ui->downloadDocsetButton->setText("Download");
+    ui->downloadDocsetButton->setText(tr("Download"));
     ui->downloadButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
     ui->addFeedButton->setEnabled(true);
@@ -369,8 +368,8 @@ void SettingsDialog::updateFeedDocsets()
     if (!missingMetadata)
         return;
 
-    int r = QMessageBox::information(this, "Zeal",
-                                     "Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?",
+    int r = QMessageBox::information(this, QStringLiteral("Zeal"),
+                                     tr("Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?"),
                                      QMessageBox::Yes | QMessageBox::No);
     if (r == QMessageBox::No)
         return;
@@ -407,7 +406,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
 
     /// TODO: Move into a dedicated method
     for (const DocsetMetadata &metadata : m_availableDocsets) {
-        const QIcon icon(QString(QStringLiteral("docsetIcon:%1.png")).arg(metadata.icon()));
+        const QIcon icon(QString("docsetIcon:%1.png").arg(metadata.icon()));
 
         QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->availableDocsetList);
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
@@ -437,7 +436,7 @@ void SettingsDialog::downloadDashDocset(const QString &name)
     if (!m_availableDocsets.contains(name))
         return;
 
-    const QUrl url = QString(QStringLiteral("%1/feeds/%2.tgz"))
+    const QUrl url = QString("%1/feeds/%2.tgz")
             .arg(kapeliUrls.at(qrand() % kapeliUrls.size()))
             .arg(name);
 
@@ -456,7 +455,7 @@ void SettingsDialog::downloadDocsetList()
     ui->availableDocsetList->clear();
     m_availableDocsets.clear();
 
-    QNetworkReply *reply = startDownload(QUrl(ApiUrl + QStringLiteral("/docsets")));
+    QNetworkReply *reply = startDownload(QUrl(ApiUrl + QLatin1String("/docsets")));
     reply->setProperty(DownloadTypeProperty, DownloadDocsetList);
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
@@ -487,12 +486,12 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
     }
 
     if (replies.count() > 0)
-        ui->downloadDocsetButton->setText("Stop downloads");
+        ui->downloadDocsetButton->setText(tr("Stop downloads"));
 }
 
 void SettingsDialog::on_storageButton_clicked()
 {
-    QString dir = QFileDialog::getExistingDirectory(0, "Open Directory");
+    QString dir = QFileDialog::getExistingDirectory(0, tr("Open Directory"));
     if (!dir.isEmpty())
         ui->storageEdit->setText(QDir::toNativeSeparators(dir));
 
@@ -503,7 +502,7 @@ void SettingsDialog::on_deleteButton_clicked()
     const QString docsetTitle = ui->installedDocsetList->currentIndex().data().toString();
     const int answer
             = QMessageBox::question(this, tr("Remove Docset"),
-                                    QString("Do you want to permanently delete the '%1' docset? ")
+                                    QString(tr("Do you really want to remove <b>%1</b> docset?"))
                                     .arg(docsetTitle));
     if (answer == QMessageBox::No)
         return;
@@ -518,14 +517,14 @@ void SettingsDialog::on_deleteButton_clicked()
 
         QFuture<bool> future = QtConcurrent::run([=] {
             QDir docsetDir(dataDir);
-            return docsetDir.cd(docsetName + ".docset") && docsetDir.removeRecursively();
+            return docsetDir.cd(docsetName + QLatin1String(".docset")) && docsetDir.removeRecursively();
         });
         QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
         watcher->setFuture(future);
         connect(watcher, &QFutureWatcher<void>::finished, [=] {
             if (!watcher->result()) {
-                QMessageBox::warning(this, QStringLiteral("Error"),
-                                     QString("Cannot delete docset <strong>%1</strong>!").arg(docsetTitle));
+                QMessageBox::warning(this, tr("Error"),
+                                     QString(tr("Cannot delete docset <b>%1</b>!")).arg(docsetTitle));
             }
 
             resetProgress();
@@ -554,7 +553,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     replies.append(reply);
 
-    ui->downloadDocsetButton->setText("Stop downloads");
+    ui->downloadDocsetButton->setText(tr("Stop downloads"));
     ui->downloadButton->setEnabled(false);
     ui->updateButton->setEnabled(false);
     ui->addFeedButton->setEnabled(false);
@@ -633,14 +632,15 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
 void SettingsDialog::addDashFeed()
 {
     QString txt = QApplication::clipboard()->text();
-    if (!txt.startsWith(QStringLiteral("dash-feed://")))
+    if (!txt.startsWith(QLatin1String("dash-feed://")))
         txt.clear();
 
-    QString feedUrl = QInputDialog::getText(this, "Zeal", "Feed URL:", QLineEdit::Normal, txt);
+    QString feedUrl = QInputDialog::getText(this, QStringLiteral("Zeal"), tr("Feed URL:"),
+                                            QLineEdit::Normal, txt);
     if (feedUrl.isEmpty())
         return;
 
-    if (feedUrl.startsWith(QStringLiteral("dash-feed://"))) {
+    if (feedUrl.startsWith(QLatin1String("dash-feed://"))) {
         feedUrl = feedUrl.remove(0, 12);
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
