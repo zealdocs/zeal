@@ -108,7 +108,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
         listItem->setCheckState(Qt::Unchecked);
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
     }
-    endTasks();
+    resetProgress();
     delete m_tmpFiles.take(docsetName);
 }
 
@@ -199,7 +199,7 @@ void SettingsDialog::downloadCompleted()
         if (!m_availableDocsets.isEmpty())
             ui->downloadableGroup->show();
 
-        endTasks();
+        resetProgress();
         break;
     }
 
@@ -325,14 +325,18 @@ void SettingsDialog::displayProgress()
     ui->docsetsProgress->setVisible(!replies.isEmpty());
 }
 
-void SettingsDialog::startTasks()
+void SettingsDialog::resetProgress()
 {
+    m_combinedReceived = 0;
+    m_combinedTotal = 0;
     displayProgress();
-}
 
-void SettingsDialog::endTasks()
-{
-    resetProgress();
+    ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
+    ui->downloadDocsetButton->setText("Download");
+    ui->downloadButton->setEnabled(true);
+    ui->updateButton->setEnabled(true);
+    ui->addFeedButton->setEnabled(true);
+    ui->availableDocsetList->setEnabled(true);
 }
 
 void SettingsDialog::updateFeedDocsets()
@@ -510,7 +514,8 @@ void SettingsDialog::on_deleteButton_clicked()
     if (dataDir.exists()) {
         ui->docsetsProgress->show();
         ui->deleteButton->hide();
-        startTasks();
+        displayProgress();
+
         QFuture<bool> future = QtConcurrent::run([=] {
             QDir docsetDir(dataDir);
             return docsetDir.cd(docsetName + ".docset") && docsetDir.removeRecursively();
@@ -523,7 +528,7 @@ void SettingsDialog::on_deleteButton_clicked()
                                      QString("Cannot delete docset <strong>%1</strong>!").arg(docsetTitle));
             }
 
-            endTasks();
+            resetProgress();
             ui->deleteButton->show();
 
             QListWidgetItem *listItem = findDocsetListItem(docsetTitle);
@@ -541,23 +546,9 @@ void SettingsDialog::on_installedDocsetList_clicked(const QModelIndex &index)
     ui->deleteButton->setEnabled(true);
 }
 
-void SettingsDialog::resetProgress()
-{
-    m_combinedReceived = 0;
-    m_combinedTotal = 0;
-    displayProgress();
-
-    ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
-    ui->downloadDocsetButton->setText("Download");
-    ui->downloadButton->setEnabled(true);
-    ui->updateButton->setEnabled(true);
-    ui->addFeedButton->setEnabled(true);
-    ui->availableDocsetList->setEnabled(true);
-}
-
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
 {
-    startTasks();
+    displayProgress();
 
     QNetworkReply *reply = m_application->download(url);
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);

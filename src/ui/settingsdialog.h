@@ -68,12 +68,11 @@ private:
     void processDocsetList(const QJsonArray &list);
     void downloadDashDocset(const QString &name);
 
-    void startTasks();
-    void endTasks();
     void displayProgress();
+    void resetProgress();
+
     void loadSettings();
     void updateFeedDocsets();
-    void resetProgress();
     QNetworkReply *startDownload(const QUrl &url);
     void stopDownloads();
     void saveSettings();
