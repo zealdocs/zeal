@@ -455,9 +455,9 @@ void MainWindow::reloadTabState()
     }
 
     // Bring back the selections and expansions.
-    for (QModelIndex selection: m_searchState->selections)
+    for (const QModelIndex &selection: m_searchState->selections)
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (QModelIndex expandedIndex: m_searchState->expansions)
+    for (const QModelIndex &expandedIndex: m_searchState->expansions)
         ui->treeView->expand(expandedIndex);
 
     ui->webView->setPage(m_searchState->page);
@@ -528,11 +528,11 @@ void MainWindow::displayViewActions()
     m_forwardMenu->clear();
 
     QWebHistory *history = ui->webView->page()->history();
-    for (QWebHistoryItem item: history->backItems(10))
+    for (const QWebHistoryItem &item: history->backItems(10))
         m_backMenu->addAction(addHistoryAction(history, item));
     if (history->count() > 0)
         addHistoryAction(history, history->currentItem())->setEnabled(false);
-    for (QWebHistoryItem item: history->forwardItems(10))
+    for (const QWebHistoryItem &item: history->forwardItems(10))
         m_forwardMenu->addAction(addHistoryAction(history, item));
 
     displayTabs();

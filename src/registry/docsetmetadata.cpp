@@ -30,7 +30,7 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 
     m_feedUrl = jsonObject[QStringLiteral("feed_url")].toString();
     const QJsonArray urlArray = jsonObject[QStringLiteral("urls")].toArray();
-    for (QJsonValue url : urlArray)
+    for (const QJsonValue &url : urlArray)
         m_urls.append(url.toString());
 }
 
