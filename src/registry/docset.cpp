@@ -32,13 +32,13 @@ Docset::Docset(const QString &path) :
         return;
 
     if (dir.exists(QStringLiteral("Info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+        m_info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
+        m_info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
     else
         return;
 
-    if (info.family == QStringLiteral("cheatsheet"))
+    if (m_info.family == QStringLiteral("cheatsheet"))
         m_name = QString(QStringLiteral("%1_cheats")).arg(m_name);
 
     if (!dir.cd(QStringLiteral("Resources")))
@@ -57,7 +57,7 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
+    prefix = m_info.bundleName.isEmpty() ? m_name : m_info.bundleName;
 
     findIcon();
     countSymbols();
@@ -114,7 +114,7 @@ QString Docset::indexFilePath() const
 {
     /// TODO: Check if file exists
     const QDir dir(documentPath());
-    return dir.absoluteFilePath(info.indexPath.isEmpty() ? QStringLiteral("index.html") : info.indexPath);
+    return dir.absoluteFilePath(m_info.indexPath.isEmpty() ? QStringLiteral("index.html") : m_info.indexPath);
 }
 
 QMap<QString, int> Docset::symbolCounts() const
@@ -214,14 +214,14 @@ void Docset::findIcon()
     if (!m_icon.availableSizes().isEmpty())
         return;
 
-    QString bundleName = info.bundleName;
+    QString bundleName = m_info.bundleName;
     bundleName.replace(QLatin1String(" "), QLatin1String("_"));
     m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(bundleName));
     if (!m_icon.availableSizes().isEmpty())
         return;
 
     // Fallback to identifier and docset file name.
-    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(info.bundleIdentifier));
+    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(m_info.bundleIdentifier));
     if (!m_icon.availableSizes().isEmpty())
         return;
 }

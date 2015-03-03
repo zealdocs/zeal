@@ -46,7 +46,6 @@ public:
 
     QString prefix;
     DocsetMetadata metadata;
-    DocsetInfo info;
 
     /// FIXME: Get rid of it
     static void normalizeName(QString &name, QString &parentName);
@@ -67,6 +66,8 @@ private:
     Docset::Type m_type;
     QString m_path;
     QIcon m_icon;
+
+    DocsetInfo m_info;
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
