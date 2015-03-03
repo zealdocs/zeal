@@ -133,7 +133,6 @@ QNetworkReply *Application::download(const QUrl &url)
             .arg(QStringLiteral("unknown"))
 #endif // Q_OS_*
 
-
 #if defined(Q_PROCESSOR_ARM)
             .arg(QStringLiteral("arm"))
 #elif defined(Q_PROCESSOR_X86_32)
