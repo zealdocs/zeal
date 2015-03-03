@@ -93,10 +93,10 @@ void SearchQuery::setQuery(const QString &str)
 QString SearchQuery::sanitizedQuery() const
 {
     QString q = m_query;
-    q.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-    q.replace(QStringLiteral("_"), QStringLiteral("\\_"));
-    q.replace(QStringLiteral("%"), QStringLiteral("\\%"));
-    q.replace(QStringLiteral("'"), QStringLiteral("''"));
+    q.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+    q.replace(QLatin1String("_"), QLatin1String("\\_"));
+    q.replace(QLatin1String("%"), QLatin1String("\\%"));
+    q.replace(QLatin1String("'"), QLatin1String("''"));
     return q;
 }
 

@@ -133,14 +133,14 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         // %::%1% for long C++ docset values like std::set
         // %/%1% for long Go docset values like archive/tar
         QString subNames = QStringLiteral(" or %1 like '%.%2%' escape '\\'");
-        subNames += QStringLiteral(" or %1 like '%::%2%' escape '\\'");
-        subNames += QStringLiteral(" or %1 like '%/%2%' escape '\\'");
+        subNames += QLatin1String(" or %1 like '%::%2%' escape '\\'");
+        subNames += QLatin1String(" or %1 like '%/%2%' escape '\\'");
         while (found.size() < 100) {
             QString curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
             if (withSubStrings) {
                 // if less than 100 found starting with query, search all substrings
-                curQuery = "%" + preparedQuery;
+                curQuery = QLatin1Char('%') + preparedQuery;
                 // don't return 'starting with' results twice
                 if (docset->type() == Docset::Type::ZDash)
                     notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
@@ -183,7 +183,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
             QString path = row[2].toString();
             // FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
             if (docset->type() == Docset::Type::ZDash)
-                path += "#" + row[3].toString();
+                path += QLatin1Char('#') + row[3].toString();
 
             QString itemName = row[0].toString();
             Docset::normalizeName(itemName, parentName);
@@ -209,7 +209,7 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
     const QDir dir(path);
     for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
-        if (subdir.suffix() == "docset")
+        if (subdir.suffix() == QLatin1String("docset"))
             addDocset(subdir.absoluteFilePath());
         else
             addDocsetsFromFolder(subdir.absoluteFilePath());

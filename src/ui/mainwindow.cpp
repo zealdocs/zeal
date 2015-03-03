@@ -95,9 +95,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 #endif
 
     // menu
-    if (QKeySequence(QKeySequence::Quit) != QKeySequence("Ctrl+Q")) {
-        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence(
-                                                          "Ctrl+Q"), QKeySequence::Quit});
+    if (QKeySequence(QKeySequence::Quit) != QKeySequence(QStringLiteral("Ctrl+Q"))) {
+        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence(QStringLiteral("Ctrl+Q")),
+                                                          QKeySequence::Quit});
     } else {
         // Quit == Ctrl+Q - don't set the same sequence twice because it causes
         // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
@@ -191,7 +191,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->webView, &SearchableWebView::linkClicked, [](const QUrl &url) {
         QMessageBox question;
-        QString messageFormat = QString("Do you want to go to an external link?\nUrl: %1");
+        QString messageFormat = tr("Do you want to go to an external link?\nUrl: %1");
         question.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         question.setText(messageFormat.arg(url.toString()));
         if (question.exec() == QMessageBox::Yes)
@@ -263,7 +263,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
-        if (url.scheme() != QStringLiteral("qrc"))
+        if (url.scheme() != QLatin1String("qrc"))
             QDesktopServices::openUrl(url);
     });
 
@@ -382,7 +382,7 @@ void MainWindow::createTab()
     m_tabs.append(newTab);
     m_searchState = newTab;
 
-    m_tabBar->addTab("title");
+    m_tabBar->addTab(QStringLiteral("title"));
     m_tabBar->setCurrentIndex(m_tabs.size() - 1);
 
     reloadTabState();
@@ -508,7 +508,7 @@ void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
     for (const Docset * const docset: m_application->docsetRegistry()->docsets())
-        completions << QString("%1:").arg(docset->prefix);
+        completions << docset->prefix + QLatin1Char(':');
     ui->lineEdit->setCompletions(completions);
 }
 
@@ -582,7 +582,7 @@ void MainWindow::createTrayIcon()
 
 #ifdef USE_LIBAPPINDICATOR
     const QString desktop = getenv("XDG_CURRENT_DESKTOP");
-    const bool isUnity = (desktop.toLower() == "unity");
+    const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
     if (isUnity) { // Application Indicators for Unity
         GtkWidget *menu;
@@ -623,7 +623,7 @@ void MainWindow::createTrayIcon()
         });
 
         QMenu *trayIconMenu = new QMenu(this);
-        QAction *quitAction = trayIconMenu->addAction(QStringLiteral("&Quit"));
+        QAction *quitAction = trayIconMenu->addAction(tr("&Quit"));
         connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
         m_trayIcon->setContextMenu(trayIconMenu);
@@ -660,7 +660,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setupShortcuts()
 {
-    QShortcut *focusSearch = new QShortcut(QKeySequence("Ctrl+K"), this);
+    QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
     focusSearch->setContext(Qt::ApplicationShortcut);
     connect(focusSearch, &QShortcut::activated, [=]() {
         ui->lineEdit->setFocus();

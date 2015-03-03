@@ -149,7 +149,7 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
     metadata.m_name.chop(4); // Strip ".xml" extension
 
     metadata.m_title = metadata.m_name;
-    metadata.m_title.replace(QLatin1String("_"), QLatin1String(" "));
+    metadata.m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
 
     metadata.m_feedUrl = feedUrl;
 
@@ -161,11 +161,11 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
             continue;
 
         // Try to pull out the relevant data
-        if (xml.name() == QStringLiteral("version")) {
+        if (xml.name() == QLatin1String("version")) {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
             metadata.m_version = xml.text().toString();
-        } else if (xml.name() == QStringLiteral("url")) {
+        } else if (xml.name() == QLatin1String("url")) {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
             metadata.m_urls.append(xml.text().toString());

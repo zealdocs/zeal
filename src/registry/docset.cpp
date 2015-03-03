@@ -38,8 +38,9 @@ Docset::Docset(const QString &path) :
     else
         return;
 
-    if (m_info.family == QStringLiteral("cheatsheet"))
-        m_name = QString(QStringLiteral("%1_cheats")).arg(m_name);
+    /// TODO: Verify if this is needed
+    if (m_info.family == QLatin1String("cheatsheet"))
+        m_name = m_name + QLatin1String("cheats");
 
     if (!dir.cd(QStringLiteral("Resources")))
         return;
@@ -168,8 +169,8 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
         QString sectionPath = query.value(2).toString();
         QString parentName;
         if (m_type == Docset::Type::ZDash) {
-            sectionPath.append("#");
-            sectionPath.append(query.value(3).toString());
+            sectionPath += QLatin1Char('#');
+            sectionPath += query.value(3).toString();
         }
 
         normalizeName(sectionName, parentName);
@@ -187,7 +188,7 @@ QSqlDatabase Docset::database() const
 
 void Docset::normalizeName(QString &name, QString &parentName)
 {
-    QRegExp matchMethodName("^([^\\(]+)(?:\\(.*\\))?$");
+    QRegExp matchMethodName(QStringLiteral("^([^\\(]+)(?:\\(.*\\))?$"));
     if (matchMethodName.indexIn(name) != -1)
         name = matchMethodName.cap(1);
 
@@ -210,18 +211,18 @@ void Docset::findIcon()
             return;
     }
 
-    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(m_name));
+    m_icon = QIcon(QString("docsetIcon:%1.png").arg(m_name));
     if (!m_icon.availableSizes().isEmpty())
         return;
 
     QString bundleName = m_info.bundleName;
-    bundleName.replace(QLatin1String(" "), QLatin1String("_"));
-    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(bundleName));
+    bundleName.replace(QLatin1Char(' '), QLatin1Char('_'));
+    m_icon = QIcon(QString("docsetIcon:%1.png").arg(bundleName));
     if (!m_icon.availableSizes().isEmpty())
         return;
 
     // Fallback to identifier and docset file name.
-    m_icon = QIcon(QString(QStringLiteral("docsetIcon:%1.png")).arg(m_info.bundleIdentifier));
+    m_icon = QIcon(QString("docsetIcon:%1.png").arg(m_info.bundleIdentifier));
     if (!m_icon.availableSizes().isEmpty())
         return;
 }

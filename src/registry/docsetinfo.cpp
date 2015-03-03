@@ -21,7 +21,7 @@ DocsetInfo DocsetInfo::fromPlist(const QString &filePath)
         if (token == QXmlStreamReader::StartDocument || token != QXmlStreamReader::StartElement)
             continue;
 
-        if (xml.name() != QStringLiteral("key"))
+        if (xml.name() != QLatin1String("key"))
             continue;
 
         const QString key = xml.readElementText();
@@ -33,26 +33,26 @@ DocsetInfo DocsetInfo::fromPlist(const QString &filePath)
             continue;
 
         QVariant value;
-        if (xml.name() == QStringLiteral("string"))
+        if (xml.name() == QLatin1String("string"))
             value = xml.readElementText();
-        else if (xml.name() == QStringLiteral("true"))
+        else if (xml.name() == QLatin1String("true"))
             value = true;
         else
             continue; // Skip unknown types
 
-        if (key == QStringLiteral("dashIndexFilePath"))
+        if (key == QLatin1String("dashIndexFilePath"))
             docsetInfo.indexPath = value.toString();
-        else if (key == QStringLiteral("DashDocSetKeyword"))
+        else if (key == QLatin1String("DashDocSetKeyword"))
             docsetInfo.keyword = value.toString();
-        else if (key == QStringLiteral("DashDocSetFamily"))
+        else if (key == QLatin1String("DashDocSetFamily"))
             docsetInfo.family = value.toString();
-        else if (key == QStringLiteral("CFBundleName"))
+        else if (key == QLatin1String("CFBundleName"))
             docsetInfo.bundleName = value.toString();
-        else if (key == QStringLiteral("CFBundleIdentifier"))
+        else if (key == QLatin1String("CFBundleIdentifier"))
             docsetInfo.bundleIdentifier = value.toString();
-        else if (key == QStringLiteral("isDashDocset"))
+        else if (key == QLatin1String("isDashDocset"))
             docsetInfo.isDashDocset = value.toBool();
-        else if (key == QStringLiteral("isJavaScriptEnabled"))
+        else if (key == QLatin1String("isJavaScriptEnabled"))
             docsetInfo.isJavaScriptEnabled = value.toBool();
     }
 

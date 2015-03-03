@@ -43,21 +43,22 @@ void Settings::load()
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("browser"));
-    minimumFontSize = m_settings->value("minimum_font_size", QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
+    minimumFontSize = m_settings->value(QStringLiteral("minimum_font_size"),
+                                        QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("proxy"));
-    proxyType = static_cast<ProxyType>(m_settings->value("type", ProxyType::System).toUInt());
-    proxyHost = m_settings->value("host").toString();
-    proxyPort = m_settings->value("port", 0).toInt();
-    proxyAuthenticate = m_settings->value("authenticate", false).toBool();
-    proxyUserName = m_settings->value("username").toString();
-    proxyPassword = m_settings->value("password").toString();
+    proxyType = static_cast<ProxyType>(m_settings->value(QStringLiteral("type"), ProxyType::System).toUInt());
+    proxyHost = m_settings->value(QStringLiteral("host")).toString();
+    proxyPort = m_settings->value(QStringLiteral("port"), 0).toInt();
+    proxyAuthenticate = m_settings->value(QStringLiteral("authenticate"), false).toBool();
+    proxyUserName = m_settings->value(QStringLiteral("username")).toString();
+    proxyPassword = m_settings->value(QStringLiteral("password")).toString();
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("docsets"));
-    if (m_settings->contains("path")) {
-        docsetPath = m_settings->value("path").toString();
+    if (m_settings->contains(QStringLiteral("path"))) {
+        docsetPath = m_settings->value(QStringLiteral("path")).toString();
     } else {
 #ifndef PORTABLE_BUILD
         docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
@@ -70,8 +71,8 @@ void Settings::load()
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("state"));
-    windowGeometry = m_settings->value("window_geometry").toByteArray();
-    splitterGeometry = m_settings->value("splitter_geometry").toByteArray();
+    windowGeometry = m_settings->value(QStringLiteral("window_geometry")).toByteArray();
+    splitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
     m_settings->endGroup();
 }
 
@@ -89,27 +90,27 @@ void Settings::save()
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("browser"));
-    m_settings->setValue("minimum_font_size", minimumFontSize);
+    m_settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
     m_settings->endGroup();
 
     m_settings->beginGroup(QStringLiteral("proxy"));
-    m_settings->setValue("type", proxyType);
-    m_settings->setValue("host", proxyHost);
-    m_settings->setValue("port", proxyPort);
-    m_settings->setValue("authenticate", proxyAuthenticate);
-    m_settings->setValue("username", proxyUserName);
-    m_settings->setValue("password", proxyPassword);
+    m_settings->setValue(QStringLiteral("type"), proxyType);
+    m_settings->setValue(QStringLiteral("host"), proxyHost);
+    m_settings->setValue(QStringLiteral("port"), proxyPort);
+    m_settings->setValue(QStringLiteral("authenticate"), proxyAuthenticate);
+    m_settings->setValue(QStringLiteral("username"), proxyUserName);
+    m_settings->setValue(QStringLiteral("password"), proxyPassword);
     m_settings->endGroup();
 
 #ifndef PORTABLE_BUILD
     m_settings->beginGroup(QStringLiteral("docsets"));
-    m_settings->setValue("path", docsetPath);
+    m_settings->setValue(QStringLiteral("path"), docsetPath);
     m_settings->endGroup();
 #endif
 
     m_settings->beginGroup(QStringLiteral("state"));
-    m_settings->setValue("window_geometry", windowGeometry);
-    m_settings->setValue("splitter_geometry", splitterGeometry);
+    m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
+    m_settings->setValue(QStringLiteral("splitter_geometry"), splitterGeometry);
     m_settings->endGroup();
 
     m_settings->sync();
