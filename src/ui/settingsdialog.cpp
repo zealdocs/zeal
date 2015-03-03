@@ -398,8 +398,6 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
 {
     for (const QJsonValue &v : list) {
         QJsonObject docsetJson = v.toObject();
-        QString source = QStringLiteral("source");
-        docsetJson[source] = QStringLiteral("kapeli");
 
         DocsetMetadata metadata(docsetJson);
         m_availableDocsets.insert(metadata.name(), metadata);
