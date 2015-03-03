@@ -19,7 +19,7 @@ using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
-const char *LocalServerName = "ZealLocalServer";
+const char LocalServerName[] = "ZealLocalServer";
 }
 
 Application *Application::m_instance = nullptr;

@@ -24,13 +24,13 @@
 using namespace Zeal;
 
 namespace {
-const char *ApiUrl = "http://api.zealdocs.org";
+const char ApiUrl[] = "http://api.zealdocs.org";
 
 // QNetworkReply properties
-const char *DocsetMetadataProperty = "docsetMetadata";
-const char *DownloadTypeProperty = "downloadType";
-const char *DownloadPreviousReceived = "downloadPreviousReceived";
-const char *ListItemIndexProperty = "listItem";
+const char DocsetMetadataProperty[] = "docsetMetadata";
+const char DownloadTypeProperty[] = "downloadType";
+const char DownloadPreviousReceived[] = "downloadPreviousReceived";
+const char ListItemIndexProperty[] = "listItem";
 }
 
 SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent) :
