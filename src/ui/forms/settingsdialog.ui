@@ -421,13 +421,6 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="downloadButton">
-           <property name="text">
-            <string>Download...</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
        <item>
@@ -440,20 +433,28 @@
            <widget class="QListWidget" name="availableDocsetList"/>
           </item>
           <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Docsets with icons are contributed by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Dash&lt;/span&gt;&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::RichText</enum>
-            </property>
-            <property name="openExternalLinks">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Last updated:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lastUpdatedLabel">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="refreshButton">
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <spacer name="horizontalSpacer_2">
               <property name="orientation">
@@ -478,6 +479,19 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;, the Mac OS X Documentation Browser.&lt;/i&gt;</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

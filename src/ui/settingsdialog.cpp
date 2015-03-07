@@ -25,6 +25,11 @@ using namespace Zeal;
 
 namespace {
 const char ApiUrl[] = "http://api.zealdocs.org";
+/// TODO: Each source plugin should have its own cache
+const char DocsetListCacheFileName[] = "com.kapeli.json";
+
+/// TODO: Make the timeout period configurable
+constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 
 // QNetworkReply properties
 const char DocsetMetadataProperty[] = "docsetMetadata";
@@ -62,8 +67,8 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     });
 
     connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
-    connect(ui->downloadButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
     connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateFeedDocsets);
+    connect(ui->refreshButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
 
     connect(m_application, &Core::Application::extractionCompleted,
             this, &SettingsDialog::extractionCompleted);
@@ -185,8 +190,18 @@ void SettingsDialog::downloadCompleted()
 
     switch (static_cast<DownloadType>(reply->property(DownloadTypeProperty).toUInt())) {
     case DownloadDocsetList: {
+        const QByteArray data = reply->readAll();
+
+        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+        QScopedPointer<QFile> file(new QFile(cacheDir.filePath(DocsetListCacheFileName)));
+        if (file->open(QIODevice::WriteOnly))
+            file->write(data);
+
+        ui->lastUpdatedLabel->setText(QFileInfo(file->fileName())
+                                      .lastModified().toString(Qt::SystemLocaleShortDate));
+
         QJsonParseError jsonError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
             QMessageBox::warning(this, tr("Error"),
@@ -195,10 +210,6 @@ void SettingsDialog::downloadCompleted()
         }
 
         processDocsetList(jsonDoc.array());
-
-        if (!m_availableDocsets.isEmpty())
-            ui->downloadableGroup->show();
-
         resetProgress();
         break;
     }
@@ -331,9 +342,8 @@ void SettingsDialog::resetProgress()
     m_combinedTotal = 0;
     displayProgress();
 
-    ui->downloadButton->setVisible(m_availableDocsets.isEmpty());
     ui->downloadDocsetButton->setText(tr("Download"));
-    ui->downloadButton->setEnabled(true);
+    ui->refreshButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
     ui->addFeedButton->setEnabled(true);
     ui->availableDocsetList->setEnabled(true);
@@ -414,6 +424,9 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         if (m_docsetRegistry->contains(metadata.name()))
             listItem->setHidden(true);
     }
+
+    if (!m_availableDocsets.isEmpty())
+        ui->downloadableGroup->show();
 }
 
 void SettingsDialog::downloadDashDocset(const QString &name)
@@ -450,7 +463,6 @@ void SettingsDialog::downloadDashDocset(const QString &name)
 
 void SettingsDialog::downloadDocsetList()
 {
-    ui->downloadButton->hide();
     ui->availableDocsetList->clear();
     m_availableDocsets.clear();
 
@@ -553,7 +565,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     replies.append(reply);
 
     ui->downloadDocsetButton->setText(tr("Stop downloads"));
-    ui->downloadButton->setEnabled(false);
+    ui->refreshButton->setEnabled(false);
     ui->updateButton->setEnabled(false);
     ui->addFeedButton->setEnabled(false);
 
@@ -625,7 +637,31 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
     if (ui->tabWidget->widget(current) != ui->docsetsTab || ui->availableDocsetList->count())
         return;
 
-    downloadDocsetList();
+    const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    const QFileInfo fi(cacheDir.filePath(DocsetListCacheFileName));
+
+    if (!fi.exists() || fi.lastModified().msecsTo(QDateTime::currentDateTime()) > CacheTimeout) {
+        downloadDocsetList();
+        return;
+    }
+
+    QScopedPointer<QFile> file(new QFile(fi.filePath()));
+    if (!file->open(QIODevice::ReadOnly)) {
+        downloadDocsetList();
+        return;
+    }
+
+    QJsonParseError jsonError;
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(file->readAll(), &jsonError);
+
+    if (jsonError.error != QJsonParseError::NoError) {
+        downloadDocsetList();
+        return;
+    }
+
+    /// TODO: Show more user friendly labels, like "5 hours ago"
+    ui->lastUpdatedLabel->setText(fi.lastModified().toString(Qt::SystemLocaleShortDate));
+    processDocsetList(jsonDoc.array());
 }
 
 void SettingsDialog::addDashFeed()

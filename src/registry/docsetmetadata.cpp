@@ -14,7 +14,7 @@ DocsetMetadata::DocsetMetadata()
 
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
-    m_source = jsonObject[QStringLiteral("source")].toString();
+    m_sourceId = jsonObject[QStringLiteral("sourceId")].toString();
 
     m_name = jsonObject[QStringLiteral("name")].toString();
     m_icon = jsonObject[QStringLiteral("icon")].toString();
@@ -34,9 +34,9 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_urls.append(url.toString());
 }
 
-QString DocsetMetadata::source() const
+QString DocsetMetadata::sourceId() const
 {
-    return m_source;
+    return m_sourceId;
 }
 
 void DocsetMetadata::toFile(const QString &fileName) const
@@ -52,7 +52,7 @@ QByteArray DocsetMetadata::toJson() const
 {
     QJsonObject jsonObject;
 
-    jsonObject[QStringLiteral("source")] = m_source;
+    jsonObject[QStringLiteral("sourceId")] = m_sourceId;
 
     jsonObject[QStringLiteral("name")] = m_name;
     jsonObject[QStringLiteral("icon")] = m_icon;
@@ -143,7 +143,7 @@ DocsetMetadata DocsetMetadata::fromFile(const QString &fileName)
 DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArray &data)
 {
     DocsetMetadata metadata;
-    metadata.m_source = QStringLiteral("dash-feed");
+    metadata.m_sourceId = QStringLiteral("dash-feed");
 
     metadata.m_name = feedUrl.fileName();
     metadata.m_name.chop(4); // Strip ".xml" extension

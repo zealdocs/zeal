@@ -16,7 +16,7 @@ public:
     explicit DocsetMetadata();
     explicit DocsetMetadata(const QJsonObject &jsonObject);
 
-    QString source() const;
+    QString sourceId() const;
 
     void toFile(const QString &fileName) const;
     QByteArray toJson() const;
@@ -37,7 +37,7 @@ public:
     static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
 private:
-    QString m_source;
+    QString m_sourceId;
 
     QString m_name;
     QString m_icon;
