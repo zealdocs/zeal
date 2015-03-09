@@ -356,7 +356,6 @@ void SettingsDialog::resetProgress()
 void SettingsDialog::updateFeedDocsets()
 {
     ui->downloadableGroup->show();
-    bool missingMetadata = false;
 
     for (const Docset * const docset : m_docsetRegistry->docsets()) {
         if (!m_userFeeds.contains(docset->name()))
@@ -372,33 +371,6 @@ void SettingsDialog::updateFeedDocsets()
         reply->setProperty(DocsetNameProperty, docset->name());
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
     }
-
-    if (!missingMetadata)
-        return;
-
-    int r = QMessageBox::information(this, QStringLiteral("Zeal"),
-                                     tr("Some docsets are missing metadata, would you like to redownload all docsets with missing metadata?"),
-                                     QMessageBox::Yes | QMessageBox::No);
-    if (r == QMessageBox::No)
-        return;
-
-    if (m_availableDocsets.isEmpty())
-        downloadDocsetList();
-
-    // There must be a better way to do this.
-    QFuture<void> future = QtConcurrent::run([=] {
-        while (m_availableDocsets.isEmpty() || replies.size())
-            QThread::yieldCurrentThread();
-    });
-
-    QFutureWatcher<void> *watcher = new QFutureWatcher<void>;
-    watcher->setFuture(future);
-    connect(watcher, &QFutureWatcher<void>::finished, [=] {
-        for (const Docset * const docset : m_docsetRegistry->docsets()) {
-            if (docset->hasMetadata() && m_availableDocsets.contains(docset->name()))
-                downloadDashDocset(docset->name());
-        }
-    });
 }
 
 void SettingsDialog::processDocsetList(const QJsonArray &list)
