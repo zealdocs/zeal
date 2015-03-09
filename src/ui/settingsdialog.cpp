@@ -24,7 +24,7 @@
 using namespace Zeal;
 
 namespace {
-const char ApiUrl[] = "http://api.zealdocs.org";
+const char ApiUrl[] = "http://api.zealdocs.org/v1";
 /// TODO: Each source plugin should have its own cache
 const char DocsetListCacheFileName[] = "com.kapeli.json";
 
@@ -32,7 +32,7 @@ const char DocsetListCacheFileName[] = "com.kapeli.json";
 constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 
 // QNetworkReply properties
-const char DocsetMetadataProperty[] = "docsetMetadata";
+const char DocsetNameProperty[] = "docsetName";
 const char DownloadTypeProperty[] = "downloadType";
 const char DownloadPreviousReceived[] = "downloadPreviousReceived";
 const char ListItemIndexProperty[] = "listItem";
@@ -104,7 +104,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
               : m_userFeeds[docsetName];
-    metadata.toFile(docsetPath + QLatin1String("/meta.json"));
+    metadata.save(docsetPath, metadata.latestVersion());
 
     m_docsetRegistry->addDocset(docsetPath);
 
@@ -179,7 +179,7 @@ void SettingsDialog::downloadCompleted()
         QNetworkReply *newReply = startDownload(redirectUrl);
 
         // Copy properties
-        newReply->setProperty(DocsetMetadataProperty, reply->property(DocsetMetadataProperty));
+        newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
         newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
         newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
 
@@ -216,22 +216,23 @@ void SettingsDialog::downloadCompleted()
 
     case DownloadDashFeed: {
         DocsetMetadata metadata = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
-        DocsetMetadata oldMetadata;
 
         if (metadata.urls().isEmpty()) {
             QMessageBox::critical(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
             break;
         }
 
-        QVariant oldMeta = reply->property(DocsetMetadataProperty);
-        if (oldMeta.isValid())
-            oldMetadata = oldMeta.value<DocsetMetadata>();
+        Docset *docset = m_docsetRegistry->docset(reply->property(DocsetNameProperty).toString());
+        if (!docset)
+            return;
 
         /// TODO: Check revision
-        if (metadata.version().isEmpty() || oldMetadata.version() != metadata.version()) {
+        if (metadata.latestVersion() > docset->version()
+                || (metadata.latestVersion() == docset->version()
+                    && metadata.revision() > docset->revision())) {
             m_userFeeds[metadata.name()] = metadata;
             QNetworkReply *newReply = startDownload(metadata.url());
-            newReply->setProperty(DocsetMetadataProperty, QVariant::fromValue(metadata));
+            newReply->setProperty(DocsetNameProperty, metadata.name());
             newReply->setProperty(DownloadTypeProperty, DownloadDocset);
             connect(newReply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
         }
@@ -239,7 +240,10 @@ void SettingsDialog::downloadCompleted()
     }
 
     case DownloadDocset: {
-        const DocsetMetadata metadata = reply->property(DocsetMetadataProperty).value<DocsetMetadata>();
+        const QString docsetName = reply->property(DocsetNameProperty).toString();
+        const DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+                ? m_availableDocsets[docsetName]
+                  : m_userFeeds[docsetName];
 
         QTemporaryFile *tmpFile = new QTemporaryFile();
         tmpFile->open();
@@ -355,24 +359,17 @@ void SettingsDialog::updateFeedDocsets()
     bool missingMetadata = false;
 
     for (const Docset * const docset : m_docsetRegistry->docsets()) {
-        if (!docset->hasMetadata()) {
-            missingMetadata = true;
-            continue;
-        }
-
-        const QUrl feedUrl = docset->metadata.feedUrl();
-        // Skip not manually added feeds
-        if (feedUrl.isEmpty())
+        if (!m_userFeeds.contains(docset->name()))
             continue;
 
-        QNetworkReply *reply = startDownload(feedUrl);
+        QNetworkReply *reply = startDownload(m_userFeeds[docset->name()].feedUrl());
         reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
 
         QListWidgetItem *listItem = findDocsetListItem(docset->title());
         if (listItem)
             reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(listItem));
 
-        reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(docset->metadata));
+        reply->setProperty(DocsetNameProperty, docset->name());
         connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
     }
 
@@ -415,9 +412,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
 
     /// TODO: Move into a dedicated method
     for (const DocsetMetadata &metadata : m_availableDocsets) {
-        const QIcon icon(QString("docsetIcon:%1.png").arg(metadata.icon()));
-
-        QListWidgetItem *listItem = new QListWidgetItem(icon, metadata.title(), ui->availableDocsetList);
+        QListWidgetItem *listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
@@ -453,7 +448,7 @@ void SettingsDialog::downloadDashDocset(const QString &name)
             .arg(name);
 
     QNetworkReply *reply = startDownload(url);
-    reply->setProperty(DocsetMetadataProperty, QVariant::fromValue(m_availableDocsets[name]));
+    reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
                        ui->availableDocsetList->row(findDocsetListItem(m_availableDocsets[name].title())));

@@ -1,6 +1,7 @@
 #ifndef DOCSETMETADATA_H
 #define DOCSETMETADATA_H
 
+#include <QIcon>
 #include <QStringList>
 #include <QUrl>
 
@@ -18,16 +19,17 @@ public:
 
     QString sourceId() const;
 
+    void save(const QString &path, const QString &version);
     void toFile(const QString &fileName) const;
     QByteArray toJson() const;
 
     QString name() const;
-    QString icon() const;
     QString title() const;
     QStringList aliases() const;
-    QString version() const;
+    QStringList versions() const;
+    QString latestVersion() const;
     QString revision() const;
-    QStringList oldVersions() const;
+    QIcon icon() const;
 
     QUrl feedUrl() const;
     QUrl url() const;
@@ -40,19 +42,19 @@ private:
     QString m_sourceId;
 
     QString m_name;
-    QString m_icon;
     QString m_title;
     QStringList m_aliases;
-    QString m_version;
+    QStringList m_versions;
     QString m_revision;
-    QStringList m_oldVersions;
+
+    QByteArray m_rawIcon;
+    QByteArray m_rawIcon2x;
+    QIcon m_icon;
 
     QUrl m_feedUrl;
     QList<QUrl> m_urls;
 };
 
 } // namespace Zeal
-
-Q_DECLARE_METATYPE(Zeal::DocsetMetadata)
 
 #endif // DOCSETMETADATA_H

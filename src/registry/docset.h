@@ -2,7 +2,6 @@
 #define DOCSET_H
 
 #include "docsetinfo.h"
-#include "docsetmetadata.h"
 #include "searchresult.h"
 
 #include <QIcon>
@@ -29,6 +28,10 @@ public:
 
     QString name() const;
     QString title() const;
+
+    QString version() const;
+    QString revision() const;
+
     Docset::Type type() const;
     QString path() const;
     QString documentPath() const;
@@ -45,12 +48,12 @@ public:
     QSqlDatabase database() const;
 
     QString prefix;
-    DocsetMetadata metadata;
 
     /// FIXME: Get rid of it
     static void normalizeName(QString &name, QString &parentName);
 
 private:
+    void loadMetadata();
     void findIcon();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
@@ -61,8 +64,11 @@ private:
     bool m_isValid = false;
     bool m_hasMetadata = false;
 
+    QString m_sourceId;
     QString m_name;
     QString m_title;
+    QString m_version;
+    QString m_revision;
     Docset::Type m_type;
     QString m_path;
     QIcon m_icon;

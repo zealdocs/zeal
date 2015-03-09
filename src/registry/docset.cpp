@@ -1,9 +1,12 @@
 #include "docset.h"
 
 #include <QDir>
-#include <QMetaEnum>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QUrl>
 #include <QVariant>
 
 using namespace Zeal;
@@ -15,17 +18,7 @@ Docset::Docset(const QString &path) :
     if (!dir.exists())
         return;
 
-    // Read metadata
-    if (dir.exists(QStringLiteral("meta.json"))) {
-        /// TODO: Validate metadata
-        metadata = DocsetMetadata::fromFile(dir.filePath(QStringLiteral("meta.json")));
-        m_name = metadata.name();
-        m_title = metadata.title();
-        m_hasMetadata = true;
-    } else {
-        m_name = m_title = dir.dirName().remove(QStringLiteral(".docset"));
-        m_title = m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
-    }
+    loadMetadata();
 
     /// TODO: Report errors here and below
     if (!dir.cd(QStringLiteral("Contents")))
@@ -89,6 +82,16 @@ QString Docset::name() const
 QString Docset::title() const
 {
     return m_title;
+}
+
+QString Docset::version() const
+{
+    return m_version;
+}
+
+QString Docset::revision() const
+{
+    return m_revision;
 }
 
 Docset::Type Docset::type() const
@@ -202,6 +205,34 @@ void Docset::normalizeName(QString &name, QString &parentName)
     }
 }
 
+void Docset::loadMetadata()
+{
+    const QDir dir(m_path);
+
+    // Fallback if meta.json is absent
+    if (!dir.exists(QStringLiteral("meta.json"))) {
+        m_name = m_title = dir.dirName().remove(QStringLiteral(".docset"));
+        m_title = m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
+        return;
+    }
+
+    QScopedPointer<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
+    if (!file->open(QIODevice::ReadOnly))
+        return;
+
+    QJsonParseError jsonError;
+    const QJsonObject jsonObject = QJsonDocument::fromJson(file->readAll(), &jsonError).object();
+
+    if (jsonError.error != QJsonParseError::NoError)
+        return;
+
+    m_name = jsonObject[QStringLiteral("name")].toString();
+    m_title = jsonObject[QStringLiteral("title")].toString();
+    m_version = jsonObject[QStringLiteral("version")].toString();
+    m_revision = jsonObject[QStringLiteral("revision")].toString();
+    m_hasMetadata = true;
+}
+
 void Docset::findIcon()
 {
     const QDir dir(m_path);
@@ -210,21 +241,6 @@ void Docset::findIcon()
         if (!m_icon.availableSizes().isEmpty())
             return;
     }
-
-    m_icon = QIcon(QString("docsetIcon:%1.png").arg(m_name));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
-
-    QString bundleName = m_info.bundleName;
-    bundleName.replace(QLatin1Char(' '), QLatin1Char('_'));
-    m_icon = QIcon(QString("docsetIcon:%1.png").arg(bundleName));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
-
-    // Fallback to identifier and docset file name.
-    m_icon = QIcon(QString("docsetIcon:%1.png").arg(m_info.bundleIdentifier));
-    if (!m_icon.availableSizes().isEmpty())
-        return;
 }
 
 void Docset::countSymbols()
