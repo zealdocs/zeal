@@ -250,7 +250,7 @@ void Docset::loadMetadata()
 
     if (jsonObject.contains(QStringLiteral("extra"))) {
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
-        m_indexFilePath = extra[QStringLiteral("indexPath")].toString();
+        m_indexFilePath = extra[QStringLiteral("indexFilePath")].toString();
     }
 
     m_hasMetadata = true;
