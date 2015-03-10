@@ -71,7 +71,7 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     if (!version.isEmpty())
         jsonObject[QStringLiteral("version")] = version;
 
-    if (version == m_versions.first() && !m_revision.isEmpty())
+    if (version == latestVersion() && !m_revision.isEmpty())
         jsonObject[QStringLiteral("revision")] = m_revision;
 
     if (!m_feedUrl.isEmpty())
@@ -168,7 +168,7 @@ QStringList DocsetMetadata::versions() const
 
 QString DocsetMetadata::latestVersion() const
 {
-    return m_versions.first();
+    return m_versions.isEmpty() ? QString() : m_versions.first();
 }
 
 QString DocsetMetadata::revision() const
