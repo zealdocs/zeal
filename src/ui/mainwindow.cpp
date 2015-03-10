@@ -189,12 +189,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::linkClicked, [](const QUrl &url) {
-        QMessageBox question;
-        QString messageFormat = tr("Do you want to go to an external link?\nUrl: %1");
-        question.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        question.setText(messageFormat.arg(url.toString()));
-        if (question.exec() == QMessageBox::Yes)
+    connect(ui->webView, &SearchableWebView::linkClicked, [this](const QUrl &url) {
+        const QString message = tr("Do you want to open an external link?<br>URL: <b>%1</b>");
+        int ret = QMessageBox::question(this, QStringLiteral("Zeal"), message.arg(url.toString()));
+        if (ret == QMessageBox::Yes)
             QDesktopServices::openUrl(url);
     });
 
