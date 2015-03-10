@@ -1,6 +1,7 @@
 #ifndef DOCSETMETADATA_H
 #define DOCSETMETADATA_H
 
+#include <QJsonObject>
 #include <QIcon>
 #include <QStringList>
 #include <QUrl>
@@ -50,6 +51,8 @@ private:
     QByteArray m_rawIcon;
     QByteArray m_rawIcon2x;
     QIcon m_icon;
+
+    QJsonObject m_extra;
 
     QUrl m_feedUrl;
     QList<QUrl> m_urls;

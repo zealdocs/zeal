@@ -44,6 +44,8 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     const QJsonArray urlArray = jsonObject[QStringLiteral("urls")].toArray();
     for (const QJsonValue &url : urlArray)
         m_urls.append(url.toString());
+
+    m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }
 
 QString DocsetMetadata::sourceId() const
@@ -81,6 +83,8 @@ void DocsetMetadata::save(const QString &path, const QString &version)
             urls.append(url.toString());
         jsonObject[QStringLiteral("urls")] = urls;
     }
+
+    jsonObject[QStringLiteral("extra")] = m_extra;
 
     file->write(QJsonDocument(jsonObject).toJson());
     file->close();
