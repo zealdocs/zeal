@@ -53,7 +53,6 @@ public:
 
 private:
     void loadMetadata();
-    void findIcon();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
     void loadSymbols(const QString &symbolType, const QString &symbolString) const;

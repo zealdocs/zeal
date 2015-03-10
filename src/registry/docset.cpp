@@ -22,6 +22,13 @@ Docset::Docset(const QString &path) :
 
     loadMetadata();
 
+    // Attempt to find the icon in any supported format
+    for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
+        m_icon = QIcon(dir.absoluteFilePath(iconFile));
+        if (!m_icon.availableSizes().isEmpty())
+            break;
+    }
+
     /// TODO: Report errors here and below
     if (!dir.cd(QStringLiteral("Contents")))
         return;
@@ -66,7 +73,6 @@ Docset::Docset(const QString &path) :
             qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
     }
 
-    findIcon();
     countSymbols();
 
     m_isValid = true;
@@ -248,16 +254,6 @@ void Docset::loadMetadata()
     }
 
     m_hasMetadata = true;
-}
-
-void Docset::findIcon()
-{
-    const QDir dir(m_path);
-    for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
-        m_icon = QIcon(dir.absoluteFilePath(iconFile));
-        if (!m_icon.availableSizes().isEmpty())
-            return;
-    }
 }
 
 void Docset::countSymbols()
