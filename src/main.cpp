@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
             ::exit(EXIT_SUCCESS);
     }
 
-    qapp.setStyle(new ZealProxyStyle());
+    qapp->setStyle(new ZealProxyStyle());
 #endif
 
 
