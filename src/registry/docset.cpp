@@ -58,8 +58,8 @@ Docset::Docset(const QString &path) :
 
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
-        if (!info.indexPath.isEmpty() && dir.exists(info.indexPath))
-            m_indexFilePath = info.indexPath;
+        if (!info.indexFilePath.isEmpty() && dir.exists(info.indexFilePath))
+            m_indexFilePath = info.indexFilePath;
         else if (dir.exists(QStringLiteral("index.html")))
             m_indexFilePath = QStringLiteral("index.html");
         else

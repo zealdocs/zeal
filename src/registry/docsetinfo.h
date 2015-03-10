@@ -11,7 +11,7 @@ struct DocsetInfo
 
     QString bundleName;
     QString bundleIdentifier;
-    QString indexPath;
+    QString indexFilePath;
     QString family;
     QString keyword;
     bool isDashDocset = false;

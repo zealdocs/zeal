@@ -41,7 +41,7 @@ DocsetInfo DocsetInfo::fromPlist(const QString &filePath)
             continue; // Skip unknown types
 
         if (key == QLatin1String("dashIndexFilePath"))
-            docsetInfo.indexPath = value.toString();
+            docsetInfo.indexFilePath = value.toString();
         else if (key == QLatin1String("DashDocSetKeyword"))
             docsetInfo.keyword = value.toString();
         else if (key == QLatin1String("DashDocSetFamily"))
