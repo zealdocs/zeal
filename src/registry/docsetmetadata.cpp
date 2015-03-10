@@ -84,7 +84,8 @@ void DocsetMetadata::save(const QString &path, const QString &version)
         jsonObject[QStringLiteral("urls")] = urls;
     }
 
-    jsonObject[QStringLiteral("extra")] = m_extra;
+    if (!m_extra.isEmpty())
+        jsonObject[QStringLiteral("extra")] = m_extra;
 
     file->write(QJsonDocument(jsonObject).toJson());
     file->close();
