@@ -35,7 +35,7 @@ QString stripParameterUrl(const QString &url, const QString &scheme)
     return ref.toString();
 }
 
-CommandLineParameters parseCommandLine(const QCoreApplication &app)
+CommandLineParameters parseCommandLine(const QStringList &arguments)
 {
     QCommandLineParser parser;
     parser.setApplicationDescription(QObject::tr("Zeal - Offline documentation browser."));
@@ -56,7 +56,7 @@ CommandLineParameters parseCommandLine(const QCoreApplication &app)
                                         QObject::tr("Unregister protocol handlers")));
 #endif
     parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
-    parser.process(app);
+    parser.process(arguments);
 
     CommandLineParameters clParams;
     clParams.force = parser.isSet(QStringLiteral("force"));
@@ -160,9 +160,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
-    QApplication qapp(argc, argv);
+    QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
 
-    const CommandLineParameters clParams = parseCommandLine(qapp);
+    const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 
 #ifdef Q_OS_WIN32
     const static QHash<QString, QString> protocols = {
@@ -200,5 +200,5 @@ int main(int argc, char *argv[])
 
     QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application(clParams.query));
 
-    return qapp.exec();
+    return qapp->exec();
 }
