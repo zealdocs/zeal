@@ -1,7 +1,6 @@
 #ifndef DOCSET_H
 #define DOCSET_H
 
-#include "docsetinfo.h"
 #include "searchresult.h"
 
 #include <QIcon>
@@ -73,7 +72,7 @@ private:
     QString m_path;
     QIcon m_icon;
 
-    DocsetInfo m_info;
+    QString m_indexFilePath;
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;

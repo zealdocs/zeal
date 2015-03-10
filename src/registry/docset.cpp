@@ -1,5 +1,7 @@
 #include "docset.h"
 
+#include "docsetinfo.h"
+
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
@@ -24,15 +26,16 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
+    DocsetInfo info;
     if (dir.exists(QStringLiteral("Info.plist")))
-        m_info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
-        m_info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
+        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
     else
         return;
 
     /// TODO: Verify if this is needed
-    if (m_info.family == QLatin1String("cheatsheet"))
+    if (info.family == QLatin1String("cheatsheet"))
         m_name = m_name + QLatin1String("cheats");
 
     if (!dir.cd(QStringLiteral("Resources")))
@@ -51,7 +54,17 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    prefix = m_info.bundleName.isEmpty() ? m_name : m_info.bundleName;
+    prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
+
+    // Try to find index path if metadata is missing one
+    if (m_indexFilePath.isEmpty()) {
+        if (!info.indexPath.isEmpty() && dir.exists(info.indexPath))
+            m_indexFilePath = info.indexPath;
+        else if (dir.exists(QStringLiteral("index.html")))
+            m_indexFilePath = QStringLiteral("index.html");
+        else
+            qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+    }
 
     findIcon();
     countSymbols();
@@ -116,9 +129,7 @@ QIcon Docset::icon() const
 
 QString Docset::indexFilePath() const
 {
-    /// TODO: Check if file exists
-    const QDir dir(documentPath());
-    return dir.absoluteFilePath(m_info.indexPath.isEmpty() ? QStringLiteral("index.html") : m_info.indexPath);
+    return QDir(documentPath()).absoluteFilePath(m_indexFilePath);
 }
 
 QMap<QString, int> Docset::symbolCounts() const
@@ -230,6 +241,12 @@ void Docset::loadMetadata()
     m_title = jsonObject[QStringLiteral("title")].toString();
     m_version = jsonObject[QStringLiteral("version")].toString();
     m_revision = jsonObject[QStringLiteral("revision")].toString();
+
+    if (jsonObject.contains(QStringLiteral("extra"))) {
+        const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
+        m_indexFilePath = extra[QStringLiteral("indexPath")].toString();
+    }
+
     m_hasMetadata = true;
 }
 
