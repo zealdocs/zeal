@@ -4,7 +4,6 @@
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QVariant>
 #include <QXmlStreamReader>
 
