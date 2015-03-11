@@ -225,20 +225,11 @@ void SettingsDialog::downloadCompleted()
             break;
         }
 
-        Docset *docset = m_docsetRegistry->docset(reply->property(DocsetNameProperty).toString());
-        if (!docset)
-            return;
-
-        /// TODO: Check revision
-        if (metadata.latestVersion() > docset->version()
-                || (metadata.latestVersion() == docset->version()
-                    && metadata.revision() > docset->revision())) {
-            m_userFeeds[metadata.name()] = metadata;
-            QNetworkReply *newReply = startDownload(metadata.url());
-            newReply->setProperty(DocsetNameProperty, metadata.name());
-            newReply->setProperty(DownloadTypeProperty, DownloadDocset);
-            connect(newReply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
-        }
+        m_userFeeds[metadata.name()] = metadata;
+        QNetworkReply *reply = startDownload(metadata.url());
+        reply->setProperty(DocsetNameProperty, metadata.name());
+        reply->setProperty(DownloadTypeProperty, DownloadDocset);
+        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
         break;
     }
 
