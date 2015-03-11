@@ -89,10 +89,16 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     file->write(QJsonDocument(jsonObject).toJson());
     file->close();
 
+    if (m_rawIcon.isEmpty())
+        return;
+
     file->setFileName(path + QLatin1String("/icon.png"));
     if (file->open(QIODevice::WriteOnly))
         file->write(m_rawIcon);
     file->close();
+
+    if (m_rawIcon2x.isEmpty())
+        return;
 
     file->setFileName(path + QLatin1String("/icon@2x.png"));
     if (file->open(QIODevice::WriteOnly))
