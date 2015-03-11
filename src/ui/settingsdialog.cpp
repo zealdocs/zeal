@@ -164,6 +164,9 @@ void SettingsDialog::downloadCompleted()
         if (reply->error() != QNetworkReply::OperationCanceledError)
             QMessageBox::warning(this, tr("Network Error"), reply->errorString());
 
+        if (replies.isEmpty())
+            resetProgress();
+
         return;
     }
 
