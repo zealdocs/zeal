@@ -14,7 +14,8 @@ class ListModel : public QAbstractItemModel
     Q_OBJECT
 public:
     enum {
-        DocsetNameRole = Qt::UserRole
+        DocsetNameRole = Qt::UserRole,
+        UpdateAvailableRole
     };
 
     explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);

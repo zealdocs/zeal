@@ -376,6 +376,9 @@
         <layout class="QHBoxLayout" name="docsetsActions">
          <item>
           <widget class="QPushButton" name="updateButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Update docsets</string>
            </property>

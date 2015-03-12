@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 
+#include "docsetlistitemdelegate.h"
 #include "progressitemdelegate.h"
 #include "ui_settingsdialog.h"
 #include "core/application.h"
@@ -49,6 +50,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     ui->downloadableGroup->hide();
     ui->docsetsProgress->hide();
 
+    ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(listModel);
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
@@ -67,7 +69,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     });
 
     connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
-    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateFeedDocsets);
+    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
     connect(ui->refreshButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
 
     connect(m_application, &Core::Application::extractionCompleted,
@@ -239,6 +241,21 @@ void SettingsDialog::downloadCompleted()
                 ? m_availableDocsets[docsetName]
                   : m_userFeeds[docsetName];
 
+        /// TODO: Implement an explicit and verbose docset update logic
+        QDir dir(m_application->settings()->docsetPath);
+        const QString docsetDirName = docsetName + QLatin1String(".docset");
+        if (dir.exists(docsetDirName)) {
+            m_docsetRegistry->remove(docsetName);
+            const QString tmpName = QStringLiteral(".toDelete")
+                    + QString::number(QDateTime::currentMSecsSinceEpoch());
+            dir.rename(docsetDirName, tmpName);
+            QtConcurrent::run([=] {
+                QDir d(dir);
+                d.cd(tmpName);
+                d.removeRecursively();
+            });
+        }
+
         QTemporaryFile *tmpFile = new QTemporaryFile();
         tmpFile->open();
         while (reply->bytesAvailable())
@@ -347,23 +364,13 @@ void SettingsDialog::resetProgress()
     ui->availableDocsetList->setEnabled(true);
 }
 
-void SettingsDialog::updateFeedDocsets()
+void SettingsDialog::updateDocsets()
 {
-    ui->downloadableGroup->show();
-
     for (const Docset * const docset : m_docsetRegistry->docsets()) {
-        if (!m_userFeeds.contains(docset->name()))
+        if (!docset->hasUpdate)
             continue;
 
-        QNetworkReply *reply = startDownload(m_userFeeds[docset->name()].feedUrl());
-        reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
-
-        QListWidgetItem *listItem = findDocsetListItem(docset->title());
-        if (listItem)
-            reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(listItem));
-
-        reply->setProperty(DocsetNameProperty, docset->name());
-        connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
+        downloadDashDocset(docset->name());
     }
 }
 
@@ -382,9 +389,21 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
-        if (m_docsetRegistry->contains(metadata.name()))
+        if (m_docsetRegistry->contains(metadata.name())) {
             listItem->setHidden(true);
+
+            Docset *docset = m_docsetRegistry->docset(metadata.name());
+
+            if (metadata.latestVersion() != docset->version()
+                    || (metadata.latestVersion() == docset->version()
+                        && metadata.revision() > docset->revision())) {
+                docset->hasUpdate = true;
+                ui->updateButton->setEnabled(true);
+            }
+        }
     }
+
+    ui->installedDocsetList->reset();
 
     if (!m_availableDocsets.isEmpty())
         ui->downloadableGroup->show();

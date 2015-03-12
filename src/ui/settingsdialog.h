@@ -72,7 +72,7 @@ private:
     void resetProgress();
 
     void loadSettings();
-    void updateFeedDocsets();
+    void updateDocsets();
     QNetworkReply *startDownload(const QUrl &url);
     void stopDownloads();
     void saveSettings();
