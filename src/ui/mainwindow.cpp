@@ -253,6 +253,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setExpanding(false);
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);
+    m_tabBar->setDocumentMode(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
@@ -276,6 +277,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->action_PreviousTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
+
+#ifdef Q_OS_OSX
+    ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->sections->setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
 }
 
 MainWindow::~MainWindow()

@@ -47,6 +47,11 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
 {
     ui->setupUi(this);
 
+#ifdef Q_OS_OSX
+    ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->installedDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
+
     ui->downloadableGroup->hide();
     ui->docsetsProgress->hide();
 
