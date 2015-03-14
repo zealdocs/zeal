@@ -623,6 +623,8 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         return;
 
     const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    if (!cacheDir.exists())
+        QDir().mkpath(cacheDir.absolutePath());
     const QFileInfo fi(cacheDir.filePath(DocsetListCacheFileName));
 
     if (!fi.exists() || fi.lastModified().msecsTo(QDateTime::currentDateTime()) > CacheTimeout) {
