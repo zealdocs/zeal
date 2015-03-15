@@ -38,7 +38,7 @@
 using namespace Zeal;
 
 namespace {
-const char startPageUrl[] = "qrc:///webpage/start.html";
+const char startPageUrl[] = "qrc:///browser/start.html";
 }
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :

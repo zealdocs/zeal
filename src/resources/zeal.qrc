@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>zeal.ico</file>
-        <file>webpage/start.html</file>
-        <file>webpage/main.css</file>
+        <file>browser/main.css</file>
+        <file>browser/start.html</file>
         <file>icons/type/_DashAnnotations.png</file>
         <file>icons/type/_DashAnnotations@2x.png</file>
         <file>icons/type/_Struct.png</file>
