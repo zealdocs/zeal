@@ -188,13 +188,13 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     while (query.next()) {
         QString sectionName = query.value(0).toString();
         QString sectionPath = query.value(2).toString();
-        QString parentName;
         if (m_type == Docset::Type::ZDash) {
             sectionPath += QLatin1Char('#');
             sectionPath += query.value(3).toString();
         }
 
-        normalizeName(sectionName, parentName);
+        //QString parentName;
+        //normalizeName(sectionName, parentName);
 
         results.append(SearchResult(sectionName, QString(), const_cast<Docset *>(this), sectionPath, QString()));
     }

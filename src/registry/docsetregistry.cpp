@@ -186,7 +186,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 path += QLatin1Char('#') + row[3].toString();
 
             QString itemName = row[0].toString();
-            Docset::normalizeName(itemName, parentName);
+            //Docset::normalizeName(itemName, parentName);
             results.append(SearchResult(itemName, parentName, docset, path,
                                         preparedQuery));
         }
