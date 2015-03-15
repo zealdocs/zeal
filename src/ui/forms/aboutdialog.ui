@@ -32,7 +32,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../../zeal.qrc">:/icons/logo/64x64.png</pixmap>
+         <pixmap resource="../../resources/zeal.qrc">:/icons/logo/64x64.png</pixmap>
         </property>
        </widget>
       </item>
@@ -110,7 +110,7 @@ Docsets are courtesy of &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;Dash&lt
   </layout>
  </widget>
  <resources>
-  <include location="../../zeal.qrc"/>
+  <include location="../../resources/zeal.qrc"/>
  </resources>
  <connections>
   <connection>
