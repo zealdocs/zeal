@@ -197,7 +197,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     ui->sections->hide();
-    ui->sections_lab->hide();
+    ui->seeAlsoLabel->hide();
     ui->sections->setModel(m_searchState->sectionsList);
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
 
@@ -368,7 +368,7 @@ void MainWindow::createTab()
     connect(newTab->sectionsList, &SearchModel::queryCompleted, [=]() {
         int resultCount = newTab->sectionsList->rowCount(QModelIndex());
         ui->sections->setVisible(resultCount > 1);
-        ui->sections_lab->setVisible(resultCount > 1);
+        ui->seeAlsoLabel->setVisible(resultCount > 1);
     });
 
     ui->lineEdit->clear();
@@ -469,7 +469,7 @@ void MainWindow::reloadTabState()
 
     int resultCount = m_searchState->sectionsList->rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
-    ui->sections_lab->setVisible(resultCount > 1);
+    ui->seeAlsoLabel->setVisible(resultCount > 1);
 
     // scroll after the object gets loaded
     /// TODO: [Qt 5.4] QTimer::singleShot(100, this, &MainWindow::scrollSearch);

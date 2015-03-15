@@ -108,9 +108,12 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="sections_lab">
+         <widget class="QLabel" name="seeAlsoLabel">
           <property name="text">
-           <string>Sections:</string>
+           <string>See also</string>
+          </property>
+          <property name="margin">
+           <number>2</number>
           </property>
          </widget>
         </item>
