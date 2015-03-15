@@ -33,9 +33,6 @@ include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 RESOURCES += \
     resources/zeal.qrc
 
-win32:RC_ICONS = resources/zeal.ico
-macx:ICON = resources/zeal.icns
-
 DESTDIR = $$BUILD_ROOT/bin
 
 unix:!macx {
@@ -62,7 +59,15 @@ unix:!macx {
     INSTALLS += appicons16 appicons24 appicons32 appicons64 appicons128 desktop
 }
 
-if(win32|macx): TARGET = Zeal
+win32 {
+    TARGET = zeal
+    RC_ICONS = resources/zeal.ico
+}
+
+macx {
+    TARGET = Zeal
+    ICON = resources/zeal.icns
+}
 
 # Keep build directory organised
 MOC_DIR = $$BUILD_ROOT/.moc

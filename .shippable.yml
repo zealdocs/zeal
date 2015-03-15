@@ -40,7 +40,7 @@ script:
 after_success:
   # Prepare ZIP package
   - mkdir $ZEAL_DIR
-  - cp bin/Zeal.exe $ZEAL_DIR
+  - cp bin/zeal.exe $ZEAL_DIR
   - for dir in imageformats platforms sqldrivers; do mkdir $ZEAL_DIR/$dir; done
   - cp $HOME/qt/Tools/mingw491_32/opt/bin/ssleay32.dll $ZEAL_DIR
   - cp $HOME/qt/Tools/mingw491_32/opt/bin/libeay32.dll $ZEAL_DIR
