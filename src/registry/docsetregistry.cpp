@@ -181,7 +181,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 parentName = row[1].toString();
 
             QString path = row[2].toString();
-            // FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
+            /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
             if (docset->type() == Docset::Type::ZDash)
                 path += QLatin1Char('#') + row[3].toString();
 

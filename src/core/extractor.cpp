@@ -38,7 +38,7 @@ void Extractor::extract(const QString &filePath, const QString &destination, con
     if (!root.isEmpty())
         destinationDir = destinationDir.absoluteFilePath(root);
 
-    // TODO: Do not strip root directory in archive if it equals to 'root'
+    /// TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry;
     while (archive_read_next_header(info.archiveHandle, &entry) == ARCHIVE_OK) {
         QString pathname = archive_entry_pathname(entry);

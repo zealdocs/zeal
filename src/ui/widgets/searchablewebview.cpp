@@ -87,7 +87,7 @@ void SearchableWebView::moveLineEdit()
     QSize sz = lineEdit.sizeHint();
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 #ifdef USE_WEBENGINE
-    // FIXME scrollbar width
+    /// FIXME: scrollbar width
 #else
     frameWidth += webView.page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
 #endif

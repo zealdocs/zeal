@@ -89,7 +89,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     m_zealNetworkManager = new NetworkAccessManager();
 #ifdef USE_WEBENGINE
-    // FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
+    /// FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else
     ui->webView->page()->setNetworkAccessManager(m_zealNetworkManager);
 #endif
@@ -346,7 +346,7 @@ void MainWindow::closeTab(int index)
     if (index == -1)
         index = m_tabBar->currentIndex();
 
-    // TODO: proper deletion here
+    /// TODO: proper deletion here
     SearchState *tab = m_tabs.takeAt(index);
     delete tab->zealSearch;
     delete tab->sectionsList;
