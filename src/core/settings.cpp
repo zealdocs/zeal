@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QWebSettings>
+#include <QUrl>
 
 using namespace Zeal::Core;
 
@@ -17,6 +18,9 @@ Settings::Settings(QObject *parent) :
                              QSettings::IniFormat, this))
 #endif
 {
+    /// TODO: Move to user style sheet (related to #268)
+    QWebSettings::globalSettings()->setUserStyleSheetUrl(QStringLiteral("qrc:///browser/highlight.css"));
+
     load();
 }
 

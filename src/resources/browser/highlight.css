@@ -1,0 +1,9 @@
+@-webkit-keyframes targetNavigatedAnimation {
+    from { background: #ffffff; }
+    50% { background: #ffffdd; }
+    to { background: #ffffff; }
+}
+
+*:target {
+    -webkit-animation: targetNavigatedAnimation .5s linear;
+}
