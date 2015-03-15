@@ -36,7 +36,6 @@ RESOURCES += \
 !msvc:LIBS += -lz -L/usr/lib
 
 win32:RC_ICONS = resources/zeal.ico
-msvc:QMAKE_LIBS += user32.lib
 macx:ICON = resources/zeal.icns
 
 DESTDIR = $$BUILD_ROOT/bin
