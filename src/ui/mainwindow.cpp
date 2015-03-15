@@ -337,6 +337,10 @@ void MainWindow::queryCompleted()
 void MainWindow::goToTab(int index)
 {
     saveTabState();
+
+    if (m_tabs.isEmpty())
+        return;
+
     m_searchState = m_tabs.at(index);
     reloadTabState();
 }
@@ -348,13 +352,18 @@ void MainWindow::closeTab(int index)
 
     /// TODO: proper deletion here
     SearchState *tab = m_tabs.takeAt(index);
+
+    if (m_searchState == tab)
+        m_searchState = nullptr;
+
     delete tab->zealSearch;
     delete tab->sectionsList;
     delete tab;
 
+    m_tabBar->removeTab(index);
+
     if (m_tabs.count() == 0)
         createTab();
-    m_tabBar->removeTab(index);
 }
 
 void MainWindow::createTab()
@@ -486,6 +495,8 @@ void MainWindow::scrollSearch()
 
 void MainWindow::saveTabState()
 {
+    if (!m_searchState)
+        return;
     m_searchState->searchQuery = ui->lineEdit->text();
     m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
