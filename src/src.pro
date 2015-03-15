@@ -31,13 +31,13 @@ include(ui/ui.pri)
 include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 
 RESOURCES += \
-    zeal.qrc
+    resources/zeal.qrc
 
 !msvc:LIBS += -lz -L/usr/lib
 
-win32:RC_ICONS = zeal.ico
+win32:RC_ICONS = resources/zeal.ico
 msvc:QMAKE_LIBS += user32.lib
-macx:ICON = zeal.icns
+macx:ICON = resources/zeal.icns
 
 DESTDIR = $$BUILD_ROOT/bin
 
