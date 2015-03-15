@@ -187,7 +187,8 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
             QString itemName = row[0].toString();
             //Docset::normalizeName(itemName, parentName);
-            results.append(SearchResult{itemName, parentName, docset, path, preparedQuery});
+            /// TODO: Third should be type
+            results.append(SearchResult{itemName, parentName, QString(), docset, path, preparedQuery});
         }
     }
     std::sort(results.begin(), results.end());

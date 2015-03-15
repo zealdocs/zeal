@@ -21,7 +21,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return item->docset->icon();
+            return QIcon(QString("typeIcon:%1.png").arg(item->type));;
         return QVariant();
     }
 
