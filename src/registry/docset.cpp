@@ -172,7 +172,8 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     // Prepare the query to look up all pages with the same url.
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path FROM searchIndex WHERE path LIKE \"%1%%\"");
+        queryStr = QStringLiteral("SELECT name, type, path FROM searchIndex "
+                                  "WHERE path LIKE \"%1%%\" AND path <> \"%1\"");
     } else if (m_type == Docset::Type::ZDash) {
         queryStr = QStringLiteral("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                                   "FROM ztoken "
