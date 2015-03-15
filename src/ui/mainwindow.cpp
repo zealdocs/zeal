@@ -38,7 +38,7 @@
 using namespace Zeal;
 
 namespace {
-const char indexPageUrl[] = "qrc:///webpage/Welcome.html";
+const char startPageUrl[] = "qrc:///webpage/start.html";
 }
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
@@ -207,7 +207,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             if (docsetName(searchState->page->mainFrame()->url()) != name)
                 continue;
 
-            searchState->page->mainFrame()->load(QUrl(indexPageUrl));
+            searchState->page->mainFrame()->load(QUrl(startPageUrl));
             /// TODO: Cleanup history
         }
     });
@@ -402,7 +402,7 @@ void MainWindow::createTab()
 #ifdef USE_WEBENGINE
     newTab->page->load(QUrl(indexPageUrl));
 #else
-    newTab->page->mainFrame()->load(QUrl(indexPageUrl));
+    newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
 }
 
