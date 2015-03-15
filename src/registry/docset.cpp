@@ -196,7 +196,7 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
         //QString parentName;
         //normalizeName(sectionName, parentName);
 
-        results.append(SearchResult(sectionName, QString(), const_cast<Docset *>(this), sectionPath, QString()));
+        results.append(SearchResult{sectionName, QString(), const_cast<Docset *>(this), sectionPath, QString()});
     }
 
     return results;

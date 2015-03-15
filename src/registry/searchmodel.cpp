@@ -21,18 +21,18 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DecorationRole) {
         if (index.column() == 0)
-            return item->docset()->icon();
+            return item->docset->icon();
         return QVariant();
     }
 
     if (index.column() == 0) {
-        if (!item->parentName().isEmpty())
-            return QString("%1 (%2)").arg(item->name(), item->parentName());
+        if (!item->parentName.isEmpty())
+            return QString("%1 (%2)").arg(item->name, item->parentName);
         else
-            return item->name();
+            return item->name;
 
     } else if (index.column() == 1) {
-        return QDir(item->docset()->documentPath()).absoluteFilePath(item->path());
+        return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
     }
     return QVariant();
 }
