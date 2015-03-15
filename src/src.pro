@@ -33,8 +33,6 @@ include(3rdparty/qxtglobalshortcut/qxtglobalshortcut.pri)
 RESOURCES += \
     resources/zeal.qrc
 
-!msvc:LIBS += -lz -L/usr/lib
-
 win32:RC_ICONS = resources/zeal.ico
 macx:ICON = resources/zeal.icns
 
