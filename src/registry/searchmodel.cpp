@@ -20,9 +20,14 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     SearchResult *item = static_cast<SearchResult *>(index.internalPointer());
 
     if (role == Qt::DecorationRole) {
-        if (index.column() == 0)
+        if (index.column() != 0)
+            return QVariant();
+
+        /// TODO: Provide two icons (docset & symbol) once search item delegate supports that
+        if (item->type.isEmpty())
+            return item->docset->icon();
+        else
             return QIcon(QString("typeIcon:%1.png").arg(item->type));;
-        return QVariant();
     }
 
     if (index.column() == 0) {
