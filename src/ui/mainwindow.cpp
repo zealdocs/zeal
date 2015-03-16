@@ -254,6 +254,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
@@ -429,25 +430,19 @@ void MainWindow::displayTabs()
         QAction *action = ui->menu_Tabs->addAction(title);
         action->setCheckable(true);
         action->setChecked(i == m_tabBar->currentIndex());
+
         if (i < 10) {
-            QString shortcut;
-            if (i == 9)
-                shortcut = QString("Ctrl+%1").arg(QString::number(0));
-            else
-                shortcut = QString("Ctrl+%1").arg(QString::number(i+1));
-            QList<QAction *> actions_ = actions();
-            for (int i = 0; i < actions_.length(); ++i) {
-                if (actions_[i]->shortcut().toString() == shortcut)
-                    removeAction(actions_[i]);
+            const QKeySequence shortcut = QString("Ctrl+%1").arg(QString::number((i + 1) % 10));
+
+            for (QAction *oldAction : actions()) {
+                if (oldAction->shortcut() == shortcut)
+                    removeAction(oldAction);
             }
+
+            action->setShortcut(shortcut);
             addAction(action);
-            action->setShortcut(QKeySequence(shortcut));
         }
 
-        if (title.length() >= 20) {
-            title.truncate(17);
-            title += "...";
-        }
         m_tabBar->setTabText(i, title);
         connect(action, &QAction::triggered, [=]() {
             m_tabBar->setCurrentIndex(i);
