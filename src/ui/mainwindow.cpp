@@ -373,12 +373,11 @@ void MainWindow::createTab()
     newTab->zealSearch = new Zeal::SearchModel();
     newTab->sectionsList = new Zeal::SearchModel();
 
-    connect(newTab->zealSearch, &SearchModel::queryCompleted, this,
-            &MainWindow::queryCompleted);
+    connect(newTab->zealSearch, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->sectionsList, &SearchModel::queryCompleted, [=]() {
-        int resultCount = newTab->sectionsList->rowCount(QModelIndex());
-        ui->sections->setVisible(resultCount > 1);
-        ui->seeAlsoLabel->setVisible(resultCount > 1);
+        const bool hasResults = newTab->sectionsList->rowCount(QModelIndex());
+        ui->sections->setVisible(hasResults);
+        ui->seeAlsoLabel->setVisible(hasResults);
     });
 
     ui->lineEdit->clear();
