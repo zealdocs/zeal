@@ -75,7 +75,8 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
         clParams.query.setQuery(parser.value(QStringLiteral("query")));
     } else {
         /// TODO: Support dash-feed:// protocol
-        const QString arg = parser.positionalArguments().value(0);
+        const QString arg
+                = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
         if (arg.startsWith(QLatin1String("dash:"))) {
             clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
         } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
