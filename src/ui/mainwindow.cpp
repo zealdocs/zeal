@@ -96,20 +96,20 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // menu
     if (QKeySequence(QKeySequence::Quit) != QKeySequence(QStringLiteral("Ctrl+Q"))) {
-        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence(QStringLiteral("Ctrl+Q")),
+        ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence(QStringLiteral("Ctrl+Q")),
                                                           QKeySequence::Quit});
     } else {
         // Quit == Ctrl+Q - don't set the same sequence twice because it causes
         // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
-        ui->action_Quit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
+        ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
     }
-    addAction(ui->action_Quit);
-    connect(ui->action_Quit, &QAction::triggered, [=]() {
+    addAction(ui->actionQuit);
+    connect(ui->actionQuit, &QAction::triggered, [=]() {
         m_settings->windowGeometry = saveGeometry();
     });
-    connect(ui->action_Quit, &QAction::triggered, qApp, &QCoreApplication::quit);
+    connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-    connect(ui->action_Options, &QAction::triggered, [=]() {
+    connect(ui->actionOptions, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
 
         if (m_settingsDialog->exec()) {
@@ -128,12 +128,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_globalShortcut->setEnabled(true);
     });
 
-    ui->action_Back->setShortcut(QKeySequence::Back);
-    addAction(ui->action_Back);
-    ui->action_Forward->setShortcut(QKeySequence::Forward);
-    addAction(ui->action_Forward);
-    connect(ui->action_Back, &QAction::triggered, this, &MainWindow::back);
-    connect(ui->action_Forward, &QAction::triggered, this, &MainWindow::forward);
+    ui->actionBack->setShortcut(QKeySequence::Back);
+    addAction(ui->actionBack);
+    ui->actionForward->setShortcut(QKeySequence::Forward);
+    addAction(ui->actionForward);
+    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::back);
+    connect(ui->actionForward, &QAction::triggered, this, &MainWindow::forward);
 
     // Help Menu
     connect(ui->actionReportProblem, &QAction::triggered, [this]() {
@@ -224,9 +224,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
-    ui->action_NewTab->setShortcut(QKeySequence::AddTab);
-    addAction(ui->action_NewTab);
-    connect(ui->action_NewTab, &QAction::triggered, [this]() {
+    ui->actionNewTab->setShortcut(QKeySequence::AddTab);
+    addAction(ui->actionNewTab);
+    connect(ui->actionNewTab, &QAction::triggered, [this]() {
         saveTabState();
         createTab();
     });
@@ -242,12 +242,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
 #ifdef Q_OS_WIN32
-    ui->action_CloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
+    ui->actionCloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
 #else
-    ui->action_CloseTab->setShortcut(QKeySequence::Close);
+    ui->actionCloseTab->setShortcut(QKeySequence::Close);
 #endif
-    addAction(ui->action_CloseTab);
-    connect(ui->action_CloseTab, &QAction::triggered, this, &MainWindow::closeTab);
+    addAction(ui->actionCloseTab);
+    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeTab);
 
     m_tabBar->setTabsClosable(true);
     m_tabBar->setExpanding(false);
@@ -267,15 +267,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    ui->action_NextTab->setShortcut(QKeySequence::NextChild);
-    addAction(ui->action_NextTab);
-    connect(ui->action_NextTab, &QAction::triggered, [this]() {
+    ui->actionNextTab->setShortcut(QKeySequence::NextChild);
+    addAction(ui->actionNextTab);
+    connect(ui->actionNextTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
-    ui->action_PreviousTab->setShortcut(QKeySequence::PreviousChild);
-    addAction(ui->action_PreviousTab);
-    connect(ui->action_PreviousTab, &QAction::triggered, [this]() {
+    ui->actionPreviousTab->setShortcut(QKeySequence::PreviousChild);
+    addAction(ui->actionPreviousTab);
+    connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
 
@@ -408,16 +408,16 @@ void MainWindow::createTab()
 
 void MainWindow::displayTabs()
 {
-    ui->menu_Tabs->clear();
-    ui->menu_Tabs->addAction(ui->action_NewTab);
-    ui->menu_Tabs->addAction(ui->action_CloseTab);
-    ui->menu_Tabs->addSeparator();
-    ui->menu_Tabs->addAction(ui->action_NextTab);
-    ui->menu_Tabs->addAction(ui->action_PreviousTab);
-    ui->menu_Tabs->addSeparator();
+    ui->menuTabs->clear();
+    ui->menuTabs->addAction(ui->actionNewTab);
+    ui->menuTabs->addAction(ui->actionCloseTab);
+    ui->menuTabs->addSeparator();
+    ui->menuTabs->addAction(ui->actionNextTab);
+    ui->menuTabs->addAction(ui->actionPreviousTab);
+    ui->menuTabs->addSeparator();
 
-    ui->action_NextTab->setEnabled(m_tabBar->count() > 1);
-    ui->action_PreviousTab->setEnabled(m_tabBar->count() > 1);
+    ui->actionNextTab->setEnabled(m_tabBar->count() > 1);
+    ui->actionPreviousTab->setEnabled(m_tabBar->count() > 1);
 
     for (int i = 0; i < m_tabs.count(); i++) {
         SearchState *state = m_tabs.at(i);
@@ -426,7 +426,7 @@ void MainWindow::displayTabs()
 #else
         QString title = state->page->history()->currentItem().title();
 #endif
-        QAction *action = ui->menu_Tabs->addAction(title);
+        QAction *action = ui->menuTabs->addAction(title);
         action->setCheckable(true);
         action->setChecked(i == m_tabBar->currentIndex());
 
@@ -523,15 +523,15 @@ void MainWindow::setupSearchBoxCompletions()
 
 void MainWindow::displayViewActions()
 {
-    ui->action_Back->setEnabled(ui->webView->canGoBack());
+    ui->actionBack->setEnabled(ui->webView->canGoBack());
     ui->backButton->setEnabled(ui->webView->canGoBack());
-    ui->action_Forward->setEnabled(ui->webView->canGoForward());
+    ui->actionForward->setEnabled(ui->webView->canGoForward());
     ui->forwardButton->setEnabled(ui->webView->canGoForward());
 
-    ui->menu_View->clear();
-    ui->menu_View->addAction(ui->action_Back);
-    ui->menu_View->addAction(ui->action_Forward);
-    ui->menu_View->addSeparator();
+    ui->menuView->clear();
+    ui->menuView->addAction(ui->actionBack);
+    ui->menuView->addAction(ui->actionForward);
+    ui->menuView->addSeparator();
 
     m_backMenu->clear();
     m_forwardMenu->clear();
@@ -562,8 +562,8 @@ void MainWindow::forward()
 QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
 {
     const QIcon icon = docsetIcon(docsetName(item.url()));
-    QAction *backAction = new QAction(icon, item.title(), ui->menu_View);
-    ui->menu_View->addAction(backAction);
+    QAction *backAction = new QAction(icon, item.title(), ui->menuView);
+    ui->menuView->addAction(backAction);
     connect(backAction, &QAction::triggered, [=](bool) {
         history->goToItem(item);
     });
@@ -597,10 +597,10 @@ void MainWindow::createTrayIcon()
         GtkWidget *menu;
         GtkWidget *quitItem;
 
-        menu = gtk_menu_new();
+        menu = gtk_menunew();
 
-        quitItem = gtk_menu_item_new_with_label("Quit");
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), quitItem);
+        quitItem = gtk_menuitem_new_with_label("Quit");
+        gtk_menushell_append(GTK_menuSHELL(menu), quitItem);
         g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
         gtk_widget_show(quitItem);
 

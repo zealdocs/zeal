@@ -205,18 +205,18 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="action_Options"/>
+    <addaction name="actionOptions"/>
     <addaction name="separator"/>
-    <addaction name="action_Quit"/>
+    <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menu_Help">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>&amp;Help</string>
     </property>
@@ -225,34 +225,34 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     <addaction name="actionAboutZeal"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menu_View">
+   <widget class="QMenu" name="menuView">
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="action_Back"/>
-    <addaction name="action_Forward"/>
+    <addaction name="actionBack"/>
+    <addaction name="actionForward"/>
    </widget>
-   <widget class="QMenu" name="menu_Tabs">
+   <widget class="QMenu" name="menuTabs">
     <property name="title">
      <string>&amp;Tabs</string>
     </property>
-    <addaction name="action_NewTab"/>
-    <addaction name="action_CloseTab"/>
+    <addaction name="actionNewTab"/>
+    <addaction name="actionCloseTab"/>
     <addaction name="separator"/>
-    <addaction name="action_NextTab"/>
-    <addaction name="action_PreviousTab"/>
+    <addaction name="actionNextTab"/>
+    <addaction name="actionPreviousTab"/>
    </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menu_View"/>
-   <addaction name="menu_Tabs"/>
-   <addaction name="menu_Help"/>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTabs"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="action_Options">
+  <action name="actionOptions">
    <property name="text">
     <string>&amp;Options</string>
    </property>
@@ -267,17 +267,17 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     <string>About &amp;Qt</string>
    </property>
   </action>
-  <action name="action_Back">
+  <action name="actionBack">
    <property name="text">
     <string>&amp;Back</string>
    </property>
   </action>
-  <action name="action_Forward">
+  <action name="actionForward">
    <property name="text">
     <string>&amp;Forward</string>
    </property>
   </action>
-  <action name="action_NewTab">
+  <action name="actionNewTab">
    <property name="text">
     <string>New Tab</string>
    </property>
@@ -285,17 +285,17 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     <string>Ctrl+T</string>
    </property>
   </action>
-  <action name="action_CloseTab">
+  <action name="actionCloseTab">
    <property name="text">
     <string>Close Tab</string>
    </property>
   </action>
-  <action name="action_NextTab">
+  <action name="actionNextTab">
    <property name="text">
     <string>Next Tab</string>
    </property>
   </action>
-  <action name="action_PreviousTab">
+  <action name="actionPreviousTab">
    <property name="text">
     <string>Previous Tab</string>
    </property>
