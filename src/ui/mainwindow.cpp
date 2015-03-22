@@ -213,7 +213,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-        if (text == m_searchState->searchQuery)
+        if (!m_searchState || text == m_searchState->searchQuery)
             return;
 
         m_searchState->searchQuery = text;
