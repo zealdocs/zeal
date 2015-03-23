@@ -1,11 +1,12 @@
 #ifndef SEARCHEDIT_H
 #define SEARCHEDIT_H
 
-#include <QEvent>
-#include <QTreeView>
-#include <QCompleter>
-#include <QLabel>
 #include <QLineEdit>
+
+class QCompleter;
+class QEvent;
+class QLabel;
+class QTreeView;
 
 class ZealSearchEdit : public QLineEdit
 {
@@ -18,24 +19,24 @@ public:
     void selectQuery();
     void setCompletions(const QStringList &completions);
 
-protected:
-    bool event(QEvent *event) override;
-    void focusInEvent(QFocusEvent *) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void mousePressEvent(QMouseEvent *ev) override;
-
 public slots:
     void clear();
-    QString currentCompletion(const QString &text);
+    QString currentCompletion(const QString &text) const;
     void showCompletions(const QString &text);
+
+protected:
+    bool event(QEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     int queryStart() const;
 
-    QCompleter *prefixCompleter;
-    QTreeView *treeView;
-    QLabel *completionLabel;
-    bool focusing;
+    QCompleter *m_prefixCompleter = nullptr;
+    QTreeView *m_treeView = nullptr;
+    QLabel *m_completionLabel = nullptr;
+    bool m_focusing = false;
 };
 
 #endif // SEARCHEDIT_H

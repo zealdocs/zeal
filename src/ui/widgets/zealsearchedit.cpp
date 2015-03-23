@@ -2,61 +2,40 @@
 
 #include "registry/searchquery.h"
 
+#include <QCompleter>
 #include <QKeyEvent>
+#include <QLabel>
+#include <QTreeView>
 
 ZealSearchEdit::ZealSearchEdit(QWidget *parent) :
     QLineEdit(parent)
 {
     setClearButtonEnabled(true);
 
-    completionLabel = new QLabel(this);
-    completionLabel->setObjectName("completer");
-    completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
-    completionLabel->setFont(font());
+    m_completionLabel = new QLabel(this);
+    m_completionLabel->setObjectName("completer");
+    m_completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
+    m_completionLabel->setFont(font());
 
     connect(this, &ZealSearchEdit::textChanged, this, &ZealSearchEdit::showCompletions);
 }
 
 void ZealSearchEdit::setTreeView(QTreeView *view)
 {
-    treeView = view;
-    focusing = false;
+    m_treeView = view;
+    m_focusing = false;
 }
 
 // Makes the line edit use autocompletions.
 void ZealSearchEdit::setCompletions(const QStringList &completions)
 {
-    prefixCompleter = new QCompleter(completions, this);
-    prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
-    prefixCompleter->setCaseSensitivity(Qt::CaseInsensitive);
-    prefixCompleter->setWidget(this);
-}
+    if (m_prefixCompleter)
+        delete m_prefixCompleter;
 
-bool ZealSearchEdit::event(QEvent *event)
-{
-    if (event->type() != QEvent::KeyPress)
-        return QLineEdit::event(event);
-
-    QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
-    if (keyEvent->key() != Qt::Key_Tab)
-        return QLineEdit::event(event);
-
-    QString currentText = text();
-    QString completed = currentCompletion(currentText);
-    if (!completed.isEmpty())
-        setText(completed);
-
-    return true;
-}
-
-int ZealSearchEdit::queryStart() const
-{
-    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
-    // Keep the filter for the first esc press
-    if (currentQuery.keywordPrefixSize() > 0 && currentQuery.query().size() > 0)
-        return currentQuery.keywordPrefixSize() + 1;
-    else
-        return 0;
+    m_prefixCompleter = new QCompleter(completions, this);
+    m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
+    m_prefixCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    m_prefixCompleter->setWidget(this);
 }
 
 // Clear input with consideration to docset filters
@@ -75,10 +54,49 @@ void ZealSearchEdit::clear()
     clearQuery();
 }
 
-void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
+QString ZealSearchEdit::currentCompletion(const QString &text) const
+{
+    if (text.isEmpty())
+        return QString();
+    else
+        return m_prefixCompleter->currentCompletion();
+}
+
+void ZealSearchEdit::showCompletions(const QString &newValue)
+{
+    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    const int textWidth = fontMetrics().width(newValue);
+
+    m_prefixCompleter->setCompletionPrefix(text());
+
+    const QString completed = currentCompletion(newValue).mid(newValue.size());
+    const QSize labelSize(fontMetrics().width(completed), size().height());
+
+    m_completionLabel->setMinimumSize(labelSize);
+    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->setText(completed);
+}
+
+bool ZealSearchEdit::event(QEvent *event)
+{
+    if (event->type() != QEvent::KeyPress)
+        return QLineEdit::event(event);
+
+    QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
+    if (keyEvent->key() != Qt::Key_Tab)
+        return QLineEdit::event(event);
+
+    const QString completed = currentCompletion(text());
+    if (!completed.isEmpty())
+        setText(completed);
+
+    return true;
+}
+
+void ZealSearchEdit::focusInEvent(QFocusEvent *event)
 {
     // Focus on the widget.
-    QLineEdit::focusInEvent(evt);
+    QLineEdit::focusInEvent(event);
 
     // Override the default selection.
     Zeal::SearchQuery currentQuery(text());
@@ -86,7 +104,7 @@ void ZealSearchEdit::focusInEvent(QFocusEvent *evt)
     if (selectionOffset > 0)
         selectionOffset++; // add the delimeter
     setSelection(selectionOffset, text().size() - selectionOffset);
-    focusing = true;
+    m_focusing = true;
 }
 
 void ZealSearchEdit::keyPressEvent(QKeyEvent *event)
@@ -97,18 +115,16 @@ void ZealSearchEdit::keyPressEvent(QKeyEvent *event)
         event->accept();
         break;
     case Qt::Key_Return:
-        emit treeView->activated(treeView->selectionModel()->currentIndex());
+        emit m_treeView->activated(m_treeView->selectionModel()->currentIndex());
         event->accept();
         break;
     case Qt::Key_Down:
     case Qt::Key_Up: {
-        QModelIndex index = treeView->currentIndex();
-        int nextRow = event->key() == Qt::Key_Down
-                ? index.row() + 1
-                : index.row() - 1;
-        QModelIndex sibling = index.sibling(nextRow, 0);
-        if (nextRow >= 0 && nextRow < treeView->model()->rowCount())
-            treeView->setCurrentIndex(sibling);
+        const QModelIndex index = m_treeView->currentIndex();
+        const int nextRow = index.row() + (event->key() == Qt::Key_Down ? 1 : -1);
+        const QModelIndex sibling = index.sibling(nextRow, 0);
+        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount())
+            m_treeView->setCurrentIndex(sibling);
         event->accept();
         break;
     }
@@ -118,33 +134,22 @@ void ZealSearchEdit::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void ZealSearchEdit::mousePressEvent(QMouseEvent *ev)
+void ZealSearchEdit::mousePressEvent(QMouseEvent *event)
 {
     // Let the focusInEvent code deal with initial selection on focus.
-    if (!focusing)
-        QLineEdit::mousePressEvent(ev);
-    focusing = false;
+    if (m_focusing)
+        return;
+
+    QLineEdit::mousePressEvent(event);
+    m_focusing = false;
 }
 
-QString ZealSearchEdit::currentCompletion(const QString &text)
+int ZealSearchEdit::queryStart() const
 {
-    if (text.isEmpty())
-        return QString();
+    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
+    // Keep the filter for the first esc press
+    if (currentQuery.keywordPrefixSize() > 0 && currentQuery.query().size() > 0)
+        return currentQuery.keywordPrefixSize() + 1;
     else
-        return prefixCompleter->currentCompletion();
-}
-
-void ZealSearchEdit::showCompletions(const QString &newValue)
-{
-    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    int textWidth = fontMetrics().width(newValue);
-
-    prefixCompleter->setCompletionPrefix(text());
-
-    QString completed = currentCompletion(newValue).mid(newValue.size());
-    QSize labelSize(fontMetrics().width(completed), size().height());
-
-    completionLabel->setMinimumSize(labelSize);
-    completionLabel->move(frameWidth + 2 + textWidth, 0);
-    completionLabel->setText(completed);
+        return 0;
 }
