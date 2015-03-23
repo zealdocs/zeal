@@ -10,11 +10,11 @@
     #include <QWebView>
 #endif
 
-class ZealWebView : public QWebView
+class WebView : public QWebView
 {
     Q_OBJECT
 public:
-    explicit ZealWebView(QWidget *parent = nullptr);
+    explicit WebView(QWidget *parent = nullptr);
 
     int zealZoomFactor() const;
     void setZealZoomFactor(int zf);

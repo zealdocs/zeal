@@ -1,7 +1,7 @@
 #ifndef SEARCHABLEWEBVIEW_H
 #define SEARCHABLEWEBVIEW_H
 
-#include "zealwebview.h"
+#include "webview.h"
 
 #include <QLineEdit>
 
@@ -53,7 +53,7 @@ public slots:
 
 private:
     QLineEdit lineEdit;
-    ZealWebView webView;
+    WebView webView;
     QString searchText;
     void moveLineEdit();
 };

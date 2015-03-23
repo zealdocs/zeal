@@ -82,7 +82,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
             <number>6</number>
            </property>
            <item>
-            <widget class="ZealSearchEdit" name="lineEdit">
+            <widget class="SearchEdit" name="lineEdit">
              <property name="placeholderText">
               <string>Enter your query</string>
              </property>
@@ -309,9 +309,9 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>ZealSearchEdit</class>
+   <class>SearchEdit</class>
    <extends>QLineEdit</extends>
-   <header>ui/widgets/zealsearchedit.h</header>
+   <header>ui/widgets/searchedit.h</header>
   </customwidget>
   <customwidget>
    <class>SearchableWebView</class>

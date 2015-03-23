@@ -8,11 +8,11 @@ class QEvent;
 class QLabel;
 class QTreeView;
 
-class ZealSearchEdit : public QLineEdit
+class SearchEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit ZealSearchEdit(QWidget *parent = nullptr);
+    explicit SearchEdit(QWidget *parent = nullptr);
 
     void setTreeView(QTreeView *view);
     void clearQuery();
