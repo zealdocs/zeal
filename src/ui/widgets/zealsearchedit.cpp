@@ -145,6 +145,6 @@ void ZealSearchEdit::showCompletions(const QString &newValue)
     QSize labelSize(fontMetrics().width(completed), size().height());
 
     completionLabel->setMinimumSize(labelSize);
-    completionLabel->move(frameWidth + 2 + textWidth, frameWidth);
+    completionLabel->move(frameWidth + 2 + textWidth, 0);
     completionLabel->setText(completed);
 }
