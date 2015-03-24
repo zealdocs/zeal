@@ -1,5 +1,8 @@
 #include "searchablewebview.h"
 
+#include "webview.h"
+
+#include <QLineEdit>
 #include <QShortcut>
 #include <QStyle>
 #include <QResizeEvent>
@@ -15,91 +18,126 @@
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent),
-    lineEdit(this),
-    webView(this)
+    m_lineEdit(new QLineEdit(this)),
+    m_webView(new WebView(this))
 {
-    webView.setAttribute(Qt::WA_AcceptTouchEvents, false);
-    lineEdit.hide();
-    connect(&lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
+    m_webView->setAttribute(Qt::WA_AcceptTouchEvents, false);
+    m_lineEdit->hide();
+    connect(m_lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         // clear selection:
 #ifdef USE_WEBENGINE
         webView.findText(text);
 #else
-        webView.findText(QString());
-        webView.findText(QString(), QWebPage::HighlightAllOccurrences);
+        m_webView->findText(QString());
+        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
         if (!text.isEmpty()) {
             // select&scroll to one occurence:
-            webView.findText(text, QWebPage::FindWrapsAroundDocument);
+            m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
             // highlight other occurences:
-            webView.findText(text, QWebPage::HighlightAllOccurrences);
+            m_webView->findText(text, QWebPage::HighlightAllOccurrences);
         }
 #endif
 
         // store text for later searches
-        searchText = text;
+        m_searchText = text;
     });
 
     QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
     connect(shortcut, &QShortcut::activated, [&] {
-        lineEdit.show();
-        lineEdit.setFocus();
+        m_lineEdit->show();
+        m_lineEdit->setFocus();
     });
 
-    connect(&webView, &QWebView::loadFinished, [&](bool ok) {
+    connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
         Q_UNUSED(ok)
         moveLineEdit();
     });
 
-    connect(&webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
-    connect(&webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
+    connect(m_webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
+    connect(m_webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
 #ifdef USE_WEBENGINE
     // not implemented?
-    // connect(webView.page(), &QWebPage::linkClicked, this, &SearchableWebView::linkClicked);
+    // connect(m_webView->page(), &QWebPage::linkClicked, this, &SearchableWebView::linkClicked);
 #else
-    connect(&webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
+    connect(m_webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
 #endif
 
-    connect(&webView, &QWebView::loadStarted, [&]() {
-        lineEdit.clear();
+    connect(m_webView, &QWebView::loadStarted, [&]() {
+        m_lineEdit->clear();
     });
 
     // Display tooltip showing link location when hovered over.
 #ifdef USE_WEBENGINE
-    connect(webView.page(), &QWebPage::linkHovered, [&](const QString &link) {
+    connect(m_webView->page(), &QWebPage::linkHovered, [&](const QString &link) {
 #else
-    connect(webView.page(), &QWebPage::linkHovered,
+    connect(m_webView->page(), &QWebPage::linkHovered,
             [&](const QString &link, const QString &title, const QString &textContent) {
         Q_UNUSED(title)
         Q_UNUSED(textContent)
 #endif
-        if (!link.startsWith("file:///"))
+        if (!link.startsWith(QLatin1String("file:///")))
             setToolTip(link);
     });
 }
 
 void SearchableWebView::setPage(QWebPage *page)
 {
-    webView.setPage(page);
+    m_webView->setPage(page);
 }
 
-void SearchableWebView::moveLineEdit()
+int SearchableWebView::zealZoomFactor() const
 {
-    QSize sz = lineEdit.sizeHint();
-    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-#ifdef USE_WEBENGINE
-    /// FIXME: scrollbar width
-#else
-    frameWidth += webView.page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
-#endif
-    lineEdit.move(rect().right() - frameWidth - sz.width(), rect().top());
-    lineEdit.raise();
+    return m_webView->zealZoomFactor();
 }
 
-void SearchableWebView::resizeEvent(QResizeEvent *event)
+void SearchableWebView::setZealZoomFactor(int zf)
 {
-    QWidget::resizeEvent(event);
-    webView.resize(event->size().width(), event->size().height());
-    moveLineEdit();
+    m_webView->setZealZoomFactor(zf);
+}
+
+void SearchableWebView::load(const QUrl &url)
+{
+    m_webView->load(url);
+}
+
+void SearchableWebView::focus()
+{
+    m_webView->setFocus();
+}
+
+QWebPage *SearchableWebView::page() const
+{
+    return m_webView->page();
+}
+
+QSize SearchableWebView::sizeHint() const
+{
+    return m_webView->sizeHint();
+}
+
+QWebSettings *SearchableWebView::settings() const
+{
+    return m_webView->settings();
+}
+
+void SearchableWebView::back()
+{
+    m_webView->back();
+}
+
+void SearchableWebView::forward()
+{
+    m_webView->forward();
+}
+
+bool SearchableWebView::canGoBack() const
+{
+    return m_webView->history()->canGoBack();
+}
+
+bool SearchableWebView::canGoForward() const
+{
+    return m_webView->history()->canGoForward();
 }
 
 void SearchableWebView::keyPressEvent(QKeyEvent *event)
@@ -112,59 +150,33 @@ void SearchableWebView::keyPressEvent(QKeyEvent *event)
 #endif
         if (event->modifiers() & Qt::ShiftModifier)
             flags |= QWebPage::FindBackward;
-        webView.findText(searchText, flags);
+        m_webView->findText(m_searchText, flags);
     }
 
     if (event->key() == Qt::Key_Slash) {
-        lineEdit.show();
-        lineEdit.setFocus();
+        m_lineEdit->show();
+        m_lineEdit->setFocus();
     }
 
     // Ignore all other events and pass them to the parent widget.
     event->ignore();
 }
 
-void SearchableWebView::load(const QUrl &url)
+void SearchableWebView::resizeEvent(QResizeEvent *event)
 {
-    webView.load(url);
+    QWidget::resizeEvent(event);
+    m_webView->resize(event->size().width(), event->size().height());
+    moveLineEdit();
 }
 
-void SearchableWebView::focus()
+void SearchableWebView::moveLineEdit()
 {
-    webView.setFocus();
-}
-
-QWebPage *SearchableWebView::page() const
-{
-    return webView.page();
-}
-
-QSize SearchableWebView::sizeHint() const
-{
-    return webView.sizeHint();
-}
-
-QWebSettings *SearchableWebView::settings() const
-{
-    return webView.settings();
-}
-
-void SearchableWebView::back()
-{
-    webView.back();
-}
-
-void SearchableWebView::forward()
-{
-    webView.forward();
-}
-
-bool SearchableWebView::canGoBack()
-{
-    return webView.history()->canGoBack();
-}
-
-bool SearchableWebView::canGoForward()
-{
-    return webView.history()->canGoForward();
+    int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+#ifdef USE_WEBENGINE
+    /// FIXME: scrollbar width
+#else
+    frameWidth += m_webView->page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
+#endif
+    m_lineEdit->move(rect().right() - frameWidth - m_lineEdit->sizeHint().width(), rect().top());
+    m_lineEdit->raise();
 }

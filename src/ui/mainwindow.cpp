@@ -27,6 +27,7 @@
 #include <QWebEngineSettings>
 #else
 #include <QWebFrame>
+#include <QWebPage>
 #endif
 
 #include <qxtglobalshortcut.h>

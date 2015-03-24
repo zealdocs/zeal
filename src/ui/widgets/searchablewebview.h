@@ -1,18 +1,13 @@
 #ifndef SEARCHABLEWEBVIEW_H
 #define SEARCHABLEWEBVIEW_H
 
-#include "webview.h"
+#include <QWidget>
 
-#include <QLineEdit>
+class QLineEdit;
+class QWebPage;
+class QWebSettings;
 
-#ifdef USE_WEBENGINE
-    #include <QWebEngineView>
-    #include <QWebEngineSettings>
-    #define QWebSettings QWebEngineSettings
-#else
-    #include <QWebView>
-    #include <QWebSettings>
-#endif
+class WebView;
 
 class SearchableWebView : public QWidget
 {
@@ -25,22 +20,12 @@ public:
     QSize sizeHint() const override;
     QWebSettings *settings() const;
     QWebPage *page() const;
-    bool canGoBack();
-    bool canGoForward();
+    bool canGoBack() const;
+    bool canGoForward() const;
     void setPage(QWebPage *page);
-    int zealZoomFactor()
-    {
-        return webView.zealZoomFactor();
-    }
 
-    void setZealZoomFactor(int zf_)
-    {
-        webView.setZealZoomFactor(zf_);
-    }
-
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
-    void resizeEvent(QResizeEvent *) override;
+    int zealZoomFactor() const;
+    void setZealZoomFactor(int zf);
 
 signals:
     void urlChanged(const QUrl &url);
@@ -51,11 +36,16 @@ public slots:
     void back();
     void forward();
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
-    QLineEdit lineEdit;
-    WebView webView;
-    QString searchText;
     void moveLineEdit();
+
+    QLineEdit *m_lineEdit = nullptr;
+    WebView *m_webView = nullptr;
+    QString m_searchText;
 };
 
 #endif // SEARCHABLEWEBVIEW_H
