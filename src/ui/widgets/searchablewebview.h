@@ -18,7 +18,6 @@ public:
     void load(const QUrl &url);
     void focus();
     QSize sizeHint() const override;
-    QWebSettings *settings() const;
     QWebPage *page() const;
     bool canGoBack() const;
     bool canGoForward() const;

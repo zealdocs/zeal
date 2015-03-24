@@ -115,11 +115,6 @@ QSize SearchableWebView::sizeHint() const
     return m_webView->sizeHint();
 }
 
-QWebSettings *SearchableWebView::settings() const
-{
-    return m_webView->settings();
-}
-
 void SearchableWebView::back()
 {
     m_webView->back();
