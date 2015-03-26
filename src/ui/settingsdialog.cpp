@@ -358,15 +358,18 @@ void SettingsDialog::displayProgress()
 
 void SettingsDialog::resetProgress()
 {
-    m_combinedReceived = 0;
-    m_combinedTotal = 0;
-    displayProgress();
+    if(replies.isEmpty())
+    {
+        m_combinedReceived = 0;
+        m_combinedTotal = 0;
+        displayProgress();
 
-    ui->downloadDocsetButton->setText(tr("Download"));
-    ui->refreshButton->setEnabled(true);
-    ui->updateButton->setEnabled(true);
-    ui->addFeedButton->setEnabled(true);
-    ui->availableDocsetList->setEnabled(true);
+        ui->downloadDocsetButton->setText(tr("Download"));
+        ui->refreshButton->setEnabled(true);
+        ui->updateButton->setEnabled(true);
+        ui->addFeedButton->setEnabled(true);
+        ui->availableDocsetList->setEnabled(true);
+    }
 }
 
 void SettingsDialog::updateDocsets()
@@ -480,9 +483,6 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
 
         downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
     }
-
-    if (replies.count() > 0)
-        ui->downloadDocsetButton->setText(tr("Stop downloads"));
 }
 
 void SettingsDialog::on_storageButton_clicked()
