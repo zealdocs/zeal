@@ -365,6 +365,7 @@ void SettingsDialog::resetProgress()
     m_combinedTotal = 0;
     displayProgress();
 
+    ui->availableDocsetList->setEnabled(true);
     ui->downloadDocsetButton->setText(tr("Download"));
     ui->refreshButton->setEnabled(true);
     ui->updateButton->setEnabled(true);
@@ -549,6 +550,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     m_replies.append(reply);
 
+    ui->availableDocsetList->setEnabled(false);
     ui->downloadDocsetButton->setText(tr("Stop downloads"));
     ui->refreshButton->setEnabled(false);
     ui->updateButton->setEnabled(false);
