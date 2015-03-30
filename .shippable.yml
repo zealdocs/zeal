@@ -55,10 +55,10 @@ after_success:
   # Pack everything into ZIP
   - 7z a -mx=9 $ZEAL_DIR.zip $ZEAL_DIR
   # Upload to BitBucket
-  - bash -c 'curl --header "Content-Type:application/octet-stream" --data-binary @$ZEAL_DIR.zip $ZEAL_UPLOAD_URL || true'
+  - bash -c 'curl -H "Content-Type:application/octet-stream" -H "Auth-Token:$AUTH_TOKEN" --data-binary @$ZEAL_DIR.zip ci2bb.herokuapp.com || true'
   # Cleanup
   - rm -rf $ZEAL_DIR*
 
 env:
   global:
-    - secure: A4hzif8DQe4sBHYAFYDCg2Ygs4vkZTw12vJAQyrPNfWNNJlJiCERtzexv2T10j+HoNKs1hEduZYBO0FYUvlLsEVfIoFCLCsJq2oKmv3BCtaRWHnQy6ClCzm4UOgJFjOC1jW6zJJKnrFrsoKbqLDyNkBOG8EgDxHYQfeDUmdFk1NEBhJ8pyp4AG8sv0+VWBWFNL0jyI9waLQYmvej5UesJd+FUX+WVt8nUJIgR71XwORPuPEzEOPMvowzouJysG4sPS5q7wLjbC5eGLoaHIvmA03PW8kfv9YZBOJ9mn63ScaQB5gPVaDfQyoP3wGGO31IyxjdngyUMpCV3Dv1v//9/A==
+    - secure: LRSLJQbkpc6kkWDVbmvCARm20edC+1RCCgSdEzK0GfG66V+dyGYi6ubFBv1M+kV9YEVY1FkkZctiKlneJLpi/YS3pSJF7bEhYggtxNxRD+9bAVk4GZwVxT7TUw1ZPtLUkWc7L7PqgIO+OOiI8THwsONBNcn5q4fLsByhlt2XOyGPOrQYmfmqjWpgErgI0K4aYoJfoJGTgV2v5sZ+owSkMniyJY5WU9iZkRLO63ddmk72d9eq8ECwgQqxDyhR9/WtHkMPCrwVh06RFd9jG4DfCNDDZRdQLdGxCPXTNwP7QHqG9mKFRQeM91gs/tKlhFFlfPHMckWiBK4hAo+WLC+Ekg==
