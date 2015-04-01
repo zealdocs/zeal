@@ -45,7 +45,7 @@ Docset::Docset(const QString &path) :
     if (info.family == QLatin1String("cheatsheet"))
         m_name = m_name + QLatin1String("cheats");
 
-    if (!dir.cd(QStringLiteral("Resources")))
+    if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
         return;
 
     QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_name);
