@@ -1,15 +1,14 @@
-# [Zeal](http://zealdocs.org)
+# Zeal
 
 [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
 
-**zeal**
-*noun*
-
- 1. a feeling of strong eagerness (usually in favor of a person or cause)
- 2. excessive fervor to do something or accomplish some end
- 3. prompt willingness
-
-(from WordNet 3.0)
+> **zeal** *noun*
+>
+> 1. a feeling of strong eagerness (usually in favor of a person or cause)
+> 2. excessive fervor to do something or accomplish some end
+> 3. prompt willingness
+>
+> (from WordNet 3.0)
 
 Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.com/dash/).
 
@@ -48,9 +47,9 @@ You can also search multiple docsets separating them with a comma:
 
 ## Command line
 
-If you prefer, you can start with Zeal queries from command line, for this, use the option `--query`:
+If you prefer, you can start Zeal with a query from command line:
 
-`zeal --query python:bomb`
+`zeal python:bomb`
 
 ## Creating your own docsets
 
