@@ -22,8 +22,12 @@ isEmpty(VERSION) {
 }
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
+HEADERS += \
+    util/version.h
+
 SOURCES += \
-    main.cpp
+    main.cpp \
+    util/version.cpp
 
 include(core/core.pri)
 include(registry/registry.pri)
