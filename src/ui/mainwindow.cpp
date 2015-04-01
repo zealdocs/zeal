@@ -140,12 +140,32 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionReportProblem, &QAction::triggered, [this]() {
         QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
     });
+    connect(ui->actionCheckForUpdate, &QAction::triggered,
+            m_application, &Core::Application::checkUpdate);
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
     });
     connect(ui->actionAboutQt, &QAction::triggered, [this]() {
         QMessageBox::aboutQt(this);
+    });
+
+    // Update check
+    connect(m_application, &Core::Application::updateCheckError, [this](const QString &message) {
+        QMessageBox::warning(this, QStringLiteral("Zeal"), message);
+    });
+
+    connect(m_application, &Core::Application::updateCheckDone, [this](const QString &version) {
+        if (version.isEmpty()) {
+            QMessageBox::information(this, QStringLiteral("Zeal"), tr("You are using the latest Zeal version."));
+            return;
+        }
+
+        const int ret = QMessageBox::information(this, QStringLiteral("Zeal"),
+                                                 QString(tr("A new version <b>%1</b> is available. Open download page?")).arg(version),
+                                                 QMessageBox::Yes, QMessageBox::No);
+        if (ret == QMessageBox::Yes)
+            QDesktopServices::openUrl(QStringLiteral("http://zealdocs.org/download.html"));
     });
 
     m_backMenu = new QMenu(ui->backButton);

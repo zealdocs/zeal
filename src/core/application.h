@@ -39,11 +39,14 @@ public:
 public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
+    void checkUpdate();
 
 signals:
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);
     void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
+    void updateCheckDone(const QString &version = QString());
+    void updateCheckError(const QString &message);
 
 private slots:
     void applySettings();

@@ -5,13 +5,18 @@
 #include "registry/docsetregistry.h"
 #include "registry/searchquery.h"
 #include "ui/mainwindow.h"
+#include "util/version.h"
 
 #include <QCoreApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
+#include <QNetworkReply>
 #include <QSysInfo>
 #include <QThread>
 
@@ -20,6 +25,7 @@ using namespace Zeal::Core;
 
 namespace {
 const char LocalServerName[] = "ZealLocalServer";
+const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
 }
 
 Application *Application::m_instance = nullptr;
@@ -149,6 +155,35 @@ QNetworkReply *Application::download(const QUrl &url)
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
     return m_networkManager->get(request);
+}
+
+void Application::checkUpdate()
+{
+    QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
+    connect(reply, &QNetworkReply::finished, this, [this]() {
+        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
+                    qobject_cast<QNetworkReply *>(sender()));
+
+        if (reply->error() != QNetworkReply::NoError) {
+            emit updateCheckError(reply->errorString());
+            return;
+        }
+
+        QJsonParseError jsonError;
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
+
+        if (jsonError.error != QJsonParseError::NoError) {
+            emit updateCheckError(jsonError.errorString());
+            return;
+        }
+
+        const QJsonObject latestVersionInfo = jsonDoc.array().first().toObject();
+        const Util::Version latestVersion = latestVersionInfo[QStringLiteral("version")].toString();
+        if (latestVersion > Util::Version(QCoreApplication::applicationVersion()))
+            emit updateCheckDone(latestVersion.toString());
+        else
+            emit updateCheckDone();
+    });
 }
 
 void Application::applySettings()
