@@ -134,7 +134,7 @@ QNetworkReply *Application::download(const QUrl &url)
 #elif defined(Q_OS_WIN32)
             .arg(QStringLiteral("Windows"))
 #elif defined(Q_OS_OSX)
-            .arg(QStringLiteral("Mac OS X"))
+            .arg(QStringLiteral("OS X"))
 #else
             .arg(QStringLiteral("unknown"))
 #endif // Q_OS_*
