@@ -275,6 +275,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
+    m_tabBar->setElideMode(Qt::ElideRight);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
