@@ -95,7 +95,6 @@ private slots:
 
 private:
     void displayViewActions();
-    void loadSections(const QString &docsetName, const QUrl &url);
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
