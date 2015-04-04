@@ -132,9 +132,9 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         // %.%1% for long Django docset values like django.utils.http
         // %::%1% for long C++ docset values like std::set
         // %/%1% for long Go docset values like archive/tar
-        QString subNames = QStringLiteral(" or %1 like '%.%2%' escape '\\'");
-        subNames += QLatin1String(" or %1 like '%::%2%' escape '\\'");
-        subNames += QLatin1String(" or %1 like '%/%2%' escape '\\'");
+        QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
+        subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
+        subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
         while (found.size() < 100) {
             QString curQuery = preparedQuery;
             QString notQuery; // don't return the same result twice
@@ -142,22 +142,22 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
                 // if less than 100 found starting with query, search all substrings
                 curQuery = QLatin1Char('%') + preparedQuery;
                 // don't return 'starting with' results twice
-                if (docset->type() == Docset::Type::ZDash)
-                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
+                if (docset->type() == Docset::Type::Dash)
+                    notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(preparedQuery, subNames.arg("name", preparedQuery));
                 else
-                    notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
+                    notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
             }
             int cols = 3;
             if (docset->type() == Docset::Type::Dash) {
-                queryStr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
-                                   "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
-                        .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
+                queryStr = QString("SELECT name, null, path FROM searchIndex WHERE (name "
+                                   "LIKE '%1%' ESCAPE '\\' %3)  %2 ORDER BY length(name), lower(name) ASC, path ASC LIMIT 100")
+                        .arg(curQuery, notQuery, subNames.arg("name", curQuery));
             } else if (docset->type() == Docset::Type::ZDash) {
                 cols = 4;
                 queryStr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
                                    "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                    "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
-                                   "LIKE '%1%' escape '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
+                                   "LIKE '%1%' ESCAPE '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
                                    "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
                                                                 subNames.arg("ztokenname", curQuery));
             }
