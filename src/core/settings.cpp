@@ -4,8 +4,14 @@
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QWebSettings>
 #include <QUrl>
+
+#ifdef USE_WEBENGINE
+    #include <QWebEngineSettings>
+    #define QWebSettings QWebEngineSettings
+#else
+    #include <QWebSettings>
+#endif
 
 using namespace Zeal::Core;
 
@@ -19,7 +25,10 @@ Settings::Settings(QObject *parent) :
 #endif
 {
     /// TODO: Move to user style sheet (related to #268)
+#ifndef USE_WEBENGINE
     QWebSettings::globalSettings()->setUserStyleSheetUrl(QStringLiteral("qrc:///browser/highlight.css"));
+#endif
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, false);
 
     load();
 }

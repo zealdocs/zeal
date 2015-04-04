@@ -24,10 +24,13 @@
 #include <QTimer>
 
 #ifdef USE_WEBENGINE
-#include <QWebEngineSettings>
+    #include <QWebEngineHistory>
+    #include <QWebEnginePage>
+    #include <QWebEngineSettings>
 #else
-#include <QWebFrame>
-#include <QWebPage>
+    #include <QWebFrame>
+    #include <QWebHistory>
+    #include <QWebPage>
 #endif
 
 #include <qxtglobalshortcut.h>
@@ -229,10 +232,17 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             [this](const QString &name) {
         for (SearchState *searchState : m_tabs) {
+#ifdef USE_WEBENGINE
+            if (docsetName(searchState->page->url()) != name)
+                continue;
+
+            searchState->page->load(QUrl(startPageUrl));
+#else
             if (docsetName(searchState->page->mainFrame()->url()) != name)
                 continue;
 
             searchState->page->mainFrame()->load(QUrl(startPageUrl));
+#endif
             /// TODO: Cleanup history
         }
     });
@@ -426,7 +436,7 @@ void MainWindow::createTab()
 
     reloadTabState();
 #ifdef USE_WEBENGINE
-    newTab->page->load(QUrl(indexPageUrl));
+    newTab->page->load(QUrl(startPageUrl));
 #else
     newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
@@ -576,7 +586,7 @@ void MainWindow::forward()
     displayViewActions();
 }
 
-QAction *MainWindow::addHistoryAction(QWebHistory *history, QWebHistoryItem item)
+QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryItem &item)
 {
     const QIcon icon = docsetIcon(docsetName(item.url()));
     QAction *backAction = new QAction(icon, item.title(), ui->menuView);

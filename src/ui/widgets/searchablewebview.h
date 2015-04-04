@@ -3,6 +3,10 @@
 
 #include <QWidget>
 
+#ifdef USE_WEBENGINE
+    #define QWebPage QWebEnginePage
+#endif
+
 class QLineEdit;
 class QWebPage;
 class QWebSettings;

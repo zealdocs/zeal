@@ -17,10 +17,16 @@
 #include <QNetworkRequest>
 #include <QMessageBox>
 #include <QTemporaryFile>
-#include <QWebSettings>
 #include <QUrl>
 
 #include <QtConcurrent/QtConcurrent>
+
+#ifdef USE_WEBENGINE
+    #include <QWebEngineSettings>
+    #define QWebSettings QWebEngineSettings
+#else
+    #include <QWebSettings>
+#endif
 
 using namespace Zeal;
 

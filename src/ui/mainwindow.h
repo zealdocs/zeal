@@ -14,18 +14,18 @@
 #endif
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineHistory>
     #define QWebPage QWebEnginePage
     #define QWebHistory QWebEngineHistory
     #define QWebHistoryItem QWebEngineHistoryItem
-#else
-    #include <QWebHistory>
 #endif
 
 class QxtGlobalShortcut;
 
 class QSystemTrayIcon;
 class QTabBar;
+class QWebHistory;
+class QWebHistoryItem;
+class QWebPage;
 
 namespace Ui {
 class MainWindow;
@@ -100,7 +100,7 @@ private:
     void displayTabs();
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
-    QAction *addHistoryAction(QWebHistory *history, QWebHistoryItem item);
+    QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
     void createTrayIcon();
 
     QList<SearchState *> m_tabs;

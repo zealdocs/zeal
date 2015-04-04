@@ -26,7 +26,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     connect(m_lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         // clear selection:
 #ifdef USE_WEBENGINE
-        webView.findText(text);
+        m_webView->findText(text);
 #else
         m_webView->findText(QString());
         m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
