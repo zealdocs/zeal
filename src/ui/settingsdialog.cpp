@@ -32,6 +32,7 @@ using namespace Zeal;
 
 namespace {
 const char ApiUrl[] = "http://api.zealdocs.org/v1";
+const char RedirectServerUrl[] = "http://go.zealdocs.org";
 /// TODO: Each source plugin should have its own cache
 const char DocsetListCacheFileName[] = "com.kapeli.json";
 
@@ -426,28 +427,11 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
 
 void SettingsDialog::downloadDashDocset(const QString &name)
 {
-    /// TODO: Select fastest mirror
-    static const QStringList kapeliUrls = {
-        QStringLiteral("http://sanfrancisco.kapeli.com"),
-        QStringLiteral("http://sanfrancisco2.kapeli.com"),
-        QStringLiteral("http://london.kapeli.com"),
-        QStringLiteral("http://london2.kapeli.com"),
-        QStringLiteral("http://london3.kapeli.com"),
-        QStringLiteral("http://newyork.kapeli.com"),
-        QStringLiteral("http://newyork2.kapeli.com"),
-        QStringLiteral("http://sydney.kapeli.com"),
-        QStringLiteral("http://tokyo.kapeli.com"),
-        QStringLiteral("http://tokyo2.kapeli.com")
-    };
-
     if (!m_availableDocsets.contains(name))
         return;
 
-    const QUrl url = QString("%1/feeds/%2.tgz")
-            .arg(kapeliUrls.at(qrand() % kapeliUrls.size()))
-            .arg(name);
-
-    QNetworkReply *reply = startDownload(url);
+    const QString urlString = RedirectServerUrl + QStringLiteral("/d/com.kapeli/%1/latest");
+    QNetworkReply *reply = startDownload(urlString.arg(name));
     reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
