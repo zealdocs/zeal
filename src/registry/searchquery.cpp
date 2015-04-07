@@ -67,12 +67,7 @@ bool SearchQuery::hasKeywords() const
 
 bool SearchQuery::hasKeyword(const QString &keyword) const
 {
-    for (const QString &kw : m_keywords) {
-        if (keyword.contains(kw, Qt::CaseInsensitive))
-            return true;
-    }
-
-    return false;
+    return m_keywords.contains(keyword);
 }
 
 int SearchQuery::keywordPrefixSize() const
