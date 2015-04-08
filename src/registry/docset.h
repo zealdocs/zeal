@@ -27,6 +27,7 @@ public:
 
     QString name() const;
     QString title() const;
+    QString keyword() const;
 
     QString version() const;
     QString revision() const;
@@ -45,8 +46,6 @@ public:
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     QSqlDatabase database() const;
-
-    QString prefix;
 
     /// FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
@@ -68,6 +67,7 @@ private:
     QString m_sourceId;
     QString m_name;
     QString m_title;
+    QString m_keyword;
     QString m_version;
     QString m_revision;
     Docset::Type m_type;

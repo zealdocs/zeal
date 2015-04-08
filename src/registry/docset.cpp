@@ -61,7 +61,7 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    prefix = info.bundleName.isEmpty() ? m_name : info.bundleName;
+    m_keyword = info.bundleName.isEmpty() ? m_name : info.bundleName;
 
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
@@ -101,6 +101,11 @@ QString Docset::name() const
 QString Docset::title() const
 {
     return m_title;
+}
+
+QString Docset::keyword() const
+{
+    return m_keyword;
 }
 
 QString Docset::version() const

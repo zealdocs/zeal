@@ -123,7 +123,7 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
 
     for (Docset *docset : docsets()) {
         // Filter out this docset as the names don't match the docset prefix
-        if (query.hasKeywords() && !query.hasKeyword(docset->prefix))
+        if (query.hasKeywords() && !query.hasKeyword(docset->keyword()))
             continue;
 
         QString queryStr;
