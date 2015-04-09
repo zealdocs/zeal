@@ -467,7 +467,11 @@ void MainWindow::displayTabs()
         action->setChecked(i == m_tabBar->currentIndex());
 
         if (i < 10) {
+#ifdef Q_OS_LINUX
+            const QKeySequence shortcut = QString("Alt+%1").arg(QString::number((i + 1) % 10));
+#else
             const QKeySequence shortcut = QString("Ctrl+%1").arg(QString::number((i + 1) % 10));
+#endif
 
             for (QAction *oldAction : actions()) {
                 if (oldAction->shortcut() == shortcut)
