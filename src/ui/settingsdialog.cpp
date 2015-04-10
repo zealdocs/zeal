@@ -31,7 +31,7 @@
 using namespace Zeal;
 
 namespace {
-const char ApiUrl[] = "http://api.zealdocs.org/v1";
+const char ApiServerUrl[] = "http://api.zealdocs.org/v1";
 const char RedirectServerUrl[] = "http://go.zealdocs.org";
 /// TODO: Each source plugin should have its own cache
 const char DocsetListCacheFileName[] = "com.kapeli.json";
@@ -445,7 +445,7 @@ void SettingsDialog::downloadDocsetList()
     ui->availableDocsetList->clear();
     m_availableDocsets.clear();
 
-    QNetworkReply *reply = startDownload(QUrl(ApiUrl + QLatin1String("/docsets")));
+    QNetworkReply *reply = startDownload(QUrl(ApiServerUrl + QLatin1String("/docsets")));
     reply->setProperty(DownloadTypeProperty, DownloadDocsetList);
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
