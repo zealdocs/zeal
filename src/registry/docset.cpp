@@ -88,11 +88,6 @@ bool Docset::isValid() const
     return m_isValid;
 }
 
-bool Docset::hasMetadata() const
-{
-    return m_hasMetadata;
-}
-
 QString Docset::name() const
 {
     return m_name;
@@ -260,8 +255,6 @@ void Docset::loadMetadata()
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
         m_indexFilePath = extra[QStringLiteral("indexFilePath")].toString();
     }
-
-    m_hasMetadata = true;
 }
 
 void Docset::countSymbols()

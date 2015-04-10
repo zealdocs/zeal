@@ -23,7 +23,6 @@ public:
     ~Docset() override;
 
     bool isValid() const;
-    bool hasMetadata() const;
 
     QString name() const;
     QString title() const;
@@ -62,7 +61,6 @@ private:
     static QString parseSymbolType(const QString &str);
 
     bool m_isValid = false;
-    bool m_hasMetadata = false;
 
     QString m_sourceId;
     QString m_name;

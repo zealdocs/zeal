@@ -21,8 +21,6 @@ public:
     QString sourceId() const;
 
     void save(const QString &path, const QString &version);
-    void toFile(const QString &fileName) const;
-    QByteArray toJson() const;
 
     QString name() const;
     QString title() const;
@@ -36,7 +34,6 @@ public:
     QUrl url() const;
     QList<QUrl> urls() const;
 
-    static DocsetMetadata fromFile(const QString &fileName);
     static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
 private:

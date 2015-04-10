@@ -106,47 +106,6 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     file->close();
 }
 
-void DocsetMetadata::toFile(const QString &fileName) const
-{
-    QScopedPointer<QFile> file(new QFile(fileName));
-    if (!file->open(QIODevice::WriteOnly))
-        return;
-
-    file->write(toJson());
-}
-
-QByteArray DocsetMetadata::toJson() const
-{
-    QJsonObject jsonObject;
-
-    jsonObject[QStringLiteral("sourceId")] = m_sourceId;
-
-    jsonObject[QStringLiteral("name")] = m_name;
-    jsonObject[QStringLiteral("icon")] = QString::fromLocal8Bit(m_rawIcon.toBase64());
-    jsonObject[QStringLiteral("icon2x")] = QString::fromLocal8Bit(m_rawIcon2x.toBase64());
-    jsonObject[QStringLiteral("title")] = m_title;
-    jsonObject[QStringLiteral("revision")] = m_revision;
-
-    QJsonArray aliases;
-    for (const QString &alias : m_aliases)
-        aliases.append(alias);
-    jsonObject[QStringLiteral("aliases")] = aliases;
-
-    QJsonArray versions;
-    for (const QString &version : m_versions)
-        versions.append(version);
-    jsonObject[QStringLiteral("versions")] = versions;
-
-    jsonObject[QStringLiteral("feed_url")] = m_feedUrl.toString();
-
-    QJsonArray urls;
-    for (const QUrl &url : m_urls)
-        urls.append(url.toString());
-    jsonObject[QStringLiteral("urls")] = urls;
-
-    return QJsonDocument(jsonObject).toJson();
-}
-
 QString DocsetMetadata::name() const
 {
     return m_name;
@@ -195,15 +154,6 @@ QUrl DocsetMetadata::url() const
 QList<QUrl> DocsetMetadata::urls() const
 {
     return m_urls;
-}
-
-DocsetMetadata DocsetMetadata::fromFile(const QString &fileName)
-{
-    QScopedPointer<QFile> file(new QFile(fileName));
-    if (!file->open(QIODevice::ReadOnly))
-        return DocsetMetadata();
-
-    return DocsetMetadata(QJsonDocument::fromJson(file->readAll()).object());
 }
 
 DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArray &data)
