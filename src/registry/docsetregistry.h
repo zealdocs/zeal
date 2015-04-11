@@ -51,7 +51,6 @@ private:
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
     QList<SearchResult> m_queryResults;
-    int m_lastQuery = -1;
 };
 
 } // namespace Zeal

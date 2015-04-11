@@ -100,21 +100,15 @@ void DocsetRegistry::_addDocset(const QString &path)
 
 void DocsetRegistry::search(const QString &query)
 {
-    m_lastQuery += 1;
-
     // Only invalidate queries
     if (query.isEmpty())
         return;
 
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query),
-                              Q_ARG(int, m_lastQuery));
+    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
 }
 
-void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
+void DocsetRegistry::_runQuery(const QString &query)
 {
-    // If some other queries pending, ignore this one.
-    if (queryNum != m_lastQuery)
-        return;
 
     QList<SearchResult> results;
     const SearchQuery query = SearchQuery::fromString(rawQuery);
@@ -192,8 +186,6 @@ void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
         }
     }
     std::sort(results.begin(), results.end());
-    if (queryNum != m_lastQuery)
-        return; // some other queries pending - ignore this one
 
     m_queryResults = results;
     emit queryCompleted();
