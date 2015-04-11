@@ -188,16 +188,23 @@ QList<SearchResult> Docset::search(const QString &query) const
                 notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
         }
         if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, path FROM searchIndex WHERE (name "
-                               "LIKE '%1%' ESCAPE '\\' %3)  %2 ORDER BY length(name), lower(name) ASC, path ASC LIMIT 100")
+            queryStr = QString("SELECT name, path "
+                               "    FROM searchIndex "
+                               "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
+                               "ORDER BY length(name), lower(name), path "
+                               "LIMIT 100")
                     .arg(curQuery, notQuery, subNames.arg("name", curQuery));
         } else {
-            queryStr = QString("SELECT ztokenname, zpath, zanchor FROM ztoken "
-                               "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
-                               "LIKE '%1%' ESCAPE '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
-                               "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
-                                                            subNames.arg("ztokenname", curQuery));
+            queryStr = QString("SELECT ztokenname, zpath, zanchor "
+                               "    FROM ztoken "
+                               "JOIN ztokenmetainformation "
+                               "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                               "JOIN zfilepath "
+                               "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                               "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
+                               "ORDER BY length(ztokenname), lower(ztokenname), zpath, zanchor "
+                               "LIMIT 100").arg(curQuery, notQuery,
+                                                subNames.arg("ztokenname", curQuery));
         }
 
         QSqlQuery query(queryStr, database());
