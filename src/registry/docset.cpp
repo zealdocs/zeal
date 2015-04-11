@@ -163,7 +163,7 @@ QList<SearchResult> Docset::search(const QString &query) const
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     const QString sanitizedQuery = searchQuery.sanitizedQuery();
 
-    if (!searchQuery.hasKeyword(m_keyword))
+    if (searchQuery.hasKeywords() && !searchQuery.hasKeyword(m_keyword))
         return results;
 
     QString queryStr;
