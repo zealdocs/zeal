@@ -42,6 +42,7 @@ public:
 
     const QMap<QString, QString> &symbols(const QString &symbolType) const;
 
+    QList<SearchResult> search(const QString &query) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     QSqlDatabase database() const;

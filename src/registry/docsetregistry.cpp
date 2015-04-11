@@ -1,6 +1,5 @@
 #include "docsetregistry.h"
 
-#include "searchquery.h"
 #include "searchresult.h"
 
 #include <QDir>
@@ -109,85 +108,13 @@ void DocsetRegistry::search(const QString &query)
 
 void DocsetRegistry::_runQuery(const QString &query)
 {
+    m_queryResults.clear();
 
-    QList<SearchResult> results;
-    const SearchQuery query = SearchQuery::fromString(rawQuery);
+    for (Docset *docset : docsets())
+        m_queryResults << docset->search(query);
 
-    const QString preparedQuery = query.sanitizedQuery();
+    std::sort(m_queryResults.begin(), m_queryResults.end());
 
-    for (Docset *docset : docsets()) {
-        // Filter out this docset as the names don't match the docset prefix
-        if (query.hasKeywords() && !query.hasKeyword(docset->keyword()))
-            continue;
-
-        QString queryStr;
-        QList<QList<QVariant>> found;
-        bool withSubStrings = false;
-        // %.%1% for long Django docset values like django.utils.http
-        // %::%1% for long C++ docset values like std::set
-        // %/%1% for long Go docset values like archive/tar
-        QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
-        subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
-        subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-        while (found.size() < 100) {
-            QString curQuery = preparedQuery;
-            QString notQuery; // don't return the same result twice
-            if (withSubStrings) {
-                // if less than 100 found starting with query, search all substrings
-                curQuery = QLatin1Char('%') + preparedQuery;
-                // don't return 'starting with' results twice
-                if (docset->type() == Docset::Type::Dash)
-                    notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(preparedQuery, subNames.arg("name", preparedQuery));
-                else
-                    notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
-            }
-            int cols = 3;
-            if (docset->type() == Docset::Type::Dash) {
-                queryStr = QString("SELECT name, null, path FROM searchIndex WHERE (name "
-                                   "LIKE '%1%' ESCAPE '\\' %3)  %2 ORDER BY length(name), lower(name) ASC, path ASC LIMIT 100")
-                        .arg(curQuery, notQuery, subNames.arg("name", curQuery));
-            } else if (docset->type() == Docset::Type::ZDash) {
-                cols = 4;
-                queryStr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
-                                   "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                   "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
-                                   "LIKE '%1%' ESCAPE '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
-                                   "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
-                                                                subNames.arg("ztokenname", curQuery));
-            }
-
-            QSqlQuery query(queryStr, docset->database());
-            while (query.next()) {
-                QList<QVariant> values;
-                for (int i = 0; i < cols; ++i)
-                    values.append(query.value(i));
-                found.append(values);
-            }
-
-            if (withSubStrings)
-                break;
-            withSubStrings = true;  // try again searching for substrings
-        }
-
-        for (const QList<QVariant> &row : found) {
-            QString parentName;
-            if (!row[1].isNull())
-                parentName = row[1].toString();
-
-            QString path = row[2].toString();
-            /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
-            if (docset->type() == Docset::Type::ZDash)
-                path += QLatin1Char('#') + row[3].toString();
-
-            QString itemName = row[0].toString();
-            //Docset::normalizeName(itemName, parentName);
-            /// TODO: Third should be type
-            results.append(SearchResult{itemName, parentName, QString(), docset, path, preparedQuery});
-        }
-    }
-    std::sort(results.begin(), results.end());
-
-    m_queryResults = results;
     emit queryCompleted();
 }
 

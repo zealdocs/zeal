@@ -43,7 +43,7 @@ signals:
 
 private slots:
     void _addDocset(const QString &path);
-    void _runQuery(const QString &rawQuery, int queryNum);
+    void _runQuery(const QString &query);
 
 private:
     void addDocsetsFromFolder(const QString &path);
