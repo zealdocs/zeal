@@ -91,7 +91,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_settings->splitterGeometry = ui->splitter->saveState();
     });
 
-    m_zealNetworkManager = new NetworkAccessManager();
+    m_zealNetworkManager = new NetworkAccessManager(this);
 #ifdef USE_WEBENGINE
     /// FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else
@@ -324,6 +324,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    for (SearchState *state : m_tabs) {
+        delete state->zealSearch;
+        delete state->sectionsList;
+        delete state;
+    }
 }
 
 void MainWindow::openDocset(const QModelIndex &index)

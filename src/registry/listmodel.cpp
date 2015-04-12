@@ -18,6 +18,14 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
         addDocset(name);
 }
 
+ListModel::~ListModel()
+{
+    for (DocsetItem *item : m_docsetItems) {
+        qDeleteAll(item->groups);
+        delete item;
+    }
+}
+
 QVariant ListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())

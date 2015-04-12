@@ -23,6 +23,7 @@ DocsetRegistry::~DocsetRegistry()
 {
     m_thread->exit();
     m_thread->wait();
+    qDeleteAll(m_docsets);
 }
 
 void DocsetRegistry::init(const QString &path)

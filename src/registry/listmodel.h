@@ -19,6 +19,7 @@ public:
     };
 
     explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);
+    ~ListModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent) const override;
