@@ -191,7 +191,6 @@ QList<SearchResult> Docset::search(const QString &query) const
             queryStr = QString("SELECT name, path "
                                "    FROM searchIndex "
                                "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY length(name), lower(name), path "
                                "LIMIT 100")
                     .arg(curQuery, notQuery, subNames.arg("name", curQuery));
         } else {
@@ -202,7 +201,6 @@ QList<SearchResult> Docset::search(const QString &query) const
                                "JOIN zfilepath "
                                "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
                                "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY length(ztokenname), lower(ztokenname), zpath, zanchor "
                                "LIMIT 100").arg(curQuery, notQuery,
                                                 subNames.arg("ztokenname", curQuery));
         }
