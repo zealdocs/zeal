@@ -5,8 +5,6 @@
 
 using namespace Zeal;
 
-/// TODO: Get rid of const_casts
-
 ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),
     m_docsetRegistry(docsetRegistry)
