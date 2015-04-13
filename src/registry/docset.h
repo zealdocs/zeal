@@ -14,11 +14,6 @@ class Docset : public QObject
 {
     Q_OBJECT
 public:
-    enum class Type {
-        Dash,
-        ZDash
-    };
-
     explicit Docset(const QString &path);
     ~Docset() override;
 
@@ -31,7 +26,6 @@ public:
     QString version() const;
     QString revision() const;
 
-    Docset::Type type() const;
     QString path() const;
     QString documentPath() const;
     QIcon icon() const;
@@ -54,6 +48,12 @@ public:
     static void normalizeName(QString &name, QString &parentName);
 
 private:
+    enum class Type {
+        Invalid,
+        Dash,
+        ZDash
+    };
+
     void loadMetadata();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
@@ -61,15 +61,13 @@ private:
 
     static QString parseSymbolType(const QString &str);
 
-    bool m_isValid = false;
-
     QString m_sourceId;
     QString m_name;
     QString m_title;
     QString m_keyword;
     QString m_version;
     QString m_revision;
-    Docset::Type m_type;
+    Docset::Type m_type = Type::Invalid;
     QString m_path;
     QIcon m_icon;
 

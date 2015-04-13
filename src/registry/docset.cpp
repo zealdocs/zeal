@@ -75,8 +75,6 @@ Docset::Docset(const QString &path) :
     }
 
     countSymbols();
-
-    m_isValid = true;
 }
 
 Docset::~Docset()
@@ -86,7 +84,7 @@ Docset::~Docset()
 
 bool Docset::isValid() const
 {
-    return m_isValid;
+    return m_type != Type::Invalid;
 }
 
 QString Docset::name() const
@@ -112,11 +110,6 @@ QString Docset::version() const
 QString Docset::revision() const
 {
     return m_revision;
-}
-
-Docset::Type Docset::type() const
-{
-    return m_type;
 }
 
 QString Docset::path() const
@@ -365,11 +358,9 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
         return;
 
     QString queryStr;
-    switch (m_type) {
-    case Docset::Type::Dash:
+    if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC");
-        break;
-    case Docset::Type::ZDash:
+    } else {
         queryStr = QStringLiteral("SELECT ztokenname AS name, "
                                   "CASE WHEN (zanchor IS NULL) THEN zpath "
                                   "ELSE (zpath || '#' || zanchor) "
@@ -378,7 +369,6 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
                                   "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                                   "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
                                   "ORDER BY ztokenname ASC");
-        break;
     }
 
     QSqlQuery query(queryStr.arg(symbolString), database());
