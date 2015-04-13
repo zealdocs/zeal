@@ -1,6 +1,9 @@
 # Zeal
 
-[![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
+[![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
+[![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
+[![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
+[![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
 
 > **zeal** *noun*
 >
