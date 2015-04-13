@@ -71,11 +71,13 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case DocsetNameRole:
-        if (!index.parent().isValid())
-            return m_docsetRegistry->docset(index.row())->name();
+        if (index.parent().isValid())
+            return QVariant();
+        return m_docsetRegistry->docset(index.row())->name();
     case UpdateAvailableRole:
-        if (!index.parent().isValid())
-            return m_docsetRegistry->docset(index.row())->hasUpdate;
+        if (index.parent().isValid())
+            return QVariant();
+        return m_docsetRegistry->docset(index.row())->hasUpdate;
     default:
         return QVariant();
     }

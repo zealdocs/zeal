@@ -263,7 +263,8 @@ void SettingsDialog::downloadCompleted()
             dir.rename(docsetDirName, tmpName);
             QtConcurrent::run([=] {
                 QDir d(dir);
-                d.cd(tmpName);
+                if (!d.cd(tmpName))
+                    return;
                 d.removeRecursively();
             });
         }
