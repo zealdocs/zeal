@@ -57,3 +57,12 @@ If you prefer, you can start Zeal with a query from command line:
 ## Creating your own docsets
 
 You can use [Dash's instructions for generating docsets](http://kapeli.com/docsets).
+
+## Contact and Support
+
+We want your feedback! Here's a list of different ways to contact developers and request help:
+* Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
+* Ask any questions in our [Google Group](https://groups.google.com/d/forum/zealdocs). You can simply send an email to zealdocs@googlegroups.com.
+* For a quick chat with developers and other Zeal users use our IRC channel: #zealdocs on [Freenode](https://freenode.net/). Also available through Kiwi IRC [web interface](https://kiwiirc.com/client/irc.freenode.net/#zealdocs). Please, take into consideration possible time zone differences.
+* Finally, for a private communications send us [email](mailto:zeal@zealdocs.org).
+* And do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
