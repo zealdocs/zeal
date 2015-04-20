@@ -42,6 +42,22 @@ Docset::Docset(const QString &path) :
     else
         return;
 
+    if (m_name.isEmpty()) {
+        // Fallback if meta.json is absent
+        if (!info.bundleName.isEmpty()) {
+            m_name = m_title = info.bundleName;
+            /// TODO: Remove when MainWindow::docsetName() will not use directory name
+            m_name.replace(QLatin1Char(' '), QLatin1Char('_'));
+        } else {
+            m_name = QFileInfo(m_path).fileName().remove(QStringLiteral(".docset"));
+        }
+    }
+
+    if (m_title.isEmpty()) {
+        m_title = m_name;
+        m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
+    }
+
     /// TODO: Verify if this is needed
     if (info.family == QLatin1String("cheatsheet"))
         m_name = m_name + QLatin1String("cheats");
@@ -293,11 +309,8 @@ void Docset::loadMetadata()
     const QDir dir(m_path);
 
     // Fallback if meta.json is absent
-    if (!dir.exists(QStringLiteral("meta.json"))) {
-        m_name = m_title = dir.dirName().remove(QStringLiteral(".docset"));
-        m_title = m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
+    if (!dir.exists(QStringLiteral("meta.json")))
         return;
-    }
 
     QScopedPointer<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
     if (!file->open(QIODevice::ReadOnly))
