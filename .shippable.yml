@@ -38,7 +38,7 @@ script:
   - wine mingw32-make
 after_success:
   # Do not pack pull request builds
-  - if ! [ "$PULL_REQUREST" = false ]; then exit 0; fi;
+  - if ! [ "$PULL_REQUEST" = false ]; then exit 0; fi;
   # Prepare ZIP package
   - mkdir $ZEAL_DIR
   - cp bin/zeal.exe $ZEAL_DIR
