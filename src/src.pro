@@ -15,11 +15,7 @@ portable {
     DEFINES += PORTABLE_BUILD
 }
 
-# TODO: Obtain version number from Git tags
-VERSION = $$(ZEAL_VERSION)
-isEmpty(VERSION) {
-    VERSION = 0.0.0
-}
+VERSION = 0.1.2
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 HEADERS += \
