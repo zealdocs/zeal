@@ -32,8 +32,7 @@ install:
   - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
   - wine regedit $HOME/qt/temp.reg
 before_script:
-  - export ZEAL_VERSION=`date +%Y%m%d`
-  - export ZEAL_DIR=zeal-$ZEAL_VERSION
+  - export ZEAL_DIR=zeal-`date +%Y%m%d`
 script:
   - wine qmake
   - wine mingw32-make
