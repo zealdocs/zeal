@@ -1,36 +1,9 @@
 build_image: shippableimages/ubuntu1404_base
 cache: true
 before_install:
-  - dpkg --add-architecture i386
   - shippable_retry sudo apt-get -y -q update
-  - export QT_DIR=$HOME/qt/5.4/mingw491_32
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full ca-certificates curl
-  # Install Qt
-  - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || curl -Lso $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
-  - bash -c '[ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1i686-4.9.1-release-posix-dwarf-rt_v3-rev2-runtime.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1icu_53_1_mingw_builds_4_9_1_posix_dwarf_32.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_addons.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_essentials.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw491/4.9.1-2i686-4.9.1-release-posix-dwarf-rt_v3-rev2.7z -o$HOME/qt'
-  - rm -rf $HOME/qt/OUT
-  - rm -f $HOME/qt/qt.exe
-  # Install libarchive headers and library
-  - bash -c '[ -f $HOME/qt/Tools/mingw491_32/i686-w64-mingw32/include/archive.h ] || curl -LOs https://bitbucket.org/zealdocs/zeal-win32-binary-downloads/downloads/libarchive-3.1.2-win32-mingw491.7z'
-  - bash -c '[ -f $HOME/qt/Tools/mingw491_32/i686-w64-mingw32/include/archive.h ] || 7z x libarchive-3.1.2-win32-mingw491.7z -o$HOME/qt/Tools/mingw491_32/i686-w64-mingw32'
-  - rm -f libarchive-3.1.2-win32-mingw491.7z
-  # Setup environment
-  - echo '[Paths]' > $QT_DIR/bin/qt.conf
-  - echo 'Prefix=..' >> $QT_DIR/bin/qt.conf
-  - echo '[HKEY_CURRENT_USER\Environment]' > $HOME/qt/temp.reg
-  - echo '"QMAKESPEC"="BASEDIR\\5.4\\mingw491_32\\mkspecs\\win32-g++"' >> $HOME/qt/temp.reg
-  - echo '"QTDIR"="BASEDIR\\5.4\\mingw491_32"' >> $HOME/qt/temp.reg
-  - echo '"PATH"="BASEDIR\\Tools\\mingw491_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw491_32\\bin;BASEDIR\\5.4\\mingw491_32\\bin"' >> $HOME/qt/temp.reg
-  - sed -i "s.BASEDIR.Z:$HOME/qt.g" $HOME/qt/temp.reg
-  - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
-  - wine regedit $HOME/qt/temp.reg
+  - shippable_retry sudo apt-get -y -q install --no-install-recommends qtbase5-private-dev libqt5webkit5-dev libarchive-dev
 script:
-  - wine qmake
-  - wine mingw32-make
+  - qmake
+  - make
