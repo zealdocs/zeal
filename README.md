@@ -1,8 +1,5 @@
 # Zeal
 
-[![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
-[![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
-[![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
 [![IRC](https://img.shields.io/badge/irc-%23zealdocs-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
 
 > **zeal** *noun*
@@ -18,6 +15,15 @@ Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.
 ![Screenshot](http://i.imgur.com/SiLvpz8.png)
 
 [More screenshots](http://imgur.com/a/eVi97)
+
+## Build Status
+
+[![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
+
+OS \ Branch | Unstable (master) | Stable (0.1)
+------------|-------------------|-------------
+Linux | [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) | [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=0.1)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
+Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/0.1.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
 
 ## Download
 
