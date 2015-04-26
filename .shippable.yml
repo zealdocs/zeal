@@ -3,7 +3,7 @@ cache: true
 before_install:
   - shippable_retry sudo apt-get -y -q update
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends qtbase5-private-dev libqt5webkit5-dev libarchive-dev
+  - shippable_retry sudo apt-get -y -q install --no-install-recommends qt5-default qtbase5-private-dev libqt5webkit5-dev libarchive-dev
 script:
   - qmake
   - make
