@@ -1,64 +1,9 @@
 build_image: shippableimages/ubuntu1404_base
 cache: true
 before_install:
-  - dpkg --add-architecture i386
-  - shippable_retry sudo apt-get -y -q update
-  - export QT_DIR=$HOME/qt/5.4/mingw491_32
+  - shippable_retry sudo apt-get -y -qq update
 install:
-  - shippable_retry sudo apt-get -y -q install --no-install-recommends wine p7zip-full ca-certificates curl
-  # Install Qt
-  - bash -c '[ -d $HOME/qt/Tools ] || mkdir -p $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || curl -Lso $HOME/qt/qt.exe http://download.qt.io/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe'
-  - bash -c '[ -d $HOME/qt/Tools ] || wine $HOME/qt/qt.exe --dump-binary-data -o $HOME/qt/OUT'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1i686-4.9.1-release-posix-dwarf-rt_v3-rev2-runtime.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1icu_53_1_mingw_builds_4_9_1_posix_dwarf_32.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_addons.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.54.win32_mingw491/5.4.0-1qt5_essentials.7z -o$HOME/qt'
-  - bash -c '[ -d $HOME/qt/Tools ] || 7z x $HOME/qt/OUT/qt.tools.win32_mingw491/4.9.1-2i686-4.9.1-release-posix-dwarf-rt_v3-rev2.7z -o$HOME/qt'
-  - rm -rf $HOME/qt/OUT
-  - rm -f $HOME/qt/qt.exe
-  # Install libarchive headers and library
-  - bash -c '[ -f $HOME/qt/Tools/mingw491_32/i686-w64-mingw32/include/archive.h ] || curl -LOs https://bitbucket.org/zealdocs/zeal-win32-binary-downloads/downloads/libarchive-3.1.2-win32-mingw491.7z'
-  - bash -c '[ -f $HOME/qt/Tools/mingw491_32/i686-w64-mingw32/include/archive.h ] || 7z x libarchive-3.1.2-win32-mingw491.7z -o$HOME/qt/Tools/mingw491_32/i686-w64-mingw32'
-  - rm -f libarchive-3.1.2-win32-mingw491.7z
-  # Setup environment
-  - echo '[Paths]' > $QT_DIR/bin/qt.conf
-  - echo 'Prefix=..' >> $QT_DIR/bin/qt.conf
-  - echo '[HKEY_CURRENT_USER\Environment]' > $HOME/qt/temp.reg
-  - echo '"QMAKESPEC"="BASEDIR\\5.4\\mingw491_32\\mkspecs\\win32-g++"' >> $HOME/qt/temp.reg
-  - echo '"QTDIR"="BASEDIR\\5.4\\mingw491_32"' >> $HOME/qt/temp.reg
-  - echo '"PATH"="BASEDIR\\Tools\\mingw491_32\\libexec\\gcc\\i686-w64-mingw32;BASEDIR\\Tools\\mingw491_32\\bin;BASEDIR\\5.4\\mingw491_32\\bin"' >> $HOME/qt/temp.reg
-  - sed -i "s.BASEDIR.Z:$HOME/qt.g" $HOME/qt/temp.reg
-  - sed -i 's./.\\\\.g' $HOME/qt/temp.reg
-  - wine regedit $HOME/qt/temp.reg
-before_script:
-  - export ZEAL_VERSION=`date +%Y%m%d`
-  - export ZEAL_DIR=zeal-$ZEAL_VERSION
+  - shippable_retry sudo apt-get -y -qq install --no-install-recommends qt5-default qtbase5-private-dev libqt5webkit5-dev libarchive-dev
 script:
-  - wine qmake
-  - wine mingw32-make
-after_success:
-  # Prepare ZIP package
-  - mkdir $ZEAL_DIR
-  - cp bin/zeal.exe $ZEAL_DIR
-  - for dir in imageformats platforms sqldrivers; do mkdir $ZEAL_DIR/$dir; done
-  - cp $HOME/qt/Tools/mingw491_32/opt/bin/ssleay32.dll $ZEAL_DIR
-  - cp $HOME/qt/Tools/mingw491_32/opt/bin/libeay32.dll $ZEAL_DIR
-  - for l in gif ico jpeg tiff; do cp $QT_DIR/plugins/imageformats/q$l.dll $ZEAL_DIR/imageformats; done
-  - cp $QT_DIR/plugins/platforms/qwindows.dll $ZEAL_DIR/platforms
-  - cp $QT_DIR/plugins/sqldrivers/qsqlite.dll $ZEAL_DIR/sqldrivers
-  - cp $QT_DIR/bin/libstdc++-6.dll $ZEAL_DIR
-  - cp $QT_DIR/bin/libgcc_s_dw2-1.dll $ZEAL_DIR
-  - cp $QT_DIR/bin/libwinpthread-1.dll $ZEAL_DIR
-  - cp $QT_DIR/bin/icu*.dll $ZEAL_DIR
-  - for l in Core Gui Multimedia MultimediaWidgets Network OpenGL Qml Quick Sql WebKit WebKitWidgets WebChannel Widgets Positioning PrintSupport Sensors; do cp $QT_DIR/bin/Qt5$l.dll $ZEAL_DIR; done
-  # Pack everything into ZIP
-  - 7z a -mx=9 $ZEAL_DIR.zip $ZEAL_DIR
-  # Upload to BitBucket
-  - bash -c 'curl -H "Content-Type:application/octet-stream" -H "Auth-Token:$AUTH_TOKEN" --data-binary @$ZEAL_DIR.zip ci2bb.herokuapp.com || true'
-  # Cleanup
-  - rm -rf $ZEAL_DIR*
-
-env:
-  global:
-    - secure: LRSLJQbkpc6kkWDVbmvCARm20edC+1RCCgSdEzK0GfG66V+dyGYi6ubFBv1M+kV9YEVY1FkkZctiKlneJLpi/YS3pSJF7bEhYggtxNxRD+9bAVk4GZwVxT7TUw1ZPtLUkWc7L7PqgIO+OOiI8THwsONBNcn5q4fLsByhlt2XOyGPOrQYmfmqjWpgErgI0K4aYoJfoJGTgV2v5sZ+owSkMniyJY5WU9iZkRLO63ddmk72d9eq8ECwgQqxDyhR9/WtHkMPCrwVh06RFd9jG4DfCNDDZRdQLdGxCPXTNwP7QHqG9mKFRQeM91gs/tKlhFFlfPHMckWiBK4hAo+WLC+Ekg==
+  - qmake
+  - make
