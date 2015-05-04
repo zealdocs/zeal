@@ -15,6 +15,7 @@
 
 #ifdef USE_LIBAPPINDICATOR
 struct _AppIndicator;
+struct _GtkWidget;
 #endif
 
 class QxtGlobalShortcut;
@@ -100,6 +101,7 @@ private:
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
     void createTrayIcon();
+    void removeTrayIcon();
 
     QList<SearchState *> m_tabs;
 
@@ -124,7 +126,9 @@ private:
     QSystemTrayIcon *m_trayIcon = nullptr;
 
 #ifdef USE_LIBAPPINDICATOR
-    _AppIndicator *m_appIndicator = nullptr;  // for Unity
+    _AppIndicator *m_appIndicator = nullptr;
+    _GtkWidget *m_appIndicatorMenu = nullptr;
+    _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;
 #endif
 };
 

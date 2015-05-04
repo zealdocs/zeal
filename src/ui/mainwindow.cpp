@@ -123,14 +123,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (m_settingsDialog->exec()) {
             m_globalShortcut->setShortcut(m_settings->showShortcut);
 
-            if (m_settings->showSystrayIcon) {
+            if (m_settings->showSystrayIcon)
                 createTrayIcon();
-            } else if (m_trayIcon) {
-                QMenu *trayIconMenu = m_trayIcon->contextMenu();
-                delete m_trayIcon;
-                m_trayIcon = nullptr;
-                delete trayIconMenu;
-            }
+            else
+                removeTrayIcon();
         }
 
         m_globalShortcut->setEnabled(true);
@@ -641,21 +637,19 @@ void MainWindow::createTrayIcon()
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
     if (isUnity) { // Application Indicators for Unity
-        GtkWidget *menu;
-        GtkWidget *quitItem;
+        m_appIndicatorMenu = gtk_menu_new();
 
-        menu = gtk_menu_new();
-
-        quitItem = gtk_menu_item_new_with_label("Quit");
-        gtk_menu_shell_append(GTK_MENU_SHELL(menu), quitItem);
-        g_signal_connect(quitItem, "activate", G_CALLBACK(QCoreApplication::quit), NULL);
-        gtk_widget_show(quitItem);
+        m_appIndicatorQuitMenuItem = gtk_menu_item_new_with_label("Quit");
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorQuitMenuItem);
+        g_signal_connect(m_appIndicatorQuitMenuItem, "activate",
+                         G_CALLBACK(QCoreApplication::quit), NULL);
+        gtk_widget_show(m_appIndicatorQuitMenuItem);
 
         /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
         m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
 
         app_indicator_set_status(m_appIndicator, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_menu(m_appIndicator, GTK_MENU(menu));
+        app_indicator_set_menu(m_appIndicator, GTK_MENU(m_appIndicatorMenu));
     } else {  // others
 #endif
         m_trayIcon = new QSystemTrayIcon(this);
@@ -685,6 +679,35 @@ void MainWindow::createTrayIcon()
         m_trayIcon->setContextMenu(trayIconMenu);
 
         m_trayIcon->show();
+#ifdef USE_LIBAPPINDICATOR
+    }
+#endif
+}
+
+void MainWindow::removeTrayIcon()
+{
+#ifdef USE_LIBAPPINDICATOR
+    if (!m_trayIcon && !m_appIndicator)
+        return;
+#else
+    if (!m_trayIcon)
+        return;
+#endif
+
+#ifdef USE_LIBAPPINDICATOR
+    const QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
+
+    if (isUnity) { // Application Indicators for Unity
+        g_clear_object(&m_appIndicator);
+        g_clear_object(&m_appIndicatorMenu);
+        g_clear_object(&m_appIndicatorQuitMenuItem);
+    } else {
+#endif
+        QMenu *trayIconMenu = m_trayIcon->contextMenu();
+        delete m_trayIcon;
+        m_trayIcon = nullptr;
+        delete trayIconMenu;
 #ifdef USE_LIBAPPINDICATOR
     }
 #endif
