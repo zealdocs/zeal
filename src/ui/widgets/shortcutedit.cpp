@@ -12,8 +12,7 @@ ShortcutEdit::ShortcutEdit(const QString &text, QWidget *parent) :
     QLineEdit(text, parent)
 {
     connect(this, &QLineEdit::textChanged, [this](const QString &text) {
-        if (text.isEmpty())
-            m_key = 0;
+        m_key = QKeySequence(text, QKeySequence::NativeText)[0];
     });
 }
 
