@@ -32,7 +32,6 @@
 #include "qxtglobalshortcut_p.h"
 #include <QMap>
 #include <QHash>
-#include <QtDebug>
 #include <QApplication>
 
 typedef QPair<uint, uint> Identifier;

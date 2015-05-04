@@ -145,30 +145,30 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, long *result)
 {
     Q_UNUSED(result);
+    if (eventType != "xcb_generic_event_t")
+        return false;
 
-    xcb_key_press_event_t *kev = 0;
-    if (eventType == "xcb_generic_event_t") {
-        xcb_generic_event_t *ev = static_cast<xcb_generic_event_t *>(message);
-        if ((ev->response_type & 127) == XCB_KEY_PRESS)
-            kev = static_cast<xcb_key_press_event_t *>(message);
-    }
+    xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t*>(message);
+    if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
+        return false;
 
-    if (kev != 0) {
-        unsigned int keycode = kev->detail;
-        unsigned int keystate = 0;
-        if(kev->state & XCB_MOD_MASK_1)
-            keystate |= Mod1Mask;
-        if(kev->state & XCB_MOD_MASK_CONTROL)
-            keystate |= ControlMask;
-        if(kev->state & XCB_MOD_MASK_4)
-            keystate |= Mod4Mask;
-        if(kev->state & XCB_MOD_MASK_SHIFT)
-            keystate |= ShiftMask;
+    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
 
-        activateShortcut(keycode,
-                         // Mod1Mask == Alt, Mod4Mask == Meta
-                         keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
-    }
+    unsigned int keycode = keyPressEvent->detail;
+    unsigned int keystate = 0;
+    if(keyPressEvent->state & XCB_MOD_MASK_1)
+        keystate |= Mod1Mask;
+    if(keyPressEvent->state & XCB_MOD_MASK_CONTROL)
+        keystate |= ControlMask;
+    if(keyPressEvent->state & XCB_MOD_MASK_4)
+        keystate |= Mod4Mask;
+    if(keyPressEvent->state & XCB_MOD_MASK_SHIFT)
+        keystate |= ShiftMask;
+
+    activateShortcut(keycode,
+                     // Mod1Mask == Alt, Mod4Mask == Meta
+                     keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+
     return false;
 }
 

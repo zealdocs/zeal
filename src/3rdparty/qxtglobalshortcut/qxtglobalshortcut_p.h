@@ -53,7 +53,6 @@ public:
     bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
-    static bool error;
 #ifndef Q_OS_OSX
     static int ref;
 #endif // Q_OS_OSX
