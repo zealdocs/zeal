@@ -626,16 +626,6 @@ QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryIte
     return backAction;
 }
 
-#ifdef USE_LIBAPPINDICATOR
-void onQuit(GtkMenu *menu, gpointer data)
-{
-    Q_UNUSED(menu);
-    QApplication *self = static_cast<QApplication *>(data);
-    self->quit();
-}
-
-#endif
-
 void MainWindow::createTrayIcon()
 {
 #ifdef USE_LIBAPPINDICATOR
@@ -658,7 +648,7 @@ void MainWindow::createTrayIcon()
 
         quitItem = gtk_menu_item_new_with_label("Quit");
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), quitItem);
-        g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
+        g_signal_connect(quitItem, "activate", G_CALLBACK(QCoreApplication::quit), NULL);
         gtk_widget_show(quitItem);
 
         /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
