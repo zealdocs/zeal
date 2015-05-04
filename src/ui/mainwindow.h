@@ -7,16 +7,14 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
-#ifdef USE_LIBAPPINDICATOR
-#undef signals
-#include <libappindicator/app-indicator.h>
-#define signals public
-#endif
-
 #ifdef USE_WEBENGINE
     #define QWebPage QWebEnginePage
     #define QWebHistory QWebEngineHistory
     #define QWebHistoryItem QWebEngineHistoryItem
+#endif
+
+#ifdef USE_LIBAPPINDICATOR
+struct _AppIndicator;
 #endif
 
 class QxtGlobalShortcut;
@@ -126,7 +124,7 @@ private:
     QSystemTrayIcon *m_trayIcon = nullptr;
 
 #ifdef USE_LIBAPPINDICATOR
-    AppIndicator *m_indicator = nullptr;  // for Unity
+    _AppIndicator *m_appIndicator = nullptr;  // for Unity
 #endif
 };
 

@@ -37,6 +37,9 @@
 #include <qxtglobalshortcut.h>
 
 #ifdef USE_LIBAPPINDICATOR
+#undef signals
+#include <libappindicator/app-indicator.h>
+#define signals public
 #include <gtk/gtk.h>
 #endif
 
@@ -68,7 +71,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             bringToFront();
         } else {
 #ifdef USE_LIBAPPINDICATOR
-            if (m_trayIcon || m_indicator) {
+            if (m_trayIcon || m_appIndicator) {
 #else
             if (m_trayIcon) {
 #endif
@@ -636,9 +639,11 @@ void onQuit(GtkMenu *menu, gpointer data)
 void MainWindow::createTrayIcon()
 {
 #ifdef USE_LIBAPPINDICATOR
-    if (m_trayIcon || m_indicator) return;
+    if (m_trayIcon || m_appIndicator)
+        return;
 #else
-    if (m_trayIcon) return;
+    if (m_trayIcon)
+        return;
 #endif
 
 #ifdef USE_LIBAPPINDICATOR
@@ -649,18 +654,18 @@ void MainWindow::createTrayIcon()
         GtkWidget *menu;
         GtkWidget *quitItem;
 
-        menu = gtk_menunew();
+        menu = gtk_menu_new();
 
-        quitItem = gtk_menuitem_new_with_label("Quit");
-        gtk_menushell_append(GTK_menuSHELL(menu), quitItem);
+        quitItem = gtk_menu_item_new_with_label("Quit");
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), quitItem);
         g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
         gtk_widget_show(quitItem);
 
-        m_indicator = app_indicator_new("zeal",
-                                        icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
+        /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
+        m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
 
-        app_indicator_set_status(m_indicator, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_menu(m_indicator, GTK_MENU(menu));
+        app_indicator_set_status(m_appIndicator, APP_INDICATOR_STATUS_ACTIVE);
+        app_indicator_set_menu(m_appIndicator, GTK_MENU(menu));
     } else {  // others
 #endif
         m_trayIcon = new QSystemTrayIcon(this);
