@@ -59,6 +59,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
+    connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
+
     m_tabBar = new QTabBar(this);
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
@@ -120,16 +122,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->actionOptions, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
-
-        if (m_settingsDialog->exec()) {
-            m_globalShortcut->setShortcut(m_settings->showShortcut);
-
-            if (m_settings->showSystrayIcon)
-                createTrayIcon();
-            else
-                removeTrayIcon();
-        }
-
+        m_settingsDialog->exec();
         m_globalShortcut->setEnabled(true);
     });
 
@@ -763,4 +756,14 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
         QMainWindow::keyPressEvent(keyEvent);
         break;
     }
+}
+
+void MainWindow::applySettings()
+{
+    m_globalShortcut->setShortcut(m_settings->showShortcut);
+
+    if (m_settings->showSystrayIcon)
+        createTrayIcon();
+    else
+        removeTrayIcon();
 }

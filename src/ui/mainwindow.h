@@ -82,6 +82,7 @@ protected:
     void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private slots:
+    void applySettings();
     void back();
     void forward();
     void onSearchComplete();
