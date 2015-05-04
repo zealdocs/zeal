@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += gui gui-private widgets sql
+QT += gui widgets sql
 CONFIG += c++11
 
 # Build features
