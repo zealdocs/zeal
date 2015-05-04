@@ -29,9 +29,8 @@
 ** <http://libqxt.org>  <foundation@libqxt.org>
 *****************************************************************************/
 
-
-#include <QApplication>
 #include <QKeySequence>
+#include <QScopedPointer>
 #include <QVector>
 #include <QX11Info>
 
@@ -39,106 +38,9 @@
 #include <X11/Xlib.h>
 
 namespace {
-
+/// TODO: Figure out why this is needed
 const QVector<quint32> maskModifiers = QVector<quint32>()
         << 0 << Mod2Mask << LockMask << (Mod2Mask | LockMask);
-
-typedef int (*X11ErrorHandler)(Display *display, XErrorEvent *event);
-
-class QxtX11ErrorHandler {
-public:
-    static bool error;
-
-    static int qxtX11ErrorHandler(Display *display, XErrorEvent *event)
-    {
-        Q_UNUSED(display);
-        switch (event->error_code)
-        {
-        case BadAccess:
-        case BadValue:
-        case BadWindow:
-            if (event->request_code == 33 /* X_GrabKey */ ||
-                    event->request_code == 34 /* X_UngrabKey */) {
-                error = true;
-                //TODO:
-                //char errstr[256];
-                //XGetErrorText(dpy, err->error_code, errstr, 256);
-            }
-        }
-        return 0;
-    }
-
-    QxtX11ErrorHandler()
-    {
-        error = false;
-        m_previousErrorHandler = XSetErrorHandler(qxtX11ErrorHandler);
-    }
-
-    ~QxtX11ErrorHandler()
-    {
-        XSetErrorHandler(m_previousErrorHandler);
-    }
-
-private:
-    X11ErrorHandler m_previousErrorHandler;
-};
-
-bool QxtX11ErrorHandler::error = false;
-
-class QxtX11Data {
-public:
-    QxtX11Data()
-    {
-        m_display = QX11Info::display();
-    }
-
-    bool isValid()
-    {
-        return m_display != 0;
-    }
-
-    Display *display()
-    {
-        Q_ASSERT(isValid());
-        return m_display;
-    }
-
-    Window rootWindow()
-    {
-        return DefaultRootWindow(display());
-    }
-
-    bool grabKey(quint32 keycode, quint32 modifiers, Window window)
-    {
-        QxtX11ErrorHandler errorHandler;
-
-        for (int i = 0; !errorHandler.error && i < maskModifiers.size(); ++i) {
-            XGrabKey(display(), keycode, modifiers | maskModifiers[i], window, True,
-                     GrabModeAsync, GrabModeAsync);
-        }
-
-        if (errorHandler.error) {
-            ungrabKey(keycode, modifiers, window);
-            return false;
-        }
-
-        return true;
-    }
-
-    bool ungrabKey(quint32 keycode, quint32 modifiers, Window window)
-    {
-        QxtX11ErrorHandler errorHandler;
-
-        for (quint32 maskMods : maskModifiers)
-            XUngrabKey(display(), keycode, modifiers | maskMods, window);
-
-        return !errorHandler.error;
-    }
-
-private:
-    Display *m_display;
-};
-
 } // namespace
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
@@ -151,6 +53,11 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t*>(message);
     if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
         return false;
+
+    // Avoid keyboard freeze
+    xcb_connection_t *xcbConnection = QX11Info::connection();
+    xcb_ungrab_keyboard(xcbConnection, XCB_TIME_CURRENT_TIME);
+    xcb_flush(xcbConnection);
 
     xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
 
@@ -194,25 +101,51 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
 
 quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
 {
-    QxtX11Data x11;
-    if (!x11.isValid())
-        return 0;
-
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
     if (keysym == NoSymbol)
         keysym = static_cast<ushort>(key);
 
-    return XKeysymToKeycode(x11.display(), keysym);
+    return XKeysymToKeycode(QX11Info::display(), keysym);
 }
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    QxtX11Data x11;
-    return x11.isValid() && x11.grabKey(nativeKey, nativeMods, x11.rootWindow());
+    xcb_connection_t *xcbConnection = QX11Info::connection();
+
+    QList<xcb_void_cookie_t> xcbCookies;
+    for (quint32 maskMods : maskModifiers) {
+        xcbCookies << xcb_grab_key_checked(xcbConnection, true, QX11Info::appRootWindow(),
+                                           nativeMods | maskMods, nativeKey,
+                                           XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_SYNC);
+    }
+
+    bool failed = false;
+    for (xcb_void_cookie_t cookie : xcbCookies) {
+        QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(xcbConnection, cookie));
+        failed = !error.isNull();
+    }
+
+    if (failed)
+        unregisterShortcut(nativeKey, nativeMods);
+
+    return !failed;
 }
 
 bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    QxtX11Data x11;
-    return x11.isValid() && x11.ungrabKey(nativeKey, nativeMods, x11.rootWindow());
+    xcb_connection_t *xcbConnection = QX11Info::connection();
+
+    QList<xcb_void_cookie_t> xcbCookies;
+    for (quint32 maskMods : maskModifiers) {
+        xcb_ungrab_key(xcbConnection, nativeKey, QX11Info::appRootWindow(), nativeMods | maskMods);
+
+    }
+
+    bool failed = false;
+    for (xcb_void_cookie_t cookie : xcbCookies) {
+        QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(xcbConnection, cookie));
+        failed = !error.isNull();
+    }
+
+    return !failed;
 }

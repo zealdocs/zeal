@@ -9,7 +9,7 @@ unix:!macx {
     QT += x11extras
 
     CONFIG += link_pkgconfig
-    PKGCONFIG += x11
+    PKGCONFIG += x11 xcb
 
     SOURCES += $$PWD/qxtglobalshortcut_x11.cpp
 }
