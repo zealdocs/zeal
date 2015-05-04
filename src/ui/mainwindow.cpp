@@ -36,6 +36,7 @@
 
 #include <qxtglobalshortcut.h>
 
+/// TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
 #ifdef USE_APPINDICATOR
 #undef signals
 #include <libappindicator/app-indicator.h>
