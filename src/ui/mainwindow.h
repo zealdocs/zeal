@@ -13,7 +13,7 @@
     #define QWebHistoryItem QWebEngineHistoryItem
 #endif
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
 struct _AppIndicator;
 struct _GtkWidget;
 #endif
@@ -125,7 +125,7 @@ private:
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     _AppIndicator *m_appIndicator = nullptr;
     _GtkWidget *m_appIndicatorMenu = nullptr;
     _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;

@@ -16,6 +16,6 @@ unix:!macx {
     packagesExist(appindicator-0.1) {
         message("AppIndicator support enabled")
         PKGCONFIG += appindicator-0.1 gtk+-2.0
-        DEFINES += USE_LIBAPPINDICATOR
+        DEFINES += USE_APPINDICATOR
     }
 }

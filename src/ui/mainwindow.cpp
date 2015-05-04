@@ -36,7 +36,7 @@
 
 #include <qxtglobalshortcut.h>
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
 #undef signals
 #include <libappindicator/app-indicator.h>
 #define signals public
@@ -70,7 +70,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (!isVisible() || !isActiveWindow()) {
             bringToFront();
         } else {
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
             if (m_trayIcon || m_appIndicator) {
 #else
             if (m_trayIcon) {
@@ -624,7 +624,7 @@ QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryIte
 
 void MainWindow::createTrayIcon()
 {
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     if (m_trayIcon || m_appIndicator)
         return;
 #else
@@ -632,7 +632,7 @@ void MainWindow::createTrayIcon()
         return;
 #endif
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     const QString desktop = getenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
@@ -679,14 +679,14 @@ void MainWindow::createTrayIcon()
         m_trayIcon->setContextMenu(trayIconMenu);
 
         m_trayIcon->show();
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     }
 #endif
 }
 
 void MainWindow::removeTrayIcon()
 {
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     if (!m_trayIcon && !m_appIndicator)
         return;
 #else
@@ -694,11 +694,11 @@ void MainWindow::removeTrayIcon()
         return;
 #endif
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     const QString desktop = getenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
-    if (isUnity) { // Application Indicators for Unity
+    if (isUnity) {
         g_clear_object(&m_appIndicator);
         g_clear_object(&m_appIndicatorMenu);
         g_clear_object(&m_appIndicatorQuitMenuItem);
@@ -708,7 +708,7 @@ void MainWindow::removeTrayIcon()
         delete m_trayIcon;
         m_trayIcon = nullptr;
         delete trayIconMenu;
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     }
 #endif
 }
