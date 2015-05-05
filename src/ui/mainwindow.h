@@ -76,6 +76,9 @@ public:
     void bringToFront(const Zeal::SearchQuery &query = Zeal::SearchQuery());
     void createTab();
 
+public slots:
+    void toggleWindow();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
     void setupShortcuts();
@@ -130,6 +133,8 @@ private:
     _AppIndicator *m_appIndicator = nullptr;
     _GtkWidget *m_appIndicatorMenu = nullptr;
     _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;
+    _GtkWidget *m_appIndicatorShowHideMenuItem = nullptr;
+    _GtkWidget *m_appIndicatorMenuSeparator = nullptr;
 #endif
 };
 

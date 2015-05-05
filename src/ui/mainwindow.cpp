@@ -69,21 +69,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         createTrayIcon();
 
     // initialise key grabber
-    connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
-        if (!isVisible() || !isActiveWindow()) {
-            bringToFront();
-        } else {
-#ifdef USE_APPINDICATOR
-            if (m_trayIcon || m_appIndicator) {
-#else
-            if (m_trayIcon) {
-#endif
-                hide();
-            } else {
-                showMinimized();
-            }
-        }
-    });
+    connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
     m_application->docsetRegistry()->init(m_settings->docsetPath);
 
@@ -616,6 +602,14 @@ QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryIte
     return backAction;
 }
 
+#ifdef USE_APPINDICATOR
+void appIndicatorToggleWindow(GtkMenu *menu, gpointer data)
+{
+    Q_UNUSED(menu);
+    static_cast<MainWindow *>(data)->toggleWindow();
+}
+#endif
+
 void MainWindow::createTrayIcon()
 {
 #ifdef USE_APPINDICATOR
@@ -633,11 +627,20 @@ void MainWindow::createTrayIcon()
     if (isUnity) { // Application Indicators for Unity
         m_appIndicatorMenu = gtk_menu_new();
 
-        m_appIndicatorQuitMenuItem = gtk_menu_item_new_with_label("Quit");
+        m_appIndicatorShowHideMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Hide")));
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorShowHideMenuItem);
+        g_signal_connect(m_appIndicatorShowHideMenuItem, "activate",
+                         G_CALLBACK(appIndicatorToggleWindow), this);
+
+        m_appIndicatorMenuSeparator = gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorMenuSeparator);
+
+        m_appIndicatorQuitMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Quit")));
         gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorQuitMenuItem);
         g_signal_connect(m_appIndicatorQuitMenuItem, "activate",
                          G_CALLBACK(QCoreApplication::quit), NULL);
-        gtk_widget_show(m_appIndicatorQuitMenuItem);
+
+        gtk_widget_show_all(m_appIndicatorMenu);
 
         /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
         m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
@@ -660,10 +663,7 @@ void MainWindow::createTrayIcon()
                 return;
             }
 
-            if (isVisible())
-                hide();
-            else
-                bringToFront();
+            toggleWindow();
         });
 
         QMenu *trayIconMenu = new QMenu(this);
@@ -695,6 +695,8 @@ void MainWindow::removeTrayIcon()
     if (isUnity) {
         g_clear_object(&m_appIndicator);
         g_clear_object(&m_appIndicatorMenu);
+        g_clear_object(&m_appIndicatorShowHideMenuItem);
+        g_clear_object(&m_appIndicatorMenuSeparator);
         g_clear_object(&m_appIndicatorQuitMenuItem);
     } else {
 #endif
@@ -727,7 +729,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_settings->windowGeometry = saveGeometry();
     if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
         event->ignore();
-        hide();
+        toggleWindow();
     }
 }
 
@@ -766,4 +768,33 @@ void MainWindow::applySettings()
         createTrayIcon();
     else
         removeTrayIcon();
+}
+
+void MainWindow::toggleWindow()
+{
+    const bool checkActive = sender() == m_globalShortcut;
+
+    if (!isVisible() || (checkActive && !isActiveWindow())) {
+#ifdef USE_APPINDICATOR
+        if (m_appIndicator) {
+            gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
+                                    qPrintable(tr("Hide")));
+        }
+#endif
+        bringToFront();
+    } else {
+#ifdef USE_APPINDICATOR
+        if (m_trayIcon || m_appIndicator) {
+            if (m_appIndicator) {
+                gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
+                                        qPrintable(tr("Show")));
+            }
+#else
+        if (m_trayIcon) {
+#endif
+            hide();
+        } else {
+            showMinimized();
+        }
+    }
 }
