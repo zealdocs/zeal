@@ -72,11 +72,9 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if(keyPressEvent->state & XCB_MOD_MASK_SHIFT)
         keystate |= ShiftMask;
 
-    activateShortcut(keycode,
-                     // Mod1Mask == Alt, Mod4Mask == Meta
-                     keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
-
-    return false;
+    return activateShortcut(keycode,
+                            // Mod1Mask == Alt, Mod4Mask == Meta
+                            keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
@@ -114,9 +112,9 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
 
     QList<xcb_void_cookie_t> xcbCookies;
     for (quint32 maskMods : maskModifiers) {
-        xcbCookies << xcb_grab_key_checked(xcbConnection, true, QX11Info::appRootWindow(),
+        xcbCookies << xcb_grab_key_checked(xcbConnection, 1, QX11Info::appRootWindow(),
                                            nativeMods | maskMods, nativeKey,
-                                           XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_SYNC);
+                                           XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
     }
 
     bool failed = false;
