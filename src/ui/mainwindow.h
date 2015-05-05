@@ -94,7 +94,7 @@ private slots:
     void scrollSearch();
     void saveTabState();
     void goToTab(int index);
-    void closeTab(int index = -1);
+    void closeActiveTab();
 
 private:
     void displayViewActions();
