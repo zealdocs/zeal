@@ -219,7 +219,7 @@ QList<SearchResult> Docset::search(const QString &query) const
             const QString itemName = query.value(0).toString();
             QString path = query.value(1).toString();
             if (m_type == Docset::Type::ZDash)
-                path += QLatin1Char('#') + query.value(1).toString();
+                path += QLatin1Char('#') + query.value(2).toString();
 
             /// TODO: Third should be type
             results.append(SearchResult{itemName, QString(), QString(),
