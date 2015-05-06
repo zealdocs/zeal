@@ -36,7 +36,11 @@
 
 #include <qxtglobalshortcut.h>
 
-#ifdef USE_LIBAPPINDICATOR
+/// TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
+#ifdef USE_APPINDICATOR
+#undef signals
+#include <libappindicator/app-indicator.h>
+#define signals public
 #include <gtk/gtk.h>
 #endif
 
@@ -55,6 +59,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
+    connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
+
     m_tabBar = new QTabBar(this);
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
@@ -63,21 +69,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         createTrayIcon();
 
     // initialise key grabber
-    connect(m_globalShortcut, &QxtGlobalShortcut::activated, [this]() {
-        if (!isVisible() || !isActiveWindow()) {
-            bringToFront();
-        } else {
-#ifdef USE_LIBAPPINDICATOR
-            if (m_trayIcon || m_indicator) {
-#else
-            if (m_trayIcon) {
-#endif
-                hide();
-            } else {
-                showMinimized();
-            }
-        }
-    });
+    connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
     m_application->docsetRegistry()->init(m_settings->docsetPath);
 
@@ -116,20 +108,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->actionOptions, &QAction::triggered, [=]() {
         m_globalShortcut->setEnabled(false);
-
-        if (m_settingsDialog->exec()) {
-            m_globalShortcut->setShortcut(m_settings->showShortcut);
-
-            if (m_settings->showSystrayIcon) {
-                createTrayIcon();
-            } else if (m_trayIcon) {
-                QMenu *trayIconMenu = m_trayIcon->contextMenu();
-                delete m_trayIcon;
-                m_trayIcon = nullptr;
-                delete trayIconMenu;
-            }
-        }
-
+        m_settingsDialog->exec();
         m_globalShortcut->setEnabled(true);
     });
 
@@ -283,7 +262,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionCloseTab->setShortcut(QKeySequence::Close);
 #endif
     addAction(ui->actionCloseTab);
-    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeTab);
+    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeActiveTab);
 
     m_tabBar->setTabsClosable(true);
     m_tabBar->setExpanding(false);
@@ -294,7 +273,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
-    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeActiveTab);
 
     ((QHBoxLayout *)ui->tabBarFrame->layout())->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 
@@ -403,10 +382,9 @@ void MainWindow::goToTab(int index)
     reloadTabState();
 }
 
-void MainWindow::closeTab(int index)
+void MainWindow::closeActiveTab()
 {
-    if (index == -1)
-        index = m_tabBar->currentIndex();
+    const int index = m_tabBar->currentIndex();
 
     /// TODO: proper deletion here
     SearchState *tab = m_tabs.takeAt(index);
@@ -623,44 +601,51 @@ QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryIte
     return backAction;
 }
 
-#ifdef USE_LIBAPPINDICATOR
-void onQuit(GtkMenu *menu, gpointer data)
+#ifdef USE_APPINDICATOR
+void appIndicatorToggleWindow(GtkMenu *menu, gpointer data)
 {
     Q_UNUSED(menu);
-    QApplication *self = static_cast<QApplication *>(data);
-    self->quit();
+    static_cast<MainWindow *>(data)->toggleWindow();
 }
-
 #endif
 
 void MainWindow::createTrayIcon()
 {
-#ifdef USE_LIBAPPINDICATOR
-    if (m_trayIcon || m_indicator) return;
+#ifdef USE_APPINDICATOR
+    if (m_trayIcon || m_appIndicator)
+        return;
 #else
-    if (m_trayIcon) return;
+    if (m_trayIcon)
+        return;
 #endif
 
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
     const QString desktop = getenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
     if (isUnity) { // Application Indicators for Unity
-        GtkWidget *menu;
-        GtkWidget *quitItem;
+        m_appIndicatorMenu = gtk_menu_new();
 
-        menu = gtk_menunew();
+        m_appIndicatorShowHideMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Hide")));
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorShowHideMenuItem);
+        g_signal_connect(m_appIndicatorShowHideMenuItem, "activate",
+                         G_CALLBACK(appIndicatorToggleWindow), this);
 
-        quitItem = gtk_menuitem_new_with_label("Quit");
-        gtk_menushell_append(GTK_menuSHELL(menu), quitItem);
-        g_signal_connect(quitItem, "activate", G_CALLBACK(onQuit), qApp);
-        gtk_widget_show(quitItem);
+        m_appIndicatorMenuSeparator = gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorMenuSeparator);
 
-        m_indicator = app_indicator_new("zeal",
-                                        icon.name().toLatin1().data(), APP_INDICATOR_CATEGORY_OTHER);
+        m_appIndicatorQuitMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Quit")));
+        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorQuitMenuItem);
+        g_signal_connect(m_appIndicatorQuitMenuItem, "activate",
+                         G_CALLBACK(QCoreApplication::quit), NULL);
 
-        app_indicator_set_status(m_indicator, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_menu(m_indicator, GTK_MENU(menu));
+        gtk_widget_show_all(m_appIndicatorMenu);
+
+        /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
+        m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
+
+        app_indicator_set_status(m_appIndicator, APP_INDICATOR_STATUS_ACTIVE);
+        app_indicator_set_menu(m_appIndicator, GTK_MENU(m_appIndicatorMenu));
     } else {  // others
 #endif
         m_trayIcon = new QSystemTrayIcon(this);
@@ -677,10 +662,7 @@ void MainWindow::createTrayIcon()
                 return;
             }
 
-            if (isVisible())
-                hide();
-            else
-                bringToFront();
+            toggleWindow();
         });
 
         QMenu *trayIconMenu = new QMenu(this);
@@ -690,7 +672,38 @@ void MainWindow::createTrayIcon()
         m_trayIcon->setContextMenu(trayIconMenu);
 
         m_trayIcon->show();
-#ifdef USE_LIBAPPINDICATOR
+#ifdef USE_APPINDICATOR
+    }
+#endif
+}
+
+void MainWindow::removeTrayIcon()
+{
+#ifdef USE_APPINDICATOR
+    if (!m_trayIcon && !m_appIndicator)
+        return;
+#else
+    if (!m_trayIcon)
+        return;
+#endif
+
+#ifdef USE_APPINDICATOR
+    const QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
+
+    if (isUnity) {
+        g_clear_object(&m_appIndicator);
+        g_clear_object(&m_appIndicatorMenu);
+        g_clear_object(&m_appIndicatorShowHideMenuItem);
+        g_clear_object(&m_appIndicatorMenuSeparator);
+        g_clear_object(&m_appIndicatorQuitMenuItem);
+    } else {
+#endif
+        QMenu *trayIconMenu = m_trayIcon->contextMenu();
+        delete m_trayIcon;
+        m_trayIcon = nullptr;
+        delete trayIconMenu;
+#ifdef USE_APPINDICATOR
     }
 #endif
 }
@@ -715,7 +728,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     m_settings->windowGeometry = saveGeometry();
     if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
         event->ignore();
-        hide();
+        toggleWindow();
     }
 }
 
@@ -743,5 +756,44 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     default:
         QMainWindow::keyPressEvent(keyEvent);
         break;
+    }
+}
+
+void MainWindow::applySettings()
+{
+    m_globalShortcut->setShortcut(m_settings->showShortcut);
+
+    if (m_settings->showSystrayIcon)
+        createTrayIcon();
+    else
+        removeTrayIcon();
+}
+
+void MainWindow::toggleWindow()
+{
+    const bool checkActive = sender() == m_globalShortcut;
+
+    if (!isVisible() || (checkActive && !isActiveWindow())) {
+#ifdef USE_APPINDICATOR
+        if (m_appIndicator) {
+            gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
+                                    qPrintable(tr("Hide")));
+        }
+#endif
+        bringToFront();
+    } else {
+#ifdef USE_APPINDICATOR
+        if (m_trayIcon || m_appIndicator) {
+            if (m_appIndicator) {
+                gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
+                                        qPrintable(tr("Show")));
+            }
+#else
+        if (m_trayIcon) {
+#endif
+            hide();
+        } else {
+            showMinimized();
+        }
     }
 }

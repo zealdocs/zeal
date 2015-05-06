@@ -27,7 +27,7 @@ Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.s
 
 ## Download
 
-For details about binary packages (currently available for Windows and Ubuntu) see [downloads page](http://zealdocs.org/download.html). Also, the latest unstable builds are available [here]( https://bitbucket.org/zealdocs/zeal-win32-binary-downloads/downloads).
+Get binary builds for Windows and Linux from the [download page](http://zealdocs.org/download.html).
 
 ## How to use
 

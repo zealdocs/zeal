@@ -99,7 +99,7 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
     QLineEdit::focusInEvent(event);
 
     // Override the default selection.
-    Zeal::SearchQuery currentQuery(text());
+    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
     int selectionOffset = currentQuery.keywordPrefixSize();
     if (selectionOffset > 0)
         selectionOffset++; // add the delimeter
@@ -137,10 +137,9 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
 void SearchEdit::mousePressEvent(QMouseEvent *event)
 {
     // Let the focusInEvent code deal with initial selection on focus.
-    if (m_focusing)
-        return;
+    if (!m_focusing)
+        QLineEdit::mousePressEvent(event);
 
-    QLineEdit::mousePressEvent(event);
     m_focusing = false;
 }
 

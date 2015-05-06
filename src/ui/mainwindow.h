@@ -7,16 +7,15 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
-#ifdef USE_LIBAPPINDICATOR
-#undef signals
-#include <libappindicator/app-indicator.h>
-#define signals public
-#endif
-
 #ifdef USE_WEBENGINE
     #define QWebPage QWebEnginePage
     #define QWebHistory QWebEngineHistory
     #define QWebHistoryItem QWebEngineHistoryItem
+#endif
+
+#ifdef USE_APPINDICATOR
+struct _AppIndicator;
+struct _GtkWidget;
 #endif
 
 class QxtGlobalShortcut;
@@ -77,12 +76,16 @@ public:
     void bringToFront(const Zeal::SearchQuery &query = Zeal::SearchQuery());
     void createTab();
 
+public slots:
+    void toggleWindow();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
     void setupShortcuts();
     void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private slots:
+    void applySettings();
     void back();
     void forward();
     void onSearchComplete();
@@ -91,7 +94,7 @@ private slots:
     void scrollSearch();
     void saveTabState();
     void goToTab(int index);
-    void closeTab(int index = -1);
+    void closeActiveTab();
 
 private:
     void displayViewActions();
@@ -102,6 +105,7 @@ private:
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
     void createTrayIcon();
+    void removeTrayIcon();
 
     QList<SearchState *> m_tabs;
 
@@ -125,8 +129,12 @@ private:
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 
-#ifdef USE_LIBAPPINDICATOR
-    AppIndicator *m_indicator = nullptr;  // for Unity
+#ifdef USE_APPINDICATOR
+    _AppIndicator *m_appIndicator = nullptr;
+    _GtkWidget *m_appIndicatorMenu = nullptr;
+    _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;
+    _GtkWidget *m_appIndicatorShowHideMenuItem = nullptr;
+    _GtkWidget *m_appIndicatorMenuSeparator = nullptr;
 #endif
 };
 

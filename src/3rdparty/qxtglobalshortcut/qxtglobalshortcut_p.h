@@ -53,14 +53,13 @@ public:
     bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
-    static bool error;
 #ifndef Q_OS_OSX
     static int ref;
 #endif // Q_OS_OSX
     virtual bool nativeEventFilter(const QByteArray &eventType, void *message,
                                    long *result) override;
 
-    static void activateShortcut(quint32 nativeKey, quint32 nativeMods);
+    static bool activateShortcut(quint32 nativeKey, quint32 nativeMods);
 
 private:
     static quint32 nativeKeycode(Qt::Key keycode);
