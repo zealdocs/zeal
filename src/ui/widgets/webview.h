@@ -21,6 +21,7 @@ public:
 
 protected:
     QWebView *createWindow(QWebPage::WebWindowType type) override;
+    void mousePressEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private:
