@@ -54,12 +54,12 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
         return false;
 
+    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
+
     // Avoid keyboard freeze
     xcb_connection_t *xcbConnection = QX11Info::connection();
-    xcb_ungrab_keyboard(xcbConnection, XCB_TIME_CURRENT_TIME);
+    xcb_allow_events(xcbConnection, XCB_ALLOW_REPLAY_KEYBOARD, keyPressEvent->time);
     xcb_flush(xcbConnection);
-
-    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
 
     unsigned int keycode = keyPressEvent->detail;
     unsigned int keystate = 0;
@@ -72,9 +72,8 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if(keyPressEvent->state & XCB_MOD_MASK_SHIFT)
         keystate |= ShiftMask;
 
-    return activateShortcut(keycode,
-                            // Mod1Mask == Alt, Mod4Mask == Meta
-                            keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+    // Mod1Mask == Alt, Mod4Mask == Meta
+    return activateShortcut(keycode, keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
