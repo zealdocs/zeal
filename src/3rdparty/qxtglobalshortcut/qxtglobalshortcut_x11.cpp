@@ -38,9 +38,9 @@
 #include <X11/Xlib.h>
 
 namespace {
-/// TODO: Figure out why this is needed
-const QVector<quint32> maskModifiers = QVector<quint32>()
-        << 0 << Mod2Mask << LockMask << (Mod2Mask | LockMask);
+const QVector<quint32> maskModifiers = {
+    0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
+};
 } // namespace
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
@@ -63,36 +63,30 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
 
     unsigned int keycode = keyPressEvent->detail;
     unsigned int keystate = 0;
-    if(keyPressEvent->state & XCB_MOD_MASK_1)
-        keystate |= Mod1Mask;
-    if(keyPressEvent->state & XCB_MOD_MASK_CONTROL)
-        keystate |= ControlMask;
-    if(keyPressEvent->state & XCB_MOD_MASK_4)
-        keystate |= Mod4Mask;
-    if(keyPressEvent->state & XCB_MOD_MASK_SHIFT)
-        keystate |= ShiftMask;
+    if (keyPressEvent->state & XCB_MOD_MASK_1)
+        keystate |= XCB_MOD_MASK_1;
+    if (keyPressEvent->state & XCB_MOD_MASK_CONTROL)
+        keystate |= XCB_MOD_MASK_CONTROL;
+    if (keyPressEvent->state & XCB_MOD_MASK_4)
+        keystate |= XCB_MOD_MASK_4;
+    if (keyPressEvent->state & XCB_MOD_MASK_SHIFT)
+        keystate |= XCB_MOD_MASK_SHIFT;
 
-    // Mod1Mask == Alt, Mod4Mask == Meta
-    return activateShortcut(keycode, keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+    return activateShortcut(keycode, keystate);
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
-    // ShiftMask, LockMask, ControlMask, Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, and Mod5Mask
     quint32 native = 0;
     if (modifiers & Qt::ShiftModifier)
-        native |= ShiftMask;
+        native |= XCB_MOD_MASK_SHIFT;
     if (modifiers & Qt::ControlModifier)
-        native |= ControlMask;
+        native |= XCB_MOD_MASK_CONTROL;
     if (modifiers & Qt::AltModifier)
-        native |= Mod1Mask;
+        native |= XCB_MOD_MASK_1;
     if (modifiers & Qt::MetaModifier)
-        native |= Mod4Mask;
+        native |= XCB_MOD_MASK_4;
 
-    /// TODO: resolve these?
-    //if (modifiers & Qt::MetaModifier)
-    //if (modifiers & Qt::KeypadModifier)
-    //if (modifiers & Qt::GroupSwitchModifier)
     return native;
 }
 
