@@ -35,6 +35,7 @@
 #include <QX11Info>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 #include <X11/Xlib.h>
 
 namespace {
@@ -92,11 +93,21 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
 
 quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
 {
+    quint32 native = 0;
+
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
-    if (keysym == NoSymbol)
+    if (keysym == XCB_NO_SYMBOL)
         keysym = static_cast<ushort>(key);
 
-    return XKeysymToKeycode(QX11Info::display(), keysym);
+    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(QX11Info::connection());
+
+    QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
+                xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
+    native = keycodes.data()[0]; // Use the first keycode
+
+    xcb_key_symbols_free(xcbKeySymbols);
+
+    return native;
 }
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
