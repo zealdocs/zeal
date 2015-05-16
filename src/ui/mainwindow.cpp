@@ -25,13 +25,13 @@
 #include <QTimer>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineHistory>
-    #include <QWebEnginePage>
-    #include <QWebEngineSettings>
+#include <QWebEngineHistory>
+#include <QWebEnginePage>
+#include <QWebEngineSettings>
 #else
-    #include <QWebFrame>
-    #include <QWebHistory>
-    #include <QWebPage>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebPage>
 #endif
 
 #include <qxtglobalshortcut.h>
