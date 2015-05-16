@@ -80,6 +80,7 @@ public slots:
     void toggleWindow();
 
 protected:
+    void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void setupShortcuts();
     void keyPressEvent(QKeyEvent *keyEvent) override;

@@ -723,6 +723,15 @@ void MainWindow::bringToFront(const Zeal::SearchQuery &query)
     }
 }
 
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (m_settings->showSystrayIcon && m_settings->minimizeToSystray
+            && event->type() == QEvent::WindowStateChange && isMinimized()) {
+        hide();
+    }
+    QMainWindow::changeEvent(event);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     m_settings->windowGeometry = saveGeometry();
