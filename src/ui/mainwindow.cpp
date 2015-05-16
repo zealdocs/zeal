@@ -14,6 +14,7 @@
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
@@ -311,7 +312,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                             "You can move docsets to <b>%2</b> or change the docset storage path in the settings. <br><br>"
                                             "Please note, that old docsets cannot be updated automatically, so it is better to download your docsets again. <br><br>"
                                             "Remove or use the old docset storage to avoid this message in the future."))
-                                 .arg(oldDocsetDir, m_settings->docsetPath));
+                                 .arg(QDir::toNativeSeparators(oldDocsetDir), QDir::toNativeSeparators(m_settings->docsetPath)));
     }
 }
 
