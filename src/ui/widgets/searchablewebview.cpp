@@ -65,24 +65,16 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     connect(m_webView, &QWebView::loadStarted, [&]() {
         m_lineEdit->clear();
     });
-
-    // Display tooltip showing link location when hovered over.
-#ifdef USE_WEBENGINE
-    connect(m_webView->page(), &QWebPage::linkHovered, [&](const QString &link) {
-#else
-    connect(m_webView->page(), &QWebPage::linkHovered,
-            [&](const QString &link, const QString &title, const QString &textContent) {
-        Q_UNUSED(title)
-        Q_UNUSED(textContent)
-#endif
-        if (!link.startsWith(QLatin1String("file:///")))
-            setToolTip(link);
-    });
 }
 
 void SearchableWebView::setPage(QWebPage *page)
 {
     m_webView->setPage(page);
+
+    connect(page, &QWebPage::linkHovered, [&](const QString &link) {
+        if (!link.startsWith(QLatin1String("file:")))
+            setToolTip(link);
+    });
 }
 
 int SearchableWebView::zealZoomFactor() const
