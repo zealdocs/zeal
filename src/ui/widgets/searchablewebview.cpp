@@ -25,30 +25,10 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 
     m_searchLineEdit->hide();
     m_searchLineEdit->installEventFilter(this);
-    connect(m_searchLineEdit, &QLineEdit::textChanged, [&](const QString &text) {
-        // clear selection:
-#ifdef USE_WEBENGINE
-        m_webView->findText(text);
-#else
-        m_webView->findText(QString());
-        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
-        if (!text.isEmpty()) {
-            // select&scroll to one occurence:
-            m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
-            // highlight other occurences:
-            m_webView->findText(text, QWebPage::HighlightAllOccurrences);
-        }
-#endif
-
-        // store text for later searches
-        m_searchText = text;
-    });
+    connect(m_searchLineEdit, &QLineEdit::textChanged, this, &SearchableWebView::find);
 
     QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(shortcut, &QShortcut::activated, [&] {
-        m_searchLineEdit->show();
-        m_searchLineEdit->setFocus();
-    });
+    connect(shortcut, &QShortcut::activated, this, &SearchableWebView::showSearch);
 
     connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
         Q_UNUSED(ok)
@@ -63,10 +43,6 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 #else
     connect(m_webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
 #endif
-
-    connect(m_webView, &QWebView::loadStarted, [&]() {
-        m_searchLineEdit->clear();
-    });
 }
 
 void SearchableWebView::setPage(QWebPage *page)
@@ -93,10 +69,16 @@ bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_searchLineEdit && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Escape) {
-            m_searchLineEdit->hide();
-            m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+        switch (keyEvent->key()) {
+        case Qt::Key_Escape:
+            hideSearch();
             return true;
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            findNext(m_searchLineEdit->text(), keyEvent->modifiers() & Qt::ShiftModifier);
+            return true;
+        default:
+            break;
         }
     }
 
@@ -146,22 +128,8 @@ bool SearchableWebView::canGoForward() const
 void SearchableWebView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
-    case Qt::Key_Enter:
-    case Qt::Key_Return: {
-#ifdef USE_WEBENGINE
-        QWebPage::FindFlags flags = 0;
-#else
-        QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
-#endif
-        if (event->modifiers() & Qt::ShiftModifier)
-            flags |= QWebPage::FindBackward;
-        m_webView->findText(m_searchText, flags);
-        event->accept();
-    }
-        break;
     case Qt::Key_Slash:
-        m_searchLineEdit->show();
-        m_searchLineEdit->setFocus();
+        showSearch();
         event->accept();
         break;
     default:
@@ -175,6 +143,58 @@ void SearchableWebView::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
     m_webView->resize(event->size().width(), event->size().height());
     moveLineEdit();
+}
+
+void SearchableWebView::showSearch()
+{
+    m_searchLineEdit->show();
+    m_searchLineEdit->setFocus();
+    if (!m_searchLineEdit->text().isEmpty()) {
+        m_searchLineEdit->selectAll();
+        find(m_searchLineEdit->text());
+    }
+}
+
+void SearchableWebView::hideSearch()
+{
+    m_searchLineEdit->hide();
+#ifdef USE_WEBENGINE
+    m_webView->findText(QString());
+#else
+    m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+#endif
+}
+
+void SearchableWebView::find(const QString &text)
+{
+#ifdef USE_WEBENGINE
+    /// FIXME: There's no way to just show highlight when search term is already selected.
+    /// So we need a workaround before switching to Qt WebEngine.
+    m_webView->findText(text);
+#else
+    if (m_webView->selectedText() != text) {
+        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+        m_webView->findText(QString());
+        if (text.isEmpty())
+            return;
+
+        m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
+    }
+
+    m_webView->findText(text, QWebPage::HighlightAllOccurrences);
+#endif
+}
+
+void SearchableWebView::findNext(const QString &text, bool backward)
+{
+#ifdef USE_WEBENGINE
+    QWebPage::FindFlags flags = 0;
+#else
+    QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
+#endif
+    if (backward)
+        flags |= QWebPage::FindBackward;
+    m_webView->findText(text, flags);
 }
 
 void SearchableWebView::moveLineEdit()

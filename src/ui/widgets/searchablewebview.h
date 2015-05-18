@@ -45,11 +45,14 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void showSearch();
+    void hideSearch();
+    void find(const QString &text);
+    void findNext(const QString &text, bool backward = false);
     void moveLineEdit();
 
     QLineEdit *m_searchLineEdit = nullptr;
     WebView *m_webView = nullptr;
-    QString m_searchText;
 };
 
 #endif // SEARCHABLEWEBVIEW_H
