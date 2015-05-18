@@ -7,22 +7,22 @@
 #include <QUrl>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineSettings>
-    #define QWebSettings QWebEngineSettings
+#include <QWebEngineSettings>
+#define QWebSettings QWebEngineSettings
 #else
-    #include <QWebSettings>
+#include <QWebSettings>
 #endif
 
 using namespace Zeal::Core;
 
 Settings::Settings(QObject *parent) :
     QObject(parent),
-#ifndef PORTABLE_BUILD
+    #ifndef PORTABLE_BUILD
     m_settings(new QSettings(this))
-#else
+  #else
     m_settings(new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
                              QSettings::IniFormat, this))
-#endif
+  #endif
 {
     /// TODO: Move to user style sheet (related to #268)
 #ifndef USE_WEBENGINE

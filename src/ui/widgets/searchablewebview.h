@@ -9,7 +9,6 @@
 
 class QLineEdit;
 class QWebPage;
-class QWebSettings;
 
 class WebView;
 
@@ -27,8 +26,10 @@ public:
     bool canGoForward() const;
     void setPage(QWebPage *page);
 
-    int zealZoomFactor() const;
-    void setZealZoomFactor(int zf);
+    int zoomFactor() const;
+    void setZoomFactor(int value);
+
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void urlChanged(const QUrl &url);
@@ -44,11 +45,14 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void showSearch();
+    void hideSearch();
+    void find(const QString &text);
+    void findNext(const QString &text, bool backward = false);
     void moveLineEdit();
 
-    QLineEdit *m_lineEdit = nullptr;
+    QLineEdit *m_searchLineEdit = nullptr;
     WebView *m_webView = nullptr;
-    QString m_searchText;
 };
 
 #endif // SEARCHABLEWEBVIEW_H

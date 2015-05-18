@@ -8,45 +8,27 @@
 #include <QResizeEvent>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineHistory>
-    #include <QWebEnginePage>
+#include <QWebEngineHistory>
+#include <QWebEnginePage>
 #else
-    #include <QWebFrame>
-    #include <QWebHistory>
-    #include <QWebPage>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebPage>
 #endif
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent),
-    m_lineEdit(new QLineEdit(this)),
+    m_searchLineEdit(new QLineEdit(this)),
     m_webView(new WebView(this))
 {
     m_webView->setAttribute(Qt::WA_AcceptTouchEvents, false);
-    m_lineEdit->hide();
-    connect(m_lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
-        // clear selection:
-#ifdef USE_WEBENGINE
-        m_webView->findText(text);
-#else
-        m_webView->findText(QString());
-        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
-        if (!text.isEmpty()) {
-            // select&scroll to one occurence:
-            m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
-            // highlight other occurences:
-            m_webView->findText(text, QWebPage::HighlightAllOccurrences);
-        }
-#endif
 
-        // store text for later searches
-        m_searchText = text;
-    });
+    m_searchLineEdit->hide();
+    m_searchLineEdit->installEventFilter(this);
+    connect(m_searchLineEdit, &QLineEdit::textChanged, this, &SearchableWebView::find);
 
     QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(shortcut, &QShortcut::activated, [&] {
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
-    });
+    connect(shortcut, &QShortcut::activated, this, &SearchableWebView::showSearch);
 
     connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
         Q_UNUSED(ok)
@@ -61,38 +43,46 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 #else
     connect(m_webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
 #endif
-
-    connect(m_webView, &QWebView::loadStarted, [&]() {
-        m_lineEdit->clear();
-    });
-
-    // Display tooltip showing link location when hovered over.
-#ifdef USE_WEBENGINE
-    connect(m_webView->page(), &QWebPage::linkHovered, [&](const QString &link) {
-#else
-    connect(m_webView->page(), &QWebPage::linkHovered,
-            [&](const QString &link, const QString &title, const QString &textContent) {
-        Q_UNUSED(title)
-        Q_UNUSED(textContent)
-#endif
-        if (!link.startsWith(QLatin1String("file:///")))
-            setToolTip(link);
-    });
 }
 
 void SearchableWebView::setPage(QWebPage *page)
 {
     m_webView->setPage(page);
+
+    connect(page, &QWebPage::linkHovered, [&](const QString &link) {
+        if (!link.startsWith(QLatin1String("file:")))
+            setToolTip(link);
+    });
 }
 
-int SearchableWebView::zealZoomFactor() const
+int SearchableWebView::zoomFactor() const
 {
     return m_webView->zealZoomFactor();
 }
 
-void SearchableWebView::setZealZoomFactor(int zf)
+void SearchableWebView::setZoomFactor(int value)
 {
-    m_webView->setZealZoomFactor(zf);
+    m_webView->setZealZoomFactor(value);
+}
+
+bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_searchLineEdit && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
+        switch (keyEvent->key()) {
+        case Qt::Key_Escape:
+            hideSearch();
+            return true;
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            findNext(m_searchLineEdit->text(), keyEvent->modifiers() & Qt::ShiftModifier);
+            return true;
+        default:
+            break;
+        }
+    }
+
+    return QWidget::eventFilter(object, event);
 }
 
 void SearchableWebView::load(const QUrl &url)
@@ -137,24 +127,15 @@ bool SearchableWebView::canGoForward() const
 
 void SearchableWebView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
-#ifdef USE_WEBENGINE
-        QWebPage::FindFlags flags = 0;
-#else
-        QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
-#endif
-        if (event->modifiers() & Qt::ShiftModifier)
-            flags |= QWebPage::FindBackward;
-        m_webView->findText(m_searchText, flags);
+    switch (event->key()) {
+    case Qt::Key_Slash:
+        showSearch();
+        event->accept();
+        break;
+    default:
+        event->ignore();
+        break;
     }
-
-    if (event->key() == Qt::Key_Slash) {
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
-    }
-
-    // Ignore all other events and pass them to the parent widget.
-    event->ignore();
 }
 
 void SearchableWebView::resizeEvent(QResizeEvent *event)
@@ -162,6 +143,58 @@ void SearchableWebView::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
     m_webView->resize(event->size().width(), event->size().height());
     moveLineEdit();
+}
+
+void SearchableWebView::showSearch()
+{
+    m_searchLineEdit->show();
+    m_searchLineEdit->setFocus();
+    if (!m_searchLineEdit->text().isEmpty()) {
+        m_searchLineEdit->selectAll();
+        find(m_searchLineEdit->text());
+    }
+}
+
+void SearchableWebView::hideSearch()
+{
+    m_searchLineEdit->hide();
+#ifdef USE_WEBENGINE
+    m_webView->findText(QString());
+#else
+    m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+#endif
+}
+
+void SearchableWebView::find(const QString &text)
+{
+#ifdef USE_WEBENGINE
+    /// FIXME: There's no way to just show highlight when search term is already selected.
+    /// So we need a workaround before switching to Qt WebEngine.
+    m_webView->findText(text);
+#else
+    if (m_webView->selectedText() != text) {
+        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+        m_webView->findText(QString());
+        if (text.isEmpty())
+            return;
+
+        m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
+    }
+
+    m_webView->findText(text, QWebPage::HighlightAllOccurrences);
+#endif
+}
+
+void SearchableWebView::findNext(const QString &text, bool backward)
+{
+#ifdef USE_WEBENGINE
+    QWebPage::FindFlags flags = 0;
+#else
+    QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
+#endif
+    if (backward)
+        flags |= QWebPage::FindBackward;
+    m_webView->findText(text, flags);
 }
 
 void SearchableWebView::moveLineEdit()
@@ -172,6 +205,6 @@ void SearchableWebView::moveLineEdit()
 #else
     frameWidth += m_webView->page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
 #endif
-    m_lineEdit->move(rect().right() - frameWidth - m_lineEdit->sizeHint().width(), rect().top());
-    m_lineEdit->raise();
+    m_searchLineEdit->move(rect().right() - frameWidth - m_searchLineEdit->sizeHint().width(), rect().top());
+    m_searchLineEdit->raise();
 }

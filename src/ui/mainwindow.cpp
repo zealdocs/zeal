@@ -14,6 +14,7 @@
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
@@ -25,13 +26,13 @@
 #include <QTimer>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineHistory>
-    #include <QWebEnginePage>
-    #include <QWebEngineSettings>
+#include <QWebEngineHistory>
+#include <QWebEnginePage>
+#include <QWebEngineSettings>
 #else
-    #include <QWebFrame>
-    #include <QWebHistory>
-    #include <QWebPage>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebPage>
 #endif
 
 #include <qxtglobalshortcut.h>
@@ -311,7 +312,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                             "You can move docsets to <b>%2</b> or change the docset storage path in the settings. <br><br>"
                                             "Please note, that old docsets cannot be updated automatically, so it is better to download your docsets again. <br><br>"
                                             "Remove or use the old docset storage to avoid this message in the future."))
-                                 .arg(oldDocsetDir, m_settings->docsetPath));
+                                 .arg(QDir::toNativeSeparators(oldDocsetDir), QDir::toNativeSeparators(m_settings->docsetPath)));
     }
 }
 
@@ -507,7 +508,7 @@ void MainWindow::reloadTabState()
         ui->treeView->expand(expandedIndex);
 
     ui->webView->setPage(m_searchState->page);
-    ui->webView->setZealZoomFactor(m_searchState->zoomFactor);
+    ui->webView->setZoomFactor(m_searchState->zoomFactor);
 
     int resultCount = m_searchState->sectionsList->rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
@@ -534,7 +535,7 @@ void MainWindow::saveTabState()
     m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
     m_searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
-    m_searchState->zoomFactor = ui->webView->zealZoomFactor();
+    m_searchState->zoomFactor = ui->webView->zoomFactor();
 }
 
 void MainWindow::onSearchComplete()
@@ -721,6 +722,15 @@ void MainWindow::bringToFront(const Zeal::SearchQuery &query)
         ui->treeView->setFocus();
         ui->treeView->activated(ui->treeView->currentIndex());
     }
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (m_settings->showSystrayIcon && m_settings->minimizeToSystray
+            && event->type() == QEvent::WindowStateChange && isMinimized()) {
+        hide();
+    }
+    QMainWindow::changeEvent(event);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

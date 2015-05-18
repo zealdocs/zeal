@@ -30,6 +30,24 @@ QWebView *WebView::createWindow(QWebPage::WebWindowType type)
     return this;
 }
 
+void WebView::mousePressEvent(QMouseEvent *event)
+{
+    switch (event->button()) {
+    case Qt::BackButton:
+        back();
+        event->accept();
+        break;
+    case Qt::ForwardButton:
+        forward();
+        event->accept();
+        break;
+    default:
+        break;
+    }
+
+    QWebView::mousePressEvent(event);
+}
+
 void WebView::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier) {

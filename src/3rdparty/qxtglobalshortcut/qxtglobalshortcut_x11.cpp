@@ -35,12 +35,13 @@
 #include <QX11Info>
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
 #include <X11/Xlib.h>
 
 namespace {
-/// TODO: Figure out why this is needed
-const QVector<quint32> maskModifiers = QVector<quint32>()
-        << 0 << Mod2Mask << LockMask << (Mod2Mask | LockMask);
+const QVector<quint32> maskModifiers = {
+    0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
+};
 } // namespace
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
@@ -54,56 +55,59 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
         return false;
 
+    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
+
     // Avoid keyboard freeze
     xcb_connection_t *xcbConnection = QX11Info::connection();
-    xcb_ungrab_keyboard(xcbConnection, XCB_TIME_CURRENT_TIME);
+    xcb_allow_events(xcbConnection, XCB_ALLOW_REPLAY_KEYBOARD, keyPressEvent->time);
     xcb_flush(xcbConnection);
-
-    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
 
     unsigned int keycode = keyPressEvent->detail;
     unsigned int keystate = 0;
-    if(keyPressEvent->state & XCB_MOD_MASK_1)
-        keystate |= Mod1Mask;
-    if(keyPressEvent->state & XCB_MOD_MASK_CONTROL)
-        keystate |= ControlMask;
-    if(keyPressEvent->state & XCB_MOD_MASK_4)
-        keystate |= Mod4Mask;
-    if(keyPressEvent->state & XCB_MOD_MASK_SHIFT)
-        keystate |= ShiftMask;
+    if (keyPressEvent->state & XCB_MOD_MASK_1)
+        keystate |= XCB_MOD_MASK_1;
+    if (keyPressEvent->state & XCB_MOD_MASK_CONTROL)
+        keystate |= XCB_MOD_MASK_CONTROL;
+    if (keyPressEvent->state & XCB_MOD_MASK_4)
+        keystate |= XCB_MOD_MASK_4;
+    if (keyPressEvent->state & XCB_MOD_MASK_SHIFT)
+        keystate |= XCB_MOD_MASK_SHIFT;
 
-    return activateShortcut(keycode,
-                            // Mod1Mask == Alt, Mod4Mask == Meta
-                            keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+    return activateShortcut(keycode, keystate);
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
-    // ShiftMask, LockMask, ControlMask, Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, and Mod5Mask
     quint32 native = 0;
     if (modifiers & Qt::ShiftModifier)
-        native |= ShiftMask;
+        native |= XCB_MOD_MASK_SHIFT;
     if (modifiers & Qt::ControlModifier)
-        native |= ControlMask;
+        native |= XCB_MOD_MASK_CONTROL;
     if (modifiers & Qt::AltModifier)
-        native |= Mod1Mask;
+        native |= XCB_MOD_MASK_1;
     if (modifiers & Qt::MetaModifier)
-        native |= Mod4Mask;
+        native |= XCB_MOD_MASK_4;
 
-    /// TODO: resolve these?
-    //if (modifiers & Qt::MetaModifier)
-    //if (modifiers & Qt::KeypadModifier)
-    //if (modifiers & Qt::GroupSwitchModifier)
     return native;
 }
 
 quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
 {
+    quint32 native = 0;
+
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
-    if (keysym == NoSymbol)
+    if (keysym == XCB_NO_SYMBOL)
         keysym = static_cast<ushort>(key);
 
-    return XKeysymToKeycode(QX11Info::display(), keysym);
+    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(QX11Info::connection());
+
+    QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
+                xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
+    native = keycodes.data()[0]; // Use the first keycode
+
+    xcb_key_symbols_free(xcbKeySymbols);
+
+    return native;
 }
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
