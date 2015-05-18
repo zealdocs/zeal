@@ -30,6 +30,8 @@ public:
     int zealZoomFactor() const;
     void setZealZoomFactor(int zf);
 
+    bool eventFilter(QObject *object, QEvent *event) override;
+
 signals:
     void urlChanged(const QUrl &url);
     void titleChanged(const QString &title);

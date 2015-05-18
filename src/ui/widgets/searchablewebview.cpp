@@ -23,6 +23,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 {
     m_webView->setAttribute(Qt::WA_AcceptTouchEvents, false);
     m_lineEdit->hide();
+    m_lineEdit->installEventFilter(this);
     connect(m_lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         // clear selection:
 #ifdef USE_WEBENGINE
@@ -85,6 +86,20 @@ int SearchableWebView::zealZoomFactor() const
 void SearchableWebView::setZealZoomFactor(int zf)
 {
     m_webView->setZealZoomFactor(zf);
+}
+
+bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_lineEdit && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            m_lineEdit->hide();
+            m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(object, event);
 }
 
 void SearchableWebView::load(const QUrl &url)
