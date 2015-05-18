@@ -41,6 +41,7 @@ If you prefer to compile Zeal manually.
 * [Qt](https://www.qt.io/) (version 5.2.0 or above is required)
 * [libarchive](http://libarchive.org/)
 * Optionally [libappindicator](https://launchpad.net/libappindicator) for Unity users
+* Linux only: `xcb-util-keysyms`.
 
 To compile it, run `qmake` and `make`.
 
