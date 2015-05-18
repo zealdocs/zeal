@@ -35,19 +35,17 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 
 ## How to compile
 
-If you prefer to compile Zeal manually.
-
 ### Requirements
-* [Qt](https://www.qt.io/) (version 5.2.0 or above is required)
-* [libarchive](http://libarchive.org/)
-* Optionally [libappindicator](https://launchpad.net/libappindicator) for Unity users
+* [Qt](https://www.qt.io/) version 5.2.0 or above.
+* [libarchive](http://libarchive.org/).
 * Linux only: `xcb-util-keysyms`.
+* Ubuntu Unity only: [libappindicator](https://launchpad.net/libappindicator).
 
-To compile it, run `qmake` and `make`.
+To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
 
 ## Query & Filter docsets
 
-You can limit the search scope by using ':' to indicate the desired docsets.
+You can limit the search scope by using ':' to indicate the desired docsets:
 
 `java:BaseDAO`
 
