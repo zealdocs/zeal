@@ -8,23 +8,24 @@
 #include <QResizeEvent>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineHistory>
-    #include <QWebEnginePage>
+#include <QWebEngineHistory>
+#include <QWebEnginePage>
 #else
-    #include <QWebFrame>
-    #include <QWebHistory>
-    #include <QWebPage>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebPage>
 #endif
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent),
-    m_lineEdit(new QLineEdit(this)),
+    m_searchLineEdit(new QLineEdit(this)),
     m_webView(new WebView(this))
 {
     m_webView->setAttribute(Qt::WA_AcceptTouchEvents, false);
-    m_lineEdit->hide();
-    m_lineEdit->installEventFilter(this);
-    connect(m_lineEdit, &QLineEdit::textChanged, [&](const QString &text) {
+
+    m_searchLineEdit->hide();
+    m_searchLineEdit->installEventFilter(this);
+    connect(m_searchLineEdit, &QLineEdit::textChanged, [&](const QString &text) {
         // clear selection:
 #ifdef USE_WEBENGINE
         m_webView->findText(text);
@@ -45,8 +46,8 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 
     QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
     connect(shortcut, &QShortcut::activated, [&] {
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
+        m_searchLineEdit->show();
+        m_searchLineEdit->setFocus();
     });
 
     connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
@@ -64,7 +65,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 #endif
 
     connect(m_webView, &QWebView::loadStarted, [&]() {
-        m_lineEdit->clear();
+        m_searchLineEdit->clear();
     });
 }
 
@@ -78,22 +79,22 @@ void SearchableWebView::setPage(QWebPage *page)
     });
 }
 
-int SearchableWebView::zealZoomFactor() const
+int SearchableWebView::zoomFactor() const
 {
     return m_webView->zealZoomFactor();
 }
 
-void SearchableWebView::setZealZoomFactor(int zf)
+void SearchableWebView::setZoomFactor(int value)
 {
-    m_webView->setZealZoomFactor(zf);
+    m_webView->setZealZoomFactor(value);
 }
 
 bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == m_lineEdit && event->type() == QEvent::KeyPress) {
+    if (object == m_searchLineEdit && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Escape) {
-            m_lineEdit->hide();
+            m_searchLineEdit->hide();
             m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
             return true;
         }
@@ -144,7 +145,9 @@ bool SearchableWebView::canGoForward() const
 
 void SearchableWebView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+    switch (event->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return: {
 #ifdef USE_WEBENGINE
         QWebPage::FindFlags flags = 0;
 #else
@@ -153,15 +156,18 @@ void SearchableWebView::keyPressEvent(QKeyEvent *event)
         if (event->modifiers() & Qt::ShiftModifier)
             flags |= QWebPage::FindBackward;
         m_webView->findText(m_searchText, flags);
+        event->accept();
     }
-
-    if (event->key() == Qt::Key_Slash) {
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
+        break;
+    case Qt::Key_Slash:
+        m_searchLineEdit->show();
+        m_searchLineEdit->setFocus();
+        event->accept();
+        break;
+    default:
+        event->ignore();
+        break;
     }
-
-    // Ignore all other events and pass them to the parent widget.
-    event->ignore();
 }
 
 void SearchableWebView::resizeEvent(QResizeEvent *event)
@@ -179,6 +185,6 @@ void SearchableWebView::moveLineEdit()
 #else
     frameWidth += m_webView->page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
 #endif
-    m_lineEdit->move(rect().right() - frameWidth - m_lineEdit->sizeHint().width(), rect().top());
-    m_lineEdit->raise();
+    m_searchLineEdit->move(rect().right() - frameWidth - m_searchLineEdit->sizeHint().width(), rect().top());
+    m_searchLineEdit->raise();
 }

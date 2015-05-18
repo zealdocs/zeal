@@ -508,7 +508,7 @@ void MainWindow::reloadTabState()
         ui->treeView->expand(expandedIndex);
 
     ui->webView->setPage(m_searchState->page);
-    ui->webView->setZealZoomFactor(m_searchState->zoomFactor);
+    ui->webView->setZoomFactor(m_searchState->zoomFactor);
 
     int resultCount = m_searchState->sectionsList->rowCount(QModelIndex());
     ui->sections->setVisible(resultCount > 1);
@@ -535,7 +535,7 @@ void MainWindow::saveTabState()
     m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
     m_searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
-    m_searchState->zoomFactor = ui->webView->zealZoomFactor();
+    m_searchState->zoomFactor = ui->webView->zoomFactor();
 }
 
 void MainWindow::onSearchComplete()
