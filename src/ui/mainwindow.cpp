@@ -125,7 +125,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
     });
     connect(ui->actionCheckForUpdate, &QAction::triggered,
-            m_application, &Core::Application::checkUpdate);
+            m_application, &Core::Application::checkForUpdate);
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
@@ -314,6 +314,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                             "Remove or use the old docset storage to avoid this message in the future."))
                                  .arg(QDir::toNativeSeparators(oldDocsetDir), QDir::toNativeSeparators(m_settings->docsetPath)));
     }
+
+    if (m_settings->checkForUpdate)
+        m_application->checkForUpdate(true);
 }
 
 MainWindow::~MainWindow()

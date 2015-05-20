@@ -157,15 +157,22 @@ QNetworkReply *Application::download(const QUrl &url)
     return m_networkManager->get(request);
 }
 
-void Application::checkUpdate()
+/*!
+  \internal
+
+  Performs a check whether a new Zeal version is available. Setting \a quiet to true supresses
+  error and "you are using the latest version" message boxes.
+*/
+void Application::checkForUpdate(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
-    connect(reply, &QNetworkReply::finished, this, [this]() {
+    connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
         QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
                     qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
-            emit updateCheckError(reply->errorString());
+            if (!quiet)
+                emit updateCheckError(reply->errorString());
             return;
         }
 
@@ -173,7 +180,8 @@ void Application::checkUpdate()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            emit updateCheckError(jsonError.errorString());
+            if (!quiet)
+                emit updateCheckError(jsonError.errorString());
             return;
         }
 
@@ -181,7 +189,7 @@ void Application::checkUpdate()
         const Util::Version latestVersion = latestVersionInfo[QStringLiteral("version")].toString();
         if (latestVersion > Util::Version(QCoreApplication::applicationVersion()))
             emit updateCheckDone(latestVersion.toString());
-        else
+        else if (!quiet)
             emit updateCheckDone();
     });
 }

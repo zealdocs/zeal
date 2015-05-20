@@ -18,6 +18,7 @@ public:
 
     // Startup
     bool startMinimized;
+    bool checkForUpdate;
     /// TODO: bool restoreLastState;
 
     // System Tray
