@@ -62,8 +62,6 @@ public:
     QList<SearchResult> search(const QString &query) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
-    QSqlDatabase database() const;
-
     /// FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
@@ -74,6 +72,7 @@ private:
         ZDash
     };
 
+    QSqlDatabase database() const;
     void loadMetadata();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
