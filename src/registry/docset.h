@@ -67,9 +67,6 @@ public:
     /// FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
-    /// FIXME: Get rid of it
-    static void normalizeName(QString &name, QString &parentName);
-
 private:
     enum class Type {
         Invalid,
