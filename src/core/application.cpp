@@ -73,7 +73,7 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     m_docsetRegistry = new DocsetRegistry();
     m_docsetRegistry->init(m_settings->docsetPath);
 
-    m_mainWindow = new WidgetUi::MainWindow(this);
+    m_mainWindow = new MainWindow(this);
 
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
