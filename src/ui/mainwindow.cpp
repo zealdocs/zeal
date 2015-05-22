@@ -96,8 +96,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
-    m_application->docsetRegistry()->init(m_settings->docsetPath);
-
     // initialise ui
     ui->setupUi(this);
 

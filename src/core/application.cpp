@@ -69,8 +69,11 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     m_networkManager = new QNetworkAccessManager(this);
     m_extractorThread = new QThread(this);
     m_extractor = new Extractor();
+
     m_docsetRegistry = new DocsetRegistry();
-    m_mainWindow = new MainWindow(this);
+    m_docsetRegistry->init(m_settings->docsetPath);
+
+    m_mainWindow = new WidgetUi::MainWindow(this);
 
     // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
