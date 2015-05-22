@@ -100,9 +100,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
     }
     addAction(ui->actionQuit);
-    connect(ui->actionQuit, &QAction::triggered, [=]() {
-        m_settings->windowGeometry = saveGeometry();
-    });
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     connect(ui->actionOptions, &QAction::triggered, [=]() {
