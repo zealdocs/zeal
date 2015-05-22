@@ -56,10 +56,10 @@ void SearchEdit::clear()
 
 QString SearchEdit::currentCompletion(const QString &text) const
 {
-    if (text.isEmpty())
+    if (text.isEmpty() || !m_prefixCompleter)
         return QString();
-    else
-        return m_prefixCompleter->currentCompletion();
+
+    return m_prefixCompleter->currentCompletion();
 }
 
 void SearchEdit::showCompletions(const QString &newValue)
@@ -67,7 +67,8 @@ void SearchEdit::showCompletions(const QString &newValue)
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     const int textWidth = fontMetrics().width(newValue);
 
-    m_prefixCompleter->setCompletionPrefix(text());
+    if (m_prefixCompleter)
+        m_prefixCompleter->setCompletionPrefix(text());
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
     const QSize labelSize(fontMetrics().width(completed), size().height());
