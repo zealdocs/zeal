@@ -1,8 +1,10 @@
 #ifndef SEARCHITEMDELEGATE_H
 #define SEARCHITEMDELEGATE_H
 
-#include <QLineEdit>
 #include <QStyledItemDelegate>
+
+class QLineEdit;
+class QWidget;
 
 class SearchItemDelegate : public QStyledItemDelegate
 {

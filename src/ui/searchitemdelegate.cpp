@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QFontMetrics>
+#include <QLineEdit>
 #include <QPainter>
 
 SearchItemDelegate::SearchItemDelegate(QLineEdit *lineEdit, QWidget *view) :
