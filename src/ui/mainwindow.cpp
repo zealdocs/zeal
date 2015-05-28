@@ -211,7 +211,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
-            [this](const QString &name) {
+            this, [this](const QString &name) {
         for (SearchState *searchState : m_tabs) {
 #ifdef USE_WEBENGINE
             if (docsetName(searchState->page->url()) != name)
