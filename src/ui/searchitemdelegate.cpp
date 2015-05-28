@@ -17,6 +17,11 @@ SearchItemDelegate::SearchItemDelegate(QLineEdit *lineEdit, QWidget *view) :
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
                                    const QModelIndex &index) const
 {
+    if (!m_lineEdit || m_lineEdit->text().isEmpty()) {
+        QStyledItemDelegate::paint(painter, option_, index);
+        return;
+    }
+
     painter->save();
 
     QStyleOptionViewItem option(option_);
@@ -50,10 +55,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QFontMetrics metrics(painter->font());
     QString elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
 
-    QString highlight;
-    if (m_lineEdit)
-        highlight = Zeal::SearchQuery::fromString(m_lineEdit->text()).query();
-
+    const QString highlight = Zeal::SearchQuery::fromString(m_lineEdit->text()).query();
     int from = 0;
     while (from < elided.size()) {
         const int until = highlight.isEmpty() ? -1 : elided.toLower().indexOf(highlight.toLower(), from);
