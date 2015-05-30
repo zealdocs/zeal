@@ -3,20 +3,19 @@
 
 #include <QStyledItemDelegate>
 
-class QWidget;
+class QLineEdit;
 
 class SearchItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit SearchItemDelegate(QLineEdit *lineEdit_ = nullptr, QWidget *view = nullptr);
+    explicit SearchItemDelegate(QLineEdit *lineEdit = nullptr, QObject *parent = nullptr);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
 private:
     QString m_highlight;
-    QWidget *m_view = nullptr;
 };
 
 #endif // SEARCHITEMDELEGATE_H
