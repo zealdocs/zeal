@@ -10,15 +10,17 @@
 
 SearchItemDelegate::SearchItemDelegate(QLineEdit *lineEdit, QWidget *view) :
     QStyledItemDelegate(view),
-    m_lineEdit(lineEdit),
     m_view(view)
 {
+    connect(lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+        m_highlight = Zeal::SearchQuery::fromString(text).query();
+    });
 }
 
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
                                    const QModelIndex &index) const
 {
-    if (!m_lineEdit || m_lineEdit->text().isEmpty()) {
+    if (m_highlight.isEmpty()) {
         QStyledItemDelegate::paint(painter, option_, index);
         return;
     }
@@ -45,7 +47,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setPen(QPen(option.palette.highlightedText(), 1));
     }
 
-    QRect rect = qApp->style()->subElementRect(QStyle::SE_ItemViewItemText, &option, m_view);
+    QRect rect = QApplication::style()->subElementRect(QStyle::SE_ItemViewItemText, &option, m_view);
     const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, m_view);
     rect.adjust(margin, 0, 2, 0); // +2px for bold text
 
@@ -54,12 +56,11 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QFontMetrics metricsBold(bold);
 
     const QFontMetrics metrics(painter->font());
-    QString elided = metrics.elidedText(index.data().toString(), option.textElideMode, rect.width());
+    QString elided = metrics.elidedText(option.text, option.textElideMode, rect.width());
 
-    const QString highlight = Zeal::SearchQuery::fromString(m_lineEdit->text()).query();
     int from = 0;
     while (from < elided.size()) {
-        const int until = highlight.isEmpty() ? -1 : elided.toLower().indexOf(highlight.toLower(), from);
+        const int until = m_highlight.isEmpty() ? -1 : elided.toLower().indexOf(m_highlight.toLower(), from);
 
         if (until == -1) {
             painter->drawText(rect, elided.mid(from));
@@ -69,10 +70,10 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             rect.setLeft(rect.left() + metrics.width(elided.mid(from, until - from)));
             QFont old(painter->font());
             painter->setFont(bold);
-            painter->drawText(rect, elided.mid(until, highlight.size()));
+            painter->drawText(rect, elided.mid(until, m_highlight.size()));
             painter->setFont(old);
-            rect.setLeft(rect.left() + metricsBold.width(elided.mid(until, highlight.size())));
-            from = until + highlight.size();
+            rect.setLeft(rect.left() + metricsBold.width(elided.mid(until, m_highlight.size())));
+            from = until + m_highlight.size();
         }
     }
 

@@ -3,7 +3,6 @@
 
 #include <QStyledItemDelegate>
 
-class QLineEdit;
 class QWidget;
 
 class SearchItemDelegate : public QStyledItemDelegate
@@ -16,7 +15,7 @@ public:
                const QModelIndex &index) const override;
 
 private:
-    QLineEdit *m_lineEdit = nullptr;
+    QString m_highlight;
     QWidget *m_view = nullptr;
 };
 
