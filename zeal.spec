@@ -2,12 +2,12 @@
 
 Summary: Zeal: Simple offline API documentation browser
 Name: zeal
-Version: master
-Release: 0%{?dist}
+Version: 0.1.1
+Release: 1%{?dist}
 License: GPLv2+
 Group: Development/Tools
 URL: http://zealdocs.org/
-Source0: https://github.com/zealdocs/zeal/archive/%{version}.tar.gz
+Source0: https://github.com/zealdocs/zeal/archive/v%{version}.tar.gz
 BuildRequires: qt5-qtwebkit-devel libarchive-devel
 Requires: qt5-qtbase qt5-qtwebkit libarchive
 
