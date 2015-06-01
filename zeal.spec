@@ -8,8 +8,8 @@ License: GPLv2+
 Group: Development/Tools
 URL: http://zealdocs.org/
 Source0: https://github.com/zealdocs/zeal/archive/v%{version}.tar.gz
-BuildRequires: qt5-qtwebkit-devel libarchive-devel
-Requires: qt5-qtbase qt5-qtwebkit libarchive
+BuildRequires: qt5-qtwebkit-devel libarchive-devel qt5-qtx11extras-devel xcb-util-keysyms-devel
+Requires: qt5-qtbase qt5-qtwebkit libarchive qt5-qtx11extras xcb-util-keysyms
 
 %description
 Zeal is a simple offline documentation browser inspired by Dash.
