@@ -1,19 +1,14 @@
 #include "searchitemdelegate.h"
 
 #include "searchitemstyle.h"
-#include "registry/searchquery.h"
 
 #include <QApplication>
 #include <QFontMetrics>
-#include <QLineEdit>
 #include <QPainter>
 
-SearchItemDelegate::SearchItemDelegate(QLineEdit *lineEdit, QObject *parent) :
+SearchItemDelegate::SearchItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
-    connect(lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-        m_highlight = Zeal::SearchQuery::fromString(text).query();
-    });
 }
 
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
@@ -84,4 +79,9 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     painter->restore();
+}
+
+void SearchItemDelegate::setHighlight(const QString &text)
+{
+    m_highlight = text;
 }
