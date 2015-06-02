@@ -128,31 +128,31 @@ QNetworkReply *Application::download(const QUrl &url)
     const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
             .arg(QCoreApplication::applicationVersion())
             /// TODO: [Qt 5.4] Remove #else block
-#if QT_VERSION >= 0x050400
+        #if QT_VERSION >= 0x050400
             .arg(QSysInfo::prettyProductName())
             .arg(QSysInfo::currentCpuArchitecture())
-#else
-#if defined(Q_OS_LINUX)
+        #else
+        #if defined(Q_OS_LINUX)
             .arg(QStringLiteral("Linux"))
-#elif defined(Q_OS_WIN32)
+        #elif defined(Q_OS_WIN32)
             .arg(QStringLiteral("Windows"))
-#elif defined(Q_OS_OSX)
+        #elif defined(Q_OS_OSX)
             .arg(QStringLiteral("OS X"))
-#else
+        #else
             .arg(QStringLiteral("unknown"))
-#endif // Q_OS_*
+        #endif // Q_OS_*
 
-#if defined(Q_PROCESSOR_ARM)
+        #if defined(Q_PROCESSOR_ARM)
             .arg(QStringLiteral("arm"))
-#elif defined(Q_PROCESSOR_X86_32)
+        #elif defined(Q_PROCESSOR_X86_32)
             .arg(QStringLiteral("i386"))
-#elif defined(Q_PROCESSOR_X86_64)
+        #elif defined(Q_PROCESSOR_X86_64)
             .arg(QStringLiteral("x86_64"))
-#else
+        #else
             .arg(QStringLiteral("unknown"))
-#endif // Q_PROCESSOR_*
+        #endif // Q_PROCESSOR_*
 
-#endif
+        #endif
             .arg(qVersion());
 
     QNetworkRequest request(url);
@@ -160,15 +160,22 @@ QNetworkReply *Application::download(const QUrl &url)
     return m_networkManager->get(request);
 }
 
-void Application::checkUpdate()
+/*!
+  \internal
+
+  Performs a check whether a new Zeal version is available. Setting \a quiet to true supresses
+  error and "you are using the latest version" message boxes.
+*/
+void Application::checkForUpdate(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
-    connect(reply, &QNetworkReply::finished, this, [this]() {
+    connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
         QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
                     qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
-            emit updateCheckError(reply->errorString());
+            if (!quiet)
+                emit updateCheckError(reply->errorString());
             return;
         }
 
@@ -176,7 +183,8 @@ void Application::checkUpdate()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            emit updateCheckError(jsonError.errorString());
+            if (!quiet)
+                emit updateCheckError(jsonError.errorString());
             return;
         }
 
@@ -184,7 +192,7 @@ void Application::checkUpdate()
         const Util::Version latestVersion = latestVersionInfo[QStringLiteral("version")].toString();
         if (latestVersion > Util::Version(QCoreApplication::applicationVersion()))
             emit updateCheckDone(latestVersion.toString());
-        else
+        else if (!quiet)
             emit updateCheckDone();
     });
 }

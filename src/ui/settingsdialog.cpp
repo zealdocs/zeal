@@ -298,6 +298,7 @@ void SettingsDialog::loadSettings()
     const Core::Settings * const settings = m_application->settings();
     // General Tab
     ui->startMinimizedCheckBox->setChecked(settings->startMinimized);
+    ui->checkForUpdateCheckBox->setChecked(settings->checkForUpdate);
 
     ui->systrayGroupBox->setChecked(settings->showSystrayIcon);
     ui->minimizeToSystrayCheckBox->setChecked(settings->minimizeToSystray);
@@ -569,6 +570,7 @@ void SettingsDialog::saveSettings()
     Core::Settings * const settings = m_application->settings();
     // General Tab
     settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
+    settings->checkForUpdate = ui->checkForUpdateCheckBox->isChecked();
 
     settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
     settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();

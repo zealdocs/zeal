@@ -119,7 +119,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
     });
     connect(ui->actionCheckForUpdate, &QAction::triggered,
-            m_application, &Core::Application::checkUpdate);
+            m_application, &Core::Application::checkForUpdate);
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
@@ -160,7 +160,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     setupSearchBoxCompletions();
     ui->treeView->setModel(m_zealListModel);
     ui->treeView->setColumnHidden(1, true);
-    ui->treeView->setItemDelegate(new SearchItemDelegate(ui->lineEdit, ui->treeView));
+    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
+    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
+        delegate->setHighlight(Zeal::SearchQuery::fromString(text).query());
+    });
+    ui->treeView->setItemDelegate(delegate);
 
     createTab();
 
@@ -205,7 +209,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
-            [this](const QString &name) {
+            this, [this](const QString &name) {
         for (SearchState *searchState : m_tabs) {
 #ifdef USE_WEBENGINE
             if (docsetName(searchState->page->url()) != name)
@@ -308,6 +312,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                             "Remove or use the old docset storage to avoid this message in the future."))
                                  .arg(QDir::toNativeSeparators(oldDocsetDir), QDir::toNativeSeparators(m_settings->docsetPath)));
     }
+
+    if (m_settings->checkForUpdate)
+        m_application->checkForUpdate(true);
 }
 
 MainWindow::~MainWindow()

@@ -41,12 +41,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="restoreLastStateCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+           <widget class="QCheckBox" name="checkForUpdateCheckBox">
             <property name="text">
-             <string>Restore last state (not implemented)</string>
+             <string>Check for update</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -370,7 +370,14 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QListView" name="installedDocsetList"/>
+        <widget class="QListView" name="installedDocsetList">
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="docsetsActions">
@@ -430,7 +437,14 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QListWidget" name="availableDocsetList"/>
+           <widget class="QListWidget" name="availableDocsetList">
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
