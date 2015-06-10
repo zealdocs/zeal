@@ -175,8 +175,30 @@ void SettingsDialog::downloadCompleted()
     m_replies.removeOne(reply.data());
 
     if (reply->error() != QNetworkReply::NoError) {
-        if (reply->error() != QNetworkReply::OperationCanceledError)
-            QMessageBox::warning(this, tr("Network Error"), reply->errorString());
+        if (reply->error() != QNetworkReply::OperationCanceledError) {
+            const int ret = QMessageBox::warning(this, tr("Network Error"), reply->errorString(),
+                                                 QMessageBox::Ok | QMessageBox::Retry);
+
+            if (ret == QMessageBox::Retry) {
+                QNetworkReply *newReply = startDownload(reply->request().url());
+
+                // Copy properties
+                newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
+                newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
+                newReply->setProperty(ListItemIndexProperty,
+                                      reply->property(ListItemIndexProperty));
+
+                connect(newReply, &QNetworkReply::finished,
+                        this, &SettingsDialog::downloadCompleted);
+                return;
+            }
+
+            bool ok;
+            QListWidgetItem *listItem = ui->availableDocsetList->item(
+                        reply->property(ListItemIndexProperty).toInt(&ok));
+            if (ok && listItem)
+                listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        }
 
         if (m_replies.isEmpty())
             resetProgress();
