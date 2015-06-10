@@ -22,10 +22,10 @@
 #include <QtConcurrent/QtConcurrent>
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineSettings>
-    #define QWebSettings QWebEngineSettings
+#include <QWebEngineSettings>
+#define QWebSettings QWebEngineSettings
 #else
-    #include <QWebSettings>
+#include <QWebSettings>
 #endif
 
 using namespace Zeal;
