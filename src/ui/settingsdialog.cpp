@@ -511,6 +511,16 @@ QListWidgetItem *SettingsDialog::findDocsetListItem(const QString &title) const
     return items.first();
 }
 
+bool SettingsDialog::updatesAvailable() const
+{
+    for (Docset *docset : m_docsetRegistry->docsets()) {
+        if (docset->hasUpdate)
+            return true;
+    }
+
+    return false;
+}
+
 QNetworkReply *SettingsDialog::download(const QUrl &url)
 {
     displayProgress();
@@ -666,7 +676,7 @@ void SettingsDialog::resetProgress()
     const bool hasSelection = ui->installedDocsetList->selectionModel()->hasSelection();
     ui->addFeedButton->setEnabled(true);
     ui->updateSelectedDocsetsButton->setEnabled(hasSelection);
-    ui->updateAllDocsetsButton->setEnabled(true);
+    ui->updateAllDocsetsButton->setEnabled(updatesAvailable());
     ui->removeDocsetsButton->setEnabled(hasSelection);
 
     // Available docsets

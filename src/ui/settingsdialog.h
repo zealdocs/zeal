@@ -72,6 +72,7 @@ private:
     QHash<QString, QTemporaryFile *> m_tmpFiles;
 
     QListWidgetItem *findDocsetListItem(const QString &title) const;
+    bool updatesAvailable() const;
 
     QNetworkReply *download(const QUrl &url);
     void cancelDownloads();
