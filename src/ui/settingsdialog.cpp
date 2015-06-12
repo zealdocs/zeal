@@ -673,11 +673,18 @@ void SettingsDialog::resetProgress()
     displayProgress();
 
     // Installed docsets
-    const bool hasSelection = ui->installedDocsetList->selectionModel()->hasSelection();
     ui->addFeedButton->setEnabled(true);
-    ui->updateSelectedDocsetsButton->setEnabled(hasSelection);
+    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    bool hasSelectedUpdates = false;
+    for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+        if (index.data(Zeal::ListModel::UpdateAvailableRole).toBool()) {
+            hasSelectedUpdates = true;
+            break;
+        }
+    }
+    ui->updateSelectedDocsetsButton->setEnabled(hasSelectedUpdates);
     ui->updateAllDocsetsButton->setEnabled(updatesAvailable());
-    ui->removeDocsetsButton->setEnabled(hasSelection);
+    ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
     // Available docsets
     ui->availableDocsetList->setEnabled(true);
