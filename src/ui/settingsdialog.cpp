@@ -549,11 +549,6 @@ void SettingsDialog::downloadDocsetList()
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
-void SettingsDialog::on_availableDocsetList_itemSelectionChanged()
-{
-    ui->downloadDocsetButton->setEnabled(ui->availableDocsetList->selectedItems().count() > 0);
-}
-
 void SettingsDialog::on_downloadDocsetButton_clicked()
 {
     if (!m_replies.isEmpty()) {

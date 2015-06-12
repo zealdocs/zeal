@@ -45,7 +45,6 @@ private slots:
     void on_storageButton_clicked();
     void removeSelectedDocsets();
     void on_tabWidget_currentChanged(int current);
-    void on_availableDocsetList_itemSelectionChanged();
     void addDashFeed();
 
 private:
