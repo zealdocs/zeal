@@ -81,7 +81,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     });
 
     connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
-    connect(ui->updateButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
+    connect(ui->updateAllDocsetsButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
     connect(ui->refreshButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
 
     connect(m_application, &Core::Application::extractionCompleted,
@@ -399,7 +399,7 @@ void SettingsDialog::resetProgress()
     ui->availableDocsetList->setEnabled(true);
     ui->downloadDocsetButton->setText(tr("Download"));
     ui->refreshButton->setEnabled(true);
-    ui->updateButton->setEnabled(true);
+    ui->updateAllDocsetsButton->setEnabled(true);
     ui->addFeedButton->setEnabled(true);
     ui->availableDocsetList->setEnabled(true);
 }
@@ -438,7 +438,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
                     || (metadata.latestVersion() == docset->version()
                         && metadata.revision() > docset->revision())) {
                 docset->hasUpdate = true;
-                ui->updateButton->setEnabled(true);
+                ui->updateAllDocsetsButton->setEnabled(true);
             }
         }
     }
@@ -508,7 +508,7 @@ void SettingsDialog::on_storageButton_clicked()
 
 }
 
-void SettingsDialog::on_deleteButton_clicked()
+void SettingsDialog::removeDocsets()
 {
     const QString docsetTitle = ui->installedDocsetList->currentIndex().data().toString();
     const int answer
@@ -523,7 +523,7 @@ void SettingsDialog::on_deleteButton_clicked()
     m_docsetRegistry->remove(docsetName);
     if (dataDir.exists()) {
         ui->docsetsProgress->show();
-        ui->deleteButton->hide();
+        ui->removeDocsetsButton->hide();
         displayProgress();
 
         QFuture<bool> future = QtConcurrent::run([=] {
@@ -539,7 +539,7 @@ void SettingsDialog::on_deleteButton_clicked()
             }
 
             resetProgress();
-            ui->deleteButton->show();
+            ui->removeDocsetsButton->show();
 
             QListWidgetItem *listItem = findDocsetListItem(docsetTitle);
             if (listItem)
@@ -553,7 +553,7 @@ void SettingsDialog::on_deleteButton_clicked()
 void SettingsDialog::on_installedDocsetList_clicked(const QModelIndex &index)
 {
     Q_UNUSED(index)
-    ui->deleteButton->setEnabled(true);
+    ui->removeDocsetsButton->setEnabled(true);
 }
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
@@ -567,7 +567,7 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     ui->availableDocsetList->setEnabled(false);
     ui->downloadDocsetButton->setText(tr("Stop downloads"));
     ui->refreshButton->setEnabled(false);
-    ui->updateButton->setEnabled(false);
+    ui->updateAllDocsetsButton->setEnabled(false);
     ui->addFeedButton->setEnabled(false);
 
     return reply;
