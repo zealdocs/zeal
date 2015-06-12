@@ -277,7 +277,8 @@ void SettingsDialog::downloadCompleted()
     }
 
     case DownloadDashFeed: {
-        DocsetMetadata metadata = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
+        DocsetMetadata metadata
+                = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
 
         if (metadata.urls().isEmpty()) {
             QMessageBox::critical(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
@@ -386,7 +387,8 @@ void SettingsDialog::on_downloadProgress(qint64 received, qint64 total)
         return;
 
     // Try to get the item associated to the request
-    QListWidgetItem *item = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
+    QListWidgetItem *item
+            = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
     if (item)
         item->setData(ProgressItemDelegate::ValueRole, percent(received, total));
 
@@ -461,9 +463,10 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         m_availableDocsets.insert(metadata.name(), metadata);
     }
 
-    /// TODO: Move into a dedicated method
+    /// TODO: Move into dedicated method
     for (const DocsetMetadata &metadata : m_availableDocsets) {
-        QListWidgetItem *listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
+        QListWidgetItem *listItem
+                = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
@@ -631,7 +634,8 @@ void SettingsDialog::stopDownloads()
 {
     for (QNetworkReply *reply : m_replies) {
         // Hide progress bar
-        QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
+        QListWidgetItem *listItem
+                = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (!listItem)
             continue;
 
