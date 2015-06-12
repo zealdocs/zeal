@@ -65,6 +65,23 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(listModel);
 
+    ui->installedDocsetList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    connect(selectionModel, &QItemSelectionModel::selectionChanged,
+            [this, selectionModel]() {
+        for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+            if (index.data(Zeal::ListModel::UpdateAvailableRole).toBool()) {
+                ui->updateSelectedDocsetsButton->setEnabled(true);
+                return;
+            }
+        }
+        ui->updateSelectedDocsetsButton->setEnabled(false);
+    });
+    connect(ui->updateSelectedDocsetsButton, &QPushButton::clicked,
+            this, &SettingsDialog::updateSelectedDocsets);
+    connect(ui->updateAllDocsetsButton, &QPushButton::clicked,
+            this, &SettingsDialog::updateAllDocsets);
+
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
 
     // Setup signals & slots
@@ -81,7 +98,6 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     });
 
     connect(ui->addFeedButton, &QPushButton::clicked, this, &SettingsDialog::addDashFeed);
-    connect(ui->updateAllDocsetsButton, &QPushButton::clicked, this, &SettingsDialog::updateDocsets);
     connect(ui->refreshButton, &QPushButton::clicked, this, &SettingsDialog::downloadDocsetList);
 
     connect(m_application, &Core::Application::extractionCompleted,
@@ -404,7 +420,17 @@ void SettingsDialog::resetProgress()
     ui->availableDocsetList->setEnabled(true);
 }
 
-void SettingsDialog::updateDocsets()
+void SettingsDialog::updateSelectedDocsets()
+{
+    for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedIndexes()) {
+        if (!index.data(Zeal::ListModel::UpdateAvailableRole).toBool())
+            continue;
+
+        downloadDashDocset(index.data(Zeal::ListModel::DocsetNameRole).toString());
+    }
+}
+
+void SettingsDialog::updateAllDocsets()
 {
     for (const Docset * const docset : m_docsetRegistry->docsets()) {
         if (!docset->hasUpdate)
