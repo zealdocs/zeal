@@ -460,7 +460,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
 
 void SettingsDialog::on_storageButton_clicked()
 {
-    QString dir = QFileDialog::getExistingDirectory(0, tr("Open Directory"));
+    const QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
     if (!dir.isEmpty())
         ui->storageEdit->setText(QDir::toNativeSeparators(dir));
 
