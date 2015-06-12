@@ -69,6 +69,9 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged,
             [this, selectionModel]() {
+        if (!m_replies.isEmpty())
+            return;
+
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
         for (const QModelIndex &index : selectionModel->selectedIndexes()) {
@@ -416,12 +419,17 @@ void SettingsDialog::resetProgress()
     m_combinedTotal = 0;
     displayProgress();
 
-    ui->availableDocsetList->setEnabled(true);
-    ui->downloadDocsetButton->setText(tr("Download"));
-    ui->refreshButton->setEnabled(true);
-    ui->updateAllDocsetsButton->setEnabled(true);
+    // Installed docsets
+    const bool hasSelection = ui->installedDocsetList->selectionModel()->hasSelection();
     ui->addFeedButton->setEnabled(true);
+    ui->updateSelectedDocsetsButton->setEnabled(hasSelection);
+    ui->updateAllDocsetsButton->setEnabled(true);
+    ui->removeDocsetsButton->setEnabled(hasSelection);
+
+    // Available docsets
     ui->availableDocsetList->setEnabled(true);
+    ui->refreshButton->setEnabled(true);
+    ui->downloadDocsetButton->setText(tr("Download"));
 }
 
 void SettingsDialog::updateSelectedDocsets()
@@ -610,11 +618,16 @@ QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
     connect(reply, &QNetworkReply::downloadProgress, this, &SettingsDialog::on_downloadProgress);
     m_replies.append(reply);
 
-    ui->availableDocsetList->setEnabled(false);
-    ui->downloadDocsetButton->setText(tr("Stop downloads"));
-    ui->refreshButton->setEnabled(false);
-    ui->updateAllDocsetsButton->setEnabled(false);
+    // Installed docsets
     ui->addFeedButton->setEnabled(false);
+    ui->updateSelectedDocsetsButton->setEnabled(false);
+    ui->updateAllDocsetsButton->setEnabled(false);
+    ui->removeDocsetsButton->setEnabled(false);
+
+    // Available docsets
+    ui->availableDocsetList->setEnabled(false);
+    ui->refreshButton->setEnabled(false);
+    ui->downloadDocsetButton->setText(tr("Stop downloads"));
 
     return reply;
 }
