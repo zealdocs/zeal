@@ -69,6 +69,8 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged,
             [this, selectionModel]() {
+        ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
+
         for (const QModelIndex &index : selectionModel->selectedIndexes()) {
             if (index.data(Zeal::ListModel::UpdateAvailableRole).toBool()) {
                 ui->updateSelectedDocsetsButton->setEnabled(true);
@@ -81,6 +83,8 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
             this, &SettingsDialog::updateSelectedDocsets);
     connect(ui->updateAllDocsetsButton, &QPushButton::clicked,
             this, &SettingsDialog::updateAllDocsets);
+    connect(ui->removeDocsetsButton, &QPushButton::clicked,
+            this, &SettingsDialog::removeSelectedDocsets);
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
 
@@ -490,6 +494,43 @@ void SettingsDialog::downloadDashDocset(const QString &name)
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
 
+void SettingsDialog::removeDocsets(const QStringList &names)
+{
+    for (const QString &name : names) {
+        const QString title = m_docsetRegistry->docset(name)->title();
+        m_docsetRegistry->remove(name);
+
+        const QDir dataDir(m_application->settings()->docsetPath);
+        if (dataDir.exists()) {
+            ui->docsetsProgress->show();
+            ui->removeDocsetsButton->setEnabled(false);
+            displayProgress();
+
+            QFuture<bool> future = QtConcurrent::run([=] {
+                QDir docsetDir(dataDir);
+                return docsetDir.cd(name + QLatin1String(".docset"))
+                        && docsetDir.removeRecursively();
+            });
+            QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+            watcher->setFuture(future);
+            connect(watcher, &QFutureWatcher<void>::finished, [=] {
+                if (!watcher->result()) {
+                    QMessageBox::warning(this, tr("Error"),
+                                         QString(tr("Cannot delete docset <b>%1</b>!")).arg(title));
+                }
+
+                resetProgress();
+
+                QListWidgetItem *listItem = findDocsetListItem(title);
+                if (listItem)
+                    listItem->setHidden(false);
+
+                watcher->deleteLater();
+            });
+        }
+    }
+}
+
 void SettingsDialog::downloadDocsetList()
 {
     ui->availableDocsetList->clear();
@@ -534,52 +575,31 @@ void SettingsDialog::on_storageButton_clicked()
 
 }
 
-void SettingsDialog::removeDocsets()
+void SettingsDialog::removeSelectedDocsets()
 {
-    const QString docsetTitle = ui->installedDocsetList->currentIndex().data().toString();
-    const int answer
-            = QMessageBox::question(this, tr("Remove Docset"),
-                                    QString(tr("Do you really want to remove <b>%1</b> docset?"))
-                                    .arg(docsetTitle));
-    if (answer == QMessageBox::No)
+    QItemSelectionModel *selectonModel = ui->installedDocsetList->selectionModel();
+    if (!selectonModel->hasSelection())
         return;
 
-    const QDir dataDir(m_application->settings()->docsetPath);
-    const QString docsetName = ui->installedDocsetList->currentIndex().data(ListModel::DocsetNameRole).toString();
-    m_docsetRegistry->remove(docsetName);
-    if (dataDir.exists()) {
-        ui->docsetsProgress->show();
-        ui->removeDocsetsButton->hide();
-        displayProgress();
-
-        QFuture<bool> future = QtConcurrent::run([=] {
-            QDir docsetDir(dataDir);
-            return docsetDir.cd(docsetName + QLatin1String(".docset")) && docsetDir.removeRecursively();
-        });
-        QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-        watcher->setFuture(future);
-        connect(watcher, &QFutureWatcher<void>::finished, [=] {
-            if (!watcher->result()) {
-                QMessageBox::warning(this, tr("Error"),
-                                     QString(tr("Cannot delete docset <b>%1</b>!")).arg(docsetTitle));
-            }
-
-            resetProgress();
-            ui->removeDocsetsButton->show();
-
-            QListWidgetItem *listItem = findDocsetListItem(docsetTitle);
-            if (listItem)
-                listItem->setHidden(false);
-
-            watcher->deleteLater();
-        });
+    int ret;
+    if (selectonModel->selectedIndexes().count() == 1) {
+        const QString docsetTitle = selectonModel->selectedIndexes().first().data().toString();
+        ret = QMessageBox::question(this, tr("Remove Docset"),
+                                    QString(tr("Do you really want to remove <b>%1</b> docset?"))
+                                    .arg(docsetTitle));
+    } else {
+        ret = QMessageBox::question(this, tr("Remove Docsets"),
+                                    QString(tr("Do you really want to remove <b>%1</b> docsets?"))
+                                    .arg(selectonModel->selectedIndexes().count()));
     }
-}
 
-void SettingsDialog::on_installedDocsetList_clicked(const QModelIndex &index)
-{
-    Q_UNUSED(index)
-    ui->removeDocsetsButton->setEnabled(true);
+    if (ret == QMessageBox::No)
+        return;
+
+    QStringList names;
+    for (const QModelIndex &index : selectonModel->selectedIndexes())
+        names << index.data(ListModel::DocsetNameRole).toString();
+    removeDocsets(names);
 }
 
 QNetworkReply *SettingsDialog::startDownload(const QUrl &url)
