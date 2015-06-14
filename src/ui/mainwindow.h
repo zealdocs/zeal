@@ -82,6 +82,7 @@ public slots:
 protected:
     void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
+    bool eventFilter(QObject *object, QEvent *event) override;
     void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private slots:

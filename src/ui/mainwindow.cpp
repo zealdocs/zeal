@@ -63,6 +63,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
 
     m_tabBar = new QTabBar(this);
+    m_tabBar->installEventFilter(this);
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
@@ -754,6 +755,22 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
         toggleWindow();
     }
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_tabBar && event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *e = reinterpret_cast<QMouseEvent *>(event);
+        if (e->button() == Qt::MiddleButton) {
+            const int index = m_tabBar->tabAt(e->pos());
+            if (index >= 0) {
+                closeTab(index);
+                return true;
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(object, event);
 }
 
 // Captures global events in order to pass them to the search bar.
