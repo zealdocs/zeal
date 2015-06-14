@@ -270,7 +270,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionCloseTab->setShortcut(QKeySequence::Close);
 #endif
     addAction(ui->actionCloseTab);
-    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeActiveTab);
+    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeTab);
 
     m_tabBar->setTabsClosable(true);
     m_tabBar->setExpanding(false);
@@ -281,7 +281,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
-    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeActiveTab);
+    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
     ((QHBoxLayout *)ui->tabBarFrame->layout())->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 
@@ -393,19 +393,23 @@ void MainWindow::goToTab(int index)
     reloadTabState();
 }
 
-void MainWindow::closeActiveTab()
+void MainWindow::closeTab(int index)
 {
-    const int index = m_tabBar->currentIndex();
+    if (index == -1)
+        index = m_tabBar->currentIndex();
+
+    if (index == -1)
+        return;
 
     /// TODO: proper deletion here
-    SearchState *tab = m_tabs.takeAt(index);
+    SearchState *state = m_tabs.takeAt(index);
 
-    if (m_searchState == tab)
+    if (m_searchState == state)
         m_searchState = nullptr;
 
-    delete tab->zealSearch;
-    delete tab->sectionsList;
-    delete tab;
+    delete state->zealSearch;
+    delete state->sectionsList;
+    delete state;
 
     m_tabBar->removeTab(index);
 
