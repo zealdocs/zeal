@@ -8,9 +8,9 @@
 #include <QModelIndex>
 
 #ifdef USE_WEBENGINE
-    #define QWebPage QWebEnginePage
-    #define QWebHistory QWebEngineHistory
-    #define QWebHistoryItem QWebEngineHistoryItem
+#define QWebPage QWebEnginePage
+#define QWebHistory QWebEngineHistory
+#define QWebHistoryItem QWebEngineHistoryItem
 #endif
 
 #ifdef USE_APPINDICATOR
@@ -82,7 +82,6 @@ public slots:
 protected:
     void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
-    void setupShortcuts();
     void keyPressEvent(QKeyEvent *keyEvent) override;
 
 private slots:

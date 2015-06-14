@@ -77,7 +77,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // initialise ui
     ui->setupUi(this);
 
-    setupShortcuts();
+    QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
+    focusSearch->setContext(Qt::ApplicationShortcut);
+    connect(focusSearch, &QShortcut::activated,
+            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->splitterGeometry);
@@ -747,15 +750,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
         toggleWindow();
     }
-}
-
-void MainWindow::setupShortcuts()
-{
-    QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
-    focusSearch->setContext(Qt::ApplicationShortcut);
-    connect(focusSearch, &QShortcut::activated, [=]() {
-        ui->lineEdit->setFocus();
-    });
 }
 
 // Captures global events in order to pass them to the search bar.
