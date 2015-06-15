@@ -280,6 +280,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                     const_cast<Docset *>(this), sectionPath, QString()});
     }
 
+    if (results.size() == 1)
+        results.clear();
+
     return results;
 }
 
