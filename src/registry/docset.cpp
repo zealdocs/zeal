@@ -259,13 +259,13 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                   "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                   "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                                   "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE zfilepath.zpath = \"%1\"");
+                                  "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
     QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
 
     while (query.next()) {
-        QString sectionName = query.value(0).toString();
+        const QString sectionName = query.value(0).toString();
         QString sectionPath = query.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
             sectionPath += QLatin1Char('#');
