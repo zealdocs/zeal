@@ -11,6 +11,10 @@ class SearchModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
+    enum Roles {
+        DocsetIconRole = Qt::UserRole
+    };
+
     explicit SearchModel(QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role) const override;
