@@ -426,7 +426,7 @@ void MainWindow::createTab()
 
     connect(newTab->zealSearch, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->sectionsList, &SearchModel::queryCompleted, [=]() {
-        const bool hasResults = newTab->sectionsList->rowCount(QModelIndex());
+        const bool hasResults = newTab->sectionsList->rowCount();
         ui->sections->setVisible(hasResults);
         ui->seeAlsoLabel->setVisible(hasResults);
     });
@@ -525,7 +525,7 @@ void MainWindow::reloadTabState()
     ui->webView->setPage(m_searchState->page);
     ui->webView->setZoomFactor(m_searchState->zoomFactor);
 
-    int resultCount = m_searchState->sectionsList->rowCount(QModelIndex());
+    int resultCount = m_searchState->sectionsList->rowCount();
     ui->sections->setVisible(resultCount > 1);
     ui->seeAlsoLabel->setVisible(resultCount > 1);
 
