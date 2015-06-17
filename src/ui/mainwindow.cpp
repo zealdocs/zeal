@@ -247,6 +247,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (text.isEmpty()) {
             m_searchState->sectionsList->setResults();
             ui->treeView->setModel(m_zealListModel);
+            ui->treeView->setRootIsDecorated(true);
         }
     });
 
@@ -377,6 +378,7 @@ void MainWindow::queryCompleted()
     m_treeViewClicked = true;
 
     ui->treeView->setModel(m_searchState->zealSearch);
+    ui->treeView->setRootIsDecorated(false);
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
 }
@@ -502,8 +504,10 @@ void MainWindow::reloadTabState()
 
     if (!searchState->searchQuery.isEmpty()) {
         ui->treeView->setModel(searchState->zealSearch);
+        ui->treeView->setRootIsDecorated(false);
     } else {
         ui->treeView->setModel(m_zealListModel);
+        ui->treeView->setRootIsDecorated(true);
         ui->treeView->reset();
     }
 
