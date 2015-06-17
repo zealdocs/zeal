@@ -378,7 +378,6 @@ void MainWindow::queryCompleted()
     m_treeViewClicked = true;
 
     ui->treeView->setModel(m_searchState->zealSearch);
-    ui->treeView->setColumnHidden(1, true);
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
 }
@@ -441,7 +440,6 @@ void MainWindow::createTab()
 
     ui->treeView->setModel(NULL);
     ui->treeView->setModel(m_zealListModel);
-    ui->treeView->setColumnHidden(1, true);
 
     m_tabs.append(newTab);
     m_searchState = newTab;
@@ -513,7 +511,6 @@ void MainWindow::reloadTabState()
         ui->treeView->setModel(m_searchState->zealSearch);
     } else {
         ui->treeView->setModel(m_zealListModel);
-        ui->treeView->setColumnHidden(1, true);
     }
 
     // Bring back the selections and expansions.
