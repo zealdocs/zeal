@@ -177,6 +177,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->treeView->setItemDelegate(delegate);
 
     createTab();
+    /// FIXME: QTabBar does not emit currentChanged() after the first addTab() call
+    reloadTabState();
 
     connect(ui->treeView, &QTreeView::clicked, [this](const QModelIndex &index) {
         m_treeViewClicked = true;
@@ -249,11 +251,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
+    connect(ui->actionNewTab, &QAction::triggered, this, &MainWindow::createTab);
     addAction(ui->actionNewTab);
-    connect(ui->actionNewTab, &QAction::triggered, [this]() {
-        saveTabState();
-        createTab();
-    });
 
     // save the expanded items:
     connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
@@ -384,12 +383,11 @@ void MainWindow::queryCompleted()
 
 void MainWindow::goToTab(int index)
 {
-    saveTabState();
-
-    if (m_tabs.isEmpty())
+    if (index == -1)
         return;
 
-    m_searchState = m_tabs.at(index);
+    saveTabState();
+    m_searchState = nullptr;
     reloadTabState();
 }
 
@@ -419,6 +417,8 @@ void MainWindow::closeTab(int index)
 
 void MainWindow::createTab()
 {
+    saveTabState();
+
     SearchState *newTab = new SearchState();
     newTab->zealSearch = new Zeal::SearchModel();
     newTab->sectionsList = new Zeal::SearchModel();
@@ -430,29 +430,20 @@ void MainWindow::createTab()
         ui->seeAlsoLabel->setVisible(hasResults);
     });
 
-    ui->lineEdit->clear();
-
     newTab->page = new QWebPage(ui->webView);
-#ifndef USE_WEBENGINE
-    newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
-#endif
-
-    ui->treeView->setModel(NULL);
-    ui->treeView->setModel(m_zealListModel);
-
-    m_tabs.append(newTab);
-    m_searchState = newTab;
-
-    m_tabBar->addTab(QStringLiteral("title"));
-    m_tabBar->setCurrentIndex(m_tabs.size() - 1);
-
-    reloadTabState();
 #ifdef USE_WEBENGINE
     newTab->page->load(QUrl(startPageUrl));
 #else
+    newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
     newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
+
+    m_tabs.append(newTab);
+
+
+    const int index = m_tabBar->addTab(QStringLiteral("title"));
+    m_tabBar->setCurrentIndex(index);
 }
 
 void MainWindow::displayTabs()
@@ -504,27 +495,34 @@ void MainWindow::displayTabs()
 
 void MainWindow::reloadTabState()
 {
-    ui->lineEdit->setText(m_searchState->searchQuery);
-    ui->sections->setModel(m_searchState->sectionsList);
+    SearchState *searchState = m_tabs.at(m_tabBar->currentIndex());
 
-    if (!m_searchState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(m_searchState->zealSearch);
+    ui->lineEdit->setText(searchState->searchQuery);
+    ui->sections->setModel(searchState->sectionsList);
+
+    if (!searchState->searchQuery.isEmpty()) {
+        ui->treeView->setModel(searchState->zealSearch);
     } else {
         ui->treeView->setModel(m_zealListModel);
+        ui->treeView->reset();
     }
 
-    // Bring back the selections and expansions.
-    for (const QModelIndex &selection: m_searchState->selections)
+    // Bring back the selections and expansions
+    ui->treeView->blockSignals(true);
+    for (const QModelIndex &selection: searchState->selections)
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (const QModelIndex &expandedIndex: m_searchState->expansions)
+    for (const QModelIndex &expandedIndex: searchState->expansions)
         ui->treeView->expand(expandedIndex);
+    ui->treeView->blockSignals(false);
 
-    ui->webView->setPage(m_searchState->page);
-    ui->webView->setZoomFactor(m_searchState->zoomFactor);
+    ui->webView->setPage(searchState->page);
+    ui->webView->setZoomFactor(searchState->zoomFactor);
 
-    int resultCount = m_searchState->sectionsList->rowCount();
+    int resultCount = searchState->sectionsList->rowCount();
     ui->sections->setVisible(resultCount > 1);
     ui->seeAlsoLabel->setVisible(resultCount > 1);
+
+    m_searchState = searchState;
 
     // scroll after the object gets loaded
     /// TODO: [Qt 5.4] QTimer::singleShot(100, this, &MainWindow::scrollSearch);
@@ -543,6 +541,7 @@ void MainWindow::saveTabState()
 {
     if (!m_searchState)
         return;
+
     m_searchState->searchQuery = ui->lineEdit->text();
     m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
