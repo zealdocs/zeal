@@ -95,6 +95,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
             this, &SettingsDialog::extractionProgress);
 
     loadSettings();
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 SettingsDialog::~SettingsDialog()
