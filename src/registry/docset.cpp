@@ -197,18 +197,20 @@ QList<SearchResult> Docset::search(const QString &query) const
                 notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
         }
         if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, path "
+            queryStr = QString("SELECT name, type, path "
                                "    FROM searchIndex "
                                "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
                                "LIMIT 100")
                     .arg(curQuery, notQuery, subNames.arg("name", curQuery));
         } else {
-            queryStr = QString("SELECT ztokenname, zpath, zanchor "
+            queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
                                "    FROM ztoken "
                                "JOIN ztokenmetainformation "
                                "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                "JOIN zfilepath "
                                "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                               "JOIN ztokentype "
+                               "    ON ztoken.ztokentype = ztokentype.z_pk "
                                "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
                                "LIMIT 100").arg(curQuery, notQuery,
                                                 subNames.arg("ztokenname", curQuery));
@@ -217,12 +219,16 @@ QList<SearchResult> Docset::search(const QString &query) const
         QSqlQuery query(queryStr, database());
         while (query.next()) {
             const QString itemName = query.value(0).toString();
-            QString path = query.value(1).toString();
-            if (m_type == Docset::Type::ZDash)
-                path += QLatin1Char('#') + query.value(2).toString();
+            QString path = query.value(2).toString();
+            if (m_type == Docset::Type::ZDash) {
+                const QString anchor = query.value(3).toString();
+                if (!anchor.isEmpty())
+                    path += QLatin1Char('#') + anchor;
+            }
 
             /// TODO: Third should be type
-            results.append(SearchResult{itemName, QString(), QString(),
+            results.append(SearchResult{itemName, QString(),
+                                        parseSymbolType(query.value(1).toString()),
                                         const_cast<Docset *>(this), path, sanitizedQuery});
         }
 
@@ -259,13 +265,13 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                   "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                   "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                                   "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE zfilepath.zpath = \"%1\"");
+                                  "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
     QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
 
     while (query.next()) {
-        QString sectionName = query.value(0).toString();
+        const QString sectionName = query.value(0).toString();
         QString sectionPath = query.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
             sectionPath += QLatin1Char('#');
@@ -276,6 +282,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                     parseSymbolType(query.value(1).toString()),
                                     const_cast<Docset *>(this), sectionPath, QString()});
     }
+
+    if (results.size() == 1)
+        results.clear();
 
     return results;
 }

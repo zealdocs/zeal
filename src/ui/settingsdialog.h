@@ -34,20 +34,21 @@ public:
     ~SettingsDialog() override;
 
 private slots:
+    void addDashFeed();
+    void updateSelectedDocsets();
+    void updateAllDocsets();
+    void removeSelectedDocsets();
+
+    void downloadCompleted();
+    void downloadProgress(qint64 received, qint64 total);
+
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);
     void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
 
-    void downloadCompleted();
-
-    void on_downloadProgress(qint64 received, qint64 total);
     void on_downloadDocsetButton_clicked();
     void on_storageButton_clicked();
-    void on_deleteButton_clicked();
-    void on_installedDocsetList_clicked(const QModelIndex &index);
     void on_tabWidget_currentChanged(int current);
-    void on_availableDocsetList_itemSelectionChanged();
-    void addDashFeed();
 
 private:
     enum DownloadType {
@@ -56,28 +57,6 @@ private:
         DownloadDocsetList
     };
 
-    QListWidgetItem *findDocsetListItem(const QString &title) const;
-
-    /// TODO: Create a special model
-    QMap<QString, DocsetMetadata> m_availableDocsets;
-    QMap<QString, DocsetMetadata> m_userFeeds;
-
-    QHash<QString, QTemporaryFile *> m_tmpFiles;
-
-    void downloadDocsetList();
-    void processDocsetList(const QJsonArray &list);
-    void downloadDashDocset(const QString &name);
-
-    void displayProgress();
-    void resetProgress();
-
-    void loadSettings();
-    void updateDocsets();
-    QNetworkReply *startDownload(const QUrl &url);
-    void stopDownloads();
-    void saveSettings();
-    static inline int percent(qint64 fraction, qint64 total);
-
     Ui::SettingsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
     DocsetRegistry *m_docsetRegistry = nullptr;
@@ -85,6 +64,31 @@ private:
     QList<QNetworkReply *> m_replies;
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
+
+    /// TODO: Create a special model
+    QMap<QString, DocsetMetadata> m_availableDocsets;
+    QMap<QString, DocsetMetadata> m_userFeeds;
+
+    QHash<QString, QTemporaryFile *> m_tmpFiles;
+
+    QListWidgetItem *findDocsetListItem(const QString &title) const;
+    bool updatesAvailable() const;
+
+    QNetworkReply *download(const QUrl &url);
+    void cancelDownloads();
+
+    void downloadDocsetList();
+    void processDocsetList(const QJsonArray &list);
+
+    void downloadDashDocset(const QString &name);
+    void removeDocsets(const QStringList &names);
+
+    void displayProgress();
+    void resetProgress();
+
+    void loadSettings();
+    void saveSettings();
+    static inline int percent(qint64 fraction, qint64 total);
 };
 
 } // namespace Zeal

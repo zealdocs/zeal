@@ -1,6 +1,7 @@
 #include "searchitemdelegate.h"
 
 #include "searchitemstyle.h"
+#include "registry/searchmodel.h"
 
 #include <QApplication>
 #include <QFontMetrics>
@@ -27,7 +28,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (!index.data(Qt::DecorationRole).isNull()) {
         option.features |= QStyleOptionViewItem::HasDecoration;
-        option.icon = index.data(Qt::DecorationRole).value<QIcon>();
+        option.icon = index.data(Zeal::SearchModel::DocsetIconRole).value<QIcon>();
     }
 
     ZealSearchItemStyle style;

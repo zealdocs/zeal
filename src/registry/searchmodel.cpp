@@ -14,32 +14,36 @@ SearchModel::SearchModel(QObject *parent) :
 
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
-    if ((role != Qt::DisplayRole && role != Qt::DecorationRole) || !index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     SearchResult *item = static_cast<SearchResult *>(index.internalPointer());
 
-    if (role == Qt::DecorationRole) {
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case 0:
+            if (item->parentName.isEmpty())
+                return item->name;
+            else
+                return QString("%1 (%2)").arg(item->name, item->parentName);
+        case 1:
+            return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
+        default:
+            return QVariant();
+        }
+
+    case Qt::DecorationRole:
         if (index.column() != 0)
             return QVariant();
+        return QIcon(QString("typeIcon:%1.png").arg(item->type));
 
-        /// TODO: Provide two icons (docset & symbol) once search item delegate supports that
-        if (item->type.isEmpty())
-            return item->docset->icon();
-        else
-            return QIcon(QString("typeIcon:%1.png").arg(item->type));;
+    case Roles::DocsetIconRole:
+        return item->docset->icon();
+
+    default:
+        return QVariant();
     }
-
-    if (index.column() == 0) {
-        if (!item->parentName.isEmpty())
-            return QString("%1 (%2)").arg(item->name, item->parentName);
-        else
-            return item->name;
-
-    } else if (index.column() == 1) {
-        return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
-    }
-    return QVariant();
 }
 
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
