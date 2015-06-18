@@ -53,6 +53,9 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     m_docsetRegistry(app->docsetRegistry())
 {
     ui->setupUi(this);
+    Qt::WindowFlags flags = windowFlags();
+    flags |= Qt::WindowMaximizeButtonHint;
+    setWindowFlags( flags );
 
 #ifdef Q_OS_OSX
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -115,6 +118,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
             this, &SettingsDialog::extractionProgress);
 
     loadSettings();
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 SettingsDialog::~SettingsDialog()
