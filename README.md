@@ -43,6 +43,12 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 
 To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
 
+### Instructions for Fedora/CentOS
+
+    sudo yum install qt5-qtbase-devel qt5-qtwebkit-devel qt5-qtx11extras-devel libarchive-devel xcb-util-keysyms-devel
+    make
+    sudo make install
+
 ## Query & Filter docsets
 
 You can limit the search scope by using ':' to indicate the desired docsets:
