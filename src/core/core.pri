@@ -8,3 +8,8 @@ unix:!macx {
 win32: {
     LIBS += -larchive_static -lz
 }
+
+macx: {
+    INCLUDEPATH += /usr/local/include
+    LIBS += -L/usr/local/lib -larchive
+}
