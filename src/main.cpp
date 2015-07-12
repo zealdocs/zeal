@@ -1,6 +1,8 @@
 #include "core/application.h"
 #include "registry/searchquery.h"
+#include "registry/docsetregistry.h"
 
+#include <iostream>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
@@ -19,6 +21,7 @@ struct CommandLineParameters
 {
     bool force;
     Zeal::SearchQuery query;
+    bool listDocsets;
 #ifdef Q_OS_WIN32
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
@@ -49,6 +52,8 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
                                         QObject::tr("[DEPRECATED] Query <search term>."),
                                         QStringLiteral("term")));
+    parser.addOption(QCommandLineOption({QStringLiteral("l"), QStringLiteral("list-docsets")},
+                                        QObject::tr("List installed docsets and exit.")));
 #ifdef Q_OS_WIN32
     parser.addOption(QCommandLineOption({QStringLiteral("register")},
                                         QObject::tr("Register protocol handlers")));
@@ -60,6 +65,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
 
     CommandLineParameters clParams;
     clParams.force = parser.isSet(QStringLiteral("force"));
+    clParams.listDocsets = parser.isSet(QStringLiteral("list-docsets"));
 
 #ifdef Q_OS_WIN32
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
@@ -201,5 +207,12 @@ int main(int argc, char *argv[])
 
     QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application(clParams.query));
 
-    return qapp->exec();
+    if (clParams.listDocsets) {
+      Zeal::DocsetRegistry *docs = app->docsetRegistry();
+      for (int i = 0; i < docs->names().size(); ++i)
+        std::cout << docs->names().at(i).toLocal8Bit().constData() << std::endl;
+      exit(0);
+    } else
+      return qapp->exec();
+    std::cout << "After exec" << std::endl;
 }

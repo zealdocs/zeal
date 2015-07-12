@@ -7,6 +7,7 @@
 #include "ui/mainwindow.h"
 #include "util/version.h"
 
+#include <iostream>
 #include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
