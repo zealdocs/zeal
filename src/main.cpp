@@ -2,7 +2,6 @@
 #include "registry/searchquery.h"
 #include "registry/docsetregistry.h"
 
-#include <iostream>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
@@ -214,5 +213,4 @@ int main(int argc, char *argv[])
       exit(0);
     } else
       return qapp->exec();
-    std::cout << "After exec" << std::endl;
 }
