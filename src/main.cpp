@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDataStream>
 #include <QDir>
 #include <QLocalSocket>
 #include <QStandardPaths>
