@@ -8,6 +8,7 @@
 #include <QLocalSocket>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QDataStream>
 #include <QUrlQuery>
 
 #ifdef Q_OS_WIN32
