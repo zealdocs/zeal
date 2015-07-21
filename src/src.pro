@@ -67,6 +67,12 @@ win32 {
 macx {
     TARGET = Zeal
     ICON = resources/zeal.icns
+    # Uses libarchive from Homebrew or MacPorts
+    INCLUDEPATH +=/usr/local/opt/libarchive/include
+    INCLUDEPATH +=/opt/local/include
+    LIBPATH     +=/usr/local/opt/libarchive/lib
+    LIBPATH     +=/opt/local/lib
+    LIBS        +=-larchive
 }
 
 # Keep build directory organised
