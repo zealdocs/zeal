@@ -1,5 +1,3 @@
-build_image: shippableimages/ubuntu1404_base
-cache: true
 before_install:
   - shippable_retry sudo apt-get -y -qq update
 install:
