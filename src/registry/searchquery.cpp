@@ -76,6 +76,15 @@ bool SearchQuery::hasKeyword(const QString &keyword) const
     return false;
 }
 
+bool SearchQuery::hasKeywords(const QStringList &keywords) const
+{
+    for (const QString &keyword : keywords) {
+        if (m_keywords.contains(keyword))
+            return true;
+    }
+    return false;
+}
+
 int SearchQuery::keywordPrefixSize() const
 {
     return m_keywordPrefix.size();

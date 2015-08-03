@@ -21,7 +21,7 @@ public:
 
     QString name() const;
     QString title() const;
-    QString keyword() const;
+    QStringList keywords() const;
 
     QString version() const;
     QString revision() const;
@@ -64,7 +64,7 @@ private:
     QString m_sourceId;
     QString m_name;
     QString m_title;
-    QString m_keyword;
+    QStringList m_keywords;
     QString m_version;
     QString m_revision;
     Docset::Type m_type = Type::Invalid;

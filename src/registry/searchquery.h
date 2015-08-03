@@ -44,6 +44,7 @@ public:
 
     /// Returns true if the docset prefix match the ones given on query
     bool hasKeyword(const QString &keyword) const;
+    bool hasKeywords(const QStringList &keywords) const;
 
     /// Returns the docset filter raw size for the given query
     int keywordPrefixSize() const;

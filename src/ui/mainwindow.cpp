@@ -563,7 +563,7 @@ void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
     for (const Docset * const docset: m_application->docsetRegistry()->docsets())
-        completions << docset->keyword() + QLatin1Char(':');
+        completions << docset->keywords().first() + QLatin1Char(':');
     ui->lineEdit->setCompletions(completions);
 }
 

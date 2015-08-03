@@ -18,9 +18,11 @@ namespace {
 namespace InfoPlist {
 const char CFBundleName[] = "CFBundleName";
 const char CFBundleIdentifier[] = "CFBundleIdentifier";
-const char DashDocSetKeyword[] = "DashDocSetKeyword";
 const char DashDocSetFamily[] = "DashDocSetFamily";
+const char DashDocSetKeyword[] = "DashDocSetKeyword";
+const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
 const char DashIndexFilePath[] = "dashIndexFilePath";
+const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 const char IsDashDocset[] = "isDashDocset";
 const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
@@ -96,7 +98,25 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    m_keyword = plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
+    //
+    // Setyp keywords
+    if (plist.contains(InfoPlist::DocSetPlatformFamily))
+        m_keywords << plist[InfoPlist::DocSetPlatformFamily].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetPluginKeyword))
+        m_keywords << plist[InfoPlist::DashDocSetPluginKeyword].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetKeyword))
+        m_keywords << plist[InfoPlist::DashDocSetKeyword].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetFamily)) {
+        const QString kw = plist[InfoPlist::DashDocSetFamily].toString();
+        if (kw != QStringLiteral("dashtoc"))
+            m_keywords << kw;
+    }
+
+    /// TODO: Use 'unknown' instead of CFBundleName? (See #383)
+    m_keywords << plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
 
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
@@ -131,9 +151,9 @@ QString Docset::title() const
     return m_title;
 }
 
-QString Docset::keyword() const
+QStringList Docset::keywords() const
 {
-    return m_keyword;
+    return m_keywords;
 }
 
 QString Docset::version() const
@@ -190,7 +210,7 @@ QList<SearchResult> Docset::search(const QString &query) const
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     const QString sanitizedQuery = searchQuery.sanitizedQuery();
 
-    if (searchQuery.hasKeywords() && !searchQuery.hasKeyword(m_keyword))
+    if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
         return results;
 
     QString queryStr;
