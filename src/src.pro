@@ -19,11 +19,13 @@ VERSION = 0.1.2
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 HEADERS += \
-    util/version.h
+    util/version.h \
+    util/plist.h
 
 SOURCES += \
     main.cpp \
-    util/version.cpp
+    util/version.cpp \
+    util/plist.cpp
 
 include(core/core.pri)
 include(registry/registry.pri)

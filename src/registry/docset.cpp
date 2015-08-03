@@ -1,7 +1,7 @@
 #include "docset.h"
 
-#include "docsetinfo.h"
 #include "searchquery.h"
+#include "util/plist.h"
 
 #include <QDir>
 #include <QFile>
@@ -13,6 +13,18 @@
 #include <QVariant>
 
 using namespace Zeal;
+
+namespace {
+namespace InfoPlist {
+const char CFBundleName[] = "CFBundleName";
+const char CFBundleIdentifier[] = "CFBundleIdentifier";
+const char DashDocSetKeyword[] = "DashDocSetKeyword";
+const char DashDocSetFamily[] = "DashDocSetFamily";
+const char DashIndexFilePath[] = "dashIndexFilePath";
+const char IsDashDocset[] = "isDashDocset";
+const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+}
+}
 
 Docset::Docset(const QString &path) :
     m_path(path)
@@ -34,18 +46,21 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
-    DocsetInfo info;
+    Util::Plist plist;
     if (dir.exists(QStringLiteral("Info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+        plist.read(dir.absoluteFilePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
+        plist.read(dir.absoluteFilePath(QStringLiteral("info.plist")));
     else
+        return;
+
+    if (plist.hasError())
         return;
 
     if (m_name.isEmpty()) {
         // Fallback if meta.json is absent
-        if (!info.bundleName.isEmpty()) {
-            m_name = m_title = info.bundleName;
+        if (!plist.contains(InfoPlist::CFBundleName)) {
+            m_name = m_title = plist[InfoPlist::CFBundleName].toString();
             /// TODO: Remove when MainWindow::docsetName() will not use directory name
             m_name.replace(QLatin1Char(' '), QLatin1Char('_'));
         } else {
@@ -59,7 +74,7 @@ Docset::Docset(const QString &path) :
     }
 
     /// TODO: Verify if this is needed
-    if (info.family == QLatin1String("cheatsheet"))
+    if (plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet"))
         m_name = m_name + QLatin1String("cheats");
 
     if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
@@ -78,12 +93,12 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    m_keyword = (info.bundleName.isEmpty() ? m_name : info.bundleName).toLower();
+    m_keyword = plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
 
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
-        if (!info.indexFilePath.isEmpty() && dir.exists(info.indexFilePath))
-            m_indexFilePath = info.indexFilePath;
+        if (plist.contains(InfoPlist::DashIndexFilePath))
+            m_indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
         else if (dir.exists(QStringLiteral("index.html")))
             m_indexFilePath = QStringLiteral("index.html");
         else
