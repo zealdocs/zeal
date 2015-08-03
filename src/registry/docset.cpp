@@ -46,6 +46,9 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
+    /// TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
+    /// https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/
+    /// Articles/ConfigFiles.html
     Util::Plist plist;
     if (dir.exists(QStringLiteral("Info.plist")))
         plist.read(dir.absoluteFilePath(QStringLiteral("Info.plist")));
