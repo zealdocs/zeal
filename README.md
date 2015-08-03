@@ -36,9 +36,9 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 ## How to compile
 
 ### Requirements
-* [Qt](https://www.qt.io/) version 5.2.0 or above.
+* [Qt](https://www.qt.io/) version 5.2.0 or above. Required modules: Qt WebKit Widgets, Qt SQL plugin for SQLite, Qt X11 Extras (X11 only).
 * [libarchive](http://libarchive.org/).
-* Linux only: `xcb-util-keysyms`.
+* X11 only: `xcb-util-keysyms`.
 * Ubuntu Unity only: [libappindicator](https://launchpad.net/libappindicator).
 
 To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
