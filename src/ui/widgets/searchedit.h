@@ -19,18 +19,17 @@ public:
     void selectQuery();
     void setCompletions(const QStringList &completions);
 
-public slots:
-    void clear();
-    QString currentCompletion(const QString &text) const;
-    void showCompletions(const QString &text);
-
 protected:
     bool event(QEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
 
+private slots:
+    void showCompletions(const QString &text);
+
 private:
+    QString currentCompletion(const QString &text) const;
     int queryStart() const;
 
     QCompleter *m_prefixCompleter = nullptr;

@@ -49,34 +49,6 @@ void SearchEdit::selectQuery()
     setSelection(queryStart(), text().size());
 }
 
-void SearchEdit::clear()
-{
-    clearQuery();
-}
-
-QString SearchEdit::currentCompletion(const QString &text) const
-{
-    if (text.isEmpty())
-        return QString();
-    else
-        return m_prefixCompleter->currentCompletion();
-}
-
-void SearchEdit::showCompletions(const QString &newValue)
-{
-    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    const int textWidth = fontMetrics().width(newValue);
-
-    m_prefixCompleter->setCompletionPrefix(text());
-
-    const QString completed = currentCompletion(newValue).mid(newValue.size());
-    const QSize labelSize(fontMetrics().width(completed), size().height());
-
-    m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
-    m_completionLabel->setText(completed);
-}
-
 bool SearchEdit::event(QEvent *event)
 {
     if (event->type() != QEvent::KeyPress)
@@ -111,7 +83,7 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Escape:
-        clear();
+        clearQuery();
         event->accept();
         break;
     case Qt::Key_Return:
@@ -141,6 +113,29 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
         QLineEdit::mousePressEvent(event);
 
     m_focusing = false;
+}
+
+void SearchEdit::showCompletions(const QString &newValue)
+{
+    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    const int textWidth = fontMetrics().width(newValue);
+
+    m_prefixCompleter->setCompletionPrefix(text());
+
+    const QString completed = currentCompletion(newValue).mid(newValue.size());
+    const QSize labelSize(fontMetrics().width(completed), size().height());
+
+    m_completionLabel->setMinimumSize(labelSize);
+    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->setText(completed);
+}
+
+QString SearchEdit::currentCompletion(const QString &text) const
+{
+    if (text.isEmpty())
+        return QString();
+    else
+        return m_prefixCompleter->currentCompletion();
 }
 
 int SearchEdit::queryStart() const
