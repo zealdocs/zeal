@@ -94,9 +94,10 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Up: {
         const QModelIndex index = m_treeView->currentIndex();
         const int nextRow = index.row() + (event->key() == Qt::Key_Down ? 1 : -1);
-        const QModelIndex sibling = index.sibling(nextRow, 0);
-        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount())
+        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount()) {
+            const QModelIndex sibling = index.sibling(nextRow, 0);
             m_treeView->setCurrentIndex(sibling);
+        }
         event->accept();
         break;
     }
