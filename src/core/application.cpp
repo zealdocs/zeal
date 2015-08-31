@@ -175,7 +175,10 @@ QNetworkReply *Application::download(const QUrl &url)
             .arg(qVersion());
 
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
+
+    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
+        request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
+
     return m_networkManager->get(request);
 }
 
