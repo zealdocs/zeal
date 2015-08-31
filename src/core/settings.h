@@ -70,6 +70,8 @@ public:
     // a settings wipe. It is not attached to user hardware or software, and is sent exclusevely
     // to *.zealdocs.org hosts.
     QString installId;
+    // Version of configuration file format, should match Zeal version. Useful for migration rules.
+    QString version;
 
     ProxyType proxyType = ProxyType::System;
     QString proxyHost;
