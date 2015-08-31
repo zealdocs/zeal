@@ -64,6 +64,13 @@ public:
         UserDefined
     };
 
+    // Internal
+    // --------
+    // InstallId is a UUID used to indentify a Zeal installation. Created on first start or after
+    // a settings wipe. It is not attached to user hardware or software, and is sent exclusevely
+    // to *.zealdocs.org hosts.
+    QString installId;
+
     ProxyType proxyType = ProxyType::System;
     QString proxyHost;
     quint16 proxyPort;

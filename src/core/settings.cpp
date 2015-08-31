@@ -27,6 +27,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QUrl>
+#include <QUuid>
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineSettings>
@@ -109,6 +110,12 @@ void Settings::load()
     windowGeometry = m_settings->value(QStringLiteral("window_geometry")).toByteArray();
     splitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
     m_settings->endGroup();
+
+    m_settings->beginGroup(QStringLiteral("internal"));
+    installId = m_settings->value(QStringLiteral("install_id"),
+                                  // Avoid curly braces (QTBUG-885)
+                                  QUuid::createUuid().toString().mid(1, 36)).toString();
+    m_settings->endGroup();
 }
 
 void Settings::save()
@@ -147,6 +154,10 @@ void Settings::save()
     m_settings->beginGroup(QStringLiteral("state"));
     m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
     m_settings->setValue(QStringLiteral("splitter_geometry"), splitterGeometry);
+    m_settings->endGroup();
+
+    m_settings->beginGroup(QStringLiteral("internal"));
+    m_settings->setValue(QStringLiteral("install_id"), installId);
     m_settings->endGroup();
 
     m_settings->sync();

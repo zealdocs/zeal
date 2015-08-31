@@ -176,8 +176,10 @@ QNetworkReply *Application::download(const QUrl &url)
 
     QNetworkRequest request(url);
 
-    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
+    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive))) {
         request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
+        request.setRawHeader("X-Zeal-Install-Id", m_settings->installId.toUtf8());
+    }
 
     return m_networkManager->get(request);
 }
