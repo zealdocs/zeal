@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 QT += gui widgets sql
-CONFIG += c++11
+CONFIG += c++11 silent
 
 # Build features
 webengine {
