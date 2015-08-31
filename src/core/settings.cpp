@@ -36,6 +36,16 @@
 #include <QWebSettings>
 #endif
 
+namespace {
+// Configuration file groups
+const char GroupBrowser[] = "browser";
+const char GroupDocsets[] = "docsets";
+const char GroupGlobalShortcuts[] = "global_shortcuts";
+const char GroupInternal[] = "internal";
+const char GroupState[] = "state";
+const char GroupProxy[] = "proxy";
+}
+
 using namespace Zeal::Core;
 
 Settings::Settings(QObject *parent) :
@@ -70,7 +80,7 @@ void Settings::load()
     minimizeToSystray = m_settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = m_settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
-    m_settings->beginGroup(QStringLiteral("global_shortcuts"));
+    m_settings->beginGroup(GroupGlobalShortcuts);
 #ifndef Q_OS_OSX
     showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Meta+Z")).value<QKeySequence>();
 #else
@@ -78,12 +88,12 @@ void Settings::load()
 #endif
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("browser"));
+    m_settings->beginGroup(GroupBrowser);
     minimumFontSize = m_settings->value(QStringLiteral("minimum_font_size"),
                                         QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("proxy"));
+    m_settings->beginGroup(GroupProxy);
     proxyType = static_cast<ProxyType>(m_settings->value(QStringLiteral("type"), ProxyType::System).toUInt());
     proxyHost = m_settings->value(QStringLiteral("host")).toString();
     proxyPort = m_settings->value(QStringLiteral("port"), 0).toInt();
@@ -92,7 +102,7 @@ void Settings::load()
     proxyPassword = m_settings->value(QStringLiteral("password")).toString();
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("docsets"));
+    m_settings->beginGroup(GroupDocsets);
     if (m_settings->contains(QStringLiteral("path"))) {
         docsetPath = m_settings->value(QStringLiteral("path")).toString();
     } else {
@@ -106,12 +116,12 @@ void Settings::load()
     }
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("state"));
+    m_settings->beginGroup(GroupState);
     windowGeometry = m_settings->value(QStringLiteral("window_geometry")).toByteArray();
     splitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("internal"));
+    m_settings->beginGroup(GroupInternal);
     installId = m_settings->value(QStringLiteral("install_id"),
                                   // Avoid curly braces (QTBUG-885)
                                   QUuid::createUuid().toString().mid(1, 36)).toString();
@@ -130,15 +140,15 @@ void Settings::save()
     m_settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
     m_settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
 
-    m_settings->beginGroup(QStringLiteral("global_shortcuts"));
+    m_settings->beginGroup(GroupGlobalShortcuts);
     m_settings->setValue(QStringLiteral("show"), showShortcut);
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("browser"));
+    m_settings->beginGroup(GroupBrowser);
     m_settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("proxy"));
+    m_settings->beginGroup(GroupProxy);
     m_settings->setValue(QStringLiteral("type"), proxyType);
     m_settings->setValue(QStringLiteral("host"), proxyHost);
     m_settings->setValue(QStringLiteral("port"), proxyPort);
@@ -148,17 +158,17 @@ void Settings::save()
     m_settings->endGroup();
 
 #ifndef PORTABLE_BUILD
-    m_settings->beginGroup(QStringLiteral("docsets"));
+    m_settings->beginGroup(GroupDocsets);
     m_settings->setValue(QStringLiteral("path"), docsetPath);
     m_settings->endGroup();
 #endif
 
-    m_settings->beginGroup(QStringLiteral("state"));
+    m_settings->beginGroup(GroupState);
     m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
     m_settings->setValue(QStringLiteral("splitter_geometry"), splitterGeometry);
     m_settings->endGroup();
 
-    m_settings->beginGroup(QStringLiteral("internal"));
+    m_settings->beginGroup(GroupInternal);
     m_settings->setValue(QStringLiteral("install_id"), installId);
     m_settings->setValue(QStringLiteral("version"), version);
     m_settings->endGroup();
