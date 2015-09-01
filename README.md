@@ -22,7 +22,7 @@ Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.
 
 OS \ Branch | Unstable (master) | Stable (0.1)
 ------------|-------------------|-------------
-Linux | [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=master)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest) | [![Build Status](https://api.shippable.com/projects/54ac2ce4d46935d5fbc19b84/badge?branchName=0.1)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84/builds/latest)
+Linux | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/builds/54ac2ce4d46935d5fbc19b84) | [![Shippable branch](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/0.1.svg?style=flat-square)](https://app.shippable.com/builds/54ac2ce4d46935d5fbc19b84)
 Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/0.1.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
 
 ## Download
@@ -36,9 +36,9 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 ## How to compile
 
 ### Requirements
-* [Qt](https://www.qt.io/) version 5.2.0 or above.
+* [Qt](https://www.qt.io/) version 5.2.0 or above. Required modules: Qt WebKit Widgets, Qt SQL plugin for SQLite, Qt X11 Extras (X11 only).
 * [libarchive](http://libarchive.org/).
-* Linux only: `xcb-util-keysyms`.
+* X11 only: `xcb-util-keysyms`.
 * Ubuntu Unity only: [libappindicator](https://launchpad.net/libappindicator).
 
 To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.

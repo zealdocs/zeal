@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "searchedit.h"
 
 #include "registry/searchquery.h"
@@ -49,35 +72,6 @@ void SearchEdit::selectQuery()
     setSelection(queryStart(), text().size());
 }
 
-void SearchEdit::clear()
-{
-    clearQuery();
-}
-
-QString SearchEdit::currentCompletion(const QString &text) const
-{
-    if (text.isEmpty() || !m_prefixCompleter)
-        return QString();
-
-    return m_prefixCompleter->currentCompletion();
-}
-
-void SearchEdit::showCompletions(const QString &newValue)
-{
-    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    const int textWidth = fontMetrics().width(newValue);
-
-    if (m_prefixCompleter)
-        m_prefixCompleter->setCompletionPrefix(text());
-
-    const QString completed = currentCompletion(newValue).mid(newValue.size());
-    const QSize labelSize(fontMetrics().width(completed), size().height());
-
-    m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
-    m_completionLabel->setText(completed);
-}
-
 bool SearchEdit::event(QEvent *event)
 {
     if (event->type() != QEvent::KeyPress)
@@ -112,7 +106,7 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Escape:
-        clear();
+        clearQuery();
         event->accept();
         break;
     case Qt::Key_Return:
@@ -123,9 +117,10 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Up: {
         const QModelIndex index = m_treeView->currentIndex();
         const int nextRow = index.row() + (event->key() == Qt::Key_Down ? 1 : -1);
-        const QModelIndex sibling = index.sibling(nextRow, 0);
-        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount())
+        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount()) {
+            const QModelIndex sibling = index.sibling(nextRow, 0);
             m_treeView->setCurrentIndex(sibling);
+        }
         event->accept();
         break;
     }
@@ -142,6 +137,29 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
         QLineEdit::mousePressEvent(event);
 
     m_focusing = false;
+}
+
+void SearchEdit::showCompletions(const QString &newValue)
+{
+    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    const int textWidth = fontMetrics().width(newValue);
+
+    m_prefixCompleter->setCompletionPrefix(text());
+
+    const QString completed = currentCompletion(newValue).mid(newValue.size());
+    const QSize labelSize(fontMetrics().width(completed), size().height());
+
+    m_completionLabel->setMinimumSize(labelSize);
+    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->setText(completed);
+}
+
+QString SearchEdit::currentCompletion(const QString &text) const
+{
+    if (text.isEmpty())
+        return QString();
+    else
+        return m_prefixCompleter->currentCompletion();
 }
 
 int SearchEdit::queryStart() const

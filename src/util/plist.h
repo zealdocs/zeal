@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
 ** Contact: http://zealdocs.org/contact.html
 **
 ** This file is part of Zeal.
@@ -21,25 +20,28 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHITEMDELEGATE_H
-#define SEARCHITEMDELEGATE_H
+#ifndef PLIST_H
+#define PLIST_H
 
-#include <QStyledItemDelegate>
+#include <QHash>
+#include <QVariant>
 
-class SearchItemDelegate : public QStyledItemDelegate
+namespace Zeal {
+namespace Util {
+
+class Plist : public QHash<QString, QVariant>
 {
-    Q_OBJECT
 public:
-    explicit SearchItemDelegate(QObject *parent = nullptr);
+    Plist();
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-
-public slots:
-    void setHighlight(const QString &text);
+    bool read(const QString &fileName);
+    bool hasError() const;
 
 private:
-    QString m_highlight;
+    bool m_hasError = false;
 };
 
-#endif // SEARCHITEMDELEGATE_H
+} // namespace Zeal
+} // namespace Util
+
+#endif // PLIST_H

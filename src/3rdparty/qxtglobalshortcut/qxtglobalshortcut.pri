@@ -1,5 +1,3 @@
-DEFINES += BUILD_QXT_GUI
-
 INCLUDEPATH += $$PWD
 
 HEADERS += $$files($$PWD/*.h)

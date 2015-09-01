@@ -1,7 +1,30 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "docset.h"
 
-#include "docsetinfo.h"
 #include "searchquery.h"
+#include "util/plist.h"
 
 #include <QDir>
 #include <QFile>
@@ -13,6 +36,20 @@
 #include <QVariant>
 
 using namespace Zeal;
+
+namespace {
+namespace InfoPlist {
+const char CFBundleName[] = "CFBundleName";
+const char CFBundleIdentifier[] = "CFBundleIdentifier";
+const char DashDocSetFamily[] = "DashDocSetFamily";
+const char DashDocSetKeyword[] = "DashDocSetKeyword";
+const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
+const char DashIndexFilePath[] = "dashIndexFilePath";
+const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
+const char IsDashDocset[] = "isDashDocset";
+const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+}
+}
 
 Docset::Docset(const QString &path) :
     m_path(path)
@@ -34,18 +71,24 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
-    DocsetInfo info;
+    /// TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
+    /// https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/
+    /// Articles/ConfigFiles.html
+    Util::Plist plist;
     if (dir.exists(QStringLiteral("Info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+        plist.read(dir.absoluteFilePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
-        info = DocsetInfo::fromPlist(dir.absoluteFilePath(QStringLiteral("info.plist")));
+        plist.read(dir.absoluteFilePath(QStringLiteral("info.plist")));
     else
+        return;
+
+    if (plist.hasError())
         return;
 
     if (m_name.isEmpty()) {
         // Fallback if meta.json is absent
-        if (!info.bundleName.isEmpty()) {
-            m_name = m_title = info.bundleName;
+        if (!plist.contains(InfoPlist::CFBundleName)) {
+            m_name = m_title = plist[InfoPlist::CFBundleName].toString();
             /// TODO: Remove when MainWindow::docsetName() will not use directory name
             m_name.replace(QLatin1Char(' '), QLatin1Char('_'));
         } else {
@@ -59,7 +102,7 @@ Docset::Docset(const QString &path) :
     }
 
     /// TODO: Verify if this is needed
-    if (info.family == QLatin1String("cheatsheet"))
+    if (plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet"))
         m_name = m_name + QLatin1String("cheats");
 
     if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
@@ -78,12 +121,30 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    m_keyword = (info.bundleName.isEmpty() ? m_name : info.bundleName).toLower();
+    //
+    // Setyp keywords
+    if (plist.contains(InfoPlist::DocSetPlatformFamily))
+        m_keywords << plist[InfoPlist::DocSetPlatformFamily].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetPluginKeyword))
+        m_keywords << plist[InfoPlist::DashDocSetPluginKeyword].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetKeyword))
+        m_keywords << plist[InfoPlist::DashDocSetKeyword].toString();
+
+    if (plist.contains(InfoPlist::DashDocSetFamily)) {
+        const QString kw = plist[InfoPlist::DashDocSetFamily].toString();
+        if (kw != QStringLiteral("dashtoc"))
+            m_keywords << kw;
+    }
+
+    /// TODO: Use 'unknown' instead of CFBundleName? (See #383)
+    m_keywords << plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
 
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
-        if (!info.indexFilePath.isEmpty() && dir.exists(info.indexFilePath))
-            m_indexFilePath = info.indexFilePath;
+        if (plist.contains(InfoPlist::DashIndexFilePath))
+            m_indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
         else if (dir.exists(QStringLiteral("index.html")))
             m_indexFilePath = QStringLiteral("index.html");
         else
@@ -113,9 +174,9 @@ QString Docset::title() const
     return m_title;
 }
 
-QString Docset::keyword() const
+QStringList Docset::keywords() const
 {
-    return m_keyword;
+    return m_keywords;
 }
 
 QString Docset::version() const
@@ -172,7 +233,7 @@ QList<SearchResult> Docset::search(const QString &query) const
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     const QString sanitizedQuery = searchQuery.sanitizedQuery();
 
-    if (searchQuery.hasKeywords() && !searchQuery.hasKeyword(m_keyword))
+    if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
         return results;
 
     QString queryStr;
