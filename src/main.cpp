@@ -27,8 +27,11 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDataStream>
+#include <QDesktopServices>
 #include <QDir>
 #include <QLocalSocket>
+#include <QMessageBox>
+#include <QSqlDatabase>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QUrlQuery>
@@ -219,6 +222,17 @@ int main(int argc, char *argv[])
             socket->flush();
             return 0;
         }
+    }
+
+    // Check for SQLite plugin
+    /// TODO: Specific to docset format and should be handled accordingly in the future
+    if (!QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE"))) {
+        const int ret = QMessageBox::critical(nullptr, QStringLiteral("Zeal"),
+                                              QObject::tr("Qt SQLite driver is not available."),
+                                              QMessageBox::Close, QMessageBox::Help);
+        if (ret == QMessageBox::Help)
+            QDesktopServices::openUrl(QStringLiteral("http://zealdocs.org/contact.html"));
+        return 0;
     }
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
