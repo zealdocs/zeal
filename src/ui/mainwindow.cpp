@@ -176,7 +176,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                                  QString(tr("A new version <b>%1</b> is available. Open download page?")).arg(version),
                                                  QMessageBox::Yes, QMessageBox::No);
         if (ret == QMessageBox::Yes)
-            QDesktopServices::openUrl(QStringLiteral("http://zealdocs.org/download.html"));
+            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/download.html"));
     });
 
     m_backMenu = new QMenu(ui->backButton);

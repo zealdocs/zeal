@@ -77,13 +77,13 @@
 &lt;br&gt;&lt;br&gt;
 Copyright &amp;copy; Zeal Developers, 2013-2015.
 &lt;br&gt;
-&lt;a href=&quot;http://zealdocs.org&quot;&gt;http://zealdocs.org&lt;/a&gt;
+&lt;a href=&quot;https://zealdocs.org&quot;&gt;zealdocs.org&lt;/a&gt;
 &lt;br&gt;
 &lt;a href=&quot;irc://irc.freenode.net/zealdocs&quot;&gt;#zealdocs&lt;/a&gt; on &lt;a href=&quot;http://www.freenode.net&quot;&gt;Freenode&lt;/a&gt;
 &lt;br&gt;&lt;br&gt;
 Zeal is an open source software available under the terms of General Public License version 3 (&lt;a href=&quot;http://www.gnu.org/copyleft/gpl.html&quot;&gt;GPLv3&lt;/a&gt;).
 &lt;br&gt;&lt;br&gt;
-Docsets are courtesy of &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.</string>
+Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
