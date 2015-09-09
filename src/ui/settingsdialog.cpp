@@ -278,7 +278,7 @@ void SettingsDialog::downloadCompleted()
         return;
     }
 
-    switch (static_cast<DownloadType>(reply->property(DownloadTypeProperty).toUInt())) {
+    switch (reply->property(DownloadTypeProperty).toUInt()) {
     case DownloadDocsetList: {
         const QByteArray data = reply->readAll();
 
