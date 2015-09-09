@@ -343,8 +343,13 @@ void SettingsDialog::downloadCompleted()
             });
         }
 
-        QTemporaryFile *tmpFile = new QTemporaryFile();
-        tmpFile->open();
+        QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
+        if (!tmpFile) {
+            tmpFile = new QTemporaryFile(this);
+            tmpFile->open();
+            m_tmpFiles.insert(docsetName, tmpFile);
+        }
+
         while (reply->bytesAvailable())
             tmpFile->write(reply->read(1024 * 1024)); // Use small chunks
         tmpFile->close();
@@ -377,6 +382,19 @@ void SettingsDialog::downloadProgress(qint64 received, qint64 total)
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply || !reply->isOpen())
         return;
+
+    if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset)  {
+        const QString docsetName = reply->property(DocsetNameProperty).toString();
+
+        QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
+        if (!tmpFile) {
+            tmpFile = new QTemporaryFile(this);
+            tmpFile->open();
+            m_tmpFiles.insert(docsetName, tmpFile);
+        }
+
+        tmpFile->write(reply->read(received));
+    }
 
     // Try to get the item associated to the request
     QListWidgetItem *item
@@ -574,6 +592,9 @@ void SettingsDialog::cancelDownloads()
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (!listItem)
             listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+
+        if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset)
+            delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
 
         reply->abort();
     }
