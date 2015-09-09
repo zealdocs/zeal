@@ -375,7 +375,7 @@ void SettingsDialog::downloadProgress(qint64 received, qint64 total)
         return;
 
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (!reply)
+    if (!reply || !reply->isOpen())
         return;
 
     // Try to get the item associated to the request
