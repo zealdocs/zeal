@@ -573,9 +573,8 @@ void SettingsDialog::cancelDownloads()
         QListWidgetItem *listItem
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (!listItem)
-            continue;
+            listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
 
-        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         reply->abort();
     }
     resetProgress();
