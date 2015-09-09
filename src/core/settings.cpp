@@ -94,7 +94,7 @@ void Settings::load()
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupProxy);
-    proxyType = static_cast<ProxyType>(m_settings->value(QStringLiteral("type"), ProxyType::System).toUInt());
+    proxyType = m_settings->value(QStringLiteral("type"), ProxyType::System).value<ProxyType>();
     proxyHost = m_settings->value(QStringLiteral("host")).toString();
     proxyPort = m_settings->value(QStringLiteral("port"), 0).toInt();
     proxyAuthenticate = m_settings->value(QStringLiteral("authenticate"), false).toBool();
