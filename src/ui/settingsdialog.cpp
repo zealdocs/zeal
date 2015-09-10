@@ -590,7 +590,7 @@ void SettingsDialog::cancelDownloads()
         // Hide progress bar
         QListWidgetItem *listItem
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
-        if (!listItem)
+        if (listItem)
             listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
 
         if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset)
