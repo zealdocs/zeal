@@ -294,7 +294,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionCloseTab->setShortcut(QKeySequence::Close);
 #endif
     addAction(ui->actionCloseTab);
-    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeTab);
+    connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
     m_tabBar->setTabsClosable(true);
     m_tabBar->setExpanding(false);
