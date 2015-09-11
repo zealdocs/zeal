@@ -36,9 +36,12 @@ SearchQuery::SearchQuery()
 
 SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
     m_query(query),
-    m_keywords(keywords),
-    m_keywordPrefix(keywords.join(keywordSeparator))
+    m_keywords(keywords)
 {
+    if (m_keywords.isEmpty())
+        return;
+
+    m_keywordPrefix = keywords.join(keywordSeparator) + prefixSeparator;
 }
 
 SearchQuery SearchQuery::fromString(const QString &str)
@@ -48,10 +51,10 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
     QString query;
     QStringList keywords;
-    if (sepAt >= 1 && (next >= str.size() || str.at(next) != prefixSeparator)) {
-        query = str.midRef(next).toString().trimmed();
+    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
+        query = str.mid(next).trimmed();
 
-        const QString keywordStr = str.leftRef(sepAt).toString().trimmed();
+        const QString keywordStr = str.left(sepAt).trimmed();
         keywords = keywordStr.split(keywordSeparator);
     } else {
         query = str.trimmed();
@@ -65,7 +68,7 @@ QString SearchQuery::toString() const
     if (m_keywords.isEmpty())
         return m_query;
     else
-        return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
+        return m_keywordPrefix + m_query;
 }
 
 bool SearchQuery::isEmpty() const

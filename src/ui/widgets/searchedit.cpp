@@ -77,8 +77,8 @@ bool SearchEdit::event(QEvent *event)
     if (event->type() != QEvent::KeyPress)
         return QLineEdit::event(event);
 
-    QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
-    if (keyEvent->key() != Qt::Key_Tab)
+    // Tab key cannot be overriden in keyPressEvent()
+    if (reinterpret_cast<QKeyEvent *>(event)->key() != Qt::Key_Tab)
         return QLineEdit::event(event);
 
     const QString completed = currentCompletion(text());
@@ -90,19 +90,13 @@ bool SearchEdit::event(QEvent *event)
 
 void SearchEdit::focusInEvent(QFocusEvent *event)
 {
-    // Focus on the widget.
     QLineEdit::focusInEvent(event);
 
     // Do not change default behaviour when focused with mouse
     if (event->reason() == Qt::MouseFocusReason)
         return;
 
-    // Override the default selection.
-    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
-    int selectionOffset = currentQuery.keywordPrefixSize();
-    if (selectionOffset > 0)
-        selectionOffset++; // add the delimeter
-    setSelection(selectionOffset, text().size() - selectionOffset);
+    selectQuery();
     m_focusing = true;
 }
 
@@ -162,16 +156,13 @@ QString SearchEdit::currentCompletion(const QString &text) const
 {
     if (text.isEmpty())
         return QString();
-    else
-        return m_prefixCompleter->currentCompletion();
+
+    return m_prefixCompleter->currentCompletion();
 }
 
 int SearchEdit::queryStart() const
 {
-    Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
-    // Keep the filter for the first esc press
-    if (currentQuery.keywordPrefixSize() > 0 && currentQuery.query().size() > 0)
-        return currentQuery.keywordPrefixSize() + 1;
-    else
-        return 0;
+    const Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
+    // Keep the filter for the first Escape press
+    return currentQuery.query().isEmpty() ? 0 : currentQuery.keywordPrefixSize();
 }
