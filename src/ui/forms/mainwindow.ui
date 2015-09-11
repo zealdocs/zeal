@@ -86,6 +86,9 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
              <property name="placeholderText">
               <string>Enter your query</string>
              </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>

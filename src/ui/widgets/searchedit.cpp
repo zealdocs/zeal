@@ -33,8 +33,6 @@
 SearchEdit::SearchEdit(QWidget *parent) :
     QLineEdit(parent)
 {
-    setClearButtonEnabled(true);
-
     m_completionLabel = new QLabel(this);
     m_completionLabel->setObjectName("completer");
     m_completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
