@@ -93,6 +93,10 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
     // Focus on the widget.
     QLineEdit::focusInEvent(event);
 
+    // Do not change default behaviour when focused with mouse
+    if (event->reason() == Qt::MouseFocusReason)
+        return;
+
     // Override the default selection.
     Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
     int selectionOffset = currentQuery.keywordPrefixSize();
