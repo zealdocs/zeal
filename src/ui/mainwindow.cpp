@@ -297,6 +297,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
     m_tabBar->setTabsClosable(true);
+    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     m_tabBar->setExpanding(false);
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);
