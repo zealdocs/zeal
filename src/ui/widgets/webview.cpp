@@ -28,6 +28,10 @@
 #include <QApplication>
 #include <QWheelEvent>
 
+#ifndef USE_WEBENGINE
+#include <QWebFrame>
+#endif
+
 WebView::WebView(QWidget *parent) :
     QWebView(parent)
 {
@@ -64,12 +68,43 @@ void WebView::mousePressEvent(QMouseEvent *event)
         forward();
         event->accept();
         break;
+#ifndef USE_WEBENGINE
+    case Qt::LeftButton:
+        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier))
+            break;
+    case Qt::MiddleButton:
+        m_clickedLink = clickedLink(event->pos());
+        if (m_clickedLink.isValid())
+            event->accept();
+        break;
+#endif
     default:
         break;
     }
 
     QWebView::mousePressEvent(event);
 }
+
+#ifndef USE_WEBENGINE
+void WebView::mouseReleaseEvent(QMouseEvent *event)
+{
+    switch (event->button()) {
+    case Qt::LeftButton:
+        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier))
+            break;
+    case Qt::MiddleButton:
+        if (m_clickedLink == clickedLink(event->pos()) && m_clickedLink.isValid()) {
+            QWebView *webView = createWindow(QWebPage::WebBrowserWindow);
+            webView->setUrl(m_clickedLink);
+            event->accept();
+        }
+        break;
+    default:
+        break;
+    }
+    QWebView::mouseReleaseEvent(event);
+}
+#endif
 
 void WebView::wheelEvent(QWheelEvent *event)
 {
@@ -80,6 +115,17 @@ void WebView::wheelEvent(QWheelEvent *event)
         QWebView::wheelEvent(event);
     }
 }
+
+#ifndef USE_WEBENGINE
+QUrl WebView::clickedLink(const QPoint &pos) const
+{
+    QWebFrame *frame = page()->frameAt(pos);
+    if (!frame)
+        return QUrl();
+
+    return frame->hitTestContent(pos).linkUrl();
+}
+#endif
 
 void WebView::updateZoomFactor()
 {
