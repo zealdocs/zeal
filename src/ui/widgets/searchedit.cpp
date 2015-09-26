@@ -34,8 +34,8 @@ SearchEdit::SearchEdit(QWidget *parent) :
     QLineEdit(parent)
 {
     m_completionLabel = new QLabel(this);
-    m_completionLabel->setObjectName("completer");
-    m_completionLabel->setStyleSheet("QLabel#completer { color: gray; }");
+    m_completionLabel->setObjectName(QStringLiteral("completer"));
+    m_completionLabel->setStyleSheet(QStringLiteral("QLabel#completer { color: gray; }"));
     m_completionLabel->setFont(font());
 
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
