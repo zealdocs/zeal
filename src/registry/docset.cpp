@@ -38,6 +38,9 @@
 using namespace Zeal;
 
 namespace {
+const char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
+const char IndexNameVersion[] = "0001"; // Current index version
+
 namespace InfoPlist {
 const char CFBundleName[] = "CFBundleName";
 const char CFBundleIdentifier[] = "CFBundleIdentifier";
@@ -117,6 +120,8 @@ Docset::Docset(const QString &path) :
     }
 
     m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
+
+    createIndex();
 
     if (!dir.cd(QStringLiteral("Documents")))
         return;
@@ -261,7 +266,7 @@ QList<SearchResult> Docset::search(const QString &query) const
             queryStr = QString("SELECT name, type, path "
                                "    FROM searchIndex "
                                "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "LIMIT 100")
+                               "ORDER BY name COLLATE NOCASE LIMIT 100")
                     .arg(curQuery, notQuery, subNames.arg("name", curQuery));
         } else {
             queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
@@ -273,8 +278,8 @@ QList<SearchResult> Docset::search(const QString &query) const
                                "JOIN ztokentype "
                                "    ON ztoken.ztokentype = ztokentype.z_pk "
                                "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "LIMIT 100").arg(curQuery, notQuery,
-                                                subNames.arg("ztokenname", curQuery));
+                               "ORDER BY ztokenname COLLATE NOCASE LIMIT 100")
+                    .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
         }
 
         QSqlQuery query(queryStr, database());
@@ -463,6 +468,40 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     QMap<QString, QString> &symbols = m_symbols[symbolType];
     while (query.next())
         symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(query.value(1).toString()));
+}
+
+void Docset::createIndex()
+{
+    static const QString indexListQuery = QStringLiteral("PRAGMA INDEX_LIST('%1')");
+    static const QString indexDropQuery = QStringLiteral("DROP INDEX '%1'");
+    static const QString indexCreateQuery = QStringLiteral("CREATE INDEX IF NOT EXISTS %1%2"
+                                                           " ON %3 (name COLLATE NOCASE)");
+
+    QSqlQuery query(database());
+
+    const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex")
+                                                   : QStringLiteral("ztoken");
+
+    query.exec(indexListQuery.arg(tableName));
+
+    QStringList oldIndexes;
+
+    while (query.next()) {
+        const QString indexName = query.value(1).toString();
+        if (!indexName.startsWith(IndexNamePrefix))
+            continue;
+
+        if (indexName.endsWith(IndexNameVersion))
+            return;
+
+        oldIndexes << indexName;
+    }
+
+    // Drop old indexes
+    for (const QString oldIndexName : oldIndexes)
+        query.exec(indexDropQuery.arg(oldIndexName));
+
+    query.exec(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName));
 }
 
 QString Docset::parseSymbolType(const QString &str)
