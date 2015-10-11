@@ -35,13 +35,9 @@ SearchQuery::SearchQuery()
 }
 
 SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
-    m_query(query),
-    m_keywords(keywords)
+    m_query(query)
 {
-    if (m_keywords.isEmpty())
-        return;
-
-    m_keywordPrefix = keywords.join(keywordSeparator) + prefixSeparator;
+    setKeywords(keywords);
 }
 
 SearchQuery SearchQuery::fromString(const QString &str)
@@ -83,7 +79,11 @@ QStringList SearchQuery::keywords() const
 
 void SearchQuery::setKeywords(const QStringList &list)
 {
+    if (list.isEmpty())
+        return;
+
     m_keywords = list;
+    m_keywordPrefix = list.join(keywordSeparator) + prefixSeparator;
 }
 
 bool SearchQuery::hasKeywords() const
