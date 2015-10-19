@@ -243,7 +243,7 @@ QString Application::userAgentJson() const
 #else
     QJsonObject app;
     app[QStringLiteral("version")] = QCoreApplication::applicationVersion();
-    app[QStringLiteral("qt_version")] = qVersion();
+    app[QStringLiteral("qt_version")] = QString::fromLatin1(qVersion());
     app[QStringLiteral("install_id")] = m_settings->installId;
 
     QJsonObject os;
