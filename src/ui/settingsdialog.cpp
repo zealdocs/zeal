@@ -281,15 +281,6 @@ void SettingsDialog::downloadCompleted()
     switch (reply->property(DownloadTypeProperty).toUInt()) {
     case DownloadDocsetList: {
         const QByteArray data = reply->readAll();
-
-        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-        QScopedPointer<QFile> file(new QFile(cacheDir.filePath(DocsetListCacheFileName)));
-        if (file->open(QIODevice::WriteOnly))
-            file->write(data);
-
-        ui->lastUpdatedLabel->setText(QFileInfo(file->fileName())
-                                      .lastModified().toString(Qt::SystemLocaleShortDate));
-
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
 
@@ -298,6 +289,14 @@ void SettingsDialog::downloadCompleted()
                                  tr("Corrupted docset list: ") + jsonError.errorString());
             break;
         }
+
+        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+        QScopedPointer<QFile> file(new QFile(cacheDir.filePath(DocsetListCacheFileName)));
+        if (file->open(QIODevice::WriteOnly))
+            file->write(data);
+
+        ui->lastUpdatedLabel->setText(QFileInfo(file->fileName())
+                                      .lastModified().toString(Qt::SystemLocaleShortDate));
 
         processDocsetList(jsonDoc.array());
         resetProgress();
