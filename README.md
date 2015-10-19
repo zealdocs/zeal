@@ -10,11 +10,11 @@
 >
 > (from WordNet 3.0)
 
-Zeal is a simple offline documentation browser inspired by [Dash](http://kapeli.com/dash/).
+Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
 
-![Screenshot](http://i.imgur.com/SiLvpz8.png)
+![Screenshot](https://i.imgur.com/SiLvpz8.png)
 
-[More screenshots](http://imgur.com/a/eVi97)
+[More screenshots](https://imgur.com/a/eVi97)
 
 ## Build Status
 
@@ -27,7 +27,7 @@ Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.s
 
 ## Download
 
-Get binary builds for Windows and Linux from the [download page](http://zealdocs.org/download.html).
+Get binary builds for Windows and Linux from the [download page](https://zealdocs.org/download.html).
 
 ## How to use
 
@@ -61,7 +61,7 @@ If you prefer, you can start Zeal with a query from command line:
 
 ## Creating your own docsets
 
-You can use [Dash's instructions for generating docsets](http://kapeli.com/docsets).
+You can use [Dash's instructions for generating docsets](https://kapeli.com/docsets).
 
 ## Contact and Support
 

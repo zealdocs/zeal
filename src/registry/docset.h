@@ -77,6 +77,7 @@ private:
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
     void loadSymbols(const QString &symbolType, const QString &symbolString) const;
+    void createIndex();
 
     static QString parseSymbolType(const QString &str);
 

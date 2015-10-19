@@ -170,7 +170,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                                  QString(tr("A new version <b>%1</b> is available. Open download page?")).arg(version),
                                                  QMessageBox::Yes, QMessageBox::No);
         if (ret == QMessageBox::Yes)
-            QDesktopServices::openUrl(QStringLiteral("http://zealdocs.org/download.html"));
+            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/download.html"));
     });
 
     m_backMenu = new QMenu(ui->backButton);
@@ -288,9 +288,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionCloseTab->setShortcut(QKeySequence::Close);
 #endif
     addAction(ui->actionCloseTab);
-    connect(ui->actionCloseTab, &QAction::triggered, this, &MainWindow::closeTab);
+    connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
     m_tabBar->setTabsClosable(true);
+    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     m_tabBar->setExpanding(false);
     m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDrawBase(false);

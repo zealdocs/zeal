@@ -104,4 +104,6 @@ private:
 } // namespace Core
 } // namespace Zeal
 
+Q_DECLARE_METATYPE(Zeal::Core::Settings::ProxyType)
+
 #endif // SETTINGS_H

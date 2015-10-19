@@ -74,6 +74,8 @@ private slots:
     void applySettings();
 
 private:
+    QString userAgentJson() const;
+
     static Application *m_instance;
 
     Settings *m_settings = nullptr;

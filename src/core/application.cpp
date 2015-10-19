@@ -147,42 +147,12 @@ void Application::extract(const QString &filePath, const QString &destination, c
 
 QNetworkReply *Application::download(const QUrl &url)
 {
-    const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
-            .arg(QCoreApplication::applicationVersion())
-            /// TODO: [Qt 5.4] Remove #else block
-        #if QT_VERSION >= 0x050400
-            .arg(QSysInfo::prettyProductName())
-            .arg(QSysInfo::currentCpuArchitecture())
-        #else
-        #if defined(Q_OS_LINUX)
-            .arg(QStringLiteral("Linux"))
-        #elif defined(Q_OS_WIN32)
-            .arg(QStringLiteral("Windows"))
-        #elif defined(Q_OS_OSX)
-            .arg(QStringLiteral("OS X"))
-        #else
-            .arg(QStringLiteral("unknown"))
-        #endif // Q_OS_*
-
-        #if defined(Q_PROCESSOR_ARM)
-            .arg(QStringLiteral("arm"))
-        #elif defined(Q_PROCESSOR_X86_32)
-            .arg(QStringLiteral("i386"))
-        #elif defined(Q_PROCESSOR_X86_64)
-            .arg(QStringLiteral("x86_64"))
-        #else
-            .arg(QStringLiteral("unknown"))
-        #endif // Q_PROCESSOR_*
-
-        #endif
-            .arg(qVersion());
+    static const QString userAgent = userAgentJson();
 
     QNetworkRequest request(url);
 
-    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive))) {
-        request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
-        request.setRawHeader("X-Zeal-Install-Id", m_settings->installId.toUtf8());
-    }
+    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
+        request.setRawHeader("X-Zeal-User-Agent", userAgent.toUtf8());
 
     return m_networkManager->get(request);
 }
@@ -246,4 +216,73 @@ void Application::applySettings()
         break;
     }
     }
+}
+
+
+QString Application::userAgentJson() const
+{
+    /// TODO: [Qt 5.4] Remove else branch
+#if QT_VERSION >= 0x050400
+    QJsonObject app = {
+        {QStringLiteral("version"), QCoreApplication::applicationVersion()},
+        {QStringLiteral("qt_version"), qVersion()},
+        {QStringLiteral("install_id"), m_settings->installId}
+    };
+
+    QJsonObject os = {
+        {QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
+        {QStringLiteral("name"), QSysInfo::prettyProductName()},
+        {QStringLiteral("product_type"), QSysInfo::productType()},
+        {QStringLiteral("product_version"), QSysInfo::productVersion()},
+        {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
+        {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
+        {QStringLiteral("locale"), QLocale::system().name()}
+    };
+
+    QJsonObject ua = {
+        {QStringLiteral("app"), app},
+        {QStringLiteral("os"), os}
+    };
+#else
+    QJsonObject app;
+    app[QStringLiteral("version")] = QCoreApplication::applicationVersion();
+    app[QStringLiteral("qt_version")] = QString::fromLatin1(qVersion());
+    app[QStringLiteral("install_id")] = m_settings->installId;
+
+    QJsonObject os;
+
+#if defined(Q_PROCESSOR_ARM)
+    os[QStringLiteral("arch")] = QStringLiteral("arm");
+#elif defined(Q_PROCESSOR_X86_32)
+    os[QStringLiteral("arch")] = QStringLiteral("i386");
+#elif defined(Q_PROCESSOR_X86_64)
+    os[QStringLiteral("arch")] = QStringLiteral("x86_64");
+#else
+    os[QStringLiteral("arch")] = QStringLiteral("unknown");
+#endif // Q_PROCESSOR_*
+
+    os[QStringLiteral("name")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_type")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_version")] = QStringLiteral("unknown");
+
+#if defined(Q_OS_LINUX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("linux");
+#elif defined(Q_OS_WIN)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("windows");
+#elif defined(Q_OS_OSX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("osx");
+#else
+    os[QStringLiteral("kernel_type")] = QStringLiteral("unknown");
+#endif // Q_OS_*
+
+    os[QStringLiteral("kernel_version")] = QStringLiteral("unknown");
+    os[QStringLiteral("locale")] = QLocale::system().name();
+
+    QJsonObject ua;
+    ua[QStringLiteral("app")] = app;
+    ua[QStringLiteral("os")] = os;
+
+#endif // QT_VERSION >= 0x050400
+
+    return QJsonDocument(ua).toJson(QJsonDocument::Compact);
 }

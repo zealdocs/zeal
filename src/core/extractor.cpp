@@ -37,11 +37,11 @@ Extractor::Extractor(QObject *parent) :
 void Extractor::extract(const QString &filePath, const QString &destination, const QString &root)
 {
     ExtractInfo info = {
-        .extractor = this,
-        .archiveHandle = archive_read_new(),
-        .filePath = filePath,
-        .totalBytes = QFileInfo(filePath).size(),
-        .extractedBytes = 0
+        this, // extractor
+        archive_read_new(), // archiveHandle
+        filePath, // filePath
+        QFileInfo(filePath).size(), // totalBytes
+        0 // extractedBytes
     };
 
     archive_read_support_filter_all(info.archiveHandle);
