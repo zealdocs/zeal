@@ -215,47 +215,24 @@ void Application::applySettings()
     }
 }
 
+
 QString Application::userAgentJson() const
 {
+    /// TODO: [Qt 5.4] Remove else branch
+#if QT_VERSION >= 0x050400
     QJsonObject app = {
         {QStringLiteral("version"), QCoreApplication::applicationVersion()},
         {QStringLiteral("qt_version"), qVersion()},
         {QStringLiteral("install_id"), m_settings->installId}
     };
 
-    /// TODO: [Qt 5.4] Remove ifdef
     QJsonObject os = {
-    #if QT_VERSION >= 0x050400
         {QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
         {QStringLiteral("name"), QSysInfo::prettyProductName()},
         {QStringLiteral("product_type"), QSysInfo::productType()},
         {QStringLiteral("product_version"), QSysInfo::productVersion()},
         {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
         {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
-    #else
-    #if defined(Q_PROCESSOR_ARM)
-        {QStringLiteral("arch"), QStringLiteral("arm")},
-    #elif defined(Q_PROCESSOR_X86_32)
-        {QStringLiteral("arch"), QStringLiteral("i386")},
-    #elif defined(Q_PROCESSOR_X86_64)
-        {QStringLiteral("arch"), QStringLiteral("x86_64")},
-    #else
-        {QStringLiteral("arch"), QStringLiteral("unknown")},
-    #endif // Q_PROCESSOR_*
-        {QStringLiteral("name"), QStringLiteral("unknown")},
-        {QStringLiteral("product_type"), QStringLiteral("unknown")},
-        {QStringLiteral("product_version"), QStringLiteral("unknown")},
-    #if defined(Q_OS_LINUX)
-        {QStringLiteral("kernel_type"), QStringLiteral("linux")},
-    #elif defined(Q_OS_WIN)
-        {QStringLiteral("kernel_type"), QStringLiteral("windows")},
-    #elif defined(Q_OS_OSX)
-        {QStringLiteral("kernel_type"), QStringLiteral("osx")},
-    #else
-        {QStringLiteral("kernel_type"), QStringLiteral("unknown")},
-    #endif // Q_OS_*
-        {QStringLiteral("kernel_version"), QStringLiteral("unknown")},
-    #endif // QT_VERSION >= 0x050400
         {QStringLiteral("locale"), QLocale::system().name()}
     };
 
@@ -263,6 +240,46 @@ QString Application::userAgentJson() const
         {QStringLiteral("app"), app},
         {QStringLiteral("os"), os}
     };
+#else
+    QJsonObject app;
+    app[QStringLiteral("version")] = QCoreApplication::applicationVersion();
+    app[QStringLiteral("qt_version")] = qVersion();
+    app[QStringLiteral("install_id")] = m_settings->installId;
+
+    QJsonObject os;
+
+#if defined(Q_PROCESSOR_ARM)
+    os[QStringLiteral("arch")] = QStringLiteral("arm");
+#elif defined(Q_PROCESSOR_X86_32)
+    os[QStringLiteral("arch")] = QStringLiteral("i386");
+#elif defined(Q_PROCESSOR_X86_64)
+    os[QStringLiteral("arch")] = QStringLiteral("x86_64");
+#else
+    os[QStringLiteral("arch")] = QStringLiteral("unknown");
+#endif // Q_PROCESSOR_*
+
+    os[QStringLiteral("name")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_type")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_version")] = QStringLiteral("unknown");
+
+#if defined(Q_OS_LINUX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("linux");
+#elif defined(Q_OS_WIN)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("windows");
+#elif defined(Q_OS_OSX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("osx");
+#else
+    os[QStringLiteral("kernel_type")] = QStringLiteral("unknown");
+#endif // Q_OS_*
+
+    os[QStringLiteral("kernel_version")] = QStringLiteral("unknown");
+    os[QStringLiteral("locale")] = QLocale::system().name();
+
+    QJsonObject ua;
+    ua[QStringLiteral("app")] = app;
+    ua[QStringLiteral("os")] = os;
+
+#endif // QT_VERSION >= 0x050400
 
     return QJsonDocument(ua).toJson(QJsonDocument::Compact);
 }
