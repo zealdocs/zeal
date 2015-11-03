@@ -96,8 +96,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
-    m_application->docsetRegistry()->init(m_settings->docsetPath);
-
     // initialise ui
     ui->setupUi(this);
 
@@ -128,10 +126,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
         ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
     }
-    addAction(ui->actionQuit);
-    connect(ui->actionQuit, &QAction::triggered, [=]() {
-        m_settings->windowGeometry = saveGeometry();
-    });
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     connect(ui->actionOptions, &QAction::triggered, [=]() {

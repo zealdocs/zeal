@@ -344,9 +344,6 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
             sectionPath += query.value(3).toString();
         }
 
-        //QString parentName;
-        //normalizeName(sectionName, parentName);
-
         results.append(SearchResult{sectionName, QString(),
                                     parseSymbolType(query.value(1).toString()),
                                     const_cast<Docset *>(this), sectionPath, QString()});
@@ -361,22 +358,6 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 QSqlDatabase Docset::database() const
 {
     return QSqlDatabase::database(m_name, true);
-}
-
-void Docset::normalizeName(QString &name, QString &parentName)
-{
-    QRegExp matchMethodName(QStringLiteral("^([^\\(]+)(?:\\(.*\\))?$"));
-    if (matchMethodName.indexIn(name) != -1)
-        name = matchMethodName.cap(1);
-
-    const QStringList separators = {QStringLiteral("."), QStringLiteral("::"), QStringLiteral("/")};
-    for (const QString &sep : separators) {
-        if (name.indexOf(sep) != -1 && name.indexOf(sep) != 0) {
-            const QStringList splitted = name.split(sep);
-            name = splitted.at(splitted.size()-1);
-            parentName = splitted.at(splitted.size()-2);
-        }
-    }
 }
 
 void Docset::loadMetadata()
