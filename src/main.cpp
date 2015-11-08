@@ -72,7 +72,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
     parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
                                         QObject::tr("Force the application run.")));
-    /// TODO: [0.2.0] Remove --query support
+    /// TODO: [0.3.0] Remove --query support
     parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
                                         QObject::tr("[DEPRECATED] Query <search term>."),
                                         QStringLiteral("term")));
