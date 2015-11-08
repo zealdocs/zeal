@@ -41,12 +41,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="restoreLastStateCheckBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+           <widget class="QCheckBox" name="checkForUpdateCheckBox">
             <property name="text">
-             <string>Restore last state (not implemented)</string>
+             <string>Check for update</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -370,58 +370,84 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QListView" name="installedDocsetList"/>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="docsetsActions">
-         <item>
-          <widget class="QPushButton" name="updateButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Update docsets</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addFeedButton">
-           <property name="text">
-            <string>Add feed</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="deleteButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Delete</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QProgressBar" name="docsetsProgress">
-           <property name="maximum">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Installed docsets</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QListView" name="installedDocsetList">
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="docsetsActions">
+            <item>
+             <widget class="QPushButton" name="addFeedButton">
+              <property name="text">
+               <string>Add feed</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="updateSelectedDocsetsButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Update</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="updateAllDocsetsButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Update all</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="removeDocsetsButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QProgressBar" name="docsetsProgress">
+              <property name="maximum">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="downloadableGroup">
@@ -430,7 +456,14 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QListWidget" name="availableDocsetList"/>
+           <widget class="QListWidget" name="availableDocsetList">
+            <property name="iconSize">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
@@ -483,7 +516,7 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;http://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;, the OS X Documentation Browser.&lt;/i&gt;</string>
+             <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;, the OS X Documentation Browser.&lt;/i&gt;</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>

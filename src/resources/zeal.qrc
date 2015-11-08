@@ -174,12 +174,16 @@
         <file>icons/type/Shortcut@2x.png</file>
         <file>icons/type/Snippet.png</file>
         <file>icons/type/Snippet@2x.png</file>
+        <file>icons/type/Special Form.png</file>
+        <file>icons/type/Special Form@2x.png</file>
         <file>icons/type/Statement.png</file>
         <file>icons/type/Statement@2x.png</file>
         <file>icons/type/Structure.png</file>
         <file>icons/type/Structure@2x.png</file>
         <file>icons/type/Style.png</file>
         <file>icons/type/Style@2x.png</file>
+        <file>icons/type/Syntax.png</file>
+        <file>icons/type/Syntax@2x.png</file>
         <file>icons/type/Subroutine.png</file>
         <file>icons/type/Subroutine@2x.png</file>
         <file>icons/type/Table.png</file>

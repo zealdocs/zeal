@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
@@ -34,20 +57,21 @@ public:
     ~SettingsDialog() override;
 
 private slots:
+    void addDashFeed();
+    void updateSelectedDocsets();
+    void updateAllDocsets();
+    void removeSelectedDocsets();
+
+    void downloadCompleted();
+    void downloadProgress(qint64 received, qint64 total);
+
     void extractionCompleted(const QString &filePath);
     void extractionError(const QString &filePath, const QString &errorString);
     void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
 
-    void downloadCompleted();
-
-    void on_downloadProgress(qint64 received, qint64 total);
     void on_downloadDocsetButton_clicked();
     void on_storageButton_clicked();
-    void on_deleteButton_clicked();
-    void on_installedDocsetList_clicked(const QModelIndex &index);
     void on_tabWidget_currentChanged(int current);
-    void on_availableDocsetList_itemSelectionChanged();
-    void addDashFeed();
 
 private:
     enum DownloadType {
@@ -56,28 +80,6 @@ private:
         DownloadDocsetList
     };
 
-    QListWidgetItem *findDocsetListItem(const QString &title) const;
-
-    /// TODO: Create a special model
-    QMap<QString, DocsetMetadata> m_availableDocsets;
-    QMap<QString, DocsetMetadata> m_userFeeds;
-
-    QHash<QString, QTemporaryFile *> m_tmpFiles;
-
-    void downloadDocsetList();
-    void processDocsetList(const QJsonArray &list);
-    void downloadDashDocset(const QString &name);
-
-    void displayProgress();
-    void resetProgress();
-
-    void loadSettings();
-    void updateDocsets();
-    QNetworkReply *startDownload(const QUrl &url);
-    void stopDownloads();
-    void saveSettings();
-    static inline int percent(qint64 fraction, qint64 total);
-
     Ui::SettingsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
     DocsetRegistry *m_docsetRegistry = nullptr;
@@ -85,6 +87,31 @@ private:
     QList<QNetworkReply *> m_replies;
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
+
+    /// TODO: Create a special model
+    QMap<QString, DocsetMetadata> m_availableDocsets;
+    QMap<QString, DocsetMetadata> m_userFeeds;
+
+    QHash<QString, QTemporaryFile *> m_tmpFiles;
+
+    QListWidgetItem *findDocsetListItem(const QString &title) const;
+    bool updatesAvailable() const;
+
+    QNetworkReply *download(const QUrl &url);
+    void cancelDownloads();
+
+    void downloadDocsetList();
+    void processDocsetList(const QJsonArray &list);
+
+    void downloadDashDocset(const QString &name);
+    void removeDocsets(const QStringList &names);
+
+    void displayProgress();
+    void resetProgress();
+
+    void loadSettings();
+    void saveSettings();
+    static inline int percent(qint64 fraction, qint64 total);
 };
 
 } // namespace Zeal

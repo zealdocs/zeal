@@ -1,3 +1,25 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "application.h"
 
 #include "extractor.h"
@@ -47,7 +69,10 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     m_networkManager = new QNetworkAccessManager(this);
     m_extractorThread = new QThread(this);
     m_extractor = new Extractor();
+
     m_docsetRegistry = new DocsetRegistry();
+    m_docsetRegistry->init(m_settings->docsetPath);
+
     m_mainWindow = new MainWindow(this);
 
     // Server for detecting already running instances
@@ -122,50 +147,32 @@ void Application::extract(const QString &filePath, const QString &destination, c
 
 QNetworkReply *Application::download(const QUrl &url)
 {
-    const static QString userAgent = QString("Zeal/%1 (%2 %3; Qt/%4)")
-            .arg(QCoreApplication::applicationVersion())
-            /// TODO: [Qt 5.4] Remove #else block
-#if QT_VERSION >= 0x050400
-            .arg(QSysInfo::prettyProductName())
-            .arg(QSysInfo::currentCpuArchitecture())
-#else
-#if defined(Q_OS_LINUX)
-            .arg(QStringLiteral("Linux"))
-#elif defined(Q_OS_WIN32)
-            .arg(QStringLiteral("Windows"))
-#elif defined(Q_OS_OSX)
-            .arg(QStringLiteral("OS X"))
-#else
-            .arg(QStringLiteral("unknown"))
-#endif // Q_OS_*
-
-#if defined(Q_PROCESSOR_ARM)
-            .arg(QStringLiteral("arm"))
-#elif defined(Q_PROCESSOR_X86_32)
-            .arg(QStringLiteral("i386"))
-#elif defined(Q_PROCESSOR_X86_64)
-            .arg(QStringLiteral("x86_64"))
-#else
-            .arg(QStringLiteral("unknown"))
-#endif // Q_PROCESSOR_*
-
-#endif
-            .arg(qVersion());
+    static const QString userAgent = userAgentJson();
 
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
+
+    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
+        request.setRawHeader("X-Zeal-User-Agent", userAgent.toUtf8());
+
     return m_networkManager->get(request);
 }
 
-void Application::checkUpdate()
+/*!
+  \internal
+
+  Performs a check whether a new Zeal version is available. Setting \a quiet to true supresses
+  error and "you are using the latest version" message boxes.
+*/
+void Application::checkForUpdate(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
-    connect(reply, &QNetworkReply::finished, this, [this]() {
+    connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
         QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
                     qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
-            emit updateCheckError(reply->errorString());
+            if (!quiet)
+                emit updateCheckError(reply->errorString());
             return;
         }
 
@@ -173,7 +180,8 @@ void Application::checkUpdate()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            emit updateCheckError(jsonError.errorString());
+            if (!quiet)
+                emit updateCheckError(jsonError.errorString());
             return;
         }
 
@@ -181,7 +189,7 @@ void Application::checkUpdate()
         const Util::Version latestVersion = latestVersionInfo[QStringLiteral("version")].toString();
         if (latestVersion > Util::Version(QCoreApplication::applicationVersion()))
             emit updateCheckDone(latestVersion.toString());
-        else
+        else if (!quiet)
             emit updateCheckDone();
     });
 }
@@ -208,4 +216,73 @@ void Application::applySettings()
         break;
     }
     }
+}
+
+
+QString Application::userAgentJson() const
+{
+    /// TODO: [Qt 5.4] Remove else branch
+#if QT_VERSION >= 0x050400
+    QJsonObject app = {
+        {QStringLiteral("version"), QCoreApplication::applicationVersion()},
+        {QStringLiteral("qt_version"), qVersion()},
+        {QStringLiteral("install_id"), m_settings->installId}
+    };
+
+    QJsonObject os = {
+        {QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
+        {QStringLiteral("name"), QSysInfo::prettyProductName()},
+        {QStringLiteral("product_type"), QSysInfo::productType()},
+        {QStringLiteral("product_version"), QSysInfo::productVersion()},
+        {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
+        {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
+        {QStringLiteral("locale"), QLocale::system().name()}
+    };
+
+    QJsonObject ua = {
+        {QStringLiteral("app"), app},
+        {QStringLiteral("os"), os}
+    };
+#else
+    QJsonObject app;
+    app[QStringLiteral("version")] = QCoreApplication::applicationVersion();
+    app[QStringLiteral("qt_version")] = QString::fromLatin1(qVersion());
+    app[QStringLiteral("install_id")] = m_settings->installId;
+
+    QJsonObject os;
+
+#if defined(Q_PROCESSOR_ARM)
+    os[QStringLiteral("arch")] = QStringLiteral("arm");
+#elif defined(Q_PROCESSOR_X86_32)
+    os[QStringLiteral("arch")] = QStringLiteral("i386");
+#elif defined(Q_PROCESSOR_X86_64)
+    os[QStringLiteral("arch")] = QStringLiteral("x86_64");
+#else
+    os[QStringLiteral("arch")] = QStringLiteral("unknown");
+#endif // Q_PROCESSOR_*
+
+    os[QStringLiteral("name")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_type")] = QStringLiteral("unknown");
+    os[QStringLiteral("product_version")] = QStringLiteral("unknown");
+
+#if defined(Q_OS_LINUX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("linux");
+#elif defined(Q_OS_WIN)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("windows");
+#elif defined(Q_OS_OSX)
+    os[QStringLiteral("kernel_type")] = QStringLiteral("osx");
+#else
+    os[QStringLiteral("kernel_type")] = QStringLiteral("unknown");
+#endif // Q_OS_*
+
+    os[QStringLiteral("kernel_version")] = QStringLiteral("unknown");
+    os[QStringLiteral("locale")] = QLocale::system().name();
+
+    QJsonObject ua;
+    ua[QStringLiteral("app")] = app;
+    ua[QStringLiteral("os")] = os;
+
+#endif // QT_VERSION >= 0x050400
+
+    return QJsonDocument(ua).toJson(QJsonDocument::Compact);
 }
