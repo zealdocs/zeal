@@ -255,7 +255,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    m_delayQueryTimer = new QTimer(this);
+
+    auto queryFunc=[this](){
+        QString text=ui->lineEdit->text();
         if (!m_searchState || text == m_searchState->searchQuery)
             return;
 
@@ -265,6 +268,28 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             m_searchState->sectionsList->setResults();
             ui->treeView->setModel(m_zealListModel);
             ui->treeView->setRootIsDecorated(true);
+        }
+    };
+
+    connect(m_delayQueryTimer, &QTimer::timeout, queryFunc);
+
+    connect(ui->lineEdit, &QLineEdit::returnPressed, [this,queryFunc](){
+        //when return pressed ,cancel pending delayed query request
+        m_delayQueryTimer->stop();
+        queryFunc();
+    });
+
+    connect(ui->lineEdit, &QLineEdit::textChanged, [this,queryFunc]() {
+        //for safety,always stop timer even if delayQueryMs==0
+        //user may change this value from none-zero to zero and then
+        //returned to continue type query, not reset timer will leads
+        //once unexpected query.
+        m_delayQueryTimer->stop();
+        if(m_settings->delayQueryMs>0){
+            m_delayQueryTimer->setInterval(m_settings->delayQueryMs);
+            m_delayQueryTimer->start();
+        }else{
+            queryFunc();
         }
     });
 
