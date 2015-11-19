@@ -147,12 +147,14 @@ void Application::extract(const QString &filePath, const QString &destination, c
 
 QNetworkReply *Application::download(const QUrl &url)
 {
-    static const QString userAgent = userAgentJson();
+    static const QString ua = userAgent();
+    static const QString uaJson = userAgentJson();
 
     QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::UserAgentHeader, ua);
 
     if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
-        request.setRawHeader("X-Zeal-User-Agent", userAgent.toUtf8());
+        request.setRawHeader("X-Zeal-User-Agent", uaJson.toUtf8());
 
     return m_networkManager->get(request);
 }
@@ -218,6 +220,10 @@ void Application::applySettings()
     }
 }
 
+QString Application::userAgent()
+{
+    return QString("Zeal/%1").arg(QCoreApplication::applicationVersion());
+}
 
 QString Application::userAgentJson() const
 {

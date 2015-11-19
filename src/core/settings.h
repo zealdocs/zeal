@@ -58,7 +58,7 @@ public:
     /// TODO: QString customCss;
 
     // Network
-    enum ProxyType {
+    enum ProxyType : unsigned int {
         None,
         System,
         UserDefined
