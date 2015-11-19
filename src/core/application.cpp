@@ -148,13 +148,13 @@ void Application::extract(const QString &filePath, const QString &destination, c
 QNetworkReply *Application::download(const QUrl &url)
 {
     static const QString ua = userAgent();
-    static const QString uaJson = userAgentJson();
+    static const QByteArray uaJson = userAgentJson().toUtf8();
 
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::UserAgentHeader, ua);
 
     if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
-        request.setRawHeader("X-Zeal-User-Agent", uaJson.toUtf8());
+        request.setRawHeader("X-Zeal-User-Agent", uaJson);
 
     return m_networkManager->get(request);
 }
