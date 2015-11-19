@@ -140,7 +140,7 @@ void SearchEdit::showCompletions(const QString &newValue)
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     const int textWidth = fontMetrics().width(newValue);
 
-    if (!m_prefixCompleter)
+    if (m_prefixCompleter)
         m_prefixCompleter->setCompletionPrefix(text());
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
