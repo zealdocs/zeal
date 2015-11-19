@@ -127,7 +127,7 @@ void Settings::load()
                                   // Avoid curly braces (QTBUG-885)
                                   QUuid::createUuid().toString().mid(1, 36)).toString();
     version = m_settings->value(QStringLiteral("version"),
-                                  QCoreApplication::applicationVersion()).toString();
+                                QCoreApplication::applicationVersion()).toString();
     m_settings->endGroup();
 }
 
@@ -171,11 +171,10 @@ void Settings::save()
 
     m_settings->beginGroup(GroupInternal);
     m_settings->setValue(QStringLiteral("install_id"), installId);
-    m_settings->setValue(QStringLiteral("version"), version);
+    m_settings->setValue(QStringLiteral("version"), QCoreApplication::applicationVersion());
     m_settings->endGroup();
 
     m_settings->sync();
 
     emit updated();
 }
-
