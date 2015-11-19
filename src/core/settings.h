@@ -63,6 +63,9 @@ public:
         System,
         UserDefined
     };
+#if QT_VERSION >= 0x050500
+    Q_ENUM(ProxyType)
+#endif
 
     // Internal
     // --------
@@ -104,6 +107,8 @@ private:
 } // namespace Core
 } // namespace Zeal
 
+#if QT_VERSION < 0x050500
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ProxyType)
+#endif
 
 #endif // SETTINGS_H
