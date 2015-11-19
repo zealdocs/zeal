@@ -15,7 +15,7 @@ portable {
     DEFINES += PORTABLE_BUILD
 }
 
-VERSION = 0.2.0
+VERSION = 0.2.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 HEADERS += \

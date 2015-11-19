@@ -74,6 +74,7 @@ private slots:
     void applySettings();
 
 private:
+    static inline QString userAgent();
     QString userAgentJson() const;
 
     static Application *m_instance;
