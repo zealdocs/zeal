@@ -22,7 +22,7 @@ Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli
 
 OS \ Branch | master | stable
 ------------|--------|-------
-Linux | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/builds/54ac2ce4d46935d5fbc19b84) | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/stable.svg?style=flat-square)](https://app.shippable.com/builds/54ac2ce4d46935d5fbc19b84)
+Linux | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84) | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/stable.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84)
 Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/stable.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
 
 ## Download
