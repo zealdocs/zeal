@@ -105,8 +105,10 @@ Docset::Docset(const QString &path) :
     }
 
     /// TODO: Verify if this is needed
-    if (plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet"))
+    if (plist.contains(InfoPlist::DashDocSetFamily)
+            && plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet")) {
         m_name = m_name + QLatin1String("cheats");
+    }
 
     if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
         return;
