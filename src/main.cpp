@@ -72,10 +72,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
     parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
                                         QObject::tr("Force the application run.")));
-    /// TODO: [0.3.0] Remove --query support
-    parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
-                                        QObject::tr("[DEPRECATED] Query <search term>."),
-                                        QStringLiteral("term")));
+
 #ifdef Q_OS_WIN32
     parser.addOption(QCommandLineOption({QStringLiteral("register")},
                                         QObject::tr("Register protocol handlers")));
@@ -98,23 +95,19 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     }
 #endif
 
-    if (parser.isSet(QStringLiteral("query"))) {
-        clParams.query.setQuery(parser.value(QStringLiteral("query")));
+    /// TODO: Support dash-feed:// protocol
+    const QString arg
+            = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
+    if (arg.startsWith(QLatin1String("dash:"))) {
+        clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
+    } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
+        const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
+        const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
+        if (!keys.isEmpty())
+            clParams.query.setKeywords(keys.split(QLatin1Char(',')));
+        clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
     } else {
-        /// TODO: Support dash-feed:// protocol
-        const QString arg
-                = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
-        if (arg.startsWith(QLatin1String("dash:"))) {
-            clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
-        } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
-            const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
-            const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
-            if (!keys.isEmpty())
-                clParams.query.setKeywords(keys.split(QLatin1Char(',')));
-            clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
-        } else {
-            clParams.query.setQuery(arg);
-        }
+        clParams.query.setQuery(arg);
     }
 
     return clParams;
