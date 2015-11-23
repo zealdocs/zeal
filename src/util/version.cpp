@@ -48,24 +48,6 @@ QString Version::toString() const
     return QString("%1.%2.%3").arg(m_major).arg(m_minor).arg(m_patch);
 }
 
-/*bool Version::operator>(const Version &other) const
-{
-    if (m_major > other.m_major)
-        return true;
-    else if (m_major < other.m_major)
-        return false;
-
-    if (m_minor > other.m_minor)
-        return true;
-    else if (m_minor < other.m_minor)
-        return false;
-
-    if (m_patch > other.m_patch)
-        return true;
-
-    return false;
-}*/
-
 bool Version::fromString(const QString &str)
 {
     const QStringList parts = str.split(QLatin1Char('.'));
@@ -117,4 +99,3 @@ bool operator<(const Version &lhs, const Version &rhs)
 
 } // namespace Util
 } // namespace Zeal
-
