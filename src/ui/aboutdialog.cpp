@@ -31,9 +31,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    const QString buildInfo
-            = QString(tr("<strong>Version:</strong> %1<br><strong>Built:</strong> %2"))
-            .arg(QCoreApplication::applicationVersion(), QString("%1 %2").arg(__DATE__, __TIME__));
+    const QString buildInfo = QString(tr("<strong>Version:</strong> %1<br>"))
+            .arg(QCoreApplication::applicationVersion());
 
     ui->buildInfoLabel->setText(buildInfo);
     ui->buttonBox->setFocus(Qt::OtherFocusReason);
