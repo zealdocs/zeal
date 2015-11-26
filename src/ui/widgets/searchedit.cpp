@@ -106,6 +106,8 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
         event->accept();
         break;
     case Qt::Key_Return:
+        //makes behavior likes LineEdit
+        emit returnPressed();
         emit m_treeView->activated(m_treeView->selectionModel()->currentIndex());
         event->accept();
         break;

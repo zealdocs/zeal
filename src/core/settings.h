@@ -86,6 +86,9 @@ public:
     // Other
     QString docsetPath;
 
+    // Query Behavior
+    int delayQueryMs;
+
     // State
     QByteArray windowGeometry;
     QByteArray splitterGeometry;

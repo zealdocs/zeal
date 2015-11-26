@@ -752,6 +752,7 @@ void SettingsDialog::loadSettings()
     ui->minFontSize->setValue(settings->minimumFontSize);
     ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
 
+    ui->delayQueryMsSpinBox->setValue(settings->delayQueryMs);
     // Network Tab
     switch (settings->proxyType) {
     case Core::Settings::ProxyType::None:
@@ -792,6 +793,7 @@ void SettingsDialog::saveSettings()
         m_docsetRegistry->init(settings->docsetPath);
     }
 
+    settings->delayQueryMs = ui->delayQueryMsSpinBox->value();
     // Network Tab
     // Proxy settings
     if (ui->noProxySettings->isChecked())

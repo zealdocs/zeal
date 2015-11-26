@@ -48,6 +48,7 @@ class QTabBar;
 class QWebHistory;
 class QWebHistoryItem;
 class QWebPage;
+class QTimer;
 
 namespace Ui {
 class MainWindow;
@@ -153,6 +154,7 @@ private:
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 
+    QTimer *m_delayQueryTimer = nullptr;
 #ifdef USE_APPINDICATOR
     _AppIndicator *m_appIndicator = nullptr;
     _GtkWidget *m_appIndicatorMenu = nullptr;

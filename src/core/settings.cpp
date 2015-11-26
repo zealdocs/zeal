@@ -41,6 +41,7 @@ namespace {
 const char GroupBrowser[] = "browser";
 const char GroupDocsets[] = "docsets";
 const char GroupGlobalShortcuts[] = "global_shortcuts";
+const char GroupQueryBehavior[] = "query_behavior";
 const char GroupInternal[] = "internal";
 const char GroupState[] = "state";
 const char GroupProxy[] = "proxy";
@@ -86,6 +87,10 @@ void Settings::load()
 #else
     showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 #endif
+    m_settings->endGroup();
+
+    m_settings->beginGroup(GroupQueryBehavior);
+    delayQueryMs = m_settings->value(QStringLiteral("delay_query_ms"),0).toUInt();
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupBrowser);
@@ -163,6 +168,10 @@ void Settings::save()
     m_settings->setValue(QStringLiteral("path"), docsetPath);
     m_settings->endGroup();
 #endif
+
+    m_settings->beginGroup(GroupQueryBehavior);
+    m_settings->setValue(QStringLiteral("delay_query_ms"),delayQueryMs);
+    m_settings->endGroup();
 
     m_settings->beginGroup(GroupState);
     m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
