@@ -302,7 +302,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
-    ((QHBoxLayout *)ui->tabBarFrame->layout())->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
+    {
+        QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->tabBarFrame->layout());
+        layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
+    }
 
     connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
