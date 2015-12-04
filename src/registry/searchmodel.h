@@ -45,6 +45,7 @@ public:
     QModelIndex parent(const QModelIndex &child) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent) const override;
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 public slots:
     void setResults(const QList<SearchResult> &results = QList<SearchResult>());

@@ -97,6 +97,18 @@ int SearchModel::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
+bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (row + count <= m_dataList.size() && !parent.isValid()) {
+        while (count) {
+            m_dataList.removeAt(row);
+            --count;
+        }
+        return true;
+    }
+    return false;
+}
+
 void SearchModel::setResults(const QList<SearchResult> &results)
 {
     beginResetModel();

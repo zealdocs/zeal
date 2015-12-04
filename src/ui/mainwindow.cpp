@@ -249,10 +249,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             if (docsetName(searchState->page->mainFrame()->url()) != name)
                 continue;
 
+            searchState->sectionsList->removeRows(0, searchState->sectionsList->rowCount());
             searchState->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
             /// TODO: Cleanup history
         }
+        ui->sections->update();
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
