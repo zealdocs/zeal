@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #ifndef DOCSETMETADATA_H
 #define DOCSETMETADATA_H
 
@@ -21,8 +44,6 @@ public:
     QString sourceId() const;
 
     void save(const QString &path, const QString &version);
-    void toFile(const QString &fileName) const;
-    QByteArray toJson() const;
 
     QString name() const;
     QString title() const;
@@ -36,7 +57,6 @@ public:
     QUrl url() const;
     QList<QUrl> urls() const;
 
-    static DocsetMetadata fromFile(const QString &fileName);
     static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
 private:

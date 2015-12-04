@@ -1,10 +1,37 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "core/application.h"
 #include "registry/searchquery.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDataStream>
+#include <QDesktopServices>
 #include <QDir>
 #include <QLocalSocket>
+#include <QMessageBox>
+#include <QSqlDatabase>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QUrlQuery>
@@ -45,10 +72,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
     parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
                                         QObject::tr("Force the application run.")));
-    /// TODO: [0.2.0] Remove --query support
-    parser.addOption(QCommandLineOption({QStringLiteral("q"), QStringLiteral("query")},
-                                        QObject::tr("[DEPRECATED] Query <search term>."),
-                                        QStringLiteral("term")));
+
 #ifdef Q_OS_WIN32
     parser.addOption(QCommandLineOption({QStringLiteral("register")},
                                         QObject::tr("Register protocol handlers")));
@@ -71,23 +95,19 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     }
 #endif
 
-    if (parser.isSet(QStringLiteral("query"))) {
-        clParams.query.setQuery(parser.value(QStringLiteral("query")));
+    /// TODO: Support dash-feed:// protocol
+    const QString arg
+            = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
+    if (arg.startsWith(QLatin1String("dash:"))) {
+        clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
+    } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
+        const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
+        const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
+        if (!keys.isEmpty())
+            clParams.query.setKeywords(keys.split(QLatin1Char(',')));
+        clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
     } else {
-        /// TODO: Support dash-feed:// protocol
-        const QString arg
-                = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
-        if (arg.startsWith(QLatin1String("dash:"))) {
-            clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
-        } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
-            const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
-            const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
-            if (!keys.isEmpty())
-                clParams.query.setKeywords(keys.split(QLatin1Char(',')));
-            clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
-        } else {
-            clParams.query.setQuery(arg);
-        }
+        clParams.query.setQuery(arg);
     }
 
     return clParams;
@@ -195,6 +215,17 @@ int main(int argc, char *argv[])
             socket->flush();
             return 0;
         }
+    }
+
+    // Check for SQLite plugin
+    /// TODO: Specific to docset format and should be handled accordingly in the future
+    if (!QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE"))) {
+        const int ret = QMessageBox::critical(nullptr, QStringLiteral("Zeal"),
+                                              QObject::tr("Qt SQLite driver is not available."),
+                                              QMessageBox::Close, QMessageBox::Help);
+        if (ret == QMessageBox::Help)
+            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/contact.html"));
+        return 0;
     }
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});

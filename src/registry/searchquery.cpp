@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "searchquery.h"
 
 using namespace Zeal;
@@ -12,10 +35,9 @@ SearchQuery::SearchQuery()
 }
 
 SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
-    m_query(query),
-    m_keywords(keywords),
-    m_keywordPrefix(keywords.join(keywordSeparator))
+    m_query(query)
 {
+    setKeywords(keywords);
 }
 
 SearchQuery SearchQuery::fromString(const QString &str)
@@ -25,10 +47,10 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
     QString query;
     QStringList keywords;
-    if (sepAt >= 1 && (next >= str.size() || str.at(next) != prefixSeparator)) {
-        query = str.midRef(next).toString().trimmed();
+    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
+        query = str.mid(next).trimmed();
 
-        const QString keywordStr = str.leftRef(sepAt).toString().trimmed();
+        const QString keywordStr = str.left(sepAt).trimmed();
         keywords = keywordStr.split(keywordSeparator);
     } else {
         query = str.trimmed();
@@ -42,7 +64,7 @@ QString SearchQuery::toString() const
     if (m_keywords.isEmpty())
         return m_query;
     else
-        return m_keywords.join(keywordSeparator) + prefixSeparator + m_query;
+        return m_keywordPrefix + m_query;
 }
 
 bool SearchQuery::isEmpty() const
@@ -57,7 +79,11 @@ QStringList SearchQuery::keywords() const
 
 void SearchQuery::setKeywords(const QStringList &list)
 {
+    if (list.isEmpty())
+        return;
+
     m_keywords = list;
+    m_keywordPrefix = list.join(keywordSeparator) + prefixSeparator;
 }
 
 bool SearchQuery::hasKeywords() const
@@ -67,11 +93,21 @@ bool SearchQuery::hasKeywords() const
 
 bool SearchQuery::hasKeyword(const QString &keyword) const
 {
+    // Temporary workaround for #333
+    /// TODO: Remove once #167 is implemented
     for (const QString &kw : m_keywords) {
-        if (keyword.contains(kw, Qt::CaseInsensitive))
+        if (keyword.startsWith(kw, Qt::CaseInsensitive))
             return true;
     }
+    return false;
+}
 
+bool SearchQuery::hasKeywords(const QStringList &keywords) const
+{
+    for (const QString &keyword : keywords) {
+        if (m_keywords.contains(keyword))
+            return true;
+    }
     return false;
 }
 

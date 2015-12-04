@@ -1,3 +1,26 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #ifndef DOCSETREGISTRY_H
 #define DOCSETREGISTRY_H
 
@@ -43,7 +66,7 @@ signals:
 
 private slots:
     void _addDocset(const QString &path);
-    void _runQuery(const QString &rawQuery, int queryNum);
+    void _runQuery(const QString &query);
 
 private:
     void addDocsetsFromFolder(const QString &path);
@@ -51,7 +74,6 @@ private:
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
     QList<SearchResult> m_queryResults;
-    int m_lastQuery = -1;
 };
 
 } // namespace Zeal

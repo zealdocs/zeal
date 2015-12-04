@@ -1,6 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "docsetregistry.h"
 
-#include "searchquery.h"
 #include "searchresult.h"
 
 #include <QDir>
@@ -24,6 +46,7 @@ DocsetRegistry::~DocsetRegistry()
 {
     m_thread->exit();
     m_thread->wait();
+    qDeleteAll(m_docsets);
 }
 
 void DocsetRegistry::init(const QString &path)
@@ -100,102 +123,22 @@ void DocsetRegistry::_addDocset(const QString &path)
 
 void DocsetRegistry::search(const QString &query)
 {
-    m_lastQuery += 1;
-
     // Only invalidate queries
     if (query.isEmpty())
         return;
 
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query),
-                              Q_ARG(int, m_lastQuery));
+    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
 }
 
-void DocsetRegistry::_runQuery(const QString &rawQuery, int queryNum)
+void DocsetRegistry::_runQuery(const QString &query)
 {
-    // If some other queries pending, ignore this one.
-    if (queryNum != m_lastQuery)
-        return;
+    m_queryResults.clear();
 
-    QList<SearchResult> results;
-    const SearchQuery query = SearchQuery::fromString(rawQuery);
+    for (Docset *docset : docsets())
+        m_queryResults << docset->search(query);
 
-    const QString preparedQuery = query.sanitizedQuery();
+    std::sort(m_queryResults.begin(), m_queryResults.end());
 
-    for (Docset *docset : docsets()) {
-        // Filter out this docset as the names don't match the docset prefix
-        if (query.hasKeywords() && !query.hasKeyword(docset->prefix))
-            continue;
-
-        QString queryStr;
-        QList<QList<QVariant>> found;
-        bool withSubStrings = false;
-        // %.%1% for long Django docset values like django.utils.http
-        // %::%1% for long C++ docset values like std::set
-        // %/%1% for long Go docset values like archive/tar
-        QString subNames = QStringLiteral(" or %1 like '%.%2%' escape '\\'");
-        subNames += QLatin1String(" or %1 like '%::%2%' escape '\\'");
-        subNames += QLatin1String(" or %1 like '%/%2%' escape '\\'");
-        while (found.size() < 100) {
-            QString curQuery = preparedQuery;
-            QString notQuery; // don't return the same result twice
-            if (withSubStrings) {
-                // if less than 100 found starting with query, search all substrings
-                curQuery = QLatin1Char('%') + preparedQuery;
-                // don't return 'starting with' results twice
-                if (docset->type() == Docset::Type::ZDash)
-                    notQuery = QString(" and not (ztokenname like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("ztokenname", preparedQuery));
-                else
-                    notQuery = QString(" and not (t.name like '%1%' escape '\\' %2) ").arg(preparedQuery, subNames.arg("t.name", preparedQuery));
-            }
-            int cols = 3;
-            if (docset->type() == Docset::Type::Dash) {
-                queryStr = QString("SELECT t.name, null, t.path FROM searchIndex t WHERE (t.name "
-                                   "LIKE '%1%' escape '\\' %3)  %2 ORDER BY length(t.name), lower(t.name) ASC, t.path ASC LIMIT 100")
-                        .arg(curQuery, notQuery, subNames.arg("t.name", curQuery));
-            } else if (docset->type() == Docset::Type::ZDash) {
-                cols = 4;
-                queryStr = QString("SELECT ztokenname, null, zpath, zanchor FROM ztoken "
-                                   "JOIN ztokenmetainformation on ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                   "JOIN zfilepath on ztokenmetainformation.zfile = zfilepath.z_pk WHERE (ztokenname "
-                                   "LIKE '%1%' escape '\\' %3) %2 ORDER BY length(ztokenname), lower(ztokenname) ASC, zpath ASC, "
-                                   "zanchor ASC LIMIT 100").arg(curQuery, notQuery,
-                                                                subNames.arg("ztokenname", curQuery));
-            }
-
-            QSqlQuery query(queryStr, docset->database());
-            while (query.next()) {
-                QList<QVariant> values;
-                for (int i = 0; i < cols; ++i)
-                    values.append(query.value(i));
-                found.append(values);
-            }
-
-            if (withSubStrings)
-                break;
-            withSubStrings = true;  // try again searching for substrings
-        }
-
-        for (const QList<QVariant> &row : found) {
-            QString parentName;
-            if (!row[1].isNull())
-                parentName = row[1].toString();
-
-            QString path = row[2].toString();
-            /// FIXME: refactoring to use common code in ZealListModel and DocsetRegistry
-            if (docset->type() == Docset::Type::ZDash)
-                path += QLatin1Char('#') + row[3].toString();
-
-            QString itemName = row[0].toString();
-            //Docset::normalizeName(itemName, parentName);
-            /// TODO: Third should be type
-            results.append(SearchResult{itemName, parentName, QString(), docset, path, preparedQuery});
-        }
-    }
-    std::sort(results.begin(), results.end());
-    if (queryNum != m_lastQuery)
-        return; // some other queries pending - ignore this one
-
-    m_queryResults = results;
     emit queryCompleted();
 }
 

@@ -1,11 +1,32 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2013-2014 Jerzy Kozera
+** Contact: http://zealdocs.org/contact.html
+**
+** This file is part of Zeal.
+**
+** Zeal is free software: you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** Zeal is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
+**
+****************************************************************************/
+
 #include "listmodel.h"
 
 #include "docset.h"
 #include "docsetregistry.h"
 
 using namespace Zeal;
-
-/// TODO: Get rid of const_casts
 
 ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),
@@ -16,6 +37,14 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
 
     for (const QString &name : m_docsetRegistry->names())
         addDocset(name);
+}
+
+ListModel::~ListModel()
+{
+    for (DocsetItem *item : m_docsetItems) {
+        qDeleteAll(item->groups);
+        delete item;
+    }
 }
 
 QVariant ListModel::data(const QModelIndex &index, int role) const
@@ -65,11 +94,13 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case DocsetNameRole:
-        if (!index.parent().isValid())
-            return m_docsetRegistry->docset(index.row())->name();
+        if (index.parent().isValid())
+            return QVariant();
+        return m_docsetRegistry->docset(index.row())->name();
     case UpdateAvailableRole:
-        if (!index.parent().isValid())
-            return m_docsetRegistry->docset(index.row())->hasUpdate;
+        if (index.parent().isValid())
+            return QVariant();
+        return m_docsetRegistry->docset(index.row())->hasUpdate;
     default:
         return QVariant();
     }
@@ -162,6 +193,10 @@ void ListModel::addDocset(const QString &name)
 void ListModel::removeDocset(const QString &name)
 {
     const int index = m_docsetItems.keys().indexOf(name);
+    /// TODO: Investigate why this can happen (see #420)
+    if (index == -1)
+        return;
+
     beginRemoveRows(QModelIndex(), index, index);
 
     DocsetItem *docsetItem = m_docsetItems.take(name);

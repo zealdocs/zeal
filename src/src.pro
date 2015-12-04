@@ -1,7 +1,7 @@
 TEMPLATE = app
 
-QT += gui gui-private widgets sql
-CONFIG += c++11
+QT += gui widgets sql
+CONFIG += c++11 silent
 
 # Build features
 webengine {
@@ -15,15 +15,17 @@ portable {
     DEFINES += PORTABLE_BUILD
 }
 
-# TODO: Obtain version number from Git tags
-VERSION = $$(ZEAL_VERSION)
-isEmpty(VERSION) {
-    VERSION = 0.0.0
-}
+VERSION = 0.2.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
+HEADERS += \
+    util/version.h \
+    util/plist.h
+
 SOURCES += \
-    main.cpp
+    main.cpp \
+    util/version.cpp \
+    util/plist.cpp
 
 include(core/core.pri)
 include(registry/registry.pri)
