@@ -121,21 +121,23 @@ void DocsetRegistry::_addDocset(const QString &path)
     emit docsetAdded(name);
 }
 
-void DocsetRegistry::search(const QString &query)
+void DocsetRegistry::search(const QString &query, CancellationToken token)
 {
-    // Only invalidate queries
-    if (query.isEmpty())
-        return;
-
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
+    qRegisterMetaType<CancellationToken>("CancellationToken");
+    qRegisterMetaType<CancellationToken>("Zeal::CancellationToken");
+    QMetaObject::invokeMethod(this, "_runQueryAsync", Qt::QueuedConnection,
+                              Q_ARG(QString, query), Q_ARG(CancellationToken, token));
 }
 
-void DocsetRegistry::_runQuery(const QString &query)
+void DocsetRegistry::_runQueryAsync(const QString &query, const CancellationToken token)
 {
     m_queryResults.clear();
 
-    for (Docset *docset : docsets())
+    for (Docset *docset : docsets()) {
+        if (token.isCancelled())
+            return;
         m_queryResults << docset->search(query);
+    }
 
     std::sort(m_queryResults.begin(), m_queryResults.end());
 

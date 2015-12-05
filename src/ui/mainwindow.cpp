@@ -259,8 +259,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (!m_searchState || text == m_searchState->searchQuery)
             return;
 
+        m_cancelSearch.cancel();
+        m_cancelSearch = CancellationToken();
         m_searchState->searchQuery = text;
-        m_application->docsetRegistry()->search(text);
+        m_application->docsetRegistry()->search(text, m_cancelSearch);
         if (text.isEmpty()) {
             m_searchState->sectionsList->setResults();
             ui->treeView->setModel(m_zealListModel);
