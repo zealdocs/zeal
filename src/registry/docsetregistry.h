@@ -57,6 +57,9 @@ public:
     const QList<SearchResult> &queryResults();
     QList<Docset *> docsets() const;
 
+    /// The number of results that should be retuned by the search.
+    static const int MaxResults = 100;
+
 public slots:
     void addDocset(const QString &path);
 

@@ -43,6 +43,8 @@ struct SearchResult
     /// TODO: Remove
     QString query;
 
+    int score;
+
     bool operator<(const SearchResult &r) const;
 };
 

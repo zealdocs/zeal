@@ -22,14 +22,18 @@
 ****************************************************************************/
 
 #include "docset.h"
+#include "docsetsearchstrategy.h"
+#include "searchresult.h"
 
 #include "searchquery.h"
 #include "util/plist.h"
 
+#include <algorithm>
 #include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QUrl>
@@ -54,8 +58,87 @@ const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
 }
 
+namespace Zeal {
+
+class DashSearchStrategy : public DocsetSearchStrategy
+{
+public:
+    explicit DashSearchStrategy(Docset *docset);
+    QList<SearchResult> search(const QString &query) const override;
+
+private:
+    Docset *m_docset;
+};
+
+}
+
+DashSearchStrategy::DashSearchStrategy(Docset *docset)
+    : m_docset(docset)
+{
+}
+
+QList<SearchResult> DashSearchStrategy::search(const QString &rawQuery) const
+{
+    QList<SearchResult> results;
+    int resultCount = 0;
+
+    const SearchQuery searchQuery = SearchQuery::fromString(rawQuery);
+    const QString sanitizedQuery = searchQuery.sanitizedQuery();
+
+    if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_docset->keywords()))
+        return QList<SearchResult>();
+
+    QString queryStr;
+
+    // Search all substrings
+    QString curQuery = QLatin1Char('%') + sanitizedQuery;
+    if (m_docset->type() == Docset::Type::Dash) {
+        queryStr = QString("SELECT name, type, path "
+                           "    FROM searchIndex "
+                           "WHERE (name LIKE :query ESCAPE '\\') ");
+    } else {
+        queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
+                           "    FROM ztoken "
+                           "JOIN ztokenmetainformation "
+                           "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                           "JOIN zfilepath "
+                           "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                           "JOIN ztokentype "
+                           "    ON ztoken.ztokentype = ztokentype.z_pk "
+                           "WHERE (ztokenname LIKE :query ESCAPE '\\') ");
+    }
+
+    QSqlQuery query(m_docset->database());
+    query.prepare(queryStr);
+    query.bindValue(":query", QString("%1%").arg(curQuery));
+    query.exec();
+
+    while (query.next() && resultCount < Docset::MaxDocsetResultsCount) {
+        const QString itemName = query.value(0).toString();
+        QString path = query.value(2).toString();
+        if (m_docset->type() == Docset::Type::ZDash) {
+            const QString anchor = query.value(3).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
+        }
+
+        int score = Docset::scoreSubstringResult(searchQuery, itemName);
+        /// TODO: Third should be type
+        SearchResult newResult(SearchResult{itemName, QString(),
+                               m_docset->parseSymbolType(query.value(1).toString()),
+                               const_cast<Docset *>(m_docset),
+                               path, sanitizedQuery, score});
+
+        results << newResult;
+        resultCount++;
+    }
+
+    return results;
+}
+
 Docset::Docset(const QString &path) :
-    m_path(path)
+    m_path(path),
+    m_searchStrategy(new DashSearchStrategy(this))
 {
     QDir dir(m_path);
     if (!dir.exists())
@@ -196,11 +279,6 @@ QString Docset::revision() const
     return m_revision;
 }
 
-QString Docset::path() const
-{
-    return m_path;
-}
-
 QString Docset::documentPath() const
 {
     return QDir(m_path).absoluteFilePath(QStringLiteral("Contents/Resources/Documents"));
@@ -214,6 +292,11 @@ QIcon Docset::icon() const
 QString Docset::indexFilePath() const
 {
     return QDir(documentPath()).absoluteFilePath(m_indexFilePath);
+}
+
+Docset::Type Docset::type() const
+{
+    return m_type;
 }
 
 QMap<QString, int> Docset::symbolCounts() const
@@ -233,79 +316,35 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
-QList<SearchResult> Docset::search(const QString &query) const
+bool Docset::endsWithSeparator(QString result, int pos)
 {
-    QList<SearchResult> results;
+    QString beforeMatch = result.mid(0, pos);
+    return beforeMatch.endsWith(".") || beforeMatch.endsWith("::") || beforeMatch.endsWith("/");
+}
 
-    const SearchQuery searchQuery = SearchQuery::fromString(query);
-    const QString sanitizedQuery = searchQuery.sanitizedQuery();
+int Docset::separators(QString result, int pos)
+{
+    QRegularExpression separator("\\.|::|/");
+    return result.mid(0, pos).count(separator);
+}
 
-    if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
-        return results;
+int Docset::scoreSubstringResult(const SearchQuery &query, const QString result)
+{
+    int score = TotalBuckets - 1;
 
-    QString queryStr;
-
-    bool withSubStrings = false;
-    // %.%1% for long Django docset values like django.utils.http
-    // %::%1% for long C++ docset values like std::set
-    // %/%1% for long Go docset values like archive/tar
-    QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (results.size() < 100) {
-        QString curQuery = sanitizedQuery;
-        QString notQuery; // don't return the same result twice
-        if (withSubStrings) {
-            // if less than 100 found starting with query, search all substrings
-            curQuery = QLatin1Char('%') + sanitizedQuery;
-            // don't return 'starting with' results twice
-            if (m_type == Docset::Type::Dash)
-                notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("name", sanitizedQuery));
-            else
-                notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
-        }
-        if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, type, path "
-                               "    FROM searchIndex "
-                               "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY name COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("name", curQuery));
-        } else {
-            queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
-                               "    FROM ztoken "
-                               "JOIN ztokenmetainformation "
-                               "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath "
-                               "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                               "JOIN ztokentype "
-                               "    ON ztoken.ztokentype = ztokentype.z_pk "
-                               "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY ztokenname COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
-        }
-
-        QSqlQuery query(queryStr, database());
-        while (query.next()) {
-            const QString itemName = query.value(0).toString();
-            QString path = query.value(2).toString();
-            if (m_type == Docset::Type::ZDash) {
-                const QString anchor = query.value(3).toString();
-                if (!anchor.isEmpty())
-                    path += QLatin1Char('#') + anchor;
-            }
-
-            /// TODO: Third should be type
-            results.append(SearchResult{itemName, QString(),
-                                        parseSymbolType(query.value(1).toString()),
-                                        const_cast<Docset *>(this), path, sanitizedQuery});
-        }
-
-        if (withSubStrings)
-            break;
-        withSubStrings = true;  // try again searching for substrings
+    int index = result.indexOf(query.query());
+    if (index == 0 || Docset::endsWithSeparator(result, index)) {
+        score -= result.size() - query.query().size() - index + Docset::separators(result, index);
+    } else {
+        score -= result.size() - query.query().size() + 2;
     }
 
-    return results;
+    return std::max(1, score);
+}
+
+QList<SearchResult> Docset::search(const QString &rawQuery) const
+{
+    return m_searchStrategy->search(rawQuery);
 }
 
 QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
@@ -348,7 +387,7 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 
         results.append(SearchResult{sectionName, QString(),
                                     parseSymbolType(query.value(1).toString()),
-                                    const_cast<Docset *>(this), sectionPath, QString()});
+                                    const_cast<Docset *>(this), sectionPath, QString(), 0});
     }
 
     if (results.size() == 1)
@@ -370,7 +409,7 @@ void Docset::loadMetadata()
     if (!dir.exists(QStringLiteral("meta.json")))
         return;
 
-    QScopedPointer<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
+    std::unique_ptr<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
     if (!file->open(QIODevice::ReadOnly))
         return;
 
@@ -412,6 +451,7 @@ void Docset::countSymbols()
         const QString symbolType = parseSymbolType(symbolTypeStr);
         m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += query.value(1).toInt();
+        m_symbolsTotal += query.value(1).toInt();
     }
 }
 
