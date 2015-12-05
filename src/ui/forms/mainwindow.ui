@@ -14,18 +14,37 @@
    <string>Zeal</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">
-QSplitter::handle {
-    background: black;
+   <string notr="true">QSplitter::handle {
+    background: #bbb;
 }
 
-QFrame#searchEditFrame, QFrame#tabBarFrame {
+QToolButton::menu-indicator {
+   image: none;
+}
+
+QFrame#resultPaneToolbar, QFrame#tabBarFrame {
     border-top: none;
     border-right: none;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #bbb;
     border-left: none;
 }
-</string>
+
+QFrame#tabBarFrame {
+    padding-bottom: -1px;
+}
+
+#sections {
+    border-top: 1px solid #bbb;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+}
+
+#lineEdit {
+    padding: 0 0 0 20px;
+}
+
+QToolButton { max-width: 25px; }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -58,31 +77,34 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="searchEditFrame">
-          <property name="minimumSize">
+         <widget class="QFrame" name="resultPaneToolbar">
+          <property name="maximumSize">
            <size>
-            <width>0</width>
-            <height>40</height>
+            <width>16777215</width>
+            <height>30</height>
            </size>
           </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <layout class="QVBoxLayout" name="searchToolbar">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
            <property name="leftMargin">
             <number>6</number>
            </property>
            <property name="topMargin">
-            <number>6</number>
+            <number>3</number>
            </property>
            <property name="rightMargin">
             <number>6</number>
            </property>
            <property name="bottomMargin">
-            <number>6</number>
+            <number>3</number>
            </property>
-           <item>
+           <item alignment="Qt::AlignTop">
             <widget class="SearchEdit" name="lineEdit">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>24</height>
+              </size>
+             </property>
              <property name="placeholderText">
               <string>Enter your query</string>
              </property>
@@ -134,50 +156,148 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
         <property name="spacing">
          <number>0</number>
         </property>
+        <property name="leftMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>2</number>
+        </property>
         <item>
          <widget class="QFrame" name="tabBarFrame">
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>40</height>
+            <height>30</height>
            </size>
           </property>
           <layout class="QHBoxLayout" name="toolbox">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
            <property name="topMargin">
             <number>0</number>
            </property>
            <property name="rightMargin">
-            <number>12</number>
+            <number>0</number>
            </property>
            <property name="bottomMargin">
             <number>0</number>
            </property>
            <item>
             <widget class="QToolButton" name="backButton">
+             <property name="font">
+              <font>
+               <family>Ionicons</family>
+               <pointsize>16</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Back</string>
+             </property>
              <property name="text">
-              <string>←</string>
+              <string></string>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QToolButton" name="forwardButton">
+             <property name="font">
+              <font>
+               <family>Ionicons</family>
+               <pointsize>16</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Forward</string>
+             </property>
              <property name="text">
-              <string>→</string>
+              <string></string>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="toolbarLayout">
+             <item alignment="Qt::AlignVCenter">
+              <widget class="QToolButton" name="newTabButton">
+               <property name="font">
+                <font>
+                 <family>Ionicons</family>
+                 <pointsize>16</pointsize>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>New tab</string>
+               </property>
+               <property name="text">
+                <string></string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <property name="autoRaise">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
              <item>
-              <widget class="QPushButton" name="openUrlButton">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QToolButton" name="openUrlButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="font">
+                <font>
+                 <family>Ionicons</family>
+                 <pointsize>16</pointsize>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Open page in web browser</string>
+               </property>
                <property name="text">
-                <string>Open URL</string>
+                <string></string>
+               </property>
+               <property name="autoRaise">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -208,7 +328,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

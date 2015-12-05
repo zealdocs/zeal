@@ -24,11 +24,13 @@
 #ifndef SEARCHEDIT_H
 #define SEARCHEDIT_H
 
+#include <memory>
 #include <QLineEdit>
 
 class QCompleter;
 class QEvent;
 class QLabel;
+class QResizeEvent;
 class QTreeView;
 
 class SearchEdit : public QLineEdit
@@ -36,17 +38,24 @@ class SearchEdit : public QLineEdit
     Q_OBJECT
 public:
     explicit SearchEdit(QWidget *parent = nullptr);
+    ~SearchEdit();
 
     void setTreeView(QTreeView *view);
     void clearQuery();
     void selectQuery();
     void setCompletions(const QStringList &completions);
 
+signals:
+    void focusIn();
+    void focusOut();
+
 protected:
     bool event(QEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void showCompletions(const QString &text);
@@ -54,10 +63,12 @@ private slots:
 private:
     QString currentCompletion(const QString &text) const;
     int queryStart() const;
+    void displaySearchIcon();
 
-    QCompleter *m_prefixCompleter = nullptr;
+    std::unique_ptr<QCompleter> m_prefixCompleter;
     QTreeView *m_treeView = nullptr;
-    QLabel *m_completionLabel = nullptr;
+    std::unique_ptr<QLabel> m_completionLabel;
+    std::unique_ptr<QLabel> m_searchLabel;
     bool m_focusing = false;
 };
 
