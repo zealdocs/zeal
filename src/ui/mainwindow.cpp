@@ -39,6 +39,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -84,6 +85,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
+
+    QFontDatabase::addApplicationFont(":/font/ionicons.ttf");
 
     m_tabBar = new QTabBar(this);
     m_tabBar->installEventFilter(this);
@@ -207,8 +210,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->sections, &QListView::activated, this, &MainWindow::openDocset);
-    connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
-    connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
+    connect(ui->forwardButton, &QToolButton::clicked, this, &MainWindow::forward);
+    connect(ui->backButton, &QToolButton::clicked, this, &MainWindow::back);
+
+    connect(ui->newTabButton, &QToolButton::clicked, this, &MainWindow::createTab);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
@@ -297,7 +302,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
-    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; height: 30px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
@@ -307,7 +312,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
     }
 
-    connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
+    connect(ui->openUrlButton, &QToolButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
         if (url.scheme() != QLatin1String("qrc"))
             QDesktopServices::openUrl(url);

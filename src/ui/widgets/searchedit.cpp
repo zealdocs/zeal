@@ -30,15 +30,54 @@
 #include <QLabel>
 #include <QTreeView>
 
+const char IoniconsSearchIcon[] = "\uf2f5";
+
 SearchEdit::SearchEdit(QWidget *parent) :
-    QLineEdit(parent)
+    QLineEdit(parent),
+    m_completionLabel(new QLabel(this)),
+    m_searchLabel(new QLabel(this))
 {
-    m_completionLabel = new QLabel(this);
     m_completionLabel->setObjectName(QStringLiteral("completer"));
     m_completionLabel->setStyleSheet(QStringLiteral("QLabel#completer { color: gray; }"));
     m_completionLabel->setFont(font());
 
+    displaySearchIcon();
+
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
+}
+
+SearchEdit::~SearchEdit()
+{
+}
+
+void SearchEdit::displaySearchIcon()
+{
+    QStyleOptionFrameV2 option;
+    initStyleOption(&option);
+
+    QSize searchLabelSize(10, 10);
+    QFont searchLabelFont("Ionicons", 10);
+    searchLabelFont.setStyleStrategy(QFont::PreferAntialias);
+
+    m_searchLabel->setFont(searchLabelFont);
+    m_searchLabel->resize(searchLabelSize);
+    m_searchLabel->setText(IoniconsSearchIcon);
+    m_searchLabel->setStyleSheet("QLabel { color: #333; }");
+
+    QRect searchLabelGeometry(
+                8,
+                (height() - searchLabelSize.height()) / 2 + 1,
+                searchLabelSize.width(),
+                searchLabelSize.height());
+
+    m_searchLabel->setGeometry(searchLabelGeometry);
+
+}
+
+void SearchEdit::resizeEvent(QResizeEvent *event)
+{
+    QLineEdit::resizeEvent(event);
+    displaySearchIcon();
 }
 
 void SearchEdit::setTreeView(QTreeView *view)
@@ -50,10 +89,7 @@ void SearchEdit::setTreeView(QTreeView *view)
 // Makes the line edit use autocompletions.
 void SearchEdit::setCompletions(const QStringList &completions)
 {
-    if (m_prefixCompleter)
-        delete m_prefixCompleter;
-
-    m_prefixCompleter = new QCompleter(completions, this);
+    m_prefixCompleter = std::unique_ptr<QCompleter>(new QCompleter(completions, this));
     m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
     m_prefixCompleter->setCaseSensitivity(Qt::CaseInsensitive);
     m_prefixCompleter->setWidget(this);
@@ -89,6 +125,7 @@ bool SearchEdit::event(QEvent *event)
 void SearchEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
+    emit focusIn();
 
     // Do not change default behaviour when focused with mouse
     if (event->reason() == Qt::MouseFocusReason)
@@ -96,6 +133,12 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
 
     selectQuery();
     m_focusing = true;
+}
+
+void SearchEdit::focusOutEvent(QFocusEvent *event)
+{
+    QLineEdit::focusOutEvent(event);
+    emit focusOut();
 }
 
 void SearchEdit::keyPressEvent(QKeyEvent *event)
@@ -137,8 +180,16 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
 
 void SearchEdit::showCompletions(const QString &newValue)
 {
-    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    QStyleOptionFrameV2 option;
+    initStyleOption(&option);
+
+    QMargins margins = textMargins();
+
+    QRect rect = style()->subElementRect(QStyle::SE_LineEditContents, &option, this);
     const int textWidth = fontMetrics().width(newValue);
+
+    int minLB = qMax(0, -fontMetrics().minLeftBearing());
+    rect.setX(rect.x() + margins.left() + 2 + minLB);
 
     if (m_prefixCompleter)
         m_prefixCompleter->setCompletionPrefix(text());
@@ -147,7 +198,7 @@ void SearchEdit::showCompletions(const QString &newValue)
     const QSize labelSize(fontMetrics().width(completed), size().height());
 
     m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->move(rect.left() + textWidth, 0);
     m_completionLabel->setText(completed);
 }
 

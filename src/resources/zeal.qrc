@@ -218,5 +218,6 @@
         <file>icons/logo/128x128.png</file>
         <file>icons/logo/icon.png</file>
         <file>icons/logo/icon@2x.png</file>
+        <file>font/ionicons.ttf</file>
     </qresource>
 </RCC>
