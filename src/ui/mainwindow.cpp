@@ -254,7 +254,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 #endif
             /// TODO: Cleanup history
         }
-        ui->sections->update();
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
