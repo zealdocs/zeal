@@ -25,6 +25,7 @@
 #define MAINWINDOW_H
 
 #include "registry/searchquery.h"
+#include "registry/cancellationtoken.h"
 
 #include <QMainWindow>
 
@@ -122,6 +123,8 @@ private:
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
+
+    Zeal::CancellationToken m_cancelSearch;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 

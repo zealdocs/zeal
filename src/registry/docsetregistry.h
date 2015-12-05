@@ -32,6 +32,7 @@ class QThread;
 
 namespace Zeal {
 
+struct CancellationToken;
 struct SearchResult;
 
 class DocsetRegistry : public QObject
@@ -52,7 +53,8 @@ public:
     Docset *docset(int index) const;
     QList<Docset *> docsets() const;
 
-    void search(const QString &query);
+    void search(const QString &query, const CancellationToken &token);
+    const QList<SearchResult> &queryResults();
 
 public slots:
     void addDocset(const QString &path);
@@ -65,7 +67,7 @@ signals:
 
 private slots:
     void _addDocset(const QString &path);
-    void _runQuery(const QString &query);
+    void _runQuery(const QString &query, const CancellationToken &token);
 
 private:
     void addDocsetsFromFolder(const QString &path);

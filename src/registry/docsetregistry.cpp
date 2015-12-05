@@ -23,6 +23,7 @@
 
 #include "docsetregistry.h"
 
+#include "cancellationtoken.h"
 #include "searchresult.h"
 
 #include <QDir>
@@ -35,6 +36,7 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
     m_thread(new QThread(this))
 {
     // Register for use in signal connections.
+    qRegisterMetaType<CancellationToken>("CancellationToken");
     qRegisterMetaType<QList<Zeal::SearchResult>>("QList<SearchResult>");
 
     // FIXME: Only search should be performed in a separate thread
@@ -122,21 +124,21 @@ void DocsetRegistry::_addDocset(const QString &path)
     emit docsetAdded(name);
 }
 
-void DocsetRegistry::search(const QString &query)
+void DocsetRegistry::search(const QString &query, const CancellationToken &token)
 {
-    // Only invalidate queries
-    if (query.isEmpty())
-        return;
-
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
+    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection,
+                              Q_ARG(QString, query), Q_ARG(CancellationToken, token));
 }
 
-void DocsetRegistry::_runQuery(const QString &query)
+void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &token)
 {
     QList<SearchResult> results;
 
-    for (Docset *docset : docsets())
+    for (Docset *docset : docsets()) {
+        if (token.isCanceled())
+            return;
         results << docset->search(query);
+    }
 
     std::sort(results.begin(), results.end());
 
