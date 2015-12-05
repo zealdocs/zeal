@@ -122,9 +122,12 @@ private slots:
 
 private:
     void displayViewActions();
+    void displayTreeView();
+    void displaySections();
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
+    SearchState *currentSearchState();
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
