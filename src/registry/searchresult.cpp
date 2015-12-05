@@ -27,6 +27,9 @@ using namespace Zeal;
 
 bool SearchResult::operator<(const SearchResult &r) const
 {
+    if (score != r.score)
+        return score > r.score;
+
     const bool lhsStartsWithQuery = name.startsWith(query, Qt::CaseInsensitive);
     const bool rhsStartsWithQuery = r.name.startsWith(query, Qt::CaseInsensitive);
 
