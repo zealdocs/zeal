@@ -56,6 +56,9 @@ public:
     void search(const QString &query, CancellationToken token);
     const QList<SearchResult> &queryResults();
 
+    /// The number of results that should be retuned by the search.
+    static const int MaxResults = 100;
+
 public slots:
     void addDocset(const QString &path);
 

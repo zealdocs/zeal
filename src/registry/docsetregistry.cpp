@@ -25,6 +25,7 @@
 
 #include "searchresult.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QThread>
 
@@ -86,6 +87,7 @@ Docset *DocsetRegistry::docset(const QString &name) const
 
 Docset *DocsetRegistry::docset(int index) const
 {
+    /// TODO: sort docsets
     if (index < 0 || index >= m_docsets.size())
         return nullptr;
     return (m_docsets.cbegin() + index).value();
@@ -137,7 +139,7 @@ void DocsetRegistry::_runQueryAsync(const QString &query, const CancellationToke
     for (Docset *docset : docsets()) {
         if (token.isCancelled())
             return;
-        results << docset->search(query);
+        results += docset->search(query);
     }
 
     std::sort(results.begin(), results.end());
