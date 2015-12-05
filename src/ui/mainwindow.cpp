@@ -250,6 +250,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                 continue;
 
             searchState->sectionsList->removeRows(0, searchState->sectionsList->rowCount());
+            searchState->zealSearch->removeSearchResultWithName(name);
             searchState->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
             /// TODO: Cleanup history

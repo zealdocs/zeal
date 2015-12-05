@@ -109,6 +109,17 @@ bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
     return false;
 }
 
+void SearchModel::removeSearchResultWithName(const QString &name)
+{
+    QMutableListIterator<SearchResult> iterator(m_dataList);
+
+    while (iterator.hasNext()) {
+        if (iterator.next().docset->name() == name) {
+            iterator.remove();
+        }
+    }
+}
+
 void SearchModel::setResults(const QList<SearchResult> &results)
 {
     beginResetModel();
