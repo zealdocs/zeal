@@ -76,12 +76,13 @@ const char startPageUrl[] = "qrc:///browser/start.html";
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    ui(std::unique_ptr<Ui::MainWindow>(new Ui::MainWindow)),
     m_application(app),
     m_settings(app->settings()),
-    m_zealListModel(new ListModel(app->docsetRegistry(), this)),
-    m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
-    m_deferOpenUrl(new QTimer()),
+    m_zealNetworkManager(std::unique_ptr<NetworkAccessManager>(new NetworkAccessManager(this))),
+    m_zealListModel(std::unique_ptr<ListModel>(new ListModel(app->docsetRegistry(), this))),
+    m_settingsDialog(std::unique_ptr<SettingsDialog>(new SettingsDialog(app, m_zealListModel.get(), this))),
+    m_deferOpenUrl(std::unique_ptr<QTimer>(new QTimer())),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
@@ -100,9 +101,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // initialise ui
     ui->setupUi(this);
 
-    QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
-    focusSearch->setContext(Qt::ApplicationShortcut);
-    connect(focusSearch, &QShortcut::activated,
+    m_focusSearch = std::unique_ptr<QShortcut>(new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this));
+    m_focusSearch->setContext(Qt::ApplicationShortcut);
+    connect(m_focusSearch.get(), &QShortcut::activated,
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
     restoreGeometry(m_settings->windowGeometry);
@@ -111,11 +112,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_settings->splitterGeometry = ui->splitter->saveState();
     });
 
-    m_zealNetworkManager = new NetworkAccessManager(this);
 #ifdef USE_WEBENGINE
     /// FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
 #else
-    ui->webView->page()->setNetworkAccessManager(m_zealNetworkManager);
+    ui->webView->page()->setNetworkAccessManager(m_zealNetworkManager.get());
 #endif
 
     // menu
@@ -149,7 +149,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionCheckForUpdate, &QAction::triggered,
             m_application, &Core::Application::checkForUpdate);
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
-        QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
+        std::unique_ptr<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
     });
     connect(ui->actionAboutQt, &QAction::triggered, [this]() {
@@ -174,11 +174,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/download.html"));
     });
 
-    m_backMenu = new QMenu(ui->backButton);
-    ui->backButton->setMenu(m_backMenu);
+    m_backMenu = std::unique_ptr<QMenu>(new QMenu(ui->backButton));
+    ui->backButton->setMenu(m_backMenu.get());
 
-    m_forwardMenu = new QMenu(ui->forwardButton);
-    ui->forwardButton->setMenu(m_forwardMenu);
+    m_forwardMenu = std::unique_ptr<QMenu>(new QMenu(ui->forwardButton));
+    ui->forwardButton->setMenu(m_forwardMenu.get());
 
     displayViewActions();
 
@@ -186,13 +186,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    ui->treeView->setModel(m_zealListModel);
+    ui->treeView->setModel(m_zealListModel.get());
     ui->treeView->setColumnHidden(1, true);
-    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
-        delegate->setHighlight(Zeal::SearchQuery::fromString(text).query());
+    m_searchItemDelegate = std::unique_ptr<SearchItemDelegate>(new SearchItemDelegate(ui->treeView));
+    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+        m_searchItemDelegate->setHighlight(Zeal::SearchQuery::fromString(text).query());
     });
-    ui->treeView->setItemDelegate(delegate);
+    ui->treeView->setItemDelegate(m_searchItemDelegate.get());
 
     createTab();
     /// FIXME: QTabBar does not emit currentChanged() after the first addTab() call
@@ -272,7 +272,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_application->docsetRegistry()->search(text, m_cancelSearch);
         if (text.isEmpty()) {
             m_searchState->sectionsList->setResults();
-            ui->treeView->setModel(m_zealListModel);
+            ui->treeView->setModel(m_zealListModel.get());
             ui->treeView->setRootIsDecorated(true);
         }
     });
@@ -359,8 +359,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-
     for (SearchState *state : m_tabs) {
         delete state->zealSearch;
         delete state->sectionsList;
@@ -374,7 +372,7 @@ void MainWindow::deferOpenDocset(const QModelIndex &index)
     /// Load page only once user stops typing.
     m_deferOpenUrl->setSingleShot(true);
     m_deferOpenUrl->disconnect();
-    connect(m_deferOpenUrl, &QTimer::timeout, [this, index]() { openDocset(index); });
+    connect(m_deferOpenUrl.get(), &QTimer::timeout, [this, index]() { openDocset(index); });
     m_deferOpenUrl->start(400);
 }
 
@@ -477,7 +475,7 @@ void MainWindow::createTab()
     newTab->page->load(QUrl(startPageUrl));
 #else
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
+    newTab->page->setNetworkAccessManager(m_zealNetworkManager.get());
     newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
 
@@ -546,7 +544,7 @@ void MainWindow::reloadTabState()
         ui->treeView->setModel(searchState->zealSearch);
         ui->treeView->setRootIsDecorated(false);
     } else {
-        ui->treeView->setModel(m_zealListModel);
+        ui->treeView->setModel(m_zealListModel.get());
         ui->treeView->setRootIsDecorated(true);
         ui->treeView->reset();
     }

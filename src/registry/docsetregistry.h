@@ -28,6 +28,7 @@
 #include "docset.h"
 #include "searchresult.h"
 
+#include <memory>
 #include <QMap>
 
 class QThread;
@@ -72,7 +73,7 @@ private slots:
 private:
     void addDocsetsFromFolder(const QString &path);
 
-    QThread *m_thread = nullptr;
+    std::unique_ptr<QThread> m_thread;
     QMap<QString, Docset *> m_docsets;
     QList<SearchResult> m_queryResults;
 };

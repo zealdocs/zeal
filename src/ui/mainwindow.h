@@ -27,6 +27,7 @@
 #include "registry/searchquery.h"
 #include "registry/cancellationtoken.h"
 
+#include <memory>
 #include <QDialog>
 #include <QMainWindow>
 #include <QModelIndex>
@@ -44,6 +45,7 @@ struct _GtkWidget;
 
 class QxtGlobalShortcut;
 
+class QShortcut;
 class QSystemTrayIcon;
 class QTabBar;
 class QWebHistory;
@@ -53,6 +55,8 @@ class QWebPage;
 namespace Ui {
 class MainWindow;
 }
+
+class SearchItemDelegate;
 
 namespace Zeal {
 
@@ -136,20 +140,22 @@ private:
     QList<SearchState *> m_tabs;
 
     SearchState *m_searchState = nullptr;
-    Zeal::NetworkAccessManager *m_zealNetworkManager = nullptr;
 
-    Ui::MainWindow *ui = nullptr;
+    std::unique_ptr<Ui::MainWindow> ui;
     Zeal::Core::Application *m_application = nullptr;
     Zeal::Core::Settings *m_settings = nullptr;
-    Zeal::ListModel *m_zealListModel = nullptr;
-    Zeal::SettingsDialog *m_settingsDialog = nullptr;
+    std::unique_ptr<Zeal::NetworkAccessManager> m_zealNetworkManager;
+    std::unique_ptr<Zeal::ListModel> m_zealListModel;
+    std::unique_ptr<SearchItemDelegate> m_searchItemDelegate;
+    std::unique_ptr<Zeal::SettingsDialog> m_settingsDialog;
 
-    QMenu *m_backMenu = nullptr;
-    QMenu *m_forwardMenu = nullptr;
+    std::unique_ptr<QMenu> m_backMenu;
+    std::unique_ptr<QMenu> m_forwardMenu;
 
     Zeal::CancellationToken m_cancelSearch;
 
-    QTimer *m_deferOpenUrl;
+    std::unique_ptr<QShortcut> m_focusSearch;
+    std::unique_ptr<QTimer> m_deferOpenUrl;
     bool m_treeViewClicked = false;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;
