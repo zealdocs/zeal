@@ -114,6 +114,7 @@ private slots:
     void back();
     void forward();
     void onSearchComplete();
+    void deferOpenDocset(const QModelIndex &index);
     void openDocset(const QModelIndex &index);
     void queryCompleted();
     void scrollSearch();
@@ -147,6 +148,8 @@ private:
     QMenu *m_forwardMenu = nullptr;
 
     Zeal::CancellationToken m_cancelSearch;
+
+    QTimer *m_deferOpenUrl;
     bool m_treeViewClicked = false;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;

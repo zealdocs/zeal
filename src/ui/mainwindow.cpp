@@ -81,6 +81,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
+    m_deferOpenUrl(new QTimer()),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
@@ -367,6 +368,16 @@ MainWindow::~MainWindow()
     }
 }
 
+void MainWindow::deferOpenDocset(const QModelIndex &index)
+{
+    /// PERF: Loading a web page makes the input sluggish.
+    /// Load page only once user stops typing.
+    m_deferOpenUrl->setSingleShot(true);
+    m_deferOpenUrl->disconnect();
+    connect(m_deferOpenUrl, &QTimer::timeout, [this, index]() { openDocset(index); });
+    m_deferOpenUrl->start(400);
+}
+
 void MainWindow::openDocset(const QModelIndex &index)
 {
     const QVariant urlStr = index.sibling(index.row(), 1).data();
@@ -409,7 +420,7 @@ void MainWindow::queryCompleted()
     ui->treeView->setModel(m_searchState->zealSearch);
     ui->treeView->setRootIsDecorated(false);
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
-    ui->treeView->activated(ui->treeView->currentIndex());
+    deferOpenDocset(ui->treeView->currentIndex());
 }
 
 void MainWindow::goToTab(int index)
