@@ -26,6 +26,8 @@
 
 #include <QStyledItemDelegate>
 
+namespace Zeal {
+
 class SearchItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -41,5 +43,7 @@ public slots:
 private:
     QString m_highlight;
 };
+
+}
 
 #endif // SEARCHITEMDELEGATE_H

@@ -30,6 +30,8 @@
 #include <QFontMetrics>
 #include <QPainter>
 
+using namespace Zeal;
+
 SearchItemDelegate::SearchItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
