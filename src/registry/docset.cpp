@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "docset.h"
+#include "cachingsearchstrategy.h"
 #include "docsetsearchstrategy.h"
 #include "searchresult.h"
 
@@ -66,7 +67,9 @@ class DashSearchStrategy : public DocsetSearchStrategy
 {
 public:
     explicit DashSearchStrategy(Docset *docset);
-    QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
+    QList<SearchResult> search(const QString &query, const CancellationToken &token);
+    bool validResult(const QString &query, const SearchResult &previousResult,
+                     SearchResult &result) const override;
 
 private:
     Docset *m_docset;
@@ -79,7 +82,7 @@ DashSearchStrategy::DashSearchStrategy(Docset *docset)
 {
 }
 
-QList<SearchResult> DashSearchStrategy::search(const QString &rawQuery, const CancellationToken &token) const
+QList<SearchResult> DashSearchStrategy::search(const QString &rawQuery, const CancellationToken &token)
 {
     QList<SearchResult> results;
     int resultCount = 0;
@@ -115,7 +118,7 @@ QList<SearchResult> DashSearchStrategy::search(const QString &rawQuery, const Ca
     query.bindValue(":query", QString("%1%").arg(curQuery));
     query.exec();
 
-    while (query.next() && resultCount < Docset::MaxDocsetResultsCount) {
+    while (query.next() && !token.isCanceled() && resultCount < Docset::MaxDocsetResultsCount) {
         const QString itemName = query.value(0).toString();
         QString path = query.value(2).toString();
         if (m_docset->type() == Docset::Type::ZDash) {
@@ -138,15 +141,33 @@ QList<SearchResult> DashSearchStrategy::search(const QString &rawQuery, const Ca
     return results;
 }
 
+bool DashSearchStrategy::validResult(
+        const QString &query, const SearchResult &previousResult,
+        SearchResult &result) const
+{
+    SearchQuery searchQuery = SearchQuery::fromString(query);
+    bool docsetEnabled = !searchQuery.hasKeywords() || searchQuery.hasKeywords(m_docset->keywords());
+
+    if (previousResult.name.contains(searchQuery.query(), Qt::CaseInsensitive)
+            && docsetEnabled) {
+        result = previousResult.withScore(Docset::scoreSubstringResult(searchQuery, previousResult.name));
+        return true;
+
+    } else {
+        return false;
+    }
+}
+
 Docset::Docset(const QString &path) :
-    m_path(path),
-    m_searchStrategy(new DashSearchStrategy(this))
+    m_path(path)
 {
     QDir dir(m_path);
     if (!dir.exists())
         return;
 
     loadMetadata();
+    std::unique_ptr<DocsetSearchStrategy> strategy(new DashSearchStrategy(this));
+    m_searchStrategy = std::unique_ptr<DocsetSearchStrategy>(new CachingSearchStrategy(std::move(strategy)));
 
     // Attempt to find the icon in any supported format
     for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
@@ -343,7 +364,7 @@ int Docset::scoreSubstringResult(const SearchQuery &query, const QString result)
 {
     int score = TotalBuckets - 1;
 
-    int index = result.indexOf(query.query());
+    int index = result.indexOf(query.query(), 0, Qt::CaseInsensitive);
     if (index == 0 || Docset::endsWithSeparator(result, index)) {
         score -= result.size() - query.query().size() - index + Docset::separators(result, index);
     } else {
