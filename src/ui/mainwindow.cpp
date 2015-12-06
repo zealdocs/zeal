@@ -104,10 +104,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
     restoreGeometry(m_settings->windowGeometry);
-    ui->splitter->restoreState(m_settings->splitterGeometry);
-    connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
-        m_settings->splitterGeometry = ui->splitter->saveState();
-    });
+    ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
 
     m_zealNetworkManager = new NetworkAccessManager(this);
 #ifdef USE_WEBENGINE
@@ -483,9 +480,21 @@ void MainWindow::displayTreeView()
 
 void MainWindow::displaySections()
 {
+    saveSectionsSplitterState();
+
     const bool hasResults = currentSearchState()->sectionsList->rowCount();
     ui->sections->setVisible(hasResults);
     ui->seeAlsoLabel->setVisible(hasResults);
+    QList<int> sizes = hasResults
+            ? m_settings->sectionsSplitterSizes
+            : QList<int>({1, 0});
+    ui->sectionsSplitter->setSizes(sizes);
+}
+
+void MainWindow::saveSectionsSplitterState()
+{
+    if (ui->sections->isVisible())
+        m_settings->sectionsSplitterSizes = ui->sectionsSplitter->sizes();
 }
 
 SearchState *MainWindow::currentSearchState() const
@@ -779,6 +788,9 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    m_settings->verticalSplitterGeometry = ui->splitter->saveState();
+    saveSectionsSplitterState();
+
     m_settings->windowGeometry = saveGeometry();
     if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
         event->ignore();

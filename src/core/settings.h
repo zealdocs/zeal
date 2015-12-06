@@ -88,7 +88,8 @@ public:
 
     // State
     QByteArray windowGeometry;
-    QByteArray splitterGeometry;
+    QByteArray verticalSplitterGeometry;
+    QList<int> sectionsSplitterSizes;
 
     explicit Settings(QObject *parent = nullptr);
     ~Settings() override;

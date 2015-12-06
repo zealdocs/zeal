@@ -125,6 +125,7 @@ private:
     void displayViewActions();
     void displayTreeView();
     void displaySections();
+    void saveSectionsSplitterState();
     void setupSearchBoxCompletions();
     void reloadTabState();
     void displayTabs();
