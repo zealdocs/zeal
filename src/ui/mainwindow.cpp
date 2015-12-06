@@ -108,9 +108,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
     restoreGeometry(m_settings->windowGeometry);
-    ui->splitter->restoreState(m_settings->splitterGeometry);
+    ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
     connect(ui->splitter, &QSplitter::splitterMoved, [=](int, int) {
-        m_settings->splitterGeometry = ui->splitter->saveState();
+        m_settings->verticalSplitterGeometry = ui->splitter->saveState();
+    });
+    connect(ui->sectionsSplitter, &QSplitter::splitterMoved, [=](int, int) {
+        if (ui->sections->isVisible())
+            m_settings->sectionsSplitterSizes = ui->sectionsSplitter->sizes();
     });
 
     m_zealNetworkManager = new NetworkAccessManager(this);
@@ -484,6 +488,10 @@ void MainWindow::displaySections()
     const bool hasResults = currentSearchState()->sectionsList->rowCount();
     ui->sections->setVisible(hasResults);
     ui->seeAlsoLabel->setVisible(hasResults);
+    QList<int> sizes = hasResults
+            ? m_settings->sectionsSplitterSizes
+            : QList<int>({1, 0});
+    ui->sectionsSplitter->setSizes(sizes);
 }
 
 SearchState *MainWindow::currentSearchState()

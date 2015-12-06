@@ -22,7 +22,7 @@ QToolButton::menu-indicator {
    image: none;
 }
 
-QFrame#searchEditFrame, QFrame#tabBarFrame {
+QFrame#resultPaneToolbar, QFrame#tabBarFrame {
     border-top: none;
     border-right: none;
     border-bottom: 1px solid #bbb;
@@ -33,7 +33,7 @@ QFrame#tabBarFrame {
     padding-bottom: -1px;
 }
 
-#seeAlsoLabel, #sections {
+#sections {
     border-top: 1px solid #bbb;
     border-right: none;
     border-bottom: none;
@@ -72,18 +72,12 @@ QToolButton { max-width: 25px; }</string>
        <number>1</number>
       </property>
       <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="resultPane">
         <property name="spacing">
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="searchEditFrame">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QFrame" name="resultPaneToolbar">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -123,47 +117,77 @@ QToolButton { max-width: 25px; }</string>
          </widget>
         </item>
         <item>
-         <widget class="QTreeView" name="treeView">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+         <widget class="QSplitter" name="sectionsSplitter">
+          <property name="lineWidth">
+           <number>5</number>
           </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectItems</enum>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="indentation">
-           <number>10</number>
+          <property name="handleWidth">
+           <number>1</number>
           </property>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="seeAlsoLabel">
-          <property name="font">
-           <font>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">* { padding: 0 2px; }</string>
-          </property>
-          <property name="text">
-           <string>See also</string>
-          </property>
-          <property name="margin">
-           <number>2</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QListView" name="sections">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
+          <widget class="QTreeView" name="treeView">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectItems</enum>
+           </property>
+           <property name="indentation">
+            <number>10</number>
+           </property>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+          <widget class="QFrame" name="resultSectionsPane">
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="seeAlsoLabel">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">* { padding: 0 2px; }</string>
+              </property>
+              <property name="text">
+               <string>See also</string>
+              </property>
+              <property name="margin">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListView" name="sections">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="horizontalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOff</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
