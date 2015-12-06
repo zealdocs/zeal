@@ -1,6 +1,8 @@
 #ifndef DOCSETSEARCHSTRATEGY_H
 #define DOCSETSEARCHSTRATEGY_H
 
+#include "cancellationtoken.h"
+
 #include <QString>
 #include <QList>
 
@@ -13,7 +15,11 @@ class DocsetSearchStrategy
 {
 public:
     DocsetSearchStrategy();
-    virtual QList<SearchResult> search(const QString &query) const = 0;
+    virtual QList<SearchResult> search(const QString &query, CancellationToken token) = 0;
+
+    /// Used to filter out cached results.
+    virtual bool validResult(const QString &query, SearchResult previousResult,
+                             SearchResult &result) = 0;
 };
 
 }

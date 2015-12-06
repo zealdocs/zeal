@@ -42,3 +42,10 @@ bool SearchResult::operator<(const SearchResult &r) const
 
     return QString::compare(parentName, r.parentName, Qt::CaseInsensitive) < 0;
 }
+
+SearchResult SearchResult::withScore(int newScore) const
+{
+    return SearchResult({name, parentName, type,
+                         docset, path, query,
+                         newScore});
+}

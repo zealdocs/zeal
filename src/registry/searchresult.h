@@ -46,6 +46,8 @@ struct SearchResult
     int score;
 
     bool operator<(const SearchResult &r) const;
+
+    SearchResult withScore(int newScore) const;
 };
 
 } // namespace Zeal

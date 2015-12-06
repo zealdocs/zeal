@@ -25,6 +25,7 @@
 #define DOCSET_H
 
 #include "searchresult.h"
+#include "cancellationtoken.h"
 
 #include <memory>
 #include <QIcon>
@@ -62,7 +63,7 @@ public:
 
     const QMap<QString, QString> &symbols(const QString &symbolType) const;
 
-    QList<SearchResult> search(const QString &query) const;
+    QList<SearchResult> search(const QString &query, CancellationToken token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     /// FIXME: This is an ugly workaround before we have a proper docset sources implementation

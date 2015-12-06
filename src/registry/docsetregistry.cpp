@@ -138,7 +138,7 @@ void DocsetRegistry::_runQueryAsync(const QString &query, const CancellationToke
     for (Docset *docset : docsets()) {
         if (token.isCancelled())
             return;
-        m_queryResults += docset->search(query);
+        m_queryResults += docset->search(query, token);
     }
 
     std::sort(m_queryResults.begin(), m_queryResults.end());
