@@ -458,12 +458,14 @@ void Docset::createIndex()
     static const QString indexListQuery = QStringLiteral("PRAGMA INDEX_LIST('%1')");
     static const QString indexDropQuery = QStringLiteral("DROP INDEX '%1'");
     static const QString indexCreateQuery = QStringLiteral("CREATE INDEX IF NOT EXISTS %1%2"
-                                                           " ON %3 (name COLLATE NOCASE)");
+                                                           " ON %3 (%4 COLLATE NOCASE)");
 
     QSqlQuery query(database());
 
     const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex")
                                                    : QStringLiteral("ztoken");
+    const QString columnName = m_type == Type::Dash ? QStringLiteral("name")
+                                                    : QStringLiteral("ztokenname");
 
     query.exec(indexListQuery.arg(tableName));
 
@@ -484,7 +486,7 @@ void Docset::createIndex()
     for (const QString oldIndexName : oldIndexes)
         query.exec(indexDropQuery.arg(oldIndexName));
 
-    query.exec(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName));
+    query.exec(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }
 
 QString Docset::parseSymbolType(const QString &str)
