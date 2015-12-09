@@ -244,29 +244,44 @@ QList<SearchResult> Docset::search(const QString &query) const
         return results;
 
     const DocsetToken queryToken(searchQuery.query());
-    const QString queryPattern = searchQuery.sanitizedQuery();
 
     // Select possible search results
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path "
-                                  "FROM searchIndex "
-                                  "WHERE name LIKE :queryPattern ESCAPE '\\' ");
+        queryStr = QStringLiteral("SELECT name, type, path\n"
+                                  "FROM searchIndex\n"
+                                  "WHERE name LIKE :queryPatternSubseq ESCAPE '\\'\n"
+                                  "ORDER BY\n"
+                                  "    name LIKE :queryPatternStart ESCAPE '\\' DESC,     -- starts with\n"
+                                  "    name LIKE :queryPatternSubstring ESCAPE '\\' DESC, -- is substring\n"
+                                  "    LENGTH(name) ASC                                   -- shortest first\n"
+                                  "LIMIT 100");
     } else if (m_type == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
-                                  "FROM ztoken "
-                                  "JOIN ztokenmetainformation "
-                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "JOIN zfilepath "
-                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk " 
-                                  "JOIN ztokentype "
-                                  "    ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE ztokenname LIKE :queryPattern ESCAPE '\\' ");
+        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor\n"
+                                  "FROM ztoken\n"
+                                  "JOIN ztokenmetainformation\n"
+                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk\n"
+                                  "JOIN zfilepath\n"
+                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk\n" 
+                                  "JOIN ztokentype\n"
+                                  "    ON ztoken.ztokentype = ztokentype.z_pk\n"
+                                  "WHERE ztokenname LIKE :queryPatternSubseq ESCAPE '\\'\n"
+                                  "ORDER BY\n"
+                                  "    ztokenname LIKE :queryPatternStart ESCAPE '\\' DESC,     -- starts with\n"
+                                  "    ztokenname LIKE :queryPatternSubstring ESCAPE '\\' DESC, -- is substring\n"
+                                  "    LENGTH(ztokenname) ASC                                   -- shortest first\n"
+                                  "LIMIT 100");
     }
 
     QSqlQuery sqlQuery(database());
     sqlQuery.prepare(queryStr);
-    sqlQuery.bindValue(":queryPattern", queryPattern);
+
+    const QString queryPatternSubseq = searchQuery.sanitizedQuerySubseq();
+    const QString queryPattern = searchQuery.sanitizedQuery();
+    sqlQuery.bindValue(":queryPatternSubseq", queryPatternSubseq);
+    sqlQuery.bindValue(":queryPatternStart", queryPattern + QChar('%'));
+    sqlQuery.bindValue(":queryPatternSubstring", QChar('%') + queryPattern + QChar('%'));
+
     sqlQuery.exec();
 
     while (sqlQuery.next()) {

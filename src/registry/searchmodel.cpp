@@ -51,7 +51,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             if (item->token.parentName.isEmpty())
                 return item->token.name;
             else
-                return QString("%1 (%2)").arg(item->token.name, item->token.parentName);
+                return QString("%1").arg(item->token.full);
         case 1:
             return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
         default:
@@ -116,29 +116,34 @@ QList<QVariant> SearchModel::listHlPositions(const SearchResult &result) const
 {
     QList<QVariant> hlPositions;
     Core::LCS lcs;
-    int offset = result.token.name.length() + 2; // " ("
+    int offset = result.token.parentName.length() + result.token.separator.length();
 
     switch (result.searchRelevancy.matchType) {
-    case SearchRelevancy::NameMatch:
-        lcs = Core::LCS(result.token.name.toLower(), result.query.full);
+    case SearchRelevancy::ParentNameMatch:
+        lcs = Core::LCS(result.token.parentName.toLower(), result.query.full);
         for (const int i: lcs.subsequencePositions(0))
             hlPositions << i;
         break;
-    case SearchRelevancy::ParentNameMatch:
-        lcs = Core::LCS(result.token.parentName.toLower(), result.query.full);
+    case SearchRelevancy::NameMatch:
+        lcs = Core::LCS(result.token.name.toLower(), result.query.full);
         for (const int i: lcs.subsequencePositions(0))
             hlPositions << i + offset;
         break;
     case SearchRelevancy::BothMatch: 
         {
-            lcs = Core::LCS(result.token.name.toLower(), result.query.name);
+            lcs = Core::LCS(result.token.parentName.toLower(), result.query.parentName);
             for (const int i: lcs.subsequencePositions(0))
                 hlPositions << i;
-            lcs = Core::LCS(result.token.parentName.toLower(), result.query.parentName);
+            lcs = Core::LCS(result.token.name.toLower(), result.query.name);
             for (const int i: lcs.subsequencePositions(0))
                 hlPositions << i + offset;
             break;
         }
+    case SearchRelevancy::FullMatch:
+        lcs = Core::LCS(result.token.full.toLower(), result.query.full);
+        for (const int i: lcs.subsequencePositions(0))
+            hlPositions << i;
+        break;
     case SearchRelevancy::NoMatch:
         break;
     }

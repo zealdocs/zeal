@@ -7,7 +7,7 @@ using namespace Zeal;
 DocsetToken::DocsetToken(const QString &token) :
     full(token)
 {
-    name = stripParens(token);
+    parseArgs(token);
 
     // '.' for long Django docset values like django.utils.http
     // '::' for long C++ docset values like std::set
@@ -30,13 +30,14 @@ DocsetToken::DocsetToken(const QString &token) :
                 name = name.mid(0, maxPos);
             } else {
                 parentName = name.mid(0, maxPos);
+                separator = separators[maxI];
                 name = name.mid(maxPos + separators[maxI].length());
             }
         }
     } while (!name.isEmpty() && maxPos != -1);
 }
 
-QString DocsetToken::stripParens(const QString &token) const
+void DocsetToken::parseArgs(const QString &token)
 {
     // Ensure only the last matched pair of parentheses is removed.
     // Regex can't deal with nested parenthesis.
@@ -50,11 +51,14 @@ QString DocsetToken::stripParens(const QString &token) const
                 parensLeftOpen--;
 
             if (parensLeftOpen == 0) {
-                if (i != 0 && stripped[i - 1] != QChar(' '))
-                    return stripped.remove(i, stripped.length());
-                return stripped;
+                if (i != 0 && stripped[i - 1] != QChar(' ')) {
+                    args = stripped.mid(i);
+                    name = stripped.remove(i, args.length());
+                    return;
+                }
+                break;
             }
         }
     }
-    return stripped;
+    name = stripped;
 }

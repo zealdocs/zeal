@@ -10,11 +10,13 @@ class DocsetToken
 public:
     DocsetToken(const QString &token);
     QString full;
-    QString name;
     QString parentName;
+    QString separator;
+    QString name;
+    QString args;
 
 private:
-    QString stripParens(const QString &token) const;
+    void parseArgs(const QString &token);
 };
 
 } // namespace Zeal

@@ -77,6 +77,7 @@ public:
 
     /// Returns the core query, sanitized for use in SQL queries
     QString sanitizedQuery() const;
+    QString sanitizedQuerySubseq() const;
 
 private:
     QString m_query;

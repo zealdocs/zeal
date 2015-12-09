@@ -29,6 +29,11 @@ SearchRelevancy SearchRelevancy::fromQuery(const DocsetToken &token, const Docse
             int bothLcsLength = nameLcs.length() + parentNameLcs.length();
             if (bothLcsLength > 0 && bothLcsLength == query.name.length() + query.parentName.length()) {
                 matchType = BothMatch;
+            } else {
+                nameLcs = Core::LCS(tokenLower.full, query.full);
+                if (nameLcs.length() > 0 && nameLcs.length() == query.full.length()) {
+                    matchType = FullMatch;
+                }
             }
         }
     }
@@ -51,6 +56,13 @@ SearchRelevancy SearchRelevancy::fromQuery(const DocsetToken &token, const Docse
         // slight boosting (10%) of both matches due to removal of separator 
         // affecting density, but never boost above near perfect matches (95%)
         relevancy = relevancy != 1 ? std::min(0.95, relevancy * 1.1) : 1;
+        break;
+    case FullMatch:
+        relevancy = (nameLcs.calcDensity(0) 
+                    + nameLcs.calcSpread(0)) / 2.0;
+        // same for full matches
+        relevancy = relevancy != 1 ? std::min(0.95, relevancy * 1.1) : 1;
+        break;
     }
 
     return SearchRelevancy{matchType, relevancy};

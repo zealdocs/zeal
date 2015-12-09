@@ -128,6 +128,17 @@ void SearchQuery::setQuery(const QString &str)
 
 QString SearchQuery::sanitizedQuery() const
 {
+    QString q("");
+    for (const QChar c: m_query) {
+        if (c == QChar('\\') || c == QChar('_') || c == QChar('%'))
+            q += "\\";
+        q += c;
+    }
+    return q;
+}
+
+QString SearchQuery::sanitizedQuerySubseq() const
+{
     QString q("%");
     for (const QChar c: m_query) {
         if (c == QChar('\\') || c == QChar('_') || c == QChar('%'))

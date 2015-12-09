@@ -73,7 +73,6 @@ private:
 
     QSqlDatabase database() const;
 
-    void normalizeName(QString &name, QString &parentName) const;
     void loadMetadata();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;

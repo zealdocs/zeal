@@ -11,7 +11,8 @@ struct SearchRelevancy
         NoMatch = 0,
         ParentNameMatch,
         NameMatch,
-        BothMatch
+        BothMatch,
+        FullMatch
     };
 
     MatchType matchType;
