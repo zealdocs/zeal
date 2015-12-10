@@ -25,6 +25,8 @@
 
 #include "searchresult.h"
 
+#include <functional>
+#include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 #include <QDir>
 #include <QSqlQuery>
@@ -131,19 +133,24 @@ void DocsetRegistry::search(const QString &query, CancellationToken token)
                               Q_ARG(QString, query), Q_ARG(CancellationToken, token));
 }
 
+void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
+{
+    finalResult += partial;
+}
+
 void DocsetRegistry::_runQueryAsync(const QString &query, const CancellationToken token)
 {
-    m_queryResults.clear();
+    QFuture<QList<SearchResult> > queryResultsFuture = QtConcurrent::mappedReduced(
+                docsets(),
+                std::bind(&Docset::search, std::placeholders::_1, query, token),
+                &MergeQueryResults);
+    QList<SearchResult> queryResults = queryResultsFuture.result();
+    std::sort(queryResults.begin(), queryResults.end());
 
-    for (Docset *docset : docsets()) {
-        if (token.isCancelled())
-            return;
-        m_queryResults += docset->search(query, token);
+    if (!token.isCancelled()) {
+        m_queryResults = queryResults;
+        emit queryCompleted();
     }
-
-    std::sort(m_queryResults.begin(), m_queryResults.end());
-
-    emit queryCompleted();
 }
 
 const QList<SearchResult> &DocsetRegistry::queryResults()

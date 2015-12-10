@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += gui widgets sql
+QT += gui widgets sql concurrent
 CONFIG += c++11 silent
 
 # Build features
