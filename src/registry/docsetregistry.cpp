@@ -26,10 +26,20 @@
 #include "cancellationtoken.h"
 #include "searchresult.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QThread>
 
+#include <QtConcurrent/QtConcurrent>
+
+#include <functional>
+
 using namespace Zeal;
+
+void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
+{
+    finalResult << partial;
+}
 
 DocsetRegistry::DocsetRegistry(QObject *parent) :
     QObject(parent),
@@ -132,17 +142,17 @@ void DocsetRegistry::search(const QString &query, const CancellationToken &token
 
 void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &token)
 {
-    QList<SearchResult> results;
-
-    for (Docset *docset : docsets()) {
-        if (token.isCanceled())
-            return;
-        results << docset->search(query, token);
-    }
-
+    QFuture<QList<SearchResult>> queryResultsFuture
+            = QtConcurrent::mappedReduced(docsets(),
+                                          std::bind(&Docset::search,
+                                                    std::placeholders::_1,
+                                                    query, token),
+                                          &MergeQueryResults);
+    QList<SearchResult> results = queryResultsFuture.result();
     std::sort(results.begin(), results.end());
 
-    emit queryCompleted(results);
+    if (!token.isCanceled())
+        emit queryCompleted(results);
 }
 
 // Recursively finds and adds all docsets in a given directory.
