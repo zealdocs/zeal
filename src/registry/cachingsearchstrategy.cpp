@@ -22,16 +22,18 @@
 ****************************************************************************/
 
 #include "cachingsearchstrategy.h"
-#include "docset.h"
 
-#include "searchresult.h"
+#include "docset.h"
 #include "searchquery.h"
+#include "searchresult.h"
 
 using namespace Zeal;
 
+const int CacheSize = 10;
+
 CachingSearchStrategy::CachingSearchStrategy(std::unique_ptr<DocsetSearchStrategy> strategy)
-    : m_search(std::move(strategy)),
-      m_cache(CachingSearchStrategy::CacheSize)
+    : m_search(std::move(strategy))
+    , m_cache(CacheSize)
 {
 }
 

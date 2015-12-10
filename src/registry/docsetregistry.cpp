@@ -25,6 +25,8 @@
 
 #include "searchresult.h"
 
+#include <functional>
+#include <QtConcurrent/QtConcurrent>
 #include <QDebug>
 #include <QDir>
 #include <QThread>
@@ -127,24 +129,26 @@ void DocsetRegistry::_addDocset(const QString &path)
 void DocsetRegistry::search(const QString &query, CancellationToken token)
 {
     qRegisterMetaType<CancellationToken>("CancellationToken");
-    qRegisterMetaType<CancellationToken>("Zeal::CancellationToken");
     QMetaObject::invokeMethod(this, "_runQueryAsync", Qt::QueuedConnection,
                               Q_ARG(QString, query), Q_ARG(CancellationToken, token));
 }
 
+void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
+{
+    finalResult += partial;
+}
+
 void DocsetRegistry::_runQueryAsync(const QString &query, const CancellationToken token)
 {
-    QList<SearchResult> results;
-
-    for (Docset *docset : docsets()) {
-        if (token.isCancelled())
-            return;
-        results += docset->search(query, token);
-    }
-
+    QFuture<QList<SearchResult> > queryResultsFuture = QtConcurrent::mappedReduced(
+                docsets(),
+                std::bind(&Docset::search, std::placeholders::_1, query, token),
+                &MergeQueryResults);
+    QList<SearchResult> results = queryResultsFuture.result();
     std::sort(results.begin(), results.end());
 
-    emit queryCompleted(results);
+    if (!token.isCancelled())
+        emit queryCompleted(results);
 }
 
 // Recursively finds and adds all docsets in a given directory.

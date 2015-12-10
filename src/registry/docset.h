@@ -108,7 +108,6 @@ private:
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QMap<QString, QString>> m_symbols;
-    uint64_t m_symbolsTotal;
 
     std::unique_ptr<DocsetSearchStrategy> m_searchStrategy;
 };

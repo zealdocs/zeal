@@ -54,8 +54,6 @@ private:
     QList<SearchResult> searchWithCache(const QString &query, const QString &prefix);
     QList<SearchResult> searchWithoutCache(const QString &query, CancellationToken token);
 
-    const static int CacheSize = 10;
-
     std::unique_ptr<DocsetSearchStrategy> m_search;
     QCache<QString, QList<SearchResult> > m_cache;
 };

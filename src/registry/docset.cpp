@@ -482,7 +482,6 @@ void Docset::countSymbols()
         const QString symbolType = parseSymbolType(symbolTypeStr);
         m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += query.value(1).toInt();
-        m_symbolsTotal += query.value(1).toInt();
     }
 }
 
