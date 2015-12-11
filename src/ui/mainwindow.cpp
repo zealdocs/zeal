@@ -83,6 +83,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
+    ui->setupUi(this);
+
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
 
     m_tabBar = new QTabBar(this);
@@ -95,9 +97,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
-
-    // initialise ui
-    ui->setupUi(this);
 
     QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
     focusSearch->setContext(Qt::ApplicationShortcut);
@@ -703,8 +702,7 @@ void MainWindow::createTrayIcon()
         });
 
         QMenu *trayIconMenu = new QMenu(this);
-        QAction *quitAction = trayIconMenu->addAction(tr("&Quit"));
-        connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+        trayIconMenu->addAction(ui->actionQuit);
 
         m_trayIcon->setContextMenu(trayIconMenu);
 
