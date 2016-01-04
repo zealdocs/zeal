@@ -250,7 +250,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                 continue;
 
             searchState->sectionsList->removeRows(0, searchState->sectionsList->rowCount());
+
+            // optimization: disable updates temporarily because
+            // removeSearchResultWithName can call {begin,end}RemoveRows
+            // multiple times which can cause GUI updates to be suboptimal
+            // in case of many rows to be removed
+            ui->treeView->setUpdatesEnabled(false);
             searchState->zealSearch->removeSearchResultWithName(name);
+            ui->treeView->setUpdatesEnabled(true);
+
             searchState->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
             /// TODO: Cleanup history

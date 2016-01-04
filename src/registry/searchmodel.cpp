@@ -100,10 +100,12 @@ int SearchModel::columnCount(const QModelIndex &parent) const
 bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (row + count <= m_dataList.size() && !parent.isValid()) {
+        beginRemoveRows(parent, row, row + count - 1);
         while (count) {
             m_dataList.removeAt(row);
             --count;
         }
+        endRemoveRows();
         return true;
     }
     return false;
@@ -113,10 +115,15 @@ void SearchModel::removeSearchResultWithName(const QString &name)
 {
     QMutableListIterator<SearchResult> iterator(m_dataList);
 
+    int rowNum = 0;
     while (iterator.hasNext()) {
         if (iterator.next().docset->name() == name) {
+            beginRemoveRows(QModelIndex(), rowNum, rowNum);
             iterator.remove();
+            rowNum -= 1;
+            endRemoveRows();
         }
+        rowNum += 1;
     }
 }
 
