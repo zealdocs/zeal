@@ -111,6 +111,8 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
             this, &SettingsDialog::updateAllDocsets);
     connect(ui->removeDocsetsButton, &QPushButton::clicked,
             this, &SettingsDialog::removeSelectedDocsets);
+    connect(ui->docsetFilterInput, &QLineEdit::textEdited,
+            this, &SettingsDialog::updateDocsetFilter);
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
 
@@ -211,6 +213,25 @@ void SettingsDialog::removeSelectedDocsets()
     for (const QModelIndex &index : selectonModel->selectedIndexes())
         names << index.data(ListModel::DocsetNameRole).toString();
     removeDocsets(names);
+}
+
+void SettingsDialog::updateDocsetFilter(const QString &filterString)
+{
+    if (filterString.simplified().length() > 0) {
+        const QList<QListWidgetItem *> matchingItems
+                = ui->availableDocsetList->findItems(filterString, Qt::MatchContains);
+
+        for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
+            QListWidgetItem *item = ui->availableDocsetList->item(i);
+            item->setHidden(!matchingItems.contains(item));
+        }
+    }
+    else {
+        for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
+            QListWidgetItem *item = ui->availableDocsetList->item(i);
+            item->setHidden(false);
+        }
+    }
 }
 
 /*!
