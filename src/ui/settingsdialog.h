@@ -61,6 +61,7 @@ private slots:
     void updateSelectedDocsets();
     void updateAllDocsets();
     void removeSelectedDocsets();
+    void updateDocsetFilter(const QString &filterString);
 
     void downloadCompleted();
     void downloadProgress(qint64 received, qint64 total);
