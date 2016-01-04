@@ -466,6 +466,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QLineEdit" name="docsetFilterInput">
+            <property name="placeholderText">
+             <string>filter docsets</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QLabel" name="label">
