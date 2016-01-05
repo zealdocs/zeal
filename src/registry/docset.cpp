@@ -289,7 +289,7 @@ QList<SearchResult> Docset::search(const QString &query) const
         QString type = parseSymbolType(sqlQuery.value(1).toString());
         QString path = sqlQuery.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
-            const QString anchor = sqlQuery.value(4).toString();
+            const QString anchor = sqlQuery.value(3).toString();
             if (!anchor.isEmpty())
                 path += QLatin1Char('#') + anchor;
         }
