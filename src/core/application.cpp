@@ -105,7 +105,9 @@ Application::Application(const SearchQuery &query, QObject *parent) :
 
     if (!query.isEmpty())
         m_mainWindow->bringToFront(query);
-    else if (!m_settings->startMinimized)
+    else if (m_settings->startMinimized)
+        m_mainWindow->showMinimized();
+    else
         m_mainWindow->show();
 }
 
