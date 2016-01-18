@@ -45,6 +45,7 @@
 struct CommandLineParameters
 {
     bool force;
+    bool preventActivation;
     Zeal::SearchQuery query;
 #ifdef Q_OS_WIN32
     bool registerProtocolHandlers;
@@ -84,6 +85,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
 
     CommandLineParameters clParams;
     clParams.force = parser.isSet(QStringLiteral("force"));
+    clParams.preventActivation = false;
 
 #ifdef Q_OS_WIN32
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
@@ -102,10 +104,16 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
         clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
     } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
         const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
+
         const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
         if (!keys.isEmpty())
             clParams.query.setKeywords(keys.split(QLatin1Char(',')));
+
         clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
+
+        const QString preventActivation
+                = urlQuery.queryItemValue(QStringLiteral("prevent_activation"));
+        clParams.preventActivation = preventActivation == QLatin1String("true");
     } else {
         clParams.query.setQuery(arg);
     }
@@ -212,6 +220,7 @@ int main(int argc, char *argv[])
         if (socket->waitForConnected(500)) {
             QDataStream out(socket.data());
             out << clParams.query;
+            out << clParams.preventActivation;
             socket->flush();
             return 0;
         }

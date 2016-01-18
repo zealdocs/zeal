@@ -83,11 +83,17 @@ Application::Application(const SearchQuery &query, QObject *parent) :
         if (connection->bytesAvailable()) {
             QDataStream in(connection);
             Zeal::SearchQuery query;
+            bool preventActivation;
             in >> query;
-            m_mainWindow->bringToFront(query);
-        } else {
-            m_mainWindow->bringToFront();
+            in >> preventActivation;
+
+            m_mainWindow->search(query);
+
+            if (preventActivation)
+                return;
         }
+
+        m_mainWindow->bringToFront();
     });
     /// TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
@@ -103,12 +109,12 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
 
-    if (!query.isEmpty())
-        m_mainWindow->bringToFront(query);
-    else if (m_settings->startMinimized)
+    if (m_settings->startMinimized)
         m_mainWindow->showMinimized();
     else
         m_mainWindow->show();
+
+    m_mainWindow->search(query);
 }
 
 Application::~Application()

@@ -358,6 +358,15 @@ MainWindow::~MainWindow()
     }
 }
 
+void MainWindow::search(const SearchQuery &query)
+{
+    if (query.isEmpty())
+        return;
+
+    ui->lineEdit->setText(query.toString());
+    ui->treeView->activated(ui->treeView->currentIndex());
+}
+
 void MainWindow::openDocset(const QModelIndex &index)
 {
     const QVariant urlStr = index.sibling(index.row(), 1).data();
@@ -743,19 +752,14 @@ void MainWindow::removeTrayIcon()
 #endif
 }
 
-void MainWindow::bringToFront(const Zeal::SearchQuery &query)
+void MainWindow::bringToFront()
 {
     show();
     setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
     raise();
     activateWindow();
-    ui->lineEdit->setFocus();
 
-    if (!query.isEmpty()) {
-        ui->lineEdit->setText(query.toString());
-        ui->treeView->setFocus();
-        ui->treeView->activated(ui->treeView->currentIndex());
-    }
+    ui->lineEdit->setFocus();
 }
 
 void MainWindow::changeEvent(QEvent *event)
