@@ -21,36 +21,15 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHITEMDELEGATE_H
-#define SEARCHITEMDELEGATE_H
+#include "searchitemstyle.h"
 
-#include <QStyledItemDelegate>
-
-class QSize;
-class QStyleOptionViewItem;
-
-namespace Zeal {
-
-class SearchItemDelegate : public QStyledItemDelegate
+QRect ZealSearchItemStyle::subElementRect(SubElement element, const QStyleOption *option,
+                                          const QWidget *widget) const
 {
-    Q_OBJECT
-public:
-    explicit SearchItemDelegate(QObject *parent = nullptr);
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-
-public slots:
-    void setHighlight(const QString &text);
-
-private:
-    QRect paintText(QPainter *painter, QStyleOptionViewItem &option, QFont defaultFont, QFont boldFont, bool paint = true) const;
-    void paintBorder(QPainter *painter, const QStyleOptionViewItem &option, QRect actualTextRect) const;
-    QStyleOptionViewItem getTextPaintOptions(const QStyleOptionViewItem &option, QString searchText, QIcon icon) const;
-
-    QString m_highlight;
-};
-
+    if (element == QStyle::SE_ItemViewItemText) {
+        // do not draw text - delegate does it
+        return QRect();
+    } else {
+        return QProxyStyle::subElementRect(element, option, widget);
+    }
 }
-
-#endif // SEARCHITEMDELEGATE_H
