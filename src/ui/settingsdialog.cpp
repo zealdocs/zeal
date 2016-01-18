@@ -543,13 +543,14 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
 
 QListWidgetItem *SettingsDialog::findDocsetListItem(const QString &title) const
 {
-    const QList<QListWidgetItem *> items
-            = ui->availableDocsetList->findItems(title, Qt::MatchFixedString);
+    for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
+        QListWidgetItem *item = ui->availableDocsetList->item(i);
 
-    if (items.isEmpty())
-        return nullptr;
+        if (item->text() == title)
+            return item;
+    }
 
-    return items.first();
+    return nullptr;
 }
 
 bool SettingsDialog::updatesAvailable() const
