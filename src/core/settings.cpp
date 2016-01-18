@@ -119,7 +119,13 @@ void Settings::load()
 
     m_settings->beginGroup(GroupState);
     windowGeometry = m_settings->value(QStringLiteral("window_geometry")).toByteArray();
-    splitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
+    verticalSplitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
+
+    sectionsSplitterSizes = QList<int>();
+    QList<QVariant> splitterSizes = m_settings->value(QStringLiteral("sections_geometry")).toList();
+    for (QVariant splitterSize: splitterSizes)
+        sectionsSplitterSizes << splitterSize.toInt();
+
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupInternal);
@@ -164,9 +170,14 @@ void Settings::save()
     m_settings->endGroup();
 #endif
 
+    QList<QVariant> splitterSizes;
+    for (int splitterSize: sectionsSplitterSizes)
+        splitterSizes << splitterSize;
+
     m_settings->beginGroup(GroupState);
     m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
-    m_settings->setValue(QStringLiteral("splitter_geometry"), splitterGeometry);
+    m_settings->setValue(QStringLiteral("splitter_geometry"), verticalSplitterGeometry);
+    m_settings->setValue(QStringLiteral("sections_geometry"), splitterSizes);
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupInternal);
