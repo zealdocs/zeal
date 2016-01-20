@@ -230,6 +230,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             this, [this](const QString &name) {
+        setupSearchBoxCompletions();
         for (SearchState *searchState : m_tabs) {
 #ifdef USE_WEBENGINE
             if (docsetName(searchState->page->url()) != name)
@@ -244,6 +245,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 #endif
             /// TODO: Cleanup history
         }
+    });
+
+    connect(m_application->docsetRegistry(), &DocsetRegistry::docsetAdded,
+            this, [this](const QString &) {
+        setupSearchBoxCompletions();
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
