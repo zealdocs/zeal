@@ -37,9 +37,7 @@
 #include <QUrlQuery>
 
 #ifdef Q_OS_WIN32
-#include <QProxyStyle>
 #include <QSettings>
-#include <QStyleOption>
 #endif
 
 struct CommandLineParameters
@@ -162,24 +160,6 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
     for (auto it = protocols.cbegin(); it != protocols.cend(); ++it)
         reg->remove(it.key());
 }
-
-/// TODO: Verify if this bug still exists in Qt 5.2+
-class ZealProxyStyle : public QProxyStyle
-{
-public:
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter,
-                       const QWidget *widget = nullptr) const
-    {
-        if (element == PE_FrameLineEdit && option->styleObject) {
-            option->styleObject->setProperty("_q_no_animation", true);
-            // Workaround for a probable bug in QWindowsVistaStyle - for example opening the 'String (CommandEvent)'
-            // item from wxPython docset (available at http://wxpython.org/Phoenix/docsets) causes very high CPU usage.
-            // Some rough debugging shows that the 'd->startAnimation(t);' call in QWindowsVistaStyle::drawPrimitive
-            // is the cuplrit and setting _q_no_animation to true here fixes the issue.
-        }
-        return QProxyStyle::drawPrimitive(element, option, painter, widget);
-    }
-};
 #endif
 
 int main(int argc, char *argv[])
@@ -207,8 +187,6 @@ int main(int argc, char *argv[])
         if (clParams.registerProtocolHandlers)
             ::exit(EXIT_SUCCESS);
     }
-
-    qapp->setStyle(new ZealProxyStyle());
 #endif
 
 
