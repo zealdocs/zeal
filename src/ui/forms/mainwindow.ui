@@ -109,9 +109,6 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectItems</enum>
-           </property>
            <property name="indentation">
             <number>10</number>
            </property>
