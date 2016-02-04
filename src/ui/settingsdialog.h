@@ -113,6 +113,8 @@ private:
     void loadSettings();
     void saveSettings();
     static inline int percent(qint64 fraction, qint64 total);
+
+    static QString cacheLocation(const QString &fileName);
 };
 
 } // namespace Zeal

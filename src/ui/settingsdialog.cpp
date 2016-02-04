@@ -299,8 +299,7 @@ void SettingsDialog::downloadCompleted()
     case DownloadDocsetList: {
         const QByteArray data = reply->readAll();
 
-        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-        QScopedPointer<QFile> file(new QFile(cacheDir.filePath(DocsetListCacheFileName)));
+        QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
         if (file->open(QIODevice::WriteOnly))
             file->write(data);
 
@@ -529,10 +528,7 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
     if (ui->tabWidget->widget(current) != ui->docsetsTab || ui->availableDocsetList->count())
         return;
 
-    const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    if (!cacheDir.exists())
-        QDir().mkpath(cacheDir.absolutePath());
-    const QFileInfo fi(cacheDir.filePath(DocsetListCacheFileName));
+    const QFileInfo fi(cacheLocation(DocsetListCacheFileName));
 
     if (!fi.exists() || fi.lastModified().msecsTo(QDateTime::currentDateTime()) > CacheTimeout) {
         downloadDocsetList();
@@ -834,4 +830,17 @@ int SettingsDialog::percent(qint64 fraction, qint64 total)
         return 0;
 
     return fraction / static_cast<double>(total) * 100;
+}
+
+QString SettingsDialog::cacheLocation(const QString &fileName)
+{
+#ifndef PORTABLE_BUILD
+        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+#else
+        const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
+#endif
+        /// TODO: Report error
+        QDir().mkpath(cacheDir.path());
+
+        return cacheDir.filePath(fileName);
 }
