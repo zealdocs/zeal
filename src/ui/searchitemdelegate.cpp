@@ -21,20 +21,33 @@
 **
 ****************************************************************************/
 
+#include "searchitemstyle.h"
 #include "searchitemdelegate.h"
 
-#include "searchitemstyle.h"
 #include "registry/searchmodel.h"
 
+#include <algorithm>
 #include <QApplication>
 #include <QFontMetrics>
 #include <QPainter>
+#include <QSize>
+
+using namespace Zeal;
 
 SearchItemDelegate::SearchItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
 }
 
+/**
+ * @brief SearchItemDelegate::paint
+ * Draws the text for each list entry with a correct highlight rectangle.
+ * We delegate drawing of the border to the base style
+ * and draw the icons/text ourselves.
+
+ * To make the border have accurate width we set the bold font
+ * and manually clip the rectangle.
+ */
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
                                const QModelIndex &index) const
 {
@@ -45,17 +58,89 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     painter->save();
 
+    QStyleOptionViewItem option = getTextPaintOptions(
+                option_,
+                index.data(Qt::DisplayRole).toString(),
+                index.data(Qt::DecorationRole).value<QIcon>());
+    option.font = painter->font();
+
+    const QFont defaultFont(option.font);
+    QFont boldFont(option.font);
+    boldFont.setBold(true);
+
+    // Dry run paint to obtain QRect of the painted text.
+    QRect paintedTextRect = paintText(painter, option, defaultFont, boldFont, false);
+    paintBorder(painter, option, paintedTextRect);
+    paintText(painter, option, defaultFont, boldFont);
+
+    painter->restore();
+}
+
+void SearchItemDelegate::setHighlight(const QString &text)
+{
+    m_highlight = text;
+}
+
+/**
+ * @brief SearchItemDelegate::getPaintBorderOptions
+ * Manipulates style options to draw the border correctly.
+ * 1. Appends text so that single letter items are displayed correctly by searchitemstyle.
+ * 2. Sets the font to bold so that unclipped width is larger than actual border width.
+ * 3. Extends the right side of the border if the bolded text is wider.
+ */
+void SearchItemDelegate::paintBorder(
+        QPainter *painter,
+        const QStyleOptionViewItem &option_,
+        QRect actualTextRect) const
+{
     QStyleOptionViewItem option(option_);
-    option.text = index.data().toString();
+    option.text = option.text + "_do_not_draw";
+    option.rect.setRight(actualTextRect.right());
+
+    ZealSearchItemStyle().drawControl(
+                QStyle::CE_ItemViewItem, &option, painter, option.widget);
+}
+
+/**
+ * @brief SearchItemDelegate::getTextPaintOptions
+ * Return paint options for a single item.
+ */
+QStyleOptionViewItem SearchItemDelegate::getTextPaintOptions(
+        const QStyleOptionViewItem &option_,
+        QString searchText,
+        QIcon icon) const
+{
+    QStyleOptionViewItem option(option_);
+    option.text = searchText;
     option.features |= QStyleOptionViewItem::HasDisplay;
 
-    if (!index.data(Qt::DecorationRole).isNull()) {
+    if (!icon.isNull()) {
         option.features |= QStyleOptionViewItem::HasDecoration;
-        option.icon = index.data(Qt::DecorationRole).value<QIcon>();
+        option.icon = icon;
     }
+    return option;
+}
 
-    ZealSearchItemStyle style;
-    style.drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+/**
+ * @brief SearchItemDelegate::paintText
+ * Paints the text and computes the border size.
+ *
+ * @param painter Painter that should paint the text.
+ * @param option Style options with the text to paint.
+ * @param defaultFont Font of the normal text.
+ * @param boldFont Font of the bolded text.
+ * @param paint If false then does just a dry run and computes the border.
+ * @return QRect of the border of the painted text.
+ */
+QRect SearchItemDelegate::paintText(
+        QPainter *painter,
+        QStyleOptionViewItem &option,
+        QFont defaultFont,
+        QFont boldFont,
+        bool paint) const
+{
+    const QFontMetrics metrics(defaultFont);
+    const QFontMetrics metricsBold(boldFont);
 
     if (option.state & QStyle::State_Selected) {
 #ifdef Q_OS_WIN32
@@ -65,47 +150,44 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setPen(QPen(option.palette.highlightedText(), 1));
     }
 
-    QRect rect = QApplication::style()->subElementRect(QStyle::SE_ItemViewItemText, &option,
-                                                       option.widget);
-    const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget);
-    rect.adjust(margin, 0, 2, 0); // +2px for bold text
-
-    const QFont defaultFont(painter->font());
-    QFont boldFont(defaultFont);
-    boldFont.setBold(true);
-
-    const QFontMetrics metrics(defaultFont);
-    const QFontMetrics metricsBold(boldFont);
+    QRect normalRect = QApplication::style()->subElementRect(
+                QStyle::SE_ItemViewItemText, &option, option.widget);
+    option.font = boldFont;
+    QRect rect = QApplication::style()->subElementRect(
+                QStyle::SE_ItemViewItemText, &option, option.widget);
 
     const QString elided = metrics.elidedText(option.text, option.textElideMode, rect.width());
 
     int from = 0;
     while (from < elided.size()) {
         const int to = elided.indexOf(m_highlight, from, Qt::CaseInsensitive);
+        QString text;
 
+        painter->setFont(defaultFont);
         if (to == -1) {
-            painter->drawText(rect, elided.mid(from));
+            text = elided.mid(from);
+            if (paint)
+                painter->drawText(rect, text);
+            rect.setLeft(rect.left() + metrics.width(text));
             break;
         }
 
-        QString text = elided.mid(from, to - from);
-        painter->drawText(rect, text);
+        text = elided.mid(from, to - from);
+        if (paint)
+            painter->drawText(rect, text);
         rect.setLeft(rect.left() + metrics.width(text));
 
         text = elided.mid(to, m_highlight.size());
         painter->setFont(boldFont);
-        painter->drawText(rect, text);
+        if (paint)
+            painter->drawText(rect, text);
         rect.setLeft(rect.left() + metricsBold.width(text));
-
-        painter->setFont(defaultFont);
 
         from = to + m_highlight.size();
     }
 
-    painter->restore();
-}
-
-void SearchItemDelegate::setHighlight(const QString &text)
-{
-    m_highlight = text;
+    // Measure QRect of the border.
+    const int margin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget);
+    int textWidth = std::max(normalRect.width(), rect.left() - normalRect.left() + 2 * margin);
+    return QRect(normalRect.left(), rect.top(), textWidth, rect.height());
 }

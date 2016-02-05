@@ -26,6 +26,11 @@
 
 #include <QStyledItemDelegate>
 
+class QSize;
+class QStyleOptionViewItem;
+
+namespace Zeal {
+
 class SearchItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -39,7 +44,13 @@ public slots:
     void setHighlight(const QString &text);
 
 private:
+    QRect paintText(QPainter *painter, QStyleOptionViewItem &option, QFont defaultFont, QFont boldFont, bool paint = true) const;
+    void paintBorder(QPainter *painter, const QStyleOptionViewItem &option, QRect actualTextRect) const;
+    QStyleOptionViewItem getTextPaintOptions(const QStyleOptionViewItem &option, QString searchText, QIcon icon) const;
+
     QString m_highlight;
 };
+
+}
 
 #endif // SEARCHITEMDELEGATE_H
