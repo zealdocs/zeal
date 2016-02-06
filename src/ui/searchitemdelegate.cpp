@@ -23,7 +23,6 @@
 
 #include "searchitemdelegate.h"
 
-#include "searchitemstyle.h"
 #include "registry/searchmodel.h"
 
 #include <QApplication>
@@ -46,16 +45,13 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->save();
 
     QStyleOptionViewItem option(option_);
-    option.text = index.data().toString();
-    option.features |= QStyleOptionViewItem::HasDisplay;
 
     if (!index.data(Qt::DecorationRole).isNull()) {
         option.features |= QStyleOptionViewItem::HasDecoration;
         option.icon = index.data(Qt::DecorationRole).value<QIcon>();
     }
 
-    ZealSearchItemStyle style;
-    style.drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
     if (option.state & QStyle::State_Selected) {
 #ifdef Q_OS_WIN32
@@ -67,8 +63,6 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     QRect rect = QApplication::style()->subElementRect(QStyle::SE_ItemViewItemText, &option,
                                                        option.widget);
-    const int margin = style.pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget);
-    rect.adjust(margin, 0, 2, 0); // +2px for bold text
 
     const QFont defaultFont(painter->font());
     QFont boldFont(defaultFont);
@@ -77,7 +71,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QFontMetrics metrics(defaultFont);
     const QFontMetrics metricsBold(boldFont);
 
-    const QString elided = metrics.elidedText(option.text, option.textElideMode, rect.width());
+    const QString elided = metrics.elidedText(index.data().toString(), option.textElideMode,
+                                              rect.width());
 
     int from = 0;
     while (from < elided.size()) {
