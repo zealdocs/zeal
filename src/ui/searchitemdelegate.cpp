@@ -23,15 +23,31 @@
 
 #include "searchitemdelegate.h"
 
+#include <QAbstractItemView>
 #include "registry/searchmodel.h"
 
 #include <QApplication>
 #include <QFontMetrics>
+#include <QHelpEvent>
 #include <QPainter>
+#include <QToolTip>
 
 SearchItemDelegate::SearchItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
+}
+
+bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
+                                   const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    if (sizeHint(option, index).width() <= view->visualRect(index).width()) {
+        QToolTip::hideText();
+        return QStyledItemDelegate::helpEvent(event, view, option, index);
+    }
+
+    QToolTip::showText(event->globalPos(), index.data().toString(), view);
+
+    return true;
 }
 
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
