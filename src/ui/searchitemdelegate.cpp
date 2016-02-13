@@ -24,9 +24,6 @@
 #include "searchitemdelegate.h"
 
 #include <QAbstractItemView>
-#include "registry/searchmodel.h"
-
-#include <QApplication>
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QPainter>
@@ -58,8 +55,6 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         return;
     }
 
-    painter->save();
-
     QStyleOptionViewItem option(option_);
 
     if (!index.data(Qt::DecorationRole).isNull()) {
@@ -67,52 +62,66 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         option.icon = index.data(Qt::DecorationRole).value<QIcon>();
     }
 
-    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+    QStyle *style = option.widget->style();
+    style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
-    if (option.state & QStyle::State_Selected) {
+    const QRect rect = style->subElementRect(QStyle::SE_ItemViewItemText, &option, option.widget);
+
+    // Match QCommonStyle behaviour.
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget) + 1;
+    const QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0);
+
+    const QString text = index.data().toString();
+    const QFontMetrics fm(option.font);
+    const QString elidedText = fm.elidedText(text, option.textElideMode, textRect.width());
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setPen(QColor::fromRgb(255, 253, 0));
+
+    const QColor highlightColor = option.state & (QStyle::State_Selected | QStyle::State_HasFocus)
+            ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
+
+    for (int i = 0; i < elidedText.length();) {
+        const int matchIndex = text.indexOf(m_highlight, i, Qt::CaseInsensitive);
+        if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
+            break;
+
+        QRect highlightRect = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
+        highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
+
+        QPainterPath path;
+        path.addRoundedRect(highlightRect, 2, 2);
+
+        painter->fillPath(path, highlightColor);
+        painter->drawPath(path);
+
+        i = matchIndex + m_highlight.length();
+    }
+
+    painter->restore();
+    painter->save();
+
 #ifdef Q_OS_WIN32
+    // QWindowsVistaStyle overrides highlight colour.
+    if (style->objectName() == QStringLiteral("windowsvista")) {
         option.palette.setColor(QPalette::All, QPalette::HighlightedText,
                                 option.palette.color(QPalette::Active, QPalette::Text));
+    }
 #endif
-        painter->setPen(QPen(option.palette.highlightedText(), 1));
-    }
 
-    QRect rect = QApplication::style()->subElementRect(QStyle::SE_ItemViewItemText, &option,
-                                                       option.widget);
+    const QPalette::ColorGroup cg = option.state & QStyle::State_Active
+            ? QPalette::Normal : QPalette::Inactive;
 
-    const QFont defaultFont(painter->font());
-    QFont boldFont(defaultFont);
-    boldFont.setBold(true);
+    if (option.state & QStyle::State_Selected)
+        painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
+    else
+        painter->setPen(option.palette.color(cg, QPalette::Text));
 
-    const QFontMetrics metrics(defaultFont);
-    const QFontMetrics metricsBold(boldFont);
-
-    const QString elided = metrics.elidedText(index.data().toString(), option.textElideMode,
-                                              rect.width());
-
-    int from = 0;
-    while (from < elided.size()) {
-        const int to = elided.indexOf(m_highlight, from, Qt::CaseInsensitive);
-
-        if (to == -1) {
-            painter->drawText(rect, elided.mid(from));
-            break;
-        }
-
-        QString text = elided.mid(from, to - from);
-        painter->drawText(rect, text);
-        rect.setLeft(rect.left() + metrics.width(text));
-
-        text = elided.mid(to, m_highlight.size());
-        painter->setFont(boldFont);
-        painter->drawText(rect, text);
-        rect.setLeft(rect.left() + metricsBold.width(text));
-
-        painter->setFont(defaultFont);
-
-        from = to + m_highlight.size();
-    }
-
+    // Vertically align the text in the middle to match QCommonStyle behaviour.
+    const QRect alignedRect = QStyle::alignedRect(option.direction, option.displayAlignment,
+                                                  QSize(1, fm.height()), textRect);
+    painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
     painter->restore();
 }
 
