@@ -62,10 +62,10 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_versions << vv.toString();
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
-    m_feedUrl = jsonObject[QStringLiteral("feed_url")].toString();
+    m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
     const QJsonArray urlArray = jsonObject[QStringLiteral("urls")].toArray();
     for (const QJsonValue &url : urlArray)
-        m_urls.append(url.toString());
+        m_urls.append(QUrl(url.toString()));
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }
@@ -207,7 +207,7 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
         } else if (xml.name() == QLatin1String("url")) {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
-            metadata.m_urls.append(xml.text().toString());
+            metadata.m_urls.append(QUrl(xml.text().toString()));
         }
     }
 

@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
                                               QObject::tr("Qt SQLite driver is not available."),
                                               QMessageBox::Close, QMessageBox::Help);
         if (ret == QMessageBox::Help)
-            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/contact.html"));
+            QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/contact.html")));
         return 0;
     }
 

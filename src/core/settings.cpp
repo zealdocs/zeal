@@ -59,7 +59,8 @@ Settings::Settings(QObject *parent) :
 {
     /// TODO: Move to user style sheet (related to #268)
 #ifndef USE_WEBENGINE
-    QWebSettings::globalSettings()->setUserStyleSheetUrl(QStringLiteral("qrc:///browser/highlight.css"));
+    QWebSettings::globalSettings()
+            ->setUserStyleSheetUrl(QUrl(QStringLiteral("qrc:///browser/highlight.css")));
 #endif
 
     load();
