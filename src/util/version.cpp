@@ -45,7 +45,7 @@ bool Version::isValid() const
 
 QString Version::toString() const
 {
-    return QString("%1.%2.%3").arg(m_major).arg(m_minor).arg(m_patch);
+    return QStringLiteral("%1.%2.%3").arg(m_major).arg(m_minor).arg(m_patch);
 }
 
 bool Version::fromString(const QString &str)

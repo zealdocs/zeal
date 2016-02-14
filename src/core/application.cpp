@@ -46,7 +46,6 @@ using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
-const char LocalServerName[] = "ZealLocalServer";
 const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
 }
 
@@ -96,8 +95,8 @@ Application::Application(const SearchQuery &query, QObject *parent) :
         m_mainWindow->bringToFront();
     });
     /// TODO: Verify if removeServer() is needed
-    QLocalServer::removeServer(LocalServerName);  // remove in case previous instance crashed
-    m_localServer->listen(LocalServerName);
+    QLocalServer::removeServer(localServerName());  // remove in case previous instance crashed
+    m_localServer->listen(localServerName());
 
     // Extractor setup
     m_extractor->moveToThread(m_extractorThread);
@@ -128,7 +127,7 @@ Application::~Application()
 
 QString Application::localServerName()
 {
-    return LocalServerName;
+    return QStringLiteral("ZealLocalServer");
 }
 
 QNetworkAccessManager *Application::networkManager() const
@@ -230,7 +229,7 @@ void Application::applySettings()
 
 QString Application::userAgent()
 {
-    return QString("Zeal/%1").arg(QCoreApplication::applicationVersion());
+    return QStringLiteral("Zeal/%1").arg(QCoreApplication::applicationVersion());
 }
 
 QString Application::userAgentJson() const
@@ -298,5 +297,5 @@ QString Application::userAgentJson() const
 
 #endif // QT_VERSION >= 0x050400
 
-    return QJsonDocument(ua).toJson(QJsonDocument::Compact);
+    return QString::fromUtf8(QJsonDocument(ua).toJson(QJsonDocument::Compact));
 }

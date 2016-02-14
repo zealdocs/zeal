@@ -18,6 +18,10 @@ portable {
 VERSION = 0.2.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
+# QString options
+DEFINES *= QT_RESTRICTED_CAST_FROM_ASCII
+DEFINES *= QT_NO_CAST_TO_ASCII
+
 HEADERS += \
     util/version.h \
     util/plist.h
