@@ -138,7 +138,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionForward, &QAction::triggered, this, &MainWindow::forward);
 
     // Help Menu
-    connect(ui->actionReportProblem, &QAction::triggered, [this]() {
+    connect(ui->actionSubmitFeedback, &QAction::triggered, [this]() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
     });
     connect(ui->actionCheckForUpdates, &QAction::triggered,
