@@ -137,7 +137,7 @@ void registerProtocolHandler(const QString &scheme, const QString &description)
     reg->beginGroup(QStringLiteral("shell"));
     reg->beginGroup(QStringLiteral("open"));
     reg->beginGroup(QStringLiteral("command"));
-    reg->setValue(QStringLiteral("Default"), appPath + QLatin1String(" %1"));
+    reg->setValue(QStringLiteral("Default"), QVariant(appPath + QLatin1String(" %1")));
 }
 
 void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool force = false)
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
                                               QObject::tr("Qt SQLite driver is not available."),
                                               QMessageBox::Close, QMessageBox::Help);
         if (ret == QMessageBox::Help)
-            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/contact.html"));
+            QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/contact.html")));
         return 0;
     }
 

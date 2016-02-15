@@ -149,12 +149,12 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::addDashFeed()
 {
-    QString txt = QApplication::clipboard()->text();
-    if (!txt.startsWith(QLatin1String("dash-feed://")))
-        txt.clear();
+    QString clipboardText = QApplication::clipboard()->text();
+    if (!clipboardText.startsWith(QLatin1String("dash-feed://")))
+        clipboardText.clear();
 
     QString feedUrl = QInputDialog::getText(this, QStringLiteral("Zeal"), tr("Feed URL:"),
-                                            QLineEdit::Normal, txt);
+                                            QLineEdit::Normal, clipboardText);
     if (feedUrl.isEmpty())
         return;
 
@@ -163,7 +163,7 @@ void SettingsDialog::addDashFeed()
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
 
-    QNetworkReply *reply = download(feedUrl);
+    QNetworkReply *reply = download(QUrl(feedUrl));
     reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
     connect(reply, &QNetworkReply::finished, this, &SettingsDialog::downloadCompleted);
 }
@@ -667,7 +667,7 @@ void SettingsDialog::downloadDashDocset(const QString &name)
         return;
 
     const QString urlString = RedirectServerUrl + QStringLiteral("/d/com.kapeli/%1/latest");
-    QNetworkReply *reply = download(urlString.arg(name));
+    QNetworkReply *reply = download(QUrl(urlString.arg(name)));
     reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,

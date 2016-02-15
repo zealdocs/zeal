@@ -139,7 +139,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // Help Menu
     connect(ui->actionReportProblem, &QAction::triggered, [this]() {
-        QDesktopServices::openUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues"));
+        QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
     });
     connect(ui->actionCheckForUpdate, &QAction::triggered,
             m_application, &Core::Application::checkForUpdate);
@@ -166,7 +166,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
                                                  QString(tr("A new version <b>%1</b> is available. Open download page?")).arg(version),
                                                  QMessageBox::Yes, QMessageBox::No);
         if (ret == QMessageBox::Yes)
-            QDesktopServices::openUrl(QStringLiteral("https://zealdocs.org/download.html"));
+            QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
     });
 
     m_backMenu = new QMenu(ui->backButton);
