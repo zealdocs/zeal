@@ -591,7 +591,6 @@ QNetworkReply *SettingsDialog::download(const QUrl &url)
     ui->removeDocsetsButton->setEnabled(false);
 
     // Available docsets
-    ui->availableDocsetList->setEnabled(false);
     ui->refreshButton->setEnabled(false);
     ui->downloadDocsetButton->setText(tr("Stop downloads"));
 
@@ -744,7 +743,6 @@ void SettingsDialog::resetProgress()
     ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
     // Available docsets
-    ui->availableDocsetList->setEnabled(true);
     ui->refreshButton->setEnabled(true);
     ui->downloadDocsetButton->setText(tr("Download"));
 }
