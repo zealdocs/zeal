@@ -262,7 +262,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
      <string>&amp;Help</string>
     </property>
     <addaction name="actionReportProblem"/>
-    <addaction name="actionCheckForUpdate"/>
+    <addaction name="actionCheckForUpdates"/>
     <addaction name="separator"/>
     <addaction name="actionAboutZeal"/>
     <addaction name="actionAboutQt"/>
@@ -347,9 +347,9 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     <string>&amp;Report Problem...</string>
    </property>
   </action>
-  <action name="actionCheckForUpdate">
+  <action name="actionCheckForUpdates">
    <property name="text">
-    <string>&amp;Check for Update...</string>
+    <string>&amp;Check for updates...</string>
    </property>
   </action>
  </widget>

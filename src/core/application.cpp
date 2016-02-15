@@ -172,7 +172,7 @@ QNetworkReply *Application::download(const QUrl &url)
   Performs a check whether a new Zeal version is available. Setting \a quiet to true supresses
   error and "you are using the latest version" message boxes.
 */
-void Application::checkForUpdate(bool quiet)
+void Application::checkForUpdates(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
     connect(reply, &QNetworkReply::finished, this, [this, quiet]() {

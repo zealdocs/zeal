@@ -141,8 +141,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionReportProblem, &QAction::triggered, [this]() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
     });
-    connect(ui->actionCheckForUpdate, &QAction::triggered,
-            m_application, &Core::Application::checkForUpdate);
+    connect(ui->actionCheckForUpdates, &QAction::triggered,
+            m_application, &Core::Application::checkForUpdates);
     connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
@@ -158,7 +158,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application, &Core::Application::updateCheckDone, [this](const QString &version) {
         if (version.isEmpty()) {
-            QMessageBox::information(this, QStringLiteral("Zeal"), tr("You are using the latest Zeal version."));
+            QMessageBox::information(this, QStringLiteral("Zeal"),
+                                     tr("You are using the latest version of Zeal."));
             return;
         }
 
@@ -351,7 +352,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     }
 
     if (m_settings->checkForUpdate)
-        m_application->checkForUpdate(true);
+        m_application->checkForUpdates(true);
 }
 
 MainWindow::~MainWindow()

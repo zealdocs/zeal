@@ -61,7 +61,7 @@ public:
 public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
-    void checkForUpdate(bool quiet = false);
+    void checkForUpdates(bool quiet = false);
 
 signals:
     void extractionCompleted(const QString &filePath);
