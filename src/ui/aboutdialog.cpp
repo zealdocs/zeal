@@ -30,6 +30,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     const QString buildInfo = QString(tr("<strong>Version:</strong> %1<br>"))
             .arg(QCoreApplication::applicationVersion());
