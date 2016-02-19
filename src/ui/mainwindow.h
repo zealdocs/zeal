@@ -133,6 +133,10 @@ private:
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
+
+#ifdef USE_APPINDICATOR
+    void detectAppIndicatorSupport();
+#endif
     void createTrayIcon();
     void removeTrayIcon();
 
@@ -159,6 +163,7 @@ private:
     QSystemTrayIcon *m_trayIcon = nullptr;
 
 #ifdef USE_APPINDICATOR
+    bool m_useAppIndicator = false;
     _AppIndicator *m_appIndicator = nullptr;
     _GtkWidget *m_appIndicatorMenu = nullptr;
     _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;

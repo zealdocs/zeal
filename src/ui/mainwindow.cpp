@@ -92,6 +92,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
+#ifdef USE_APPINDICATOR
+    detectAppIndicatorSupport();
+#endif
+
     if (m_settings->showSystrayIcon)
         createTrayIcon();
 
@@ -679,6 +683,26 @@ QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryIte
 }
 
 #ifdef USE_APPINDICATOR
+void MainWindow::detectAppIndicatorSupport()
+{
+    const QByteArray xdgDesktop = qgetenv("XDG_CURRENT_DESKTOP");
+
+    // Unity
+    if (xdgDesktop == "Unity") {
+        m_useAppIndicator = true;
+        return;
+    }
+
+    // Cinnamon 2.8
+    // Checking specifically for 2.8 because direct AppIndicator support will be dropped soon.
+    if (xdgDesktop == "X-Cinnamon" && qgetenv("CINNAMON_VERSION").startsWith("2.8")) {
+        m_useAppIndicator = true;
+        return;
+    }
+}
+#endif
+
+#ifdef USE_APPINDICATOR
 void appIndicatorToggleWindow(GtkMenu *menu, gpointer data)
 {
     Q_UNUSED(menu);
@@ -697,10 +721,7 @@ void MainWindow::createTrayIcon()
 #endif
 
 #ifdef USE_APPINDICATOR
-    const QString desktop = qgetenv("XDG_CURRENT_DESKTOP");
-    const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
-
-    if (isUnity) { // Application Indicators for Unity
+    if (m_useAppIndicator) {
         m_appIndicatorMenu = gtk_menu_new();
 
         m_appIndicatorShowHideMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Hide")));
@@ -764,10 +785,7 @@ void MainWindow::removeTrayIcon()
 #endif
 
 #ifdef USE_APPINDICATOR
-    const QString desktop = qgetenv("XDG_CURRENT_DESKTOP");
-    const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
-
-    if (isUnity) {
+    if (m_useAppIndicator) {
         g_clear_object(&m_appIndicator);
         g_clear_object(&m_appIndicatorMenu);
         g_clear_object(&m_appIndicatorShowHideMenuItem);
