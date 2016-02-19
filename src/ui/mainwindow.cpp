@@ -697,7 +697,7 @@ void MainWindow::createTrayIcon()
 #endif
 
 #ifdef USE_APPINDICATOR
-    const QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    const QString desktop = qgetenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
     if (isUnity) { // Application Indicators for Unity
@@ -764,7 +764,7 @@ void MainWindow::removeTrayIcon()
 #endif
 
 #ifdef USE_APPINDICATOR
-    const QString desktop = getenv("XDG_CURRENT_DESKTOP");
+    const QString desktop = qgetenv("XDG_CURRENT_DESKTOP");
     const bool isUnity = (desktop.toLower() == QLatin1String("unity"));
 
     if (isUnity) {
