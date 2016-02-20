@@ -164,6 +164,9 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
 
 int main(int argc, char *argv[])
 {
+    // Do not allow Qt version lower than the app was compiled with.
+    QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR);
+
     QCoreApplication::setApplicationName(QStringLiteral("Zeal"));
     QCoreApplication::setApplicationVersion(ZEAL_VERSION);
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
