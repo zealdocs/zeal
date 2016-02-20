@@ -108,12 +108,16 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
 
+    if (!query.isEmpty()) {
+        m_mainWindow->search(query);
+        m_mainWindow->show();
+        return;
+    }
+
     if (m_settings->startMinimized)
         m_mainWindow->showMinimized();
     else
         m_mainWindow->show();
-
-    m_mainWindow->search(query);
 }
 
 Application::~Application()
