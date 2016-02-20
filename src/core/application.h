@@ -26,12 +26,11 @@
 #include <QObject>
 
 class QLocalServer;
-
-class MainWindow;
-
 class QNetworkAccessManager;
 class QNetworkReply;
 class QThread;
+
+class MainWindow;
 
 namespace Zeal {
 
