@@ -341,20 +341,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->sections->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
-    /// TODO: Remove in the future releases
-    // Check pre-0.1 docset path
-    QString oldDocsetDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    oldDocsetDir.remove(QStringLiteral("Zeal/Zeal"));
-    oldDocsetDir += QLatin1String("zeal/docsets");
-    if (QFileInfo::exists(oldDocsetDir) && m_settings->docsetPath != oldDocsetDir) {
-        QMessageBox::information(this, QStringLiteral("Zeal"),
-                                 QString(tr("Old docset storage has been found in <b>%1</b>. "
-                                            "You can move docsets to <b>%2</b> or change the docset storage path in the settings. <br><br>"
-                                            "Please note, that old docsets cannot be updated automatically, so it is better to download your docsets again. <br><br>"
-                                            "Remove or use the old docset storage to avoid this message in the future."))
-                                 .arg(QDir::toNativeSeparators(oldDocsetDir), QDir::toNativeSeparators(m_settings->docsetPath)));
-    }
-
     if (m_settings->checkForUpdate)
         m_application->checkForUpdates(true);
 }
