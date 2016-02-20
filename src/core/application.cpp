@@ -114,10 +114,14 @@ Application::Application(const SearchQuery &query, QObject *parent) :
         return;
     }
 
-    if (m_settings->startMinimized)
+    if (m_settings->startMinimized) {
+        if (m_settings->showSystrayIcon && m_settings->minimizeToSystray)
+            return;
+
         m_mainWindow->showMinimized();
-    else
+    } else {
         m_mainWindow->show();
+    }
 }
 
 Application::~Application()
