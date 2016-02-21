@@ -15,10 +15,6 @@
   </property>
   <property name="styleSheet">
    <string notr="true">
-QSplitter::handle {
-    background: black;
-}
-
 QFrame#searchEditFrame, QFrame#tabBarFrame {
     border-top: none;
     border-right: none;
@@ -43,15 +39,6 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
-      <property name="lineWidth">
-       <number>5</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="handleWidth">
-       <number>1</number>
-      </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="resultPane">
         <property name="spacing">
@@ -96,14 +83,8 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
         </item>
         <item>
          <widget class="QSplitter" name="sectionsSplitter">
-          <property name="lineWidth">
-           <number>5</number>
-          </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
-          </property>
-          <property name="handleWidth">
-           <number>1</number>
           </property>
           <widget class="QTreeView" name="treeView">
            <property name="frameShape">
