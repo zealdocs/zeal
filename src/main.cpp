@@ -32,7 +32,6 @@
 #include <QLocalSocket>
 #include <QMessageBox>
 #include <QSqlDatabase>
-#include <QStandardPaths>
 #include <QTextStream>
 #include <QUrlQuery>
 
