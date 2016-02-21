@@ -76,6 +76,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     m_docsetRegistry(app->docsetRegistry())
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 #ifdef Q_OS_OSX
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
