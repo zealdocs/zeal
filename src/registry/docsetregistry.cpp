@@ -108,6 +108,7 @@ void DocsetRegistry::_addDocset(const QString &path)
 
     /// TODO: Emit error
     if (!docset->isValid()) {
+        qWarning("Could not load docset from '%s'. Please reinstall the docset.", qPrintable(path));
         delete docset;
         return;
     }
