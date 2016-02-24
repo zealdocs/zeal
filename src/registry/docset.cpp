@@ -121,6 +121,9 @@ Docset::Docset(const QString &path) :
         return;
     }
 
+    // Since the docset was fully initialized set its type.
+    m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
+
     createIndex();
 
     if (!dir.cd(QStringLiteral("Documents")))
@@ -157,9 +160,6 @@ Docset::Docset(const QString &path) :
     }
 
     countSymbols();
-
-    // Since the docset was fully initialized set its type.
-    m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 }
 
 Docset::~Docset()
