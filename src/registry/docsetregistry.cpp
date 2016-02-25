@@ -138,6 +138,7 @@ void DocsetRegistry::_runQuery(const QString &query)
 
     std::sort(m_queryResults.begin(), m_queryResults.end());
 
+    m_queryResults = m_queryResults.mid(0, 100);
     emit queryCompleted();
 }
 

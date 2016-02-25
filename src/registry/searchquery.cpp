@@ -128,11 +128,24 @@ void SearchQuery::setQuery(const QString &str)
 
 QString SearchQuery::sanitizedQuery() const
 {
-    QString q = m_query;
-    q.replace(QLatin1String("\\"), QLatin1String("\\\\"));
-    q.replace(QLatin1String("_"), QLatin1String("\\_"));
-    q.replace(QLatin1String("%"), QLatin1String("\\%"));
-    q.replace(QLatin1String("'"), QLatin1String("''"));
+    QString q("");
+    for (const QChar c: m_query) {
+        if (c == QChar('\\') || c == QChar('_') || c == QChar('%'))
+            q += "\\";
+        q += c;
+    }
+    return q;
+}
+
+QString SearchQuery::sanitizedQuerySubseq() const
+{
+    QString q("%");
+    for (const QChar c: m_query) {
+        if (c == QChar('\\') || c == QChar('_') || c == QChar('%'))
+            q += "\\";
+        q += c;
+        q += "%";
+    }
     return q;
 }
 

@@ -35,7 +35,8 @@ class SearchModel : public QAbstractItemModel
     Q_OBJECT
 public:
     enum Roles {
-        TypeIconRole = Qt::UserRole
+        TypeIconRole = Qt::UserRole,
+        HlPositionsRole = Qt::UserRole + 10
     };
 
     explicit SearchModel(QObject *parent = nullptr);
@@ -56,6 +57,7 @@ signals:
 
 private:
     QList<SearchResult> m_dataList;
+    QList<QVariant> listHlPositions(const SearchResult &result) const;
 };
 
 } // namespace Zeal

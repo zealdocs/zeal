@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "docset.h"
+#include "docsettoken.h"
 
 #include "searchquery.h"
 #include "util/plist.h"
@@ -236,72 +237,69 @@ QList<SearchResult> Docset::search(const QString &query) const
 {
     QList<SearchResult> results;
 
-    const SearchQuery searchQuery = SearchQuery::fromString(query);
-    const QString sanitizedQuery = searchQuery.sanitizedQuery();
+    const SearchQuery searchQuery = SearchQuery::fromString(query.toLower());
 
     if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
         return results;
 
+    const DocsetToken queryToken(searchQuery.query());
+
+    // Select possible search results
     QString queryStr;
+    if (m_type == Docset::Type::Dash) {
+        queryStr = QStringLiteral("SELECT name, type, path\n"
+                                  "FROM searchIndex\n"
+                                  "WHERE name LIKE :queryPatternSubseq ESCAPE '\\'\n"
+                                  "ORDER BY\n"
+                                  "    name LIKE :queryPatternStart ESCAPE '\\' DESC,     -- starts with\n"
+                                  "    name LIKE :queryPatternSubstring ESCAPE '\\' DESC, -- is substring\n"
+                                  "    LENGTH(name) ASC                                   -- shortest first\n"
+                                  "LIMIT 100");
+    } else if (m_type == Docset::Type::ZDash) {
+        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor\n"
+                                  "FROM ztoken\n"
+                                  "JOIN ztokenmetainformation\n"
+                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk\n"
+                                  "JOIN zfilepath\n"
+                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk\n" 
+                                  "JOIN ztokentype\n"
+                                  "    ON ztoken.ztokentype = ztokentype.z_pk\n"
+                                  "WHERE ztokenname LIKE :queryPatternSubseq ESCAPE '\\'\n"
+                                  "ORDER BY\n"
+                                  "    ztokenname LIKE :queryPatternStart ESCAPE '\\' DESC,     -- starts with\n"
+                                  "    ztokenname LIKE :queryPatternSubstring ESCAPE '\\' DESC, -- is substring\n"
+                                  "    LENGTH(ztokenname) ASC                                   -- shortest first\n"
+                                  "LIMIT 100");
+    }
 
-    bool withSubStrings = false;
-    // %.%1% for long Django docset values like django.utils.http
-    // %::%1% for long C++ docset values like std::set
-    // %/%1% for long Go docset values like archive/tar
-    QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (results.size() < 100) {
-        QString curQuery = sanitizedQuery;
-        QString notQuery; // don't return the same result twice
-        if (withSubStrings) {
-            // if less than 100 found starting with query, search all substrings
-            curQuery = QLatin1Char('%') + sanitizedQuery;
-            // don't return 'starting with' results twice
-            if (m_type == Docset::Type::Dash)
-                notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("name", sanitizedQuery));
-            else
-                notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
-        }
-        if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, type, path "
-                               "    FROM searchIndex "
-                               "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY name COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("name", curQuery));
-        } else {
-            queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
-                               "    FROM ztoken "
-                               "JOIN ztokenmetainformation "
-                               "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath "
-                               "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                               "JOIN ztokentype "
-                               "    ON ztoken.ztokentype = ztokentype.z_pk "
-                               "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY ztokenname COLLATE NOCASE LIMIT 100")
-                    .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
-        }
+    QSqlQuery sqlQuery(database());
+    sqlQuery.prepare(queryStr);
 
-        QSqlQuery query(queryStr, database());
-        while (query.next()) {
-            const QString itemName = query.value(0).toString();
-            QString path = query.value(2).toString();
-            if (m_type == Docset::Type::ZDash) {
-                const QString anchor = query.value(3).toString();
-                if (!anchor.isEmpty())
-                    path += QLatin1Char('#') + anchor;
-            }
+    const QString queryPatternSubseq = searchQuery.sanitizedQuerySubseq();
+    const QString queryPattern = searchQuery.sanitizedQuery();
+    sqlQuery.bindValue(":queryPatternSubseq", queryPatternSubseq);
+    sqlQuery.bindValue(":queryPatternStart", queryPattern + QChar('%'));
+    sqlQuery.bindValue(":queryPatternSubstring", QChar('%') + queryPattern + QChar('%'));
 
-            /// TODO: Third should be type
-            results.append(SearchResult{itemName, QString(),
-                                        parseSymbolType(query.value(1).toString()),
-                                        const_cast<Docset *>(this), path, sanitizedQuery});
+    sqlQuery.exec();
+
+    while (sqlQuery.next()) {
+        DocsetToken token(sqlQuery.value(0).toString());
+        QString type = parseSymbolType(sqlQuery.value(1).toString());
+        QString path = sqlQuery.value(2).toString();
+        if (m_type == Docset::Type::ZDash) {
+            const QString anchor = sqlQuery.value(3).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
         }
 
-        if (withSubStrings)
-            break;
-        withSubStrings = true;  // try again searching for substrings
+        // Only actually return relevant ones
+        SearchRelevancy searchRelevancy = SearchRelevancy::fromQuery(token, queryToken);
+        if (searchRelevancy.relevancy > 0) {
+            results.append(SearchResult{token, queryToken, type,
+                    const_cast<Docset *>(this), path,
+                    searchRelevancy});
+        }
     }
 
     return results;
@@ -337,17 +335,21 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 
     QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
 
+    DocsetToken queryToken(QString(""));
     while (query.next()) {
-        const QString sectionName = query.value(0).toString();
+        DocsetToken token(query.value(0).toString());
+        QString type = parseSymbolType(query.value(1).toString());
         QString sectionPath = query.value(2).toString();
         if (m_type == Docset::Type::ZDash) {
-            sectionPath += QLatin1Char('#');
-            sectionPath += query.value(3).toString();
+            const QString anchor = query.value(3).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
         }
 
-        results.append(SearchResult{sectionName, QString(),
-                                    parseSymbolType(query.value(1).toString()),
-                                    const_cast<Docset *>(this), sectionPath, QString()});
+        SearchRelevancy searchRelevancy = SearchRelevancy::fromQuery(token, queryToken);
+        results.append(SearchResult{token, queryToken, type,
+                const_cast<Docset *>(this), sectionPath,
+                searchRelevancy});
     }
 
     if (results.size() == 1)

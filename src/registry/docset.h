@@ -72,6 +72,7 @@ private:
     };
 
     QSqlDatabase database() const;
+
     void loadMetadata();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;

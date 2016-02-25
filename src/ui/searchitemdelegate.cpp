@@ -46,7 +46,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->save();
 
     QStyleOptionViewItem option(option_);
-    option.text = index.data().toString();
+    option.text = index.data(Qt::DisplayRole).toString();
     option.features |= QStyleOptionViewItem::HasDisplay;
 
     if (!index.data(Qt::DecorationRole).isNull()) {
@@ -79,27 +79,36 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     const QString elided = metrics.elidedText(option.text, option.textElideMode, rect.width());
 
-    int from = 0;
-    while (from < elided.size()) {
-        const int to = elided.indexOf(m_highlight, from, Qt::CaseInsensitive);
-
-        if (to == -1) {
-            painter->drawText(rect, elided.mid(from));
-            break;
+    // Paint alternating contiguous sequences of bold/nonbold text;
+    QList<QVariant> hlPositions = index.data(Zeal::SearchModel::HlPositionsRole).toList();
+    int i = 0, j = 0, k, n;
+    while (i < elided.length()) {
+        k = i;
+        while (k < elided.length() and j < hlPositions.length() and k != hlPositions.at(j).toInt())
+            k++;
+        if ((n = k - i) > 0) {
+            painter->drawText(rect, elided.mid(i, n));
+            rect.setLeft(rect.left() + metrics.width(elided.mid(i, n)));
         }
 
-        QString text = elided.mid(from, to - from);
-        painter->drawText(rect, text);
-        rect.setLeft(rect.left() + metrics.width(text));
+        i = k;
+        while (k < elided.length() and j < hlPositions.length() and k == hlPositions.at(j).toInt()) {
+            k++; 
+            j++;
+        }
+        if ((n = k - i) > 0) {
+            QFont old(painter->font());
+            painter->setFont(boldFont);
+            painter->drawText(rect, elided.mid(i, n));
+            rect.setLeft(rect.left() + metricsBold.width(elided.mid(i, n)));
+            painter->setFont(old);
+        }
 
-        text = elided.mid(to, m_highlight.size());
-        painter->setFont(boldFont);
-        painter->drawText(rect, text);
-        rect.setLeft(rect.left() + metricsBold.width(text));
-
-        painter->setFont(defaultFont);
-
-        from = to + m_highlight.size();
+        i = k;
+        if (j == hlPositions.length()) {
+            painter->drawText(rect, elided.mid(i));
+            break;
+        }
     }
 
     painter->restore();
