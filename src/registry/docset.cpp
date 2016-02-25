@@ -121,7 +121,6 @@ Docset::Docset(const QString &path) :
         return;
     }
 
-    // Since the docset was fully initialized set its type.
     m_type = db.tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 
     createIndex();
@@ -129,8 +128,7 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Documents")))
         return;
 
-    //
-    // Setyp keywords
+    // Setup keywords
     if (plist.contains(InfoPlist::DocSetPlatformFamily))
         m_keywords << plist[InfoPlist::DocSetPlatformFamily].toString();
 

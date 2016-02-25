@@ -28,8 +28,6 @@
 #include <QDir>
 #include <QSqlQuery>
 #include <QThread>
-#include <QUrl>
-#include <QVariant>
 
 using namespace Zeal;
 
@@ -153,7 +151,7 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
     const QDir dir(path);
     for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
-        if (subdir.suffix() == QLatin1String("docset"))
+        if (subdir.suffix() == QStringLiteral("docset"))
             addDocset(subdir.absoluteFilePath());
         else
             addDocsetsFromFolder(subdir.absoluteFilePath());
