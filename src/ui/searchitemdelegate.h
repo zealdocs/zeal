@@ -32,6 +32,8 @@ class SearchItemDelegate : public QStyledItemDelegate
 public:
     explicit SearchItemDelegate(QObject *parent = nullptr);
 
+    bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option,
+                   const QModelIndex &index) override;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
