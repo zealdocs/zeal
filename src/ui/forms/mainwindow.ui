@@ -13,22 +13,8 @@
   <property name="windowTitle">
    <string>Zeal</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">
-QSplitter::handle {
-    background: black;
-}
-
-QFrame#searchEditFrame, QFrame#tabBarFrame {
-    border-top: none;
-    border-right: none;
-    border-bottom: 1px solid black;
-    border-left: none;
-}
-</string>
-  </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QVBoxLayout" name="centralWidgetLayout">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -41,16 +27,10 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item row="0" column="0">
+    <item>
      <widget class="QSplitter" name="splitter">
-      <property name="lineWidth">
-       <number>5</number>
-      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="handleWidth">
-       <number>1</number>
       </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="resultPane">
@@ -58,7 +38,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="searchEditFrame">
+         <widget class="ToolBarFrame" name="searchEditWidget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -68,7 +48,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
           <property name="styleSheet">
            <string notr="true"/>
           </property>
-          <layout class="QVBoxLayout" name="searchToolbar">
+          <layout class="QVBoxLayout" name="searchToolBarFrame">
            <property name="leftMargin">
             <number>6</number>
            </property>
@@ -96,14 +76,8 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
         </item>
         <item>
          <widget class="QSplitter" name="sectionsSplitter">
-          <property name="lineWidth">
-           <number>5</number>
-          </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
-          </property>
-          <property name="handleWidth">
-           <number>1</number>
           </property>
           <widget class="QTreeView" name="treeView">
            <property name="frameShape">
@@ -173,7 +147,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
          <number>0</number>
         </property>
         <item>
-         <widget class="QFrame" name="tabBarFrame">
+         <widget class="ToolBarFrame" name="navigationBar" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -205,21 +179,17 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="toolbarLayout">
-             <item>
-              <widget class="QPushButton" name="openUrlButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Open URL</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QPushButton" name="openUrlButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Open URL</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -246,7 +216,7 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
      <x>0</x>
      <y>0</y>
      <width>1050</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -364,6 +334,12 @@ QFrame#searchEditFrame, QFrame#tabBarFrame {
    <class>SearchableWebView</class>
    <extends>QWidget</extends>
    <header>ui/widgets/searchablewebview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolBarFrame</class>
+   <extends>QWidget</extends>
+   <header>ui/widgets/toolbarframe.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

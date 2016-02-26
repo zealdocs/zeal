@@ -314,7 +314,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
     {
-        QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->tabBarFrame->layout());
+        QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->navigationBar->layout());
         layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
     }
 
