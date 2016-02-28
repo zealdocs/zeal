@@ -65,15 +65,14 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyle *style = option.widget->style();
     style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
-    const QRect rect = style->subElementRect(QStyle::SE_ItemViewItemText, &option, option.widget);
-
     // Match QCommonStyle behaviour.
     const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget) + 1;
-    const QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0);
+    const QRect rect = style->subElementRect(QStyle::SE_ItemViewItemText, &option, option.widget)
+            .adjusted(textMargin, 0, -textMargin, 0);
 
     const QString text = index.data().toString();
     const QFontMetrics fm(option.font);
-    const QString elidedText = fm.elidedText(text, option.textElideMode, textRect.width());
+    const QString elidedText = fm.elidedText(text, option.textElideMode, rect.width());
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
@@ -82,12 +81,12 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QColor highlightColor = option.state & (QStyle::State_Selected | QStyle::State_HasFocus)
             ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
-    for (int i = 0; i < elidedText.length();) {
+    for (int i = 0;;) {
         const int matchIndex = text.indexOf(m_highlight, i, Qt::CaseInsensitive);
         if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
             break;
 
-        QRect highlightRect = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
+        QRect highlightRect = rect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
         highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
 
         QPainterPath path;
@@ -120,7 +119,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     // Vertically align the text in the middle to match QCommonStyle behaviour.
     const QRect alignedRect = QStyle::alignedRect(option.direction, option.displayAlignment,
-                                                  QSize(1, fm.height()), textRect);
+                                                  QSize(1, fm.height()), rect);
     painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
     painter->restore();
 }
