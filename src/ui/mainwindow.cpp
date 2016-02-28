@@ -192,6 +192,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
     ui->treeView->setItemDelegate(delegate);
 
+    ui->sections->setItemDelegate(new SearchItemDelegate(ui->sections));
+
     createTab();
     /// FIXME: QTabBar does not emit currentChanged() after the first addTab() call
     reloadTabState();
