@@ -80,7 +80,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
-    m_settingsDialog(new SettingsDialog(app, m_zealListModel, this)),
+    m_settingsDialog(new SettingsDialog(app, this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     ui->setupUi(this);

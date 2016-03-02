@@ -69,7 +69,7 @@ const char DownloadPreviousReceived[] = "downloadPreviousReceived";
 const char ListItemIndexProperty[] = "listItem";
 }
 
-SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent) :
+SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog()),
     m_application(app),
@@ -87,7 +87,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, ListModel *listModel, QWi
     ui->docsetsProgress->hide();
 
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
-    ui->installedDocsetList->setModel(listModel);
+    ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
 
     ui->installedDocsetList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();

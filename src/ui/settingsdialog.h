@@ -43,7 +43,6 @@ class SettingsDialog;
 namespace Zeal {
 
 class DocsetRegistry;
-class ListModel;
 
 namespace Core {
 class Application;
@@ -53,7 +52,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit SettingsDialog(Core::Application *app, ListModel *listModel, QWidget *parent = nullptr);
+    explicit SettingsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~SettingsDialog() override;
 
 private slots:
