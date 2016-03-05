@@ -37,8 +37,6 @@
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
 #include <QDesktopServices>
-#include <QDir>
-#include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -233,7 +231,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, &MainWindow::onSearchComplete);
+    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted,
+            this, &MainWindow::onSearchComplete);
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             this, [this](const QString &name) {

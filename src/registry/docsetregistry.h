@@ -49,11 +49,10 @@ public:
 
     Docset *docset(const QString &name) const;
     Docset *docset(int index) const;
+    QList<Docset *> docsets() const;
 
-    QString prepareQuery(const QString &rawQuery);
     void search(const QString &query);
     const QList<SearchResult> &queryResults();
-    QList<Docset *> docsets() const;
 
 public slots:
     void addDocset(const QString &path);

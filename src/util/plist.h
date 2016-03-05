@@ -41,7 +41,7 @@ private:
     bool m_hasError = false;
 };
 
-} // namespace Zeal
 } // namespace Util
+} // namespace Zeal
 
 #endif // PLIST_H
