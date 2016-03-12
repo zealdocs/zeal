@@ -210,6 +210,14 @@ QIcon Docset::icon() const
     return m_icon;
 }
 
+QIcon Docset::symbolTypeIcon(const QString &symbolType) const
+{
+    static const QIcon unknownIcon(QStringLiteral("typeIcon:Unknown.png"));
+
+    const QIcon icon(QStringLiteral("typeIcon:%1.png").arg(symbolType));
+    return icon.availableSizes().isEmpty() ? unknownIcon : icon;
+}
+
 QString Docset::indexFilePath() const
 {
     return QDir(documentPath()).absoluteFilePath(m_indexFilePath);

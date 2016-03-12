@@ -55,13 +55,12 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
 
-    case Qt::DecorationRole:
-        return item->docset->icon();
+    case Qt::DecorationRole: {
+        return item->docset->symbolTypeIcon(item->type);
+    }
 
     case Roles::TypeIconRole:
-        if (index.column() != 0)
-            return QVariant();
-        return QIcon(QString("typeIcon:%1.png").arg(item->type));
+        return item->docset->icon();
 
     default:
         return QVariant();
