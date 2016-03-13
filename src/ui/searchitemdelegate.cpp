@@ -57,10 +57,10 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
     return true;
 }
 
-void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
+void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
-    QStyleOptionViewItem option(option_);
+    QStyleOptionViewItem opt(option);
 
     // Find roles with data present.
     QList<int> roles;
@@ -70,54 +70,54 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     if (!roles.isEmpty()) {
-        option.features |= QStyleOptionViewItem::HasDecoration;
-        option.icon = index.data(roles.first()).value<QIcon>();
+        opt.features |= QStyleOptionViewItem::HasDecoration;
+        opt.icon = index.data(roles.first()).value<QIcon>();
     }
 
     // No or one icon && no highlight => no custom logic required.
     if (roles.size() < 2 && m_highlight.isEmpty()) {
-        QStyledItemDelegate::paint(painter, option, index);
+        QStyledItemDelegate::paint(painter, opt, index);
         return;
     }
 
-    QStyle *style = option.widget->style();
-    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &option, option.widget) + 1;
-    const QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &option,
-                                                 option.widget);
+    QStyle *style = opt.widget->style();
+    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, opt.widget) + 1;
+    const QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt,
+                                                 opt.widget);
 
-    style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
+    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
     for (int i = 1; i < roles.size(); ++i) {
         const QIcon icon = index.data(roles[i]).value<QIcon>();
 
         const int dx = iconRect.width() + margin;
         const QRect rect = iconRect.adjusted(dx * i, 0, dx * i, 0);
-        option.decorationSize.rwidth() += dx;
+        opt.decorationSize.rwidth() += dx;
 
         QIcon::Mode mode = QIcon::Normal;
-        if (!(option.state & QStyle::State_Enabled))
+        if (!(opt.state & QStyle::State_Enabled))
             mode = QIcon::Disabled;
-        else if (option.state & QStyle::State_Selected)
+        else if (opt.state & QStyle::State_Selected)
             mode = QIcon::Selected;
-        QIcon::State state = option.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
-        icon.paint(painter, rect, option.decorationAlignment, mode, state);
+        QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
+        icon.paint(painter, rect, opt.decorationAlignment, mode, state);
     }
 
     // Match QCommonStyle behaviour.
     const QString text = index.data().toString();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget) + 1;
-    const QRect rect = style->subElementRect(QStyle::SE_ItemViewItemText, &option, option.widget)
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, opt.widget) + 1;
+    const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
             .adjusted(textMargin, 0, -textMargin, 0);
 
-    const QFontMetrics fm(option.font);
-    const QString elidedText = fm.elidedText(text, option.textElideMode, rect.width());
+    const QFontMetrics fm(opt.font);
+    const QString elidedText = fm.elidedText(text, opt.textElideMode, textRect.width());
 
     if (!m_highlight.isEmpty()) {
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
         painter->setPen(QColor::fromRgb(255, 253, 0));
 
-        const QColor highlightColor = option.state & (QStyle::State_Selected | QStyle::State_HasFocus)
+        const QColor highlightColor = opt.state & (QStyle::State_Selected | QStyle::State_HasFocus)
                 ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
         for (int i = 0;;) {
@@ -125,7 +125,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
                 break;
 
-            QRect highlightRect = rect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
+            QRect highlightRect = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
             highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
 
             QPainterPath path;
@@ -145,22 +145,22 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 #ifdef Q_OS_WIN32
     // QWindowsVistaStyle overrides highlight colour.
     if (style->objectName() == QStringLiteral("windowsvista")) {
-        option.palette.setColor(QPalette::All, QPalette::HighlightedText,
-                                option.palette.color(QPalette::Active, QPalette::Text));
+        opt.palette.setColor(QPalette::All, QPalette::HighlightedText,
+                             opt.palette.color(QPalette::Active, QPalette::Text));
     }
 #endif
 
-    const QPalette::ColorGroup cg = option.state & QStyle::State_Active
+    const QPalette::ColorGroup cg = opt.state & QStyle::State_Active
             ? QPalette::Normal : QPalette::Inactive;
 
-    if (option.state & QStyle::State_Selected)
-        painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
+    if (opt.state & QStyle::State_Selected)
+        painter->setPen(opt.palette.color(cg, QPalette::HighlightedText));
     else
-        painter->setPen(option.palette.color(cg, QPalette::Text));
+        painter->setPen(opt.palette.color(cg, QPalette::Text));
 
     // Vertically align the text in the middle to match QCommonStyle behaviour.
-    const QRect alignedRect = QStyle::alignedRect(option.direction, option.displayAlignment,
-                                                  QSize(1, fm.height()), rect);
+    const QRect alignedRect = QStyle::alignedRect(opt.direction, opt.displayAlignment,
+                                                  QSize(1, fm.height()), textRect);
     painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
     painter->restore();
 }
