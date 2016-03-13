@@ -59,7 +59,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         return item->docset->symbolTypeIcon(item->type);
     }
 
-    case Roles::TypeIconRole:
+    case ItemDataRole::DocsetIconRole:
         return item->docset->icon();
 
     default:

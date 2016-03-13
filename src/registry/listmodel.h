@@ -36,8 +36,9 @@ class ListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    enum {
-        DocsetNameRole = Qt::UserRole,
+    enum ItemDataRole {
+        // Do not collide with SearchModel
+        DocsetNameRole = Qt::UserRole + 10,
         UpdateAvailableRole
     };
 

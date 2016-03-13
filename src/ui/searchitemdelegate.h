@@ -32,6 +32,9 @@ class SearchItemDelegate : public QStyledItemDelegate
 public:
     explicit SearchItemDelegate(QObject *parent = nullptr);
 
+    QList<int> decorationRoles() const;
+    void setDecorationRoles(const QList<int> &roles);
+
     bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option,
                    const QModelIndex &index) override;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -41,6 +44,7 @@ public slots:
     void setHighlight(const QString &text);
 
 private:
+    QList<int> m_decorationRoles = {Qt::DecorationRole};
     QString m_highlight;
 };
 

@@ -34,6 +34,16 @@ SearchItemDelegate::SearchItemDelegate(QObject *parent) :
 {
 }
 
+QList<int> SearchItemDelegate::decorationRoles() const
+{
+    return m_decorationRoles;
+}
+
+void SearchItemDelegate::setDecorationRoles(const QList<int> &roles)
+{
+    m_decorationRoles = roles;
+}
+
 bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
                                    const QStyleOptionViewItem &option, const QModelIndex &index)
 {
@@ -50,55 +60,86 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option_,
                                const QModelIndex &index) const
 {
-    if (m_highlight.isEmpty()) {
-        QStyledItemDelegate::paint(painter, option_, index);
+    QStyleOptionViewItem option(option_);
+
+    // Find roles with data present.
+    QList<int> roles;
+    for (int role : m_decorationRoles) {
+        if (!index.data(role).isNull())
+            roles.append(role);
+    }
+
+    if (!roles.isEmpty()) {
+        option.features |= QStyleOptionViewItem::HasDecoration;
+        option.icon = index.data(roles.first()).value<QIcon>();
+    }
+
+    // No or one icon && no highlight => no custom logic required.
+    if (roles.size() < 2 && m_highlight.isEmpty()) {
+        QStyledItemDelegate::paint(painter, option, index);
         return;
     }
 
-    QStyleOptionViewItem option(option_);
-
-    if (!index.data(Qt::DecorationRole).isNull()) {
-        option.features |= QStyleOptionViewItem::HasDecoration;
-        option.icon = index.data(Qt::DecorationRole).value<QIcon>();
-    }
-
     QStyle *style = option.widget->style();
+    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &option, option.widget) + 1;
+    const QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &option,
+                                                 option.widget);
+
     style->drawControl(QStyle::CE_ItemViewItem, &option, painter, option.widget);
 
+    for (int i = 1; i < roles.size(); ++i) {
+        const QIcon icon = index.data(roles[i]).value<QIcon>();
+
+        const int dx = iconRect.width() + margin;
+        const QRect rect = iconRect.adjusted(dx * i, 0, dx * i, 0);
+        option.decorationSize.rwidth() += dx;
+
+        QIcon::Mode mode = QIcon::Normal;
+        if (!(option.state & QStyle::State_Enabled))
+            mode = QIcon::Disabled;
+        else if (option.state & QStyle::State_Selected)
+            mode = QIcon::Selected;
+        QIcon::State state = option.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
+        icon.paint(painter, rect, option.decorationAlignment, mode, state);
+    }
+
     // Match QCommonStyle behaviour.
+    const QString text = index.data().toString();
     const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, option.widget) + 1;
     const QRect rect = style->subElementRect(QStyle::SE_ItemViewItemText, &option, option.widget)
             .adjusted(textMargin, 0, -textMargin, 0);
 
-    const QString text = index.data().toString();
     const QFontMetrics fm(option.font);
     const QString elidedText = fm.elidedText(text, option.textElideMode, rect.width());
 
-    painter->save();
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setPen(QColor::fromRgb(255, 253, 0));
+    if (!m_highlight.isEmpty()) {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(QColor::fromRgb(255, 253, 0));
 
-    const QColor highlightColor = option.state & (QStyle::State_Selected | QStyle::State_HasFocus)
-            ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
+        const QColor highlightColor = option.state & (QStyle::State_Selected | QStyle::State_HasFocus)
+                ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
-    for (int i = 0;;) {
-        const int matchIndex = text.indexOf(m_highlight, i, Qt::CaseInsensitive);
-        if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
-            break;
+        for (int i = 0;;) {
+            const int matchIndex = text.indexOf(m_highlight, i, Qt::CaseInsensitive);
+            if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
+                break;
 
-        QRect highlightRect = rect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
-        highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
+            QRect highlightRect = rect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
+            highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
 
-        QPainterPath path;
-        path.addRoundedRect(highlightRect, 2, 2);
+            QPainterPath path;
+            path.addRoundedRect(highlightRect, 2, 2);
 
-        painter->fillPath(path, highlightColor);
-        painter->drawPath(path);
+            painter->fillPath(path, highlightColor);
+            painter->drawPath(path);
 
-        i = matchIndex + m_highlight.length();
+            i = matchIndex + m_highlight.length();
+        }
+
+        painter->restore();
     }
 
-    painter->restore();
     painter->save();
 
 #ifdef Q_OS_WIN32
