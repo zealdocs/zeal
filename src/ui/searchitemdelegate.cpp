@@ -81,17 +81,15 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     QStyle *style = opt.widget->style();
-    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, opt.widget) + 1;
-    const QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt,
-                                                 opt.widget);
-
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
-    for (int i = 1; i < roles.size(); ++i) {
-        const QIcon icon = index.data(roles[i]).value<QIcon>();
+    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, opt.widget) + 1;
 
-        const int dx = iconRect.width() + margin;
-        const QRect rect = iconRect.adjusted(dx * i, 0, dx * i, 0);
+    QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
+    const int dx = iconRect.width() + margin;
+
+    for (int i = 1; i < roles.size(); ++i) {
+        iconRect.translate(dx, 0);
         opt.decorationSize.rwidth() += dx;
 
         QIcon::Mode mode = QIcon::Normal;
@@ -100,14 +98,15 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         else if (opt.state & QStyle::State_Selected)
             mode = QIcon::Selected;
         QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
-        icon.paint(painter, rect, opt.decorationAlignment, mode, state);
+
+        const QIcon icon = index.data(roles[i]).value<QIcon>();
+        icon.paint(painter, iconRect, opt.decorationAlignment, mode, state);
     }
 
     // Match QCommonStyle behaviour.
     const QString text = index.data().toString();
-    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, opt.widget) + 1;
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
-            .adjusted(textMargin, 0, -textMargin, 0);
+            .adjusted(margin, 0, -margin, 0);
 
     const QFontMetrics fm(opt.font);
     const QString elidedText = fm.elidedText(text, opt.textElideMode, textRect.width());
