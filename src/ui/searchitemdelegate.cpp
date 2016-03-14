@@ -47,13 +47,14 @@ void SearchItemDelegate::setDecorationRoles(const QList<int> &roles)
 bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
                                    const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    if (sizeHint(option, index).width() < view->visualRect(index).width()) {
+    /// FIXME: It should be view->visualRect(index).width() instead of viewport()->width()
+    /// Doesn't work for shot items in the TOC, bug?
+    if (sizeHint(option, index).width() < view->viewport()->width()) {
         QToolTip::hideText();
         return QStyledItemDelegate::helpEvent(event, view, option, index);
     }
 
     QToolTip::showText(event->globalPos(), index.data().toString(), view);
-
     return true;
 }
 
@@ -166,6 +167,36 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                                                   QSize(1, fm.height()), textRect);
     painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
     painter->restore();
+}
+
+QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+                                   const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt(option);
+
+    QStyle *style = opt.widget->style();
+
+    QSize size = QStyledItemDelegate::sizeHint(opt, index);
+    size.setWidth(0);
+
+    const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, opt.widget) + 1;
+
+    // Find decoration roles with data present.
+    QList<int> roles;
+    for (int role : m_decorationRoles) {
+        if (!index.data(role).isNull())
+            roles.append(role);
+    }
+
+    if (!roles.isEmpty()) {
+        const QIcon icon = index.data(roles.first()).value<QIcon>();
+        const QSize actualSize = icon.actualSize(opt.decorationSize);
+        const int decorationWidth = std::min(opt.decorationSize.width(), actualSize.width());
+        size.rwidth() = (decorationWidth + margin) * roles.size() + margin;
+    }
+
+    size.rwidth() += opt.fontMetrics.width(index.data().toString()) + margin * 2;
+    return size;
 }
 
 void SearchItemDelegate::setHighlight(const QString &text)
