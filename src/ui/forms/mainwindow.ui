@@ -32,6 +32,9 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="resultPane">
         <property name="spacing">
@@ -83,8 +86,8 @@
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="indentation">
-            <number>10</number>
+           <property name="uniformRowHeights">
+            <bool>true</bool>
            </property>
            <attribute name="headerVisible">
             <bool>false</bool>
@@ -132,6 +135,9 @@
               </property>
               <property name="horizontalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOff</enum>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

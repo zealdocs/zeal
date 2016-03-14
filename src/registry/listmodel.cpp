@@ -60,11 +60,11 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case Level::GroupLevel: {
             DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
-            return QIcon(QString("typeIcon:%1.png").arg(symbolType));
+            return docsetItem->docset->symbolTypeIcon(symbolType);
         }
         case Level::SymbolLevel: {
             GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
-            return QIcon(QString("typeIcon:%1.png").arg(groupItem->symbolType));
+            return groupItem->docsetItem->docset->symbolTypeIcon(groupItem->symbolType);
         }
         default:
             return QVariant();

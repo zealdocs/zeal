@@ -185,6 +185,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
     SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
+    delegate->setDecorationRoles({Zeal::SearchModel::DocsetIconRole, Qt::DecorationRole});
     connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
         delegate->setHighlight(Zeal::SearchQuery::fromString(text).query());
     });
