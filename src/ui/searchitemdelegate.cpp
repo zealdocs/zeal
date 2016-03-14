@@ -62,45 +62,48 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItem opt(option);
 
-    // Find roles with data present.
+    QStyle *style = opt.widget->style();
+
+    // Find decoration roles with data present.
     QList<int> roles;
     for (int role : m_decorationRoles) {
         if (!index.data(role).isNull())
             roles.append(role);
     }
 
+    /// TODO: Implemented via initStyleOption() overload
     if (!roles.isEmpty()) {
         opt.features |= QStyleOptionViewItem::HasDecoration;
         opt.icon = index.data(roles.first()).value<QIcon>();
+
+        const QSize actualSize = opt.icon.actualSize(opt.decorationSize);
+        opt.decorationSize = {std::min(opt.decorationSize.width(), actualSize.width()),
+                              std::min(opt.decorationSize.height(), actualSize.height())};
     }
 
-    // No or one icon && no highlight => no custom logic required.
-    if (roles.size() < 2 && m_highlight.isEmpty()) {
-        QStyledItemDelegate::paint(painter, opt, index);
-        return;
-    }
-
-    QStyle *style = opt.widget->style();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
 
     const int margin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, &opt, opt.widget) + 1;
 
-    QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
-    const int dx = iconRect.width() + margin;
-
-    for (int i = 1; i < roles.size(); ++i) {
-        iconRect.translate(dx, 0);
-        opt.decorationSize.rwidth() += dx;
-
+    if (!roles.isEmpty()) {
         QIcon::Mode mode = QIcon::Normal;
         if (!(opt.state & QStyle::State_Enabled))
             mode = QIcon::Disabled;
         else if (opt.state & QStyle::State_Selected)
             mode = QIcon::Selected;
-        QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
+        const QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
 
-        const QIcon icon = index.data(roles[i]).value<QIcon>();
-        icon.paint(painter, iconRect, opt.decorationAlignment, mode, state);
+        // All icons are sized after the first one.
+        QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
+        const int dx = iconRect.width() + margin;
+
+        for (int i = 1; i < roles.size(); ++i) {
+            opt.decorationSize.rwidth() += dx;
+            iconRect.translate(dx, 0);
+
+            const QIcon icon = index.data(roles[i]).value<QIcon>();
+            icon.paint(painter, iconRect, opt.decorationAlignment, mode, state);
+        }
     }
 
     // Match QCommonStyle behaviour.
@@ -108,7 +111,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
             .adjusted(margin, 0, -margin, 0);
 
-    const QFontMetrics fm(opt.font);
+    const QFontMetrics &fm = opt.fontMetrics;
     const QString elidedText = fm.elidedText(text, opt.textElideMode, textRect.width());
 
     if (!m_highlight.isEmpty()) {
@@ -124,7 +127,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
                 break;
 
-            QRect highlightRect = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
+            QRect highlightRect
+                    = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
             highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
 
             QPainterPath path;
