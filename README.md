@@ -43,6 +43,12 @@ After installing Zeal, you need to download docsets. Go to *File->Options->Docse
 
 To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
 
+### Instructions for OSX
+
+    brew install qt5 libarchive
+    /usr/local/opt/qt5/bin/qmake && make
+    open bin/Zeal.app
+
 ## Query & Filter docsets
 
 You can limit the search scope by using ':' to indicate the desired docsets:
