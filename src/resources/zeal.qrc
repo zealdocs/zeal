@@ -30,6 +30,8 @@
         <file>icons/type/Category@2x.png</file>
         <file>icons/type/Class.png</file>
         <file>icons/type/Class@2x.png</file>
+        <file>icons/type/Collection.png</file>
+        <file>icons/type/Collection@2x.png</file>
         <file>icons/type/Column.png</file>
         <file>icons/type/Column@2x.png</file>
         <file>icons/type/Command.png</file>
@@ -44,6 +46,8 @@
         <file>icons/type/Conversion@2x.png</file>
         <file>icons/type/Database.png</file>
         <file>icons/type/Database@2x.png</file>
+        <file>icons/type/Decorator.png</file>
+        <file>icons/type/Decorator@2x.png</file>
         <file>icons/type/Define.png</file>
         <file>icons/type/Define@2x.png</file>
         <file>icons/type/Delegate.png</file>
@@ -86,6 +90,8 @@
         <file>icons/type/Global@2x.png</file>
         <file>icons/type/Guide.png</file>
         <file>icons/type/Guide@2x.png</file>
+        <file>icons/type/Helper.png</file>
+        <file>icons/type/Helper@2x.png</file>
         <file>icons/type/Hook.png</file>
         <file>icons/type/Hook@2x.png</file>
         <file>icons/type/Index.png</file>
@@ -156,6 +162,8 @@
         <file>icons/type/Relationship@2x.png</file>
         <file>icons/type/Report.png</file>
         <file>icons/type/Report@2x.png</file>
+        <file>icons/type/Request.png</file>
+        <file>icons/type/Request@2x.png</file>
         <file>icons/type/Resource.png</file>
         <file>icons/type/Resource@2x.png</file>
         <file>icons/type/Sample.png</file>
@@ -172,6 +180,8 @@
         <file>icons/type/Setting@2x.png</file>
         <file>icons/type/Shortcut.png</file>
         <file>icons/type/Shortcut@2x.png</file>
+        <file>icons/type/Signature.png</file>
+        <file>icons/type/Signature@2x.png</file>
         <file>icons/type/Snippet.png</file>
         <file>icons/type/Snippet@2x.png</file>
         <file>icons/type/Special Form.png</file>
@@ -210,6 +220,8 @@
         <file>icons/type/Variable@2x.png</file>
         <file>icons/type/Variant.png</file>
         <file>icons/type/Variant@2x.png</file>
+        <file>icons/type/View.png</file>
+        <file>icons/type/View@2x.png</file>
         <file>icons/type/Web.png</file>
         <file>icons/type/Web@2x.png</file>
         <file>icons/type/Word.png</file>
