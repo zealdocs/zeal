@@ -1,5 +1,8 @@
 TEMPLATE = app
 
+macx:INCLUDEPATH += /usr/local/opt/libarchive/include
+macx:LIBS += -L/usr/local/opt/libarchive/lib -larchive
+
 QT += gui widgets sql
 CONFIG += c++11 silent
 
