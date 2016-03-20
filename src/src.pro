@@ -4,11 +4,11 @@ QT += gui widgets sql
 CONFIG += c++11 silent
 
 # Build features
-webengine {
+lessThan(QT_VERSION, 5.6) {
+    QT += webkitwidgets
+} else {
     QT += webenginewidgets
     DEFINES += USE_WEBENGINE
-} else {
-    QT += webkitwidgets
 }
 
 portable {
