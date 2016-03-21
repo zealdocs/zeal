@@ -3,12 +3,16 @@ TEMPLATE = app
 QT += gui widgets sql
 CONFIG += c++11 silent
 
-# Build features
-webengine {
+## Build options
+# Browser engine
+lessThan(QT_VERSION, 5.6):!webengine {
+    message("Browser engine: Qt WebKit")
+    QT += webkitwidgets
+    DEFINES += USE_WEBKIT
+} else {
+    message("Browser engine: Qt WebEngine")
     QT += webenginewidgets
     DEFINES += USE_WEBENGINE
-} else {
-    QT += webkitwidgets
 }
 
 portable {
