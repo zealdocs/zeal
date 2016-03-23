@@ -332,7 +332,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
-    ui->actionPreviousTab->setShortcut(QKeySequence::PreviousChild);
+    /// TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
+    ui->actionPreviousTab->setShortcut(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab);
     addAction(ui->actionPreviousTab);
     connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
