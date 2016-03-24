@@ -16,7 +16,10 @@ lessThan(QT_VERSION, 5.6):!webengine {
 }
 
 portable {
+    message("Portable build: Yes")
     DEFINES += PORTABLE_BUILD
+} else {
+    message("Portable build: No")
 }
 
 VERSION = 0.2.1
