@@ -30,7 +30,6 @@
 #include <QHash>
 #include <QMap>
 
-class QAbstractButton;
 class QListWidgetItem;
 class QNetworkReply;
 class QTemporaryFile;
