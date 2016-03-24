@@ -400,7 +400,7 @@ void SettingsDialog::downloadProgress(qint64 received, qint64 total)
     if (!reply || !reply->isOpen())
         return;
 
-    if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset)  {
+    if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset) {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
