@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2015-2016 Oleg Shparber
 ** Contact: http://zealdocs.org/contact.html
 **
 ** This file is part of Zeal.
