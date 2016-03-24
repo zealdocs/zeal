@@ -61,7 +61,6 @@ class Settings;
 }
 
 class ListModel;
-class NetworkAccessManager;
 class SearchModel;
 class SettingsDialog;
 
@@ -143,7 +142,6 @@ private:
     QList<SearchState *> m_tabs;
 
     SearchState *m_searchState = nullptr;
-    Zeal::NetworkAccessManager *m_zealNetworkManager = nullptr;
 
     Ui::MainWindow *ui = nullptr;
     Zeal::Core::Application *m_application = nullptr;

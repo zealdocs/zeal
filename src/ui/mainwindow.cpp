@@ -25,7 +25,6 @@
 #include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
-#include "networkaccessmanager.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "core/application.h"
@@ -108,11 +107,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
 
-    m_zealNetworkManager = new NetworkAccessManager(this);
-#ifdef USE_WEBENGINE
-    /// FIXME AngularJS workaround (zealnetworkaccessmanager.cpp)
-#else
-    ui->webView->page()->setNetworkAccessManager(m_zealNetworkManager);
+    /// TODO: Custom headers and URL scheme for Qt WebEngine.
+#ifndef USE_WEBENGINE
+    ui->webView->page()->setNetworkAccessManager(m_application->networkManager());
 #endif
 
     // menu
@@ -462,7 +459,7 @@ void MainWindow::createTab()
     newTab->page->load(QUrl(startPageUrl));
 #else
     newTab->page->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->page->setNetworkAccessManager(m_zealNetworkManager);
+    newTab->page->setNetworkAccessManager(m_application->networkManager());
     newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
 
