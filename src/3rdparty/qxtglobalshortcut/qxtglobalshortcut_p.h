@@ -62,22 +62,23 @@ class QxtGlobalShortcut;
 
 class QxtGlobalShortcutPrivate : public QAbstractNativeEventFilter
 {
-    QxtGlobalShortcut *q_ptr;
+    QxtGlobalShortcut *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(QxtGlobalShortcut)
 public:
     QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
     ~QxtGlobalShortcutPrivate() override;
 
-    bool enabled;
-    Qt::Key key;
-    Qt::KeyboardModifiers mods;
-
-    bool setShortcut(const QKeySequence &shortcut);
-    bool unsetShortcut();
+    bool enabled = true;
+    Qt::Key key = Qt::Key(0);
+    Qt::KeyboardModifiers mods = Qt::NoModifier;
 
 #ifndef Q_OS_OSX
     static int ref;
 #endif // Q_OS_OSX
+
+    bool setShortcut(const QKeySequence &shortcut);
+    bool unsetShortcut();
+
     virtual bool nativeEventFilter(const QByteArray &eventType, void *message,
                                    long *result) override;
 
