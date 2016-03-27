@@ -107,11 +107,10 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
         event->accept();
         break;
     case Qt::Key_Return:
-        emit m_treeView->activated(m_treeView->selectionModel()->currentIndex());
-        event->accept();
-        break;
     case Qt::Key_Down:
     case Qt::Key_Up:
+    case Qt::Key_PageDown:
+    case Qt::Key_PageUp:
         QCoreApplication::sendEvent(m_treeView, event);
         break;
     default:
