@@ -26,6 +26,7 @@
 #include "registry/searchquery.h"
 
 #include <QCompleter>
+#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QTreeView>
@@ -110,16 +111,9 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
         event->accept();
         break;
     case Qt::Key_Down:
-    case Qt::Key_Up: {
-        const QModelIndex index = m_treeView->currentIndex();
-        const int nextRow = index.row() + (event->key() == Qt::Key_Down ? 1 : -1);
-        if (nextRow >= 0 && nextRow < m_treeView->model()->rowCount()) {
-            const QModelIndex sibling = index.sibling(nextRow, 0);
-            m_treeView->setCurrentIndex(sibling);
-        }
-        event->accept();
+    case Qt::Key_Up:
+        QCoreApplication::sendEvent(m_treeView, event);
         break;
-    }
     default:
         QLineEdit::keyPressEvent(event);
         break;
