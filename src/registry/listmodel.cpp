@@ -79,8 +79,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case Level::GroupLevel: {
             DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
-            return QString(QLatin1String("%1 (%2)")).arg(pluralize(symbolType),
-                                                         QString::number(docsetItem->docset->symbolCount(symbolType)));
+            return QStringLiteral("%1 (%2)").arg(pluralize(symbolType),
+                                                 QString::number(docsetItem->docset->symbolCount(symbolType)));
         }
         case Level::SymbolLevel: {
             GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
