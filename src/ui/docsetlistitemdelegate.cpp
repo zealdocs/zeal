@@ -46,10 +46,9 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     font.setItalic(true);
 
     const QFontMetrics fontMetrics(font);
-    const int textWidth = fontMetrics.width(text) + 2;
 
     QRect textRect = option.rect;
-    textRect.setLeft(textRect.right() - textWidth);
+    textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
 
     painter->save();
 
