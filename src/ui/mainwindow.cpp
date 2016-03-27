@@ -826,14 +826,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == m_tabBar && event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *e = reinterpret_cast<QMouseEvent *>(event);
-        if (e->button() == Qt::MiddleButton) {
-            const int index = m_tabBar->tabAt(e->pos());
-            if (index >= 0) {
-                closeTab(index);
-                return true;
+    if (object == m_tabBar) {
+        switch (event->type()) {
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *e = reinterpret_cast<QMouseEvent *>(event);
+            if (e->button() == Qt::MiddleButton) {
+                const int index = m_tabBar->tabAt(e->pos());
+                if (index != -1) {
+                    closeTab(index);
+                    return true;
+                }
             }
+            break;
+        }
+        case QEvent::Wheel:
+            /// TODO: Remove in case QTBUG-8428 is fixed on all platforms
+            return true;
+        default:
+            break;
         }
     }
 
