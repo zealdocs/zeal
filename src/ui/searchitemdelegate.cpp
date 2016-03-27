@@ -47,6 +47,9 @@ void SearchItemDelegate::setDecorationRoles(const QList<int> &roles)
 bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
                                    const QStyleOptionViewItem &option, const QModelIndex &index)
 {
+    if (event->type() != QEvent::ToolTip)
+        return QStyledItemDelegate::helpEvent(event, view, option, index);
+
     if (sizeHint(option, index).width() < view->visualRect(index).width()) {
         QToolTip::hideText();
         return QStyledItemDelegate::helpEvent(event, view, option, index);
