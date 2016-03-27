@@ -47,9 +47,7 @@ void SearchItemDelegate::setDecorationRoles(const QList<int> &roles)
 bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
                                    const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    /// FIXME: It should be view->visualRect(index).width() instead of viewport()->width()
-    /// Doesn't work for shot items in the TOC, bug?
-    if (sizeHint(option, index).width() < view->viewport()->width()) {
+    if (sizeHint(option, index).width() < view->visualRect(index).width()) {
         QToolTip::hideText();
         return QStyledItemDelegate::helpEvent(event, view, option, index);
     }
