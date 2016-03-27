@@ -126,7 +126,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
 
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
                 xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
-    native = keycodes.data()[0]; // Use the first keycode
+
+    if (!keycodes.isNull())
+        native = keycodes.data()[0]; // Use the first keycode
 
     xcb_key_symbols_free(xcbKeySymbols);
 
