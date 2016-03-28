@@ -111,24 +111,6 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="seeAlsoLabel">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">* { padding: 0 2px; }</string>
-              </property>
-              <property name="text">
-               <string>See also</string>
-              </property>
-              <property name="margin">
-               <number>2</number>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QListView" name="sections">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>

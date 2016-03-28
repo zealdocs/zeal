@@ -491,7 +491,6 @@ void MainWindow::displaySections()
 
     const bool hasResults = currentSearchState()->sectionsList->rowCount();
     ui->sections->setVisible(hasResults);
-    ui->seeAlsoLabel->setVisible(hasResults);
     QList<int> sizes = hasResults
             ? m_settings->sectionsSplitterSizes
             : QList<int>({1, 0});
