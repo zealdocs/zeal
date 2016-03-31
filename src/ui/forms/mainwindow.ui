@@ -154,15 +154,27 @@
            </property>
            <item>
             <widget class="QToolButton" name="backButton">
+             <property name="toolTip">
+              <string>Go back one page</string>
+             </property>
              <property name="text">
               <string>←</string>
+             </property>
+             <property name="icon">
+              <iconset theme="go-previous"/>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QToolButton" name="forwardButton">
+             <property name="toolTip">
+              <string>Go forward one page</string>
+             </property>
              <property name="text">
               <string>→</string>
+             </property>
+             <property name="icon">
+              <iconset theme="go-next"/>
              </property>
             </widget>
            </item>
