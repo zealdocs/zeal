@@ -110,9 +110,6 @@ protected:
 
 private slots:
     void applySettings();
-    void back();
-    void forward();
-    void onSearchComplete();
     void openDocset(const QModelIndex &index);
     void queryCompleted();
     void scrollSearch();

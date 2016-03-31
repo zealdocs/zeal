@@ -133,8 +133,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionBack);
     ui->actionForward->setShortcut(QKeySequence::Forward);
     addAction(ui->actionForward);
-    connect(ui->actionBack, &QAction::triggered, this, &MainWindow::back);
-    connect(ui->actionForward, &QAction::triggered, this, &MainWindow::forward);
+    connect(ui->actionBack, &QAction::triggered, ui->webView, &SearchableWebView::back);
+    connect(ui->actionForward, &QAction::triggered, ui->webView, &SearchableWebView::forward);
 
     // Help Menu
     connect(ui->actionSubmitFeedback, &QAction::triggered, [this]() {
@@ -204,8 +204,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->sections, &QListView::activated, this, &MainWindow::openDocset);
-    connect(ui->forwardButton, &QPushButton::clicked, this, &MainWindow::forward);
-    connect(ui->backButton, &QPushButton::clicked, this, &MainWindow::back);
+    connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
+    connect(ui->backButton, &QPushButton::clicked, ui->webView, &SearchableWebView::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
@@ -229,8 +229,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted,
-            this, &MainWindow::onSearchComplete);
+    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, [this]() {
+        m_searchState->zealSearch->setResults(m_application->docsetRegistry()->queryResults());
+    });
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             this, [this](const QString &name) {
@@ -394,10 +395,8 @@ QString MainWindow::docsetName(const QUrl &url) const
 
 QIcon MainWindow::docsetIcon(const QString &docsetName) const
 {
-    const Docset * const docset = m_application->docsetRegistry()->docset(docsetName);
-    if (!docset)
-        return QIcon(QStringLiteral(":/icons/logo/icon.png"));
-    return docset->icon();
+    Docset *docset = m_application->docsetRegistry()->docset(docsetName);
+    return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
 }
 
 void MainWindow::queryCompleted()
@@ -608,11 +607,6 @@ void MainWindow::saveTabState()
     m_searchState->zoomFactor = ui->webView->zoomFactor();
 }
 
-void MainWindow::onSearchComplete()
-{
-    m_searchState->zealSearch->setResults(m_application->docsetRegistry()->queryResults());
-}
-
 // Sets up the search box autocompletions.
 void MainWindow::setupSearchBoxCompletions()
 {
@@ -651,18 +645,6 @@ void MainWindow::displayViewActions()
         m_forwardMenu->addAction(addHistoryAction(history, item));
 
     displayTabs();
-}
-
-void MainWindow::back()
-{
-    ui->webView->back();
-    displayViewActions();
-}
-
-void MainWindow::forward()
-{
-    ui->webView->forward();
-    displayViewActions();
 }
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryItem &item)
