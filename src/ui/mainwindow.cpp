@@ -407,6 +407,9 @@ void MainWindow::queryCompleted()
     m_treeViewClicked = true;
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
     ui->treeView->activated(ui->treeView->currentIndex());
+#if USE_WEBENGINE
+    ui->lineEdit->setFocus(Qt::MouseFocusReason);
+#endif
 }
 
 void MainWindow::goToTab(int index)
