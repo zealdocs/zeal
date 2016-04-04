@@ -149,8 +149,6 @@ private:
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
 
-    bool m_treeViewClicked = false;
-
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 
     QTabBar *m_tabBar = nullptr;

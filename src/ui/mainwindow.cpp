@@ -194,14 +194,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     /// FIXME: QTabBar does not emit currentChanged() after the first addTab() call
     reloadTabState();
 
-    connect(ui->treeView, &QTreeView::clicked, [this](const QModelIndex &index) {
-        m_treeViewClicked = true;
-        ui->treeView->activated(index);
-    });
-    connect(ui->sections, &QListView::clicked, [this](const QModelIndex &index) {
-        m_treeViewClicked = true;
-        ui->sections->activated(index);
-    });
+    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
+    connect(ui->sections, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->sections, &QListView::activated, this, &MainWindow::openDocset);
     connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
@@ -381,10 +375,10 @@ void MainWindow::openDocset(const QModelIndex &index)
 
     ui->webView->load(url);
 
-    if (!m_treeViewClicked)
-        ui->webView->focus();
-    else
-        m_treeViewClicked = false;
+    // QWebEnginePage::load() always steals focus, so no need to do it twice.
+#ifndef USE_WEBENGINE
+    ui->webView->focus();
+#endif
 }
 
 QString MainWindow::docsetName(const QUrl &url) const
@@ -403,14 +397,11 @@ void MainWindow::queryCompleted()
 {
     displayTreeView();
 
-    m_treeViewClicked = true;
     ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
-    ui->treeView->activated(ui->treeView->currentIndex());
+    openDocset(ui->treeView->currentIndex());
 
-#ifdef USE_WEBENGINE
-    // Prevent QWebPageEngine::load() from stealing focus
+    // Get focus back. QWebPageEngine::load() always steals focus.
     ui->lineEdit->setFocus(Qt::MouseFocusReason);
-#endif
 }
 
 void MainWindow::goToTab(int index)
