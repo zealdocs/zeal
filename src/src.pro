@@ -27,11 +27,12 @@ equals(BROWSER_ENGINE, qtwebengine) {
     DEFINES += USE_WEBKIT
 }
 
-portable {
-    message("Portable build: Yes")
+# Portable build
+CONFIG(zeal_portable) {
+    message("Portable build: Yes.")
     DEFINES += PORTABLE_BUILD
 } else {
-    message("Portable build: No")
+    message("Portable build: No.")
 }
 
 VERSION = 0.2.1
