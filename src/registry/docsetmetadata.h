@@ -24,16 +24,12 @@
 #ifndef DOCSETMETADATA_H
 #define DOCSETMETADATA_H
 
-#include <QJsonObject>
 #include <QIcon>
+#include <QJsonObject>
 #include <QStringList>
 #include <QUrl>
 
-class QJsonObject;
-
 namespace Zeal {
-
-/// TODO: Use QUrl
 
 class DocsetMetadata
 {
