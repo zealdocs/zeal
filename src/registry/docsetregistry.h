@@ -52,7 +52,6 @@ public:
     QList<Docset *> docsets() const;
 
     void search(const QString &query);
-    const QList<SearchResult> &queryResults();
 
 public slots:
     void addDocset(const QString &path);
@@ -61,7 +60,7 @@ signals:
     void docsetAdded(const QString &name);
     void docsetAboutToBeRemoved(const QString &name);
     void docsetRemoved(const QString &name);
-    void queryCompleted();
+    void queryCompleted(const QList<SearchResult> &results);
 
 private slots:
     void _addDocset(const QString &path);
@@ -72,7 +71,6 @@ private:
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
-    QList<SearchResult> m_queryResults;
 };
 
 } // namespace Zeal

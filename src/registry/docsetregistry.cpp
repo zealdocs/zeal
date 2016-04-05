@@ -35,6 +35,9 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
     QObject(parent),
     m_thread(new QThread(this))
 {
+    // Register for use in signal connections.
+    qRegisterMetaType<QList<Zeal::SearchResult>>("QList<SearchResult>");
+
     /// FIXME: Only search should be performed in a separate thread
     moveToThread(m_thread);
     m_thread->start();
@@ -131,19 +134,14 @@ void DocsetRegistry::search(const QString &query)
 
 void DocsetRegistry::_runQuery(const QString &query)
 {
-    m_queryResults.clear();
+    QList<SearchResult> results;
 
     for (Docset *docset : docsets())
-        m_queryResults << docset->search(query);
+        results << docset->search(query);
 
-    std::sort(m_queryResults.begin(), m_queryResults.end());
+    std::sort(results.begin(), results.end());
 
-    emit queryCompleted();
-}
-
-const QList<SearchResult> &DocsetRegistry::queryResults()
-{
-    return m_queryResults;
+    emit queryCompleted(results);
 }
 
 // Recursively finds and adds all docsets in a given directory.

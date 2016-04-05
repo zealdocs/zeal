@@ -223,8 +223,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted, this, [this]() {
-        m_searchState->zealSearch->setResults(m_application->docsetRegistry()->queryResults());
+    connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted,
+            this, [this](const QList<SearchResult> &results) {
+        m_searchState->zealSearch->setResults(results);
     });
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
