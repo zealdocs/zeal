@@ -25,13 +25,14 @@
 #define DOCSETREGISTRY_H
 
 #include "docset.h"
-#include "searchresult.h"
 
 #include <QMap>
 
 class QThread;
 
 namespace Zeal {
+
+struct SearchResult;
 
 class DocsetRegistry : public QObject
 {

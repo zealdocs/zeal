@@ -24,14 +24,14 @@
 #ifndef DOCSET_H
 #define DOCSET_H
 
-#include "searchresult.h"
-
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
 #include <QSqlDatabase>
 
 namespace Zeal {
+
+struct SearchResult;
 
 class Docset
 {

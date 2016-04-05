@@ -24,6 +24,7 @@
 #include "docset.h"
 
 #include "searchquery.h"
+#include "searchresult.h"
 #include "util/plist.h"
 
 #include <QDir>

@@ -26,7 +26,6 @@
 #include "searchresult.h"
 
 #include <QDir>
-#include <QSqlQuery>
 #include <QThread>
 
 using namespace Zeal;
