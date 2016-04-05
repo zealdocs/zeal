@@ -5,14 +5,26 @@ CONFIG += c++11 silent
 
 ## Build options
 # Browser engine
-lessThan(QT_VERSION, 5.6):!webengine {
-    message("Browser engine: Qt WebKit")
-    QT += webkitwidgets
-    DEFINES += USE_WEBKIT
+CONFIG(zeal_qtwebkit) {
+    qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
+    else: error("Qt WebKit is not available.")
+} else:CONFIG(zeal_qtwebengine) {
+    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
+    else: error("Qt WebEngine is not available.")
 } else {
-    message("Browser engine: Qt WebEngine")
+    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
+    else: qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
+    else: error("Zeal requires Qt WebEngine or Qt WebKit.")
+}
+
+equals(BROWSER_ENGINE, qtwebengine) {
+    message("Browser engine: Qt WebEngine.")
     QT += webenginewidgets
     DEFINES += USE_WEBENGINE
+} else {
+    message("Browser engine: Qt WebKit.")
+    QT += webkitwidgets
+    DEFINES += USE_WEBKIT
 }
 
 portable {
