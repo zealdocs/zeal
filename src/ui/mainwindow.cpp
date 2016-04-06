@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 Oleg Shparber
+** Copyright (C) 2015-2016 Oleg Shparber
 ** Copyright (C) 2013-2014 Jerzy Kozera
 ** Contact: http://zealdocs.org/contact.html
 **
@@ -315,6 +315,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
+        qDebug("%s", qPrintable(url.toString()));
         if (url.scheme() != QLatin1String("qrc"))
             QDesktopServices::openUrl(url);
     });
