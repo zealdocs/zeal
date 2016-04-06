@@ -508,12 +508,6 @@ SearchState *MainWindow::currentSearchState() const
 void MainWindow::displayTabs()
 {
     ui->menuTabs->clear();
-    ui->menuTabs->addAction(ui->actionNextTab);
-    ui->menuTabs->addAction(ui->actionPreviousTab);
-    ui->menuTabs->addSeparator();
-
-    ui->actionNextTab->setEnabled(m_tabBar->count() > 1);
-    ui->actionPreviousTab->setEnabled(m_tabBar->count() > 1);
 
     for (int i = 0; i < m_tabs.count(); i++) {
         SearchState *state = m_tabs.at(i);

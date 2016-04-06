@@ -251,9 +251,6 @@
     <property name="title">
      <string>&amp;Tabs</string>
     </property>
-    <addaction name="separator"/>
-    <addaction name="actionNextTab"/>
-    <addaction name="actionPreviousTab"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
