@@ -68,22 +68,20 @@ class SettingsDialog;
 
 struct TabState
 {
-    QWebPage *page;
-    // model representing sections
-    Zeal::SearchModel *sectionsList;
-    // model representing searched for items
-    Zeal::SearchModel *zealSearch;
-    // query being searched for
     QString searchQuery;
 
-    // list of selected indices
+    // Content/Search results tree view state
+    Zeal::SearchModel *searchModel = nullptr;
     QModelIndexList selections;
-    // list of expanded indices
     QModelIndexList expansions;
+    int searchScrollPosition;
 
-    int scrollPosition;
-    int sectionsScroll;
-    int zoomFactor;
+    // TOC list view state
+    Zeal::SearchModel *tocModel = nullptr;
+    int tocScrollPosition;
+
+    QWebPage *webPage = nullptr;
+    int webViewZoomFactor;
 };
 
 class MainWindow : public QMainWindow
