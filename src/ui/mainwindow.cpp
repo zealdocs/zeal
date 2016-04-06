@@ -211,7 +211,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &) {
+    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &text) {
+        m_tabBar->setTabText(m_tabBar->currentIndex(), text);
         displayViewActions();
     });
 
