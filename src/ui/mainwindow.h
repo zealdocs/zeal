@@ -66,9 +66,7 @@ class SettingsDialog;
 
 }
 
-// Represents per tab search state.
-// needs to contain [search input, search model, section model, url]
-struct SearchState
+struct TabState
 {
     QWebPage *page;
     // model representing sections
@@ -125,7 +123,7 @@ private:
     void setupSearchBoxCompletions();
     void setupTabBar();
     void reloadTabState();
-    SearchState *currentSearchState() const;
+    TabState *currentTabState() const;
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
     QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
@@ -136,9 +134,8 @@ private:
     void createTrayIcon();
     void removeTrayIcon();
 
-    QList<SearchState *> m_tabs;
-
-    SearchState *m_searchState = nullptr;
+    QList<TabState *> m_tabStates;
+    TabState *m_currentTabState = nullptr;
 
     Ui::MainWindow *ui = nullptr;
     Zeal::Core::Application *m_application = nullptr;

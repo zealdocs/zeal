@@ -206,7 +206,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         Docset *docset = m_application->docsetRegistry()->docset(name);
         if (docset)
-            m_searchState->sectionsList->setResults(docset->relatedLinks(url));
+            m_currentTabState->sectionsList->setResults(docset->relatedLinks(url));
 
         displayViewActions();
     });
@@ -224,33 +224,33 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted,
             this, [this](const QList<SearchResult> &results) {
-        m_searchState->zealSearch->setResults(results);
+        m_currentTabState->zealSearch->setResults(results);
     });
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
             this, [this](const QString &name) {
         setupSearchBoxCompletions();
-        for (SearchState *searchState : m_tabs) {
+        for (TabState *tabState : m_tabStates) {
 #ifdef USE_WEBENGINE
-            if (docsetName(searchState->page->url()) != name)
+            if (docsetName(tabState->page->url()) != name)
                 continue;
 
-            searchState->page->load(QUrl(startPageUrl));
+            tabState->page->load(QUrl(startPageUrl));
 #else
-            if (docsetName(searchState->page->mainFrame()->url()) != name)
+            if (docsetName(tabState->page->mainFrame()->url()) != name)
                 continue;
 
-            searchState->sectionsList->setResults();
+            tabState->sectionsList->setResults();
 
             // optimization: disable updates temporarily because
             // removeSearchResultWithName can call {begin,end}RemoveRows
             // multiple times which can cause GUI updates to be suboptimal
             // in case of many rows to be removed
             ui->treeView->setUpdatesEnabled(false);
-            searchState->zealSearch->removeSearchResultWithName(name);
+            tabState->zealSearch->removeSearchResultWithName(name);
             ui->treeView->setUpdatesEnabled(true);
 
-            searchState->page->mainFrame()->load(QUrl(startPageUrl));
+            tabState->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
             /// TODO: Cleanup history
         }
@@ -262,13 +262,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-        if (!m_searchState || text == m_searchState->searchQuery)
+        if (!m_currentTabState || text == m_currentTabState->searchQuery)
             return;
 
-        m_searchState->searchQuery = text;
+        m_currentTabState->searchQuery = text;
         m_application->docsetRegistry()->search(text);
         if (text.isEmpty()) {
-            m_searchState->sectionsList->setResults();
+            m_currentTabState->sectionsList->setResults();
             displayTreeView();
         }
     });
@@ -279,12 +279,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // save the expanded items:
     connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
-        if (m_searchState->expansions.indexOf(index) == -1)
-            m_searchState->expansions.append(index);
+        if (m_currentTabState->expansions.indexOf(index) == -1)
+            m_currentTabState->expansions.append(index);
     });
 
     connect(ui->treeView, &QTreeView::collapsed, [this](QModelIndex index) {
-        m_searchState->expansions.removeOne(index);
+        m_currentTabState->expansions.removeOne(index);
     });
 
 #ifdef Q_OS_WIN32
@@ -328,7 +328,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
 
-    for (SearchState *state : m_tabs) {
+    for (TabState *state : m_tabStates) {
         delete state->zealSearch;
         delete state->sectionsList;
         delete state;
@@ -381,7 +381,7 @@ void MainWindow::queryCompleted()
 {
     displayTreeView();
 
-    ui->treeView->setCurrentIndex(m_searchState->zealSearch->index(0, 0, QModelIndex()));
+    ui->treeView->setCurrentIndex(m_currentTabState->zealSearch->index(0, 0, QModelIndex()));
     openDocset(ui->treeView->currentIndex());
 
     // Get focus back. QWebPageEngine::load() always steals focus.
@@ -394,7 +394,7 @@ void MainWindow::selectTab(int index)
         return;
 
     saveTabState();
-    m_searchState = nullptr;
+    m_currentTabState = nullptr;
     reloadTabState();
 }
 
@@ -407,10 +407,10 @@ void MainWindow::closeTab(int index)
         return;
 
     /// TODO: proper deletion here
-    SearchState *state = m_tabs.takeAt(index);
+    TabState *state = m_tabStates.takeAt(index);
 
-    if (m_searchState == state)
-        m_searchState = nullptr;
+    if (m_currentTabState == state)
+        m_currentTabState = nullptr;
 
     delete state->zealSearch;
     delete state->sectionsList;
@@ -418,7 +418,7 @@ void MainWindow::closeTab(int index)
 
     m_tabBar->removeTab(index);
 
-    if (m_tabs.count() == 0)
+    if (m_tabStates.count() == 0)
         createTab();
 }
 
@@ -426,7 +426,7 @@ void MainWindow::createTab()
 {
     saveTabState();
 
-    SearchState *newTab = new SearchState();
+    TabState *newTab = new TabState();
     newTab->zealSearch = new Zeal::SearchModel();
     newTab->sectionsList = new Zeal::SearchModel();
 
@@ -442,7 +442,7 @@ void MainWindow::createTab()
     newTab->page->mainFrame()->load(QUrl(startPageUrl));
 #endif
 
-    m_tabs.append(newTab);
+    m_tabStates.append(newTab);
 
 
     const int index = m_tabBar->addTab(QStringLiteral("title"));
@@ -451,10 +451,10 @@ void MainWindow::createTab()
 
 void MainWindow::displayTreeView()
 {
-    SearchState *searchState = currentSearchState();
+    TabState *tabState = currentTabState();
 
-    if (!searchState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(searchState->zealSearch);
+    if (!tabState->searchQuery.isEmpty()) {
+        ui->treeView->setModel(tabState->zealSearch);
         ui->treeView->setRootIsDecorated(false);
     } else {
         ui->treeView->setModel(m_zealListModel);
@@ -468,7 +468,7 @@ void MainWindow::displaySections()
 {
     saveSectionsSplitterState();
 
-    const bool hasResults = currentSearchState()->sectionsList->rowCount();
+    const bool hasResults = currentTabState()->sectionsList->rowCount();
     ui->sections->setVisible(hasResults);
     QList<int> sizes = hasResults
             ? m_settings->sectionsSplitterSizes
@@ -482,33 +482,33 @@ void MainWindow::saveSectionsSplitterState()
         m_settings->sectionsSplitterSizes = ui->sectionsSplitter->sizes();
 }
 
-SearchState *MainWindow::currentSearchState() const
+TabState *MainWindow::currentTabState() const
 {
-    return m_tabs.at(m_tabBar->currentIndex());
+    return m_tabStates.at(m_tabBar->currentIndex());
 }
 
 void MainWindow::reloadTabState()
 {
-    SearchState *searchState = currentSearchState();
+    TabState *tabState = currentTabState();
 
-    ui->lineEdit->setText(searchState->searchQuery);
-    ui->sections->setModel(searchState->sectionsList);
+    ui->lineEdit->setText(tabState->searchQuery);
+    ui->sections->setModel(tabState->sectionsList);
 
     displaySections();
     displayTreeView();
 
     // Bring back the selections and expansions
     ui->treeView->blockSignals(true);
-    for (const QModelIndex &selection: searchState->selections)
+    for (const QModelIndex &selection: tabState->selections)
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (const QModelIndex &expandedIndex: searchState->expansions)
+    for (const QModelIndex &expandedIndex: tabState->expansions)
         ui->treeView->expand(expandedIndex);
     ui->treeView->blockSignals(false);
 
-    ui->webView->setPage(searchState->page);
-    ui->webView->setZoomFactor(searchState->zoomFactor);
+    ui->webView->setPage(tabState->page);
+    ui->webView->setZoomFactor(tabState->zoomFactor);
 
-    m_searchState = searchState;
+    m_currentTabState = tabState;
 
     // scroll after the object gets loaded
     /// TODO: [Qt 5.4] QTimer::singleShot(100, this, &MainWindow::scrollSearch);
@@ -519,20 +519,20 @@ void MainWindow::reloadTabState()
 
 void MainWindow::scrollSearch()
 {
-    ui->treeView->verticalScrollBar()->setValue(m_searchState->scrollPosition);
-    ui->sections->verticalScrollBar()->setValue(m_searchState->sectionsScroll);
+    ui->treeView->verticalScrollBar()->setValue(m_currentTabState->scrollPosition);
+    ui->sections->verticalScrollBar()->setValue(m_currentTabState->sectionsScroll);
 }
 
 void MainWindow::saveTabState()
 {
-    if (!m_searchState)
+    if (!m_currentTabState)
         return;
 
-    m_searchState->searchQuery = ui->lineEdit->text();
-    m_searchState->selections = ui->treeView->selectionModel()->selectedIndexes();
-    m_searchState->scrollPosition = ui->treeView->verticalScrollBar()->value();
-    m_searchState->sectionsScroll = ui->sections->verticalScrollBar()->value();
-    m_searchState->zoomFactor = ui->webView->zoomFactor();
+    m_currentTabState->searchQuery = ui->lineEdit->text();
+    m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
+    m_currentTabState->scrollPosition = ui->treeView->verticalScrollBar()->value();
+    m_currentTabState->sectionsScroll = ui->sections->verticalScrollBar()->value();
+    m_currentTabState->zoomFactor = ui->webView->zoomFactor();
 }
 
 // Sets up the search box autocompletions.
