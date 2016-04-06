@@ -190,8 +190,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->sections->setItemDelegate(new SearchItemDelegate(ui->sections));
 
     createTab();
-    /// FIXME: QTabBar does not emit currentChanged() after the first addTab() call
-    reloadTabState();
 
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
     connect(ui->sections, &QListView::clicked, this, &MainWindow::openDocset);
@@ -425,8 +423,6 @@ void MainWindow::closeTab(int index)
 
 void MainWindow::createTab()
 {
-    saveTabState();
-
     TabState *newTab = new TabState();
     newTab->searchModel = new Zeal::SearchModel();
     newTab->tocModel = new Zeal::SearchModel();
