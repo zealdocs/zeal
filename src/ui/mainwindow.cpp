@@ -305,7 +305,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_tabBar->setElideMode(Qt::ElideRight);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
-    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::goToTab);
+    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::selectTab);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
     {
@@ -406,7 +406,7 @@ void MainWindow::queryCompleted()
     ui->lineEdit->setFocus(Qt::MouseFocusReason);
 }
 
-void MainWindow::goToTab(int index)
+void MainWindow::selectTab(int index)
 {
     if (index == -1)
         return;

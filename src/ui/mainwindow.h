@@ -114,7 +114,7 @@ private slots:
     void queryCompleted();
     void scrollSearch();
     void saveTabState();
-    void goToTab(int index);
+    void selectTab(int index);
     void closeTab(int index = -1);
 
 private:
