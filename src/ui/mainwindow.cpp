@@ -488,6 +488,18 @@ TabState *MainWindow::currentTabState() const
     return m_tabStates.at(m_tabBar->currentIndex());
 }
 
+void MainWindow::saveTabState()
+{
+    if (!m_currentTabState)
+        return;
+
+    m_currentTabState->searchQuery = ui->lineEdit->text();
+    m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
+    m_currentTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
+    m_currentTabState->tocScrollPosition = ui->sections->verticalScrollBar()->value();
+    m_currentTabState->webViewZoomFactor = ui->webView->zoomFactor();
+}
+
 void MainWindow::reloadTabState()
 {
     TabState *tabState = currentTabState();
@@ -522,18 +534,6 @@ void MainWindow::scrollSearch()
 {
     ui->treeView->verticalScrollBar()->setValue(m_currentTabState->searchScrollPosition);
     ui->sections->verticalScrollBar()->setValue(m_currentTabState->tocScrollPosition);
-}
-
-void MainWindow::saveTabState()
-{
-    if (!m_currentTabState)
-        return;
-
-    m_currentTabState->searchQuery = ui->lineEdit->text();
-    m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
-    m_currentTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
-    m_currentTabState->tocScrollPosition = ui->sections->verticalScrollBar()->value();
-    m_currentTabState->webViewZoomFactor = ui->webView->zoomFactor();
 }
 
 // Sets up the search box autocompletions.
