@@ -247,14 +247,8 @@
     <addaction name="actionBack"/>
     <addaction name="actionForward"/>
    </widget>
-   <widget class="QMenu" name="menuTabs">
-    <property name="title">
-     <string>&amp;Tabs</string>
-    </property>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
-   <addaction name="menuTabs"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">

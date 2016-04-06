@@ -84,9 +84,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
 
-    m_tabBar = new QTabBar(this);
-    m_tabBar->installEventFilter(this);
-
     setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
 #ifdef USE_APPINDICATOR
@@ -98,6 +95,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+
+    setupTabBar();
 
     QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
     focusSearch->setContext(Qt::ApplicationShortcut);
@@ -296,23 +295,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
-    m_tabBar->setTabsClosable(true);
-    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
-    m_tabBar->setExpanding(false);
-    m_tabBar->setUsesScrollButtons(true);
-    m_tabBar->setDrawBase(false);
-    m_tabBar->setDocumentMode(true);
-    m_tabBar->setElideMode(Qt::ElideRight);
-    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
-
-    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::selectTab);
-    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
-
-    {
-        QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->navigationBar->layout());
-        layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
-    }
-
     connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
         qDebug("%s", qPrintable(url.toString()));
@@ -505,44 +487,6 @@ SearchState *MainWindow::currentSearchState() const
     return m_tabs.at(m_tabBar->currentIndex());
 }
 
-void MainWindow::displayTabs()
-{
-    ui->menuTabs->clear();
-
-    for (int i = 0; i < m_tabs.count(); i++) {
-        SearchState *state = m_tabs.at(i);
-#ifdef USE_WEBENGINE
-        QString title = state->page->title();
-#else
-        QString title = state->page->history()->currentItem().title();
-#endif
-        QAction *action = ui->menuTabs->addAction(title);
-        action->setCheckable(true);
-        action->setChecked(i == m_tabBar->currentIndex());
-
-        if (i < 10) {
-#ifdef Q_OS_LINUX
-            const QKeySequence shortcut = QString("Alt+%1").arg(QString::number((i + 1) % 10));
-#else
-            const QKeySequence shortcut = QString("Ctrl+%1").arg(QString::number((i + 1) % 10));
-#endif
-
-            for (QAction *oldAction : actions()) {
-                if (oldAction->shortcut() == shortcut)
-                    removeAction(oldAction);
-            }
-
-            action->setShortcut(shortcut);
-            addAction(action);
-        }
-
-        m_tabBar->setTabText(i, title);
-        connect(action, &QAction::triggered, [=]() {
-            m_tabBar->setCurrentIndex(i);
-        });
-    }
-}
-
 void MainWindow::reloadTabState()
 {
     SearchState *searchState = currentSearchState();
@@ -605,6 +549,48 @@ void MainWindow::setupSearchBoxCompletions()
     ui->lineEdit->setCompletions(completions);
 }
 
+void MainWindow::setupTabBar()
+{
+    m_tabBar = new QTabBar(this);
+
+    m_tabBar->installEventFilter(this);
+
+    m_tabBar->setTabsClosable(true);
+    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
+    m_tabBar->setExpanding(false);
+    m_tabBar->setUsesScrollButtons(true);
+    m_tabBar->setDrawBase(false);
+    m_tabBar->setDocumentMode(true);
+    m_tabBar->setElideMode(Qt::ElideRight);
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+
+    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::selectTab);
+    connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+
+    for (int i = 1; i < 10; i++) {
+        QAction *action = new QAction(m_tabBar);
+#ifdef Q_OS_LINUX
+        action->setShortcut(QStringLiteral("Alt+%1").arg(i));
+#else
+        action->setShortcut(QStringLiteral("Ctrl+%1").arg(i));
+#endif
+        if (i == 9) {
+            connect(action, &QAction::triggered, [=]() {
+                m_tabBar->setCurrentIndex(m_tabBar->count() - 1);
+            });
+        } else {
+            connect(action, &QAction::triggered, [=]() {
+                m_tabBar->setCurrentIndex(i - 1);
+            });
+        }
+
+        addAction(action);
+    }
+
+    QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->navigationBar->layout());
+    layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
+}
+
 void MainWindow::displayViewActions()
 {
     ui->actionBack->setEnabled(ui->webView->canGoBack());
@@ -627,8 +613,6 @@ void MainWindow::displayViewActions()
         addHistoryAction(history, history->currentItem())->setEnabled(false);
     for (const QWebHistoryItem &item: history->forwardItems(10))
         m_forwardMenu->addAction(addHistoryAction(history, item));
-
-    displayTabs();
 }
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryItem &item)

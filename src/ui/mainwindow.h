@@ -123,8 +123,8 @@ private:
     void displaySections();
     void saveSectionsSplitterState();
     void setupSearchBoxCompletions();
+    void setupTabBar();
     void reloadTabState();
-    void displayTabs();
     SearchState *currentSearchState() const;
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
