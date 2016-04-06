@@ -223,6 +223,9 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionNewTab"/>
+    <addaction name="actionCloseTab"/>
+    <addaction name="separator"/>
     <addaction name="actionOptions"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -248,8 +251,6 @@
     <property name="title">
      <string>&amp;Tabs</string>
     </property>
-    <addaction name="actionNewTab"/>
-    <addaction name="actionCloseTab"/>
     <addaction name="separator"/>
     <addaction name="actionNextTab"/>
     <addaction name="actionPreviousTab"/>
@@ -291,15 +292,12 @@
   </action>
   <action name="actionNewTab">
    <property name="text">
-    <string>New Tab</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>New &amp;Tab</string>
    </property>
   </action>
   <action name="actionCloseTab">
    <property name="text">
-    <string>Close Tab</string>
+    <string>&amp;Close Tab</string>
    </property>
   </action>
   <action name="actionNextTab">

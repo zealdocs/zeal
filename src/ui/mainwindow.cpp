@@ -508,9 +508,6 @@ SearchState *MainWindow::currentSearchState() const
 void MainWindow::displayTabs()
 {
     ui->menuTabs->clear();
-    ui->menuTabs->addAction(ui->actionNewTab);
-    ui->menuTabs->addAction(ui->actionCloseTab);
-    ui->menuTabs->addSeparator();
     ui->menuTabs->addAction(ui->actionNextTab);
     ui->menuTabs->addAction(ui->actionPreviousTab);
     ui->menuTabs->addSeparator();
