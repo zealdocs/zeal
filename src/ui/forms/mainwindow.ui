@@ -78,7 +78,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSplitter" name="sectionsSplitter">
+         <widget class="QSplitter" name="tocSplitter">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -111,7 +111,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QListView" name="sections">
+             <widget class="QListView" name="tocListView">
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>

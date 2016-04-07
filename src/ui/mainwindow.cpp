@@ -187,14 +187,14 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
     ui->treeView->setItemDelegate(delegate);
 
-    ui->sections->setItemDelegate(new SearchItemDelegate(ui->sections));
+    ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
 
     createTab();
 
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
-    connect(ui->sections, &QListView::clicked, this, &MainWindow::openDocset);
+    connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
-    connect(ui->sections, &QListView::activated, this, &MainWindow::openDocset);
+    connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
     connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
     connect(ui->backButton, &QPushButton::clicked, ui->webView, &SearchableWebView::back);
 
@@ -315,7 +315,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
 #ifdef Q_OS_OSX
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->sections->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->tocView->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
     if (m_settings->checkForUpdate)
@@ -325,7 +325,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     m_settings->verticalSplitterGeometry = ui->splitter->saveState();
-    saveSectionsSplitterState();
+    saveTocSplitterState();
 
     m_settings->windowGeometry = saveGeometry();
 
@@ -432,7 +432,7 @@ void MainWindow::createTab()
     newTab->tocModel = new Zeal::SearchModel();
 
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::displaySections);
+    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::showToc);
 
     newTab->webPage = new QWebPage(ui->webView);
 #ifdef USE_WEBENGINE
@@ -465,22 +465,22 @@ void MainWindow::displayTreeView()
     ui->treeView->reset();
 }
 
-void MainWindow::displaySections()
+void MainWindow::showToc()
 {
-    saveSectionsSplitterState();
+    saveTocSplitterState();
 
     const bool hasResults = currentTabState()->tocModel->rowCount();
-    ui->sections->setVisible(hasResults);
+    ui->tocListView->setVisible(hasResults);
     QList<int> sizes = hasResults
             ? m_settings->sectionsSplitterSizes
             : QList<int>({1, 0});
-    ui->sectionsSplitter->setSizes(sizes);
+    ui->tocSplitter->setSizes(sizes);
 }
 
-void MainWindow::saveSectionsSplitterState()
+void MainWindow::saveTocSplitterState()
 {
-    if (ui->sections->isVisible())
-        m_settings->sectionsSplitterSizes = ui->sectionsSplitter->sizes();
+    if (ui->tocListView->isVisible())
+        m_settings->sectionsSplitterSizes = ui->tocSplitter->sizes();
 }
 
 TabState *MainWindow::currentTabState() const
@@ -496,7 +496,7 @@ void MainWindow::saveTabState()
     m_currentTabState->searchQuery = ui->lineEdit->text();
     m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_currentTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
-    m_currentTabState->tocScrollPosition = ui->sections->verticalScrollBar()->value();
+    m_currentTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
     m_currentTabState->webViewZoomFactor = ui->webView->zoomFactor();
 }
 
@@ -505,9 +505,9 @@ void MainWindow::reloadTabState()
     TabState *tabState = currentTabState();
 
     ui->lineEdit->setText(tabState->searchQuery);
-    ui->sections->setModel(tabState->tocModel);
+    ui->tocListView->setModel(tabState->tocModel);
 
-    displaySections();
+    showToc();
     displayTreeView();
 
     // Bring back the selections and expansions
@@ -524,7 +524,7 @@ void MainWindow::reloadTabState()
     m_currentTabState = tabState;
 
     ui->treeView->verticalScrollBar()->setValue(m_currentTabState->searchScrollPosition);
-    ui->sections->verticalScrollBar()->setValue(m_currentTabState->tocScrollPosition);
+    ui->tocListView->verticalScrollBar()->setValue(m_currentTabState->tocScrollPosition);
 
     displayViewActions();
 }
