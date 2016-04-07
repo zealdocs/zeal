@@ -108,7 +108,6 @@ private slots:
     void applySettings();
     void openDocset(const QModelIndex &index);
     void queryCompleted();
-    void scrollSearch();
     void selectTab(int index);
     void closeTab(int index = -1);
 

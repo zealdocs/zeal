@@ -524,17 +524,10 @@ void MainWindow::reloadTabState()
 
     m_currentTabState = tabState;
 
-    // scroll after the object gets loaded
-    /// TODO: [Qt 5.4] QTimer::singleShot(100, this, &MainWindow::scrollSearch);
-    QTimer::singleShot(100, this, SLOT(scrollSearch()));
-
-    displayViewActions();
-}
-
-void MainWindow::scrollSearch()
-{
     ui->treeView->verticalScrollBar()->setValue(m_currentTabState->searchScrollPosition);
     ui->sections->verticalScrollBar()->setValue(m_currentTabState->tocScrollPosition);
+
+    displayViewActions();
 }
 
 // Sets up the search box autocompletions.
