@@ -325,6 +325,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    m_settings->verticalSplitterGeometry = ui->splitter->saveState();
+    saveSectionsSplitterState();
+
+    m_settings->windowGeometry = saveGeometry();
+
     delete ui;
 
     for (TabState *state : m_tabStates) {
@@ -765,10 +770,6 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    m_settings->verticalSplitterGeometry = ui->splitter->saveState();
-    saveSectionsSplitterState();
-
-    m_settings->windowGeometry = saveGeometry();
     if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
         event->ignore();
         toggleWindow();
