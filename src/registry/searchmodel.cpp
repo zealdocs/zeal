@@ -34,6 +34,11 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
+bool SearchModel::isEmpty() const
+{
+    return rowCount() == 0;
+}
+
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
