@@ -114,8 +114,7 @@ private slots:
 private:
     void displayViewActions();
     void displayTreeView();
-    void showToc();
-    void saveTocSplitterState();
+    void toggleToc();
     void setupSearchBoxCompletions();
     void setupTabBar();
 

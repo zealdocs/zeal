@@ -188,6 +188,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->treeView->setItemDelegate(delegate);
 
     ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
+    connect(ui->tocSplitter, &QSplitter::splitterMoved, this, [this]() {
+        if (ui->tocListView->isVisible())
+            m_settings->tocSplitterState = ui->tocSplitter->saveState();
+    });
 
     createTab();
 
@@ -325,8 +329,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     m_settings->verticalSplitterGeometry = ui->splitter->saveState();
-    saveTocSplitterState();
-
     m_settings->windowGeometry = saveGeometry();
 
     delete ui;
@@ -432,7 +434,7 @@ void MainWindow::createTab()
     newTab->tocModel = new Zeal::SearchModel();
 
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::showToc);
+    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
 
     newTab->webPage = new QWebPage(ui->webView);
 #ifdef USE_WEBENGINE
@@ -465,22 +467,15 @@ void MainWindow::displayTreeView()
     ui->treeView->reset();
 }
 
-void MainWindow::showToc()
+void MainWindow::toggleToc()
 {
-    saveTocSplitterState();
+    if (!currentTabState()->tocModel->isEmpty()) {
+        ui->tocListView->show();
+        ui->tocSplitter->restoreState(m_settings->tocSplitterState);
+    } else {
+        ui->tocListView->hide();
+    }
 
-    const bool hasResults = currentTabState()->tocModel->rowCount();
-    ui->tocListView->setVisible(hasResults);
-    QList<int> sizes = hasResults
-            ? m_settings->sectionsSplitterSizes
-            : QList<int>({1, 0});
-    ui->tocSplitter->setSizes(sizes);
-}
-
-void MainWindow::saveTocSplitterState()
-{
-    if (ui->tocListView->isVisible())
-        m_settings->sectionsSplitterSizes = ui->tocSplitter->sizes();
 }
 
 TabState *MainWindow::currentTabState() const
@@ -507,7 +502,7 @@ void MainWindow::reloadTabState()
     ui->lineEdit->setText(tabState->searchQuery);
     ui->tocListView->setModel(tabState->tocModel);
 
-    showToc();
+    toggleToc();
     displayTreeView();
 
     // Bring back the selections and expansions
