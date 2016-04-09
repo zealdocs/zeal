@@ -139,7 +139,6 @@ private:
     Zeal::Core::Application *m_application = nullptr;
     Zeal::Core::Settings *m_settings = nullptr;
     Zeal::ListModel *m_zealListModel = nullptr;
-    Zeal::SettingsDialog *m_settingsDialog = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;

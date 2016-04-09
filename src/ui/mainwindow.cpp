@@ -77,7 +77,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
-    m_settingsDialog(new SettingsDialog(app, this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     ui->setupUi(this);
@@ -122,9 +121,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     }
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-    connect(ui->actionOptions, &QAction::triggered, [=]() {
+    connect(ui->actionOptions, &QAction::triggered, [this]() {
         m_globalShortcut->setEnabled(false);
-        m_settingsDialog->exec();
+        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(m_application, this));
+        dialog->exec();
         m_globalShortcut->setEnabled(true);
     });
 
@@ -687,12 +687,6 @@ void MainWindow::createTrayIcon()
         connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
             if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
                 return;
-
-            // Disable, when settings window is open
-            if (m_settingsDialog->isVisible()) {
-                m_settingsDialog->activateWindow();
-                return;
-            }
 
             toggleWindow();
         });
