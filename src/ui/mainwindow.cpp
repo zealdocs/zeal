@@ -49,6 +49,8 @@
 #include <QWebEngineHistory>
 #include <QWebEnginePage>
 #include <QWebEngineSettings>
+
+typedef QWebEngineHistory QWebHistory;
 #else
 #include <QWebFrame>
 #include <QWebHistory>

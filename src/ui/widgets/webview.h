@@ -25,12 +25,13 @@
 #define WEBVIEW_H
 
 #ifdef USE_WEBENGINE
-    #include <QWebEngineView>
-    #include <QWebEnginePage>
-    #define QWebView QWebEngineView
-    #define QWebPage QWebEnginePage
+#include <QWebEnginePage>
+#include <QWebEngineView>
+
+typedef QWebEnginePage QWebPage;
+typedef QWebEngineView QWebView;
 #else
-    #include <QWebView>
+#include <QWebView>
 #endif
 
 class WebView : public QWebView

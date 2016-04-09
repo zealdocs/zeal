@@ -31,9 +31,16 @@
 #include <QModelIndex>
 
 #ifdef USE_WEBENGINE
-#define QWebPage QWebEnginePage
-#define QWebHistory QWebEngineHistory
-#define QWebHistoryItem QWebEngineHistoryItem
+class QWebEngineHistory;
+class QWebEngineHistoryItem;
+class QWebEnginePage;
+typedef QWebEngineHistory QWebHistory;
+typedef QWebEngineHistoryItem QWebHistoryItem;
+typedef QWebEnginePage QWebPage;
+#else
+class QWebHistory;
+class QWebHistoryItem;
+class QWebPage;
 #endif
 
 #ifdef USE_APPINDICATOR
@@ -45,9 +52,6 @@ class QxtGlobalShortcut;
 
 class QSystemTrayIcon;
 class QTabBar;
-class QWebHistory;
-class QWebHistoryItem;
-class QWebPage;
 
 namespace Ui {
 class MainWindow;

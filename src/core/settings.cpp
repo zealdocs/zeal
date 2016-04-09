@@ -31,7 +31,7 @@
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineSettings>
-#define QWebSettings QWebEngineSettings
+typedef QWebEngineSettings QWebSettings;
 #else
 #include <QWebSettings>
 #endif

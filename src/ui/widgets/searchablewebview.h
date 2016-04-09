@@ -26,12 +26,15 @@
 
 #include <QWidget>
 
-#ifdef USE_WEBENGINE
-    #define QWebPage QWebEnginePage
-#endif
 
 class QLineEdit;
+
+#ifdef USE_WEBENGINE
+class QWebEnginePage;
+typedef QWebEnginePage QWebPage;
+#else
 class QWebPage;
+#endif
 
 class WebView;
 
