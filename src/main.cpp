@@ -37,11 +37,13 @@
 #include <QSettings>
 #endif
 
+using namespace Zeal;
+
 struct CommandLineParameters
 {
     bool force;
     bool preventActivation;
-    Zeal::SearchQuery query;
+    SearchQuery query;
 #ifdef Q_OS_WIN32
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
@@ -190,10 +192,8 @@ int main(int argc, char *argv[])
 #endif
 
     // Detect already running instance and optionally pass a search query to it.
-    if (!clParams.force
-            && Zeal::Core::Application::send(clParams.query, clParams.preventActivation)) {
+    if (!clParams.force && Core::Application::send(clParams.query, clParams.preventActivation))
         return 0;
-    }
 
     // Check for SQLite plugin
     /// TODO: Specific to docset format and should be handled accordingly in the future
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
-    QScopedPointer<Zeal::Core::Application> app(new Zeal::Core::Application(clParams.query));
+    QScopedPointer<Core::Application> app(new Core::Application(clParams.query));
 
     return qapp->exec();
 }
