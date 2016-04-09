@@ -62,9 +62,7 @@ class Settings;
 
 class ListModel;
 class SearchModel;
-class SettingsDialog;
-
-}
+} // namespace Core
 
 struct TabState
 {
