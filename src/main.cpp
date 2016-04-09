@@ -26,10 +26,8 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
-#include <QDataStream>
 #include <QDesktopServices>
 #include <QDir>
-#include <QLocalSocket>
 #include <QMessageBox>
 #include <QSqlDatabase>
 #include <QTextStream>
@@ -191,19 +189,10 @@ int main(int argc, char *argv[])
     }
 #endif
 
-
     // Detect already running instance and optionally pass a search query to it.
-    if (!clParams.force) {
-        QScopedPointer<QLocalSocket> socket(new QLocalSocket());
-        socket->connectToServer(Zeal::Core::Application::localServerName());
-
-        if (socket->waitForConnected(500)) {
-            QDataStream out(socket.data());
-            out << clParams.query;
-            out << clParams.preventActivation;
-            socket->flush();
-            return 0;
-        }
+    if (!clParams.force
+            && Zeal::Core::Application::send(clParams.query, clParams.preventActivation)) {
+        return 0;
     }
 
     // Check for SQLite plugin

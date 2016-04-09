@@ -46,6 +46,8 @@ using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
+const char LocalServerName[] = "ZealLocalServer";
+
 const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
 }
 
@@ -94,9 +96,11 @@ Application::Application(const SearchQuery &query, QObject *parent) :
 
         m_mainWindow->bringToFront();
     });
+
+    // Remove in case previous instance crashed
     /// TODO: Verify if removeServer() is needed
-    QLocalServer::removeServer(localServerName());  // remove in case previous instance crashed
-    m_localServer->listen(localServerName());
+    QLocalServer::removeServer(LocalServerName);
+    m_localServer->listen(LocalServerName);
 
     // Extractor setup
     m_extractor->moveToThread(m_extractorThread);
@@ -133,9 +137,26 @@ Application::~Application()
     delete m_docsetRegistry;
 }
 
-QString Application::localServerName()
+/*!
+ * \internal
+ * \brief Hands over \a query to already running application instance, if it exists.
+ * \param query A query to execute search with.
+ * \param preventActivation If \c true, application window will not activated.
+ * \return \c true if communication with another instance was successful.
+ */
+bool Application::send(const SearchQuery &query, bool preventActivation)
 {
-    return QStringLiteral("ZealLocalServer");
+    QScopedPointer<QLocalSocket> socket(new QLocalSocket());
+    socket->connectToServer(LocalServerName);
+
+    if (!socket->waitForConnected(500))
+        return false;
+
+    QDataStream out(socket.data());
+    out << query;
+    out << preventActivation;
+    socket->flush();
+    return true;
 }
 
 QNetworkAccessManager *Application::networkManager() const

@@ -50,7 +50,7 @@ public:
     explicit Application(const SearchQuery &query, QObject *parent = nullptr);
     ~Application() override;
 
-    static QString localServerName();
+    static bool send(const SearchQuery &query, bool preventActivation);
 
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
