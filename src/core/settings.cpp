@@ -92,6 +92,7 @@ void Settings::load()
     m_settings->beginGroup(GroupBrowser);
     minimumFontSize = m_settings->value(QStringLiteral("minimum_font_size"),
                                         QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
+    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupProxy);
