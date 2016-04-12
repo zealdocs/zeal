@@ -326,7 +326,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
 #ifdef Q_OS_OSX
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->tocView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    ui->tocListView->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
     if (m_settings->checkForUpdate)
