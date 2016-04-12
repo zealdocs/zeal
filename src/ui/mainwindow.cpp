@@ -209,8 +209,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
-    connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
-    connect(ui->backButton, &QPushButton::clicked, ui->webView, &SearchableWebView::back);
+    connect(ui->forwardButton, &QToolButton::clicked, ui->webView, &SearchableWebView::forward);
+    connect(ui->backButton, &QToolButton::clicked, ui->webView, &SearchableWebView::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
