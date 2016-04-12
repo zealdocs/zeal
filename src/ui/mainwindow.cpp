@@ -36,6 +36,7 @@
 #include <QAbstractEventDispatcher>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QFontDatabase>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -96,6 +97,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+
+    QFontDatabase::addApplicationFont(":/font/ionicons.ttf");
 
     setupTabBar();
 
