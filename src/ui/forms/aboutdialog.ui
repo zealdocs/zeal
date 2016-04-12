@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>420</height>
+    <height>441</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,7 +83,9 @@ Copyright &amp;copy; Oleg Shparber and other conributors, 2013-2016.
 &lt;br&gt;&lt;br&gt;
 Zeal is an open source software available under the terms of General Public License version 3 (&lt;a href=&quot;https://www.gnu.org/copyleft/gpl.html&quot;&gt;GPLv3&lt;/a&gt;).
 &lt;br&gt;&lt;br&gt;
-Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.</string>
+Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.
+&lt;br/&gt;&lt;br/&gt;
+Uses &lt;a href=&quot;http://ionicons.com/&quot;&gt;Ionicons&lt;/a&gt; icons under the &lt;a href=&quot;http://opensource.org/licenses/MIT&quot;&gt;MIT&lt;/a&gt; license.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
