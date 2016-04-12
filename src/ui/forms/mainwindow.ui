@@ -139,9 +139,6 @@
              <property name="text">
               <string>←</string>
              </property>
-             <property name="icon">
-              <iconset theme="go-previous"/>
-             </property>
             </widget>
            </item>
            <item>
@@ -151,9 +148,6 @@
              </property>
              <property name="text">
               <string>→</string>
-             </property>
-             <property name="icon">
-              <iconset theme="go-next"/>
              </property>
             </widget>
            </item>

@@ -25,6 +25,7 @@
 #include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
+#include "icons.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "core/application.h"
@@ -72,6 +73,7 @@ using namespace Zeal;
 
 namespace {
 const char startPageUrl[] = "qrc:///browser/start.html";
+const QFont buttonFont = QFont("Ionicons", 16);
 }
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
@@ -179,9 +181,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     m_backMenu = new QMenu(ui->backButton);
+    ui->backButton->setFont(buttonFont);
+    ui->backButton->setText(Icons::Back);
+    ui->backButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     ui->backButton->setMenu(m_backMenu);
 
     m_forwardMenu = new QMenu(ui->forwardButton);
+    ui->forwardButton->setFont(buttonFont);
+    ui->forwardButton->setText(Icons::Forward);
+    ui->forwardButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     ui->forwardButton->setMenu(m_forwardMenu);
 
     displayViewActions();
@@ -308,7 +316,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
-    connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
+    ui->openUrlButton->setFont(buttonFont);
+    ui->openUrlButton->setText(Icons::OpenLink);
+    connect(ui->openUrlButton, &QToolButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
         if (url.scheme() != QLatin1String("qrc"))
             QDesktopServices::openUrl(url);
