@@ -238,16 +238,25 @@
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>&amp;Quit</string>
    </property>
   </action>
   <action name="actionPreferences">
+   <property name="icon">
+    <iconset theme="preferences-desktop"/>
+   </property>
    <property name="text">
     <string>Prefere&amp;nces</string>
    </property>
   </action>
   <action name="actionAboutZeal">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About &amp;Zeal</string>
    </property>
@@ -268,6 +277,9 @@
    </property>
   </action>
   <action name="actionNewTab">
+   <property name="icon">
+    <iconset theme="tab-new"/>
+   </property>
    <property name="text">
     <string>New &amp;Tab</string>
    </property>
@@ -298,6 +310,9 @@
    </property>
   </action>
   <action name="actionFind">
+   <property name="icon">
+    <iconset theme="edit-find"/>
+   </property>
    <property name="text">
     <string>&amp;Find</string>
    </property>
