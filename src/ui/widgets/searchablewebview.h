@@ -65,14 +65,14 @@ signals:
 public slots:
     void back();
     void forward();
+    void showSearchBar();
+    void hideSearchBar();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void showSearch();
-    void hideSearch();
     void find(const QString &text);
     void findNext(const QString &text, bool backward = false);
     void moveLineEdit();

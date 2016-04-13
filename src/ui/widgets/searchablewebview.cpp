@@ -51,7 +51,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     connect(m_searchLineEdit, &QLineEdit::textChanged, this, &SearchableWebView::find);
 
     QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(shortcut, &QShortcut::activated, this, &SearchableWebView::showSearch);
+    connect(shortcut, &QShortcut::activated, this, &SearchableWebView::showSearchBar);
 
     connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
         Q_UNUSED(ok)
@@ -94,7 +94,7 @@ bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
         QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
         case Qt::Key_Escape:
-            hideSearch();
+            hideSearchBar();
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
@@ -138,6 +138,26 @@ void SearchableWebView::forward()
     m_webView->forward();
 }
 
+void SearchableWebView::showSearchBar()
+{
+    m_searchLineEdit->show();
+    m_searchLineEdit->setFocus();
+    if (!m_searchLineEdit->text().isEmpty()) {
+        m_searchLineEdit->selectAll();
+        find(m_searchLineEdit->text());
+    }
+}
+
+void SearchableWebView::hideSearchBar()
+{
+    m_searchLineEdit->hide();
+#ifdef USE_WEBENGINE
+    m_webView->findText(QString());
+#else
+    m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+#endif
+}
+
 bool SearchableWebView::canGoBack() const
 {
     return m_webView->history()->canGoBack();
@@ -152,7 +172,7 @@ void SearchableWebView::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Slash:
-        showSearch();
+        showSearchBar();
         event->accept();
         break;
     default:
@@ -166,26 +186,6 @@ void SearchableWebView::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
     m_webView->resize(event->size().width(), event->size().height());
     moveLineEdit();
-}
-
-void SearchableWebView::showSearch()
-{
-    m_searchLineEdit->show();
-    m_searchLineEdit->setFocus();
-    if (!m_searchLineEdit->text().isEmpty()) {
-        m_searchLineEdit->selectAll();
-        find(m_searchLineEdit->text());
-    }
-}
-
-void SearchableWebView::hideSearch()
-{
-    m_searchLineEdit->hide();
-#ifdef USE_WEBENGINE
-    m_webView->findText(QString());
-#else
-    m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
-#endif
 }
 
 void SearchableWebView::find(const QString &text)
