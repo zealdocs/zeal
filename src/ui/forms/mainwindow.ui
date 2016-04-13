@@ -205,7 +205,6 @@
     <addaction name="actionNewTab"/>
     <addaction name="actionCloseTab"/>
     <addaction name="separator"/>
-    <addaction name="actionOptions"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -226,7 +225,14 @@
     <addaction name="actionBack"/>
     <addaction name="actionForward"/>
    </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionPreferences"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menu_Edit"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -235,9 +241,9 @@
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="actionOptions">
+  <action name="actionPreferences">
    <property name="text">
-    <string>&amp;Options</string>
+    <string>Prefere&amp;nces</string>
    </property>
   </action>
   <action name="actionAboutZeal">
