@@ -191,8 +191,8 @@ void SearchableWebView::hideSearch()
 void SearchableWebView::find(const QString &text)
 {
 #ifdef USE_WEBENGINE
-    /// FIXME: There's no way to just show highlight when search term is already selected.
-    /// So we need a workaround before switching to Qt WebEngine.
+    // FIXME: There's no way to just show highlight when search term is already selected.
+    // So we need a workaround before switching to Qt WebEngine.
     m_webView->findText(text);
 #else
     if (m_webView->selectedText() != text) {
@@ -224,7 +224,7 @@ void SearchableWebView::moveLineEdit()
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
 #ifdef USE_WEBENGINE
-    /// FIXME: scrollbar width
+    // FIXME: scrollbar width
 #else
     frameWidth += m_webView->page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
 #endif

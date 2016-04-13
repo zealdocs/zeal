@@ -87,7 +87,7 @@ private:
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
 
-    /// TODO: Create a special model
+    // TODO: Create a special model
     QMap<QString, DocsetMetadata> m_availableDocsets;
     QMap<QString, DocsetMetadata> m_userFeeds;
 

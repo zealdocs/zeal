@@ -77,7 +77,7 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
     if (parent.isValid() || m_dataList.count() <= row || column > 1)
         return QModelIndex();
 
-    /// FIXME: const_cast
+    // FIXME: const_cast
     SearchResult *item = const_cast<SearchResult *>(&m_dataList.at(row));
     return createIndex(row, column, item);
 }

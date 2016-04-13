@@ -94,7 +94,7 @@ bool SearchQuery::hasKeywords() const
 bool SearchQuery::hasKeyword(const QString &keyword) const
 {
     // Temporary workaround for #333
-    /// TODO: Remove once #167 is implemented
+    // TODO: Remove once #167 is implemented
     for (const QString &kw : m_keywords) {
         if (keyword.startsWith(kw, Qt::CaseInsensitive))
             return true;

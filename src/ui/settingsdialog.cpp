@@ -57,10 +57,10 @@ using namespace Zeal;
 namespace {
 const char ApiServerUrl[] = "http://api.zealdocs.org/v1";
 const char RedirectServerUrl[] = "http://go.zealdocs.org";
-/// TODO: Each source plugin should have its own cache
+// TODO: Each source plugin should have its own cache
 const char DocsetListCacheFileName[] = "com.kapeli.json";
 
-/// TODO: Make the timeout period configurable
+// TODO: Make the timeout period configurable
 constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 
 // QNetworkReply properties
@@ -281,7 +281,7 @@ void SettingsDialog::downloadCompleted()
         if (redirectUrl.isRelative())
             redirectUrl = reply->request().url().resolved(redirectUrl);
 
-        /// TODO: Verify if scheme can be missing
+        // TODO: Verify if scheme can be missing
         if (redirectUrl.scheme().isEmpty())
             redirectUrl.setScheme(reply->request().url().scheme());
 
@@ -345,7 +345,7 @@ void SettingsDialog::downloadCompleted()
                 ? m_availableDocsets[docsetName]
                   : m_userFeeds[docsetName];
 
-        /// TODO: Implement an explicit and verbose docset update logic
+        // TODO: Implement an explicit and verbose docset update logic
         QDir dir(m_application->settings()->docsetPath);
         const QString docsetDirName = docsetName + QLatin1String(".docset");
         if (dir.exists(docsetDirName)) {
@@ -437,7 +437,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
 {
     QString docsetName;
 
-    /// FIXME: Come up with a better approach
+    // FIXME: Come up with a better approach
     for (const QString &key : m_tmpFiles.keys()) {
         if (m_tmpFiles[key]->fileName() == filePath) {
             docsetName = key;
@@ -471,7 +471,7 @@ void SettingsDialog::extractionError(const QString &filePath, const QString &err
     const QString docsetName = QFileInfo(filePath).baseName() + QLatin1String(".docset");
     QMessageBox::warning(this, tr("Extraction Error"),
                          QString(tr("Cannot extract docset <b>%1</b>: %2")).arg(docsetName, errorString));
-    /// TODO: Update list item state (hide progress bar)
+    // TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
 }
 
@@ -479,7 +479,7 @@ void SettingsDialog::extractionProgress(const QString &filePath, qint64 extracte
 {
     QString docsetName;
 
-    /// FIXME: Come up with a better approach
+    // FIXME: Come up with a better approach
     for (const QString &key : m_tmpFiles.keys()) {
         if (m_tmpFiles[key]->fileName() == filePath) {
             docsetName = key;
@@ -551,7 +551,7 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         return;
     }
 
-    /// TODO: Show more user friendly labels, like "5 hours ago"
+    // TODO: Show more user friendly labels, like "5 hours ago"
     ui->lastUpdatedLabel->setText(fi.lastModified().toString(Qt::SystemLocaleShortDate));
     processDocsetList(jsonDoc.array());
 }
@@ -635,7 +635,7 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
         m_availableDocsets.insert(metadata.name(), metadata);
     }
 
-    /// TODO: Move into dedicated method
+    // TODO: Move into dedicated method
     for (const DocsetMetadata &metadata : m_availableDocsets) {
         QListWidgetItem *listItem
                 = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
@@ -839,7 +839,7 @@ QString SettingsDialog::cacheLocation(const QString &fileName)
 #else
         const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
 #endif
-        /// TODO: Report error
+        // TODO: Report error
         QDir().mkpath(cacheDir.path());
 
         return cacheDir.filePath(fileName);

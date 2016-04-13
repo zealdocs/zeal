@@ -35,13 +35,14 @@ class Settings : public QObject
 {
     Q_OBJECT
 public:
-    /// NOTE: This public members are here just for simplification and should go away
-    /// once a more advanced settings management come in place.
+    /* This public members are here just for simplification and should go away
+     * once a more advanced settings management come in place.
+     */
 
     // Startup
     bool startMinimized;
     bool checkForUpdate;
-    /// TODO: bool restoreLastState;
+    // TODO: bool restoreLastState;
 
     // System Tray
     bool showSystrayIcon;
@@ -50,12 +51,12 @@ public:
 
     // Global Shortcuts
     QKeySequence showShortcut;
-    /// TODO: QKeySequence searchSelectedTextShortcut;
+    // TODO: QKeySequence searchSelectedTextShortcut;
 
     // Browser
     int minimumFontSize;
-    /// TODO: bool askOnExternalLink;
-    /// TODO: QString customCss;
+    // TODO: bool askOnExternalLink;
+    // TODO: QString customCss;
 
     // Network
     enum ProxyType : unsigned int {

@@ -59,7 +59,7 @@ typedef QWebEngineHistory QWebHistory;
 
 #include <qxtglobalshortcut.h>
 
-/// TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
+// TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
 #ifdef USE_APPINDICATOR
 #undef signals
 #include <libappindicator/app-indicator.h>
@@ -107,7 +107,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
 
-    /// TODO: Custom headers and URL scheme for Qt WebEngine.
+    // TODO: Custom headers and URL scheme for Qt WebEngine.
 #ifndef USE_WEBENGINE
     ui->webView->page()->setNetworkAccessManager(m_application->networkManager());
 #endif
@@ -257,7 +257,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
             tabState->webPage->mainFrame()->load(QUrl(startPageUrl));
 #endif
-            /// TODO: Cleanup history
+            // TODO: Cleanup history
         }
     });
 
@@ -312,7 +312,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
-    /// TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
+    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
     ui->actionPreviousTab->setShortcut(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab);
     addAction(ui->actionPreviousTab);
     connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
@@ -357,11 +357,11 @@ void MainWindow::openDocset(const QModelIndex &index)
     if (urlStr.isNull())
         return;
 
-    /// TODO: Keep anchor separately from file address
+    // TODO: Keep anchor separately from file address
     QStringList urlParts = urlStr.toString().split(QLatin1Char('#'));
     QUrl url = QUrl::fromLocalFile(urlParts[0]);
     if (urlParts.count() > 1)
-        /// NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
+        // NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
         url.setFragment(urlParts[1], QUrl::DecodedMode);
 
     ui->webView->load(url);
@@ -413,7 +413,7 @@ void MainWindow::closeTab(int index)
     if (index == -1)
         return;
 
-    /// TODO: proper deletion here
+    // TODO: proper deletion here
     TabState *state = m_tabStates.takeAt(index);
 
     if (m_currentTabState == state)
@@ -675,7 +675,7 @@ void MainWindow::createTrayIcon()
 
         gtk_widget_show_all(m_appIndicatorMenu);
 
-        /// NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
+        // NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
         m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
 
         app_indicator_set_status(m_appIndicator, APP_INDICATOR_STATUS_ACTIVE);
@@ -775,7 +775,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
             break;
         }
         case QEvent::Wheel:
-            /// TODO: Remove in case QTBUG-8428 is fixed on all platforms
+            // TODO: Remove in case QTBUG-8428 is fixed on all platforms
             return true;
         default:
             break;

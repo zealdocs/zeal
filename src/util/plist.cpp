@@ -36,7 +36,7 @@ bool Plist::read(const QString &fileName)
 {
     QScopedPointer<QFile> file(new QFile(fileName));
     if (!file->open(QIODevice::ReadOnly)) {
-        /// TODO: Report/log error
+        // TODO: Report/log error
         m_hasError = true;
         return false;
     }
@@ -49,7 +49,7 @@ bool Plist::read(const QString &fileName)
             continue;
 
         if (xml.name() != QLatin1String("key"))
-            continue; /// TODO: Should it fail here?
+            continue; // TODO: Should it fail here?
 
         const QString key = xml.readElementText();
 

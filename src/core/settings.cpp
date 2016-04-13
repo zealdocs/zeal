@@ -57,7 +57,7 @@ Settings::Settings(QObject *parent) :
                              QSettings::IniFormat, this))
   #endif
 {
-    /// TODO: Move to user style sheet (related to #268)
+    // TODO: Move to user style sheet (related to #268)
 #ifndef USE_WEBENGINE
     QWebSettings::globalSettings()
             ->setUserStyleSheetUrl(QUrl(QStringLiteral("qrc:///browser/highlight.css")));
@@ -73,7 +73,7 @@ Settings::~Settings()
 
 void Settings::load()
 {
-    /// TODO: Put everything in groups
+    // TODO: Put everything in groups
     startMinimized = m_settings->value(QStringLiteral("start_minimized"), false).toBool();
     checkForUpdate = m_settings->value(QStringLiteral("check_for_update"), true).toBool();
 
@@ -136,7 +136,7 @@ void Settings::load()
 
 void Settings::save()
 {
-    /// TODO: Put everything in groups
+    // TODO: Put everything in groups
     m_settings->setValue(QStringLiteral("start_minimized"), startMinimized);
     m_settings->setValue(QStringLiteral("check_for_update"), checkForUpdate);
 

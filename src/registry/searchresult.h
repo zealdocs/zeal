@@ -40,7 +40,7 @@ struct SearchResult
 
     QString path;
 
-    /// TODO: Remove
+    // TODO: Remove
     QString query;
 
     bool operator<(const SearchResult &r) const;

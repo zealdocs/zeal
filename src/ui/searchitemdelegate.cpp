@@ -73,7 +73,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             roles.append(role);
     }
 
-    /// TODO: Implemented via initStyleOption() overload
+    // TODO: Implemented via initStyleOption() overload
     if (!roles.isEmpty()) {
         opt.features |= QStyleOptionViewItem::HasDecoration;
         opt.icon = index.data(roles.first()).value<QIcon>();

@@ -71,13 +71,13 @@ Docset::Docset(const QString &path) :
             break;
     }
 
-    /// TODO: Report errors here and below
+    // TODO: Report errors here and below
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
-    /// TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
-    /// https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig/
-    /// Articles/ConfigFiles.html
+    // TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
+    // https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig
+    // /Articles/ConfigFiles.html
     Util::Plist plist;
     if (dir.exists(QStringLiteral("Info.plist")))
         plist.read(dir.absoluteFilePath(QStringLiteral("Info.plist")));
@@ -93,7 +93,7 @@ Docset::Docset(const QString &path) :
         // Fallback if meta.json is absent
         if (!plist.contains(InfoPlist::CFBundleName)) {
             m_name = m_title = plist[InfoPlist::CFBundleName].toString();
-            /// TODO: Remove when MainWindow::docsetName() will not use directory name
+            // TODO: Remove when MainWindow::docsetName() will not use directory name
             m_name.replace(QLatin1Char(' '), QLatin1Char('_'));
         } else {
             m_name = QFileInfo(m_path).fileName().remove(QStringLiteral(".docset"));
@@ -105,7 +105,7 @@ Docset::Docset(const QString &path) :
         m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
     }
 
-    /// TODO: Verify if this is needed
+    // TODO: Verify if this is needed
     if (plist.contains(InfoPlist::DashDocSetFamily)
             && plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet")) {
         m_name = m_name + QLatin1String("cheats");
@@ -145,7 +145,7 @@ Docset::Docset(const QString &path) :
             m_keywords << kw;
     }
 
-    /// TODO: Use 'unknown' instead of CFBundleName? (See #383)
+    // TODO: Use 'unknown' instead of CFBundleName? (See #383)
     m_keywords << plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
 
     // Try to find index path if metadata is missing one
@@ -302,7 +302,7 @@ QList<SearchResult> Docset::search(const QString &query) const
                     path += QLatin1Char('#') + anchor;
             }
 
-            /// TODO: Third should be type
+            // TODO: Third should be type
             results.append(SearchResult{itemName, QString(),
                                         parseSymbolType(query.value(1).toString()),
                                         const_cast<Docset *>(this), path, sanitizedQuery});
@@ -423,7 +423,7 @@ void Docset::countSymbols()
     }
 }
 
-/// TODO: Fetch and cache only portions of symbols
+// TODO: Fetch and cache only portions of symbols
 void Docset::loadSymbols(const QString &symbolType) const
 {
     for (const QString &symbol : m_symbolStrings.values(symbolType))
@@ -499,7 +499,7 @@ void Docset::createIndex()
 
 QString Docset::parseSymbolType(const QString &str)
 {
-    /// Dash symbol aliases
+    // Dash symbol aliases
     const static QHash<QString, QString> aliases = {
         // Attribute
         {QStringLiteral("Package Attributes"), QStringLiteral("Attribute")},

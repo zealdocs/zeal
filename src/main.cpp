@@ -67,7 +67,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    /// TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
+    // TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
     parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
                                         QObject::tr("Force the application run.")));
 
@@ -94,7 +94,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     }
 #endif
 
-    /// TODO: Support dash-feed:// protocol
+    // TODO: Support dash-feed:// protocol
     const QString arg
             = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
     if (arg.startsWith(QLatin1String("dash:"))) {
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         return 0;
 
     // Check for SQLite plugin
-    /// TODO: Specific to docset format and should be handled accordingly in the future
+    // TODO: Specific to docset format and should be handled accordingly in the future
     if (!QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE"))) {
         const int ret = QMessageBox::critical(nullptr, QStringLiteral("Zeal"),
                                               QObject::tr("Qt SQLite driver is not available."),

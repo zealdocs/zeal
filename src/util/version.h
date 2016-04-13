@@ -29,7 +29,7 @@ namespace Zeal {
 namespace Util {
 
 // Based on Semantic Versioning (http://semver.org/)
-/// TODO: Add support for prerelease tags and build metadata
+// TODO: Add support for prerelease tags and build metadata
 
 class Version
 {

@@ -83,7 +83,7 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
         native |= MOD_ALT;
     if (modifiers & Qt::MetaModifier)
         native |= MOD_WIN;
-    /// TODO: resolve these?
+    // TODO: resolve these?
     //if (modifiers & Qt::KeypadModifier)
     //if (modifiers & Qt::GroupSwitchModifier)
     return native;

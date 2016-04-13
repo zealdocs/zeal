@@ -62,7 +62,7 @@ public:
     QList<SearchResult> search(const QString &query) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
-    /// FIXME: This is an ugly workaround before we have a proper docset sources implementation
+    // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
 private:

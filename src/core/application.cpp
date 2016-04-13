@@ -98,7 +98,7 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     });
 
     // Remove in case previous instance crashed
-    /// TODO: Verify if removeServer() is needed
+    // TODO: Verify if removeServer() is needed
     QLocalServer::removeServer(LocalServerName);
     m_localServer->listen(LocalServerName);
 
@@ -263,7 +263,7 @@ QString Application::userAgent()
 
 QString Application::userAgentJson() const
 {
-    /// TODO: [Qt 5.4] Remove else branch
+    // TODO: [Qt 5.4] Remove else branch
 #if QT_VERSION >= 0x050400
     QJsonObject app = {
         {QStringLiteral("version"), QCoreApplication::applicationVersion()},

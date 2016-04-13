@@ -37,7 +37,7 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
     // Register for use in signal connections.
     qRegisterMetaType<QList<Zeal::SearchResult>>("QList<SearchResult>");
 
-    /// FIXME: Only search should be performed in a separate thread
+    // FIXME: Only search should be performed in a separate thread
     moveToThread(m_thread);
     m_thread->start();
 }
@@ -106,7 +106,7 @@ void DocsetRegistry::_addDocset(const QString &path)
 {
     Docset *docset = new Docset(path);
 
-    /// TODO: Emit error
+    // TODO: Emit error
     if (!docset->isValid()) {
         qWarning("Could not load docset from '%s'. Please reinstall the docset.", qPrintable(path));
         delete docset;

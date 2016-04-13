@@ -193,7 +193,7 @@ void ListModel::addDocset(const QString &name)
 void ListModel::removeDocset(const QString &name)
 {
     const int index = m_docsetItems.keys().indexOf(name);
-    /// TODO: Investigate why this can happen (see #420)
+    // TODO: Investigate why this can happen (see #420)
     if (index == -1)
         return;
 
