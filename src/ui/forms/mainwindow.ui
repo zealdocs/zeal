@@ -205,7 +205,6 @@
     <addaction name="actionNewTab"/>
     <addaction name="actionCloseTab"/>
     <addaction name="separator"/>
-    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
