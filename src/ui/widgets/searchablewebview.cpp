@@ -26,7 +26,6 @@
 #include "webview.h"
 
 #include <QLineEdit>
-#include <QShortcut>
 #include <QStyle>
 #include <QResizeEvent>
 
@@ -49,9 +48,6 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
     m_searchLineEdit->hide();
     m_searchLineEdit->installEventFilter(this);
     connect(m_searchLineEdit, &QLineEdit::textChanged, this, &SearchableWebView::find);
-
-    QShortcut *shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(shortcut, &QShortcut::activated, this, &SearchableWebView::showSearchBar);
 
     connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
         Q_UNUSED(ok)

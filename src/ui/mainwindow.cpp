@@ -112,7 +112,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->webView->page()->setNetworkAccessManager(m_application->networkManager());
 #endif
 
-    // menu
+    // Menu
+    // File
     if (QKeySequence(QKeySequence::Quit) != QKeySequence(QStringLiteral("Ctrl+Q"))) {
         ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence(QStringLiteral("Ctrl+Q")),
                                                          QKeySequence::Quit});
@@ -122,6 +123,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
     }
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
+
+    // Edit
+    ui->actionFind->setShortcut(QKeySequence::Find);
+    connect(ui->actionFind, &QAction::triggered, ui->webView, &SearchableWebView::showSearchBar);
 
     connect(ui->actionPreferences, &QAction::triggered, [this]() {
         m_globalShortcut->setEnabled(false);

@@ -229,6 +229,8 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <addaction name="actionFind"/>
+    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuFile"/>
@@ -294,6 +296,11 @@
   <action name="actionCheckForUpdates">
    <property name="text">
     <string>&amp;Check for updates...</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>&amp;Find</string>
    </property>
   </action>
  </widget>
