@@ -153,14 +153,15 @@ QString SearchQuery::sanitizedQuery() const
 
 QDataStream &Zeal::operator<<(QDataStream &out, const SearchQuery &query)
 {
-    out << query.toString();
+    out << query.query() << query.keywords().join(keywordSeparator);
     return out;
 }
 
 QDataStream &Zeal::operator>>(QDataStream &in, SearchQuery &query)
 {
-    QString str;
-    in >> str;
-    query = SearchQuery::fromString(str, QStringList());
+    QString queryStr;
+    QString keywordStr;
+    in >> queryStr >> keywordStr;
+    query = SearchQuery(queryStr, keywordStr.split(keywordSeparator));
     return in;
 }
