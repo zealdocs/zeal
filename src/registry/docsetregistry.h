@@ -55,6 +55,7 @@ public:
 
     void search(const QString &query);
     SearchQuery getSearchQuery(const QString &queryStr) const;
+    QStringList completions() const;
 
 public slots:
     void addDocset(const QString &path);

@@ -150,6 +150,19 @@ SearchQuery DocsetRegistry::getSearchQuery(const QString &queryStr) const
     return SearchQuery::fromString(queryStr);
 }
 
+QStringList DocsetRegistry::completions() const
+{
+    QStringList completionsList;
+    for (const Docset * const docset: docsets()) {
+        if (docset->keywords().isEmpty())
+            continue;
+
+        completionsList << docset->keywords().first() + QLatin1Char(':');
+    }
+
+    return completionsList;
+}
+
 // Recursively finds and adds all docsets in a given directory.
 void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {

@@ -535,15 +535,7 @@ void MainWindow::reloadTabState()
 // Sets up the search box autocompletions.
 void MainWindow::setupSearchBoxCompletions()
 {
-    QStringList completions;
-    for (const Docset * const docset: m_application->docsetRegistry()->docsets()) {
-        if (docset->keywords().isEmpty())
-            continue;
-
-        completions << docset->keywords().first() + QLatin1Char(':');
-    }
-
-    ui->lineEdit->setCompletions(completions);
+    ui->lineEdit->setCompletions(m_application->docsetRegistry()->completions());
 }
 
 void MainWindow::setupTabBar()
