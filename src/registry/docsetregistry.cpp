@@ -23,6 +23,7 @@
 
 #include "docsetregistry.h"
 
+#include "searchquery.h"
 #include "searchresult.h"
 
 #include <QDir>
@@ -131,8 +132,9 @@ void DocsetRegistry::search(const QString &query)
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
 }
 
-void DocsetRegistry::_runQuery(const QString &query)
+void DocsetRegistry::_runQuery(const QString &queryStr)
 {
+    SearchQuery query = getSearchQuery(queryStr);
     QList<SearchResult> results;
 
     for (Docset *docset : docsets())
@@ -141,6 +143,11 @@ void DocsetRegistry::_runQuery(const QString &query)
     std::sort(results.begin(), results.end());
 
     emit queryCompleted(results);
+}
+
+SearchQuery DocsetRegistry::getSearchQuery(const QString &queryStr) const
+{
+    return SearchQuery::fromString(queryStr);
 }
 
 // Recursively finds and adds all docsets in a given directory.
