@@ -147,7 +147,7 @@ void DocsetRegistry::_runQuery(const QString &queryStr)
 
 SearchQuery DocsetRegistry::getSearchQuery(const QString &queryStr) const
 {
-    return SearchQuery::fromString(queryStr);
+    return SearchQuery::fromString(queryStr, completions());
 }
 
 QStringList DocsetRegistry::completions() const

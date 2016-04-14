@@ -40,23 +40,38 @@ SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
     setKeywords(keywords);
 }
 
-SearchQuery SearchQuery::fromString(const QString &str)
+SearchQuery SearchQuery::fromString(const QString &str, const QStringList &validKeywords)
 {
     const int sepAt = str.indexOf(prefixSeparator);
     const int next = sepAt + 1;
 
     QString query;
     QStringList keywords;
-    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
-        query = str.mid(next).trimmed();
-
+    if (sepAt > 0) {
         const QString keywordStr = str.left(sepAt).trimmed();
-        keywords = keywordStr.split(keywordSeparator);
+        keywords = tryGetKeywords(keywordStr, validKeywords);
+    }
+
+    if (!keywords.empty()) {
+        query = str.mid(next).trimmed();
     } else {
         query = str.trimmed();
     }
 
     return SearchQuery(query, keywords);
+}
+
+QStringList SearchQuery::tryGetKeywords(const QString &keywordStr, const QStringList &validKeywords)
+{
+    QStringList keywordCandidates = keywordStr.split(keywordSeparator);
+    QStringList actualKeywords = QStringList();
+
+    for (QString candidate: keywordCandidates) {
+        if (validKeywords.empty() || validKeywords.contains(candidate + ":"))
+                actualKeywords += candidate;
+    }
+
+    return actualKeywords;
 }
 
 QString SearchQuery::toString() const
@@ -146,6 +161,6 @@ QDataStream &Zeal::operator>>(QDataStream &in, SearchQuery &query)
 {
     QString str;
     in >> str;
-    query = SearchQuery::fromString(str);
+    query = SearchQuery::fromString(str, QStringList());
     return in;
 }
