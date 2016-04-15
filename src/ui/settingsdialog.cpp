@@ -22,10 +22,10 @@
 ****************************************************************************/
 
 #include "settingsdialog.h"
+#include "ui_settingsdialog.h"
 
 #include "docsetlistitemdelegate.h"
 #include "progressitemdelegate.h"
-#include "ui_settingsdialog.h"
 #include "core/application.h"
 #include "core/settings.h"
 #include "registry/docsetregistry.h"

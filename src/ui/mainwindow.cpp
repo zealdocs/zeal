@@ -33,7 +33,6 @@
 #include "registry/listmodel.h"
 #include "registry/searchmodel.h"
 
-#include <QAbstractEventDispatcher>
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QKeyEvent>
@@ -43,7 +42,6 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QTimer>
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineHistory>
