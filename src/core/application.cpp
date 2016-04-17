@@ -139,6 +139,16 @@ Application::~Application()
 
 /*!
  * \internal
+ * \brief Returns a pointer to the Core::Application instance.
+ * If no instance has been created, then \c nullptr is returned.
+ */
+Application *Application::instance()
+{
+    return m_instance;
+}
+
+/*!
+ * \internal
  * \brief Hands over \a query to already running application instance, if it exists.
  * \param query A query to execute search with.
  * \param preventActivation If \c true, application window will not activated.
