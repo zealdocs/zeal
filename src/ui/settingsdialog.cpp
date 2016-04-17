@@ -56,7 +56,7 @@ using namespace Zeal;
 
 namespace {
 const char ApiServerUrl[] = "http://api.zealdocs.org/v1";
-const char RedirectServerUrl[] = "http://go.zealdocs.org";
+const char RedirectServerUrl[] = "https://go.zealdocs.org";
 // TODO: Each source plugin should have its own cache
 const char DocsetListCacheFileName[] = "com.kapeli.json";
 
