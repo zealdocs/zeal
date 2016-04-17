@@ -2,7 +2,7 @@
 **
 ** Copyright (C) 2015-2016 Oleg Shparber
 ** Copyright (C) 2013-2014 Jerzy Kozera
-** Contact: http://zealdocs.org/contact.html
+** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
 **
