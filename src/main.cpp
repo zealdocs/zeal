@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
     if (!QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE"))) {
         const int ret = QMessageBox::critical(nullptr, QStringLiteral("Zeal"),
                                               QObject::tr("Qt SQLite driver is not available."),
-                                              QMessageBox::Close, QMessageBox::Help);
+                                              QMessageBox::Close | QMessageBox::Help);
         if (ret == QMessageBox::Help)
             QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/contact.html")));
         return 0;

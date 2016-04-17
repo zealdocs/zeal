@@ -199,12 +199,12 @@ void SettingsDialog::removeSelectedDocsets()
     int ret;
     if (selectonModel->selectedIndexes().count() == 1) {
         const QString docsetTitle = selectonModel->selectedIndexes().first().data().toString();
-        ret = QMessageBox::question(this, tr("Remove Docset"),
-                                    QString(tr("Do you really want to remove <b>%1</b> docset?"))
+        ret = QMessageBox::question(this, QStringLiteral("Zeal"),
+                                    QString(tr("Remove <b>%1</b> docset?"))
                                     .arg(docsetTitle));
     } else {
-        ret = QMessageBox::question(this, tr("Remove Docsets"),
-                                    QString(tr("Do you really want to remove <b>%1</b> docsets?"))
+        ret = QMessageBox::question(this, QStringLiteral("Zeal"),
+                                    QString(tr("Remove <b>%1</b> docsets?"))
                                     .arg(selectonModel->selectedIndexes().count()));
     }
 
@@ -246,7 +246,7 @@ void SettingsDialog::downloadCompleted()
 
     if (reply->error() != QNetworkReply::NoError) {
         if (reply->error() != QNetworkReply::OperationCanceledError) {
-            const int ret = QMessageBox::warning(this, tr("Network Error"), reply->errorString(),
+            const int ret = QMessageBox::warning(this, QStringLiteral("Zeal"), reply->errorString(),
                                                  QMessageBox::Ok | QMessageBox::Retry);
 
             if (ret == QMessageBox::Retry) {
@@ -312,7 +312,7 @@ void SettingsDialog::downloadCompleted()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            QMessageBox::warning(this, tr("Error"),
+            QMessageBox::warning(this, QStringLiteral("Zeal"),
                                  tr("Corrupted docset list: ") + jsonError.errorString());
             break;
         }
@@ -327,7 +327,7 @@ void SettingsDialog::downloadCompleted()
                 = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
 
         if (metadata.urls().isEmpty()) {
-            QMessageBox::critical(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
+            QMessageBox::warning(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
             break;
         }
 
@@ -469,7 +469,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
 void SettingsDialog::extractionError(const QString &filePath, const QString &errorString)
 {
     const QString docsetName = QFileInfo(filePath).baseName() + QLatin1String(".docset");
-    QMessageBox::warning(this, tr("Extraction Error"),
+    QMessageBox::warning(this, QStringLiteral("Zeal"),
                          QString(tr("Cannot extract docset <b>%1</b>: %2")).arg(docsetName, errorString));
     // TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
@@ -698,7 +698,7 @@ void SettingsDialog::removeDocsets(const QStringList &names)
             watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 if (!watcher->result()) {
-                    QMessageBox::warning(this, tr("Error"),
+                    QMessageBox::warning(this, QStringLiteral("Zeal"),
                                          QString(tr("Cannot delete docset <b>%1</b>!")).arg(title));
                 }
 
