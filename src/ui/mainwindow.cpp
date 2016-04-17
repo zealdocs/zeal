@@ -112,14 +112,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // Menu
     // File
-    if (QKeySequence(QKeySequence::Quit) != QKeySequence(QStringLiteral("Ctrl+Q"))) {
-        ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence(QStringLiteral("Ctrl+Q")),
-                                                         QKeySequence::Quit});
-    } else {
-        // Quit == Ctrl+Q - don't set the same sequence twice because it causes
-        // "QAction::eventFilter: Ambiguous shortcut overload: Ctrl+Q"
-        ui->actionQuit->setShortcuts(QList<QKeySequence>{QKeySequence::Quit});
-    }
+    // Some platform plugins do not define QKeySequence::Quit.
+    if (QKeySequence(QKeySequence::Quit).isEmpty())
+        ui->actionQuit->setShortcut(QStringLiteral("Ctrl+Q"));
+    else
+        ui->actionQuit->setShortcut(QKeySequence::Quit);
+
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     // Edit
