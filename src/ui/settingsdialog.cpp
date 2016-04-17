@@ -835,12 +835,12 @@ int SettingsDialog::percent(qint64 fraction, qint64 total)
 QString SettingsDialog::cacheLocation(const QString &fileName)
 {
 #ifndef PORTABLE_BUILD
-        const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
 #else
-        const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
+    const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
 #endif
-        // TODO: Report error
-        QDir().mkpath(cacheDir.path());
+    // TODO: Report error
+    QDir().mkpath(cacheDir.path());
 
-        return cacheDir.filePath(fileName);
+    return cacheDir.filePath(fileName);
 }
