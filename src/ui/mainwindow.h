@@ -93,6 +93,7 @@ private slots:
     void openDocset(const QModelIndex &index);
     void queryCompleted();
     void closeTab(int index = -1);
+    void duplicateTab(int index);
 
 private:
     void displayViewActions();

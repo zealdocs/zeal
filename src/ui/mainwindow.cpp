@@ -85,6 +85,41 @@ struct TabState
 #endif
     }
 
+    TabState(const TabState &rhs)
+        : searchQuery(rhs.searchQuery)
+        , selections(rhs.selections)
+        , expansions(rhs.expansions)
+        , searchScrollPosition(rhs.searchScrollPosition)
+        , tocScrollPosition(rhs.tocScrollPosition)
+        , webViewZoomFactor(rhs.webViewZoomFactor)
+    {
+        searchModel = new Zeal::SearchModel();
+        tocModel = new Zeal::SearchModel();
+
+        webPage = new QWebPage();
+#ifndef USE_WEBENGINE
+        webPage->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+        webPage->setNetworkAccessManager(Core::Application::instance()->networkManager());
+#endif
+
+        QByteArray historyArray = rhs.saveHistory();
+        restoreHistory(historyArray);
+    }
+
+    void restoreHistory(const QByteArray &array) const
+    {
+        QDataStream stream(array);
+        stream >> *webPage->history();
+    }
+
+    QByteArray saveHistory() const
+    {
+        QByteArray array;
+        QDataStream stream(&array, QIODevice::WriteOnly);
+        stream << *webPage->history();
+        return array;
+    }
+
     ~TabState()
     {
         delete searchModel;
@@ -106,6 +141,15 @@ struct TabState
         webPage->load(url);
 #else
         webPage->mainFrame()->load(url);
+#endif
+    }
+
+    QString title() const
+    {
+#ifdef USE_WEBENGINE
+        return webPage->title();
+#else
+        return webPage->mainFrame()->title();
 #endif
     }
 
@@ -154,6 +198,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QShortcut *focusSearch = new QShortcut(QStringLiteral("Ctrl+K"), this);
     connect(focusSearch, &QShortcut::activated,
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+
+    QShortcut *duplicate = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
+    connect(duplicate, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
 
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
@@ -467,6 +514,22 @@ void MainWindow::createTab(int index)
 
     m_tabStates.insert(index, newTab);
     m_tabBar->insertTab(index, tr("Loading..."));
+    m_tabBar->setCurrentIndex(index);
+}
+
+void MainWindow::duplicateTab(int index)
+{
+    if (index < 0 || index >= m_tabStates.size())
+        return;
+
+    TabState *previous = m_tabStates.at(index++);
+    TabState *newTab = new TabState(*previous);
+
+    connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
+    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
+
+    m_tabStates.insert(index, newTab);
+    m_tabBar->insertTab(index, newTab->title());
     m_tabBar->setCurrentIndex(index);
 }
 
