@@ -97,8 +97,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     setupTabBar();
 
-    QShortcut *focusSearch = new QShortcut(QKeySequence(QStringLiteral("Ctrl+K")), this);
-    focusSearch->setContext(Qt::ApplicationShortcut);
+    QShortcut *focusSearch = new QShortcut(QStringLiteral("Ctrl+K"), this);
     connect(focusSearch, &QShortcut::activated,
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
