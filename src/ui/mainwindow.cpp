@@ -454,7 +454,9 @@ void MainWindow::closeTab(int index)
 
 void MainWindow::createTab(int index)
 {
-    if (index == -1)
+    if (m_settings->openNewTabAfterActive)
+        index = m_tabBar->currentIndex() + 1;
+    else if (index == -1)
         index = m_tabStates.size();
 
     TabState *newTab = new TabState();

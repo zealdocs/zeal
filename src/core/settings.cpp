@@ -41,6 +41,7 @@ namespace {
 const char GroupBrowser[] = "browser";
 const char GroupDocsets[] = "docsets";
 const char GroupGlobalShortcuts[] = "global_shortcuts";
+const char GroupTabs[] = "tabs";
 const char GroupInternal[] = "internal";
 const char GroupState[] = "state";
 const char GroupProxy[] = "proxy";
@@ -87,6 +88,10 @@ void Settings::load()
 #else
     showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Alt+Space")).value<QKeySequence>();
 #endif
+    m_settings->endGroup();
+
+    m_settings->beginGroup(GroupTabs);
+    openNewTabAfterActive = m_settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupBrowser);
@@ -146,6 +151,10 @@ void Settings::save()
 
     m_settings->beginGroup(GroupGlobalShortcuts);
     m_settings->setValue(QStringLiteral("show"), showShortcut);
+    m_settings->endGroup();
+
+    m_settings->beginGroup(GroupTabs);
+    m_settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupBrowser);
