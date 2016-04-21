@@ -73,6 +73,18 @@ const char startPageUrl[] = "qrc:///browser/start.html";
 
 struct TabState
 {
+    explicit TabState()
+    {
+        searchModel = new Zeal::SearchModel();
+        tocModel = new Zeal::SearchModel();
+    }
+
+    ~TabState()
+    {
+        delete searchModel;
+        delete tocModel;
+    }
+
     QString searchQuery;
 
     // Content/Search results tree view state
@@ -352,12 +364,7 @@ MainWindow::~MainWindow()
     m_settings->windowGeometry = saveGeometry();
 
     delete ui;
-
-    for (TabState *state : m_tabStates) {
-        delete state->searchModel;
-        delete state->tocModel;
-        delete state;
-    }
+    qDeleteAll(m_tabStates);
 }
 
 void MainWindow::search(const SearchQuery &query)
@@ -437,8 +444,6 @@ void MainWindow::closeTab(int index)
     if (m_currentTabState == state)
         m_currentTabState = nullptr;
 
-    delete state->searchModel;
-    delete state->tocModel;
     delete state;
 
     m_tabBar->removeTab(index);
@@ -450,8 +455,6 @@ void MainWindow::closeTab(int index)
 void MainWindow::createTab()
 {
     TabState *newTab = new TabState();
-    newTab->searchModel = new Zeal::SearchModel();
-    newTab->tocModel = new Zeal::SearchModel();
 
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
