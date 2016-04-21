@@ -91,14 +91,14 @@ struct TabState
     Zeal::SearchModel *searchModel = nullptr;
     QModelIndexList selections;
     QModelIndexList expansions;
-    int searchScrollPosition;
+    int searchScrollPosition = 0;
 
     // TOC list view state
     Zeal::SearchModel *tocModel = nullptr;
-    int tocScrollPosition;
+    int tocScrollPosition = 0;
 
     QWebPage *webPage = nullptr;
-    int webViewZoomFactor;
+    int webViewZoomFactor = 0;
 };
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
