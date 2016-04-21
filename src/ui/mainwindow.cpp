@@ -71,6 +71,24 @@ namespace {
 const char startPageUrl[] = "qrc:///browser/start.html";
 }
 
+struct TabState
+{
+    QString searchQuery;
+
+    // Content/Search results tree view state
+    Zeal::SearchModel *searchModel = nullptr;
+    QModelIndexList selections;
+    QModelIndexList expansions;
+    int searchScrollPosition;
+
+    // TOC list view state
+    Zeal::SearchModel *tocModel = nullptr;
+    int tocScrollPosition;
+
+    QWebPage *webPage = nullptr;
+    int webViewZoomFactor;
+};
+
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),

@@ -26,9 +26,7 @@
 
 #include "registry/searchquery.h"
 
-#include <QDialog>
 #include <QMainWindow>
-#include <QModelIndex>
 
 #ifdef USE_WEBENGINE
 class QWebEngineHistory;
@@ -50,41 +48,25 @@ struct _GtkWidget;
 
 class QxtGlobalShortcut;
 
+class QModelIndex;
 class QSystemTrayIcon;
 class QTabBar;
 
 namespace Ui {
 class MainWindow;
-}
+} // namespace Ui
 
 namespace Zeal {
 
 namespace Core {
 class Application;
 class Settings;
-}
-
-class ListModel;
-class SearchModel;
 } // namespace Core
 
-struct TabState
-{
-    QString searchQuery;
+class ListModel;
+} // namespace Zeal
 
-    // Content/Search results tree view state
-    Zeal::SearchModel *searchModel = nullptr;
-    QModelIndexList selections;
-    QModelIndexList expansions;
-    int searchScrollPosition;
-
-    // TOC list view state
-    Zeal::SearchModel *tocModel = nullptr;
-    int tocScrollPosition;
-
-    QWebPage *webPage = nullptr;
-    int webViewZoomFactor;
-};
+struct TabState;
 
 class MainWindow : public QMainWindow
 {
