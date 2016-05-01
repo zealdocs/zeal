@@ -503,7 +503,6 @@ void MainWindow::saveTabState()
     if (!m_currentTabState)
         return;
 
-    m_currentTabState->searchQuery = ui->lineEdit->text();
     m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
     m_currentTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
     m_currentTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
