@@ -432,16 +432,6 @@ void MainWindow::queryCompleted()
     ui->lineEdit->setFocus(Qt::MouseFocusReason);
 }
 
-void MainWindow::selectTab(int index)
-{
-    if (index == -1)
-        return;
-
-    saveTabState();
-    m_currentTabState = nullptr;
-    reloadTabState();
-}
-
 void MainWindow::closeTab(int index)
 {
     if (index == -1)
@@ -578,7 +568,14 @@ void MainWindow::setupTabBar()
     m_tabBar->setElideMode(Qt::ElideRight);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
-    connect(m_tabBar, &QTabBar::currentChanged, this, &MainWindow::selectTab);
+    connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
+        if (index == -1)
+            return;
+
+        saveTabState();
+        m_currentTabState = nullptr;
+        reloadTabState();
+    });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
     for (int i = 1; i < 10; i++) {
