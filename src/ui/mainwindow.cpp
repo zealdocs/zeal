@@ -77,12 +77,14 @@ struct TabState
     {
         searchModel = new Zeal::SearchModel();
         tocModel = new Zeal::SearchModel();
+        webPage = new QWebPage();
     }
 
     ~TabState()
     {
         delete searchModel;
         delete tocModel;
+        delete webPage;
     }
 
     QString searchQuery;
@@ -458,7 +460,6 @@ void MainWindow::createTab()
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
 
-    newTab->webPage = new QWebPage(ui->webView);
 #ifdef USE_WEBENGINE
     newTab->webPage->load(QUrl(startPageUrl));
 #else
