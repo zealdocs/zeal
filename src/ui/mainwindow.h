@@ -102,8 +102,6 @@ private:
     void setupTabBar();
 
     TabState *currentTabState() const;
-    void saveTabState();
-    void reloadTabState();
 
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
@@ -116,7 +114,6 @@ private:
     void removeTrayIcon();
 
     QList<TabState *> m_tabStates;
-    TabState *m_currentTabState = nullptr;
 
     Ui::MainWindow *ui = nullptr;
     Zeal::Core::Application *m_application = nullptr;

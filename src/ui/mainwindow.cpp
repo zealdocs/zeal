@@ -259,7 +259,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         Docset *docset = m_application->docsetRegistry()->docset(name);
         if (docset)
-            m_currentTabState->tocModel->setResults(docset->relatedLinks(url));
+            currentTabState()->tocModel->setResults(docset->relatedLinks(url));
 
         displayViewActions();
     });
@@ -277,7 +277,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::queryCompleted,
             this, [this](const QList<SearchResult> &results) {
-        m_currentTabState->searchModel->setResults(results);
+        currentTabState()->searchModel->setResults(results);
     });
 
     connect(m_application->docsetRegistry(), &DocsetRegistry::docsetRemoved,
@@ -309,13 +309,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-        if (!m_currentTabState || text == m_currentTabState->searchQuery)
+        if (text == currentTabState()->searchQuery)
             return;
 
-        m_currentTabState->searchQuery = text;
+        currentTabState()->searchQuery = text;
         m_application->docsetRegistry()->search(text);
         if (text.isEmpty()) {
-            m_currentTabState->tocModel->setResults();
+            currentTabState()->tocModel->setResults();
             displayTreeView();
         }
     });
@@ -324,14 +324,14 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionNewTab, &QAction::triggered, this, &MainWindow::createTab);
     addAction(ui->actionNewTab);
 
-    // save the expanded items:
+    // Save expanded items
     connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
-        if (m_currentTabState->expansions.indexOf(index) == -1)
-            m_currentTabState->expansions.append(index);
+        if (currentTabState()->expansions.indexOf(index) == -1)
+            currentTabState()->expansions.append(index);
     });
 
     connect(ui->treeView, &QTreeView::collapsed, [this](QModelIndex index) {
-        m_currentTabState->expansions.removeOne(index);
+        currentTabState()->expansions.removeOne(index);
     });
 
 #ifdef Q_OS_WIN32
@@ -425,7 +425,7 @@ void MainWindow::queryCompleted()
 {
     displayTreeView();
 
-    ui->treeView->setCurrentIndex(m_currentTabState->searchModel->index(0, 0, QModelIndex()));
+    ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
     openDocset(ui->treeView->currentIndex());
 
     // Get focus back. QWebPageEngine::load() always steals focus.
@@ -440,13 +440,7 @@ void MainWindow::closeTab(int index)
     if (index == -1)
         return;
 
-    // TODO: proper deletion here
-    TabState *state = m_tabStates.takeAt(index);
-
-    if (m_currentTabState == state)
-        m_currentTabState = nullptr;
-
-    delete state;
+    delete m_tabStates.takeAt(index);
 
     m_tabBar->removeTab(index);
 
@@ -498,46 +492,6 @@ TabState *MainWindow::currentTabState() const
     return m_tabStates.at(m_tabBar->currentIndex());
 }
 
-void MainWindow::saveTabState()
-{
-    if (!m_currentTabState)
-        return;
-
-    m_currentTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
-    m_currentTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
-    m_currentTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
-    m_currentTabState->webViewZoomFactor = ui->webView->zoomFactor();
-}
-
-void MainWindow::reloadTabState()
-{
-    TabState *tabState = currentTabState();
-
-    ui->lineEdit->setText(tabState->searchQuery);
-    ui->tocListView->setModel(tabState->tocModel);
-
-    toggleToc();
-    displayTreeView();
-
-    // Bring back the selections and expansions
-    ui->treeView->blockSignals(true);
-    for (const QModelIndex &selection: tabState->selections)
-        ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (const QModelIndex &expandedIndex: tabState->expansions)
-        ui->treeView->expand(expandedIndex);
-    ui->treeView->blockSignals(false);
-
-    ui->webView->setPage(tabState->webPage);
-    ui->webView->setZoomFactor(tabState->webViewZoomFactor);
-
-    m_currentTabState = tabState;
-
-    ui->treeView->verticalScrollBar()->setValue(m_currentTabState->searchScrollPosition);
-    ui->tocListView->verticalScrollBar()->setValue(m_currentTabState->tocScrollPosition);
-
-    displayViewActions();
-}
-
 // Sets up the search box autocompletions.
 void MainWindow::setupSearchBoxCompletions()
 {
@@ -568,12 +522,46 @@ void MainWindow::setupTabBar()
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
+        static const char PreviousTabIndexProperty[] = "previousTabIndex";
+
         if (index == -1)
             return;
 
-        saveTabState();
-        m_currentTabState = nullptr;
-        reloadTabState();
+        // Save previous tab state
+        const QVariant previousTabIndex = m_tabBar->property(PreviousTabIndexProperty);
+        if (previousTabIndex.isValid() && previousTabIndex.toInt() < m_tabStates.size()) {
+            TabState *previousTabState = m_tabStates.at(previousTabIndex.toInt());
+            previousTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
+            previousTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
+            previousTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
+            previousTabState->webViewZoomFactor = ui->webView->zoomFactor();
+        }
+
+        // Load current tab state
+        m_tabBar->setProperty(PreviousTabIndexProperty, index);
+        TabState *tabState = m_tabStates.at(index);
+
+        ui->lineEdit->setText(tabState->searchQuery);
+        ui->tocListView->setModel(tabState->tocModel);
+
+        toggleToc();
+        displayTreeView();
+
+        // Bring back the selections and expansions
+        ui->treeView->blockSignals(true);
+        for (const QModelIndex &selection: tabState->selections)
+            ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
+        for (const QModelIndex &expandedIndex: tabState->expansions)
+            ui->treeView->expand(expandedIndex);
+        ui->treeView->blockSignals(false);
+
+        ui->webView->setPage(tabState->webPage);
+        ui->webView->setZoomFactor(tabState->webViewZoomFactor);
+
+        ui->treeView->verticalScrollBar()->setValue(tabState->searchScrollPosition);
+        ui->tocListView->verticalScrollBar()->setValue(tabState->tocScrollPosition);
+
+        displayViewActions();
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
