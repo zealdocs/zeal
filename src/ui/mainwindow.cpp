@@ -77,7 +77,12 @@ struct TabState
     {
         searchModel = new Zeal::SearchModel();
         tocModel = new Zeal::SearchModel();
+
         webPage = new QWebPage();
+#ifndef USE_WEBENGINE
+        webPage->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+        webPage->setNetworkAccessManager(Core::Application::instance()->networkManager());
+#endif
     }
 
     ~TabState()
@@ -85,6 +90,23 @@ struct TabState
         delete searchModel;
         delete tocModel;
         delete webPage;
+    }
+
+    QUrl url() const {
+#ifdef USE_WEBENGINE
+        return webPage->url();
+#else
+        return webPage->mainFrame()->url();
+#endif
+    }
+
+    void loadUrl(const QUrl &url)
+    {
+#ifdef USE_WEBENGINE
+        webPage->load(url);
+#else
+        webPage->mainFrame()->load(url);
+#endif
     }
 
     QString searchQuery;
@@ -135,11 +157,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
-
-    // TODO: Custom headers and URL scheme for Qt WebEngine.
-#ifndef USE_WEBENGINE
-    ui->webView->page()->setNetworkAccessManager(m_application->networkManager());
-#endif
 
     // Menu
     // File
@@ -267,13 +284,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             this, [this](const QString &name) {
         setupSearchBoxCompletions();
         for (TabState *tabState : m_tabStates) {
-#ifdef USE_WEBENGINE
-            if (docsetName(tabState->webPage->url()) != name)
-                continue;
-
-            tabState->webPage->load(QUrl(startPageUrl));
-#else
-            if (docsetName(tabState->webPage->mainFrame()->url()) != name)
+            if (docsetName(tabState->url()) != name)
                 continue;
 
             tabState->tocModel->setResults();
@@ -286,8 +297,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             tabState->searchModel->removeSearchResultWithName(name);
             ui->treeView->setUpdatesEnabled(true);
 
-            tabState->webPage->mainFrame()->load(QUrl(startPageUrl));
-#endif
+            tabState->loadUrl(QUrl(startPageUrl));
+
             // TODO: Cleanup history
         }
     });
@@ -460,16 +471,7 @@ void MainWindow::createTab()
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
 
-#ifdef USE_WEBENGINE
-    newTab->webPage->load(QUrl(startPageUrl));
-#else
-    newTab->webPage->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
-    newTab->webPage->setNetworkAccessManager(m_application->networkManager());
-    newTab->webPage->mainFrame()->load(QUrl(startPageUrl));
-#endif
-
-    m_tabStates.append(newTab);
-
+    newTab->loadUrl(QUrl(startPageUrl));
 
     const int index = m_tabBar->addTab(QStringLiteral("title"));
     m_tabBar->setCurrentIndex(index);
