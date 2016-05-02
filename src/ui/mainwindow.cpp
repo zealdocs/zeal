@@ -264,8 +264,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         displayViewActions();
     });
 
-    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &text) {
-        m_tabBar->setTabText(m_tabBar->currentIndex(), text);
+    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &title) {
+        if (title.isEmpty())
+            return;
+
+        m_tabBar->setTabText(m_tabBar->currentIndex(), title);
     });
 
     connect(ui->webView, &SearchableWebView::linkClicked, [this](const QUrl &url) {
