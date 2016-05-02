@@ -268,6 +268,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (title.isEmpty())
             return;
 
+        setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
         m_tabBar->setTabText(m_tabBar->currentIndex(), title);
     });
 
