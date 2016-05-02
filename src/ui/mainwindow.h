@@ -77,7 +77,7 @@ public:
 
     void search(const Zeal::SearchQuery &query);
     void bringToFront();
-    void createTab();
+    void createTab(int index = -1);
 
 public slots:
     void toggleWindow();

@@ -325,7 +325,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
-    connect(ui->actionNewTab, &QAction::triggered, this, &MainWindow::createTab);
+    connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
 
     // Save expanded items
@@ -452,16 +452,19 @@ void MainWindow::closeTab(int index)
         createTab();
 }
 
-void MainWindow::createTab()
+void MainWindow::createTab(int index)
 {
-    TabState *newTab = new TabState();
+    if (index == -1)
+        index = m_tabStates.size();
 
+    TabState *newTab = new TabState();
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
 
     newTab->loadUrl(QUrl(startPageUrl));
 
-    const int index = m_tabBar->addTab(QStringLiteral("title"));
+    m_tabStates.insert(index, newTab);
+    m_tabBar->insertTab(index, tr("Loading..."));
     m_tabBar->setCurrentIndex(index);
 }
 
