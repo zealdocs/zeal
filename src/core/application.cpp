@@ -65,23 +65,12 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     Q_ASSERT(!m_instance);
     m_instance = this;
 
-    m_settings = new Settings(this);
+    // A server for receiving messages from other application instances.
     m_localServer = new QLocalServer(this);
-    m_networkManager = new QNetworkAccessManager(this);
-    m_extractorThread = new QThread(this);
-    m_extractor = new Extractor();
-
-    m_docsetRegistry = new DocsetRegistry();
-    m_docsetRegistry->init(m_settings->docsetPath);
-
-    m_mainWindow = new MainWindow(this);
-
-    // Server for detecting already running instances
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
         QLocalSocket *connection = m_localServer->nextPendingConnection();
-        // Wait a little while the other side writes the bytes
-        connection->waitForReadyRead();
-        if (connection->bytesAvailable()) {
+        // Wait a little while the other side writes the bytes.
+        if (connection->waitForReadyRead()) {
             QDataStream in(connection);
             Zeal::SearchQuery query;
             bool preventActivation;
@@ -102,7 +91,12 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     QLocalServer::removeServer(LocalServerName);
     m_localServer->listen(LocalServerName);
 
+    m_settings = new Settings(this);
+    m_networkManager = new QNetworkAccessManager(this);
+
     // Extractor setup
+    m_extractorThread = new QThread(this);
+    m_extractor = new Extractor();
     m_extractor->moveToThread(m_extractorThread);
     m_extractorThread->start();
     connect(m_extractor, &Extractor::completed, this, &Application::extractionCompleted);
@@ -111,6 +105,11 @@ Application::Application(const SearchQuery &query, QObject *parent) :
 
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
+
+    m_docsetRegistry = new DocsetRegistry();
+    m_docsetRegistry->init(m_settings->docsetPath);
+
+    m_mainWindow = new MainWindow(this);
 
     if (!query.isEmpty()) {
         m_mainWindow->search(query);
