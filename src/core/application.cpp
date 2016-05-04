@@ -39,6 +39,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QNetworkReply>
+#include <QScopedPointer>
 #include <QSysInfo>
 #include <QThread>
 
@@ -68,10 +69,10 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     // A server for receiving messages from other application instances.
     m_localServer = new QLocalServer(this);
     connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QLocalSocket *connection = m_localServer->nextPendingConnection();
-        // Wait a little while the other side writes the bytes.
+        QScopedPointer<QLocalSocket> connection(m_localServer->nextPendingConnection());
+        // Wait a little, while the other side writes the data.
         if (connection->waitForReadyRead()) {
-            QDataStream in(connection);
+            QDataStream in(connection.data());
             Zeal::SearchQuery query;
             bool preventActivation;
             in >> query;
