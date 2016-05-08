@@ -53,6 +53,9 @@ public:
     QKeySequence showShortcut;
     // TODO: QKeySequence searchSelectedTextShortcut;
 
+    // Tabs Behavior
+    bool openNewTabAfterActive;
+
     // Browser
     int minimumFontSize;
     // TODO: bool askOnExternalLink;

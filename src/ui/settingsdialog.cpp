@@ -762,6 +762,8 @@ void SettingsDialog::loadSettings()
 
     ui->toolButton->setKeySequence(settings->showShortcut);
 
+    ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
+
     //
     ui->minFontSize->setValue(settings->minimumFontSize);
     ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
@@ -797,6 +799,8 @@ void SettingsDialog::saveSettings()
     settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
 
     settings->showShortcut = ui->toolButton->keySequence();
+
+    settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
 
     //
     settings->minimumFontSize = ui->minFontSize->text().toInt();
