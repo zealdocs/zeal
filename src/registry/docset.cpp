@@ -148,6 +148,8 @@ Docset::Docset(const QString &path) :
     // TODO: Use 'unknown' instead of CFBundleName? (See #383)
     m_keywords << plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
 
+    m_keywords.removeDuplicates();
+
     // Try to find index path if metadata is missing one
     if (m_indexFilePath.isEmpty()) {
         if (plist.contains(InfoPlist::DashIndexFilePath))
