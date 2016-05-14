@@ -208,7 +208,10 @@ int main(int argc, char *argv[])
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
-    QScopedPointer<Core::Application> app(new Core::Application(clParams.query));
+    QScopedPointer<Core::Application> app(new Core::Application());
+
+    if (!clParams.query.isEmpty())
+        Core::Application::send(clParams.query, clParams.preventActivation);
 
     return qapp->exec();
 }

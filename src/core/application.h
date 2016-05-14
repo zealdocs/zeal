@@ -47,7 +47,6 @@ class Application : public QObject
     Q_OBJECT
 public:
     explicit Application(QObject *parent = nullptr);
-    explicit Application(const SearchQuery &query, QObject *parent = nullptr);
     ~Application() override;
 
     static Application *instance();
