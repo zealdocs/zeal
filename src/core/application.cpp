@@ -140,7 +140,7 @@ Application::~Application()
 /*!
  * \internal
  * \brief Returns a pointer to the Core::Application instance.
- * If no instance has been created, then \c nullptr is returned.
+ * \return A pointer or \c nullptr, if no instance has been created.
  */
 Application *Application::instance()
 {
@@ -149,10 +149,10 @@ Application *Application::instance()
 
 /*!
  * \internal
- * \brief Hands over \a query to already running application instance, if it exists.
+ * \brief Sends \a query to an already running application instance, if it exists.
  * \param query A query to execute search with.
  * \param preventActivation If \c true, application window will not activated.
- * \return \c true if communication with another instance was successful.
+ * \return \c true if communication with another instance has been successful.
  */
 bool Application::send(const SearchQuery &query, bool preventActivation)
 {
