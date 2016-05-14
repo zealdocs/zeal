@@ -55,11 +55,6 @@ const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
 Application *Application::m_instance = nullptr;
 
 Application::Application(QObject *parent) :
-    Application(SearchQuery(), parent)
-{
-}
-
-Application::Application(const SearchQuery &query, QObject *parent) :
     QObject(parent)
 {
     // Ensure only one instance of Application
@@ -111,12 +106,6 @@ Application::Application(const SearchQuery &query, QObject *parent) :
     m_docsetRegistry->init(m_settings->docsetPath);
 
     m_mainWindow = new MainWindow(this);
-
-    if (!query.isEmpty()) {
-        m_mainWindow->search(query);
-        m_mainWindow->show();
-        return;
-    }
 
     if (m_settings->startMinimized) {
         if (m_settings->showSystrayIcon && m_settings->minimizeToSystray)
