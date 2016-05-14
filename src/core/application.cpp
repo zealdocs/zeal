@@ -181,7 +181,7 @@ Settings *Application::settings() const
 
 DocsetRegistry *Application::docsetRegistry()
 {
-    return m_instance->m_docsetRegistry;
+    return m_docsetRegistry;
 }
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)

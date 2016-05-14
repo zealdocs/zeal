@@ -57,7 +57,7 @@ public:
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
 
-    static DocsetRegistry *docsetRegistry();
+    DocsetRegistry *docsetRegistry();
 
 public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
