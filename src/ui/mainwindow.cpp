@@ -92,6 +92,9 @@ struct TabState
         delete webPage;
     }
 
+    friend QDataStream &operator<<(QDataStream &stream, const TabState &tab);
+    friend QDataStream &operator>>(QDataStream &stream, TabState &tab);
+
     QUrl url() const {
 #ifdef USE_WEBENGINE
         return webPage->url();
@@ -124,6 +127,22 @@ struct TabState
     QWebPage *webPage = nullptr;
     int webViewZoomFactor = 0;
 };
+
+QDataStream &operator <<(QDataStream &stream, const TabState &tab)
+{
+    stream << tab.webViewZoomFactor;
+    stream << *tab.webPage->history();
+
+    return stream;
+}
+
+QDataStream &operator >>(QDataStream &stream, TabState &tab)
+{
+    stream >> tab.webViewZoomFactor;
+    stream >> *tab.webPage->history();
+
+    return stream;
+}
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
@@ -244,7 +263,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             m_settings->tocSplitterState = ui->tocSplitter->saveState();
     });
 
-    createTab();
+    if (m_settings->restoreLastSession)
+        restoreLastSession();
+    else
+        createTab();
 
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
@@ -376,6 +398,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (m_settings->restoreLastSession)
+        saveSession();
+
     m_settings->verticalSplitterGeometry = ui->splitter->saveState();
     m_settings->windowGeometry = saveGeometry();
 
@@ -620,6 +645,49 @@ void MainWindow::displayViewActions()
         addHistoryAction(history, history->currentItem())->setEnabled(false);
     for (const QWebHistoryItem &item: history->forwardItems(10))
         m_forwardMenu->addAction(addHistoryAction(history, item));
+}
+
+void MainWindow::restoreLastSession()
+{
+#ifndef PORTABLE_BUILD
+    QFile recoveryFile(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("/session.dat"));
+#else
+    QFile recoveryFile(QCoreApplication::applicationDirPath() + QLatin1String("/session.dat"));
+#endif
+
+    recoveryFile.open(QIODevice::ReadOnly);
+    QDataStream stream(&recoveryFile);
+
+    int tabCount = 0;
+    stream >> tabCount;
+    for (int i = 0; i < tabCount; ++i) {
+        createTab();
+        stream >> *currentTabState();
+        //m_tabBar->setTabText(i, currentTabState()->title());
+    }
+
+    recoveryFile.close();
+}
+
+void MainWindow::saveSession()
+{
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+
+    stream << m_tabStates.count();
+    for (const auto& tab : m_tabStates) {
+        stream << *tab;
+    }
+
+#ifndef PORTABLE_BUILD
+    QFile recoveryFile(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("/session.dat"));
+#else
+    QFile recoveryFile(QCoreApplication::applicationDirPath() + QLatin1String("/session.dat"));
+#endif
+
+    recoveryFile.open(QIODevice::WriteOnly);
+    recoveryFile.write(data);
+    recoveryFile.close();
 }
 
 QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryItem &item)

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>624</width>
-    <height>505</height>
+    <height>513</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,6 +47,13 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="restoreLastSessionCheckBox">
+            <property name="text">
+             <string>Restore last session</string>
             </property>
            </widget>
           </item>

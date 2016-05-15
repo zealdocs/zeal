@@ -77,6 +77,7 @@ void Settings::load()
     // TODO: Put everything in groups
     startMinimized = m_settings->value(QStringLiteral("start_minimized"), false).toBool();
     checkForUpdate = m_settings->value(QStringLiteral("check_for_update"), true).toBool();
+    restoreLastSession = m_settings->value(QStringLiteral("restore_last_state"), false).toBool();
 
     showSystrayIcon = m_settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = m_settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
@@ -144,6 +145,7 @@ void Settings::save()
     // TODO: Put everything in groups
     m_settings->setValue(QStringLiteral("start_minimized"), startMinimized);
     m_settings->setValue(QStringLiteral("check_for_update"), checkForUpdate);
+    m_settings->setValue(QStringLiteral("restore_last_state"), restoreLastSession);
 
     m_settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
     m_settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
