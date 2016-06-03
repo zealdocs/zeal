@@ -100,6 +100,8 @@ private:
     void toggleToc();
     void setupSearchBoxCompletions();
     void setupTabBar();
+    void restoreLastSession();
+    void saveSession();
 
     TabState *currentTabState() const;
 

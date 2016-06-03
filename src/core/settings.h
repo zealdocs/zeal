@@ -42,7 +42,7 @@ public:
     // Startup
     bool startMinimized;
     bool checkForUpdate;
-    // TODO: bool restoreLastState;
+    bool restoreLastSession;
 
     // System Tray
     bool showSystrayIcon;

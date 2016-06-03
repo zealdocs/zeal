@@ -755,6 +755,7 @@ void SettingsDialog::loadSettings()
     // General Tab
     ui->startMinimizedCheckBox->setChecked(settings->startMinimized);
     ui->checkForUpdateCheckBox->setChecked(settings->checkForUpdate);
+    ui->restoreLastSessionCheckBox->setChecked(settings->restoreLastSession);
 
     ui->systrayGroupBox->setChecked(settings->showSystrayIcon);
     ui->minimizeToSystrayCheckBox->setChecked(settings->minimizeToSystray);
@@ -793,6 +794,7 @@ void SettingsDialog::saveSettings()
     // General Tab
     settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
     settings->checkForUpdate = ui->checkForUpdateCheckBox->isChecked();
+    settings->restoreLastSession = ui->restoreLastSessionCheckBox->isChecked();
 
     settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
     settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
