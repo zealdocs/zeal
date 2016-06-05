@@ -70,7 +70,7 @@ const QVector<quint32> maskModifiers = {
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, long *result)
 {
-    Q_UNUSED(result);
+    Q_UNUSED(result)
     if (eventType != "xcb_generic_event_t")
         return false;
 

@@ -720,7 +720,7 @@ void MainWindow::detectAppIndicatorSupport()
 #ifdef USE_APPINDICATOR
 void appIndicatorToggleWindow(GtkMenu *menu, gpointer data)
 {
-    Q_UNUSED(menu);
+    Q_UNUSED(menu)
     static_cast<MainWindow *>(data)->toggleWindow();
 }
 #endif

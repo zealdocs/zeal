@@ -66,8 +66,8 @@ static bool qxt_mac_handler_installed = false;
 
 OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event, void *data)
 {
-    Q_UNUSED(nextHandler);
-    Q_UNUSED(data);
+    Q_UNUSED(nextHandler)
+    Q_UNUSED(data)
     if (GetEventClass(event) == kEventClassKeyboard && GetEventKind(event) == kEventHotKeyPressed) {
         EventHotKeyID keyID;
         GetEventParameter(event, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(keyID), NULL, &keyID);
