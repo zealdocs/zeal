@@ -273,11 +273,17 @@
    </property>
   </action>
   <action name="actionBack">
+   <property name="icon">
+    <iconset theme="go-previous"/>
+   </property>
    <property name="text">
     <string>&amp;Back</string>
    </property>
   </action>
   <action name="actionForward">
+   <property name="icon">
+    <iconset theme="go-next"/>
+   </property>
    <property name="text">
     <string>&amp;Forward</string>
    </property>
