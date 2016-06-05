@@ -106,7 +106,6 @@ private:
 
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
-    QAction *addHistoryAction(QWebHistory *history, const QWebHistoryItem &item);
 
 #ifdef USE_APPINDICATOR
     void detectAppIndicatorSupport();

@@ -266,12 +266,30 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     m_backMenu = new QMenu(ui->backButton);
+    connect(m_backMenu, &QMenu::aboutToShow, this, [this]() {
+        m_backMenu->clear();
+        QWebHistory *history = currentTabState()->webPage->history();
+        QList<QWebHistoryItem> items = history->backItems(10);
+        for (auto it = items.rbegin(); it != items.rend(); ++it) {
+            const QIcon icon = docsetIcon(docsetName(it->url()));
+            const QWebHistoryItem item = *it;
+            m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
+        }
+    });
+    ui->backButton->setDefaultAction(ui->actionBack);
     ui->backButton->setMenu(m_backMenu);
 
     m_forwardMenu = new QMenu(ui->forwardButton);
+    connect(m_forwardMenu, &QMenu::aboutToShow, this, [this]() {
+        m_forwardMenu->clear();
+        QWebHistory *history = currentTabState()->webPage->history();
+        for (const QWebHistoryItem &item: history->forwardItems(10)) {
+            const QIcon icon = docsetIcon(docsetName(item.url()));
+            m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
+        }
+    });
+    ui->forwardButton->setDefaultAction(ui->actionForward);
     ui->forwardButton->setMenu(m_forwardMenu);
-
-    displayViewActions();
 
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
@@ -296,8 +314,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
-    connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
-    connect(ui->backButton, &QPushButton::clicked, ui->webView, &SearchableWebView::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
@@ -662,37 +678,7 @@ void MainWindow::setupTabBar()
 void MainWindow::displayViewActions()
 {
     ui->actionBack->setEnabled(ui->webView->canGoBack());
-    ui->backButton->setEnabled(ui->webView->canGoBack());
     ui->actionForward->setEnabled(ui->webView->canGoForward());
-    ui->forwardButton->setEnabled(ui->webView->canGoForward());
-
-    ui->menuView->clear();
-    ui->menuView->addAction(ui->actionBack);
-    ui->menuView->addAction(ui->actionForward);
-    ui->menuView->addSeparator();
-
-    m_backMenu->clear();
-    m_forwardMenu->clear();
-
-    QWebHistory *history = ui->webView->page()->history();
-    for (const QWebHistoryItem &item: history->backItems(10))
-        m_backMenu->addAction(addHistoryAction(history, item));
-    if (history->count() > 0)
-        addHistoryAction(history, history->currentItem())->setEnabled(false);
-    for (const QWebHistoryItem &item: history->forwardItems(10))
-        m_forwardMenu->addAction(addHistoryAction(history, item));
-}
-
-QAction *MainWindow::addHistoryAction(QWebHistory *history, const QWebHistoryItem &item)
-{
-    const QIcon icon = docsetIcon(docsetName(item.url()));
-    QAction *backAction = new QAction(icon, item.title(), ui->menuView);
-    ui->menuView->addAction(backAction);
-    connect(backAction, &QAction::triggered, [=](bool) {
-        history->goToItem(item);
-    });
-
-    return backAction;
 }
 
 #ifdef USE_APPINDICATOR
