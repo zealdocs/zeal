@@ -57,6 +57,16 @@ LocalServer::LocalServer(QObject *parent)
 
 /*!
  * \internal
+ * \brief Returns the error message about the last occured error.
+ * \return Human-readable error message, or an empty string.
+ */
+QString LocalServer::errorString() const
+{
+    return m_localServer->errorString();
+}
+
+/*!
+ * \internal
  * \brief Instructs server to listen for incoming connections.
  * \param force If \c true, an attempt to remove socket file will be made. No effect on Windows.
  * \return \c true if successful, \c false otherwise.

@@ -39,6 +39,8 @@ class LocalServer : public QObject
 public:
     explicit LocalServer(QObject *parent = 0);
 
+    QString errorString() const;
+
     bool start(bool force = false);
 
     static bool sendQuery(const SearchQuery &query, bool preventActivation);
