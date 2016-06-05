@@ -38,7 +38,13 @@
 #include <QSettings>
 #endif
 
+#include <cstdlib>
+
 using namespace Zeal;
+
+namespace {
+const char contactUrl[] = "https://go.zealdocs.org/l/contact";
+}
 
 struct CommandLineParameters
 {
@@ -197,7 +203,40 @@ int main(int argc, char *argv[])
         return 0;
 
     QScopedPointer<Core::LocalServer> localServer(new Core::LocalServer());
-    localServer->start();
+    if (!localServer->start()) {
+        QScopedPointer<QMessageBox> msgBox(new QMessageBox());
+        msgBox->setWindowTitle(QStringLiteral("Zeal"));
+
+        msgBox->setIcon(QMessageBox::Warning);
+        msgBox->setText(QObject::tr("Another application instance can be still running, "
+                                    "or has crashed.<br>Make sure to start Zeal only once."));
+        msgBox->addButton(QMessageBox::Help);
+        msgBox->addButton(QMessageBox::Retry);
+        QPushButton *quitButton = msgBox->addButton(QObject::tr("&Quit"),
+                                                    QMessageBox::DestructiveRole);
+        msgBox->setDefaultButton(quitButton);
+
+        switch (msgBox->exec()) {
+            case QMessageBox::Rejected:
+                return EXIT_SUCCESS;
+            case QMessageBox::Help:
+                QDesktopServices::openUrl(QUrl(contactUrl));
+        }
+
+        msgBox->removeButton(msgBox->button(QMessageBox::Retry));
+
+        if (!localServer->start(true)) {
+            msgBox->setIcon(QMessageBox::Critical);
+            msgBox->setText(QObject::tr("Zeal is unable to start. Please report the issue "
+                                        "providing the details below."));
+            msgBox->setDetailedText(localServer->errorString());
+
+            if (msgBox->exec() == QMessageBox::Help)
+                QDesktopServices::openUrl(QUrl(contactUrl));
+
+            return EXIT_SUCCESS;
+        }
+    }
 
     // Check for SQLite plugin
     // TODO: Specific to docset format and should be handled accordingly in the future
