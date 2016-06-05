@@ -382,7 +382,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_application->docsetRegistry()->search(text);
         if (text.isEmpty()) {
             currentTabState()->tocModel->setResults();
-            displayTreeView();
+            syncTreeView();
         }
     });
 
@@ -489,7 +489,7 @@ QIcon MainWindow::docsetIcon(const QString &docsetName) const
 
 void MainWindow::queryCompleted()
 {
-    displayTreeView();
+    syncTreeView();
 
     ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
     openDocset(ui->treeView->currentIndex());
@@ -523,7 +523,7 @@ void MainWindow::createTab(int index)
 
     TabState *newTab = new TabState();
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
+    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::syncToc);
 
     newTab->loadUrl(QUrl(startPageUrl));
 
@@ -539,7 +539,7 @@ void MainWindow::duplicateTab(int index)
 
     TabState *newTab = new TabState(*m_tabStates.at(index));
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
+    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::syncToc);
 
     ++index;
     m_tabStates.insert(index, newTab);
@@ -547,7 +547,7 @@ void MainWindow::duplicateTab(int index)
     m_tabBar->setCurrentIndex(index);
 }
 
-void MainWindow::displayTreeView()
+void MainWindow::syncTreeView()
 {
     TabState *tabState = currentTabState();
 
@@ -559,10 +559,11 @@ void MainWindow::displayTreeView()
         ui->treeView->setColumnHidden(1, true);
         ui->treeView->setRootIsDecorated(true);
     }
+
     ui->treeView->reset();
 }
 
-void MainWindow::toggleToc()
+void MainWindow::syncToc()
 {
     if (!currentTabState()->tocModel->isEmpty()) {
         ui->tocListView->show();
@@ -630,8 +631,8 @@ void MainWindow::setupTabBar()
         ui->lineEdit->setText(tabState->searchQuery);
         ui->tocListView->setModel(tabState->tocModel);
 
-        toggleToc();
-        displayTreeView();
+        syncTreeView();
+        syncToc();
 
         // Bring back the selections and expansions
         ui->treeView->blockSignals(true);

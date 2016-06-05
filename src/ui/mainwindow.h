@@ -97,8 +97,8 @@ private slots:
 
 private:
     void displayViewActions();
-    void displayTreeView();
-    void toggleToc();
+    void syncTreeView();
+    void syncToc();
     void setupSearchBoxCompletions();
     void setupTabBar();
 
