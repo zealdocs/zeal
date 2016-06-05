@@ -33,8 +33,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QLocalServer>
-#include <QLocalSocket>
 #include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
@@ -47,8 +45,6 @@ using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
-const char LocalServerName[] = "ZealLocalServer";
-
 const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
 }
 
@@ -60,32 +56,6 @@ Application::Application(QObject *parent) :
     // Ensure only one instance of Application
     Q_ASSERT(!m_instance);
     m_instance = this;
-
-    // A server for receiving messages from other application instances.
-    m_localServer = new QLocalServer(this);
-    connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QScopedPointer<QLocalSocket> connection(m_localServer->nextPendingConnection());
-        // Wait a little, while the other side writes the data.
-        if (connection->waitForReadyRead()) {
-            QDataStream in(connection.data());
-            Zeal::SearchQuery query;
-            bool preventActivation;
-            in >> query;
-            in >> preventActivation;
-
-            m_mainWindow->search(query);
-
-            if (preventActivation)
-                return;
-        }
-
-        m_mainWindow->bringToFront();
-    });
-
-    // Remove in case previous instance crashed
-    // TODO: Verify if removeServer() is needed
-    QLocalServer::removeServer(LocalServerName);
-    m_localServer->listen(LocalServerName);
 
     m_settings = new Settings(this);
     m_networkManager = new QNetworkAccessManager(this);
@@ -136,28 +106,6 @@ Application *Application::instance()
     return m_instance;
 }
 
-/*!
- * \internal
- * \brief Sends \a query to an already running application instance, if it exists.
- * \param query A query to execute search with.
- * \param preventActivation If \c true, application window will not activated.
- * \return \c true if communication with another instance has been successful.
- */
-bool Application::send(const SearchQuery &query, bool preventActivation)
-{
-    QScopedPointer<QLocalSocket> socket(new QLocalSocket());
-    socket->connectToServer(LocalServerName);
-
-    if (!socket->waitForConnected(500))
-        return false;
-
-    QDataStream out(socket.data());
-    out << query;
-    out << preventActivation;
-    socket->flush();
-    return true;
-}
-
 QNetworkAccessManager *Application::networkManager() const
 {
     return m_networkManager;
@@ -171,6 +119,16 @@ Settings *Application::settings() const
 DocsetRegistry *Application::docsetRegistry()
 {
     return m_docsetRegistry;
+}
+
+void Application::executeQuery(const SearchQuery &query, bool preventActivation)
+{
+    m_mainWindow->search(query);
+
+    if (preventActivation)
+        return;
+
+    m_mainWindow->bringToFront();
 }
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)

@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "core/application.h"
+#include "core/localserver.h"
 #include "registry/searchquery.h"
 
 #include <QApplication>
@@ -191,9 +192,12 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // Detect already running instance and optionally pass a search query to it.
-    if (!clParams.force && Core::Application::send(clParams.query, clParams.preventActivation))
+    // Detect already running instance and optionally send the search query to it.
+    if (!clParams.force && Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation))
         return 0;
+
+    QScopedPointer<Core::LocalServer> localServer(new Core::LocalServer());
+    localServer->start();
 
     // Check for SQLite plugin
     // TODO: Specific to docset format and should be handled accordingly in the future
@@ -209,9 +213,11 @@ int main(int argc, char *argv[])
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     QScopedPointer<Core::Application> app(new Core::Application());
+    QObject::connect(localServer.data(), &Core::LocalServer::newQuery,
+                     app.data(), &Core::Application::executeQuery);
 
     if (!clParams.query.isEmpty())
-        Core::Application::send(clParams.query, clParams.preventActivation);
+        Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation);
 
     return qapp->exec();
 }

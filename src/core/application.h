@@ -25,7 +25,6 @@
 
 #include <QObject>
 
-class QLocalServer;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QThread;
@@ -51,14 +50,13 @@ public:
 
     static Application *instance();
 
-    static bool send(const SearchQuery &query, bool preventActivation);
-
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
 
     DocsetRegistry *docsetRegistry();
 
 public slots:
+    void executeQuery(const SearchQuery &query, bool preventActivation);
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
     void checkForUpdates(bool quiet = false);
@@ -81,7 +79,6 @@ private:
 
     Settings *m_settings = nullptr;
 
-    QLocalServer *m_localServer = nullptr;
     QNetworkAccessManager *m_networkManager = nullptr;
 
     QThread *m_extractorThread = nullptr;
