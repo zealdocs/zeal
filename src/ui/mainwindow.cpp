@@ -93,8 +93,8 @@ struct TabState
         , tocScrollPosition(rhs.tocScrollPosition)
         , webViewZoomFactor(rhs.webViewZoomFactor)
     {
-        searchModel = new Zeal::SearchModel();
-        tocModel = new Zeal::SearchModel();
+        searchModel = new Zeal::SearchModel(*rhs.searchModel);
+        tocModel = new Zeal::SearchModel(*rhs.tocModel);
 
         webPage = new QWebPage();
 #ifndef USE_WEBENGINE
