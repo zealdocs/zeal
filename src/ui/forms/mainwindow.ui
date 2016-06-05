@@ -223,13 +223,6 @@
     <addaction name="actionAboutZeal"/>
     <addaction name="actionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>&amp;View</string>
-    </property>
-    <addaction name="actionBack"/>
-    <addaction name="actionForward"/>
-   </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
      <string>&amp;Edit</string>
@@ -240,7 +233,6 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
-   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">
