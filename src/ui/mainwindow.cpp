@@ -85,16 +85,16 @@ struct TabState
 #endif
     }
 
-    TabState(const TabState &rhs)
-        : searchQuery(rhs.searchQuery)
-        , selections(rhs.selections)
-        , expansions(rhs.expansions)
-        , searchScrollPosition(rhs.searchScrollPosition)
-        , tocScrollPosition(rhs.tocScrollPosition)
-        , webViewZoomFactor(rhs.webViewZoomFactor)
+    TabState(const TabState &other)
+        : searchQuery(other.searchQuery)
+        , selections(other.selections)
+        , expansions(other.expansions)
+        , searchScrollPosition(other.searchScrollPosition)
+        , tocScrollPosition(other.tocScrollPosition)
+        , webViewZoomFactor(other.webViewZoomFactor)
     {
-        searchModel = new Zeal::SearchModel(*rhs.searchModel);
-        tocModel = new Zeal::SearchModel(*rhs.tocModel);
+        searchModel = new Zeal::SearchModel(*other.searchModel);
+        tocModel = new Zeal::SearchModel(*other.tocModel);
 
         webPage = new QWebPage();
 #ifndef USE_WEBENGINE
@@ -102,8 +102,7 @@ struct TabState
         webPage->setNetworkAccessManager(Core::Application::instance()->networkManager());
 #endif
 
-        QByteArray historyArray = rhs.saveHistory();
-        restoreHistory(historyArray);
+        restoreHistory(other.saveHistory());
     }
 
     void restoreHistory(const QByteArray &array) const
@@ -522,12 +521,11 @@ void MainWindow::duplicateTab(int index)
     if (index < 0 || index >= m_tabStates.size())
         return;
 
-    TabState *previous = m_tabStates.at(index++);
-    TabState *newTab = new TabState(*previous);
-
+    TabState *newTab = new TabState(*m_tabStates.at(index));
     connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::toggleToc);
 
+    ++index;
     m_tabStates.insert(index, newTab);
     m_tabBar->insertTab(index, newTab->title());
     m_tabBar->setCurrentIndex(index);
