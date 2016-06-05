@@ -241,12 +241,17 @@ int main(int argc, char *argv[])
     // Check for SQLite plugin
     // TODO: Specific to docset format and should be handled accordingly in the future
     if (!QSqlDatabase::isDriverAvailable(QStringLiteral("QSQLITE"))) {
-        const int ret = QMessageBox::critical(nullptr, QStringLiteral("Zeal"),
-                                              QObject::tr("Qt SQLite driver is not available."),
-                                              QMessageBox::Close | QMessageBox::Help);
-        if (ret == QMessageBox::Help)
-            QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/contact")));
-        return 0;
+        QScopedPointer<QMessageBox> msgBox(new QMessageBox());
+        msgBox->setWindowTitle(QStringLiteral("Zeal"));
+        msgBox->setIcon(QMessageBox::Critical);
+        msgBox->setText(QObject::tr("Qt SQLite driver is not available."));
+        msgBox->addButton(QMessageBox::Help);
+        QPushButton *quitButton = msgBox->addButton(QObject::tr("&Quit"),
+                                                    QMessageBox::DestructiveRole);
+        msgBox->setDefaultButton(quitButton);
+        if (msgBox->exec() == QMessageBox::Help)
+            QDesktopServices::openUrl(QUrl(contactUrl));
+        return EXIT_SUCCESS;
     }
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
