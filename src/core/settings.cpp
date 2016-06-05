@@ -83,11 +83,7 @@ void Settings::load()
     hideOnClose = m_settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
     m_settings->beginGroup(GroupGlobalShortcuts);
-#ifndef Q_OS_OSX
-    showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Meta+Z")).value<QKeySequence>();
-#else
-    showShortcut = m_settings->value(QStringLiteral("show"), QStringLiteral("Alt+Space")).value<QKeySequence>();
-#endif
+    showShortcut = m_settings->value(QStringLiteral("show")).value<QKeySequence>();
     m_settings->endGroup();
 
     m_settings->beginGroup(GroupTabs);
