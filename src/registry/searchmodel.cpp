@@ -34,6 +34,12 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
+SearchModel::SearchModel(const SearchModel &other) :
+    QAbstractItemModel(other.d_ptr->parent),
+    m_dataList(other.m_dataList)
+{
+}
+
 bool SearchModel::isEmpty() const
 {
     return m_dataList.isEmpty();

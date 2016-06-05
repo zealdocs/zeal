@@ -40,6 +40,7 @@ public:
     };
 
     explicit SearchModel(QObject *parent = nullptr);
+    SearchModel(const SearchModel &other);
 
     bool isEmpty() const;
 
