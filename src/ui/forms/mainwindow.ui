@@ -139,9 +139,6 @@
              <property name="text">
               <string>←</string>
              </property>
-             <property name="icon">
-              <iconset theme="go-previous"/>
-             </property>
             </widget>
            </item>
            <item>
@@ -152,13 +149,10 @@
              <property name="text">
               <string>→</string>
              </property>
-             <property name="icon">
-              <iconset theme="go-next"/>
-             </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="openUrlButton">
+            <widget class="QToolButton" name="openUrlButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>

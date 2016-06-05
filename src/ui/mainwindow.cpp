@@ -25,6 +25,7 @@
 #include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
+#include "icons.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "core/application.h"
@@ -35,6 +36,7 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QFontDatabase>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -69,6 +71,7 @@ using namespace Zeal;
 
 namespace {
 const char startPageUrl[] = "qrc:///browser/start.html";
+const QFont buttonFont = QFont("Ionicons", 16);
 }
 
 struct TabState
@@ -193,6 +196,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
+    QFontDatabase::addApplicationFont(":/font/ionicons.ttf");
+
     setupTabBar();
 
     QShortcut *focusSearch = new QShortcut(QStringLiteral("Ctrl+K"), this);
@@ -267,9 +272,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     m_backMenu = new QMenu(ui->backButton);
+    ui->backButton->setFont(buttonFont);
+    ui->backButton->setText(Icons::Back);
+    ui->backButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     ui->backButton->setMenu(m_backMenu);
 
     m_forwardMenu = new QMenu(ui->forwardButton);
+    ui->forwardButton->setFont(buttonFont);
+    ui->forwardButton->setText(Icons::Forward);
+    ui->forwardButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
     ui->forwardButton->setMenu(m_forwardMenu);
 
     displayViewActions();
@@ -297,8 +308,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
-    connect(ui->forwardButton, &QPushButton::clicked, ui->webView, &SearchableWebView::forward);
-    connect(ui->backButton, &QPushButton::clicked, ui->webView, &SearchableWebView::back);
+    connect(ui->forwardButton, &QToolButton::clicked, ui->webView, &SearchableWebView::forward);
+    connect(ui->backButton, &QToolButton::clicked, ui->webView, &SearchableWebView::back);
 
     connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
@@ -393,7 +404,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
-    connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
+    ui->openUrlButton->setFont(buttonFont);
+    ui->openUrlButton->setText(Icons::OpenLink);
+    connect(ui->openUrlButton, &QToolButton::clicked, [this]() {
         const QUrl url(ui->webView->page()->history()->currentItem().url());
         if (url.scheme() != QLatin1String("qrc"))
             QDesktopServices::openUrl(url);
