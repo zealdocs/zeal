@@ -323,7 +323,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         if (docset)
             currentTabState()->tocModel->setResults(docset->relatedLinks(url));
 
-        displayViewActions();
+        ui->actionBack->setEnabled(ui->webView->canGoBack());
+        ui->actionForward->setEnabled(ui->webView->canGoForward());
     });
 
     connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &title) {
@@ -645,10 +646,11 @@ void MainWindow::setupTabBar()
         ui->webView->setPage(tabState->webPage);
         ui->webView->setZoomFactor(tabState->webViewZoomFactor);
 
+        ui->actionBack->setEnabled(ui->webView->canGoBack());
+        ui->actionForward->setEnabled(ui->webView->canGoForward());
+
         ui->treeView->verticalScrollBar()->setValue(tabState->searchScrollPosition);
         ui->tocListView->verticalScrollBar()->setValue(tabState->tocScrollPosition);
-
-        displayViewActions();
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
 
@@ -674,12 +676,6 @@ void MainWindow::setupTabBar()
 
     QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->navigationBar->layout());
     layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
-}
-
-void MainWindow::displayViewActions()
-{
-    ui->actionBack->setEnabled(ui->webView->canGoBack());
-    ui->actionForward->setEnabled(ui->webView->canGoForward());
 }
 
 #ifdef USE_APPINDICATOR

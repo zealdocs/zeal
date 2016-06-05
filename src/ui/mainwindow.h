@@ -96,7 +96,6 @@ private slots:
     void duplicateTab(int index);
 
 private:
-    void displayViewActions();
     void syncTreeView();
     void syncToc();
     void setupSearchBoxCompletions();
