@@ -136,6 +136,9 @@
              <property name="toolTip">
               <string>Go back one page</string>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
+             </property>
              <property name="text">
               <string>←</string>
              </property>
@@ -148,6 +151,9 @@
             <widget class="QToolButton" name="forwardButton">
              <property name="toolTip">
               <string>Go forward one page</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
              </property>
              <property name="text">
               <string>→</string>
