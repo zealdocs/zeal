@@ -273,6 +273,9 @@
    </property>
   </action>
   <action name="actionBack">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="go-previous"/>
    </property>
@@ -281,6 +284,9 @@
    </property>
   </action>
   <action name="actionForward">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="go-next"/>
    </property>
