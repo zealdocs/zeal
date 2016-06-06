@@ -117,6 +117,20 @@ SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
             this, &SettingsDialog::updateDocsetFilter);
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
+    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, [this](const QString name) {
+        QListWidgetItem *item = findDocsetListItem(m_availableDocsets[name].title());
+        if (!item)
+            return;
+
+        item->setHidden(false);
+    });
+    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, [this](const QString name) {
+        QListWidgetItem *item = findDocsetListItem(m_availableDocsets[name].title());
+        if (!item)
+            return;
+
+        item->setHidden(true);
+    });
 
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
