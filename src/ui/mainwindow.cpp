@@ -270,7 +270,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_backMenu->clear();
         QWebHistory *history = currentTabState()->webPage->history();
         QList<QWebHistoryItem> items = history->backItems(10);
-        for (auto it = items.rbegin(); it != items.rend(); ++it) {
+        // TODO: [Qt 5.6]
+        //for (auto it = items.crbegin(); it != items.crend(); ++it) {
+        for (auto it = items.cend() - 1; it != items.cbegin(); --it) {
             const QIcon icon = docsetIcon(docsetName(it->url()));
             const QWebHistoryItem item = *it;
             // TODO: [Qt 5.6]
