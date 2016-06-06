@@ -5,7 +5,7 @@ build:
   pre_ci_boot:
     image_name: drydock/u12cpp
     image_tag: tip
-    pull: false
+    pull: true
   ci:
     - shippable_retry sudo apt-get -y -qq update
     - shippable_retry sudo apt-get -y -qq install --no-install-recommends qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
