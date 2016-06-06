@@ -273,7 +273,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         for (auto it = items.rbegin(); it != items.rend(); ++it) {
             const QIcon icon = docsetIcon(docsetName(it->url()));
             const QWebHistoryItem item = *it;
-            m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
+            // TODO: [Qt 5.6]
+            // m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
+            QAction *action = m_backMenu->addAction(icon, it->title());
+            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
         }
     });
     ui->backButton->setDefaultAction(ui->actionBack);
@@ -285,7 +288,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QWebHistory *history = currentTabState()->webPage->history();
         for (const QWebHistoryItem &item: history->forwardItems(10)) {
             const QIcon icon = docsetIcon(docsetName(item.url()));
-            m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
+            // TODO: [Qt 5.6]
+            //m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
+            QAction *action = m_forwardMenu->addAction(icon, item.title());
+            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
         }
     });
     ui->forwardButton->setDefaultAction(ui->actionForward);
