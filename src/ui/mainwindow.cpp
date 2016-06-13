@@ -272,7 +272,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QList<QWebHistoryItem> items = history->backItems(10);
         // TODO: [Qt 5.6]
         //for (auto it = items.crbegin(); it != items.crend(); ++it) {
-        for (auto it = items.cend() - 1; it != items.cbegin(); --it) {
+        for (auto it = items.cend() - 1; it >= items.cbegin(); --it) {
             const QIcon icon = docsetIcon(docsetName(it->url()));
             const QWebHistoryItem item = *it;
             // TODO: [Qt 5.6]
