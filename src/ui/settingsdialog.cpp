@@ -214,11 +214,10 @@ void SettingsDialog::removeSelectedDocsets()
     if (selectonModel->selectedIndexes().count() == 1) {
         const QString docsetTitle = selectonModel->selectedIndexes().first().data().toString();
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
-                                    QString(tr("Remove <b>%1</b> docset?"))
-                                    .arg(docsetTitle));
+                                    tr("Remove <b>%1</b> docset?").arg(docsetTitle));
     } else {
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
-                                    QString(tr("Remove <b>%1</b> docsets?"))
+                                    tr("Remove <b>%1</b> docsets?")
                                     .arg(selectonModel->selectedIndexes().count()));
     }
 
@@ -484,7 +483,7 @@ void SettingsDialog::extractionError(const QString &filePath, const QString &err
 {
     const QString docsetName = QFileInfo(filePath).baseName() + QLatin1String(".docset");
     QMessageBox::warning(this, QStringLiteral("Zeal"),
-                         QString(tr("Cannot extract docset <b>%1</b>: %2")).arg(docsetName, errorString));
+                         tr("Cannot extract docset <b>%1</b>: %2").arg(docsetName, errorString));
     // TODO: Update list item state (hide progress bar)
     delete m_tmpFiles.take(docsetName);
 }
@@ -714,7 +713,7 @@ void SettingsDialog::removeDocsets(const QStringList &names)
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
                 if (!watcher->result()) {
                     QMessageBox::warning(this, QStringLiteral("Zeal"),
-                                         QString(tr("Cannot delete docset <b>%1</b>!")).arg(title));
+                                         tr("Cannot delete docset <b>%1</b>!").arg(title));
                 }
 
                 resetProgress();

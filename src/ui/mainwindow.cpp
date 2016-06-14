@@ -258,9 +258,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
         }
 
-        const int ret = QMessageBox::information(this, QStringLiteral("Zeal"),
-                                                 QString(tr("Zeal <b>%1</b> is available. Open download page?")).arg(version),
-                                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        const int ret
+                = QMessageBox::information(this, QStringLiteral("Zeal"),
+                                           tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
+                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if (ret == QMessageBox::Yes)
             QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
     });
