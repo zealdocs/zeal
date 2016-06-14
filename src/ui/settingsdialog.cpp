@@ -260,7 +260,9 @@ void SettingsDialog::downloadCompleted()
     if (reply->error() != QNetworkReply::NoError) {
         if (reply->error() != QNetworkReply::OperationCanceledError) {
             const int ret = QMessageBox::warning(this, QStringLiteral("Zeal"), reply->errorString(),
-                                                 QMessageBox::Ok | QMessageBox::Retry);
+                                                 QMessageBox::Retry | QMessageBox::Default,
+                                                 QMessageBox::Cancel | QMessageBox::Escape,
+                                                 QMessageBox::NoButton);
 
             if (ret == QMessageBox::Retry) {
                 QNetworkReply *newReply = download(reply->request().url());

@@ -261,7 +261,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         const int ret
                 = QMessageBox::information(this, QStringLiteral("Zeal"),
                                            tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
-                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                           QMessageBox::Yes | QMessageBox::Default,
+                                           QMessageBox::No | QMessageBox::Escape,
+                                           QMessageBox::NoButton);
         if (ret == QMessageBox::Yes)
             QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
     });
