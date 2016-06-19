@@ -315,8 +315,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
     connect(ui->tocSplitter, &QSplitter::splitterMoved, this, [this]() {
-        if (ui->tocListView->isVisible())
-            m_settings->tocSplitterState = ui->tocSplitter->saveState();
+        m_settings->tocSplitterState = ui->tocSplitter->saveState();
     });
 
     createTab();
