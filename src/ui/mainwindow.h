@@ -90,6 +90,7 @@ protected:
 
 private slots:
     void applySettings();
+    void deferOpenDocset(const QModelIndex &index);
     void openDocset(const QModelIndex &index);
     void queryCompleted();
     void closeTab(int index = -1);
@@ -121,6 +122,8 @@ private:
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
+
+    QTimer *m_deferOpenUrl;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 

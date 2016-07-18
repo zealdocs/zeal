@@ -42,6 +42,7 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
+#include <QTimer>
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineHistory>
@@ -174,6 +175,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
+    m_deferOpenUrl(new QTimer()),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
 {
     ui->setupUi(this);
@@ -466,6 +468,21 @@ void MainWindow::search(const SearchQuery &query)
     ui->treeView->activated(ui->treeView->currentIndex());
 }
 
+void MainWindow::deferOpenDocset(const QModelIndex &index)
+{
+    /// PERF: Loading a web page makes the input sluggish.
+    /// Load page only once user stops typing.
+    m_deferOpenUrl->setSingleShot(true);
+    m_deferOpenUrl->disconnect();
+    connect(m_deferOpenUrl, &QTimer::timeout, [this, index]() {
+        openDocset(index);
+
+        // Get focus back. QWebPageEngine::load() always steals focus.
+        ui->lineEdit->setFocus(Qt::MouseFocusReason);
+    });
+    m_deferOpenUrl->start(400);
+}
+
 void MainWindow::openDocset(const QModelIndex &index)
 {
     const QVariant urlStr = index.sibling(index.row(), 1).data();
@@ -504,7 +521,7 @@ void MainWindow::queryCompleted()
     syncTreeView();
 
     ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
-    openDocset(ui->treeView->currentIndex());
+    deferOpenDocset(ui->treeView->currentIndex());
 
     // Get focus back. QWebPageEngine::load() always steals focus.
     ui->lineEdit->setFocus(Qt::MouseFocusReason);
