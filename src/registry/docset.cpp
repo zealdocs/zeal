@@ -243,11 +243,10 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
-QList<SearchResult> Docset::search(const QString &query) const
+QList<SearchResult> Docset::search(const SearchQuery &searchQuery) const
 {
     QList<SearchResult> results;
 
-    const SearchQuery searchQuery = SearchQuery::fromString(query);
     const QString sanitizedQuery = searchQuery.sanitizedQuery();
 
     if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))

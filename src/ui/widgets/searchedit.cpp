@@ -23,6 +23,7 @@
 
 #include "searchedit.h"
 
+#include "registry/docsetregistry.h"
 #include "registry/searchquery.h"
 
 #include <QCompleter>
@@ -46,6 +47,11 @@ void SearchEdit::setTreeView(QTreeView *view)
 {
     m_treeView = view;
     m_focusing = false;
+}
+
+void SearchEdit::setRegistry(Zeal::DocsetRegistry *registry)
+{
+    m_registry = registry;
 }
 
 // Makes the line edit use autocompletions.
@@ -154,7 +160,10 @@ QString SearchEdit::currentCompletion(const QString &text) const
 
 int SearchEdit::queryStart() const
 {
-    const Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
+    const Zeal::SearchQuery currentQuery = m_registry != nullptr
+        ? m_registry->getSearchQuery(text())
+        : Zeal::SearchQuery::fromString(text(), QStringList());
+
     // Keep the filter for the first Escape press
     return currentQuery.query().isEmpty() ? 0 : currentQuery.keywordPrefixSize();
 }

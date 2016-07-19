@@ -53,7 +53,7 @@ public:
     /// Multiple docsets are supported using the ',' character:
     ///   "java,android:setTypeFa #=> docsetFilters = ["java", "android"], coreQuery = "setTypeFa"
 
-    static SearchQuery fromString(const QString &str);
+    static SearchQuery fromString(const QString &str, const QStringList &validKeywords);
 
     QString toString() const;
 
@@ -79,6 +79,8 @@ public:
     QString sanitizedQuery() const;
 
 private:
+    static QStringList tryGetKeywords(const QString &keywordStr, const QStringList &validKeywords);
+
     QString m_query;
     QStringList m_keywords;
     QString m_keywordPrefix;

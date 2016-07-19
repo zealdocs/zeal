@@ -306,12 +306,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
+    ui->lineEdit->setRegistry(app->docsetRegistry());
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
     SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
     delegate->setDecorationRoles({Zeal::SearchModel::DocsetIconRole, Qt::DecorationRole});
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
-        delegate->setHighlight(Zeal::SearchQuery::fromString(text).query());
+    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate, app](const QString &text) {
+        delegate->setHighlight(app->docsetRegistry()->getSearchQuery(text).query());
     });
     ui->treeView->setItemDelegate(delegate);
 
@@ -610,15 +611,7 @@ TabState *MainWindow::currentTabState() const
 // Sets up the search box autocompletions.
 void MainWindow::setupSearchBoxCompletions()
 {
-    QStringList completions;
-    for (const Docset * const docset: m_application->docsetRegistry()->docsets()) {
-        if (docset->keywords().isEmpty())
-            continue;
-
-        completions << docset->keywords().first() + QLatin1Char(':');
-    }
-
-    ui->lineEdit->setCompletions(completions);
+    ui->lineEdit->setCompletions(m_application->docsetRegistry()->completions());
 }
 
 void MainWindow::setupTabBar()

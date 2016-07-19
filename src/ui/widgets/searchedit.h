@@ -31,6 +31,13 @@ class QEvent;
 class QLabel;
 class QTreeView;
 
+namespace Zeal {
+
+class DocsetRegistry;
+class SearchQuery;
+
+}
+
 class SearchEdit : public QLineEdit
 {
     Q_OBJECT
@@ -38,6 +45,7 @@ public:
     explicit SearchEdit(QWidget *parent = nullptr);
 
     void setTreeView(QTreeView *view);
+    void setRegistry(Zeal::DocsetRegistry *registry);
     void clearQuery();
     void selectQuery();
     void setCompletions(const QStringList &completions);
@@ -55,6 +63,7 @@ private:
     QString currentCompletion(const QString &text) const;
     int queryStart() const;
 
+    Zeal::DocsetRegistry *m_registry;
     QCompleter *m_prefixCompleter = nullptr;
     QTreeView *m_treeView = nullptr;
     QLabel *m_completionLabel = nullptr;

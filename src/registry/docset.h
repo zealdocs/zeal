@@ -31,6 +31,7 @@
 
 namespace Zeal {
 
+class SearchQuery;
 struct SearchResult;
 
 class Docset
@@ -59,7 +60,7 @@ public:
 
     const QMap<QString, QString> &symbols(const QString &symbolType) const;
 
-    QList<SearchResult> search(const QString &query) const;
+    QList<SearchResult> search(const SearchQuery &query) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
