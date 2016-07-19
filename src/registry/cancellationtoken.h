@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
+** Copyright (C) 2015 Oleg Shparber
 ** Copyright (C) 2013-2014 Jerzy Kozera
-** Contact: https://go.zealdocs.org/l/contact
+** Contact: http://zealdocs.org/contact.html
 **
 ** This file is part of Zeal.
 **
@@ -17,39 +17,32 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with Zeal. If not, see <https://www.gnu.org/licenses/>.
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULT_H
-#define SEARCHRESULT_H
+#ifndef CANCELLATIONTOKEN_H
+#define CANCELLATIONTOKEN_H
 
-#include <QString>
+#include <QSharedPointer>
 
 namespace Zeal {
 
-class Docset;
-
-struct SearchResult
+/// Token that stores whether cancel was called on it.
+/// In async code can be used to check if another thread called cancel.
+struct CancellationToken
 {
-    QString name;
-    QString parentName;
-    QString type;
+public:
+    CancellationToken();
+    bool isCancelled() const;
+    void cancel();
 
-    Docset *docset;
-
-    QString path;
-
-    // TODO: Remove
-    QString query;
-
-    int score;
-
-    bool operator<(const SearchResult &r) const;
-
-    SearchResult withScore(int newScore) const;
+private:
+    QSharedPointer<bool> m_cancelled;
 };
 
-} // namespace Zeal
+}
 
-#endif // SEARCHRESULT_H
+Q_DECLARE_METATYPE(Zeal::CancellationToken)
+
+#endif // CANCELLATIONTOKEN_H

@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
+** Copyright (C) 2015 Oleg Shparber
 ** Copyright (C) 2013-2014 Jerzy Kozera
-** Contact: https://go.zealdocs.org/l/contact
+** Contact: http://zealdocs.org/contact.html
 **
 ** This file is part of Zeal.
 **
@@ -17,39 +17,25 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with Zeal. If not, see <https://www.gnu.org/licenses/>.
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULT_H
-#define SEARCHRESULT_H
+#include "cancellationtoken.h"
 
-#include <QString>
+using namespace Zeal;
 
-namespace Zeal {
-
-class Docset;
-
-struct SearchResult
+CancellationToken::CancellationToken()
 {
-    QString name;
-    QString parentName;
-    QString type;
+    m_cancelled = QSharedPointer<bool>(new bool(false));
+}
 
-    Docset *docset;
+void CancellationToken::cancel()
+{
+    *m_cancelled = true;
+}
 
-    QString path;
-
-    // TODO: Remove
-    QString query;
-
-    int score;
-
-    bool operator<(const SearchResult &r) const;
-
-    SearchResult withScore(int newScore) const;
-};
-
-} // namespace Zeal
-
-#endif // SEARCHRESULT_H
+bool CancellationToken::isCancelled() const
+{
+    return *m_cancelled;
+}

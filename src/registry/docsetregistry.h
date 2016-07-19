@@ -24,6 +24,7 @@
 #ifndef DOCSETREGISTRY_H
 #define DOCSETREGISTRY_H
 
+#include "cancellationtoken.h"
 #include "docset.h"
 
 #include <QMap>
@@ -52,7 +53,11 @@ public:
     Docset *docset(int index) const;
     QList<Docset *> docsets() const;
 
-    void search(const QString &query);
+    void search(const QString &query, CancellationToken token);
+    const QList<SearchResult> &queryResults();
+
+    /// The number of results that should be retuned by the search.
+    static const int MaxResults = 100;
 
 public slots:
     void addDocset(const QString &path);
@@ -65,7 +70,7 @@ signals:
 
 private slots:
     void _addDocset(const QString &path);
-    void _runQuery(const QString &query);
+    void _runQueryAsync(const QString &query, const CancellationToken token);
 
 private:
     void addDocsetsFromFolder(const QString &path);

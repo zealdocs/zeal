@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
+** Copyright (C) 2015 Oleg Shparber
 ** Copyright (C) 2013-2014 Jerzy Kozera
-** Contact: https://go.zealdocs.org/l/contact
+** Contact: http://zealdocs.org/contact.html
 **
 ** This file is part of Zeal.
 **
@@ -17,39 +17,34 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with Zeal. If not, see <https://www.gnu.org/licenses/>.
+** along with Zeal. If not, see <http://www.gnu.org/licenses/>.
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULT_H
-#define SEARCHRESULT_H
+#ifndef DOCSETSEARCHSTRATEGY_H
+#define DOCSETSEARCHSTRATEGY_H
+
+#include "cancellationtoken.h"
 
 #include <QString>
+#include <QList>
 
 namespace Zeal {
 
-class Docset;
+struct SearchResult;
 
-struct SearchResult
+/// This class contains search related methods for docsets.
+class DocsetSearchStrategy
 {
-    QString name;
-    QString parentName;
-    QString type;
+public:
+    DocsetSearchStrategy();
+    virtual QList<SearchResult> search(const QString &query, CancellationToken &token) = 0;
 
-    Docset *docset;
-
-    QString path;
-
-    // TODO: Remove
-    QString query;
-
-    int score;
-
-    bool operator<(const SearchResult &r) const;
-
-    SearchResult withScore(int newScore) const;
+    /// Used to filter out cached results.
+    virtual bool validResult(const QString &query, const SearchResult &previousResult,
+                             SearchResult &result) = 0;
 };
 
-} // namespace Zeal
+}
 
-#endif // SEARCHRESULT_H
+#endif // DOCSETSEARCHSTRATEGY_H
