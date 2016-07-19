@@ -51,6 +51,7 @@ class QxtGlobalShortcut;
 class QModelIndex;
 class QSystemTrayIcon;
 class QTabBar;
+class QTimer;
 
 namespace Ui {
 class MainWindow;
@@ -127,6 +128,8 @@ private:
     QTabBar *m_tabBar = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
+
+    QTimer *m_openDocsetTimer = nullptr;
 
 #ifdef USE_APPINDICATOR
     bool m_useAppIndicator = false;

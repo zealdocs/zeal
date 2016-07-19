@@ -42,6 +42,7 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
+#include <QTimer>
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineHistory>
@@ -174,7 +175,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_settings(app->settings()),
     m_zealListModel(new ListModel(app->docsetRegistry(), this)),
-    m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
+    m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this)),
+    m_openDocsetTimer(new QTimer(this))
 {
     ui->setupUi(this);
 
@@ -397,6 +399,20 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
+    // Setup delayed navigation to a page until user makes a pause in typing a search query.
+    m_openDocsetTimer->setInterval(400);
+    m_openDocsetTimer->setSingleShot(true);
+    connect(m_openDocsetTimer, &QTimer::timeout, this, [this]() {
+        QModelIndex index = m_openDocsetTimer->property("index").toModelIndex();
+        if (!index.isValid())
+            return;
+
+        openDocset(index);
+
+        // Get focus back. QWebPageEngine::load() always steals focus.
+        ui->lineEdit->setFocus(Qt::MouseFocusReason);
+    });
+
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
     connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
@@ -500,13 +516,14 @@ QIcon MainWindow::docsetIcon(const QString &docsetName) const
 
 void MainWindow::queryCompleted()
 {
+    m_openDocsetTimer->stop();
+
     syncTreeView();
 
     ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
-    openDocset(ui->treeView->currentIndex());
 
-    // Get focus back. QWebPageEngine::load() always steals focus.
-    ui->lineEdit->setFocus(Qt::MouseFocusReason);
+    m_openDocsetTimer->setProperty("index", ui->treeView->currentIndex());
+    m_openDocsetTimer->start();
 }
 
 void MainWindow::closeTab(int index)
