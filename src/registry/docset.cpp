@@ -23,6 +23,7 @@
 
 #include "docset.h"
 
+#include "cancellationtoken.h"
 #include "searchquery.h"
 #include "searchresult.h"
 #include "util/plist.h"
@@ -243,7 +244,7 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
-QList<SearchResult> Docset::search(const QString &query) const
+QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
 {
     QList<SearchResult> results;
 
@@ -262,7 +263,7 @@ QList<SearchResult> Docset::search(const QString &query) const
     QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
     subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
     subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (results.size() < 100) {
+    while (!token.isCanceled() && results.size() < 100) {
         QString curQuery = sanitizedQuery;
         QString notQuery; // don't return the same result twice
         if (withSubStrings) {
