@@ -149,10 +149,16 @@ void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &to
                                                     query, token),
                                           &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
+
+    if (token.isCanceled())
+        return;
+
     std::sort(results.begin(), results.end());
 
-    if (!token.isCanceled())
-        emit queryCompleted(results);
+    if (token.isCanceled())
+        return;
+
+    emit queryCompleted(results);
 }
 
 // Recursively finds and adds all docsets in a given directory.
