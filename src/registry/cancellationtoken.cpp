@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 Artur Spychaj
-** Contact: http://zealdocs.org/contact.html
+** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
 **
