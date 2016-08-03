@@ -127,8 +127,10 @@ Docset::Docset(const QString &path) :
 
     createIndex();
 
-    if (!dir.cd(QStringLiteral("Documents")))
+    if (!dir.cd(QStringLiteral("Documents"))) {
+        m_type = Type::Invalid;
         return;
+    }
 
     // Setup keywords
     if (plist.contains(InfoPlist::DocSetPlatformFamily))
