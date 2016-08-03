@@ -108,13 +108,17 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         }
     }
 
+    // This should not happen unless a docset is corrupted.
+    if (index.data().isNull())
+        return;
+
     // Match QCommonStyle behaviour.
-    const QString text = index.data().toString();
+    opt.features |= QStyleOptionViewItem::HasDisplay;
+    opt.text = index.data().toString();
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
             .adjusted(margin, 0, -margin, 0);
-
     const QFontMetrics &fm = opt.fontMetrics;
-    const QString elidedText = fm.elidedText(text, opt.textElideMode, textRect.width());
+    const QString elidedText = fm.elidedText(opt.text, opt.textElideMode, textRect.width());
 
     if (!m_highlight.isEmpty()) {
         painter->save();
@@ -125,7 +129,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
         for (int i = 0;;) {
-            const int matchIndex = text.indexOf(m_highlight, i, Qt::CaseInsensitive);
+            const int matchIndex = opt.text.indexOf(m_highlight, i, Qt::CaseInsensitive);
             if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
                 break;
 
