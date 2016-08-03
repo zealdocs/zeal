@@ -153,7 +153,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
 #ifdef Q_OS_WIN32
     // QWindowsVistaStyle overrides highlight colour.
-    if (style->objectName() == QStringLiteral("windowsvista")) {
+    if (style->objectName() == QLatin1String("windowsvista")) {
         opt.palette.setColor(QPalette::All, QPalette::HighlightedText,
                              opt.palette.color(QPalette::Active, QPalette::Text));
     }
