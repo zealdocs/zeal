@@ -104,6 +104,8 @@ signals:
     void updated();
 
 private:
+    void migrate(QSettings *settings) const;
+
     static QSettings *qsettings(QObject *parent = nullptr);
 };
 

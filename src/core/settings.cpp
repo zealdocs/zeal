@@ -69,6 +69,7 @@ Settings::~Settings()
 void Settings::load()
 {
     QScopedPointer<QSettings> settings(qsettings());
+    migrate(settings.data());
 
     // TODO: Put everything in groups
     startMinimized = settings->value(QStringLiteral("start_minimized"), false).toBool();
@@ -183,6 +184,32 @@ void Settings::save()
     settings->sync();
 
     emit updated();
+}
+
+/*!
+ * \internal
+ * \brief Migrates settings from older application versions.
+ * \param settings QSettings object to update.
+ *
+ * The settings migration process relies on 'internal/version' option, that was introduced in the
+ * release 0.2.0, so a missing option indicates pre-0.2 release.
+ */
+void Settings::migrate(QSettings *settings) const
+{
+    settings->beginGroup(GroupInternal);
+    const QString version = settings->value(QStringLiteral("version")).toString();
+    settings->endGroup();
+
+    //
+    // Pre 0.3
+    //
+
+    // Unset 'state/splitter_geometry', because custom styles were removed.
+    if (version.isEmpty() || version.startsWith(QLatin1String("0.2"))) {
+        settings->beginGroup(GroupState);
+        settings->remove(QStringLiteral("splitter_geometry"));
+        settings->endGroup();
+    }
 }
 
 /*!
