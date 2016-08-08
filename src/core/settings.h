@@ -106,7 +106,7 @@ signals:
     void updated();
 
 private:
-    QSettings *m_settings = nullptr;
+    static QSettings *qsettings(QObject *parent = nullptr);
 };
 
 } // namespace Core

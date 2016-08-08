@@ -50,13 +50,7 @@ const char GroupProxy[] = "proxy";
 using namespace Zeal::Core;
 
 Settings::Settings(QObject *parent) :
-    QObject(parent),
-    #ifndef PORTABLE_BUILD
-    m_settings(new QSettings(this))
-  #else
-    m_settings(new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
-                             QSettings::IniFormat, this))
-  #endif
+    QObject(parent)
 {
     // TODO: Move to user style sheet (related to #268)
 #ifndef USE_WEBENGINE
@@ -74,41 +68,43 @@ Settings::~Settings()
 
 void Settings::load()
 {
+    QScopedPointer<QSettings> settings(qsettings());
+
     // TODO: Put everything in groups
-    startMinimized = m_settings->value(QStringLiteral("start_minimized"), false).toBool();
-    checkForUpdate = m_settings->value(QStringLiteral("check_for_update"), true).toBool();
+    startMinimized = settings->value(QStringLiteral("start_minimized"), false).toBool();
+    checkForUpdate = settings->value(QStringLiteral("check_for_update"), true).toBool();
 
-    showSystrayIcon = m_settings->value(QStringLiteral("show_systray_icon"), true).toBool();
-    minimizeToSystray = m_settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
-    hideOnClose = m_settings->value(QStringLiteral("hide_on_close"), false).toBool();
+    showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
+    minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
+    hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
-    m_settings->beginGroup(GroupGlobalShortcuts);
-    showShortcut = m_settings->value(QStringLiteral("show")).value<QKeySequence>();
-    m_settings->endGroup();
+    settings->beginGroup(GroupGlobalShortcuts);
+    showShortcut = settings->value(QStringLiteral("show")).value<QKeySequence>();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupTabs);
-    openNewTabAfterActive = m_settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
-    m_settings->endGroup();
+    settings->beginGroup(GroupTabs);
+    openNewTabAfterActive = settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupBrowser);
-    minimumFontSize = m_settings->value(QStringLiteral("minimum_font_size"),
+    settings->beginGroup(GroupBrowser);
+    minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
                                         QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
-    m_settings->endGroup();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupProxy);
-    proxyType = static_cast<ProxyType>(m_settings->value(QStringLiteral("type"),
+    settings->beginGroup(GroupProxy);
+    proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
                                                          ProxyType::System).toUInt());
-    proxyHost = m_settings->value(QStringLiteral("host")).toString();
-    proxyPort = m_settings->value(QStringLiteral("port"), 0).toInt();
-    proxyAuthenticate = m_settings->value(QStringLiteral("authenticate"), false).toBool();
-    proxyUserName = m_settings->value(QStringLiteral("username")).toString();
-    proxyPassword = m_settings->value(QStringLiteral("password")).toString();
-    m_settings->endGroup();
+    proxyHost = settings->value(QStringLiteral("host")).toString();
+    proxyPort = settings->value(QStringLiteral("port"), 0).toInt();
+    proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
+    proxyUserName = settings->value(QStringLiteral("username")).toString();
+    proxyPassword = settings->value(QStringLiteral("password")).toString();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupDocsets);
-    if (m_settings->contains(QStringLiteral("path"))) {
-        docsetPath = m_settings->value(QStringLiteral("path")).toString();
+    settings->beginGroup(GroupDocsets);
+    if (settings->contains(QStringLiteral("path"))) {
+        docsetPath = settings->value(QStringLiteral("path")).toString();
     } else {
 #ifndef PORTABLE_BUILD
         docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
@@ -118,72 +114,93 @@ void Settings::load()
 #endif
         QDir().mkpath(docsetPath);
     }
-    m_settings->endGroup();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupState);
-    windowGeometry = m_settings->value(QStringLiteral("window_geometry")).toByteArray();
-    verticalSplitterGeometry = m_settings->value(QStringLiteral("splitter_geometry")).toByteArray();
-    tocSplitterState = m_settings->value(QStringLiteral("toc_splitter_state")).toByteArray();
-    m_settings->endGroup();
+    settings->beginGroup(GroupState);
+    windowGeometry = settings->value(QStringLiteral("window_geometry")).toByteArray();
+    verticalSplitterGeometry = settings->value(QStringLiteral("splitter_geometry")).toByteArray();
+    tocSplitterState = settings->value(QStringLiteral("toc_splitter_state")).toByteArray();
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupInternal);
-    installId = m_settings->value(QStringLiteral("install_id"),
+    settings->beginGroup(GroupInternal);
+    installId = settings->value(QStringLiteral("install_id"),
                                   // Avoid curly braces (QTBUG-885)
                                   QUuid::createUuid().toString().mid(1, 36)).toString();
-    version = m_settings->value(QStringLiteral("version"),
+    version = settings->value(QStringLiteral("version"),
                                 QCoreApplication::applicationVersion()).toString();
-    m_settings->endGroup();
+    settings->endGroup();
 }
 
 void Settings::save()
 {
+    QScopedPointer<QSettings> settings(qsettings());
+
     // TODO: Put everything in groups
-    m_settings->setValue(QStringLiteral("start_minimized"), startMinimized);
-    m_settings->setValue(QStringLiteral("check_for_update"), checkForUpdate);
+    settings->setValue(QStringLiteral("start_minimized"), startMinimized);
+    settings->setValue(QStringLiteral("check_for_update"), checkForUpdate);
 
-    m_settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
-    m_settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
-    m_settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
+    settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
+    settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
+    settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
 
-    m_settings->beginGroup(GroupGlobalShortcuts);
-    m_settings->setValue(QStringLiteral("show"), showShortcut);
-    m_settings->endGroup();
+    settings->beginGroup(GroupGlobalShortcuts);
+    settings->setValue(QStringLiteral("show"), showShortcut);
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupTabs);
-    m_settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
-    m_settings->endGroup();
+    settings->beginGroup(GroupTabs);
+    settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupBrowser);
-    m_settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
-    m_settings->endGroup();
+    settings->beginGroup(GroupBrowser);
+    settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupProxy);
-    m_settings->setValue(QStringLiteral("type"), proxyType);
-    m_settings->setValue(QStringLiteral("host"), proxyHost);
-    m_settings->setValue(QStringLiteral("port"), proxyPort);
-    m_settings->setValue(QStringLiteral("authenticate"), proxyAuthenticate);
-    m_settings->setValue(QStringLiteral("username"), proxyUserName);
-    m_settings->setValue(QStringLiteral("password"), proxyPassword);
-    m_settings->endGroup();
+    settings->beginGroup(GroupProxy);
+    settings->setValue(QStringLiteral("type"), proxyType);
+    settings->setValue(QStringLiteral("host"), proxyHost);
+    settings->setValue(QStringLiteral("port"), proxyPort);
+    settings->setValue(QStringLiteral("authenticate"), proxyAuthenticate);
+    settings->setValue(QStringLiteral("username"), proxyUserName);
+    settings->setValue(QStringLiteral("password"), proxyPassword);
+    settings->endGroup();
 
 #ifndef PORTABLE_BUILD
-    m_settings->beginGroup(GroupDocsets);
-    m_settings->setValue(QStringLiteral("path"), docsetPath);
-    m_settings->endGroup();
+    settings->beginGroup(GroupDocsets);
+    settings->setValue(QStringLiteral("path"), docsetPath);
+    settings->endGroup();
 #endif
 
-    m_settings->beginGroup(GroupState);
-    m_settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
-    m_settings->setValue(QStringLiteral("splitter_geometry"), verticalSplitterGeometry);
-    m_settings->setValue(QStringLiteral("toc_splitter_state"), tocSplitterState);
-    m_settings->endGroup();
+    settings->beginGroup(GroupState);
+    settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
+    settings->setValue(QStringLiteral("splitter_geometry"), verticalSplitterGeometry);
+    settings->setValue(QStringLiteral("toc_splitter_state"), tocSplitterState);
+    settings->endGroup();
 
-    m_settings->beginGroup(GroupInternal);
-    m_settings->setValue(QStringLiteral("install_id"), installId);
-    m_settings->setValue(QStringLiteral("version"), QCoreApplication::applicationVersion());
-    m_settings->endGroup();
+    settings->beginGroup(GroupInternal);
+    settings->setValue(QStringLiteral("install_id"), installId);
+    settings->setValue(QStringLiteral("version"), QCoreApplication::applicationVersion());
+    settings->endGroup();
 
-    m_settings->sync();
+    settings->sync();
 
     emit updated();
+}
+
+/*!
+ * \internal
+ * \brief Returns an initialized QSettings object.
+ * \param parent Optional parent object.
+ * \return QSettings object.
+ *
+ * QSettings is initialized according to build options, e.g. standard vs portable.
+ * Caller is responsible for deleting the returned object.
+ */
+QSettings *Settings::qsettings(QObject *parent)
+{
+#ifndef PORTABLE_BUILD
+    return new QSettings(parent);
+#else
+    return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
+                         QSettings::IniFormat, parent);
+#endif
 }
