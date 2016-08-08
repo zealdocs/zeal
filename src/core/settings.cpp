@@ -126,8 +126,6 @@ void Settings::load()
     installId = settings->value(QStringLiteral("install_id"),
                                   // Avoid curly braces (QTBUG-885)
                                   QUuid::createUuid().toString().mid(1, 36)).toString();
-    version = settings->value(QStringLiteral("version"),
-                                QCoreApplication::applicationVersion()).toString();
     settings->endGroup();
 }
 
@@ -178,6 +176,7 @@ void Settings::save()
 
     settings->beginGroup(GroupInternal);
     settings->setValue(QStringLiteral("install_id"), installId);
+    // Version of configuration file format, should match Zeal version. Used for migration rules.
     settings->setValue(QStringLiteral("version"), QCoreApplication::applicationVersion());
     settings->endGroup();
 
