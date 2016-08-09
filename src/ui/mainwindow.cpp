@@ -471,6 +471,7 @@ MainWindow::~MainWindow()
     m_settings->windowGeometry = saveGeometry();
 
     delete ui;
+    delete ui->webView;
     qDeleteAll(m_tabStates);
 }
 
