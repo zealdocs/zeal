@@ -29,11 +29,23 @@
     </property>
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="lineWidth">
        <number>0</number>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="opaqueResize">
+       <bool>true</bool>
+      </property>
+      <property name="handleWidth">
+       <number>1</number>
       </property>
       <property name="childrenCollapsible">
        <bool>false</bool>
@@ -84,6 +96,12 @@
          <widget class="QSplitter" name="tocSplitter">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+          <property name="opaqueResize">
+           <bool>true</bool>
+          </property>
+          <property name="handleWidth">
+           <number>1</number>
           </property>
           <widget class="QTreeView" name="treeView">
            <property name="frameShape">
