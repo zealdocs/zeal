@@ -106,6 +106,14 @@ struct TabState
         restoreHistory(other.saveHistory());
     }
 
+    ~TabState()
+    {
+        delete searchModel;
+        delete tocModel;
+        // deleteLater() prevents crashing on quit (#577)
+        webPage->deleteLater();
+    }
+
     void restoreHistory(const QByteArray &array) const
     {
         QDataStream stream(array);
@@ -118,14 +126,6 @@ struct TabState
         QDataStream stream(&array, QIODevice::WriteOnly);
         stream << *webPage->history();
         return array;
-    }
-
-    ~TabState()
-    {
-        delete searchModel;
-        delete tocModel;
-        // deleteLater() prevents crashing on quit (#577)
-        webPage->deleteLater();
     }
 
     QUrl url() const {
@@ -542,7 +542,7 @@ void MainWindow::closeTab(int index)
 
     m_tabBar->removeTab(index);
 
-    if (m_tabStates.count() == 0)
+    if (m_tabStates.isEmpty())
         createTab();
 }
 
