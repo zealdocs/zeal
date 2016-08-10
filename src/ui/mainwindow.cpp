@@ -124,7 +124,8 @@ struct TabState
     {
         delete searchModel;
         delete tocModel;
-        delete webPage;
+        // deleteLater() prevents crashing on quit (#577)
+        webPage->deleteLater();
     }
 
     QUrl url() const {
@@ -470,6 +471,7 @@ MainWindow::~MainWindow()
     m_settings->verticalSplitterGeometry = ui->splitter->saveState();
     m_settings->windowGeometry = saveGeometry();
 
+    // Delete the UI first, because it depends on tab states.
     delete ui;
     qDeleteAll(m_tabStates);
 }
