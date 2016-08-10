@@ -473,6 +473,7 @@ MainWindow::~MainWindow()
 
     // Delete the UI first, because it depends on tab states.
     delete ui;
+    delete ui->webView;
     qDeleteAll(m_tabStates);
 }
 
