@@ -29,19 +29,6 @@
 
 #include <QMainWindow>
 
-#ifdef USE_WEBENGINE
-class QWebEngineHistory;
-class QWebEngineHistoryItem;
-class QWebEnginePage;
-typedef QWebEngineHistory QWebHistory;
-typedef QWebEngineHistoryItem QWebHistoryItem;
-typedef QWebEnginePage QWebPage;
-#else
-class QWebHistory;
-class QWebHistoryItem;
-class QWebPage;
-#endif
-
 #ifdef USE_APPINDICATOR
 struct _AppIndicator;
 struct _GtkWidget;

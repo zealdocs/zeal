@@ -46,10 +46,12 @@
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineHistory>
+#include <QWebEngineHistoryItem>
 #include <QWebEnginePage>
-#include <QWebEngineSettings>
 
 typedef QWebEngineHistory QWebHistory;
+typedef QWebEngineHistoryItem QWebHistoryItem;
+typedef QWebEnginePage QWebPage;
 #else
 #include <QWebFrame>
 #include <QWebHistory>
