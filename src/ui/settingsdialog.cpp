@@ -794,13 +794,14 @@ void SettingsDialog::loadSettings()
         break;
     case Core::Settings::ProxyType::UserDefined:
         ui->manualProxySettings->setChecked(true);
-        ui->httpProxy->setText(settings->proxyHost);
-        ui->httpProxyPort->setValue(settings->proxyPort);
-        ui->httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
-        ui->httpProxyUser->setText(settings->proxyUserName);
-        ui->httpProxyPass->setText(settings->proxyPassword);
         break;
     }
+
+    ui->httpProxy->setText(settings->proxyHost);
+    ui->httpProxyPort->setValue(settings->proxyPort);
+    ui->httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
+    ui->httpProxyUser->setText(settings->proxyUserName);
+    ui->httpProxyPass->setText(settings->proxyPassword);
 }
 
 void SettingsDialog::saveSettings()
