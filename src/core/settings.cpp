@@ -97,7 +97,7 @@ void Settings::load()
     proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
                                                          ProxyType::System).toUInt());
     proxyHost = settings->value(QStringLiteral("host")).toString();
-    proxyPort = settings->value(QStringLiteral("port"), 0).toInt();
+    proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
     proxyUserName = settings->value(QStringLiteral("username")).toString();
     proxyPassword = settings->value(QStringLiteral("password")).toString();
