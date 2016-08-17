@@ -1,48 +1,8 @@
+include($$SRC_ROOT/common.pri)
+
 TEMPLATE = app
 
 QT += gui widgets sql concurrent
-CONFIG += c++11 silent
-
-## Build options
-# Browser engine
-CONFIG(zeal_qtwebkit) {
-    qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
-    else: error("Qt WebKit is not available.")
-} else:CONFIG(zeal_qtwebengine) {
-    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
-    else: error("Qt WebEngine is not available.")
-} else {
-    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
-    else: qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
-    else: error("Zeal requires Qt WebEngine or Qt WebKit.")
-}
-
-equals(BROWSER_ENGINE, qtwebengine) {
-    message("Browser engine: Qt WebEngine.")
-    QT += webenginewidgets
-    DEFINES += USE_WEBENGINE
-} else {
-    message("Browser engine: Qt WebKit.")
-    QT += webkitwidgets
-    DEFINES += USE_WEBKIT
-}
-
-# Portable build
-CONFIG(zeal_portable) {
-    message("Portable build: Yes.")
-    DEFINES += PORTABLE_BUILD
-} else {
-    message("Portable build: No.")
-}
-
-VERSION = 0.2.1
-DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
-
-# QString options
-DEFINES *= QT_USE_QSTRINGBUILDER
-DEFINES *= QT_RESTRICTED_CAST_FROM_ASCII
-DEFINES *= QT_NO_CAST_TO_ASCII
-DEFINES *= QT_NO_URL_CAST_FROM_STRING
 
 HEADERS += \
     util/version.h \
@@ -65,10 +25,6 @@ DESTDIR = $$BUILD_ROOT/bin
 
 unix:!macx {
     TARGET = zeal
-    isEmpty(PREFIX): PREFIX = /usr
-    target.path = $$PREFIX/bin
-    INSTALLS = target
-
     appicons16.files=appicons/16/*
     appicons24.files=appicons/24/*
     appicons32.files=appicons/32/*
@@ -96,9 +52,3 @@ macx {
     TARGET = Zeal
     ICON = resources/zeal.icns
 }
-
-# Keep build directory organised
-MOC_DIR = $$BUILD_ROOT/.moc
-OBJECTS_DIR = $$BUILD_ROOT/.obj
-RCC_DIR = $$BUILD_ROOT/.rcc
-UI_DIR = $$BUILD_ROOT/.ui
