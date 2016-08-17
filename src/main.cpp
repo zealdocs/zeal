@@ -29,6 +29,7 @@
 #include <QCommandLineParser>
 #include <QDesktopServices>
 #include <QDir>
+#include <QIcon>
 #include <QMessageBox>
 #include <QSqlDatabase>
 #include <QTextStream>
@@ -201,6 +202,10 @@ int main(int argc, char *argv[])
     // Detect already running instance and optionally send the search query to it.
     if (!clParams.force && Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation))
         return 0;
+
+    // Set application-wide window icon. All message boxes and other windows will use it by default.
+    qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
+                                         QIcon(QStringLiteral(":/zeal.ico"))));
 
     QScopedPointer<Core::LocalServer> localServer(new Core::LocalServer());
     if (!localServer->start()) {

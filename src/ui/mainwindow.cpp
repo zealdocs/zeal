@@ -185,8 +185,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
 
-    setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
-
 #ifdef USE_APPINDICATOR
     detectAppIndicatorSupport();
 #endif
