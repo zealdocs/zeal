@@ -98,6 +98,7 @@ Docset *DocsetRegistry::docset(const QString &name) const
 
 Docset *DocsetRegistry::docset(int index) const
 {
+    /// TODO: sort docsets
     if (index < 0 || index >= m_docsets.size())
         return nullptr;
     return (m_docsets.cbegin() + index).value();

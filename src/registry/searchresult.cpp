@@ -27,6 +27,9 @@ using namespace Zeal;
 
 bool SearchResult::operator<(const SearchResult &r) const
 {
+    if (score != r.score)
+        return score > r.score;
+
     const bool lhsStartsWithQuery = name.startsWith(query, Qt::CaseInsensitive);
     const bool rhsStartsWithQuery = r.name.startsWith(query, Qt::CaseInsensitive);
 
@@ -38,4 +41,11 @@ bool SearchResult::operator<(const SearchResult &r) const
         return namesCmp < 0;
 
     return QString::compare(parentName, r.parentName, Qt::CaseInsensitive) < 0;
+}
+
+SearchResult SearchResult::withScore(int newScore) const
+{
+    return SearchResult({name, parentName, type,
+                         docset, path, query,
+                         newScore});
 }
