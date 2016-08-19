@@ -68,6 +68,24 @@ const char DocsetNameProperty[] = "docsetName";
 const char DownloadTypeProperty[] = "downloadType";
 const char DownloadPreviousReceived[] = "downloadPreviousReceived";
 const char ListItemIndexProperty[] = "listItem";
+
+QString timeSinceLastUpdate(const QDateTime &updateTime)
+{
+    int diff = updateTime.secsTo(QDateTime::currentDateTime());
+
+    if (diff <= 5)      return QStringLiteral("just now");
+    if (diff <= 20)     return QStringLiteral("%1 seconds ago").arg(diff);
+    if (diff < 60)      return QStringLiteral("less than a minute ago");
+    if (diff <= 90)     return QStringLiteral("one minute ago");
+    if (diff <= 3540)   return QStringLiteral("%1 minutes ago").arg(std::round(diff / 60));
+    if (diff <= 5400)   return QStringLiteral("1 hour ago");
+    if (diff <= 86400)  return QStringLiteral("%1 hours ago").arg(std::round(diff / 3600));
+    if (diff <= 129600) return QStringLiteral("day ago");
+    if (diff < 604800)  return QStringLiteral("%1 days ago").arg(std::round(diff / 86400));
+    if (diff <= 777600) return QStringLiteral("1 week ago");
+
+    return updateTime.toString(Qt::SystemLocaleShortDate);
+}
 }
 
 SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
@@ -320,8 +338,7 @@ void SettingsDialog::downloadCompleted()
         if (file->open(QIODevice::WriteOnly))
             file->write(data);
 
-        ui->lastUpdatedLabel->setText(QFileInfo(file->fileName())
-                                      .lastModified().toString(Qt::SystemLocaleShortDate));
+        ui->lastUpdatedLabel->setText(timeSinceLastUpdate(QFileInfo(file->fileName()).lastModified()));
 
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
@@ -567,8 +584,7 @@ void SettingsDialog::on_tabWidget_currentChanged(int current)
         return;
     }
 
-    // TODO: Show more user friendly labels, like "5 hours ago"
-    ui->lastUpdatedLabel->setText(fi.lastModified().toString(Qt::SystemLocaleShortDate));
+    ui->lastUpdatedLabel->setText(timeSinceLastUpdate(fi.lastModified()));
     processDocsetList(jsonDoc.array());
 }
 
