@@ -5,7 +5,7 @@
 # include($$ZEAL_COMMON_PRI)
 
 # Compilation settings
-CONFIG += c++11 #silent
+CONFIG += c++11 silent
 
 # Shared include path
 INCLUDEPATH += $$SRC_ROOT/src/libs
