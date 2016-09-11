@@ -73,7 +73,7 @@ Application::Application(QObject *parent) :
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
 
-    m_docsetRegistry = new DocsetRegistry();
+    m_docsetRegistry = new Registry::DocsetRegistry();
     m_docsetRegistry->init(m_settings->docsetPath);
 
     m_mainWindow = new MainWindow(this);
@@ -117,12 +117,12 @@ Settings *Application::settings() const
     return m_settings;
 }
 
-DocsetRegistry *Application::docsetRegistry()
+Registry::DocsetRegistry *Application::docsetRegistry()
 {
     return m_docsetRegistry;
 }
 
-void Application::executeQuery(const SearchQuery &query, bool preventActivation)
+void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)
 {
     m_mainWindow->search(query);
 

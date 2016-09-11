@@ -23,7 +23,7 @@
 
 #include "searchresult.h"
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 bool SearchResult::operator<(const SearchResult &r) const
 {

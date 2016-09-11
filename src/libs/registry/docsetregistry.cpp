@@ -34,7 +34,7 @@
 
 #include <functional>
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
 {
@@ -47,7 +47,7 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
 {
     // Register for use in signal connections.
     qRegisterMetaType<CancellationToken>("CancellationToken");
-    qRegisterMetaType<QList<Zeal::SearchResult>>("QList<SearchResult>");
+    qRegisterMetaType<QList<SearchResult>>("QList<SearchResult>");
 
     // FIXME: Only search should be performed in a separate thread
     moveToThread(m_thread);

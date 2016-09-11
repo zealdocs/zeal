@@ -28,6 +28,7 @@
 #include <QMap>
 
 namespace Zeal {
+namespace Registry {
 
 class Docset;
 class DocsetRegistry;
@@ -84,6 +85,7 @@ private:
     QMap<QString, DocsetItem *> m_docsetItems;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // LISTMODEL_H

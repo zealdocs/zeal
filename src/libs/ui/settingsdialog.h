@@ -41,7 +41,9 @@ class SettingsDialog;
 
 namespace Zeal {
 
+namespace Registry {
 class DocsetRegistry;
+} // namespace Registry
 
 namespace Core {
 class Application;
@@ -81,15 +83,15 @@ private:
 
     Ui::SettingsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
-    DocsetRegistry *m_docsetRegistry = nullptr;
+    Registry::DocsetRegistry *m_docsetRegistry = nullptr;
 
     QList<QNetworkReply *> m_replies;
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
 
     // TODO: Create a special model
-    QMap<QString, DocsetMetadata> m_availableDocsets;
-    QMap<QString, DocsetMetadata> m_userFeeds;
+    QMap<QString, Registry::DocsetMetadata> m_availableDocsets;
+    QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
 

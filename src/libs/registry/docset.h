@@ -31,6 +31,7 @@
 class QSqlDatabase;
 
 namespace Zeal {
+namespace Registry {
 
 struct CancellationToken;
 struct SearchResult;
@@ -100,6 +101,7 @@ private:
     mutable QMap<QString, QMap<QString, QString>> m_symbols;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // DOCSET_H

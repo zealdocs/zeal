@@ -27,7 +27,7 @@
 
 #include <QDir>
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 SearchModel::SearchModel(QObject *parent) :
     QAbstractItemModel(parent)

@@ -26,6 +26,7 @@
 #include <QSharedPointer>
 
 namespace Zeal {
+namespace Registry {
 
 /// Token that stores whether cancel was called on it.
 /// In async code can be used to check if another thread called cancel.
@@ -40,8 +41,9 @@ private:
     QSharedPointer<bool> m_cancelled;
 };
 
-}
+} // namespace Registry
+} // namespace Zeal
 
-Q_DECLARE_METATYPE(Zeal::CancellationToken)
+Q_DECLARE_METATYPE(Zeal::Registry::CancellationToken)
 
 #endif // CANCELLATIONTOKEN_H

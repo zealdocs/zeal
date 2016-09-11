@@ -39,7 +39,7 @@
 #include <QUrl>
 #include <QVariant>
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 namespace {
 const char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index

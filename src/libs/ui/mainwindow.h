@@ -52,7 +52,10 @@ class Application;
 class Settings;
 } // namespace Core
 
+namespace Registry {
 class ListModel;
+} //namespace Registry
+
 } // namespace Zeal
 
 struct TabState;
@@ -64,7 +67,7 @@ public:
     explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    void search(const Zeal::SearchQuery &query);
+    void search(const Zeal::Registry::SearchQuery &query);
     void bringToFront();
     void createTab(int index = -1);
 
@@ -106,12 +109,12 @@ private:
     Ui::MainWindow *ui = nullptr;
     Zeal::Core::Application *m_application = nullptr;
     Zeal::Core::Settings *m_settings = nullptr;
-    Zeal::ListModel *m_zealListModel = nullptr;
+    Zeal::Registry::ListModel *m_zealListModel = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;
 
-    Zeal::CancellationToken m_cancelSearch;
+    Zeal::Registry::CancellationToken m_cancelSearch;
 
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 

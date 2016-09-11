@@ -31,6 +31,7 @@
 class QThread;
 
 namespace Zeal {
+namespace Registry {
 
 struct CancellationToken;
 struct SearchResult;
@@ -76,6 +77,7 @@ private:
     QMap<QString, Docset *> m_docsets;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // DOCSETREGISTRY_H

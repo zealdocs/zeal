@@ -30,6 +30,7 @@
 #include <QUrl>
 
 namespace Zeal {
+namespace Registry {
 
 class DocsetMetadata
 {
@@ -74,6 +75,7 @@ private:
     QList<QUrl> m_urls;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // DOCSETMETADATA_H

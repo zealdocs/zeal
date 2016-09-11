@@ -31,6 +31,8 @@
 #include <QLabel>
 #include <QTreeView>
 
+using namespace Zeal;
+
 SearchEdit::SearchEdit(QWidget *parent) :
     QLineEdit(parent)
 {
@@ -154,7 +156,7 @@ QString SearchEdit::currentCompletion(const QString &text) const
 
 int SearchEdit::queryStart() const
 {
-    const Zeal::SearchQuery currentQuery = Zeal::SearchQuery::fromString(text());
+    const Registry::SearchQuery currentQuery = Registry::SearchQuery::fromString(text());
     // Keep the filter for the first Escape press
     return currentQuery.query().isEmpty() ? 0 : currentQuery.keywordPrefixSize();
 }

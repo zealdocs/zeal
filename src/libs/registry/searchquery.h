@@ -27,6 +27,7 @@
 #include <QStringList>
 
 namespace Zeal {
+namespace Registry {
 
 /**
  * @short The search query model.
@@ -84,9 +85,10 @@ private:
     QString m_keywordPrefix;
 };
 
-QDataStream &operator<<(QDataStream &out, const SearchQuery &query);
-QDataStream &operator>>(QDataStream &in, SearchQuery &query);
-
+} // namespace Registry
 } // namespace Zeal
+
+QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query);
+QDataStream &operator>>(QDataStream &in, Zeal::Registry::SearchQuery &query);
 
 #endif // SEARCHQUERY_H

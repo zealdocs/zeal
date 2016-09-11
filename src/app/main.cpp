@@ -51,7 +51,7 @@ struct CommandLineParameters
 {
     bool force;
     bool preventActivation;
-    SearchQuery query;
+    Registry::SearchQuery query;
 #ifdef Q_OS_WIN32
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;

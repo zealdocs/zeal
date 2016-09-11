@@ -29,6 +29,7 @@
 #include <QAbstractItemModel>
 
 namespace Zeal {
+namespace Registry {
 
 class SearchModel : public QAbstractItemModel
 {
@@ -62,6 +63,7 @@ private:
     QList<SearchResult> m_dataList;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // SEARCHMODEL_H

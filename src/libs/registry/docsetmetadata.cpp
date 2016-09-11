@@ -30,7 +30,7 @@
 #include <QVariant>
 #include <QXmlStreamReader>
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 DocsetMetadata::DocsetMetadata()
 {

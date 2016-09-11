@@ -22,7 +22,7 @@
 
 #include "cancellationtoken.h"
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 CancellationToken::CancellationToken()
 {

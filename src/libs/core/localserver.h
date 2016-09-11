@@ -29,7 +29,9 @@ class QLocalServer;
 
 namespace Zeal {
 
+namespace Registry {
 class SearchQuery;
+} // namespace Registry
 
 namespace Core {
 
@@ -43,10 +45,10 @@ public:
 
     bool start(bool force = false);
 
-    static bool sendQuery(const SearchQuery &query, bool preventActivation);
+    static bool sendQuery(const Registry::SearchQuery &query, bool preventActivation);
 
 signals:
-    void newQuery(const SearchQuery &query, bool preventActivation);
+    void newQuery(const Registry::SearchQuery &query, bool preventActivation);
 
 private:
     QLocalServer *m_localServer = nullptr;

@@ -77,6 +77,9 @@ SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_docsetRegistry(app->docsetRegistry())
 {
+    using Registry::DocsetRegistry;
+    using Registry::ListModel;
+
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -101,7 +104,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
         for (const QModelIndex &index : selectionModel->selectedIndexes()) {
-            if (index.data(Zeal::ListModel::UpdateAvailableRole).toBool()) {
+            if (index.data(ListModel::UpdateAvailableRole).toBool()) {
                 ui->updateSelectedDocsetsButton->setEnabled(true);
                 return;
             }
@@ -188,16 +191,16 @@ void SettingsDialog::addDashFeed()
 void SettingsDialog::updateSelectedDocsets()
 {
     for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedIndexes()) {
-        if (!index.data(Zeal::ListModel::UpdateAvailableRole).toBool())
+        if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
             continue;
 
-        downloadDashDocset(index.data(Zeal::ListModel::DocsetNameRole).toString());
+        downloadDashDocset(index.data(Registry::ListModel::DocsetNameRole).toString());
     }
 }
 
 void SettingsDialog::updateAllDocsets()
 {
-    for (const Docset * const docset : m_docsetRegistry->docsets()) {
+    for (const Registry::Docset * const docset : m_docsetRegistry->docsets()) {
         if (!docset->hasUpdate)
             continue;
 
@@ -227,7 +230,7 @@ void SettingsDialog::removeSelectedDocsets()
 
     QStringList names;
     for (const QModelIndex &index : selectonModel->selectedIndexes())
-        names << index.data(ListModel::DocsetNameRole).toString();
+        names << index.data(Registry::ListModel::DocsetNameRole).toString();
     removeDocsets(names);
 }
 
@@ -239,7 +242,7 @@ void SettingsDialog::updateDocsetFilter(const QString &filterString)
         QListWidgetItem *item = ui->availableDocsetList->item(i);
 
         // Skip installed docsets
-        if (m_docsetRegistry->contains(item->data(ListModel::DocsetNameRole).toString()))
+        if (m_docsetRegistry->contains(item->data(Registry::ListModel::DocsetNameRole).toString()))
             continue;
 
         item->setHidden(doSearch && !item->text().contains(filterString, Qt::CaseInsensitive));
@@ -339,8 +342,8 @@ void SettingsDialog::downloadCompleted()
     }
 
     case DownloadDashFeed: {
-        DocsetMetadata metadata
-                = DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
+        Registry::DocsetMetadata metadata
+                = Registry::DocsetMetadata::fromDashFeed(reply->request().url(), reply->readAll());
 
         if (metadata.urls().isEmpty()) {
             QMessageBox::warning(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
@@ -357,7 +360,7 @@ void SettingsDialog::downloadCompleted()
 
     case DownloadDocset: {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
-        const DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+        const Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
                 ? m_availableDocsets[docsetName]
                   : m_userFeeds[docsetName];
 
@@ -465,7 +468,7 @@ void SettingsDialog::extractionCompleted(const QString &filePath)
     const QString docsetPath = dataDir.absoluteFilePath(docsetName + QLatin1String(".docset"));
 
     // Write metadata about docset
-    DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+    Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
               : m_userFeeds[docsetName];
     metadata.save(docsetPath, metadata.latestVersion());
@@ -503,7 +506,7 @@ void SettingsDialog::extractionProgress(const QString &filePath, qint64 extracte
         }
     }
 
-    DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+    Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
               : m_userFeeds[docsetName];
 
@@ -529,7 +532,7 @@ void SettingsDialog::on_downloadDocsetButton_clicked()
         item->setData(ProgressItemDelegate::ValueRole, 0);
         item->setData(ProgressItemDelegate::ShowProgressRole, true);
 
-        downloadDashDocset(item->data(ListModel::DocsetNameRole).toString());
+        downloadDashDocset(item->data(Registry::ListModel::DocsetNameRole).toString());
     }
 }
 
@@ -587,7 +590,7 @@ QListWidgetItem *SettingsDialog::findDocsetListItem(const QString &title) const
 
 bool SettingsDialog::updatesAvailable() const
 {
-    for (Docset *docset : m_docsetRegistry->docsets()) {
+    for (Registry::Docset *docset : m_docsetRegistry->docsets()) {
         if (docset->hasUpdate)
             return true;
     }
@@ -648,21 +651,21 @@ void SettingsDialog::processDocsetList(const QJsonArray &list)
     for (const QJsonValue &v : list) {
         QJsonObject docsetJson = v.toObject();
 
-        DocsetMetadata metadata(docsetJson);
+        Registry::DocsetMetadata metadata(docsetJson);
         m_availableDocsets.insert(metadata.name(), metadata);
     }
 
     // TODO: Move into dedicated method
-    for (const DocsetMetadata &metadata : m_availableDocsets) {
+    for (const Registry::DocsetMetadata &metadata : m_availableDocsets) {
         QListWidgetItem *listItem
                 = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
-        listItem->setData(ListModel::DocsetNameRole, metadata.name());
+        listItem->setData(Registry::ListModel::DocsetNameRole, metadata.name());
         listItem->setCheckState(Qt::Unchecked);
 
         if (m_docsetRegistry->contains(metadata.name())) {
             listItem->setHidden(true);
 
-            Docset *docset = m_docsetRegistry->docset(metadata.name());
+            Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
 
             if (metadata.latestVersion() != docset->version()
                     || (metadata.latestVersion() == docset->version()
@@ -752,7 +755,7 @@ void SettingsDialog::resetProgress()
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     bool hasSelectedUpdates = false;
     for (const QModelIndex &index : selectionModel->selectedIndexes()) {
-        if (index.data(Zeal::ListModel::UpdateAvailableRole).toBool()) {
+        if (index.data(Registry::ListModel::UpdateAvailableRole).toBool()) {
             hasSelectedUpdates = true;
             break;
         }

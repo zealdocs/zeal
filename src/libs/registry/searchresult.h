@@ -27,6 +27,7 @@
 #include <QString>
 
 namespace Zeal {
+namespace Registry {
 
 class Docset;
 
@@ -46,6 +47,7 @@ struct SearchResult
     bool operator<(const SearchResult &r) const;
 };
 
+} // namespace Registry
 } // namespace Zeal
 
 #endif // SEARCHRESULT_H

@@ -27,6 +27,8 @@
 
 #include <QPainter>
 
+using namespace Zeal;
+
 DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent) :
     QItemDelegate(parent)
 {
@@ -37,7 +39,7 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 {
     QItemDelegate::paint(painter, option, index);
 
-    if (!index.model()->data(index, Zeal::ListModel::UpdateAvailableRole).toBool())
+    if (!index.model()->data(index, Registry::ListModel::UpdateAvailableRole).toBool())
         return;
 
     const QString text = tr("Update available");

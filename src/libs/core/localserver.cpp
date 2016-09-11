@@ -29,6 +29,7 @@
 #include <QLocalSocket>
 #include <QScopedPointer>
 
+using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
@@ -46,7 +47,7 @@ LocalServer::LocalServer(QObject *parent)
             return;
 
         QDataStream in(connection.data());
-        Zeal::SearchQuery query;
+        Registry::SearchQuery query;
         bool preventActivation;
         in >> query;
         in >> preventActivation;
@@ -91,7 +92,7 @@ bool LocalServer::start(bool force)
  * \param preventActivation If \c true, application window will not activated.
  * \return \c true if communication with another instance has been successful.
  */
-bool LocalServer::sendQuery(const SearchQuery &query, bool preventActivation)
+bool LocalServer::sendQuery(const Registry::SearchQuery &query, bool preventActivation)
 {
     QScopedPointer<QLocalSocket> socket(new QLocalSocket());
     socket->connectToServer(LocalServerName);

@@ -26,7 +26,7 @@
 #include "docset.h"
 #include "docsetregistry.h"
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),

@@ -23,7 +23,7 @@
 
 #include "searchquery.h"
 
-using namespace Zeal;
+using namespace Zeal::Registry;
 
 namespace {
 const char prefixSeparator = ':';
@@ -136,13 +136,13 @@ QString SearchQuery::sanitizedQuery() const
     return q;
 }
 
-QDataStream &Zeal::operator<<(QDataStream &out, const SearchQuery &query)
+QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query)
 {
     out << query.toString();
     return out;
 }
 
-QDataStream &Zeal::operator>>(QDataStream &in, SearchQuery &query)
+QDataStream &operator>>(QDataStream &in, Zeal::Registry::SearchQuery &query)
 {
     QString str;
     in >> str;

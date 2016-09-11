@@ -33,8 +33,10 @@ class MainWindow;
 
 namespace Zeal {
 
+namespace Registry {
 class DocsetRegistry;
 class SearchQuery;
+} // namespace Registry
 
 namespace Core {
 
@@ -53,10 +55,10 @@ public:
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
 
-    DocsetRegistry *docsetRegistry();
+    Registry::DocsetRegistry *docsetRegistry();
 
 public slots:
-    void executeQuery(const SearchQuery &query, bool preventActivation);
+    void executeQuery(const Registry::SearchQuery &query, bool preventActivation);
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
     void checkForUpdates(bool quiet = false);
@@ -84,7 +86,7 @@ private:
     QThread *m_extractorThread = nullptr;
     Extractor *m_extractor = nullptr;
 
-    DocsetRegistry *m_docsetRegistry = nullptr;
+    Registry::DocsetRegistry *m_docsetRegistry = nullptr;
 
     MainWindow *m_mainWindow = nullptr;
 };
