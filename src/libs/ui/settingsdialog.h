@@ -24,7 +24,7 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "registry/docsetmetadata.h"
+#include <registry/docsetmetadata.h>
 
 #include <QDialog>
 #include <QHash>

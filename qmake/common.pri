@@ -2,10 +2,14 @@
 #
 # This file must be included at the top of every non-subdirs .pro file.
 # Use:
-# include($$SRC_ROOT/common.pri)
+# include($$ZEAL_COMMON_PRI)
 
 # Compilation settings
-CONFIG += c++11 silent
+CONFIG += c++11 #silent
+
+# Shared include path
+INCLUDEPATH += $$SRC_ROOT/src/libs
+LIBS = -L$$BUILD_ROOT/.lib
 
 # QString options
 DEFINES *= QT_USE_QSTRINGBUILDER

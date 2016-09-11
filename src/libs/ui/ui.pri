@@ -1,13 +1,6 @@
-HEADERS += \
-    $$files($$PWD/*.h) \
-    $$files($$PWD/widgets/*.h)
+ZEAL_LIB_NAME = Ui
 
-SOURCES += \
-    $$files($$PWD/*.cpp) \
-    $$files($$PWD/widgets/*.cpp)
-
-FORMS += \
-    $$files($$PWD/forms/*.ui)
+QT += widgets
 
 unix:!macx {
     packagesExist(appindicator-0.1) {
@@ -18,4 +11,16 @@ unix:!macx {
     } else {
         message("AppIndicator support: No.")
     }
+}
+
+# QxtGlobalShortcut dependencies
+unix:!macx {
+    QT += x11extras
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += x11 xcb xcb-keysyms
+}
+
+macx {
+    LIBS += -framework Carbon
 }

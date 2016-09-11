@@ -1,6 +1,6 @@
-TEMPLATE = aux
+include($$ZEAL_COMMON_PRI)
 
-include($$SRC_ROOT/common.pri)
+TEMPLATE = aux
 
 unix:!macx {
     TARGET = zeal

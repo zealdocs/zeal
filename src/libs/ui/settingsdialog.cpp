@@ -26,10 +26,11 @@
 
 #include "docsetlistitemdelegate.h"
 #include "progressitemdelegate.h"
-#include "core/application.h"
-#include "core/settings.h"
-#include "registry/docsetregistry.h"
-#include "registry/listmodel.h"
+
+#include <core/application.h>
+#include <core/settings.h>
+#include <registry/docsetregistry.h>
+#include <registry/listmodel.h>
 
 #include <QClipboard>
 #include <QDir>

@@ -23,7 +23,7 @@
 
 #include "searchmodel.h"
 
-#include "registry/docset.h"
+#include "docset.h"
 
 #include <QDir>
 

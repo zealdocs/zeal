@@ -21,9 +21,9 @@
 **
 ****************************************************************************/
 
-#include "core/application.h"
-#include "core/localserver.h"
-#include "registry/searchquery.h"
+#include <core/application.h>
+#include <core/localserver.h>
+#include <registry/searchquery.h>
 
 #include <QApplication>
 #include <QCommandLineParser>

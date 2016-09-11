@@ -23,7 +23,7 @@
 
 #include "docsetlistitemdelegate.h"
 
-#include "registry/listmodel.h"
+#include <registry/listmodel.h>
 
 #include <QPainter>
 

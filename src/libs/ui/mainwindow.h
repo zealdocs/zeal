@@ -24,8 +24,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "registry/searchquery.h"
-#include "registry/cancellationtoken.h"
+#include <registry/searchquery.h>
+#include <registry/cancellationtoken.h>
 
 #include <QMainWindow>
 

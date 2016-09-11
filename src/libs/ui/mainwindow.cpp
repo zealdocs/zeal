@@ -27,11 +27,13 @@
 #include "aboutdialog.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
-#include "core/application.h"
-#include "core/settings.h"
-#include "registry/docsetregistry.h"
-#include "registry/listmodel.h"
-#include "registry/searchmodel.h"
+#include "qxtglobalshortcut/qxtglobalshortcut.h"
+
+#include <core/application.h>
+#include <core/settings.h>
+#include <registry/docsetregistry.h>
+#include <registry/listmodel.h>
+#include <registry/searchmodel.h>
 
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -57,8 +59,6 @@ typedef QWebEnginePage QWebPage;
 #include <QWebHistory>
 #include <QWebPage>
 #endif
-
-#include <qxtglobalshortcut.h>
 
 // TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
 #ifdef USE_APPINDICATOR

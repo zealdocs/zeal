@@ -1,5 +1,4 @@
-HEADERS += $$files($$PWD/*.h)
-SOURCES += $$files($$PWD/*.cpp)
+ZEAL_LIB_NAME = Core
 
 unix:!macx {
     CONFIG += link_pkgconfig

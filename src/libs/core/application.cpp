@@ -24,10 +24,11 @@
 
 #include "extractor.h"
 #include "settings.h"
-#include "registry/docsetregistry.h"
-#include "registry/searchquery.h"
-#include "ui/mainwindow.h"
-#include "util/version.h"
+
+#include <registry/docsetregistry.h>
+#include <registry/searchquery.h>
+#include <ui/mainwindow.h>
+#include <util/version.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>

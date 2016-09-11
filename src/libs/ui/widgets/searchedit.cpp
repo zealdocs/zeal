@@ -23,7 +23,7 @@
 
 #include "searchedit.h"
 
-#include "registry/searchquery.h"
+#include <registry/searchquery.h>
 
 #include <QCompleter>
 #include <QCoreApplication>

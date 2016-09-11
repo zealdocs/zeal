@@ -22,7 +22,7 @@
 
 #include "localserver.h"
 
-#include "registry/searchquery.h"
+#include <registry/searchquery.h>
 
 #include <QDataStream>
 #include <QLocalServer>

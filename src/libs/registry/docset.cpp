@@ -26,7 +26,8 @@
 #include "cancellationtoken.h"
 #include "searchquery.h"
 #include "searchresult.h"
-#include "util/plist.h"
+
+#include <util/plist.h>
 
 #include <QDir>
 #include <QFile>
