@@ -26,6 +26,9 @@ macx {
     ICON = resources/zeal.icns
 }
 
+# FIXME: Hardcoded link line & cyclic dependencies.
+LIBS += -lCore -lUi -lRegistry -lUtil
+
 # Depend on all dependencies of libraries
 for(lib_dir, $$list($$files($$SRC_ROOT/src/libs/*))) {
     !equals(lib_dir, $$SRC_ROOT/src/libs/libs.pro) {
@@ -33,6 +36,3 @@ for(lib_dir, $$list($$files($$SRC_ROOT/src/libs/*))) {
 #        LIBS += -l$$ZEAL_LIB_NAME
     }
 }
-
-# FIXME: Hardcoded link line & cyclic dependencies.
-LIBS += -lUi -lCore -lUi -lRegistry -lUtil
