@@ -32,6 +32,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QUrl>
@@ -437,10 +438,6 @@ void Docset::loadSymbols(const QString &symbolType) const
 
 void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const
 {
-    QSqlDatabase db = database();
-    if (!db.isOpen())
-        return;
-
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC");
@@ -496,7 +493,7 @@ void Docset::createIndex()
     }
 
     // Drop old indexes
-    for (const QString oldIndexName : oldIndexes)
+    for (const QString &oldIndexName : oldIndexes)
         query.exec(indexDropQuery.arg(oldIndexName));
 
     query.exec(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));

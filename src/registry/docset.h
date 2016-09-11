@@ -27,7 +27,8 @@
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
-#include <QSqlDatabase>
+
+class QSqlDatabase;
 
 namespace Zeal {
 
