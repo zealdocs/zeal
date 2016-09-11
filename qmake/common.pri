@@ -17,6 +17,9 @@ DEFINES *= QT_RESTRICTED_CAST_FROM_ASCII
 DEFINES *= QT_NO_CAST_TO_ASCII
 DEFINES *= QT_NO_URL_CAST_FROM_STRING
 
+# Workaround for AppVeyor: Do not warn if the library had to be created.
+win32:QMAKE_AR += -c
+
 # Keep build directory clean
 MOC_DIR = $$BUILD_ROOT/.moc
 OBJECTS_DIR = $$BUILD_ROOT/.obj
