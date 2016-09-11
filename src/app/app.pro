@@ -33,6 +33,7 @@ LIBS += -lCore -lUi -lRegistry -lUtil
 for(lib_dir, $$list($$files($$SRC_ROOT/src/libs/*))) {
     !equals(lib_dir, $$SRC_ROOT/src/libs/libs.pro) {
         include($$lib_dir/$$basename(lib_dir).pri)
+        PRE_TARGETDEPS += $$BUILD_ROOT/.lib/$$ZEAL_LIB_NAME.a
 #        LIBS += -l$$ZEAL_LIB_NAME
     }
 }
