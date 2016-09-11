@@ -837,7 +837,7 @@ void SettingsDialog::saveSettings()
         settings->proxyType = Core::Settings::ProxyType::UserDefined;
 
     settings->proxyHost = ui->httpProxy->text();
-    settings->proxyPort = ui->httpProxyPort->text().toUInt();
+    settings->proxyPort = ui->httpProxyPort->text().toUShort();
     settings->proxyAuthenticate = ui->httpProxyNeedsAuth->isChecked();
     settings->proxyUserName = ui->httpProxyUser->text();
     settings->proxyPassword = ui->httpProxyPass->text();
@@ -850,7 +850,7 @@ int SettingsDialog::percent(qint64 fraction, qint64 total)
     if (!total)
         return 0;
 
-    return fraction / static_cast<double>(total) * 100;
+    return static_cast<int>(fraction / static_cast<double>(total) * 100);
 }
 
 QString SettingsDialog::cacheLocation(const QString &fileName)
