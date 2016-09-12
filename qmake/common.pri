@@ -19,7 +19,9 @@ DEFINES *= QT_NO_URL_CAST_FROM_STRING
 
 # Workaround for AppVeyor: Do not warn if the library had to be created.
 # Based on https://codereview.qt-project.org/150326
-win32-g++:QMAKE_LIB = ar -rc
+win32-g++:lessThan(QT_VERSION, "5.6.0") {
+    QMAKE_LIB = ar -rc
+}
 
 # Keep build directory clean
 MOC_DIR = $$BUILD_ROOT/.moc
