@@ -26,7 +26,6 @@
 #include "cancellationtoken.h"
 #include "searchresult.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QThread>
 
