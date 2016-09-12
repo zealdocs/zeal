@@ -25,6 +25,7 @@
 #include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
+#include "docsetsdialog.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "qxtglobalshortcut/qxtglobalshortcut.h"
@@ -234,6 +235,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionForward);
     connect(ui->actionBack, &QAction::triggered, ui->webView, &SearchableWebView::back);
     connect(ui->actionForward, &QAction::triggered, ui->webView, &SearchableWebView::forward);
+
+    // Tools Menu
+    connect(ui->actionDocsets, &QAction::triggered, [this]() {
+        QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
+        dialog->exec();
+    });
 
     // Help Menu
     connect(ui->actionSubmitFeedback, &QAction::triggered, [this]() {

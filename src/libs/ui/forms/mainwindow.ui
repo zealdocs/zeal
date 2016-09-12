@@ -231,8 +231,15 @@
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionDocsets"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menu_Tools"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionQuit">
@@ -325,6 +332,11 @@
    </property>
    <property name="text">
     <string>&amp;Find</string>
+   </property>
+  </action>
+  <action name="actionDocsets">
+   <property name="text">
+    <string>&amp;Docsets...</string>
    </property>
   </action>
  </widget>
