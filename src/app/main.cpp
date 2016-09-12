@@ -191,11 +191,11 @@ int main(int argc, char *argv[])
 
     if (clParams.unregisterProtocolHandlers) {
         unregisterProtocolHandlers(protocols);
-        ::exit(EXIT_SUCCESS);
+        return EXIT_SUCCESS;
     } else {
         registerProtocolHandlers(protocols, clParams.registerProtocolHandlers);
         if (clParams.registerProtocolHandlers)
-            ::exit(EXIT_SUCCESS);
+            return EXIT_SUCCESS;
     }
 #endif
 
