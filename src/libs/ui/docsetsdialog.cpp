@@ -111,6 +111,20 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
             this, &DocsetsDialog::updateDocsetFilter);
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
+    connect(ui->availableDocsetList, &QListWidget::itemActivated,
+            this, [this](QListWidgetItem *item) {
+
+        // Do nothing if download is already in progress
+        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
+            return;
+
+        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
+        item->setData(ProgressItemDelegate::ValueRole, 0);
+        item->setData(ProgressItemDelegate::ShowProgressRole, true);
+
+        downloadDashDocset(item->data(Registry::ListModel::DocsetNameRole).toString());
+    });
+
     connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, [this](const QString name) {
         QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
