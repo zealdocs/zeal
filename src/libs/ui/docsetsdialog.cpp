@@ -112,14 +112,14 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
     connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, [this](const QString name) {
-        QListWidgetItem *item = findDocsetListItem(m_availableDocsets[name].title());
+        QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;
 
         item->setHidden(false);
     });
     connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, [this](const QString name) {
-        QListWidgetItem *item = findDocsetListItem(m_availableDocsets[name].title());
+        QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;
 
@@ -349,9 +349,6 @@ void DocsetsDialog::downloadCompleted()
 
     case DownloadDocset: {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
-        const Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
-                ? m_availableDocsets[docsetName]
-                  : m_userFeeds[docsetName];
 
         // TODO: Implement an explicit and verbose docset update logic
         QDir dir(m_application->settings()->docsetPath);
@@ -380,15 +377,15 @@ void DocsetsDialog::downloadCompleted()
             tmpFile->write(reply->read(1024 * 1024)); // Use small chunks
         tmpFile->close();
 
-        QListWidgetItem *item = findDocsetListItem(metadata.title());
+        QListWidgetItem *item = findDocsetListItem(docsetName);
         if (item) {
             item->setData(ProgressItemDelegate::ValueRole, 0);
             item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
-        m_tmpFiles.insert(metadata.name(), tmpFile);
+        m_tmpFiles.insert(docsetName, tmpFile);
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
-                               metadata.name() + QLatin1String(".docset"));
+                               docsetName + QLatin1String(".docset"));
         break;
     }
     }
@@ -456,7 +453,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
 
     m_docsetRegistry->addDocset(docsetPath);
 
-    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem) {
         listItem->setHidden(true);
         listItem->setCheckState(Qt::Unchecked);
@@ -474,11 +471,7 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
     QMessageBox::warning(this, QStringLiteral("Zeal"),
                          tr("Cannot extract docset <b>%1</b>: %2").arg(docsetName, errorString));
 
-    const Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
-            ? m_availableDocsets[docsetName]
-              : m_userFeeds[docsetName];
-
-    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem)
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
 
@@ -489,12 +482,7 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
 void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted, qint64 total)
 {
     const QString docsetName = docsetNameForTmpFilePath(filePath);
-
-    Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
-            ? m_availableDocsets[docsetName]
-              : m_userFeeds[docsetName];
-
-    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem)
         listItem->setData(ProgressItemDelegate::ValueRole, percent(extracted, total));
 }
@@ -547,12 +535,12 @@ void DocsetsDialog::loadDocsetList()
     processDocsetList(jsonDoc.array());
 }
 
-QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &title) const
+QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
 {
     for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
         QListWidgetItem *item = ui->availableDocsetList->item(i);
 
-        if (item->text() == title)
+        if (item->data(Registry::ListModel::DocsetNameRole).toString() == name)
             return item;
     }
 
@@ -663,7 +651,7 @@ void DocsetsDialog::downloadDashDocset(const QString &name)
     reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
-                       ui->availableDocsetList->row(findDocsetListItem(m_availableDocsets[name].title())));
+                       ui->availableDocsetList->row(findDocsetListItem(name)));
 
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 }
@@ -695,7 +683,7 @@ void DocsetsDialog::removeDocsets(const QStringList &names)
 
                 resetProgress();
 
-                QListWidgetItem *listItem = findDocsetListItem(title);
+                QListWidgetItem *listItem = findDocsetListItem(name);
                 if (listItem)
                     listItem->setHidden(false);
 
