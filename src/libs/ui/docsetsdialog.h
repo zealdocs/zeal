@@ -111,6 +111,9 @@ private:
     void displayProgress();
     void resetProgress();
 
+    // FIXME: Come up with a better approach
+    QString docsetNameForTmpFilePath(const QString &filePath) const;
+
     static inline int percent(qint64 fraction, qint64 total);
 
     static QString cacheLocation(const QString &fileName);

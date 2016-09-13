@@ -443,15 +443,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
 
 void DocsetsDialog::extractionCompleted(const QString &filePath)
 {
-    QString docsetName;
-
-    // FIXME: Come up with a better approach
-    for (const QString &key : m_tmpFiles.keys()) {
-        if (m_tmpFiles[key]->fileName() == filePath) {
-            docsetName = key;
-            break;
-        }
-    }
+    const QString docsetName = docsetNameForTmpFilePath(filePath);
 
     const QDir dataDir(m_application->settings()->docsetPath);
     const QString docsetPath = dataDir.absoluteFilePath(docsetName + QLatin1String(".docset"));
@@ -470,30 +462,33 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
         listItem->setCheckState(Qt::Unchecked);
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
     }
+
     resetProgress();
     delete m_tmpFiles.take(docsetName);
 }
 
 void DocsetsDialog::extractionError(const QString &filePath, const QString &errorString)
 {
-    const QString docsetName = QFileInfo(filePath).baseName() + QLatin1String(".docset");
+    const QString docsetName = docsetNameForTmpFilePath(filePath);
+
     QMessageBox::warning(this, QStringLiteral("Zeal"),
                          tr("Cannot extract docset <b>%1</b>: %2").arg(docsetName, errorString));
-    // TODO: Update list item state (hide progress bar)
+
+    const Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+            ? m_availableDocsets[docsetName]
+              : m_userFeeds[docsetName];
+
+    QListWidgetItem *listItem = findDocsetListItem(metadata.title());
+    if (listItem)
+        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+
+    resetProgress();
     delete m_tmpFiles.take(docsetName);
 }
 
 void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted, qint64 total)
 {
-    QString docsetName;
-
-    // FIXME: Come up with a better approach
-    for (const QString &key : m_tmpFiles.keys()) {
-        if (m_tmpFiles[key]->fileName() == filePath) {
-            docsetName = key;
-            break;
-        }
-    }
+    const QString docsetName = docsetNameForTmpFilePath(filePath);
 
     Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
             ? m_availableDocsets[docsetName]
@@ -743,6 +738,17 @@ void DocsetsDialog::resetProgress()
     // Available docsets
     ui->refreshButton->setEnabled(true);
     ui->downloadDocsetButton->setText(tr("Download"));
+}
+
+QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const
+{
+    for (const QString &key : m_tmpFiles.keys()) {
+        if (m_tmpFiles[key]->fileName() == filePath) {
+            return key;
+        }
+    }
+
+    return QString();
 }
 
 int DocsetsDialog::percent(qint64 fraction, qint64 total)
