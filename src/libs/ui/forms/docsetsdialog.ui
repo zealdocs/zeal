@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Zeal Options</string>
+   <string>Docsets</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
