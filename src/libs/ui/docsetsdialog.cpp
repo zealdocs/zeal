@@ -243,8 +243,10 @@ void DocsetsDialog::removeSelectedDocsets()
         return;
 
     int ret;
-    if (selectonModel->selectedIndexes().count() == 1) {
-        const QString docsetTitle = selectonModel->selectedIndexes().first().data().toString();
+
+    const QModelIndexList selectedIndexes = selectonModel->selectedIndexes();
+    if (selectedIndexes.size() == 1) {
+        const QString docsetTitle = selectedIndexes.first().data().toString();
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
                                     tr("Remove <b>%1</b> docset?").arg(docsetTitle));
     } else {
@@ -258,7 +260,7 @@ void DocsetsDialog::removeSelectedDocsets()
 
     // Gather names first, because model indicies become invalid when docsets are removed.
     QStringList names;
-    for (const QModelIndex &index : selectonModel->selectedIndexes())
+    for (const QModelIndex &index : selectedIndexes)
         names.append(index.data(Registry::ListModel::DocsetNameRole).toString());
 
     for (const QString &name : names)
