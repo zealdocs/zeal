@@ -192,7 +192,7 @@ void DocsetsDialog::reject()
     }
 
     QMessageBox::information(this, QStringLiteral("Zeal"),
-                             tr("An operation is in progress, wait for it to finish, or cancel."));
+                             tr("Please wait for all operations to finish."));
 }
 
 void DocsetsDialog::addDashFeed()
