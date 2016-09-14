@@ -186,7 +186,7 @@ DocsetsDialog::~DocsetsDialog()
 
 void DocsetsDialog::reject()
 {
-    if (m_replies.isEmpty() && m_tmpFiles.isEmpty()) {
+    if (m_replies.isEmpty() && m_tmpFiles.isEmpty() && m_docsetsBeingDeleted.isEmpty()) {
         QDialog::reject();
         return;
     }
