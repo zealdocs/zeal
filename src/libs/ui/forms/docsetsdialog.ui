@@ -29,6 +29,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QListView" name="installedDocsetList">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
          <property name="iconSize">
           <size>
            <width>16</width>
@@ -110,6 +113,9 @@
        </item>
        <item>
         <widget class="QListWidget" name="availableDocsetList">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
          <property name="iconSize">
           <size>
            <width>16</width>
@@ -155,9 +161,9 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="downloadDocsetButton">
+          <widget class="QPushButton" name="downloadDocsetsButton">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>Download</string>

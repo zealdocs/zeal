@@ -82,16 +82,13 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     ui->combinedProgressBar->hide();
     ui->cancelButton->hide();
 
+    // Installed docsets tab
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
 
-    ui->installedDocsetList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged,
             [this, selectionModel]() {
-        if (!m_replies.isEmpty())
-            return;
-
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
         for (const QModelIndex &index : selectionModel->selectedIndexes()) {
@@ -111,9 +108,12 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     connect(ui->docsetFilterInput, &QLineEdit::textEdited,
             this, &DocsetsDialog::updateDocsetFilter);
 
+    // Available docsets tab
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
     connect(ui->availableDocsetList, &QListWidget::itemActivated,
             this, [this](QListWidgetItem *item) {
+
+        item->setSelected(false);
 
         // Do nothing if download is already in progress
         if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
@@ -125,6 +125,29 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
         downloadDashDocset(item->data(Registry::ListModel::DocsetNameRole).toString());
     });
+
+    selectionModel = ui->availableDocsetList->selectionModel();
+    connect(selectionModel, &QItemSelectionModel::selectionChanged,
+            [this, selectionModel]() {
+        bool hasSelection = false;
+
+        for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+            const QString docsetName = index.data(Registry::ListModel::DocsetNameRole).toString();
+            QListWidgetItem *item = findDocsetListItem(docsetName);
+
+            // Do nothing if download is already in progress
+            if (!item || item->data(ProgressItemDelegate::ShowProgressRole).toBool())
+                continue;
+
+            hasSelection = true;
+            break;
+        }
+
+        ui->downloadDocsetsButton->setEnabled(hasSelection);
+    });
+
+    connect(ui->downloadDocsetsButton, &QPushButton::clicked,
+            this, &DocsetsDialog::downloadSelectedDocsets);
 
     connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, [this](const QString name) {
         QListWidgetItem *item = findDocsetListItem(name);
@@ -251,6 +274,28 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
             continue;
 
         item->setHidden(doSearch && !item->text().contains(filterString, Qt::CaseInsensitive));
+    }
+}
+
+void DocsetsDialog::downloadSelectedDocsets()
+{
+    for (const QModelIndex &index : ui->availableDocsetList->selectionModel()->selectedIndexes()) {
+        const QString docsetName = index.data(Registry::ListModel::DocsetNameRole).toString();
+        QListWidgetItem *item = findDocsetListItem(docsetName);
+        if (!item)
+            continue;
+
+        item->setSelected(false);
+
+        // Do nothing if download is already in progress
+        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
+            continue;
+
+        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
+        item->setData(ProgressItemDelegate::ValueRole, 0);
+        item->setData(ProgressItemDelegate::ShowProgressRole, true);
+
+        downloadDashDocset(docsetName);
     }
 }
 
@@ -472,7 +517,6 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem) {
         listItem->setHidden(true);
-        listItem->setCheckState(Qt::Unchecked);
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
     }
 
@@ -501,26 +545,6 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem)
         listItem->setData(ProgressItemDelegate::ValueRole, percent(extracted, total));
-}
-
-void DocsetsDialog::on_downloadDocsetButton_clicked()
-{
-    // Find each checked item, and create a NetworkRequest for it.
-    for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
-        QListWidgetItem *item = ui->availableDocsetList->item(i);
-        if (item->checkState() != Qt::Checked)
-            continue;
-
-        // Do nothing if download is already in progress
-        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
-            return;
-
-        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-        item->setData(ProgressItemDelegate::ValueRole, 0);
-        item->setData(ProgressItemDelegate::ShowProgressRole, true);
-
-        downloadDashDocset(item->data(Registry::ListModel::DocsetNameRole).toString());
-    }
 }
 
 void DocsetsDialog::loadDocsetList()
@@ -633,7 +657,6 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         QListWidgetItem *listItem
                 = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ListModel::DocsetNameRole, metadata.name());
-        listItem->setCheckState(Qt::Unchecked);
 
         if (m_docsetRegistry->contains(metadata.name())) {
             listItem->setHidden(true);
