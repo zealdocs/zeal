@@ -249,8 +249,8 @@ void DocsetsDialog::removeSelectedDocsets()
                                     tr("Remove <b>%1</b> docset?").arg(docsetTitle));
     } else {
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
-                                    tr("Remove <b>%1</b> docsets?")
-                                    .arg(selectonModel->selectedIndexes().count()));
+                                    tr("Remove <b>%n</b> docset(s)?", nullptr,
+                                       selectedIndexes.size()));
     }
 
     if (ret == QMessageBox::No)
