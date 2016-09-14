@@ -438,7 +438,6 @@ void DocsetsDialog::downloadCompleted()
             item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
-        m_tmpFiles.insert(docsetName, tmpFile);
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
                                docsetName + QLatin1String(".docset"));
         break;
