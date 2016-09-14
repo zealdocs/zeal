@@ -256,10 +256,13 @@ void DocsetsDialog::removeSelectedDocsets()
     if (ret == QMessageBox::No)
         return;
 
+    // Gather names first, because model indicies become invalid when docsets are removed.
     QStringList names;
     for (const QModelIndex &index : selectonModel->selectedIndexes())
-        names << index.data(Registry::ListModel::DocsetNameRole).toString();
-    removeDocsets(names);
+        names.append(index.data(Registry::ListModel::DocsetNameRole).toString());
+
+    for (const QString &name : names)
+        removeDocset(name);
 }
 
 void DocsetsDialog::updateDocsetFilter(const QString &filterString)
@@ -412,20 +415,9 @@ void DocsetsDialog::downloadCompleted()
         const QString docsetName = reply->property(DocsetNameProperty).toString();
 
         // TODO: Implement an explicit and verbose docset update logic
-        QDir dir(m_application->settings()->docsetPath);
-        const QString docsetDirName = docsetName + QLatin1String(".docset");
-        if (dir.exists(docsetDirName)) {
-            m_docsetRegistry->remove(docsetName);
-            const QString tmpName = QStringLiteral(".toDelete")
-                    + QString::number(QDateTime::currentMSecsSinceEpoch());
-            dir.rename(docsetDirName, tmpName);
-            QtConcurrent::run([=] {
-                QDir d(dir);
-                if (!d.cd(tmpName))
-                    return;
-                d.removeRecursively();
-            });
-        }
+        const QDir dir(m_application->settings()->docsetPath);
+        if (dir.exists(docsetName + QLatin1String(".docset")))
+            removeDocset(docsetName);
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
         if (!tmpFile) {
@@ -690,47 +682,49 @@ void DocsetsDialog::downloadDashDocset(const QString &name)
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 }
 
-void DocsetsDialog::removeDocsets(const QStringList &names)
+void DocsetsDialog::removeDocset(const QString &name)
 {
-    for (const QString &name : names) {
-        if (m_docsetsBeingDeleted.contains(name))
-            continue;
+    if (m_docsetsBeingDeleted.contains(name))
+        return;
 
-        m_docsetsBeingDeleted << name;
+    m_docsetsBeingDeleted.append(name);
 
-        const QString title = m_docsetRegistry->docset(name)->title();
-        m_docsetRegistry->remove(name);
+    Registry::Docset *docset = m_docsetRegistry->docset(name);
+    const QString title = docset->title();
+    const QString docsetPath = docset->path();
+    const QString tmpPath = docsetPath + QLatin1String(".deleteme.")
+            + QString::number(QDateTime::currentMSecsSinceEpoch());
 
-        const QDir dataDir(m_application->settings()->docsetPath);
-        if (dataDir.exists()) {
-            updateCombinedProgress();
+    // Rename first to allow simultaneous installation.
+    // TODO: Check for error
+    QDir().rename(docsetPath, tmpPath);
 
-            QFuture<bool> future = QtConcurrent::run([=] {
-                QDir docsetDir(dataDir);
-                return docsetDir.cd(name + QLatin1String(".docset"))
-                        && docsetDir.removeRecursively();
-            });
+    m_docsetRegistry->remove(name);
 
-            QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-            watcher->setFuture(future);
-            connect(watcher, &QFutureWatcher<void>::finished, [=] {
-                if (!watcher->result()) {
-                    QMessageBox::warning(this, QStringLiteral("Zeal"),
-                                         tr("Cannot delete docset <b>%1</b>!").arg(title));
-                }
+    updateCombinedProgress();
 
-                QListWidgetItem *listItem = findDocsetListItem(name);
-                if (listItem)
-                    listItem->setHidden(false);
+    QFuture<bool> future = QtConcurrent::run([tmpPath] {
+        return QDir(tmpPath).removeRecursively();
+    });
 
-                watcher->deleteLater();
-
-                m_docsetsBeingDeleted.removeOne(name);
-
-                updateCombinedProgress();
-            });
+    QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+    watcher->setFuture(future);
+    connect(watcher, &QFutureWatcher<void>::finished, [=] {
+        if (!watcher->result()) {
+            QMessageBox::warning(this, QStringLiteral("Zeal"),
+                                 tr("Cannot delete docset <b>%1</b>!").arg(title));
         }
-    }
+
+        QListWidgetItem *listItem = findDocsetListItem(name);
+        if (listItem)
+            listItem->setHidden(false);
+
+        watcher->deleteLater();
+
+        m_docsetsBeingDeleted.removeOne(name);
+
+        updateCombinedProgress();
+    });
 }
 
 void DocsetsDialog::updateCombinedProgress()
