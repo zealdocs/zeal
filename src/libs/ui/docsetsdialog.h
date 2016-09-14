@@ -95,6 +95,7 @@ private:
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
+    QStringList m_docsetsBeingDeleted;
 
     QListWidgetItem *findDocsetListItem(const QString &name) const;
     bool updatesAvailable() const;
@@ -108,7 +109,7 @@ private:
     void downloadDashDocset(const QString &name);
     void removeDocsets(const QStringList &names);
 
-    void displayProgress();
+    void updateCombinedProgress();
     void resetProgress();
 
     // FIXME: Come up with a better approach

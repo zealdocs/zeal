@@ -79,7 +79,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     ui->installedDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
-    ui->docsetsProgress->hide();
+    ui->combinedProgressBar->hide();
+    ui->cancelButton->hide();
 
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
@@ -140,7 +141,6 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
         item->setHidden(true);
     });
 
-    // Setup signals & slots
     connect(ui->addFeedButton, &QPushButton::clicked, this, &DocsetsDialog::addDashFeed);
     connect(ui->refreshButton, &QPushButton::clicked, this, &DocsetsDialog::downloadDocsetList);
 
@@ -150,6 +150,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
             this, &DocsetsDialog::extractionError);
     connect(m_application, &Core::Application::extractionProgress,
             this, &DocsetsDialog::extractionProgress);
+
+    connect(ui->cancelButton, &QPushButton::clicked, this, &DocsetsDialog::cancelDownloads);
 
     loadDocsetList();
 }
@@ -449,7 +451,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     m_combinedReceived += received - previousReceived;
     reply->setProperty(DownloadPreviousReceived, received);
 
-    displayProgress();
+    updateCombinedProgress();
 }
 
 void DocsetsDialog::extractionCompleted(const QString &filePath)
@@ -503,16 +505,15 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
 
 void DocsetsDialog::on_downloadDocsetButton_clicked()
 {
-    if (!m_replies.isEmpty()) {
-        cancelDownloads();
-        return;
-    }
-
     // Find each checked item, and create a NetworkRequest for it.
     for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
         QListWidgetItem *item = ui->availableDocsetList->item(i);
         if (item->checkState() != Qt::Checked)
             continue;
+
+        // Do nothing if download is already in progress
+        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
+            return;
 
         item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
         item->setData(ProgressItemDelegate::ValueRole, 0);
@@ -573,8 +574,6 @@ bool DocsetsDialog::updatesAvailable() const
 
 QNetworkReply *DocsetsDialog::download(const QUrl &url)
 {
-    displayProgress();
-
     QNetworkReply *reply = m_application->download(url);
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
     m_replies.append(reply);
@@ -587,7 +586,8 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
 
     // Available docsets
     ui->refreshButton->setEnabled(false);
-    ui->downloadDocsetButton->setText(tr("Stop downloads"));
+
+    updateCombinedProgress();
 
     return reply;
 }
@@ -650,9 +650,6 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     }
 
     ui->installedDocsetList->reset();
-
-    if (!m_availableDocsets.isEmpty())
-        ui->downloadableGroup->show();
 }
 
 void DocsetsDialog::downloadDashDocset(const QString &name)
@@ -673,20 +670,24 @@ void DocsetsDialog::downloadDashDocset(const QString &name)
 void DocsetsDialog::removeDocsets(const QStringList &names)
 {
     for (const QString &name : names) {
+        if (m_docsetsBeingDeleted.contains(name))
+            continue;
+
+        m_docsetsBeingDeleted << name;
+
         const QString title = m_docsetRegistry->docset(name)->title();
         m_docsetRegistry->remove(name);
 
         const QDir dataDir(m_application->settings()->docsetPath);
         if (dataDir.exists()) {
-            ui->docsetsProgress->show();
-            ui->removeDocsetsButton->setEnabled(false);
-            displayProgress();
+            updateCombinedProgress();
 
             QFuture<bool> future = QtConcurrent::run([=] {
                 QDir docsetDir(dataDir);
                 return docsetDir.cd(name + QLatin1String(".docset"))
                         && docsetDir.removeRecursively();
             });
+
             QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
             watcher->setFuture(future);
             connect(watcher, &QFutureWatcher<void>::finished, [=] {
@@ -695,23 +696,33 @@ void DocsetsDialog::removeDocsets(const QStringList &names)
                                          tr("Cannot delete docset <b>%1</b>!").arg(title));
                 }
 
-                resetProgress();
-
                 QListWidgetItem *listItem = findDocsetListItem(name);
                 if (listItem)
                     listItem->setHidden(false);
 
                 watcher->deleteLater();
+
+                m_docsetsBeingDeleted.removeOne(name);
+
+                updateCombinedProgress();
             });
         }
     }
 }
 
-void DocsetsDialog::displayProgress()
+void DocsetsDialog::updateCombinedProgress()
 {
-    ui->docsetsProgress->setValue(percent(m_combinedReceived, m_combinedTotal));
-    ui->docsetsProgress->setMaximum(100);
-    ui->docsetsProgress->setVisible(!m_replies.isEmpty());
+    if (m_replies.isEmpty() && m_tmpFiles.isEmpty() && m_docsetsBeingDeleted.isEmpty()) {
+        ui->cancelButton->hide();
+        ui->combinedProgressBar->hide();
+        ui->combinedProgressBar->setMaximum(100);
+        ui->combinedProgressBar->setValue(0);
+        return;
+    }
+
+    ui->combinedProgressBar->show();
+    ui->combinedProgressBar->setValue(percent(m_combinedReceived, m_combinedTotal));
+    ui->cancelButton->show();
 }
 
 void DocsetsDialog::resetProgress()
@@ -719,9 +730,12 @@ void DocsetsDialog::resetProgress()
     if (!m_replies.isEmpty())
         return;
 
+    ui->cancelButton->hide();
+    ui->combinedProgressBar->hide();
+    ui->combinedProgressBar->setValue(0);
+
     m_combinedReceived = 0;
     m_combinedTotal = 0;
-    displayProgress();
 
     // Installed docsets
     ui->addFeedButton->setEnabled(true);
@@ -739,7 +753,6 @@ void DocsetsDialog::resetProgress()
 
     // Available docsets
     ui->refreshButton->setEnabled(true);
-    ui->downloadDocsetButton->setText(tr("Download"));
 }
 
 QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const
