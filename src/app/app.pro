@@ -14,6 +14,9 @@ DESTDIR = $$BUILD_ROOT/bin
 
 unix:!macx {
     TARGET = zeal
+    target.path = $$PREFIX/bin
+
+    INSTALLS += target
 }
 
 win32 {

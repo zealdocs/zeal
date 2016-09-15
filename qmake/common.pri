@@ -68,8 +68,4 @@ CONFIG(zeal_portable) {
 unix:!macx {
     isEmpty(PREFIX): PREFIX = /usr
     message("Install prefix: $$PREFIX")
-    target.path = $$PREFIX/bin
-
-    # Always install target
-    INSTALLS += target
 }
