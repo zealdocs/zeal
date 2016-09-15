@@ -34,7 +34,6 @@ class Docset;
 struct SearchResult
 {
     QString name;
-    QString parentName;
     QString type;
 
     Docset *docset;

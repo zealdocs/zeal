@@ -56,10 +56,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case 0:
-            if (item->parentName.isEmpty())
-                return item->name;
-            else
-                return QString("%1 (%2)").arg(item->name, item->parentName);
+            return item->name;
         case 1:
             return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
         default:

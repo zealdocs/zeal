@@ -310,7 +310,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
             }
 
             // TODO: Third should be type
-            results.append(SearchResult{itemName, QString(),
+            results.append(SearchResult{itemName,
                                         parseSymbolType(query.value(1).toString()),
                                         const_cast<Docset *>(this), path});
         }
@@ -363,7 +363,7 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
             sectionPath += query.value(3).toString();
         }
 
-        results.append(SearchResult{sectionName, QString(),
+        results.append(SearchResult{sectionName,
                                     parseSymbolType(query.value(1).toString()),
                                     const_cast<Docset *>(this), sectionPath});
     }
