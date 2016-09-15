@@ -267,7 +267,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
     subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
     subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (!token.isCanceled() && results.size() < 100) {
+    while (!token.isCanceled()) {
         QString curQuery = sanitizedQuery;
         QString notQuery; // don't return the same result twice
         if (withSubStrings) {
@@ -283,7 +283,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
             queryStr = QString("SELECT name, type, path "
                                "    FROM searchIndex "
                                "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY name COLLATE NOCASE LIMIT 100")
+                               "ORDER BY name COLLATE NOCASE")
                     .arg(curQuery, notQuery, subNames.arg("name", curQuery));
         } else {
             queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
@@ -295,7 +295,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                "JOIN ztokentype "
                                "    ON ztoken.ztokentype = ztokentype.z_pk "
                                "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY ztokenname COLLATE NOCASE LIMIT 100")
+                               "ORDER BY ztokenname COLLATE NOCASE")
                     .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
         }
 
@@ -315,9 +315,11 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                         const_cast<Docset *>(this), path, sanitizedQuery});
         }
 
-        if (withSubStrings)
+        if (results.size() >= 100 || withSubStrings)
             break;
-        withSubStrings = true;  // try again searching for substrings
+
+        // Try again with substrings.
+        withSubStrings = true;
     }
 
     return results;
