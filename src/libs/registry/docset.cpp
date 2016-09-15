@@ -277,6 +277,11 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                 .arg(searchQuery.sanitizedQuery());
     }
 
+    // Limit for very short queries.
+    // TODO: Show a notification about the reduced result set.
+    if (searchQuery.query().size() < 3)
+        queryStr += QLatin1String(" LIMIT 1000");
+
     QSqlQuery sqlQuery(queryStr, database());
     while (sqlQuery.next() && !token.isCanceled()) {
         const QString itemName = sqlQuery.value(0).toString();
