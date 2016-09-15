@@ -253,73 +253,42 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     QList<SearchResult> results;
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
-    const QString sanitizedQuery = searchQuery.sanitizedQuery();
-
     if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
         return results;
 
     QString queryStr;
+    if (m_type == Docset::Type::Dash) {
+        queryStr = QStringLiteral("SELECT name, type, path "
+                                  "    FROM searchIndex "
+                                  "WHERE (name LIKE '%%1%' ESCAPE '\\') "
+                                  "ORDER BY name COLLATE NOCASE")
+                .arg(searchQuery.sanitizedQuery());
+    } else {
+        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
+                                  "    FROM ztoken "
+                                  "JOIN ztokenmetainformation "
+                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "JOIN zfilepath "
+                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                                  "JOIN ztokentype "
+                                  "    ON ztoken.ztokentype = ztokentype.z_pk "
+                                  "WHERE (ztokenname LIKE '%%1%' ESCAPE '\\') "
+                                  "ORDER BY ztokenname COLLATE NOCASE")
+                .arg(searchQuery.sanitizedQuery());
+    }
 
-    bool withSubStrings = false;
-    // %.%1% for long Django docset values like django.utils.http
-    // %::%1% for long C++ docset values like std::set
-    // %/%1% for long Go docset values like archive/tar
-    QString subNames = QStringLiteral(" OR %1 LIKE '%.%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%::%2%' ESCAPE '\\'");
-    subNames += QLatin1String(" OR %1 LIKE '%/%2%' ESCAPE '\\'");
-    while (!token.isCanceled()) {
-        QString curQuery = sanitizedQuery;
-        QString notQuery; // don't return the same result twice
-        if (withSubStrings) {
-            // if less than 100 found starting with query, search all substrings
-            curQuery = QLatin1Char('%') + sanitizedQuery;
-            // don't return 'starting with' results twice
-            if (m_type == Docset::Type::Dash)
-                notQuery = QString(" AND NOT (name LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("name", sanitizedQuery));
-            else
-                notQuery = QString(" AND NOT (ztokenname LIKE '%1%' ESCAPE '\\' %2) ").arg(sanitizedQuery, subNames.arg("ztokenname", sanitizedQuery));
-        }
-        if (m_type == Docset::Type::Dash) {
-            queryStr = QString("SELECT name, type, path "
-                               "    FROM searchIndex "
-                               "WHERE (name LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY name COLLATE NOCASE")
-                    .arg(curQuery, notQuery, subNames.arg("name", curQuery));
-        } else {
-            queryStr = QString("SELECT ztokenname, ztypename, zpath, zanchor "
-                               "    FROM ztoken "
-                               "JOIN ztokenmetainformation "
-                               "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                               "JOIN zfilepath "
-                               "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                               "JOIN ztokentype "
-                               "    ON ztoken.ztokentype = ztokentype.z_pk "
-                               "WHERE (ztokenname LIKE '%1%' ESCAPE '\\' %3) %2 "
-                               "ORDER BY ztokenname COLLATE NOCASE")
-                    .arg(curQuery, notQuery, subNames.arg("ztokenname", curQuery));
+    QSqlQuery sqlQuery(queryStr, database());
+    while (sqlQuery.next() && !token.isCanceled()) {
+        const QString itemName = sqlQuery.value(0).toString();
+        QString path = sqlQuery.value(2).toString();
+        if (m_type == Docset::Type::ZDash) {
+            const QString anchor = sqlQuery.value(3).toString();
+            if (!anchor.isEmpty())
+                path += QLatin1Char('#') + anchor;
         }
 
-        QSqlQuery query(queryStr, database());
-        while (query.next()) {
-            const QString itemName = query.value(0).toString();
-            QString path = query.value(2).toString();
-            if (m_type == Docset::Type::ZDash) {
-                const QString anchor = query.value(3).toString();
-                if (!anchor.isEmpty())
-                    path += QLatin1Char('#') + anchor;
-            }
-
-            // TODO: Third should be type
-            results.append(SearchResult{itemName,
-                                        parseSymbolType(query.value(1).toString()),
-                                        const_cast<Docset *>(this), path});
-        }
-
-        if (results.size() >= 100 || withSubStrings)
-            break;
-
-        // Try again with substrings.
-        withSubStrings = true;
+        results.append(SearchResult{itemName, parseSymbolType(sqlQuery.value(1).toString()),
+                                    const_cast<Docset *>(this), path});
     }
 
     return results;
