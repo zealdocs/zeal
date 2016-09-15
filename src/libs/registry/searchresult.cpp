@@ -23,19 +23,14 @@
 
 #include "searchresult.h"
 
+#include "docset.h"
+
 using namespace Zeal::Registry;
 
-bool SearchResult::operator<(const SearchResult &r) const
+bool SearchResult::operator<(const SearchResult &other) const
 {
-    const bool lhsStartsWithQuery = name.startsWith(query, Qt::CaseInsensitive);
-    const bool rhsStartsWithQuery = r.name.startsWith(query, Qt::CaseInsensitive);
+    if (docset->name() == other.docset->name())
+        return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
 
-    if (lhsStartsWithQuery != rhsStartsWithQuery)
-        return lhsStartsWithQuery > rhsStartsWithQuery;
-
-    const int namesCmp = QString::compare(name, r.name, Qt::CaseInsensitive);
-    if (namesCmp)
-        return namesCmp < 0;
-
-    return QString::compare(parentName, r.parentName, Qt::CaseInsensitive) < 0;
+    return docset->name() < other.docset->name();
 }
