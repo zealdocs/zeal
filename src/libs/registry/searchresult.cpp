@@ -23,14 +23,4 @@
 
 #include "searchresult.h"
 
-#include "docset.h"
-
 using namespace Zeal::Registry;
-
-bool SearchResult::operator<(const SearchResult &other) const
-{
-    if (docset->name() == other.docset->name())
-        return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
-
-    return docset->name() < other.docset->name();
-}

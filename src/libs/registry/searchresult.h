@@ -40,7 +40,10 @@ struct SearchResult
 
     QString path;
 
-    bool operator<(const SearchResult &r) const;
+    inline bool operator<(const SearchResult &other) const
+    {
+        return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
+    }
 };
 
 } // namespace Registry
