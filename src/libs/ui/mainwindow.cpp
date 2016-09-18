@@ -353,6 +353,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
         m_tabBar->setTabText(m_tabBar->currentIndex(), title);
+        m_tabBar->setTabToolTip(m_tabBar->currentIndex(), title);
     });
 
     connect(ui->webView, &SearchableWebView::linkClicked, [this](const QUrl &url) {
