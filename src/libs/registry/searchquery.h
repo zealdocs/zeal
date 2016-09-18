@@ -76,9 +76,6 @@ public:
     QString query() const;
     void setQuery(const QString &str);
 
-    /// Returns the core query, sanitized for use in SQL queries
-    QString sanitizedQuery() const;
-
 private:
     QString m_query;
     QStringList m_keywords;

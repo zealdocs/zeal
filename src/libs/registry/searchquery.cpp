@@ -126,16 +126,6 @@ void SearchQuery::setQuery(const QString &str)
     m_query = str;
 }
 
-QString SearchQuery::sanitizedQuery() const
-{
-    QString q = m_query;
-    q.replace(QLatin1String("\\"), QLatin1String("\\\\"));
-    q.replace(QLatin1String("_"), QLatin1String("\\_"));
-    q.replace(QLatin1String("%"), QLatin1String("\\%"));
-    q.replace(QLatin1String("'"), QLatin1String("''"));
-    return q;
-}
-
 QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query)
 {
     out << query.toString();

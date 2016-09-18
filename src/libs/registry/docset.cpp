@@ -249,12 +249,19 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
 
 QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
 {
+    // Make it safe to use in a SQL query.
+    QString sanitizedQuery = query;
+    sanitizedQuery.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+    sanitizedQuery.replace(QLatin1String("_"), QLatin1String("\\_"));
+    sanitizedQuery.replace(QLatin1String("%"), QLatin1String("\\%"));
+    sanitizedQuery.replace(QLatin1String("'"), QLatin1String("''"));
+
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT name, type, path "
                                   "    FROM searchIndex "
                                   "WHERE (name LIKE '%%1%' ESCAPE '\\') "
-                                  "ORDER BY name COLLATE NOCASE").arg(query);
+                                  "ORDER BY name COLLATE NOCASE").arg(sanitizedQuery);
     } else {
         queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
                                   "    FROM ztoken "
@@ -265,7 +272,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                   "JOIN ztokentype "
                                   "    ON ztoken.ztokentype = ztokentype.z_pk "
                                   "WHERE (ztokenname LIKE '%%1%' ESCAPE '\\') "
-                                  "ORDER BY ztokenname COLLATE NOCASE").arg(query);
+                                  "ORDER BY ztokenname COLLATE NOCASE").arg(sanitizedQuery);
     }
 
     // Limit for very short queries.
