@@ -24,7 +24,6 @@
 #include "docset.h"
 
 #include "cancellationtoken.h"
-#include "searchquery.h"
 #include "searchresult.h"
 
 #include <util/plist.h>
@@ -250,19 +249,13 @@ const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
 
 QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
 {
-    QList<SearchResult> results;
-
-    const SearchQuery searchQuery = SearchQuery::fromString(query);
-    if (searchQuery.hasKeywords() && !searchQuery.hasKeywords(m_keywords))
-        return results;
-
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT name, type, path "
                                   "    FROM searchIndex "
                                   "WHERE (name LIKE '%%1%' ESCAPE '\\') "
                                   "ORDER BY name COLLATE NOCASE")
-                .arg(searchQuery.sanitizedQuery());
+                .arg(query);
     } else {
         queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
                                   "    FROM ztoken "
@@ -274,13 +267,15 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                   "    ON ztoken.ztokentype = ztokentype.z_pk "
                                   "WHERE (ztokenname LIKE '%%1%' ESCAPE '\\') "
                                   "ORDER BY ztokenname COLLATE NOCASE")
-                .arg(searchQuery.sanitizedQuery());
+                .arg(query);
     }
 
     // Limit for very short queries.
     // TODO: Show a notification about the reduced result set.
-    if (searchQuery.query().size() < 3)
+    if (query.size() < 3)
         queryStr += QLatin1String(" LIMIT 1000");
+
+    QList<SearchResult> results;
 
     QSqlQuery sqlQuery(queryStr, database());
     while (sqlQuery.next() && !token.isCanceled()) {

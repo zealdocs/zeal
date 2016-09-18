@@ -24,6 +24,7 @@
 #include "docsetregistry.h"
 
 #include "cancellationtoken.h"
+#include "searchquery.h"
 #include "searchresult.h"
 
 #include <QDir>
@@ -141,11 +142,23 @@ void DocsetRegistry::search(const QString &query, const CancellationToken &token
 
 void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &token)
 {
+    QList<Docset *> enabledDocsets;
+
+    const SearchQuery searchQuery = SearchQuery::fromString(query);
+    if (searchQuery.hasKeywords()) {
+        for (Docset *docset : docsets()) {
+            if (searchQuery.hasKeywords(docset->keywords()))
+                enabledDocsets << docset;
+        }
+    } else {
+        enabledDocsets = docsets();
+    }
+
     QFuture<QList<SearchResult>> queryResultsFuture
-            = QtConcurrent::mappedReduced(docsets(),
+            = QtConcurrent::mappedReduced(enabledDocsets,
                                           std::bind(&Docset::search,
                                                     std::placeholders::_1,
-                                                    query, token),
+                                                    searchQuery.sanitizedQuery(), token),
                                           &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
 
