@@ -46,14 +46,14 @@ const char IndexNameVersion[] = "0001"; // Current index version
 
 namespace InfoPlist {
 const char CFBundleName[] = "CFBundleName";
-const char CFBundleIdentifier[] = "CFBundleIdentifier";
+//const char CFBundleIdentifier[] = "CFBundleIdentifier";
 const char DashDocSetFamily[] = "DashDocSetFamily";
 const char DashDocSetKeyword[] = "DashDocSetKeyword";
 const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
 const char DashIndexFilePath[] = "dashIndexFilePath";
 const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
-const char IsDashDocset[] = "isDashDocset";
-const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+//const char IsDashDocset[] = "isDashDocset";
+//const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
 }
 
@@ -254,8 +254,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
         queryStr = QStringLiteral("SELECT name, type, path "
                                   "    FROM searchIndex "
                                   "WHERE (name LIKE '%%1%' ESCAPE '\\') "
-                                  "ORDER BY name COLLATE NOCASE")
-                .arg(query);
+                                  "ORDER BY name COLLATE NOCASE").arg(query);
     } else {
         queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
                                   "    FROM ztoken "
@@ -266,8 +265,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                   "JOIN ztokentype "
                                   "    ON ztoken.ztokentype = ztokentype.z_pk "
                                   "WHERE (ztokenname LIKE '%%1%' ESCAPE '\\') "
-                                  "ORDER BY ztokenname COLLATE NOCASE")
-                .arg(query);
+                                  "ORDER BY ztokenname COLLATE NOCASE").arg(query);
     }
 
     // Limit for very short queries.
@@ -287,8 +285,10 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                 path += QLatin1Char('#') + anchor;
         }
 
-        results.append(SearchResult{itemName, parseSymbolType(sqlQuery.value(1).toString()),
-                                    const_cast<Docset *>(this), path});
+        results.append({itemName,
+                        parseSymbolType(sqlQuery.value(1).toString()),
+                        const_cast<Docset *>(this),
+                        path});
     }
 
     return results;
@@ -322,19 +322,16 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                   "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
-    QSqlQuery query(queryStr.arg(cleanUrl.toString()), database());
+    QSqlQuery sqlQuery(queryStr.arg(cleanUrl.toString()), database());
+    while (sqlQuery.next()) {
+        QString sectionPath = sqlQuery.value(2).toString();
+        if (m_type == Docset::Type::ZDash)
+            sectionPath += QLatin1Char('#') + sqlQuery.value(3).toString();
 
-    while (query.next()) {
-        const QString sectionName = query.value(0).toString();
-        QString sectionPath = query.value(2).toString();
-        if (m_type == Docset::Type::ZDash) {
-            sectionPath += QLatin1Char('#');
-            sectionPath += query.value(3).toString();
-        }
-
-        results.append(SearchResult{sectionName,
-                                    parseSymbolType(query.value(1).toString()),
-                                    const_cast<Docset *>(this), sectionPath});
+        results.append({sqlQuery.value(0).toString(),
+                        parseSymbolType(sqlQuery.value(1).toString()),
+                        const_cast<Docset *>(this),
+                        sectionPath});
     }
 
     if (results.size() == 1)
