@@ -264,11 +264,11 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     } else {
         queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor "
                                   "    FROM ztoken "
-                                  "JOIN ztokenmetainformation "
+                                  "LEFT JOIN ztokenmetainformation "
                                   "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "JOIN zfilepath "
+                                  "LEFT JOIN zfilepath "
                                   "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "JOIN ztokentype "
+                                  "LEFT JOIN ztokentype "
                                   "    ON ztoken.ztokentype = ztokentype.z_pk "
                                   "WHERE (ztokenname LIKE '%%1%' ESCAPE '\\') "
                                   "ORDER BY ztokenname COLLATE NOCASE").arg(sanitizedQuery);
@@ -314,9 +314,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     } else if (m_type == Docset::Type::ZDash) {
         queryStr = QStringLiteral("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
                                   "FROM ztoken "
-                                  "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
+                                  "LEFT JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "LEFT JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                                  "LEFT JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
                                   "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
@@ -374,7 +374,7 @@ void Docset::countSymbols()
     if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
     } else if (m_type == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken JOIN ztokentype"
+        queryStr = QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken LEFT JOIN ztokentype"
                                   " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
     }
 
@@ -407,9 +407,9 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     } else {
         queryStr = QStringLiteral("SELECT ztokenname, zpath, zanchor "
                                   "FROM ztoken "
-                                  "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
+                                  "LEFT JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
+                                  "LEFT JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
+                                  "LEFT JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
                                   "ORDER BY ztokenname ASC");
     }
 
