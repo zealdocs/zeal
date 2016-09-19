@@ -75,7 +75,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             if (!index.column())
                 return m_docsetRegistry->docset(index.row())->title();
             else
-                return m_docsetRegistry->docset(index.row())->indexFilePath();
+                return m_docsetRegistry->docset(index.row())->indexFileUrl();
         case Level::GroupLevel: {
             DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;

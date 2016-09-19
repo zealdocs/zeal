@@ -224,9 +224,9 @@ QIcon Docset::symbolTypeIcon(const QString &symbolType) const
     return icon.availableSizes().isEmpty() ? unknownIcon : icon;
 }
 
-QString Docset::indexFilePath() const
+QUrl Docset::indexFileUrl() const
 {
-    return QDir(documentPath()).absoluteFilePath(m_indexFilePath);
+    return QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(m_indexFilePath));
 }
 
 QMap<QString, int> Docset::symbolCounts() const

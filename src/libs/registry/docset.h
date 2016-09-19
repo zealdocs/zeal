@@ -56,7 +56,7 @@ public:
     QString documentPath() const;
     QIcon icon() const;
     QIcon symbolTypeIcon(const QString &symbolType) const;
-    QString indexFilePath() const;
+    QUrl indexFileUrl() const;
 
     QMap<QString, int> symbolCounts() const;
     int symbolCount(const QString &symbolType) const;
