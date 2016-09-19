@@ -58,7 +58,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         case 0:
             return item->name;
         case 1:
-            return QDir(item->docset->documentPath()).absoluteFilePath(item->path);
+            return item->url;
         default:
             return QVariant();
         }

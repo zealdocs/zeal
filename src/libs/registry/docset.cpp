@@ -35,7 +35,6 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QUrl>
 #include <QVariant>
 
 using namespace Zeal::Registry;
@@ -240,7 +239,7 @@ int Docset::symbolCount(const QString &symbolType) const
     return m_symbolCounts.value(symbolType);
 }
 
-const QMap<QString, QString> &Docset::symbols(const QString &symbolType) const
+const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 {
     if (!m_symbols.contains(symbolType))
         loadSymbols(symbolType);
@@ -284,18 +283,10 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
     QSqlQuery sqlQuery(queryStr, database());
     while (sqlQuery.next() && !token.isCanceled()) {
-        const QString itemName = sqlQuery.value(0).toString();
-        QString path = sqlQuery.value(2).toString();
-        if (m_type == Docset::Type::ZDash) {
-            const QString anchor = sqlQuery.value(3).toString();
-            if (!anchor.isEmpty())
-                path += QLatin1Char('#') + anchor;
-        }
-
-        results.append({itemName,
+        results.append({sqlQuery.value(0).toString(),
                         parseSymbolType(sqlQuery.value(1).toString()),
                         const_cast<Docset *>(this),
-                        path});
+                        createPageUrl(sqlQuery.value(2).toString(), sqlQuery.value(3).toString())});
     }
 
     return results;
@@ -331,14 +322,10 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 
     QSqlQuery sqlQuery(queryStr.arg(cleanUrl.toString()), database());
     while (sqlQuery.next()) {
-        QString sectionPath = sqlQuery.value(2).toString();
-        if (m_type == Docset::Type::ZDash)
-            sectionPath += QLatin1Char('#') + sqlQuery.value(3).toString();
-
         results.append({sqlQuery.value(0).toString(),
                         parseSymbolType(sqlQuery.value(1).toString()),
                         const_cast<Docset *>(this),
-                        sectionPath});
+                        createPageUrl(sqlQuery.value(2).toString(), sqlQuery.value(3).toString())});
     }
 
     if (results.size() == 1)
@@ -418,10 +405,8 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     if (m_type == Docset::Type::Dash) {
         queryStr = QStringLiteral("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC");
     } else {
-        queryStr = QStringLiteral("SELECT ztokenname AS name, "
-                                  "CASE WHEN (zanchor IS NULL) THEN zpath "
-                                  "ELSE (zpath || '#' || zanchor) "
-                                  "END AS path FROM ztoken "
+        queryStr = QStringLiteral("SELECT ztokenname, zpath, zanchor "
+                                  "FROM ztoken "
                                   "JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
                                   "JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
                                   "JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
@@ -434,9 +419,10 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
         return;
     }
 
-    QMap<QString, QString> &symbols = m_symbols[symbolType];
+    QMap<QString, QUrl> &symbols = m_symbols[symbolType];
     while (query.next())
-        symbols.insertMulti(query.value(0).toString(), QDir(documentPath()).absoluteFilePath(query.value(1).toString()));
+        symbols.insertMulti(query.value(0).toString(),
+                            createPageUrl(query.value(1).toString(), query.value(2).toString()));
 }
 
 void Docset::createIndex()
@@ -473,6 +459,29 @@ void Docset::createIndex()
         query.exec(indexDropQuery.arg(oldIndexName));
 
     query.exec(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
+}
+
+QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
+{
+    QString realPath;
+    QString realFragment;
+
+    if (fragment.isEmpty()) {
+        const QStringList urlParts = path.split(QLatin1Char('#'));
+        realPath = urlParts[0];
+        if (urlParts.size() > 1)
+            realFragment = urlParts[1];
+    } else {
+        realPath = path;
+        realFragment = fragment;
+    }
+
+    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
+    if (!realFragment.isEmpty()) {
+        url.setFragment(realFragment, QUrl::DecodedMode);
+    }
+
+    return url;
 }
 
 QString Docset::parseSymbolType(const QString &str)

@@ -25,6 +25,7 @@
 #define SEARCHRESULT_H
 
 #include <QString>
+#include <QUrl>
 
 namespace Zeal {
 namespace Registry {
@@ -38,7 +39,7 @@ struct SearchResult
 
     Docset *docset;
 
-    QString path;
+    QUrl url;
 
     inline bool operator<(const SearchResult &other) const
     {

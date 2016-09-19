@@ -495,18 +495,11 @@ void MainWindow::search(const Registry::SearchQuery &query)
 
 void MainWindow::openDocset(const QModelIndex &index)
 {
-    const QVariant urlStr = index.sibling(index.row(), 1).data();
-    if (urlStr.isNull())
+    const QVariant url = index.sibling(index.row(), 1).data();
+    if (url.isNull())
         return;
 
-    // TODO: Keep anchor separately from file address
-    QStringList urlParts = urlStr.toString().split(QLatin1Char('#'));
-    QUrl url = QUrl::fromLocalFile(urlParts[0]);
-    if (urlParts.count() > 1)
-        // NOTE: QUrl::DecodedMode is a fix for #121. Let's hope it doesn't break anything.
-        url.setFragment(urlParts[1], QUrl::DecodedMode);
-
-    ui->webView->load(url);
+    ui->webView->load(url.toUrl());
 
     // QWebEnginePage::load() always steals focus, so no need to do it twice.
 #ifndef USE_WEBENGINE

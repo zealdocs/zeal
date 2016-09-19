@@ -27,6 +27,7 @@
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
+#include <QUrl>
 
 class QSqlDatabase;
 
@@ -60,7 +61,7 @@ public:
     QMap<QString, int> symbolCounts() const;
     int symbolCount(const QString &symbolType) const;
 
-    const QMap<QString, QString> &symbols(const QString &symbolType) const;
+    const QMap<QString, QUrl> &symbols(const QString &symbolType) const;
 
     QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
@@ -81,6 +82,7 @@ private:
     void loadSymbols(const QString &symbolType) const;
     void loadSymbols(const QString &symbolType, const QString &symbolString) const;
     void createIndex();
+    QUrl createPageUrl(const QString &path, const QString &fragment = QString()) const;
 
     static QString parseSymbolType(const QString &str);
 
@@ -98,7 +100,7 @@ private:
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
-    mutable QMap<QString, QMap<QString, QString>> m_symbols;
+    mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
 };
 
 } // namespace Registry
