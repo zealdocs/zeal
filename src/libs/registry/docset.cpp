@@ -478,7 +478,10 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
 
     QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
     if (!realFragment.isEmpty()) {
-        url.setFragment(realFragment, QUrl::DecodedMode);
+        if (realFragment.startsWith("//apple_ref"))
+            url.setFragment(realFragment, QUrl::DecodedMode);
+        else
+            url.setFragment(realFragment);
     }
 
     return url;
