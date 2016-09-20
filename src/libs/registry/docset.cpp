@@ -32,6 +32,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -475,6 +476,10 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
         realPath = path;
         realFragment = fragment;
     }
+
+    static const QRegularExpression dashEntryRegExp(QLatin1String("<dash_entry_.*>"));
+    realPath.remove(dashEntryRegExp);
+    realFragment.remove(dashEntryRegExp);
 
     QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
     if (!realFragment.isEmpty()) {
