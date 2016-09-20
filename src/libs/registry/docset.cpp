@@ -155,10 +155,10 @@ Docset::Docset(const QString &path) :
 
     // Prefer index path provided by the docset over metadata.
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
-        m_indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
-    } else if (m_indexFilePath.isEmpty()) {
+        m_indexFileUrl = createPageUrl(plist[InfoPlist::DashIndexFilePath].toString());
+    } else if (m_indexFileUrl.isEmpty()) {
         if (dir.exists(QStringLiteral("index.html")))
-            m_indexFilePath = QStringLiteral("index.html");
+            m_indexFileUrl = createPageUrl(QStringLiteral("index.html"));
         else
             qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
     }
@@ -226,7 +226,7 @@ QIcon Docset::symbolTypeIcon(const QString &symbolType) const
 
 QUrl Docset::indexFileUrl() const
 {
-    return QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(m_indexFilePath));
+    return m_indexFileUrl;
 }
 
 QMap<QString, int> Docset::symbolCounts() const
@@ -364,7 +364,7 @@ void Docset::loadMetadata()
 
     if (jsonObject.contains(QStringLiteral("extra"))) {
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
-        m_indexFilePath = extra[QStringLiteral("indexFilePath")].toString();
+        m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
     }
 }
 

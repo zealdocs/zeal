@@ -96,7 +96,7 @@ private:
     QString m_path;
     QIcon m_icon;
 
-    QString m_indexFilePath;
+    QUrl m_indexFileUrl;
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
