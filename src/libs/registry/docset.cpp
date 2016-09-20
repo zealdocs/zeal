@@ -153,11 +153,11 @@ Docset::Docset(const QString &path) :
 
     m_keywords.removeDuplicates();
 
-    // Try to find index path if metadata is missing one
-    if (m_indexFilePath.isEmpty()) {
-        if (plist.contains(InfoPlist::DashIndexFilePath))
-            m_indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
-        else if (dir.exists(QStringLiteral("index.html")))
+    // Prefer index path provided by the docset over metadata.
+    if (plist.contains(InfoPlist::DashIndexFilePath)) {
+        m_indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
+    } else if (m_indexFilePath.isEmpty()) {
+        if (dir.exists(QStringLiteral("index.html")))
             m_indexFilePath = QStringLiteral("index.html");
         else
             qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
