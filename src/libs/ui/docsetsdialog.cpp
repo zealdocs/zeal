@@ -342,9 +342,7 @@ void DocsetsDialog::downloadCompleted()
                 listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         }
 
-        if (m_replies.isEmpty())
-            resetProgress();
-
+        resetProgress();
         return;
     }
 
@@ -390,7 +388,6 @@ void DocsetsDialog::downloadCompleted()
         }
 
         processDocsetList(jsonDoc.array());
-        resetProgress();
         break;
     }
 
@@ -526,7 +523,6 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
     if (listItem)
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
 
-    resetProgress();
     delete m_tmpFiles.take(docsetName);
 }
 
@@ -621,6 +617,7 @@ void DocsetsDialog::cancelDownloads()
 
         reply->abort();
     }
+
     resetProgress();
 }
 
@@ -702,8 +699,6 @@ void DocsetsDialog::removeDocset(const QString &name)
 
     m_docsetRegistry->remove(name);
 
-    updateCombinedProgress();
-
     QFuture<bool> future = QtConcurrent::run([tmpPath] {
         return QDir(tmpPath).removeRecursively();
     });
@@ -723,18 +718,13 @@ void DocsetsDialog::removeDocset(const QString &name)
         watcher->deleteLater();
 
         m_docsetsBeingDeleted.removeOne(name);
-
-        updateCombinedProgress();
     });
 }
 
 void DocsetsDialog::updateCombinedProgress()
 {
-    if (m_replies.isEmpty() && m_tmpFiles.isEmpty() && m_docsetsBeingDeleted.isEmpty()) {
-        ui->cancelButton->hide();
-        ui->combinedProgressBar->hide();
-        ui->combinedProgressBar->setMaximum(100);
-        ui->combinedProgressBar->setValue(0);
+    if (m_replies.isEmpty()) {
+        resetProgress();
         return;
     }
 
@@ -765,6 +755,7 @@ void DocsetsDialog::resetProgress()
             break;
         }
     }
+
     ui->updateSelectedDocsetsButton->setEnabled(hasSelectedUpdates);
     ui->updateAllDocsetsButton->setEnabled(updatesAvailable());
     ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
