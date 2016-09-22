@@ -95,7 +95,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
     case Qt::MiddleButton:
         if (m_clickedLink == clickedLink(event->pos()) && m_clickedLink.isValid()) {
             QWebView *webView = createWindow(QWebPage::WebBrowserWindow);
-            webView->setUrl(m_clickedLink);
+            webView->load(m_clickedLink);
             event->accept();
         }
         break;
