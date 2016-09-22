@@ -107,7 +107,7 @@ private:
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
 
-    void downloadDashDocset(const QString &name);
+    void downloadDashDocset(const QModelIndex &index);
     void removeDocset(const QString &name);
 
     void updateCombinedProgress();

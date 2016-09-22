@@ -90,7 +90,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
             return;
         }
 
-        downloadDashDocset(index.data(Registry::ListModel::DocsetNameRole).toString());
+        downloadDashDocset(index);
     });
 
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
@@ -104,6 +104,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
                 return;
             }
         }
+
         ui->updateSelectedDocsetsButton->setEnabled(false);
     });
     connect(ui->updateSelectedDocsetsButton, &QPushButton::clicked,
@@ -117,40 +118,31 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
     // Available docsets tab
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
-    connect(ui->availableDocsetList, &QListWidget::itemActivated,
-            this, [this](QListWidgetItem *item) {
-
-        item->setSelected(false);
-
-        // Do nothing if download is already in progress
-        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
+    connect(ui->availableDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
+        // TODO: Cancel download if it's already in progress.
+        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
             return;
 
-        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-        item->setData(ProgressItemDelegate::ValueRole, 0);
-        item->setData(ProgressItemDelegate::ShowProgressRole, true);
+        ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
 
-        downloadDashDocset(item->data(Registry::ListModel::DocsetNameRole).toString());
+        QAbstractItemModel *model = ui->availableDocsetList->model();
+        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, 0, ProgressItemDelegate::ValueRole);
+        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
+
+        downloadDashDocset(index);
     });
 
     selectionModel = ui->availableDocsetList->selectionModel();
-    connect(selectionModel, &QItemSelectionModel::selectionChanged,
-            [this, selectionModel]() {
-        bool hasSelection = false;
-
+    connect(selectionModel, &QItemSelectionModel::selectionChanged, [this, selectionModel]() {
         for (const QModelIndex &index : selectionModel->selectedIndexes()) {
-            const QString docsetName = index.data(Registry::ListModel::DocsetNameRole).toString();
-            QListWidgetItem *item = findDocsetListItem(docsetName);
-
-            // Do nothing if download is already in progress
-            if (!item || item->data(ProgressItemDelegate::ShowProgressRole).toBool())
-                continue;
-
-            hasSelection = true;
-            break;
+            if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
+                ui->downloadDocsetsButton->setEnabled(true);
+                return;
+            }
         }
 
-        ui->downloadDocsetsButton->setEnabled(hasSelection);
+        ui->downloadDocsetsButton->setEnabled(false);
     });
 
     connect(ui->downloadDocsetsButton, &QPushButton::clicked,
@@ -229,17 +221,19 @@ void DocsetsDialog::updateSelectedDocsets()
         if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
             continue;
 
-        downloadDashDocset(index.data(Registry::ListModel::DocsetNameRole).toString());
+        downloadDashDocset(index);
     }
 }
 
 void DocsetsDialog::updateAllDocsets()
 {
-    for (const Registry::Docset * const docset : m_docsetRegistry->docsets()) {
-        if (!docset->hasUpdate)
+    QAbstractItemModel *model = ui->installedDocsetList->model();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        const QModelIndex index = model->index(i, 0);
+        if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
             continue;
 
-        downloadDashDocset(docset->name());
+        downloadDashDocset(index);
     }
 }
 
@@ -291,23 +285,20 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
 
 void DocsetsDialog::downloadSelectedDocsets()
 {
-    for (const QModelIndex &index : ui->availableDocsetList->selectionModel()->selectedIndexes()) {
-        const QString docsetName = index.data(Registry::ListModel::DocsetNameRole).toString();
-        QListWidgetItem *item = findDocsetListItem(docsetName);
-        if (!item)
+    QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
+    for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+        selectionModel->select(index, QItemSelectionModel::Deselect);
+
+        // Do nothing if a download is already in progress.
+        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
             continue;
 
-        item->setSelected(false);
+        QAbstractItemModel *model = ui->availableDocsetList->model();
+        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, 0, ProgressItemDelegate::ValueRole);
+        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
-        // Do nothing if download is already in progress
-        if (item->data(ProgressItemDelegate::ShowProgressRole).toBool())
-            continue;
-
-        item->setData(ProgressItemDelegate::FormatRole, tr("Downloading: %p%"));
-        item->setData(ProgressItemDelegate::ValueRole, 0);
-        item->setData(ProgressItemDelegate::ShowProgressRole, true);
-
-        downloadDashDocset(docsetName);
+        downloadDashDocset(index);
     }
 }
 
@@ -675,8 +666,10 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     ui->installedDocsetList->reset();
 }
 
-void DocsetsDialog::downloadDashDocset(const QString &name)
+void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
+    const QString name = index.data(Registry::ListModel::DocsetNameRole).toString();
+
     if (!m_availableDocsets.contains(name))
         return;
 
