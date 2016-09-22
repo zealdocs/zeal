@@ -85,6 +85,13 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     // Installed docsets tab
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
+    connect(ui->installedDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
+        if (!index.data(ListModel::UpdateAvailableRole).toBool()) {
+            return;
+        }
+
+        downloadDashDocset(index.data(Registry::ListModel::DocsetNameRole).toString());
+    });
 
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged,
