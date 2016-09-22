@@ -149,9 +149,6 @@ Docset::Docset(const QString &path) :
             m_keywords << kw;
     }
 
-    // TODO: Use 'unknown' instead of CFBundleName? (See #383)
-    m_keywords << plist.value(InfoPlist::CFBundleName, m_name).toString().toLower();
-
     m_keywords.removeDuplicates();
 
     // Prefer index path provided by the docset over metadata.
