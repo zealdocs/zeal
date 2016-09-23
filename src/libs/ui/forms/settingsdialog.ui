@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preferences</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="generalTab">
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Startup</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QCheckBox" name="startMinimizedCheckBox">
+            <property name="text">
+             <string>Start minimized</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkForUpdateCheckBox">
+            <property name="text">
+             <string>Check for update</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="systrayGroupBox">
+         <property name="title">
+          <string>Show system tray icon</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="minimizeToSystrayCheckBox">
+            <property name="text">
+             <string>Minimize to system tray instead of taskbar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="hideToSystrayCheckBox">
+            <property name="text">
+             <string>Hide to system tray on window close</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="globalHotKeyGroupBox">
+         <property name="title">
+          <string>Global shortcuts</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Show Zeal:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="ShortcutEdit" name="toolButton">
+            <property name="placeholderText">
+             <string>Click to set shortcut</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Docset storage</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_3">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Directory:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="storageEdit"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="storageButton">
+              <property name="text">
+               <string>Browse...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabsTab">
+      <attribute name="title">
+       <string>Tabs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Behavior</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="openNewTabAfterActive">
+            <property name="text">
+             <string>Open new tab after active</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="appearanceTab">
+      <attribute name="title">
+       <string>Appearance</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Browser</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Minimum font size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="minFontSize"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="networkTab">
+      <attribute name="title">
+       <string>Network</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>HTTP Proxy</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QRadioButton" name="noProxySettings">
+            <property name="text">
+             <string>No proxy</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="systemProxySettings">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>System proxy settings</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="manualProxySettings">
+            <property name="text">
+             <string>Manual proxy configuration</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="httpRootLayout">
+            <item>
+             <layout class="QHBoxLayout" name="httpProxyLayout">
+              <item>
+               <widget class="QLabel" name="httpProxyLabel">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>HTTP proxy:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="httpProxy">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="httpProxyPortLabel">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Port:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="httpProxyPort">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maximum">
+                 <number>65535</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="httpProxyNeedsAuth">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>HTTP proxy requires authentication</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="httpAuthWidget" native="true">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QLabel" name="httpProxyUserLabel">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Username:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="httpProxyUser">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="httpProxyPassLabel">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Password:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="httpProxyPass">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="echoMode">
+                  <enum>QLineEdit::Password</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="docsetsTab">
+      <attribute name="title">
+       <string>Docsets</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Docsets are now available via the &lt;b&gt;Tools&lt;/b&gt; menu.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ShortcutEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ui/widgets/shortcutedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxy</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>232</x>
+     <y>77</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyPortLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyPort</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>392</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>392</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyNeedsAuth</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>53</x>
+     <y>75</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>100</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpAuthWidget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>53</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyUserLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>70</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyPassLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>84</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyUser</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyPass</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

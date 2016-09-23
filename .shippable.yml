@@ -1,7 +1,9 @@
-before_install:
-  - shippable_retry sudo apt-get -y -qq update
-install:
-  - shippable_retry sudo apt-get -y -qq install --no-install-recommends qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
-script:
-  - qmake
-  - make
+language: c
+compiler:
+  - gcc
+build:
+  ci:
+    - shippable_retry sudo apt-get -y -qq update
+    - shippable_retry sudo apt-get -y -qq install --no-install-recommends qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
+    - qmake
+    - make

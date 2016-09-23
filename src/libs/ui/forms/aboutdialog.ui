@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutDialog</class>
+ <widget class="QDialog" name="AboutDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>420</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>About Zeal</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../../resources/zeal.qrc">:/icons/logo/64x64.png</pixmap>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>&lt;h1&gt;Zeal&lt;/h1&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="buildInfoLabel">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>About</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>&lt;strong&gt;A simple offline documentation browser&lt;/strong&gt;
+&lt;br&gt;&lt;br&gt;
+Copyright &amp;copy; Oleg Shparber and other conributors, 2013-2016.
+&lt;br&gt;
+&lt;a href=&quot;https://zealdocs.org&quot;&gt;zealdocs.org&lt;/a&gt;
+&lt;br&gt;
+&lt;a href=&quot;irc://irc.freenode.net/zealdocs&quot;&gt;#zealdocs&lt;/a&gt; on &lt;a href=&quot;https://www.freenode.net&quot;&gt;Freenode&lt;/a&gt;
+&lt;br&gt;&lt;br&gt;
+Zeal is an open source software available under the terms of General Public License version 3 (&lt;a href=&quot;https://www.gnu.org/copyleft/gpl.html&quot;&gt;GPLv3&lt;/a&gt;).
+&lt;br&gt;&lt;br&gt;
+Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../resources/zeal.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>AboutDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

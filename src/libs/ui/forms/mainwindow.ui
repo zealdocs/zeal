@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Zeal</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="centralWidgetLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="resultPane">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="ToolBarFrame" name="searchEditWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QVBoxLayout" name="searchToolBarFrame">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="SearchEdit" name="lineEdit">
+             <property name="placeholderText">
+              <string>Enter your query</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSplitter" name="tocSplitter">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QTreeView" name="treeView">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="uniformRowHeights">
+            <bool>true</bool>
+           </property>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+          <widget class="QListView" name="tocListView">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="uniformItemSizes">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_2">
+       <layout class="QVBoxLayout" name="viewInfo">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="ToolBarFrame" name="navigationBar" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <layout class="QHBoxLayout" name="toolbox">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QToolButton" name="backButton">
+             <property name="toolTip">
+              <string>Go back one page</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
+             </property>
+             <property name="text">
+              <string>←</string>
+             </property>
+             <property name="icon">
+              <iconset theme="go-previous"/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="forwardButton">
+             <property name="toolTip">
+              <string>Go forward one page</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
+             </property>
+             <property name="text">
+              <string>→</string>
+             </property>
+             <property name="icon">
+              <iconset theme="go-next"/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="openUrlButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Open URL</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="SearchableWebView" name="webView" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNewTab"/>
+    <addaction name="actionCloseTab"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionSubmitFeedback"/>
+    <addaction name="actionCheckForUpdates"/>
+    <addaction name="separator"/>
+    <addaction name="actionAboutZeal"/>
+    <addaction name="actionAboutQt"/>
+   </widget>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionFind"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionDocsets"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menu_Edit"/>
+   <addaction name="menu_Tools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="icon">
+    <iconset theme="preferences-desktop"/>
+   </property>
+   <property name="text">
+    <string>Prefere&amp;nces</string>
+   </property>
+  </action>
+  <action name="actionAboutZeal">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
+   <property name="text">
+    <string>About &amp;Zeal</string>
+   </property>
+  </action>
+  <action name="actionAboutQt">
+   <property name="text">
+    <string>About &amp;Qt</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="go-previous"/>
+   </property>
+   <property name="text">
+    <string>&amp;Back</string>
+   </property>
+  </action>
+  <action name="actionForward">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="go-next"/>
+   </property>
+   <property name="text">
+    <string>&amp;Forward</string>
+   </property>
+  </action>
+  <action name="actionNewTab">
+   <property name="icon">
+    <iconset theme="tab-new"/>
+   </property>
+   <property name="text">
+    <string>New &amp;Tab</string>
+   </property>
+  </action>
+  <action name="actionCloseTab">
+   <property name="text">
+    <string>&amp;Close Tab</string>
+   </property>
+  </action>
+  <action name="actionNextTab">
+   <property name="text">
+    <string>Next Tab</string>
+   </property>
+  </action>
+  <action name="actionPreviousTab">
+   <property name="text">
+    <string>Previous Tab</string>
+   </property>
+  </action>
+  <action name="actionSubmitFeedback">
+   <property name="text">
+    <string>&amp;Submit Feedback...</string>
+   </property>
+  </action>
+  <action name="actionCheckForUpdates">
+   <property name="text">
+    <string>&amp;Check for updates...</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="icon">
+    <iconset theme="edit-find"/>
+   </property>
+   <property name="text">
+    <string>&amp;Find</string>
+   </property>
+  </action>
+  <action name="actionDocsets">
+   <property name="text">
+    <string>&amp;Docsets...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>SearchEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ui/widgets/searchedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SearchableWebView</class>
+   <extends>QWidget</extends>
+   <header>ui/widgets/searchablewebview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolBarFrame</class>
+   <extends>QWidget</extends>
+   <header>ui/widgets/toolbarframe.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -9,9 +9,9 @@ lessThan(QT_VERSION, "5.2.0") {
 }
 
 TEMPLATE = subdirs
-CONFIG += ordered
 
 SUBDIRS += \
+    assets \
     src
 
 # Ease access to these files from Qt Creator
