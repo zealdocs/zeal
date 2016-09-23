@@ -30,7 +30,7 @@ RCC_DIR = $$BUILD_ROOT/.rcc
 UI_DIR = $$BUILD_ROOT/.ui
 
 # Application version
-VERSION = 0.2.1
+VERSION = 0.3.0
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 # Browser engine
