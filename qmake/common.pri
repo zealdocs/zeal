@@ -57,12 +57,9 @@ equals(BROWSER_ENGINE, qtwebengine) {
 CONFIG(zeal_portable) {
     message("Portable build: Yes.")
     DEFINES += PORTABLE_BUILD
-} else {
-    message("Portable build: No.")
 }
 
 # Unix installation prefix
 unix:!macx {
     isEmpty(PREFIX): PREFIX = /usr
-    message("Install prefix: $$PREFIX")
 }
