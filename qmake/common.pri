@@ -34,15 +34,12 @@ VERSION = 0.2.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 # Browser engine
-CONFIG(zeal_qtwebkit) {
-    qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
-    else: error("Qt WebKit is not available.")
-} else:CONFIG(zeal_qtwebengine) {
+CONFIG(zeal_qtwebengine) {
     qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
     else: error("Qt WebEngine is not available.")
 } else {
-    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
-    else: qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
+    qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
+    else: qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
     else: error("Zeal requires Qt WebEngine or Qt WebKit.")
 }
 
