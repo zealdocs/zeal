@@ -48,6 +48,8 @@ public:
 
     QString lastError() const;
 
+    sqlite3 *handle() const;
+
 private:
     void close();
     void finalize();

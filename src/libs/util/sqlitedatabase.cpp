@@ -79,9 +79,13 @@ bool SQLiteDatabase::execute(const QString &queryStr)
 
     m_lastError.clear();
 
+    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
     const void *pzTail = nullptr;
-    if (sqlite3_prepare16_v2(m_db, queryStr.constData(), (queryStr.size() + 1) * sizeof(QChar),
-                             &m_stmt, &pzTail) != SQLITE_OK) {
+    const int res = sqlite3_prepare16_v2(m_db, queryStr.constData(),
+                                         (queryStr.size() + 1) * sizeof(QChar), &m_stmt, &pzTail);
+    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
+
+    if (res != SQLITE_OK) {
         // "Unable to execute statement"
         updateLastError();
         finalize();
@@ -101,7 +105,11 @@ bool SQLiteDatabase::next()
     if (m_stmt == nullptr)
         return false;
 
-    switch(sqlite3_step(m_stmt)) {
+    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
+    const int res = sqlite3_step(m_stmt);
+    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
+
+    switch(res) {
     case SQLITE_ROW:
         return true;
     case SQLITE_DONE:
@@ -124,15 +132,22 @@ QVariant SQLiteDatabase::value(int index) const
     if (index >= sqlite3_data_count(m_stmt))
         return QVariant();
 
-    switch (sqlite3_column_type(m_stmt, index)) {
+    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
+    const int type = sqlite3_column_type(m_stmt, index);
+
+    QVariant ret;
+
+    switch (type) {
     case SQLITE_INTEGER:
-        return sqlite3_column_int64(m_stmt, index);
+        ret = sqlite3_column_int64(m_stmt, index);
     case SQLITE_NULL:
-        return QVariant(QVariant::String);
+        ret = QVariant(QVariant::String);
     default:
-        return QString(reinterpret_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
-                       sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
+        ret = QString(reinterpret_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
+                      sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
     }
+    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
+    return ret;
 }
 
 QString SQLiteDatabase::lastError() const
@@ -158,4 +173,9 @@ void SQLiteDatabase::updateLastError()
         return;
 
     m_lastError = QString(reinterpret_cast<const QChar *>(sqlite3_errmsg16(m_db)));
+}
+
+sqlite3 *SQLiteDatabase::handle() const
+{
+    return m_db;
 }

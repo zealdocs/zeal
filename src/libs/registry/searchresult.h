@@ -41,9 +41,13 @@ struct SearchResult
 
     QUrl url;
 
+    int score;
+
     inline bool operator<(const SearchResult &other) const
     {
-        return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
+        if (score == other.score)
+            return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
+        return score > other.score;
     }
 };
 
