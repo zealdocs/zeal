@@ -29,9 +29,12 @@
 #include <QMetaObject>
 #include <QUrl>
 
-class QSqlDatabase;
-
 namespace Zeal {
+
+namespace Util {
+class SQLiteDatabase;
+}
+
 namespace Registry {
 
 struct CancellationToken;
@@ -76,7 +79,6 @@ private:
         ZDash
     };
 
-    QSqlDatabase database() const;
     void loadMetadata();
     void countSymbols();
     void loadSymbols(const QString &symbolType) const;
@@ -101,6 +103,7 @@ private:
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
+    Util::SQLiteDatabase *m_db = nullptr;
 };
 
 } // namespace Registry
