@@ -707,12 +707,7 @@ void DocsetsDialog::removeDocset(const QString &name)
         return;
     }
 
-    QFuture<bool> future = QtConcurrent::run([tmpPath] {
-        return QDir(tmpPath).removeRecursively();
-    });
-
     QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-    watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
         if (!watcher->result()) {
             QMessageBox::warning(this, QStringLiteral("Zeal"),
@@ -727,6 +722,10 @@ void DocsetsDialog::removeDocset(const QString &name)
 
         m_docsetsBeingDeleted.removeOne(name);
     });
+
+    watcher->setFuture(QtConcurrent::run([tmpPath] {
+        return QDir(tmpPath).removeRecursively();
+    }));
 }
 
 void DocsetsDialog::updateCombinedProgress()
