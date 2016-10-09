@@ -693,11 +693,19 @@ void DocsetsDialog::removeDocset(const QString &name)
     const QString tmpPath = docsetPath + QLatin1String(".deleteme.")
             + QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    // Rename first to allow simultaneous installation.
-    // TODO: Check for error
-    QDir().rename(docsetPath, tmpPath);
-
+    // Remove from registry first to avoid renaming files in use on Windows.
     m_docsetRegistry->remove(name);
+
+    // Rename first to allow simultaneous installation.
+    if (!QDir().rename(docsetPath, tmpPath)) {
+        const QString error = tr("Cannot delete docset <b>%1</b>! Please try closing other "
+                                 "applications first, as they may be accessing the docset "
+                                 "files.").arg(title);
+        QMessageBox::warning(this, QStringLiteral("Zeal"), error);
+        m_docsetsBeingDeleted.removeOne(name);
+        m_docsetRegistry->addDocset(docsetPath);
+        return;
+    }
 
     QFuture<bool> future = QtConcurrent::run([tmpPath] {
         return QDir(tmpPath).removeRecursively();
