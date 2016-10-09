@@ -23,7 +23,7 @@
 #ifndef ZEAL_UTIL_SQLITEDATABASE_H
 #define ZEAL_UTIL_SQLITEDATABASE_H
 
-#include <QString>
+#include <QStringList>
 #include <QVariant>
 
 struct sqlite3;
@@ -37,19 +37,23 @@ class SQLiteDatabase
 public:
     explicit SQLiteDatabase(const QString &path);
     virtual ~SQLiteDatabase();
+
     bool isOpen() const;
-    QString lastError() const;
     QStringList tables();
+
     bool execute(const QString &queryStr);
     bool next();
+
     QVariant value(int index) const;
+
+    QString lastError() const;
 
 private:
     void close();
     void finalize();
     void updateLastError();
 
-    sqlite3* m_db = nullptr;
+    sqlite3 *m_db = nullptr;
     sqlite3_stmt *m_stmt = nullptr;
     QString m_lastError;
 };

@@ -48,11 +48,6 @@ bool SQLiteDatabase::isOpen() const
     return m_db != nullptr;
 }
 
-QString SQLiteDatabase::lastError() const
-{
-    return m_lastError;
-}
-
 QStringList SQLiteDatabase::tables()
 {
     Q_ASSERT(!m_stmt);  // FIXME: usage between other execute/next calls (Zeal doesn't need it now)
@@ -87,18 +82,18 @@ bool SQLiteDatabase::execute(const QString &queryStr)
     const void *pzTail = nullptr;
     if (sqlite3_prepare16_v2(m_db, queryStr.constData(), (queryStr.size() + 1) * sizeof(QChar),
                              &m_stmt, &pzTail) != SQLITE_OK) {
-       // "Unable to execute statement"
-       updateLastError();
-       finalize();
-       return false;
-   } else if (pzTail && !QString(reinterpret_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
-       // Unable to execute multiple statements at a time
-       updateLastError();
-       finalize();
-       return false;
-   }
+        // "Unable to execute statement"
+        updateLastError();
+        finalize();
+        return false;
+    } else if (pzTail && !QString(reinterpret_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
+        // Unable to execute multiple statements at a time
+        updateLastError();
+        finalize();
+        return false;
+    }
 
-   return true;
+    return true;
 }
 
 bool SQLiteDatabase::next()
@@ -107,16 +102,15 @@ bool SQLiteDatabase::next()
         return false;
 
     switch(sqlite3_step(m_stmt)) {
-        case SQLITE_ROW:
-            return true;
-        case SQLITE_DONE:
-        case SQLITE_CONSTRAINT:
-        case SQLITE_ERROR:
-        case SQLITE_MISUSE:
-        case SQLITE_BUSY:
-        default:
-            updateLastError();
-            return false;
+    case SQLITE_ROW:
+        return true;
+    case SQLITE_DONE:
+    case SQLITE_CONSTRAINT:
+    case SQLITE_ERROR:
+    case SQLITE_MISUSE:
+    case SQLITE_BUSY:
+    default:
+        updateLastError();
     }
 
     return false;
@@ -124,20 +118,26 @@ bool SQLiteDatabase::next()
 
 QVariant SQLiteDatabase::value(int index) const
 {
-    if (m_stmt == nullptr) {
-        return QVariant(QVariant::String);
-    }
+    Q_ASSERT(index >= 0);
+
+    // sqlite3_data_count() returns 0 if m_stmt is nullptr.
+    if (index >= sqlite3_data_count(m_stmt))
+        return QVariant();
 
     switch (sqlite3_column_type(m_stmt, index)) {
-        case SQLITE_INTEGER:
-            return sqlite3_column_int64(m_stmt, index);
-        case SQLITE_NULL:
-            return QVariant(QVariant::String);
-        default:
-            return QString(reinterpret_cast<const QChar *>(
-                           sqlite3_column_text16(m_stmt, index)),
-                           sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
+    case SQLITE_INTEGER:
+        return sqlite3_column_int64(m_stmt, index);
+    case SQLITE_NULL:
+        return QVariant(QVariant::String);
+    default:
+        return QString(reinterpret_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
+                       sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
     }
+}
+
+QString SQLiteDatabase::lastError() const
+{
+    return m_lastError;
 }
 
 void SQLiteDatabase::close()
@@ -156,5 +156,6 @@ void SQLiteDatabase::updateLastError()
 {
     if (!m_db)
         return;
+
     m_lastError = QString(reinterpret_cast<const QChar *>(sqlite3_errmsg16(m_db)));
 }
