@@ -30,7 +30,7 @@ RCC_DIR = $$BUILD_ROOT/.rcc
 UI_DIR = $$BUILD_ROOT/.ui
 
 # Application version
-VERSION = 0.3.0
+VERSION = 0.3.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 # Browser engine
@@ -62,4 +62,11 @@ CONFIG(zeal_portable) {
 # Unix installation prefix
 unix:!macx {
     isEmpty(PREFIX): PREFIX = /usr
+}
+
+unix:!macx:packagesExist(appindicator-0.1) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += appindicator-0.1 gtk+-2.0
+    DEFINES += USE_APPINDICATOR
+    message("AppIndicator support: Yes.")
 }

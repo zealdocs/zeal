@@ -23,6 +23,7 @@
 #include "application.h"
 
 #include "extractor.h"
+#include "networkaccessmanager.h"
 #include "settings.h"
 
 #include <registry/docsetregistry.h>
@@ -35,7 +36,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaObject>
-#include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QScopedPointer>
@@ -59,7 +59,7 @@ Application::Application(QObject *parent) :
     m_instance = this;
 
     m_settings = new Settings(this);
-    m_networkManager = new QNetworkAccessManager(this);
+    m_networkManager = new NetworkAccessManager(this);
 
     // Extractor setup
     m_extractorThread = new QThread(this);
