@@ -98,7 +98,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
             [this, selectionModel]() {
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
-        for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+        for (const QModelIndex &index : selectionModel->selectedRows()) {
             if (index.data(ListModel::UpdateAvailableRole).toBool()) {
                 ui->updateSelectedDocsetsButton->setEnabled(true);
                 return;
@@ -135,7 +135,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
     selectionModel = ui->availableDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged, [this, selectionModel]() {
-        for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+        for (const QModelIndex &index : selectionModel->selectedRows()) {
             if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
                 ui->downloadDocsetsButton->setEnabled(true);
                 return;
@@ -217,7 +217,7 @@ void DocsetsDialog::addDashFeed()
 
 void DocsetsDialog::updateSelectedDocsets()
 {
-    for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedIndexes()) {
+    for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedRows()) {
         if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
             continue;
 
@@ -245,7 +245,7 @@ void DocsetsDialog::removeSelectedDocsets()
 
     int ret;
 
-    const QModelIndexList selectedIndexes = selectonModel->selectedIndexes();
+    const QModelIndexList selectedIndexes = selectonModel->selectedRows();
     if (selectedIndexes.size() == 1) {
         const QString docsetTitle = selectedIndexes.first().data().toString();
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
@@ -286,7 +286,7 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
 void DocsetsDialog::downloadSelectedDocsets()
 {
     QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
-    for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+    for (const QModelIndex &index : selectionModel->selectedRows()) {
         selectionModel->select(index, QItemSelectionModel::Deselect);
 
         // Do nothing if a download is already in progress.
@@ -693,18 +693,21 @@ void DocsetsDialog::removeDocset(const QString &name)
     const QString tmpPath = docsetPath + QLatin1String(".deleteme.")
             + QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    // Rename first to allow simultaneous installation.
-    // TODO: Check for error
-    QDir().rename(docsetPath, tmpPath);
-
+    // Remove from registry first to avoid renaming files in use on Windows.
     m_docsetRegistry->remove(name);
 
-    QFuture<bool> future = QtConcurrent::run([tmpPath] {
-        return QDir(tmpPath).removeRecursively();
-    });
+    // Rename first to allow simultaneous installation.
+    if (!QDir().rename(docsetPath, tmpPath)) {
+        const QString error = tr("Cannot delete docset <b>%1</b>! Please try closing other "
+                                 "applications first, as they may be accessing the docset "
+                                 "files.").arg(title);
+        QMessageBox::warning(this, QStringLiteral("Zeal"), error);
+        m_docsetsBeingDeleted.removeOne(name);
+        m_docsetRegistry->addDocset(docsetPath);
+        return;
+    }
 
     QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-    watcher->setFuture(future);
     connect(watcher, &QFutureWatcher<void>::finished, [=] {
         if (!watcher->result()) {
             QMessageBox::warning(this, QStringLiteral("Zeal"),
@@ -719,6 +722,10 @@ void DocsetsDialog::removeDocset(const QString &name)
 
         m_docsetsBeingDeleted.removeOne(name);
     });
+
+    watcher->setFuture(QtConcurrent::run([tmpPath] {
+        return QDir(tmpPath).removeRecursively();
+    }));
 }
 
 void DocsetsDialog::updateCombinedProgress()
@@ -749,7 +756,7 @@ void DocsetsDialog::resetProgress()
     ui->addFeedButton->setEnabled(true);
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     bool hasSelectedUpdates = false;
-    for (const QModelIndex &index : selectionModel->selectedIndexes()) {
+    for (const QModelIndex &index : selectionModel->selectedRows()) {
         if (index.data(Registry::ListModel::UpdateAvailableRole).toBool()) {
             hasSelectedUpdates = true;
             break;

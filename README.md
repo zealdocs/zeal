@@ -35,7 +35,7 @@ Get binary builds for Windows and Linux from the [download page](https://zealdoc
 
 ## How to use
 
-After installing Zeal, you need to download docsets. Go to *File->Options->Docsets*, select the ones you want, and click the *Download* button.
+After installing Zeal, you need to download docsets. Go to *Tools->Docsets*, select the ones you want, and click the *Download* button.
 
 ## How to compile
 
