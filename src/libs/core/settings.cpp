@@ -163,11 +163,9 @@ void Settings::save()
     settings->setValue(QStringLiteral("password"), proxyPassword);
     settings->endGroup();
 
-#ifndef PORTABLE_BUILD
     settings->beginGroup(GroupDocsets);
     settings->setValue(QStringLiteral("path"), docsetPath);
     settings->endGroup();
-#endif
 
     settings->beginGroup(GroupState);
     settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
