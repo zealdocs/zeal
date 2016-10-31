@@ -40,7 +40,7 @@ After installing Zeal, you need to download docsets. Go to *Tools->Docsets*, sel
 ## How to compile
 
 ### Requirements
-* [Qt](https://www.qt.io/) version 5.2.0 or above. Required modules: Qt WebKit Widgets, Qt SQL plugin for SQLite, Qt X11 Extras (X11 only).
+* [Qt](https://www.qt.io/) version 5.2.0 or above. Required modules: Qt WebKit Widgets, Qt X11 Extras (X11 only).
 * [libarchive](http://libarchive.org/).
 * X11 only: `xcb-util-keysyms`.
 * Ubuntu Unity only: [libappindicator](https://launchpad.net/libappindicator).
