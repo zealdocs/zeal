@@ -25,8 +25,6 @@
 
 #include "docset.h"
 
-#include <QDir>
-
 using namespace Zeal::Registry;
 
 SearchModel::SearchModel(QObject *parent) :
