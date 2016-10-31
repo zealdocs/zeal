@@ -212,7 +212,6 @@ void DocsetsDialog::addDashFeed()
 
     QNetworkReply *reply = download(QUrl(feedUrl));
     reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
-    connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 }
 
 void DocsetsDialog::updateSelectedDocsets()
@@ -329,9 +328,6 @@ void DocsetsDialog::downloadCompleted()
                 newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
                 newReply->setProperty(ListItemIndexProperty,
                                       reply->property(ListItemIndexProperty));
-
-                connect(newReply, &QNetworkReply::finished,
-                        this, &DocsetsDialog::downloadCompleted);
                 return;
             }
 
@@ -361,8 +357,6 @@ void DocsetsDialog::downloadCompleted()
         newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
         newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
         newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
-
-        connect(newReply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 
         return;
     }
@@ -404,7 +398,7 @@ void DocsetsDialog::downloadCompleted()
         QNetworkReply *reply = download(metadata.url());
         reply->setProperty(DocsetNameProperty, metadata.name());
         reply->setProperty(DownloadTypeProperty, DownloadDocset);
-        connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
+
         break;
     }
 
@@ -587,6 +581,7 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
 {
     QNetworkReply *reply = m_application->download(url);
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
+    connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);
 
     // Installed docsets
@@ -628,7 +623,6 @@ void DocsetsDialog::downloadDocsetList()
 
     QNetworkReply *reply = download(QUrl(ApiServerUrl + QLatin1String("/docsets")));
     reply->setProperty(DownloadTypeProperty, DownloadDocsetList);
-    connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 }
 
 void DocsetsDialog::processDocsetList(const QJsonArray &list)
@@ -676,8 +670,6 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
                        ui->availableDocsetList->row(findDocsetListItem(name)));
-
-    connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
 }
 
 void DocsetsDialog::removeDocset(const QString &name)
