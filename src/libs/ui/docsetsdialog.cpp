@@ -191,8 +191,17 @@ void DocsetsDialog::reject()
         return;
     }
 
-    QMessageBox::information(this, QStringLiteral("Zeal"),
-                             tr("Please wait for all operations to finish."));
+    QMessageBox *msgBox= new QMessageBox(QMessageBox::Question,
+                                        QStringLiteral("Zeal"),
+                                        tr("There are unfinish operations"),
+                                        QMessageBox::Yes | QMessageBox::No);
+    msgBox->setButtonText(QMessageBox::Yes, tr("Do in background"));
+    msgBox->setButtonText(QMessageBox::No, tr("Continue waiting"));
+    int ret = msgBox->exec();
+    if(ret == QMessageBox::Yes){
+        QDialog::reject();
+    }
+    return;
 }
 
 void DocsetsDialog::addDashFeed()
