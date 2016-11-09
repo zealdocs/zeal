@@ -476,10 +476,12 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
 
     QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
     if (!realFragment.isEmpty()) {
-        if (realFragment.startsWith("//apple_ref"))
+        if (realFragment.startsWith(QLatin1String("//apple_ref"))
+                || realFragment.startsWith(QLatin1String("//dash_ref"))) {
             url.setFragment(realFragment, QUrl::DecodedMode);
-        else
+        } else {
             url.setFragment(realFragment);
+        }
     }
 
     return url;
