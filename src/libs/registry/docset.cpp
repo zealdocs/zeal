@@ -322,7 +322,7 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                   "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
-    m_db->execute(queryStr);
+    m_db->execute(queryStr.arg(cleanUrl.toString()));
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
