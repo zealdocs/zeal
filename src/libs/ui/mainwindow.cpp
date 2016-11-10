@@ -907,6 +907,12 @@ void MainWindow::applySettings()
     else
         removeTrayIcon();
 }
+void MainWindow::showToolsMenu()
+{
+    QMenuBar *menubar = this->menuBar();
+    QMenu *menu_Tools = menubar->findChild<QMenu *>("menu_Tools");
+    menubar->setActiveAction(menu_Tools->menuAction());
+}
 
 void MainWindow::toggleWindow()
 {

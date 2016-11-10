@@ -219,6 +219,11 @@ QString Application::userAgent()
     return QStringLiteral("Zeal/%1").arg(QCoreApplication::applicationVersion());
 }
 
+void Application::showToolsMenu()
+{
+    this->m_mainWindow->showToolsMenu();
+}
+
 QString Application::userAgentJson() const
 {
     // TODO: [Qt 5.4] Remove else branch

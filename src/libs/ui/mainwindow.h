@@ -70,6 +70,7 @@ public:
     void search(const Zeal::Registry::SearchQuery &query);
     void bringToFront();
     void createTab(int index = -1);
+    void showToolsMenu();
 
 public slots:
     void toggleWindow();
