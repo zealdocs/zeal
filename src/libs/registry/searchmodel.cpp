@@ -29,12 +29,12 @@
 using namespace Zeal::Registry;
 
 SearchModel::SearchModel(QObject *parent) :
-    QAbstractItemModel(parent)
+    QAbstractListModel(parent)
 {
 }
 
 SearchModel::SearchModel(const SearchModel &other) :
-    QAbstractItemModel(other.d_ptr->parent),
+    QAbstractListModel(other.d_ptr->parent),
     m_dataList(other.m_dataList)
 {
 }
@@ -79,23 +79,11 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
     return createIndex(row, column, item);
 }
 
-QModelIndex SearchModel::parent(const QModelIndex &child) const
-{
-    Q_UNUSED(child)
-    return QModelIndex();
-}
-
 int SearchModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return m_dataList.count();
     return 0;
-}
-
-int SearchModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return 2;
 }
 
 bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
