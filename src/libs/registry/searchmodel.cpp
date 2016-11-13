@@ -53,21 +53,16 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        switch (index.column()) {
-        case 0:
-            return item->name;
-        case 1:
-            return item->url;
-        default:
-            return QVariant();
-        }
+        return item->name;
 
-    case Qt::DecorationRole: {
+    case Qt::DecorationRole:
         return item->docset->symbolTypeIcon(item->type);
-    }
 
     case ItemDataRole::DocsetIconRole:
         return item->docset->icon();
+
+    case ItemDataRole::UrlRole:
+        return item->url;
 
     default:
         return QVariant();

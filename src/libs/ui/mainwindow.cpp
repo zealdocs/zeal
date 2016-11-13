@@ -496,7 +496,7 @@ void MainWindow::search(const Registry::SearchQuery &query)
 
 void MainWindow::openDocset(const QModelIndex &index)
 {
-    const QVariant url = index.sibling(index.row(), 1).data();
+    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
     if (url.isNull())
         return;
 

@@ -10,6 +10,7 @@ enum ItemDataRole {
     DocsetIconRole = Qt::UserRole,
     DocsetNameRole,
     UpdateAvailableRole,
+    UrlRole
 };
 
 } // namespace Registry
