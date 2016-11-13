@@ -88,7 +88,6 @@ private:
 
     static QString parseSymbolType(const QString &str);
 
-    QString m_sourceId;
     QString m_name;
     QString m_title;
     QStringList m_keywords;

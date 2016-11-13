@@ -38,8 +38,6 @@ DocsetMetadata::DocsetMetadata()
 
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
-    m_sourceId = jsonObject[QStringLiteral("sourceId")].toString();
-
     m_name = jsonObject[QStringLiteral("name")].toString();
     m_title = jsonObject[QStringLiteral("title")].toString();
 
@@ -70,11 +68,6 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }
 
-QString DocsetMetadata::sourceId() const
-{
-    return m_sourceId;
-}
-
 /*!
   Creates meta.json for specified docset \a version in the \a path.
 */
@@ -86,7 +79,6 @@ void DocsetMetadata::save(const QString &path, const QString &version)
 
     QJsonObject jsonObject;
 
-    jsonObject[QStringLiteral("sourceId")] = m_sourceId;
     jsonObject[QStringLiteral("name")] = m_name;
     jsonObject[QStringLiteral("title")] = m_title;
 
@@ -182,7 +174,6 @@ QList<QUrl> DocsetMetadata::urls() const
 DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArray &data)
 {
     DocsetMetadata metadata;
-    metadata.m_sourceId = QStringLiteral("dash-feed");
 
     metadata.m_name = feedUrl.fileName();
     metadata.m_name.chop(4); // Strip ".xml" extension
