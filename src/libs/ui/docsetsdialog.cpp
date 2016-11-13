@@ -30,6 +30,7 @@
 #include <core/application.h>
 #include <core/settings.h>
 #include <registry/docsetregistry.h>
+#include <registry/itemdatarole.h>
 #include <registry/listmodel.h>
 
 #include <QClipboard>
@@ -86,7 +87,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
     connect(ui->installedDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
-        if (!index.data(ListModel::UpdateAvailableRole).toBool()) {
+        if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
             return;
         }
 
@@ -99,7 +100,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
         for (const QModelIndex &index : selectionModel->selectedRows()) {
-            if (index.data(ListModel::UpdateAvailableRole).toBool()) {
+            if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
                 ui->updateSelectedDocsetsButton->setEnabled(true);
                 return;
             }
@@ -217,7 +218,7 @@ void DocsetsDialog::addDashFeed()
 void DocsetsDialog::updateSelectedDocsets()
 {
     for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedRows()) {
-        if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
+        if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool())
             continue;
 
         downloadDashDocset(index);
@@ -229,7 +230,7 @@ void DocsetsDialog::updateAllDocsets()
     QAbstractItemModel *model = ui->installedDocsetList->model();
     for (int i = 0; i < model->rowCount(); ++i) {
         const QModelIndex index = model->index(i, 0);
-        if (!index.data(Registry::ListModel::UpdateAvailableRole).toBool())
+        if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool())
             continue;
 
         downloadDashDocset(index);
@@ -261,7 +262,7 @@ void DocsetsDialog::removeSelectedDocsets()
     // Gather names first, because model indicies become invalid when docsets are removed.
     QStringList names;
     for (const QModelIndex &index : selectedIndexes)
-        names.append(index.data(Registry::ListModel::DocsetNameRole).toString());
+        names.append(index.data(Registry::ItemDataRole::DocsetNameRole).toString());
 
     for (const QString &name : names)
         removeDocset(name);
@@ -275,7 +276,7 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
         QListWidgetItem *item = ui->availableDocsetList->item(i);
 
         // Skip installed docsets
-        if (m_docsetRegistry->contains(item->data(Registry::ListModel::DocsetNameRole).toString()))
+        if (m_docsetRegistry->contains(item->data(Registry::ItemDataRole::DocsetNameRole).toString()))
             continue;
 
         item->setHidden(doSearch && !item->text().contains(filterString, Qt::CaseInsensitive));
@@ -560,7 +561,7 @@ QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
     for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
         QListWidgetItem *item = ui->availableDocsetList->item(i);
 
-        if (item->data(Registry::ListModel::DocsetNameRole).toString() == name)
+        if (item->data(Registry::ItemDataRole::DocsetNameRole).toString() == name)
             return item;
     }
 
@@ -638,7 +639,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     for (const Registry::DocsetMetadata &metadata : m_availableDocsets) {
         QListWidgetItem *listItem
                 = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
-        listItem->setData(Registry::ListModel::DocsetNameRole, metadata.name());
+        listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
 
         if (m_docsetRegistry->contains(metadata.name())) {
             listItem->setHidden(true);
@@ -659,7 +660,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
 
 void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
-    const QString name = index.data(Registry::ListModel::DocsetNameRole).toString();
+    const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
 
     if (!m_availableDocsets.contains(name))
         return;
@@ -749,7 +750,7 @@ void DocsetsDialog::resetProgress()
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     bool hasSelectedUpdates = false;
     for (const QModelIndex &index : selectionModel->selectedRows()) {
-        if (index.data(Registry::ListModel::UpdateAvailableRole).toBool()) {
+        if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
             hasSelectedUpdates = true;
             break;
         }

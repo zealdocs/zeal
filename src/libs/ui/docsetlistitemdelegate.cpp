@@ -23,6 +23,7 @@
 
 #include "docsetlistitemdelegate.h"
 
+#include <registry/itemdatarole.h>
 #include <registry/listmodel.h>
 
 #include <QPainter>
@@ -39,7 +40,7 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 {
     QItemDelegate::paint(painter, option, index);
 
-    if (!index.model()->data(index, Registry::ListModel::UpdateAvailableRole).toBool())
+    if (!index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())
         return;
 
     const QString text = tr("Update available");

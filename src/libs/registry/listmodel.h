@@ -37,12 +37,6 @@ class ListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    enum ItemDataRole {
-        // Do not collide with SearchModel, and ProgressItemDelegate.
-        DocsetNameRole = Qt::UserRole + 20,
-        UpdateAvailableRole
-    };
-
     explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);
     ~ListModel() override;
 

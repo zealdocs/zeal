@@ -33,6 +33,7 @@
 #include <core/application.h>
 #include <core/settings.h>
 #include <registry/docsetregistry.h>
+#include <registry/itemdatarole.h>
 #include <registry/listmodel.h>
 #include <registry/searchmodel.h>
 
@@ -317,7 +318,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
     SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
-    delegate->setDecorationRoles({Registry::SearchModel::DocsetIconRole, Qt::DecorationRole});
+    delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
     });

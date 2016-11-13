@@ -24,6 +24,7 @@
 #include "searchmodel.h"
 
 #include "docset.h"
+#include "itemdatarole.h"
 
 using namespace Zeal::Registry;
 

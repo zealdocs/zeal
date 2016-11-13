@@ -25,6 +25,7 @@
 
 #include "docset.h"
 #include "docsetregistry.h"
+#include "itemdatarole.h"
 
 using namespace Zeal::Registry;
 
@@ -93,11 +94,11 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-    case DocsetNameRole:
+    case ItemDataRole::DocsetNameRole:
         if (index.parent().isValid())
             return QVariant();
         return m_docsetRegistry->docset(index.row())->name();
-    case UpdateAvailableRole:
+    case ItemDataRole::UpdateAvailableRole:
         if (index.parent().isValid())
             return QVariant();
         return m_docsetRegistry->docset(index.row())->hasUpdate;
