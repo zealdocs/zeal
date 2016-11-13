@@ -24,7 +24,7 @@
 #ifndef LISTMODEL_H
 #define LISTMODEL_H
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
 #include <QMap>
 
 namespace Zeal {
