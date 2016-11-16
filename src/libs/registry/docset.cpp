@@ -750,14 +750,14 @@ static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) 
     QScopedArrayPointer<unsigned char> needle(new unsigned char[needleLen + 1]);
     QScopedArrayPointer<unsigned char> haystack(new unsigned char[haystackLen + 1]);
     for (int i = 0; i < needleLen + 1; ++i) {
-        char c = needleOrig[i];
+        unsigned char c = needleOrig[i];
         if (c >= 'A' && c <= 'Z')
             c += 32;
         needle[i] = c;
     }
 
     for (int i = 0, j = 0; i < haystackLen + 1; ++i, ++j) {
-        char c = haystackOrig[i];
+        unsigned char c = haystackOrig[i];
         if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             haystack[j] = '.';
