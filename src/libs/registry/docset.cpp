@@ -31,6 +31,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
@@ -365,6 +366,11 @@ void Docset::loadMetadata()
 
         if (extra.contains(QStringLiteral("indexFilePath"))) {
             m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
+        }
+
+        if (extra.contains(QStringLiteral("keywords"))) {
+            for (const QJsonValue &kw : extra[QStringLiteral("keywords")].toArray())
+                m_keywords << kw.toString();
         }
     }
 }
