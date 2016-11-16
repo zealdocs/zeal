@@ -362,7 +362,10 @@ void Docset::loadMetadata()
 
     if (jsonObject.contains(QStringLiteral("extra"))) {
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
-        m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
+
+        if (extra.contains(QStringLiteral("indexFilePath"))) {
+            m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
+        }
     }
 }
 
