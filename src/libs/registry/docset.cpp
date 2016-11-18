@@ -787,8 +787,9 @@ static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) 
         // simply return 0
         sqlite3_result_int(context, 0);
         return;
-    } else if (needleLen == match1Len) { // exact match
-        best = scoreExact(match1, match1Len, haystack.data(), haystackLen);
+    } else if (needleLen == match1Len) {
+        // +100 to make sure exact matches are always on top.
+        best = scoreExact(match1, match1Len, haystack.data(), haystackLen) + 100;
     } else {
         best = scoreFuzzy(match1, match1Len, haystack.data());
 
