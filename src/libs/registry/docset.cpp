@@ -95,7 +95,7 @@ Docset::Docset(const QString &path) :
 
     if (m_name.isEmpty()) {
         // Fallback if meta.json is absent
-        if (!plist.contains(InfoPlist::CFBundleName)) {
+        if (plist.contains(InfoPlist::CFBundleName)) {
             m_name = m_title = plist[InfoPlist::CFBundleName].toString();
             // TODO: Remove when MainWindow::docsetName() will not use directory name
             m_name.replace(QLatin1Char(' '), QLatin1Char('_'));
