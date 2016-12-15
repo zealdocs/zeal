@@ -23,6 +23,7 @@
 
 #include "progressitemdelegate.h"
 
+#include <QApplication>
 #include <QPainter>
 #include <QProgressBar>
 
@@ -34,40 +35,29 @@ ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
 void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
-    if (!index.model()->data(index, ShowProgressRole).toBool()) {
-        QItemDelegate::paint(painter, option, index);
+    QItemDelegate::paint(painter, option, index);
+
+    if (!index.model()->data(index, ShowProgressRole).toBool())
         return;
-    }
 
     bool ok;
     const int value = index.model()->data(index, ValueRole).toInt(&ok);
 
-    if (!ok) {
-        QItemDelegate::paint(painter, option, index);
+    if (!ok)
         return;
-    }
 
-    // Adjust maximum text width
-    QStyleOptionViewItem styleOption = option;
-    styleOption.rect.setRight(styleOption.rect.right() - progressBarWidth);
-
-    // Size progress bar
-    QScopedPointer<QProgressBar> renderer(new QProgressBar());
-    renderer->resize(progressBarWidth, styleOption.rect.height());
-    renderer->setRange(0, 100);
-    renderer->setValue(value);
+    QStyleOptionProgressBar progressBarOption;
+    progressBarOption.rect = option.rect;
+    progressBarOption.rect.setLeft(option.rect.right() - progressBarWidth);
+    progressBarOption.minimum = 0;
+    progressBarOption.maximum = 100;
+    progressBarOption.progress = value;
 
     const QString format = index.model()->data(index, FormatRole).toString();
-    if (!format.isEmpty())
-        renderer->setFormat(format);
+    if (!format.isEmpty()) {
+        progressBarOption.textVisible = true;
+        progressBarOption.text = QString("%1: %2%").arg(format).arg(value, 3);
+    }
 
-    painter->save();
-
-    // Paint progress bar
-    painter->translate(styleOption.rect.topRight());
-    renderer->render(painter);
-
-    painter->restore();
-
-    QItemDelegate::paint(painter, styleOption, index);
+    QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
 }

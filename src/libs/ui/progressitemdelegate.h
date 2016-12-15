@@ -42,7 +42,7 @@ public:
                const QModelIndex &index) const override;
 
 private:
-    static const int progressBarWidth = 150;
+    static const int progressBarWidth = 250;
 };
 
 #endif // PROGRESSITEMDELEGATE_H
