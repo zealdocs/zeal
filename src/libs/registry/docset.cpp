@@ -252,10 +252,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 {
     // Make it safe to use in a SQL query.
     QString sanitizedQuery = query;
-    sanitizedQuery.replace(QLatin1String("\\"), QLatin1String("\\\\"));
-    sanitizedQuery.replace(QLatin1String("_"), QLatin1String("\\_"));
-    sanitizedQuery.replace(QLatin1String("%"), QLatin1String("\\%"));
-    sanitizedQuery.replace(QLatin1String("'"), QLatin1String("''"));
+    sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
 
     QString queryStr;
     if (m_type == Docset::Type::Dash) {
@@ -758,21 +755,26 @@ static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) 
         ++needleLen;
     QScopedArrayPointer<unsigned char> needle(new unsigned char[needleLen + 1]);
     QScopedArrayPointer<unsigned char> haystack(new unsigned char[haystackLen + 1]);
-    for (int i = 0; i < needleLen + 1; ++i) {
+    for (int i = 0, j = 0; i <= needleLen; ++i, ++j) {
         unsigned char c = needleOrig[i];
-        if (c >= 'A' && c <= 'Z')
-            c += 32;
-        needle[i] = c;
+        if ((i > 0 && needleOrig[i - 1] == ':' && c == ':') // C++ (::)
+                || c == '/' || c == '_' || c == ' ') { // Go, some Guides
+            needle[j] = '.';
+        } else if (c >= 'A' && c <= 'Z')  {
+            needle[j] = c + 32;
+        } else {
+            needle[j] = c;
+        }
     }
 
-    for (int i = 0, j = 0; i < haystackLen + 1; ++i, ++j) {
+    for (int i = 0, j = 0; i <= haystackLen; ++i, ++j) {
         unsigned char c = haystackOrig[i];
         if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             haystack[j] = '.';
+        } else if (c >= 'A' && c <= 'Z')  {
+            haystack[j] = c + 32;
         } else {
-            if (c >= 'A' && c <= 'Z')
-                c += 32;
             haystack[j] = c;
         }
     }
