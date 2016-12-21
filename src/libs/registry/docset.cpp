@@ -39,7 +39,6 @@
 
 #include <sqlite3.h>
 
-static void scoreFunc(sqlite3_context *context, int, sqlite3_value **argv);
 using namespace Zeal::Registry;
 
 namespace {
@@ -58,6 +57,8 @@ const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 //const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
 }
+
+static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
 
 Docset::Docset(const QString &path) :
     m_path(path)
@@ -125,7 +126,7 @@ Docset::Docset(const QString &path) :
         return;
     }
 
-    sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr, scoreFunc,
+    sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr, sqliteScoreFunction,
                             nullptr, nullptr);
 
     m_type = m_db->tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
@@ -624,63 +625,74 @@ QString Docset::parseSymbolType(const QString &str)
     return aliases.value(str, str);
 }
 
-// ported from DevDocs' searcher.coffee:
-// (https://github.com/Thibaut/devdocs/blob/50f583246d5fbd92be7b71a50bfa56cf4e239c14/assets/javascripts/app/searcher.coffee#L91)
-static void matchFuzzy(int nLen, const unsigned char *needle, int hLen,
-                       const unsigned char *haystack, int *start, int *len)
+// Based on https://github.com/bevacqua/fuzzysearch
+static void matchFuzzy(const char *needle, int needleLength,
+                       const char *haystack, int haystackLength,
+                       int *start, int *length)
 {
-    int j = 0;
-    int groups = 0;
-    for (int i = 0; i < nLen; ++i) {
+    static const int MaxDistance = 8;
+    static const int MaxGroupCount = 3;
+
+    *start = -1;
+
+    int groupCount = 0;
+
+    for (int i = 0, j = 0; i < needleLength; ++i) {
         bool found = false;
         bool first = true;
         int distance = 0;
-        while (j < hLen) {
+
+        while (j < haystackLength) {
             if (needle[i] == haystack[j++]) {
                 if (*start == -1)
-                    *start = j - 1;  // first matched char
-                *len = j - *start;
+                    *start = j;  // first matched char
+
+                *length = j - *start + 1;
                 found = true;
-                break;  // continue the outer loop
-            } else {
-                // optimizations to reduce returned number of results
-                // (search was returning too many irrelevant results with large docsets)
-                if (first) {
-                    groups += 1;
-                    if (groups > 3)  // optimization #1: too many mismatches
-                        break;
-                    first = false;
+                break;
+            }
+
+            // Optimizations to reduce returned number of results
+            // (search was returning too many irrelevant results with large docsets)
+            // Optimization #1: too many mismatches.
+            if (first) {
+                if (++groupCount >= MaxGroupCount) {
+                    break;
                 }
 
-                if (i != 0) {
-                    distance += 1;
-                    if (distance > 8) {  // optimization #2: too large distance between found chars
-                        break;
-                    }
-                }
+                first = false;
+            }
+
+            // Optimization #2: too large distance between found chars.
+            if (i != 0 && ++distance >= MaxDistance) {
+                break;
             }
         }
 
         if (!found) {
-            // end of haystack, char not found
+            // End of haystack, char not found.
             *start = -1;
             return;
         }
     }
 }
 
-static int scoreExact(int matchIndex, int matchLen, const unsigned char *value, int valueLen)
+// Ported from DevDocs (https://github.com/Thibaut/devdocs), see app/searcher.coffee.
+static int scoreExact(int matchIndex, int matchLen, const char *value, int valueLen)
 {
+    static const char DOT = '.';
+
     int score = 100;
-    const unsigned char DOT = '.';
+
     // Remove one point for each unmatched character.
     score -= (valueLen - matchLen);
+
     if (matchIndex > 0) {
         if (value[matchIndex - 1] == DOT) {
             // If the character preceding the query is a dot, assign the same
             // score as if the query was found at the beginning of the string,
             // minus one.
-            score += (matchIndex - 1);
+            score += matchIndex - 1;
         } else if (matchLen == 1) {
             // Don't match a single-character query unless it's found at the
             // beginning of the string or is preceded by a dot.
@@ -694,69 +706,64 @@ static int scoreExact(int matchIndex, int matchLen, const unsigned char *value, 
             int i = matchIndex - 2;
             while (i >= 0 && value[i] != DOT)
                 --i;
-            score -= (matchIndex - i)                       // (1)
-                     + (valueLen - matchLen - matchIndex);  // (2)
+
+            score -= (matchIndex - i)                      // (1)
+                    + (valueLen - matchLen - matchIndex);  // (2)
         }
 
         // Remove one point for each dot preceding the query, except for the
         // one immediately before the query.
-        int separators = 0;
-        int i = matchIndex - 2;
-
-        while (i >= 0) {
+        for (int i = matchIndex - 2; i >= 0; --i) {
             if (value[i] == DOT)
-                ++separators;
-            --i;
+                --score;
         }
-
-        score -= separators;
     }
 
     // Remove five points for each dot following the query.
-    int separators = 0;
-    int i = valueLen - matchLen - matchIndex - 1;
-    while (i >= 0) {
-        if (value[matchIndex + matchLen + i] == DOT) {
-            ++separators;
-        }
-        --i;
+    for (int i = valueLen - matchLen - matchIndex - 1; i >= 0; --i) {
+        if (value[matchIndex + matchLen + i] == DOT)
+            score -= 5;
     }
-
-    score -= separators * 5;
 
     return qMax(1, score);
 }
 
-static int scoreFuzzy(int matchIndex, int matchLen, const unsigned char *value)
+/**
+ * \brief Returns score based on a substring position in a string.
+ * \param str Original string.
+ * \param index Index of the substring within \a str.
+ * \param length Substring length.
+ * \return Score value between 1 and 100.
+ */
+static int scoreFuzzy(const char *str, int index, int length)
 {
-    if (matchIndex == 0 || value[matchIndex - 1] == '.') {
+    if (index == 0 || str[index - 1] == '.') {
         // score between 66..99, if the match follows a dot, or starts the string
-        return qMax(66, 100 - matchLen);
+        return qMax(66, 100 - length);
+    } else if (str[index + length] == 0) {
+        // score between 33..66, if the match is at the end of the string
+        return qMax(33, 67 - length);
     } else {
-        if (value[matchIndex + matchLen] == 0) {
-            // score between 33..66, if the match is at the end of the string
-            return qMax(33, 67 - matchLen);
-        } else {
-            // score between 1..33 otherwise (match in the middle of the string)
-            return qMax(1, 34 - matchLen);
-        }
+        // score between 1..33 otherwise (match in the middle of the string)
+        return qMax(1, 34 - length);
     }
 }
 
-static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) {
+static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+{
     Q_UNUSED(argc);
-    const unsigned char *needleOrig = sqlite3_value_text(argv[0]);
-    const unsigned char *haystackOrig = sqlite3_value_text(argv[1]);
 
-    int haystackLen = 0, needleLen = 0;
-    while (haystackOrig[haystackLen] != 0)
-        ++haystackLen;
-    while (needleOrig[needleLen] != 0)
-        ++needleLen;
-    QScopedArrayPointer<unsigned char> needle(new unsigned char[needleLen + 1]);
-    QScopedArrayPointer<unsigned char> haystack(new unsigned char[haystackLen + 1]);
-    for (int i = 0, j = 0; i <= needleLen; ++i, ++j) {
-        unsigned char c = needleOrig[i];
+    const char *needleOrig = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    const char *haystackOrig = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+
+    const int needleLength = static_cast<int>(qstrlen(needleOrig));
+    const int haystackLength = static_cast<int>(qstrlen(haystackOrig));
+
+    QScopedArrayPointer<char> needle(new char[needleLength + 1]);
+    QScopedArrayPointer<char> haystack(new char[haystackLength + 1]);
+
+    for (int i = 0, j = 0; i <= needleLength; ++i, ++j) {
+        const char c = needleOrig[i];
         if ((i > 0 && needleOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             needle[j] = '.';
@@ -767,8 +774,8 @@ static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) 
         }
     }
 
-    for (int i = 0, j = 0; i <= haystackLen; ++i, ++j) {
-        unsigned char c = haystackOrig[i];
+    for (int i = 0, j = 0; i <= haystackLength; ++i, ++j) {
+        const char c = haystackOrig[i];
         if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             haystack[j] = '.';
@@ -779,38 +786,42 @@ static void scoreFunc(sqlite3_context *context, int argc, sqlite3_value **argv) 
         }
     }
 
-    int best = 0;
-    int match1 = -1;
-    int match1Len;
+    int score = 0;
+    int matchIndex = -1;
+    int matchLength;
 
-    matchFuzzy(needleLen, needle.data(), haystackLen, haystack.data(), &match1, &match1Len);
+    matchFuzzy(needle.data(), needleLength,
+               haystack.data(), haystackLength,
+               &matchIndex, &matchLength);
 
-    if (match1 == -1) { // no match
+    if (matchIndex == -1) { // no match
         // simply return 0
         sqlite3_result_int(context, 0);
         return;
-    } else if (needleLen == match1Len) {
+    } else if (needleLength == matchLength) {
         // +100 to make sure exact matches are always on top.
-        best = scoreExact(match1, match1Len, haystack.data(), haystackLen) + 100;
+        score = scoreExact(matchIndex, matchLength, haystack.data(), haystackLength) + 100;
     } else {
-        best = scoreFuzzy(match1, match1Len, haystack.data());
+        score = scoreFuzzy(haystack.data(), matchIndex, matchLength);
 
-        int indexOfLastDot = -1;
-        for (int i = 0; haystack[i] != 0; ++i) {
-            if (haystack[i] == '.')
-                indexOfLastDot = i;
+        int indexOfLastDot;
+        for (indexOfLastDot = haystackLength - 1; indexOfLastDot >= 0; --indexOfLastDot) {
+            if (haystack[indexOfLastDot] == '.')
+                break;
         }
 
         if (indexOfLastDot != -1) {
-            int match2 = -1, match2Len;
-            matchFuzzy(needleLen, needle.data(), haystackLen - (indexOfLastDot + 1),
-                       haystack.data() + indexOfLastDot + 1, &match2, &match2Len);
-            if (match2 != -1) {
-                best = qMax(best, scoreFuzzy(match2, match2Len,
-                                             haystack.data() + indexOfLastDot + 1));
+            matchIndex = -1;
+            matchFuzzy(needle.data(), needleLength,
+                       haystack.data() + indexOfLastDot + 1, haystackLength - (indexOfLastDot + 1),
+                       &matchIndex, &matchLength);
+
+            if (matchIndex != -1) {
+                score = qMax(score, scoreFuzzy(haystack.data() + indexOfLastDot + 1,
+                                               matchIndex, matchLength));
             }
         }
     }
 
-    sqlite3_result_int(context, best);
+    sqlite3_result_int(context, score);
 }
