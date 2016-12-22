@@ -56,6 +56,7 @@ public:
     Settings *settings() const;
 
     Registry::DocsetRegistry *docsetRegistry();
+    void showToolsMenu();
 
 public slots:
     void executeQuery(const Registry::SearchQuery &query, bool preventActivation);

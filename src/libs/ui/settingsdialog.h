@@ -45,6 +45,7 @@ public:
 
 private slots:
     void on_storageButton_clicked();
+    void on_showToolsMenu_clicked();
 
 private:
     Ui::SettingsDialog *ui = nullptr;

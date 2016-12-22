@@ -30,6 +30,8 @@
 
 #include <QDir>
 #include <QFileDialog>
+#include <QMenuBar>
+#include <QMenu>
 
 #ifdef USE_WEBENGINE
 #include <QWebEngineSettings>
@@ -68,6 +70,13 @@ SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
 SettingsDialog::~SettingsDialog()
 {
     delete ui;
+}
+
+void SettingsDialog::on_showToolsMenu_clicked()
+{
+    this->saveSettings();
+    this->reject();
+    m_application->showToolsMenu();
 }
 
 void SettingsDialog::on_storageButton_clicked()
