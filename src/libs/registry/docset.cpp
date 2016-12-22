@@ -36,6 +36,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QVariant>
+#include <QVarLengthArray>
 
 #include <sqlite3.h>
 
@@ -759,8 +760,8 @@ static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_valu
     const int needleLength = static_cast<int>(qstrlen(needleOrig));
     const int haystackLength = static_cast<int>(qstrlen(haystackOrig));
 
-    QScopedArrayPointer<char> needle(new char[needleLength + 1]);
-    QScopedArrayPointer<char> haystack(new char[haystackLength + 1]);
+    QVarLengthArray<char, 1024> needle(needleLength + 1);
+    QVarLengthArray<char, 1024> haystack(haystackLength + 1);
 
     for (int i = 0, j = 0; i <= needleLength; ++i, ++j) {
         const char c = needleOrig[i];
