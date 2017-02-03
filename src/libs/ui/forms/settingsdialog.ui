@@ -387,23 +387,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="docsetsTab">
-      <attribute name="title">
-       <string>Docsets</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Docsets are now available via the &lt;b&gt;Tools&lt;/b&gt; menu.</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
