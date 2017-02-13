@@ -75,9 +75,8 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    // TODO: [Qt 5.4] parser.addOption({{"f", "force"}, "Force the application run."});
-    parser.addOption(QCommandLineOption({QStringLiteral("f"), QStringLiteral("force")},
-                                        QObject::tr("Force the application run.")));
+    parser.addOption({{QStringLiteral("f"), QStringLiteral("force")},
+                      QObject::tr("Force the application run.")});
 
 #ifdef Q_OS_WIN32
     parser.addOption(QCommandLineOption({QStringLiteral("register")},
