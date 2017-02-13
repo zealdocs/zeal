@@ -47,6 +47,8 @@ class MainWindow;
 
 namespace Zeal {
 
+class DocsetsDialog;
+
 namespace Core {
 class Application;
 class Settings;
@@ -123,6 +125,7 @@ private:
     QSystemTrayIcon *m_trayIcon = nullptr;
 
     QTimer *m_openDocsetTimer = nullptr;
+    Zeal::DocsetsDialog *bg_dialog = nullptr;
 
 #ifdef USE_APPINDICATOR
     bool m_useAppIndicator = false;

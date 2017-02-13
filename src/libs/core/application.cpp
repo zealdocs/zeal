@@ -29,6 +29,7 @@
 #include <registry/docsetregistry.h>
 #include <registry/searchquery.h>
 #include <ui/mainwindow.h>
+#include <ui/docsetsdialog.h>
 #include <util/version.h>
 
 #include <QCoreApplication>
