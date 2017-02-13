@@ -27,7 +27,6 @@
 #include <QDataStream>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <QScopedPointer>
 
 using namespace Zeal;
 using namespace Zeal::Core;
@@ -40,19 +39,19 @@ LocalServer::LocalServer(QObject *parent)
     : QObject(parent)
     , m_localServer(new QLocalServer(this))
 {
-    connect(m_localServer, &QLocalServer::newConnection, [this]() {
-        QScopedPointer<QLocalSocket> connection(m_localServer->nextPendingConnection());
-        // Wait while the other side writes the data.
-        if (!connection->waitForReadyRead(500))
-            return;
+    connect(m_localServer, &QLocalServer::newConnection, [this] {
+        QLocalSocket *socket = m_localServer->nextPendingConnection();
+        connect(socket, &QLocalSocket::readyRead, [this, socket] {
+            Registry::SearchQuery query;
+            bool preventActivation;
 
-        QDataStream in(connection.data());
-        Registry::SearchQuery query;
-        bool preventActivation;
-        in >> query;
-        in >> preventActivation;
+            QDataStream in(socket);
+            in >> query;
+            in >> preventActivation;
 
-        emit newQuery(query, preventActivation);
+            emit newQuery(query, preventActivation);
+            socket->deleteLater();
+        });
     });
 }
 
@@ -94,15 +93,17 @@ bool LocalServer::start(bool force)
  */
 bool LocalServer::sendQuery(const Registry::SearchQuery &query, bool preventActivation)
 {
-    QScopedPointer<QLocalSocket> socket(new QLocalSocket());
+    QByteArray ba;
+    QDataStream out(&ba, QIODevice::WriteOnly);
+    out << query << preventActivation;
+
+    QLocalSocket *socket = new QLocalSocket();
+    connect(socket, &QLocalSocket::connected, [socket, ba] {
+        socket->write(ba);
+        socket->flush(); // Required for Linux
+        socket->deleteLater();
+    });
+
     socket->connectToServer(LocalServerName);
-
-    if (!socket->waitForConnected(500))
-        return false;
-
-    QDataStream out(socket.data());
-    out << query;
-    out << preventActivation;
-    socket->flush();
-    return true;
+    return socket->waitForConnected(500);
 }

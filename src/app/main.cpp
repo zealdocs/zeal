@@ -32,6 +32,7 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QTimer>
 #include <QUrlQuery>
 
 #ifdef Q_OS_WIN32
@@ -104,6 +105,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     // TODO: Support dash-feed:// protocol
     const QString arg
             = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
+
     if (arg.startsWith(QLatin1String("dash:"))) {
         clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
     } else if (arg.startsWith(QLatin1String("dash-plugin:"))) {
@@ -248,8 +250,11 @@ int main(int argc, char *argv[])
     QObject::connect(localServer.data(), &Core::LocalServer::newQuery,
                      app.data(), &Core::Application::executeQuery);
 
-    if (!clParams.query.isEmpty())
-        Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation);
+    if (!clParams.query.isEmpty()) {
+        QTimer::singleShot(0, [clParams] {
+            Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation);
+        });
+    }
 
     return qapp->exec();
 }
