@@ -4,6 +4,7 @@ compiler:
 build:
   pre_ci_boot:
     image_name: drydock/u16
+    image_tag: tip
   ci:
     - shippable_retry sudo apt-get -y -qq update
     - shippable_retry sudo apt-get -y -qq install --no-install-recommends qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
