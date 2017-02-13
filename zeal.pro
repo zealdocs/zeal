@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-lessThan(QT_VERSION, "5.2.0") {
-    error("Qt 5.2.0 or above is required to build Zeal.")
+lessThan(QT_VERSION, "5.5.1") {
+    error("Qt 5.5.1 or above is required to build Zeal.")
 }
 
 TEMPLATE = subdirs
