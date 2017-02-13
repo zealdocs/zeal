@@ -3,7 +3,7 @@ compiler:
   - gcc
 build:
   pre_ci_boot:
-    image_name: drydock/u16
+    image_name: drydock/u16cppall
     image_tag: tip
   ci:
     - shippable_retry sudo apt-get -y -qq update
