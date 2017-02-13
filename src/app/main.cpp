@@ -222,10 +222,10 @@ int main(int argc, char *argv[])
         msgBox->setDefaultButton(quitButton);
 
         switch (msgBox->exec()) {
-            case QMessageBox::Rejected:
-                return EXIT_SUCCESS;
-            case QMessageBox::Help:
-                QDesktopServices::openUrl(QUrl(contactUrl));
+        case QMessageBox::Rejected:
+            return EXIT_SUCCESS;
+        case QMessageBox::Help:
+            QDesktopServices::openUrl(QUrl(contactUrl));
         }
 
         msgBox->removeButton(msgBox->button(QMessageBox::Retry));
