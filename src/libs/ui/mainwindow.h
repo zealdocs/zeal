@@ -29,11 +29,6 @@
 
 #include <QMainWindow>
 
-#ifdef USE_APPINDICATOR
-struct _AppIndicator;
-struct _GtkWidget;
-#endif
-
 class QxtGlobalShortcut;
 
 class QModelIndex;
@@ -98,9 +93,6 @@ private:
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
 
-#ifdef USE_APPINDICATOR
-    void detectAppIndicatorSupport();
-#endif
     void createTrayIcon();
     void removeTrayIcon();
 
@@ -123,15 +115,6 @@ private:
     QSystemTrayIcon *m_trayIcon = nullptr;
 
     QTimer *m_openDocsetTimer = nullptr;
-
-#ifdef USE_APPINDICATOR
-    bool m_useAppIndicator = false;
-    _AppIndicator *m_appIndicator = nullptr;
-    _GtkWidget *m_appIndicatorMenu = nullptr;
-    _GtkWidget *m_appIndicatorQuitMenuItem = nullptr;
-    _GtkWidget *m_appIndicatorShowHideMenuItem = nullptr;
-    _GtkWidget *m_appIndicatorMenuSeparator = nullptr;
-#endif
 };
 
 #endif // MAINWINDOW_H

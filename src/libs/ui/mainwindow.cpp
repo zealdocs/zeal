@@ -62,14 +62,6 @@ typedef QWebEnginePage QWebPage;
 #include <QWebPage>
 #endif
 
-// TODO: [Qt 5.5] Remove in favour of native Qt support (QTBUG-31762)
-#ifdef USE_APPINDICATOR
-#undef signals
-#include <libappindicator/app-indicator.h>
-#define signals public
-#include <gtk/gtk.h>
-#endif
-
 using namespace Zeal;
 
 namespace {
@@ -186,10 +178,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->setupUi(this);
 
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
-
-#ifdef USE_APPINDICATOR
-    detectAppIndicatorSupport();
-#endif
 
     if (m_settings->showSystrayIcon)
         createTrayIcon();
@@ -713,118 +701,39 @@ void MainWindow::setupTabBar()
     layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 }
 
-#ifdef USE_APPINDICATOR
-void MainWindow::detectAppIndicatorSupport()
-{
-    const QByteArray xdgDesktop = qgetenv("XDG_CURRENT_DESKTOP");
-
-    // Unity
-    if (xdgDesktop == "Unity") {
-        m_useAppIndicator = true;
-        return;
-    }
-
-    // Cinnamon 2.8
-    // Checking specifically for 2.8 because direct AppIndicator support will be dropped soon.
-    if (xdgDesktop == "X-Cinnamon" && qgetenv("CINNAMON_VERSION").startsWith("2.8")) {
-        m_useAppIndicator = true;
-        return;
-    }
-}
-#endif
-
-#ifdef USE_APPINDICATOR
-void appIndicatorToggleWindow(GtkMenu *menu, gpointer data)
-{
-    Q_UNUSED(menu)
-    static_cast<MainWindow *>(data)->toggleWindow();
-}
-#endif
-
 void MainWindow::createTrayIcon()
 {
-#ifdef USE_APPINDICATOR
-    if (m_trayIcon || m_appIndicator)
-        return;
-#else
     if (m_trayIcon)
         return;
-#endif
 
-#ifdef USE_APPINDICATOR
-    if (m_useAppIndicator) {
-        m_appIndicatorMenu = gtk_menu_new();
+    m_trayIcon = new QSystemTrayIcon(this);
+    m_trayIcon->setIcon(windowIcon());
+    m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
-        m_appIndicatorShowHideMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Hide")));
-        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorShowHideMenuItem);
-        g_signal_connect(m_appIndicatorShowHideMenuItem, "activate",
-                         G_CALLBACK(appIndicatorToggleWindow), this);
+    connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
+        if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
+            return;
 
-        m_appIndicatorMenuSeparator = gtk_separator_menu_item_new();
-        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorMenuSeparator);
+        toggleWindow();
+    });
 
-        m_appIndicatorQuitMenuItem = gtk_menu_item_new_with_label(qPrintable(tr("Quit")));
-        gtk_menu_shell_append(GTK_MENU_SHELL(m_appIndicatorMenu), m_appIndicatorQuitMenuItem);
-        g_signal_connect(m_appIndicatorQuitMenuItem, "activate",
-                         G_CALLBACK(QCoreApplication::quit), NULL);
+    QMenu *trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(ui->actionQuit);
 
-        gtk_widget_show_all(m_appIndicatorMenu);
+    m_trayIcon->setContextMenu(trayIconMenu);
 
-        // NOTE: Zeal icon has to be installed, otherwise app indicator won't be shown
-        m_appIndicator = app_indicator_new("zeal", "zeal", APP_INDICATOR_CATEGORY_OTHER);
-
-        app_indicator_set_status(m_appIndicator, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_menu(m_appIndicator, GTK_MENU(m_appIndicatorMenu));
-    } else {  // others
-#endif
-        m_trayIcon = new QSystemTrayIcon(this);
-        m_trayIcon->setIcon(windowIcon());
-        m_trayIcon->setToolTip(QStringLiteral("Zeal"));
-
-        connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
-            if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
-                return;
-
-            toggleWindow();
-        });
-
-        QMenu *trayIconMenu = new QMenu(this);
-        trayIconMenu->addAction(ui->actionQuit);
-
-        m_trayIcon->setContextMenu(trayIconMenu);
-
-        m_trayIcon->show();
-#ifdef USE_APPINDICATOR
-    }
-#endif
+    m_trayIcon->show();
 }
 
 void MainWindow::removeTrayIcon()
 {
-#ifdef USE_APPINDICATOR
-    if (!m_trayIcon && !m_appIndicator)
-        return;
-#else
     if (!m_trayIcon)
         return;
-#endif
 
-#ifdef USE_APPINDICATOR
-    if (m_useAppIndicator) {
-        g_clear_object(&m_appIndicator);
-        g_clear_object(&m_appIndicatorMenu);
-        g_clear_object(&m_appIndicatorShowHideMenuItem);
-        g_clear_object(&m_appIndicatorMenuSeparator);
-        g_clear_object(&m_appIndicatorQuitMenuItem);
-    } else {
-#endif
-        QMenu *trayIconMenu = m_trayIcon->contextMenu();
-        delete m_trayIcon;
-        m_trayIcon = nullptr;
-        delete trayIconMenu;
-#ifdef USE_APPINDICATOR
-    }
-#endif
+    QMenu *trayIconMenu = m_trayIcon->contextMenu();
+    delete m_trayIcon;
+    m_trayIcon = nullptr;
+    delete trayIconMenu;
 }
 
 void MainWindow::bringToFront()
@@ -913,23 +822,9 @@ void MainWindow::toggleWindow()
     const bool checkActive = sender() == m_globalShortcut;
 
     if (!isVisible() || (checkActive && !isActiveWindow())) {
-#ifdef USE_APPINDICATOR
-        if (m_appIndicator) {
-            gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
-                                    qPrintable(tr("Hide")));
-        }
-#endif
         bringToFront();
     } else {
-#ifdef USE_APPINDICATOR
-        if (m_trayIcon || m_appIndicator) {
-            if (m_appIndicator) {
-                gtk_menu_item_set_label(GTK_MENU_ITEM(m_appIndicatorShowHideMenuItem),
-                                        qPrintable(tr("Show")));
-            }
-#else
         if (m_trayIcon) {
-#endif
             hide();
         } else {
             showMinimized();
