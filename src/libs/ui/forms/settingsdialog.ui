@@ -458,22 +458,6 @@
   <connection>
    <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxy</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>232</x>
-     <y>77</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>232</x>
-     <y>97</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
    <receiver>httpProxyPortLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
@@ -484,6 +468,22 @@
     <hint type="destinationlabel">
      <x>347</x>
      <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxy</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>232</x>
+     <y>77</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>97</y>
     </hint>
    </hints>
   </connection>
@@ -516,6 +516,38 @@
     <hint type="destinationlabel">
      <x>100</x>
      <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyPass</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>httpProxyNeedsAuth</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>httpProxyUser</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>182</x>
+     <y>154</y>
     </hint>
    </hints>
   </connection>
@@ -564,38 +596,6 @@
     <hint type="destinationlabel">
      <x>84</x>
      <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyUser</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>183</x>
-     <y>135</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>182</x>
-     <y>154</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyPass</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>287</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>285</x>
-     <y>182</y>
     </hint>
    </hints>
   </connection>
