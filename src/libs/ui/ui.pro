@@ -9,6 +9,6 @@ SOURCES += \
     $$files(widgets/*.cpp)
 
 FORMS += \
-    $$files(forms/*.ui)
+    $$files(*.ui)
 
 include(qxtglobalshortcut/qxtglobalshortcut.pri)
