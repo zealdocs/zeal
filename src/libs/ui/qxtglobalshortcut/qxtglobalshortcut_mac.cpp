@@ -52,7 +52,6 @@
 
 #include "qxtglobalshortcut_p.h"
 
-#include <QApplication>
 #include <QHash>
 #include <QMap>
 
