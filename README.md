@@ -46,6 +46,14 @@ After installing Zeal, you need to download docsets. Go to *Tools->Docsets*, sel
 
 To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
 
+### Compile on macOS
+* `brew install qt5 --with-qtwebkit`
+* `brew install sqlite libarchive`
+* `/usr/local/opt/qt5/bin/qmake -makefile`
+* `make`
+* `cp -r bin/Zeal.app /Applications`
+* add `alias zeal='/Applications/Zeal.app/Contents/MacOS/Zeal'` to your `.zshrc` or `.bashrc` to have cli access to zeal.
+
 ## Query & Filter docsets
 
 You can limit the search scope by using ':' to indicate the desired docsets:
