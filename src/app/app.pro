@@ -37,7 +37,8 @@ for(lib_dir, $$list($$files($$SRC_ROOT/src/libs/*))) {
     !equals(lib_dir, $$SRC_ROOT/src/libs/libs.pro) {
         exists($$lib_dir/$$basename(lib_dir).pri) {
             include($$lib_dir/$$basename(lib_dir).pri)
-            PRE_TARGETDEPS += $$BUILD_ROOT/.lib/lib$${ZEAL_LIB_NAME}.a
+            unix:PRE_TARGETDEPS += $$BUILD_ROOT/.lib/lib$${ZEAL_LIB_NAME}.$${QMAKE_EXTENSION_STATICLIB}
+            win32:PRE_TARGETDEPS += $$BUILD_ROOT/.lib/$${ZEAL_LIB_NAME}.$${QMAKE_EXTENSION_STATICLIB}
             # LIBS += -l$$ZEAL_LIB_NAME
         }
     }
