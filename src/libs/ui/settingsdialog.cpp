@@ -30,14 +30,7 @@
 
 #include <QDir>
 #include <QFileDialog>
-
-#ifdef USE_WEBENGINE
-#include <QWebEngineSettings>
-
-typedef QWebEngineSettings QWebSettings;
-#else
 #include <QWebSettings>
-#endif
 
 using namespace Zeal;
 

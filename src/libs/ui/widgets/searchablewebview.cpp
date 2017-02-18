@@ -28,15 +28,9 @@
 #include <QLineEdit>
 #include <QStyle>
 #include <QResizeEvent>
-
-#ifdef USE_WEBENGINE
-#include <QWebEngineHistory>
-#include <QWebEnginePage>
-#else
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebPage>
-#endif
 
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent),
@@ -56,12 +50,7 @@ SearchableWebView::SearchableWebView(QWidget *parent) :
 
     connect(m_webView, &QWebView::urlChanged, this, &SearchableWebView::urlChanged);
     connect(m_webView, &QWebView::titleChanged, this, &SearchableWebView::titleChanged);
-#ifdef USE_WEBENGINE
-    // not implemented?
-    // connect(m_webView->page(), &QWebPage::linkClicked, this, &SearchableWebView::linkClicked);
-#else
     connect(m_webView, &QWebView::linkClicked, this, &SearchableWebView::linkClicked);
-#endif
 }
 
 void SearchableWebView::setPage(QWebPage *page)
@@ -147,11 +136,7 @@ void SearchableWebView::showSearchBar()
 void SearchableWebView::hideSearchBar()
 {
     m_searchLineEdit->hide();
-#ifdef USE_WEBENGINE
-    m_webView->findText(QString());
-#else
     m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
-#endif
 }
 
 bool SearchableWebView::canGoBack() const
@@ -186,11 +171,6 @@ void SearchableWebView::resizeEvent(QResizeEvent *event)
 
 void SearchableWebView::find(const QString &text)
 {
-#ifdef USE_WEBENGINE
-    // FIXME: There's no way to just show highlight when search term is already selected.
-    // So we need a workaround before switching to Qt WebEngine.
-    m_webView->findText(text);
-#else
     if (m_webView->selectedText() != text) {
         m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
         m_webView->findText(QString());
@@ -201,29 +181,22 @@ void SearchableWebView::find(const QString &text)
     }
 
     m_webView->findText(text, QWebPage::HighlightAllOccurrences);
-#endif
 }
 
 void SearchableWebView::findNext(const QString &text, bool backward)
 {
-#ifdef USE_WEBENGINE
-    QWebPage::FindFlags flags = 0;
-#else
     QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
-#endif
     if (backward)
         flags |= QWebPage::FindBackward;
+
     m_webView->findText(text, flags);
 }
 
 void SearchableWebView::moveLineEdit()
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-#ifdef USE_WEBENGINE
-    // FIXME: scrollbar width
-#else
     frameWidth += m_webView->page()->currentFrame()->scrollBarGeometry(Qt::Vertical).width();
-#endif
+
     m_searchLineEdit->move(rect().right() - frameWidth - m_searchLineEdit->sizeHint().width(), rect().top());
     m_searchLineEdit->raise();
 }

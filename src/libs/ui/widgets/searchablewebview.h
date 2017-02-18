@@ -28,13 +28,7 @@
 
 
 class QLineEdit;
-
-#ifdef USE_WEBENGINE
-class QWebEnginePage;
-typedef QWebEnginePage QWebPage;
-#else
 class QWebPage;
-#endif
 
 class WebView;
 

@@ -24,15 +24,7 @@
 #ifndef WEBVIEW_H
 #define WEBVIEW_H
 
-#ifdef USE_WEBENGINE
-#include <QWebEnginePage>
-#include <QWebEngineView>
-
-typedef QWebEnginePage QWebPage;
-typedef QWebEngineView QWebView;
-#else
 #include <QWebView>
-#endif
 
 class WebView : public QWebView
 {
@@ -46,18 +38,14 @@ public:
 protected:
     QWebView *createWindow(QWebPage::WebWindowType type) override;
     void mousePressEvent(QMouseEvent *event) override;
-#ifndef USE_WEBENGINE
     void mouseReleaseEvent(QMouseEvent *event) override;
-#endif
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-#ifndef USE_WEBENGINE
     QUrl clickedLink(const QPoint &pos) const;
-    QUrl m_clickedLink;
-#endif
     void updateZoomFactor();
 
+    QUrl m_clickedLink;
     int m_zoomFactor = 0;
 };
 

@@ -28,13 +28,7 @@
 #include <QStandardPaths>
 #include <QUrl>
 #include <QUuid>
-
-#ifdef USE_WEBENGINE
-#include <QWebEngineSettings>
-typedef QWebEngineSettings QWebSettings;
-#else
 #include <QWebSettings>
-#endif
 
 namespace {
 // Configuration file groups
@@ -53,10 +47,8 @@ Settings::Settings(QObject *parent) :
     QObject(parent)
 {
     // TODO: Move to user style sheet (related to #268)
-#ifndef USE_WEBENGINE
     QWebSettings::globalSettings()
             ->setUserStyleSheetUrl(QUrl(QStringLiteral("qrc:///browser/highlight.css")));
-#endif
 
     load();
 }

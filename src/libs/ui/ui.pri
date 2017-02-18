@@ -1,6 +1,6 @@
 ZEAL_LIB_NAME = Ui
 
-QT += widgets
+QT += webkitwidgets
 
 # QxtGlobalShortcut dependencies
 unix:!macx {

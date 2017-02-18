@@ -47,20 +47,9 @@
 #include <QSystemTrayIcon>
 #include <QTabBar>
 #include <QTimer>
-
-#ifdef USE_WEBENGINE
-#include <QWebEngineHistory>
-#include <QWebEngineHistoryItem>
-#include <QWebEnginePage>
-
-typedef QWebEngineHistory QWebHistory;
-typedef QWebEngineHistoryItem QWebHistoryItem;
-typedef QWebEnginePage QWebPage;
-#else
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebPage>
-#endif
 
 using namespace Zeal;
 
@@ -76,10 +65,8 @@ struct TabState
         tocModel = new Registry::SearchModel();
 
         webPage = new QWebPage();
-#ifndef USE_WEBENGINE
         webPage->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
         webPage->setNetworkAccessManager(Core::Application::instance()->networkManager());
-#endif
     }
 
     TabState(const TabState &other)
@@ -94,10 +81,8 @@ struct TabState
         tocModel = new Registry::SearchModel(*other.tocModel);
 
         webPage = new QWebPage();
-#ifndef USE_WEBENGINE
         webPage->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
         webPage->setNetworkAccessManager(Core::Application::instance()->networkManager());
-#endif
 
         restoreHistory(other.saveHistory());
     }
@@ -125,29 +110,17 @@ struct TabState
     }
 
     QUrl url() const {
-#ifdef USE_WEBENGINE
-        return webPage->url();
-#else
         return webPage->mainFrame()->url();
-#endif
     }
 
     void loadUrl(const QUrl &url)
     {
-#ifdef USE_WEBENGINE
-        webPage->load(url);
-#else
         webPage->mainFrame()->load(url);
-#endif
     }
 
     QString title() const
     {
-#ifdef USE_WEBENGINE
-        return webPage->title();
-#else
         return webPage->mainFrame()->title();
-#endif
     }
 
     QString searchQuery;
@@ -409,7 +382,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         openDocset(index);
 
-        // Get focus back. QWebPageEngine::load() always steals focus.
+        // Get focus back.
         ui->lineEdit->setFocus(Qt::MouseFocusReason);
     });
 
@@ -489,11 +462,7 @@ void MainWindow::openDocset(const QModelIndex &index)
         return;
 
     ui->webView->load(url.toUrl());
-
-    // QWebEnginePage::load() always steals focus, so no need to do it twice.
-#ifndef USE_WEBENGINE
     ui->webView->focus();
-#endif
 }
 
 QString MainWindow::docsetName(const QUrl &url) const

@@ -33,26 +33,6 @@ UI_DIR = $$BUILD_ROOT/.ui
 VERSION = 0.3.1
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
-# Browser engine
-CONFIG(zeal_qtwebengine) {
-    qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
-    else: error("Qt WebEngine is not available.")
-} else {
-    qtHaveModule(webkitwidgets): BROWSER_ENGINE = qtwebkit
-    else: qtHaveModule(webenginewidgets): BROWSER_ENGINE = qtwebengine
-    else: error("Zeal requires Qt WebEngine or Qt WebKit.")
-}
-
-equals(BROWSER_ENGINE, qtwebengine) {
-    message("Browser engine: Qt WebEngine.")
-    QT += webenginewidgets
-    DEFINES += USE_WEBENGINE
-} else {
-    message("Browser engine: Qt WebKit.")
-    QT += webkitwidgets
-    DEFINES += USE_WEBKIT
-}
-
 # Portable build
 CONFIG(zeal_portable) {
     message("Portable build: Yes.")
