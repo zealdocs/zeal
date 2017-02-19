@@ -179,6 +179,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
+#if QT_VERSION >= 0x050600
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
 
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
