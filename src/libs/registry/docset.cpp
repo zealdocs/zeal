@@ -40,6 +40,8 @@
 
 #include <sqlite3.h>
 
+#include <cstring>
+
 using namespace Zeal::Registry;
 
 namespace {
@@ -750,13 +752,8 @@ static int scoreFuzzy(const char *str, int index, int length)
     }
 }
 
-static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+static inline int scoreFunction(const char *needleOrig, const char *haystackOrig)
 {
-    Q_UNUSED(argc);
-
-    const char *needleOrig = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
-    const char *haystackOrig = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
-
     const int needleLength = static_cast<int>(qstrlen(needleOrig));
     const int haystackLength = static_cast<int>(qstrlen(haystackOrig));
 
@@ -790,18 +787,25 @@ static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_valu
     int score = 0;
     int matchIndex = -1;
     int matchLength;
+    int exactIndex = -1;
+    const char *exactMatch = std::strstr(haystack.data(), needle.data());
 
-    matchFuzzy(needle.data(), needleLength,
-               haystack.data(), haystackLength,
-               &matchIndex, &matchLength);
+    if (exactMatch != nullptr) {
+        exactIndex = exactMatch - haystack.data();
+    }
 
-    if (matchIndex == -1) { // no match
+    if (exactIndex == -1) {
+        matchFuzzy(needle.data(), needleLength,
+                   haystack.data(), haystackLength,
+                   &matchIndex, &matchLength);
+    }
+
+    if (matchIndex == -1 && exactIndex == -1) { // no match
         // simply return 0
-        sqlite3_result_int(context, 0);
-        return;
-    } else if (needleLength == matchLength) {
+        return 0;
+    } else if (exactIndex != -1) {
         // +100 to make sure exact matches are always on top.
-        score = scoreExact(matchIndex, matchLength, haystack.data(), haystackLength) + 100;
+        score = scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 100;
     } else {
         score = scoreFuzzy(haystack.data(), matchIndex, matchLength);
 
@@ -824,5 +828,15 @@ static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_valu
         }
     }
 
-    sqlite3_result_int(context, score);
+    return score;
+}
+
+static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+{
+    Q_UNUSED(argc);
+
+    const char *needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    const char *haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+
+    sqlite3_result_int(context, scoreFunction(needle, haystack));
 }
