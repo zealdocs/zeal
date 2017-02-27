@@ -8,6 +8,12 @@ list(APPEND Widgets_SOURCES
     widgets/webview.cpp
 )
 
+set(Ui_FORMS
+    aboutdialog.ui
+    mainwindow.ui
+    settingsdialog.ui
+)
+
 add_library(Ui
     aboutdialog.cpp
     docsetlistitemdelegate.cpp
@@ -17,6 +23,7 @@ add_library(Ui
     searchitemdelegate.cpp
     settingsdialog.cpp
     ${Widgets_SOURCES}
+    ${Ui_FORMS} # For Qt Creator.
 )
 
 target_link_libraries(Ui QxtGlobalShortcut Registry)
