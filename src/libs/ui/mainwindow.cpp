@@ -150,11 +150,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
-
-    if (m_settings->showSystrayIcon)
-        createTrayIcon();
-
     // initialise key grabber
     connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
 
@@ -431,6 +426,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->tocListView->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
+
+    connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
+    applySettings();
 
     if (m_settings->checkForUpdate)
         m_application->checkForUpdates(true);
