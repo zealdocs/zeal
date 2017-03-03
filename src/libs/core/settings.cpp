@@ -32,7 +32,7 @@
 
 namespace {
 // Configuration file groups
-const char GroupBrowser[] = "browser";
+const char GroupContent[] = "content";
 const char GroupDocsets[] = "docsets";
 const char GroupGlobalShortcuts[] = "global_shortcuts";
 const char GroupTabs[] = "tabs";
@@ -79,7 +79,7 @@ void Settings::load()
     openNewTabAfterActive = settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
     settings->endGroup();
 
-    settings->beginGroup(GroupBrowser);
+    settings->beginGroup(GroupContent);
     minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
                                         QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
@@ -142,7 +142,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
     settings->endGroup();
 
-    settings->beginGroup(GroupBrowser);
+    settings->beginGroup(GroupContent);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
     settings->endGroup();
 
@@ -187,15 +187,35 @@ void Settings::save()
 void Settings::migrate(QSettings *settings) const
 {
     settings->beginGroup(GroupInternal);
+    // TODO: [Qt 5.6] Use QVersionNumber.
     const QString version = settings->value(QStringLiteral("version")).toString();
     settings->endGroup();
+
+    //
+    // Pre 0.4
+    //
+
+    // Rename 'browser' group into 'content'.
+    if (version < QLatin1String("0.4")) {
+        settings->beginGroup(QStringLiteral("browser"));
+        const QVariant tmpMinimumFontSize = settings->value(QStringLiteral("minimum_font_size"));
+        settings->endGroup();
+        settings->remove(QStringLiteral("browser"));
+
+        if (tmpMinimumFontSize.isValid()) {
+            settings->beginGroup(GroupContent);
+            settings->setValue(QStringLiteral("minimum_font_size"), tmpMinimumFontSize);
+            settings->endGroup();
+        }
+    }
+
 
     //
     // Pre 0.3
     //
 
     // Unset 'state/splitter_geometry', because custom styles were removed.
-    if (version.isEmpty() || version.startsWith(QLatin1String("0.2"))) {
+    if (version < QLatin1String("0.3")) {
         settings->beginGroup(GroupState);
         settings->remove(QStringLiteral("splitter_geometry"));
         settings->endGroup();

@@ -56,7 +56,7 @@ public:
     // Tabs Behavior
     bool openNewTabAfterActive;
 
-    // Browser
+    // Content
     int minimumFontSize;
     // TODO: bool askOnExternalLink;
     // TODO: QString customCss;

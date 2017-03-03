@@ -50,7 +50,7 @@ SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
             saveSettings();
     });
 
-    connect(ui->minFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(ui->minimumFontSizeSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
             this, [](int value) {
         QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, value);
     });
@@ -88,7 +88,7 @@ void SettingsDialog::loadSettings()
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
 
     //
-    ui->minFontSize->setValue(settings->minimumFontSize);
+    ui->minimumFontSizeSpinBox->setValue(settings->minimumFontSize);
     ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
 
     // Network Tab
@@ -126,8 +126,8 @@ void SettingsDialog::saveSettings()
 
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
 
-    //
-    settings->minimumFontSize = ui->minFontSize->text().toInt();
+    // Content Tab
+    settings->minimumFontSize = ui->minimumFontSizeSpinBox->text().toInt();
 
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
