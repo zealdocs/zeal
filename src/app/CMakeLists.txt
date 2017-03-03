@@ -9,7 +9,7 @@ elseif(WIN32)
     list(APPEND App_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
 endif()
 
-add_executable(App
+add_executable(App WIN32
     main.cpp
     ${App_RESOURCES}
 )
