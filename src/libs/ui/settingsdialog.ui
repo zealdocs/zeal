@@ -207,6 +207,29 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="styleGroupBox">
+         <property name="title">
+          <string>Style</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="1" column="0" colspan="2">
+           <widget class="QCheckBox" name="darkModeCheckBox">
+            <property name="text">
+             <string>&amp;Dark Mode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="highlightOnNavigateCheckBox">
+            <property name="text">
+             <string>&amp;Highlight on Navigate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

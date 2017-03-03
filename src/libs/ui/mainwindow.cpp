@@ -55,6 +55,8 @@ using namespace Zeal;
 
 namespace {
 const char startPageUrl[] = "qrc:///browser/start.html";
+const char DarkModeCssUrl[] = ":/browser/darkmode.css";
+const char HighlightOnNavigateCssUrl[] = ":/browser/highlight.css";;
 }
 
 struct TabState
@@ -782,6 +784,25 @@ void MainWindow::applySettings()
         createTrayIcon();
     else
         removeTrayIcon();
+
+    // Content
+    QByteArray ba;
+    if (m_settings->darkModeEnabled) {
+        QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
+        if (file->open(QIODevice::ReadOnly)) {
+            ba += file->readAll();
+        }
+    }
+
+    if (m_settings->highlightOnNavigateEnabled) {
+        QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
+        if (file->open(QIODevice::ReadOnly)) {
+            ba += file->readAll();
+        }
+    }
+
+    const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();
+    QWebSettings::globalSettings()->setUserStyleSheetUrl(QUrl(cssUrl));
 }
 
 void MainWindow::toggleWindow()

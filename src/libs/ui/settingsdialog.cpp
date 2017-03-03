@@ -85,11 +85,15 @@ void SettingsDialog::loadSettings()
 
     ui->toolButton->setKeySequence(settings->showShortcut);
 
+    ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
+
+    // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
 
-    //
+    // Content Tab
     ui->minimumFontSizeSpinBox->setValue(settings->minimumFontSize);
-    ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
+    ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
+    ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
 
     // Network Tab
     switch (settings->proxyType) {
@@ -128,6 +132,8 @@ void SettingsDialog::saveSettings()
 
     // Content Tab
     settings->minimumFontSize = ui->minimumFontSizeSpinBox->text().toInt();
+    settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
+    settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
 
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());

@@ -58,6 +58,9 @@ public:
 
     // Content
     int minimumFontSize;
+    bool darkModeEnabled;
+    bool highlightOnNavigateEnabled;
+
     // TODO: bool askOnExternalLink;
     // TODO: QString customCss;
 

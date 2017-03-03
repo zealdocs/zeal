@@ -1,3 +1,4 @@
+/* Highlight on navigation to an anchor. */
 @-webkit-keyframes targetNavigatedAnimation {
     from { background: #ffffff; }
     50% { background: #ffffdd; }

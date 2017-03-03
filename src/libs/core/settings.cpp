@@ -46,10 +46,6 @@ using namespace Zeal::Core;
 Settings::Settings(QObject *parent) :
     QObject(parent)
 {
-    // TODO: Move to user style sheet (related to #268)
-    QWebSettings::globalSettings()
-            ->setUserStyleSheetUrl(QUrl(QStringLiteral("qrc:///browser/highlight.css")));
-
     load();
 }
 
@@ -83,6 +79,9 @@ void Settings::load()
     minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
                                       QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
+
+    darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
+    highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
@@ -144,6 +143,8 @@ void Settings::save()
 
     settings->beginGroup(GroupContent);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
+    settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
+    settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
