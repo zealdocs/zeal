@@ -81,13 +81,13 @@ void Settings::load()
 
     settings->beginGroup(GroupContent);
     minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
-                                        QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
+                                      QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
     QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
     proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
-                                                         ProxyType::System).toUInt());
+                                                       ProxyType::System).toUInt());
     proxyHost = settings->value(QStringLiteral("host")).toString();
     proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
@@ -117,8 +117,8 @@ void Settings::load()
 
     settings->beginGroup(GroupInternal);
     installId = settings->value(QStringLiteral("install_id"),
-                                  // Avoid curly braces (QTBUG-885)
-                                  QUuid::createUuid().toString().mid(1, 36)).toString();
+                                // Avoid curly braces (QTBUG-885)
+                                QUuid::createUuid().toString().mid(1, 36)).toString();
     settings->endGroup();
 }
 
