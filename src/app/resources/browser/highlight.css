@@ -1,7 +1,7 @@
 /* Highlight on navigation to an anchor. */
 @-webkit-keyframes targetNavigatedAnimation {
     from { background: #ffffff; }
-    50% { background: #ffffdd; }
+    50% { background: #ffff00; }
     to { background: #ffffff; }
 }
 
