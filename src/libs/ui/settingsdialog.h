@@ -45,7 +45,7 @@ public:
 
 private slots:
     void chooseCustomCssFile();
-    void on_storageButton_clicked();
+    void chooseDocsetStoragePath();
 
 private:
     Ui::SettingsDialog *ui = nullptr;

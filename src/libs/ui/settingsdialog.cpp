@@ -74,13 +74,14 @@ void SettingsDialog::chooseCustomCssFile()
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(file));
 }
 
-void SettingsDialog::on_storageButton_clicked()
+void SettingsDialog::chooseDocsetStoragePath()
 {
     const QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                          ui->storageEdit->text());
-    if (!dir.isEmpty())
-        ui->storageEdit->setText(QDir::toNativeSeparators(dir));
+                                                          ui->docsetStorageEdit->text());
+    if (dir.isEmpty())
+        return;
 
+    ui->docsetStorageEdit->setText(QDir::toNativeSeparators(dir));
 }
 
 void SettingsDialog::loadSettings()
@@ -96,7 +97,7 @@ void SettingsDialog::loadSettings()
 
     ui->toolButton->setKeySequence(settings->showShortcut);
 
-    ui->storageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
+    ui->docsetStorageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
 
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
@@ -148,8 +149,8 @@ void SettingsDialog::saveSettings()
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
 
-    if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
-        settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());
+    if (QDir::fromNativeSeparators(ui->docsetStorageEdit->text()) != settings->docsetPath) {
+        settings->docsetPath = QDir::fromNativeSeparators(ui->docsetStorageEdit->text());
         m_application->docsetRegistry()->init(settings->docsetPath);
     }
 
