@@ -221,10 +221,8 @@ int main(int argc, char *argv[])
         msgBox->setText(QObject::tr("Another application instance can be still running, "
                                     "or has crashed.<br>Make sure to start Zeal only once."));
         msgBox->addButton(QMessageBox::Help);
-        msgBox->addButton(QMessageBox::Retry);
-        QPushButton *quitButton = msgBox->addButton(QObject::tr("&Quit"),
-                                                    QMessageBox::DestructiveRole);
-        msgBox->setDefaultButton(quitButton);
+        msgBox->setDefaultButton(msgBox->addButton(QMessageBox::Retry));
+        msgBox->addButton(QObject::tr("&Quit"), QMessageBox::DestructiveRole);
 
         switch (msgBox->exec()) {
         case QMessageBox::Rejected:
