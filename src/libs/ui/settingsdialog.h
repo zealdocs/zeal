@@ -44,6 +44,7 @@ public:
     ~SettingsDialog() override;
 
 private slots:
+    void chooseCustomCssFile();
     void on_storageButton_clicked();
 
 private:

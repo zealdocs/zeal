@@ -60,6 +60,7 @@ public:
     int minimumFontSize;
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
+    QString customCssFile;
 
     // TODO: bool askOnExternalLink;
     // TODO: QString customCss;

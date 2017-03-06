@@ -63,6 +63,17 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
+void SettingsDialog::chooseCustomCssFile()
+{
+    const QString file = QFileDialog::getOpenFileName(this, tr("Choose CSS File"),
+                                                      ui->customCssFileEdit->text(),
+                                                      tr("CSS Files (*.css);;All Files (*.*)"));
+    if (file.isEmpty())
+        return;
+
+    ui->customCssFileEdit->setText(QDir::toNativeSeparators(file));
+}
+
 void SettingsDialog::on_storageButton_clicked()
 {
     const QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -94,6 +105,7 @@ void SettingsDialog::loadSettings()
     ui->minimumFontSizeSpinBox->setValue(settings->minimumFontSize);
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
     ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
+    ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
 
     // Network Tab
     switch (settings->proxyType) {
@@ -134,6 +146,7 @@ void SettingsDialog::saveSettings()
     settings->minimumFontSize = ui->minimumFontSizeSpinBox->text().toInt();
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
+    settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
 
     if (QDir::fromNativeSeparators(ui->storageEdit->text()) != settings->docsetPath) {
         settings->docsetPath = QDir::fromNativeSeparators(ui->storageEdit->text());

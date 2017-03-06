@@ -39,6 +39,7 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -796,6 +797,13 @@ void MainWindow::applySettings()
 
     if (m_settings->highlightOnNavigateEnabled) {
         QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
+        if (file->open(QIODevice::ReadOnly)) {
+            ba += file->readAll();
+        }
+    }
+
+    if (QFileInfo(m_settings->customCssFile).exists()) {
+        QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
         if (file->open(QIODevice::ReadOnly)) {
             ba += file->readAll();
         }
