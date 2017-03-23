@@ -25,6 +25,7 @@
 
 #include "webview.h"
 
+#include <QCoreApplication>
 #include <QLineEdit>
 #include <QStyle>
 #include <QResizeEvent>
@@ -84,6 +85,12 @@ bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Enter:
         case Qt::Key_Return:
             findNext(m_searchLineEdit->text(), keyEvent->modifiers() & Qt::ShiftModifier);
+            return true;
+        case Qt::Key_Down:
+        case Qt::Key_Up:
+        case Qt::Key_PageDown:
+        case Qt::Key_PageUp:
+            QCoreApplication::sendEvent(m_webView, event);
             return true;
         default:
             break;
