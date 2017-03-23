@@ -412,14 +412,16 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    ui->actionNextTab->setShortcut(QKeySequence::NextChild);
+    ui->actionNextTab->setShortcuts({QKeySequence::NextChild,
+                                     QKeySequence(Qt::ControlModifier| Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
     connect(ui->actionNextTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
     // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
-    ui->actionPreviousTab->setShortcut(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab);
+    ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
+                                         QKeySequence(Qt::ControlModifier| Qt::Key_PageUp)});
     addAction(ui->actionPreviousTab);
     connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
