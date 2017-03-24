@@ -46,7 +46,6 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 
     m_rawIcon2x = QByteArray::fromBase64(jsonObject[QStringLiteral("icon2x")].toString()
             .toLocal8Bit());
-    // TODO: Check on a high-resolution screen
     if (qApp->devicePixelRatio() > 1.0) {
         QPixmap pixmap = QPixmap::fromImage(QImage::fromData(m_rawIcon2x));
         pixmap.setDevicePixelRatio(2.0);
@@ -58,12 +57,13 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 
     for (const QJsonValue &vv : jsonObject[QStringLiteral("versions")].toArray())
         m_versions << vv.toString();
+
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
-    const QJsonArray urlArray = jsonObject[QStringLiteral("urls")].toArray();
-    for (const QJsonValue &url : urlArray)
-        m_urls.append(QUrl(url.toString()));
+
+    for (const QJsonValue &vv : jsonObject[QStringLiteral("urls")].toArray())
+        m_urls.append(QUrl(vv.toString()));
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }
