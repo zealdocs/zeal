@@ -166,17 +166,13 @@ void DocsetRegistry::_runQuery(const QString &query)
                                           &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
 
-    if (m_cancellationToken.isCanceled()) {
-        m_cancellationToken.reset();
+    if (m_cancellationToken.isCanceled())
         return;
-    }
 
     std::sort(results.begin(), results.end());
 
-    if (m_cancellationToken.isCanceled()) {
-        m_cancellationToken.reset();
+    if (m_cancellationToken.isCanceled())
         return;
-    }
 
     emit queryCompleted(results);
 }
