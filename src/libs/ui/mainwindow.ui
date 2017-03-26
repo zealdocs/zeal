@@ -29,6 +29,9 @@
     </property>
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
@@ -39,27 +42,15 @@
         </property>
         <item>
          <widget class="ToolBarFrame" name="searchEditWidget" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
           <property name="styleSheet">
            <string notr="true"/>
           </property>
           <layout class="QVBoxLayout" name="searchToolBarFrame">
-           <property name="leftMargin">
-            <number>6</number>
-           </property>
            <property name="topMargin">
-            <number>6</number>
-           </property>
-           <property name="rightMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <item>
             <widget class="SearchEdit" name="lineEdit">
@@ -112,12 +103,6 @@
         </property>
         <item>
          <widget class="ToolBarFrame" name="navigationBar" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>40</height>
-           </size>
-          </property>
           <layout class="QHBoxLayout" name="toolbox">
            <property name="topMargin">
             <number>0</number>
@@ -195,7 +180,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

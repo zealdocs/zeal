@@ -4,6 +4,8 @@
 
 ToolBarFrame::ToolBarFrame(QWidget *parent) : QWidget(parent)
 {
+    setMaximumHeight(40);
+    setMinimumHeight(40);
 }
 
 void ToolBarFrame::paintEvent(QPaintEvent *event)
