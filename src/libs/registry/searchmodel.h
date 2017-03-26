@@ -50,7 +50,7 @@ public slots:
     void setResults(const QList<SearchResult> &results = QList<SearchResult>());
 
 signals:
-    void queryCompleted();
+    void updated();
 
 private:
     QList<SearchResult> m_dataList;

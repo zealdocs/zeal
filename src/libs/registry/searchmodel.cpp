@@ -121,5 +121,5 @@ void SearchModel::setResults(const QList<SearchResult> &results)
     beginResetModel();
     m_dataList = results;
     endResetModel();
-    emit queryCompleted();
+    emit updated();
 }

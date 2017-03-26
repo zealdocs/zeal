@@ -65,7 +65,7 @@ signals:
     void docsetAdded(const QString &name);
     void docsetAboutToBeRemoved(const QString &name);
     void docsetRemoved(const QString &name);
-    void queryCompleted(const QList<SearchResult> &results);
+    void searchCompleted(const QList<SearchResult> &results);
 
 private slots:
     void _runQuery(const QString &query);

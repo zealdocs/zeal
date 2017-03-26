@@ -174,7 +174,7 @@ void DocsetRegistry::_runQuery(const QString &query)
     if (m_cancellationToken.isCanceled())
         return;
 
-    emit queryCompleted(results);
+    emit searchCompleted(results);
 }
 
 // Recursively finds and adds all docsets in a given directory.

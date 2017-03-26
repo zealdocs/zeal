@@ -323,7 +323,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             QDesktopServices::openUrl(url);
     });
 
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::queryCompleted,
+    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::searchCompleted,
             this, [this](const QList<Registry::SearchResult> &results) {
         currentTabState()->searchModel->setResults(results);
     });
@@ -515,8 +515,8 @@ void MainWindow::createTab(int index)
 
     using Registry::SearchModel;
     TabState *newTab = new TabState();
-    connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::syncToc);
+    connect(newTab->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
+    connect(newTab->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
 
     newTab->loadUrl(QUrl(startPageUrl));
 
@@ -532,8 +532,8 @@ void MainWindow::duplicateTab(int index)
 
     using Registry::SearchModel;
     TabState *newTab = new TabState(*m_tabStates.at(index));
-    connect(newTab->searchModel, &SearchModel::queryCompleted, this, &MainWindow::queryCompleted);
-    connect(newTab->tocModel, &SearchModel::queryCompleted, this, &MainWindow::syncToc);
+    connect(newTab->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
+    connect(newTab->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
 
     ++index;
     m_tabStates.insert(index, newTab);
