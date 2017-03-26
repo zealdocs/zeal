@@ -487,7 +487,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     const QString docsetName = docsetNameForTmpFilePath(filePath);
 
     const QDir dataDir(m_application->settings()->docsetPath);
-    const QString docsetPath = dataDir.absoluteFilePath(docsetName + QLatin1String(".docset"));
+    const QString docsetPath = dataDir.filePath(docsetName + QLatin1String(".docset"));
 
     // Write metadata about docset
     Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)

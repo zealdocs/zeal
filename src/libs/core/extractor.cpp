@@ -58,7 +58,7 @@ void Extractor::extract(const QString &filePath, const QString &destination, con
 
     QDir destinationDir(destination);
     if (!root.isEmpty())
-        destinationDir = destinationDir.absoluteFilePath(root);
+        destinationDir = destinationDir.filePath(root);
 
     // TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry;
@@ -71,7 +71,7 @@ void Extractor::extract(const QString &filePath, const QString &destination, con
 #endif
         if (!root.isEmpty())
             pathname.remove(0, pathname.indexOf(QLatin1String("/")) + 1);
-        archive_entry_set_pathname(entry, qPrintable(destinationDir.absoluteFilePath(pathname)));
+        archive_entry_set_pathname(entry, qPrintable(destinationDir.filePath(pathname)));
         archive_read_extract(info.archiveHandle, entry, 0);
     }
 

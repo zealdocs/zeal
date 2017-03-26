@@ -74,7 +74,7 @@ Docset::Docset(const QString &path) :
 
     // Attempt to find the icon in any supported format
     for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
-        m_icon = QIcon(dir.absoluteFilePath(iconFile));
+        m_icon = QIcon(dir.filePath(iconFile));
         if (!m_icon.availableSizes().isEmpty())
             break;
     }
@@ -88,9 +88,9 @@ Docset::Docset(const QString &path) :
     // /Articles/ConfigFiles.html
     Util::Plist plist;
     if (dir.exists(QStringLiteral("Info.plist")))
-        plist.read(dir.absoluteFilePath(QStringLiteral("Info.plist")));
+        plist.read(dir.filePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
-        plist.read(dir.absoluteFilePath(QStringLiteral("info.plist")));
+        plist.read(dir.filePath(QStringLiteral("info.plist")));
     else
         return;
 
@@ -122,7 +122,7 @@ Docset::Docset(const QString &path) :
     if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
         return;
 
-    m_db = new Util::SQLiteDatabase(dir.absoluteFilePath(QStringLiteral("docSet.dsidx")));
+    m_db = new Util::SQLiteDatabase(dir.filePath(QStringLiteral("docSet.dsidx")));
 
     if (!m_db->isOpen()) {
         qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
@@ -214,7 +214,7 @@ QString Docset::path() const
 
 QString Docset::documentPath() const
 {
-    return QDir(m_path).absoluteFilePath(QStringLiteral("Contents/Resources/Documents"));
+    return QDir(m_path).filePath(QStringLiteral("Contents/Resources/Documents"));
 }
 
 QIcon Docset::icon() const
@@ -484,7 +484,7 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
-    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
+    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).filePath(realPath));
     if (!realFragment.isEmpty()) {
         if (realFragment.startsWith(QLatin1String("//apple_ref"))
                 || realFragment.startsWith(QLatin1String("//dash_ref"))) {
