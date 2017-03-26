@@ -110,28 +110,31 @@ QList<Docset *> DocsetRegistry::docsets() const
 
 void DocsetRegistry::addDocset(const QString &path)
 {
-    QMetaObject::invokeMethod(this, "_addDocset", Qt::BlockingQueuedConnection,
-                              Q_ARG(QString, path));
-}
+    QFutureWatcher<Docset *> *watcher = new QFutureWatcher<Docset *>();
+    connect(watcher, &QFutureWatcher<Docset *>::finished, this, [this, watcher] {
+        QScopedPointer<QFutureWatcher<Docset *>, QScopedPointerDeleteLater> guard(watcher);
 
-void DocsetRegistry::_addDocset(const QString &path)
-{
-    Docset *docset = new Docset(path);
+        Docset *docset = watcher->result();
+        // TODO: Emit error
+        if (!docset->isValid()) {
+            qWarning("Could not load docset from '%s'. Reinstall the docset.",
+                     qPrintable(docset->path()));
+            delete docset;
+            return;
+        }
 
-    // TODO: Emit error
-    if (!docset->isValid()) {
-        qWarning("Could not load docset from '%s'. Please reinstall the docset.", qPrintable(path));
-        delete docset;
-        return;
-    }
+        const QString name = docset->name();
 
-    const QString name = docset->name();
+        if (m_docsets.contains(name))
+            remove(name);
 
-    if (m_docsets.contains(name))
-        remove(name);
+        m_docsets[name] = docset;
+        emit docsetAdded(name);
+    });
 
-    m_docsets[name] = docset;
-    emit docsetAdded(name);
+    watcher->setFuture(QtConcurrent::run([path] {
+        return new Docset(path);
+    }));
 }
 
 void DocsetRegistry::search(const QString &query, const CancellationToken &token)

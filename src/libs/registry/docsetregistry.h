@@ -67,7 +67,6 @@ signals:
     void queryCompleted(const QList<SearchResult> &results);
 
 private slots:
-    void _addDocset(const QString &path);
     void _runQuery(const QString &query, const CancellationToken &token);
 
 private:
