@@ -24,6 +24,7 @@
 #ifndef DOCSETREGISTRY_H
 #define DOCSETREGISTRY_H
 
+#include "cancellationtoken.h"
 #include "docset.h"
 
 #include <QMap>
@@ -54,7 +55,7 @@ public:
     Docset *docset(int index) const;
     QList<Docset *> docsets() const;
 
-    void search(const QString &query, const CancellationToken &token);
+    void search(const QString &query);
     const QList<SearchResult> &queryResults();
 
 public slots:
@@ -67,13 +68,15 @@ signals:
     void queryCompleted(const QList<SearchResult> &results);
 
 private slots:
-    void _runQuery(const QString &query, const CancellationToken &token);
+    void _runQuery(const QString &query);
 
 private:
     void addDocsetsFromFolder(const QString &path);
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
+
+    CancellationToken m_cancellationToken;
 };
 
 } // namespace Registry

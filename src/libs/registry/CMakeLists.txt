@@ -1,5 +1,5 @@
 add_library(Registry
-    cancellationtoken.cpp
+    cancellationtoken.h
     docset.cpp
     docsetmetadata.cpp
     docsetregistry.cpp

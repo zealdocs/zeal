@@ -23,7 +23,6 @@
 
 #include "docsetregistry.h"
 
-#include "cancellationtoken.h"
 #include "searchquery.h"
 #include "searchresult.h"
 
@@ -46,7 +45,6 @@ DocsetRegistry::DocsetRegistry(QObject *parent) :
     m_thread(new QThread(this))
 {
     // Register for use in signal connections.
-    qRegisterMetaType<CancellationToken>("CancellationToken");
     qRegisterMetaType<QList<SearchResult>>("QList<SearchResult>");
 
     // FIXME: Only search should be performed in a separate thread
@@ -137,14 +135,16 @@ void DocsetRegistry::addDocset(const QString &path)
     }));
 }
 
-void DocsetRegistry::search(const QString &query, const CancellationToken &token)
+void DocsetRegistry::search(const QString &query)
 {
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection,
-                              Q_ARG(QString, query), Q_ARG(CancellationToken, token));
+    m_cancellationToken.cancel();
+    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
 }
 
-void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &token)
+void DocsetRegistry::_runQuery(const QString &query)
 {
+    m_cancellationToken.reset();
+
     QList<Docset *> enabledDocsets;
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
@@ -161,17 +161,22 @@ void DocsetRegistry::_runQuery(const QString &query, const CancellationToken &to
             = QtConcurrent::mappedReduced(enabledDocsets,
                                           std::bind(&Docset::search,
                                                     std::placeholders::_1,
-                                                    searchQuery.query(), token),
+                                                    searchQuery.query(),
+                                                    std::ref(m_cancellationToken)),
                                           &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
 
-    if (token.isCanceled())
+    if (m_cancellationToken.isCanceled()) {
+        m_cancellationToken.reset();
         return;
+    }
 
     std::sort(results.begin(), results.end());
 
-    if (token.isCanceled())
+    if (m_cancellationToken.isCanceled()) {
+        m_cancellationToken.reset();
         return;
+    }
 
     emit queryCompleted(results);
 }

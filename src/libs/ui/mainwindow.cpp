@@ -361,9 +361,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
 
         currentTabState()->searchQuery = text;
-        m_cancelSearch.cancel();
-        m_cancelSearch = Registry::CancellationToken();
-        m_application->docsetRegistry()->search(text, m_cancelSearch);
+        m_application->docsetRegistry()->search(text);
         if (text.isEmpty()) {
             currentTabState()->tocModel->setResults();
             syncTreeView();
