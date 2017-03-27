@@ -21,10 +21,13 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETLISTITEMDELEGATE_H
-#define DOCSETLISTITEMDELEGATE_H
+#ifndef ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H
+#define ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H
 
 #include <QItemDelegate>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class DocsetListItemDelegate : public QItemDelegate
 {
@@ -36,4 +39,7 @@ public:
                const QModelIndex &index) const override;
 };
 
-#endif // DOCSETLISTITEMDELEGATE_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H

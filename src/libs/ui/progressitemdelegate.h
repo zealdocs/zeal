@@ -21,10 +21,13 @@
 **
 ****************************************************************************/
 
-#ifndef PROGRESSITEMDELEGATE_H
-#define PROGRESSITEMDELEGATE_H
+#ifndef ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
+#define ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
 
 #include <QItemDelegate>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class ProgressItemDelegate : public QItemDelegate
 {
@@ -45,4 +48,7 @@ private:
     static const int progressBarWidth = 150;
 };
 
-#endif // PROGRESSITEMDELEGATE_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H

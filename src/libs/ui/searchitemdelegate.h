@@ -21,10 +21,13 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHITEMDELEGATE_H
-#define SEARCHITEMDELEGATE_H
+#ifndef ZEAL_WIDGETUI_SEARCHITEMDELEGATE_H
+#define ZEAL_WIDGETUI_SEARCHITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class SearchItemDelegate : public QStyledItemDelegate
 {
@@ -49,4 +52,7 @@ private:
     QString m_highlight;
 };
 
-#endif // SEARCHITEMDELEGATE_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_SEARCHITEMDELEGATE_H

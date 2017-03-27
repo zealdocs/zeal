@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DocsetsDialog</class>
+ <class>Zeal::WidgetUi::DocsetsDialog</class>
  <widget class="QDialog" name="DocsetsDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>

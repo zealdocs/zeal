@@ -76,7 +76,7 @@ Application::Application(QObject *parent) :
     m_docsetRegistry = new Registry::DocsetRegistry();
     m_docsetRegistry->init(m_settings->docsetPath);
 
-    m_mainWindow = new MainWindow(this);
+    m_mainWindow = new WidgetUi::MainWindow(this);
 
     if (m_settings->startMinimized) {
         if (m_settings->showSystrayIcon && m_settings->minimizeToSystray)

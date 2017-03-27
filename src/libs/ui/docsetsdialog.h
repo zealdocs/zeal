@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETSDIALOG_H
-#define DOCSETSDIALOG_H
+#ifndef ZEAL_WIDGETUI_DOCSETSDIALOG_H
+#define ZEAL_WIDGETUI_DOCSETSDIALOG_H
 
 #include <registry/docsetmetadata.h>
 
@@ -35,9 +35,6 @@ class QNetworkReply;
 class QTemporaryFile;
 class QUrl;
 
-namespace Ui {
-class DocsetsDialog;
-}
 
 namespace Zeal {
 
@@ -48,6 +45,12 @@ class DocsetRegistry;
 namespace Core {
 class Application;
 }
+
+namespace WidgetUi {
+
+namespace Ui {
+class DocsetsDialog;
+} // namespace Ui
 
 class DocsetsDialog : public QDialog
 {
@@ -121,6 +124,7 @@ private:
     static QString cacheLocation(const QString &fileName);
 };
 
+} // namespace WidgetUi
 } // namespace Zeal
 
-#endif // DOCSETSDIALOG_H
+#endif // ZEAL_WIDGETUI_DOCSETSDIALOG_H

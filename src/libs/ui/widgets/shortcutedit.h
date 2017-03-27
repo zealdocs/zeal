@@ -21,10 +21,13 @@
 **
 ****************************************************************************/
 
-#ifndef SHORTCUTEDIT_H
-#define SHORTCUTEDIT_H
+#ifndef ZEAL_WIDGETUI_SHORTCUTEDIT_H
+#define ZEAL_WIDGETUI_SHORTCUTEDIT_H
 
 #include <QLineEdit>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class ShortcutEdit : public QLineEdit
 {
@@ -43,4 +46,7 @@ private:
     int m_key = 0;
 };
 
-#endif // SHORTCUTEDIT_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_SHORTCUTEDIT_H

@@ -32,6 +32,7 @@
 #include <QTreeView>
 
 using namespace Zeal;
+using namespace Zeal::WidgetUi;
 
 SearchEdit::SearchEdit(QWidget *parent) :
     QLineEdit(parent)

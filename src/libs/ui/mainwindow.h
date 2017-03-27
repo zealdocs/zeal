@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ZEAL_WIDGETUI_MAINWINDOW_H
+#define ZEAL_WIDGETUI_MAINWINDOW_H
 
 #include <registry/searchquery.h>
 
@@ -35,10 +35,6 @@ class QSystemTrayIcon;
 class QTabBar;
 class QTimer;
 
-namespace Ui {
-class MainWindow;
-} // namespace Ui
-
 namespace Zeal {
 
 namespace Core {
@@ -50,7 +46,11 @@ namespace Registry {
 class ListModel;
 } //namespace Registry
 
-} // namespace Zeal
+namespace WidgetUi {
+
+namespace Ui {
+class MainWindow;
+} // namespace Ui
 
 struct TabState;
 
@@ -114,4 +114,7 @@ private:
     QTimer *m_openDocsetTimer = nullptr;
 };
 
-#endif // MAINWINDOW_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_MAINWINDOW_H

@@ -26,6 +26,8 @@
 #include <QPainter>
 #include <QProgressBar>
 
+using namespace Zeal::WidgetUi;
+
 ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
     QItemDelegate(parent)
 {

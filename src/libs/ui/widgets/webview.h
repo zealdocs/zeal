@@ -21,10 +21,13 @@
 **
 ****************************************************************************/
 
-#ifndef WEBVIEW_H
-#define WEBVIEW_H
+#ifndef ZEAL_WIDGETUI_WEBVIEW_H
+#define ZEAL_WIDGETUI_WEBVIEW_H
 
 #include <QWebView>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class WebView : public QWebView
 {
@@ -49,4 +52,7 @@ private:
     int m_zoomFactor = 0;
 };
 
-#endif // WEBVIEW_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_WEBVIEW_H

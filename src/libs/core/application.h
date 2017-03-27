@@ -29,7 +29,6 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QThread;
 
-class MainWindow;
 
 namespace Zeal {
 
@@ -37,6 +36,10 @@ namespace Registry {
 class DocsetRegistry;
 class SearchQuery;
 } // namespace Registry
+
+namespace WidgetUi {
+class MainWindow;
+} // namespace WidgetUi
 
 namespace Core {
 
@@ -88,7 +91,7 @@ private:
 
     Registry::DocsetRegistry *m_docsetRegistry = nullptr;
 
-    MainWindow *m_mainWindow = nullptr;
+    WidgetUi::MainWindow *m_mainWindow = nullptr;
 };
 
 } // namespace Core

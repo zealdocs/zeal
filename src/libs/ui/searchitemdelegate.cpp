@@ -29,6 +29,8 @@
 #include <QPainter>
 #include <QToolTip>
 
+using namespace Zeal::WidgetUi;
+
 SearchItemDelegate::SearchItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {

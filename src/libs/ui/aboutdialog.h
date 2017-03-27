@@ -20,14 +20,17 @@
 **
 ****************************************************************************/
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef ZEAL_WIDGETUI_ABOUTDIALOG_H
+#define ZEAL_WIDGETUI_ABOUTDIALOG_H
 
 #include <QDialog>
 
+namespace Zeal {
+namespace WidgetUi {
+
 namespace Ui {
 class AboutDialog;
-}
+} // namespace Ui
 
 class AboutDialog : public QDialog
 {
@@ -40,4 +43,7 @@ private:
     Ui::AboutDialog *ui;
 };
 
-#endif // ABOUTDIALOG_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_ABOUTDIALOG_H

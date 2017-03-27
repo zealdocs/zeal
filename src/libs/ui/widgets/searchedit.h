@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHEDIT_H
-#define SEARCHEDIT_H
+#ifndef ZEAL_WIDGETUI_SEARCHEDIT_H
+#define ZEAL_WIDGETUI_SEARCHEDIT_H
 
 #include <QLineEdit>
 
@@ -30,6 +30,9 @@ class QCompleter;
 class QEvent;
 class QLabel;
 class QTreeView;
+
+namespace Zeal {
+namespace WidgetUi {
 
 class SearchEdit : public QLineEdit
 {
@@ -61,4 +64,7 @@ private:
     bool m_focusing = false;
 };
 
-#endif // SEARCHEDIT_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_SEARCHEDIT_H

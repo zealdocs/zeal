@@ -53,12 +53,16 @@
 #include <QWebPage>
 
 using namespace Zeal;
+using namespace Zeal::WidgetUi;
 
 namespace {
 const char startPageUrl[] = "qrc:///browser/start.html";
 const char DarkModeCssUrl[] = ":/browser/darkmode.css";
 const char HighlightOnNavigateCssUrl[] = ":/browser/highlight.css";;
 }
+
+namespace Zeal {
+namespace WidgetUi {
 
 struct TabState
 {
@@ -141,6 +145,9 @@ struct TabState
     QWebPage *webPage = nullptr;
     int webViewZoomFactor = 0;
 };
+
+} // namespace WidgetUi
+} // namespace Zeal
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),

@@ -45,7 +45,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
-using namespace Zeal;
+using namespace Zeal::WidgetUi;
 
 namespace {
 const char ApiServerUrl[] = "http://api.zealdocs.org/v1";

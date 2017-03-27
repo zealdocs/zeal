@@ -21,20 +21,22 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+#ifndef ZEAL_WIDGETUI_SETTINGSDIALOG_H
+#define ZEAL_WIDGETUI_SETTINGSDIALOG_H
 
 #include <QDialog>
-
-namespace Ui {
-class SettingsDialog;
-}
 
 namespace Zeal {
 
 namespace Core {
 class Application;
-}
+} // namespace Core
+
+namespace WidgetUi {
+
+namespace Ui {
+class SettingsDialog;
+} // namespace Ui
 
 class SettingsDialog : public QDialog
 {
@@ -55,6 +57,7 @@ private:
     void saveSettings();
 };
 
+} // namespace WidgetUi
 } // namespace Zeal
 
-#endif // SETTINGSDIALOG_H
+#endif // ZEAL_WIDGETUI_SETTINGSDIALOG_H

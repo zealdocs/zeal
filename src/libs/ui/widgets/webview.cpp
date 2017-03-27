@@ -29,6 +29,8 @@
 #include <QWebFrame>
 #include <QWheelEvent>
 
+using namespace Zeal::WidgetUi;
+
 WebView::WebView(QWidget *parent) :
     QWebView(parent)
 {

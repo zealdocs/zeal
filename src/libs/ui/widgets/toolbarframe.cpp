@@ -2,6 +2,8 @@
 
 #include <QPainter>
 
+using namespace Zeal::WidgetUi;
+
 ToolBarFrame::ToolBarFrame(QWidget *parent) : QWidget(parent)
 {
     setMaximumHeight(40);

@@ -33,6 +33,8 @@
 #include <QWebHistory>
 #include <QWebPage>
 
+using namespace Zeal::WidgetUi;
+
 SearchableWebView::SearchableWebView(QWidget *parent) :
     QWidget(parent),
     m_searchLineEdit(new QLineEdit(this)),

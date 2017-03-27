@@ -1,7 +1,10 @@
-#ifndef TOOLBARFRAME_H
-#define TOOLBARFRAME_H
+#ifndef ZEAL_WIDGETUI_TOOLBARFRAME_H
+#define ZEAL_WIDGETUI_TOOLBARFRAME_H
 
 #include <QWidget>
+
+namespace Zeal {
+namespace WidgetUi {
 
 class ToolBarFrame : public QWidget
 {
@@ -13,4 +16,7 @@ private:
     void paintEvent(QPaintEvent *event) override;
 };
 
-#endif // TOOLBARFRAME_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_TOOLBARFRAME_H

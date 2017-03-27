@@ -21,14 +21,16 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHABLEWEBVIEW_H
-#define SEARCHABLEWEBVIEW_H
+#ifndef ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H
+#define ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H
 
 #include <QWidget>
 
-
 class QLineEdit;
 class QWebPage;
+
+namespace Zeal {
+namespace WidgetUi {
 
 class WebView;
 
@@ -75,4 +77,7 @@ private:
     WebView *m_webView = nullptr;
 };
 
-#endif // SEARCHABLEWEBVIEW_H
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H

@@ -24,11 +24,11 @@
 #include "docsetlistitemdelegate.h"
 
 #include <registry/itemdatarole.h>
-#include <registry/listmodel.h>
 
 #include <QPainter>
 
 using namespace Zeal;
+using namespace Zeal::WidgetUi;
 
 DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent) :
     QItemDelegate(parent)
