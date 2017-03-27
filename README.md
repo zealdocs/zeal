@@ -44,7 +44,7 @@ After installing Zeal, you need to download docsets. Go to *Tools->Docsets*, sel
 * [libarchive](http://libarchive.org/).
 * X11 only: `xcb-util-keysyms`.
 
-To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command.
+To compile Zeal run `qmake` and then `make`. Linux users can install Zeal with `make install` command. Build dependencies for Debian/Ubuntu can be found [here](https://github.com/zealdocs/zeal-packaging/blob/master/ubuntu-ppa/debian/control#L5).
 
 ## Query & Filter docsets
 
