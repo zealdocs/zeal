@@ -10,6 +10,7 @@ list(APPEND Widgets_SOURCES
 
 set(Ui_FORMS
     aboutdialog.ui
+    docsetsdialog.ui
     mainwindow.ui
     settingsdialog.ui
 )
