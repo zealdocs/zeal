@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Zeal::WidgetUi::SettingsDialog</class>
- <widget class="QDialog" name="SettingsDialog">
+ <widget class="QDialog" name="Zeal::WidgetUi::SettingsDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -471,7 +471,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -487,7 +487,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -663,7 +663,7 @@
   <connection>
    <sender>customCssFileBrowseButton</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
    <slot>chooseCustomCssFile()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -679,7 +679,7 @@
   <connection>
    <sender>docsetStorageBrowseButton</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsDialog</receiver>
+   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
    <slot>chooseDocsetStoragePath()</slot>
    <hints>
     <hint type="sourcelabel">

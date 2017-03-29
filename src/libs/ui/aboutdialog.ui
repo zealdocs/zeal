@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Zeal::WidgetUi::AboutDialog</class>
- <widget class="QDialog" name="AboutDialog">
+ <widget class="QDialog" name="Zeal::WidgetUi::AboutDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -116,7 +116,7 @@ Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&l
   <connection>
    <sender>buttonBox</sender>
    <signal>clicked(QAbstractButton*)</signal>
-   <receiver>AboutDialog</receiver>
+   <receiver>Zeal::WidgetUi::AboutDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
