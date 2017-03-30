@@ -1,0 +1,26 @@
+# Autodetect text files
+* text=auto
+
+# Enforce text mode
+*.c text
+*.cmake text
+*.conf text
+*.cpp text
+*.css text
+*.desktop text
+*.h text
+*.html text
+*.in text
+*.md text
+*.pri text
+*.pro text
+*.qrc text
+*.ui text
+*.yml text
+CMakeLists.txt text
+COPYING
+
+# Binary files
+*.icns binary
+*.ico binary
+*.png binary
