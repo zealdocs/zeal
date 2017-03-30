@@ -91,4 +91,3 @@ void Extractor::progressCallback(void *ptr)
 
     emit info->extractor->progress(info->filePath, extractedBytes, info->totalBytes);
 }
-

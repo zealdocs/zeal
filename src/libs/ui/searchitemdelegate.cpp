@@ -95,7 +95,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             mode = QIcon::Disabled;
         else if (opt.state & QStyle::State_Selected)
             mode = QIcon::Selected;
-        const QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
+        const QIcon::State state = (opt.state & QStyle::State_Open) ? QIcon::On : QIcon::Off;
 
         // All icons are sized after the first one.
         QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
@@ -127,7 +127,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setRenderHint(QPainter::Antialiasing);
         painter->setPen(QColor::fromRgb(255, 253, 0));
 
-        const QColor highlightColor = opt.state & (QStyle::State_Selected | QStyle::State_HasFocus)
+        const QColor highlightColor
+                = (opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
                 ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
         for (int i = 0;;) {
@@ -161,7 +162,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 #endif
 
-    const QPalette::ColorGroup cg = opt.state & QStyle::State_Active
+    const QPalette::ColorGroup cg = (opt.state & QStyle::State_Active)
             ? QPalette::Normal : QPalette::Inactive;
 
     if (opt.state & QStyle::State_Selected)

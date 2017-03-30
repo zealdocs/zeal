@@ -60,7 +60,7 @@ QStringList SQLiteDatabase::tables()
                                       "SELECT name FROM sqlite_temp_master WHERE type='table'");
 
     if (!sql.isEmpty() && execute(sql)) {
-        while(next())
+        while (next())
             res.append(value(0).toString());
     }
 
@@ -109,7 +109,7 @@ bool SQLiteDatabase::next()
     const int res = sqlite3_step(m_stmt);
     sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
 
-    switch(res) {
+    switch (res) {
     case SQLITE_ROW:
         return true;
     case SQLITE_DONE:

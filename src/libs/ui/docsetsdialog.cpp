@@ -647,8 +647,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
             Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
 
             if (metadata.latestVersion() != docset->version()
-                    || (metadata.latestVersion() == docset->version()
-                        && metadata.revision() > docset->revision())) {
+                    || metadata.revision() > docset->revision()) {
                 docset->hasUpdate = true;
                 ui->updateAllDocsetsButton->setEnabled(true);
             }
