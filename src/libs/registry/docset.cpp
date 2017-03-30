@@ -786,7 +786,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
 
     int score = 0;
     int matchIndex = -1;
-    int matchLength;
+    int matchLength = 0;
     int exactIndex = -1;
     const char *exactMatch = std::strstr(haystack.data(), needle.data());
 
