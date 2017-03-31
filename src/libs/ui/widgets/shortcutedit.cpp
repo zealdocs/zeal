@@ -57,9 +57,10 @@ bool ShortcutEdit::event(QEvent *event)
             m_key |= translateModifiers(keyEvent->modifiers(), keyEvent->text());
             setText(keySequence().toString(QKeySequence::NativeText));
         }
+
+        return true;
     }
     case QEvent::ShortcutOverride:
-        event->accept();
     case QEvent::KeyRelease:
     case QEvent::Shortcut:
         return true;
