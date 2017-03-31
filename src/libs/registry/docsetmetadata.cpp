@@ -187,7 +187,7 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
 
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();
-        if (token == QXmlStreamReader::StartDocument || token != QXmlStreamReader::StartElement)
+        if (token != QXmlStreamReader::StartElement)
             continue;
 
         // Try to pull out the relevant data
