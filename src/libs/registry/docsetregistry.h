@@ -34,7 +34,6 @@ class QThread;
 namespace Zeal {
 namespace Registry {
 
-struct CancellationToken;
 struct SearchResult;
 
 class DocsetRegistry : public QObject

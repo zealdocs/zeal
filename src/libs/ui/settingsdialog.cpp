@@ -32,6 +32,7 @@
 #include <QFileDialog>
 #include <QWebSettings>
 
+using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :

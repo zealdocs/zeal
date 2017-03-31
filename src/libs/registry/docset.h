@@ -37,7 +37,7 @@ class SQLiteDatabase;
 
 namespace Registry {
 
-struct CancellationToken;
+class CancellationToken;
 struct SearchResult;
 
 class Docset

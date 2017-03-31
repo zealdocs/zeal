@@ -45,6 +45,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
+using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
