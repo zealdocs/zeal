@@ -370,7 +370,7 @@ void Docset::loadMetadata()
         }
 
         if (extra.contains(QStringLiteral("keywords"))) {
-            for (const QJsonValue &kw : extra[QStringLiteral("keywords")].toArray())
+            for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray())
                 m_keywords << kw.toString();
         }
     }
