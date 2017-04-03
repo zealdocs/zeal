@@ -378,8 +378,16 @@ void DocsetsDialog::downloadCompleted()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            QMessageBox::warning(this, QStringLiteral("Zeal"),
-                                 tr("Corrupted docset list: ") + jsonError.errorString());
+            // TODO: Log QJsonParseError.
+            const QMessageBox::StandardButton rc
+                    = QMessageBox::warning(this, QStringLiteral("Zeal"),
+                                           tr("Server returned a corrupted docset list."),
+                                           QMessageBox::Retry | QMessageBox::Cancel);
+
+            if (rc == QMessageBox::Retry) {
+                downloadDocsetList();
+            }
+
             break;
         }
 
