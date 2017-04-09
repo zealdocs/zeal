@@ -208,7 +208,11 @@ void Application::applySettings()
             proxy.setUser(m_settings->proxyUserName);
             proxy.setPassword(m_settings->proxyPassword);
         }
+
         QNetworkProxy::setApplicationProxy(proxy);
+
+        // Force NM to pick up changes.
+        m_networkManager->clearAccessCache();
         break;
     }
     }
