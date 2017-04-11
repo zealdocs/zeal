@@ -7,7 +7,7 @@ build:
     image_tag: tip
   ci:
     - shippable_retry sudo apt-get -y -qq update
-    - shippable_retry sudo apt-get -y -qq install --no-install-recommends extra-cmake-modules qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
+    - shippable_retry sudo apt-get -y -qq install --no-install-recommends cmake extra-cmake-modules qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libxcb-keysyms1-dev
     - mkdir build; cd build
     - cmake ..
     - cd ..
