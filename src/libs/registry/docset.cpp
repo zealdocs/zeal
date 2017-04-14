@@ -628,6 +628,27 @@ QString Docset::parseSymbolType(const QString &str)
     return aliases.value(str, str);
 }
 
+/**
+ * \brief Returns score based on a substring position in a string.
+ * \param str Original string.
+ * \param index Index of the substring within \a str.
+ * \param length Substring length.
+ * \return Score value between 1 and 100.
+ */
+static int scoreFuzzy(const char *str, int index, int length)
+{
+    if (index == 0 || str[index - 1] == '.') {
+        // score between 66..99, if the match follows a dot, or starts the string
+        return qMax(66, 100 - length);
+    } else if (str[index + length] == 0) {
+        // score between 33..66, if the match is at the end of the string
+        return qMax(33, 67 - length);
+    } else {
+        // score between 1..33 otherwise (match in the middle of the string)
+        return qMax(1, 34 - length);
+    }
+}
+
 // Based on https://github.com/bevacqua/fuzzysearch
 static void matchFuzzy(const char *needle, int needleLength,
                        const char *haystack, int haystackLength,
@@ -639,6 +660,9 @@ static void matchFuzzy(const char *needle, int needleLength,
     *start = -1;
 
     int groupCount = 0;
+    int bestRecursiveScore = -1;
+    int bestRecursiveStart = -1;
+    int bestRecursiveLength = -1;
 
     for (int i = 0, j = 0; i < needleLength; ++i) {
         bool found = false;
@@ -647,8 +671,26 @@ static void matchFuzzy(const char *needle, int needleLength,
 
         while (j < haystackLength) {
             if (needle[i] == haystack[j++]) {
-                if (*start == -1)
+                if (*start == -1) {
                     *start = j;  // first matched char
+
+                    // try starting the search later in case the first character occurs again later
+                    int recursiveStart;
+                    int recursiveLength;
+                    matchFuzzy(needle, needleLength, haystack + j,
+                               haystackLength - j,
+                               &recursiveStart, &recursiveLength);
+                    if (recursiveStart != -1) {
+                        int recursiveScore = scoreFuzzy(haystack,
+                                                        recursiveStart,
+                                                        recursiveLength);
+                        if (recursiveScore > bestRecursiveScore) {
+                            bestRecursiveScore = recursiveScore;
+                            bestRecursiveStart = recursiveStart;
+                            bestRecursiveLength = recursiveLength;
+                        }
+                    }
+                }
 
                 *length = j - *start + 1;
                 found = true;
@@ -674,9 +716,22 @@ static void matchFuzzy(const char *needle, int needleLength,
 
         if (!found) {
             // End of haystack, char not found.
-            *start = -1;
+            if (bestRecursiveScore != -1) {
+                // Can still match with the same constraints if matching started later
+                // (smaller distance from first char to 2nd char)
+                *start = bestRecursiveStart;
+                *length = bestRecursiveLength;
+            } else {
+                *start = -1;
+            }
             return;
         }
+    }
+
+    int score = scoreFuzzy(haystack, *start, *length);
+    if (bestRecursiveScore > score) {
+        *start = bestRecursiveStart;
+        *length = bestRecursiveLength;
     }
 }
 
@@ -729,27 +784,6 @@ static int scoreExact(int matchIndex, int matchLen, const char *value, int value
     }
 
     return qMax(1, score);
-}
-
-/**
- * \brief Returns score based on a substring position in a string.
- * \param str Original string.
- * \param index Index of the substring within \a str.
- * \param length Substring length.
- * \return Score value between 1 and 100.
- */
-static int scoreFuzzy(const char *str, int index, int length)
-{
-    if (index == 0 || str[index - 1] == '.') {
-        // score between 66..99, if the match follows a dot, or starts the string
-        return qMax(66, 100 - length);
-    } else if (str[index + length] == 0) {
-        // score between 33..66, if the match is at the end of the string
-        return qMax(33, 67 - length);
-    } else {
-        // score between 1..33 otherwise (match in the middle of the string)
-        return qMax(1, 34 - length);
-    }
 }
 
 static inline int scoreFunction(const char *needleOrig, const char *haystackOrig)
