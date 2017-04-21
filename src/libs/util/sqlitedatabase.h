@@ -41,6 +41,7 @@ public:
     bool isOpen() const;
 
     QStringList tables();
+    QStringList views();
 
     bool prepare(const QString &sql);
     bool next();

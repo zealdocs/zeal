@@ -73,6 +73,31 @@ QStringList SQLiteDatabase::tables()
     return list;
 }
 
+QStringList SQLiteDatabase::views()
+{
+    // FIXME: Do not use the shared statement.
+    Q_ASSERT(!m_stmt);
+
+    static const QString sql = QStringLiteral("SELECT name"
+                                              "  FROM"
+                                              "    (SELECT * FROM sqlite_master UNION ALL"
+                                              "    SELECT * FROM sqlite_temp_master)"
+                                              "  WHERE type='view'"
+                                              "  ORDER BY name");
+
+    if (m_db == nullptr || !prepare(sql)) {
+        return {};
+    }
+
+
+    QStringList list;
+    while (next()) {
+        list.append(value(0).toString());
+    }
+
+    return list;
+}
+
 bool SQLiteDatabase::prepare(const QString &sql)
 {
     if (m_db == nullptr) {
