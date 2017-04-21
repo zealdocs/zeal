@@ -50,21 +50,27 @@ bool SQLiteDatabase::isOpen() const
 
 QStringList SQLiteDatabase::tables()
 {
-    Q_ASSERT(!m_stmt);  // FIXME: usage between other execute/next calls (Zeal doesn't need it now)
+    // FIXME: Do not use the shared statement.
+    Q_ASSERT(!m_stmt);
 
-    QStringList res;
-    if (!isOpen())
-        return res;
+    static const QString sql = QStringLiteral("SELECT name"
+                                              "  FROM"
+                                              "    (SELECT * FROM sqlite_master UNION ALL"
+                                              "    SELECT * FROM sqlite_temp_master)"
+                                              "  WHERE type='table'"
+                                              "  ORDER BY name");
 
-    const QString sql = QLatin1String("SELECT name FROM sqlite_master WHERE type='table' UNION ALL "
-                                      "SELECT name FROM sqlite_temp_master WHERE type='table'");
-
-    if (!sql.isEmpty() && prepare(sql)) {
-        while (next())
-            res.append(value(0).toString());
+    if (m_db == nullptr || !prepare(sql)) {
+        return {};
     }
 
-    return res;
+
+    QStringList list;
+    while (next()) {
+        list.append(value(0).toString());
+    }
+
+    return list;
 }
 
 bool SQLiteDatabase::prepare(const QString &sql)

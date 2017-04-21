@@ -39,6 +39,7 @@ public:
     virtual ~SQLiteDatabase();
 
     bool isOpen() const;
+
     QStringList tables();
 
     bool prepare(const QString &sql);
