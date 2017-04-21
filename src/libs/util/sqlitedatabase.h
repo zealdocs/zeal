@@ -44,6 +44,8 @@ public:
     bool prepare(const QString &sql);
     bool next();
 
+    bool execute(const QString &sql);
+
     QVariant value(int index) const;
 
     QString lastError() const;

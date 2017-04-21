@@ -124,6 +124,28 @@ bool SQLiteDatabase::next()
     return false;
 }
 
+bool SQLiteDatabase::execute(const QString &sql)
+{
+    if (m_db == nullptr) {
+        return false;
+    }
+
+    m_lastError.clear();
+
+    char *errmsg = nullptr;
+    const int rc = sqlite3_exec(m_db, sql.toUtf8(), nullptr, nullptr, &errmsg);
+
+    if (rc != SQLITE_OK) {
+        if (errmsg) {
+            m_lastError = QString::fromUtf8(errmsg);
+            sqlite3_free(errmsg);
+        }
+        return false;
+    }
+
+    return true;
+}
+
 QVariant SQLiteDatabase::value(int index) const
 {
     Q_ASSERT(index >= 0);
