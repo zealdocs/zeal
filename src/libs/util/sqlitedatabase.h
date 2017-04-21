@@ -41,7 +41,7 @@ public:
     bool isOpen() const;
     QStringList tables();
 
-    bool execute(const QString &queryStr);
+    bool prepare(const QString &sql);
     bool next();
 
     QVariant value(int index) const;

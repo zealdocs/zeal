@@ -284,7 +284,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
     QList<SearchResult> results;
 
-    m_db->execute(queryStr);
+    m_db->prepare(queryStr);
     while (m_db->next() && !token.isCanceled()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -324,7 +324,7 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                                   "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
     }
 
-    m_db->execute(queryStr.arg(cleanUrl.toString()));
+    m_db->prepare(queryStr.arg(cleanUrl.toString()));
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -386,7 +386,7 @@ void Docset::countSymbols()
                                   " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
     }
 
-    if (!m_db->execute(queryStr)) {
+    if (!m_db->prepare(queryStr)) {
         qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
         return;
     }
@@ -420,7 +420,7 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
                                   "ORDER BY ztokenname ASC");
     }
 
-    if (!m_db->execute(queryStr.arg(symbolString))) {
+    if (!m_db->prepare(queryStr.arg(symbolString))) {
         qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
         return;
     }
@@ -443,7 +443,7 @@ void Docset::createIndex()
     const QString columnName = m_type == Type::Dash ? QStringLiteral("name")
                                                     : QStringLiteral("ztokenname");
 
-    m_db->execute(indexListQuery.arg(tableName));
+    m_db->prepare(indexListQuery.arg(tableName));
 
     QStringList oldIndexes;
 
@@ -460,9 +460,9 @@ void Docset::createIndex()
 
     // Drop old indexes
     for (const QString &oldIndexName : oldIndexes)
-        m_db->execute(indexDropQuery.arg(oldIndexName));
+        m_db->prepare(indexDropQuery.arg(oldIndexName));
 
-    m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
+    m_db->prepare(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }
 
 QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
