@@ -460,9 +460,9 @@ void Docset::createIndex()
 
     // Drop old indexes
     for (const QString &oldIndexName : oldIndexes)
-        m_db->prepare(indexDropQuery.arg(oldIndexName));
+        m_db->execute(indexDropQuery.arg(oldIndexName));
 
-    m_db->prepare(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
+    m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }
 
 QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
