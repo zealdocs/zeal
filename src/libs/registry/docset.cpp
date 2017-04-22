@@ -288,9 +288,8 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     while (m_db->next() && !token.isCanceled()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
-                        const_cast<Docset *>(this),
-                        createPageUrl(m_db->value(2).toString(), m_db->value(3).toString()),
-                        m_db->value(4).toInt()});
+                        m_db->value(2).toString(), m_db->value(3).toString(),
+                        const_cast<Docset *>(this), m_db->value(4).toInt()});
     }
 
     return results;
@@ -328,15 +327,19 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
-                        const_cast<Docset *>(this),
-                        createPageUrl(m_db->value(2).toString(), m_db->value(3).toString()),
-                        0});
+                        m_db->value(2).toString(), m_db->value(3).toString(),
+                        const_cast<Docset *>(this), 0});
     }
 
     if (results.size() == 1)
         results.clear();
 
     return results;
+}
+
+QUrl Docset::searchResultUrl(const SearchResult &result) const
+{
+    return createPageUrl(result.urlPath, result.urlFragment);
 }
 
 void Docset::loadMetadata()

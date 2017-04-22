@@ -37,9 +37,10 @@ struct SearchResult
     QString name;
     QString type;
 
-    Docset *docset;
+    QString urlPath;
+    QString urlFragment;
 
-    QUrl url;
+    Docset *docset;
 
     int score;
 

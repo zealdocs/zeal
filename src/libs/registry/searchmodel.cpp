@@ -62,7 +62,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         return item->docset->icon();
 
     case ItemDataRole::UrlRole:
-        return item->url;
+        return item->docset->searchResultUrl(*item);
 
     default:
         return QVariant();

@@ -69,6 +69,9 @@ public:
     QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
+    // FIXME: This a temporary solution to create URL on demand.
+    QUrl searchResultUrl(const SearchResult &result) const;
+
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
@@ -84,6 +87,7 @@ private:
     void loadSymbols(const QString &symbolType) const;
     void loadSymbols(const QString &symbolType, const QString &symbolString) const;
     void createIndex();
+    void createView();
     QUrl createPageUrl(const QString &path, const QString &fragment = QString()) const;
 
     static QString parseSymbolType(const QString &str);
