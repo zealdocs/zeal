@@ -62,7 +62,7 @@
 #include <X11/Xlib.h>
 
 namespace {
-const QVector<quint32> maskModifiers = {
+const quint32 maskModifiers[] = {
     0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
 };
 } // namespace

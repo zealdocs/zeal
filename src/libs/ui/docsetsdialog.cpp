@@ -774,9 +774,9 @@ void DocsetsDialog::resetProgress()
 
 QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const
 {
-    for (const QString &key : m_tmpFiles.keys()) {
-        if (m_tmpFiles[key]->fileName() == filePath) {
-            return key;
+    for (auto it = m_tmpFiles.cbegin(), end = m_tmpFiles.cend(); it != end; ++it) {
+        if (it.value()->fileName() == filePath) {
+            return it.key();
         }
     }
 

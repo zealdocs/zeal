@@ -31,6 +31,7 @@ namespace WidgetUi {
 
 class ShortcutEdit : public QLineEdit
 {
+    Q_OBJECT
 public:
     explicit ShortcutEdit(QWidget *parent = nullptr);
     explicit ShortcutEdit(const QString &text, QWidget *parent = nullptr);

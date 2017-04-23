@@ -149,7 +149,7 @@ void DocsetRegistry::_runQuery(const QString &query)
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     if (searchQuery.hasKeywords()) {
-        for (Docset *docset : docsets()) {
+        for (Docset *docset : m_docsets) {
             if (searchQuery.hasKeywords(docset->keywords()))
                 enabledDocsets << docset;
         }

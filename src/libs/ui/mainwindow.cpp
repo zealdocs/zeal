@@ -460,7 +460,7 @@ void MainWindow::search(const Registry::SearchQuery &query)
         return;
 
     ui->lineEdit->setText(query.toString());
-    ui->treeView->activated(ui->treeView->currentIndex());
+    emit ui->treeView->activated(ui->treeView->currentIndex());
 }
 
 void MainWindow::openDocset(const QModelIndex &index)
@@ -809,7 +809,7 @@ void MainWindow::applySettings()
         }
     }
 
-    if (QFileInfo(m_settings->customCssFile).exists()) {
+    if (QFileInfo::exists(m_settings->customCssFile)) {
         QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
         if (file->open(QIODevice::ReadOnly)) {
             ba += file->readAll();
