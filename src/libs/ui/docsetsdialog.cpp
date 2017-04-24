@@ -29,6 +29,7 @@
 
 #include <core/application.h>
 #include <core/settings.h>
+#include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
 #include <registry/listmodel.h>

@@ -25,15 +25,16 @@
 #define DOCSETREGISTRY_H
 
 #include "cancellationtoken.h"
-#include "docset.h"
 
 #include <QMap>
+#include <QObject>
 
 class QThread;
 
 namespace Zeal {
 namespace Registry {
 
+class Docset;
 struct SearchResult;
 
 class DocsetRegistry : public QObject

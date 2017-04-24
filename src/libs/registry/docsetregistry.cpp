@@ -23,6 +23,7 @@
 
 #include "docsetregistry.h"
 
+#include "docset.h"
 #include "searchquery.h"
 #include "searchresult.h"
 
