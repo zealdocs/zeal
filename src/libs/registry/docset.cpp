@@ -258,10 +258,6 @@ const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 
 QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
 {
-    // Make it safe to use in a SQL query.
-    QString sanitizedQuery = query;
-    sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
-
     QString sql;
     if (m_type == Docset::Type::Dash) {
         sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
