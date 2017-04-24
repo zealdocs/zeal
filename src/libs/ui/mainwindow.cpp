@@ -369,10 +369,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
         currentTabState()->searchQuery = text;
         m_application->docsetRegistry()->search(text);
-        if (text.isEmpty()) {
-            currentTabState()->tocModel->setResults();
-            syncTreeView();
-        }
     });
 
     // Setup delayed navigation to a page until user makes a pause in typing a search query.

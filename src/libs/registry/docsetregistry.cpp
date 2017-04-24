@@ -138,6 +138,12 @@ void DocsetRegistry::addDocset(const QString &path)
 void DocsetRegistry::search(const QString &query)
 {
     m_cancellationToken.cancel();
+
+    if (query.isEmpty()) {
+        emit searchCompleted({});
+        return;
+    }
+
     QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
 }
 
