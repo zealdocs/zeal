@@ -129,12 +129,16 @@ Docset::Docset(const QString &path) :
         return;
     }
 
-    sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr, sqliteScoreFunction,
-                            nullptr, nullptr);
+    sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr,
+                            sqliteScoreFunction, nullptr, nullptr);
 
     m_type = m_db->tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
 
     createIndex();
+
+    if (m_type == Docset::Type::ZDash) {
+        createView();
+    }
 
     if (!dir.cd(QStringLiteral("Documents"))) {
         m_type = Type::Invalid;
@@ -258,33 +262,31 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     QString sanitizedQuery = query;
     sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
 
-    QString queryStr;
+    QString sql;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score "
-                                  "    FROM searchIndex "
-                                  "WHERE score > 0 "
-                                  "ORDER BY score DESC").arg(sanitizedQuery);
+        sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
+                             "  FROM searchIndex"
+                             "  WHERE score > 0"
+                             "  ORDER BY score DESC");
     } else {
-        queryStr = QStringLiteral("SELECT ztokenname, ztypename, zpath, zanchor, zealScore('%1', ztokenname) as score "
-                                  "    FROM ztoken "
-                                  "LEFT JOIN ztokenmetainformation "
-                                  "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "LEFT JOIN zfilepath "
-                                  "    ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "LEFT JOIN ztokentype "
-                                  "    ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE score > 0 "
-                                  "ORDER BY score DESC").arg(sanitizedQuery);
+        sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
+                             "  FROM searchIndex"
+                             "  WHERE score > 0"
+                             "  ORDER BY score DESC");
     }
 
     // Limit for very short queries.
     // TODO: Show a notification about the reduced result set.
-    if (query.size() < 3)
-        queryStr += QLatin1String(" LIMIT 1000");
+    if (query.size() < 3) {
+        sql += QLatin1String("  LIMIT 1000");
+    }
+
+    // Make it safe to use in a SQL query.
+    QString sanitizedQuery = query;
+    sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
+    m_db->prepare(sql.arg(sanitizedQuery));
 
     QList<SearchResult> results;
-
-    m_db->prepare(queryStr);
     while (m_db->next() && !token.isCanceled()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -310,20 +312,18 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     cleanUrl.setFragment(QString());
 
     // Prepare the query to look up all pages with the same url.
-    QString queryStr;
+    QString sql;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, type, path FROM searchIndex "
-                                  "WHERE path LIKE \"%1%%\" AND path <> \"%1\"");
+        sql = QStringLiteral("SELECT name, type, path"
+                             "  FROM searchIndex"
+                             "  WHERE path LIKE \"%1%%\" AND path <> \"%1\"");
     } else if (m_type == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztoken.ztokenname, ztokentype.ztypename, zfilepath.zpath, ztokenmetainformation.zanchor "
-                                  "FROM ztoken "
-                                  "LEFT JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "LEFT JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "LEFT JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk "
-                                  "WHERE zfilepath.zpath = \"%1\" AND ztokenmetainformation.zanchor IS NOT NULL");
+        sql = QStringLiteral("SELECT name, type, path, fragment"
+                             "  FROM searchIndex"
+                             "  WHERE path = \"%1\" AND fragment IS NOT NULL");
     }
 
-    m_db->prepare(queryStr.arg(cleanUrl.toString()));
+    m_db->prepare(sql.arg(cleanUrl.toString()));
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -381,15 +381,10 @@ void Docset::loadMetadata()
 
 void Docset::countSymbols()
 {
-    QString queryStr;
-    if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT type, COUNT(*) FROM searchIndex GROUP BY type");
-    } else if (m_type == Docset::Type::ZDash) {
-        queryStr = QStringLiteral("SELECT ztypename, COUNT(*) FROM ztoken LEFT JOIN ztokentype"
-                                  " ON ztoken.ztokentype = ztokentype.z_pk GROUP BY ztypename");
-    }
-
-    if (!m_db->prepare(queryStr)) {
+    static const QString sql = QStringLiteral("SELECT type, COUNT(*)"
+                                              "  FROM searchIndex"
+                                              "  GROUP BY type");
+    if (!m_db->prepare(sql)) {
         qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
         return;
     }
@@ -411,19 +406,20 @@ void Docset::loadSymbols(const QString &symbolType) const
 
 void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const
 {
-    QString queryStr;
+    QString sql;
     if (m_type == Docset::Type::Dash) {
-        queryStr = QStringLiteral("SELECT name, path FROM searchIndex WHERE type='%1' ORDER BY name ASC");
+        sql = QStringLiteral("SELECT name, path"
+                             "  FROM searchIndex"
+                             "  WHERE type='%1'"
+                             "  ORDER BY name");
     } else {
-        queryStr = QStringLiteral("SELECT ztokenname, zpath, zanchor "
-                                  "FROM ztoken "
-                                  "LEFT JOIN ztokenmetainformation ON ztoken.zmetainformation = ztokenmetainformation.z_pk "
-                                  "LEFT JOIN zfilepath ON ztokenmetainformation.zfile = zfilepath.z_pk "
-                                  "LEFT JOIN ztokentype ON ztoken.ztokentype = ztokentype.z_pk WHERE ztypename='%1' "
-                                  "ORDER BY ztokenname ASC");
+        sql = QStringLiteral("SELECT name, path, fragment"
+                             "  FROM searchIndex"
+                             "  WHERE type='%1'"
+                             "  ORDER BY name");
     }
 
-    if (!m_db->prepare(queryStr.arg(symbolString))) {
+    if (!m_db->prepare(sql.arg(symbolString))) {
         qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
         return;
     }
@@ -466,6 +462,26 @@ void Docset::createIndex()
         m_db->execute(indexDropQuery.arg(oldIndexName));
 
     m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
+}
+
+void Docset::createView()
+{
+    static const QString viewCreateQuery
+            = QStringLiteral("CREATE VIEW IF NOT EXISTS searchIndex AS"
+                             "  SELECT"
+                             "    ztokenname AS name,"
+                             "    ztypename AS type,"
+                             "    zpath AS path,"
+                             "    zanchor AS fragment"
+                             "  FROM ztoken"
+                             "  INNER JOIN ztokenmetainformation"
+                             "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk"
+                             "  INNER JOIN zfilepath"
+                             "    ON ztokenmetainformation.zfile = zfilepath.z_pk"
+                             "  INNER JOIN ztokentype"
+                             "    ON ztoken.ztokentype = ztokentype.z_pk");
+
+    m_db->execute(viewCreateQuery);
 }
 
 QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
