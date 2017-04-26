@@ -44,7 +44,8 @@ public:
     explicit DocsetRegistry(QObject *parent = nullptr);
     ~DocsetRegistry() override;
 
-    void init(const QString &path);
+    QString storagePath() const;
+    void setStoragePath(const QString &path);
 
     int count() const;
     bool contains(const QString &name) const;
@@ -72,6 +73,8 @@ private slots:
 
 private:
     void addDocsetsFromFolder(const QString &path);
+
+    QString m_storagePath;
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;

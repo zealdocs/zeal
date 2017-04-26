@@ -70,11 +70,10 @@ Application::Application(QObject *parent) :
     connect(m_extractor, &Extractor::error, this, &Application::extractionError);
     connect(m_extractor, &Extractor::progress, this, &Application::extractionProgress);
 
+    m_docsetRegistry = new Registry::DocsetRegistry();
+
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
-
-    m_docsetRegistry = new Registry::DocsetRegistry();
-    m_docsetRegistry->init(m_settings->docsetPath);
 
     m_mainWindow = new WidgetUi::MainWindow(this);
 
@@ -192,6 +191,8 @@ void Application::checkForUpdates(bool quiet)
 
 void Application::applySettings()
 {
+    m_docsetRegistry->setStoragePath(m_settings->docsetPath);
+
     // HTTP Proxy Settings
     switch (m_settings->proxyType) {
     case Core::Settings::ProxyType::None:

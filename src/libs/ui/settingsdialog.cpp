@@ -26,7 +26,6 @@
 
 #include <core/application.h>
 #include <core/settings.h>
-#include <registry/docsetregistry.h>
 
 #include <QDir>
 #include <QFileDialog>
@@ -132,6 +131,7 @@ void SettingsDialog::loadSettings()
 void SettingsDialog::saveSettings()
 {
     Core::Settings * const settings = m_application->settings();
+
     // General Tab
     settings->startMinimized = ui->startMinimizedCheckBox->isChecked();
     settings->checkForUpdate = ui->checkForUpdateCheckBox->isChecked();
@@ -142,6 +142,9 @@ void SettingsDialog::saveSettings()
 
     settings->showShortcut = ui->toolButton->keySequence();
 
+    settings->docsetPath = QDir::fromNativeSeparators(ui->docsetStorageEdit->text());
+
+    // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
 
     // Content Tab
@@ -149,11 +152,6 @@ void SettingsDialog::saveSettings()
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
-
-    if (QDir::fromNativeSeparators(ui->docsetStorageEdit->text()) != settings->docsetPath) {
-        settings->docsetPath = QDir::fromNativeSeparators(ui->docsetStorageEdit->text());
-        m_application->docsetRegistry()->init(settings->docsetPath);
-    }
 
     // Network Tab
     // Proxy settings

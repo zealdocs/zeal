@@ -60,10 +60,22 @@ DocsetRegistry::~DocsetRegistry()
     qDeleteAll(m_docsets);
 }
 
-void DocsetRegistry::init(const QString &path)
+QString DocsetRegistry::storagePath() const
 {
-    for (const QString &name : m_docsets.keys())
+    return m_storagePath;
+}
+
+void DocsetRegistry::setStoragePath(const QString &path)
+{
+    if (path == m_storagePath) {
+        return;
+    }
+
+    m_storagePath = path;
+
+    for (const QString &name : m_docsets.keys()) {
         remove(name);
+    }
 
     addDocsetsFromFolder(path);
 }
