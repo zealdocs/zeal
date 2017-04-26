@@ -336,27 +336,29 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         currentTabState()->searchModel->setResults(results);
     });
 
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetRemoved,
+    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAboutToBeRemoved,
             this, [this](const QString &name) {
-        setupSearchBoxCompletions();
         for (TabState *tabState : m_tabStates) {
-            if (docsetName(tabState->url()) != name)
-                continue;
+            if (tabState == currentTabState()) {
+                // Disable updates because removeSearchResultWithName can
+                // call {begin,end}RemoveRows multiple times, and cause
+                // degradation of UI responsiveness.
+                ui->treeView->setUpdatesEnabled(false);
+                tabState->searchModel->removeSearchResultWithName(name);
+                ui->treeView->setUpdatesEnabled(true);
+            } else {
+                tabState->searchModel->removeSearchResultWithName(name);
+            }
 
-            tabState->tocModel->setResults();
-
-            // optimization: disable updates temporarily because
-            // removeSearchResultWithName can call {begin,end}RemoveRows
-            // multiple times which can cause GUI updates to be suboptimal
-            // in case of many rows to be removed
-            ui->treeView->setUpdatesEnabled(false);
-            tabState->searchModel->removeSearchResultWithName(name);
-            ui->treeView->setUpdatesEnabled(true);
-
-            tabState->loadUrl(QUrl(startPageUrl));
+            if (docsetName(tabState->url()) == name) {
+                tabState->tocModel->setResults();
+                tabState->loadUrl(QUrl(startPageUrl));
+            }
 
             // TODO: Cleanup history
         }
+
+        setupSearchBoxCompletions();
     });
 
     connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAdded,
