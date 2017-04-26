@@ -263,25 +263,21 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
         if (m_fuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE score > 0"
-                                 "  ORDER BY score DESC");
+                                 "  WHERE score > 0");
         } else {
             sql = QStringLiteral("SELECT name, type, path, ''"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
-                                 "  ORDER BY name COLLATE NOCASE");
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
         }
     } else {
         if (m_fuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE score > 0"
-                                 "  ORDER BY score DESC");
+                                 "  WHERE score > 0");
         } else {
             sql = QStringLiteral("SELECT name, type, path, fragment"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
-                                 "  ORDER BY name COLLATE NOCASE");
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
         }
     }
 
