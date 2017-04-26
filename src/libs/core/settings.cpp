@@ -35,6 +35,7 @@ namespace {
 const char GroupContent[] = "content";
 const char GroupDocsets[] = "docsets";
 const char GroupGlobalShortcuts[] = "global_shortcuts";
+const char GroupSearch[] = "search";
 const char GroupTabs[] = "tabs";
 const char GroupInternal[] = "internal";
 const char GroupState[] = "state";
@@ -73,6 +74,10 @@ void Settings::load()
 
     settings->beginGroup(GroupTabs);
     openNewTabAfterActive = settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
+    settings->endGroup();
+
+    settings->beginGroup(GroupSearch);
+    fuzzySearchEnabled = settings->value(QStringLiteral("fuzzy_search_enabled"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
@@ -140,6 +145,10 @@ void Settings::save()
 
     settings->beginGroup(GroupTabs);
     settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
+    settings->endGroup();
+
+    settings->beginGroup(GroupSearch);
+    settings->setValue(QStringLiteral("fuzzy_search_enabled"), fuzzySearchEnabled);
     settings->endGroup();
 
     settings->beginGroup(GroupContent);

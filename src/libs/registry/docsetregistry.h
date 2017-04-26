@@ -47,6 +47,9 @@ public:
     QString storagePath() const;
     void setStoragePath(const QString &path);
 
+    bool isFuzzySearchEnabled() const;
+    void setFuzzySearchEnabled(bool enabled);
+
     int count() const;
     bool contains(const QString &name) const;
     QStringList names() const;
@@ -75,6 +78,7 @@ private:
     void addDocsetsFromFolder(const QString &path);
 
     QString m_storagePath;
+    bool m_fuzzySearchEnabled = false;
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;

@@ -56,6 +56,9 @@ public:
     // Tabs Behavior
     bool openNewTabAfterActive;
 
+    // Search
+    bool fuzzySearchEnabled;
+
     // Content
     int minimumFontSize;
     bool darkModeEnabled;

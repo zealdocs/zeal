@@ -260,15 +260,29 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 {
     QString sql;
     if (m_type == Docset::Type::Dash) {
-        sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
-                             "  FROM searchIndex"
-                             "  WHERE score > 0"
-                             "  ORDER BY score DESC");
+        if (m_fuzzySearchEnabled) {
+            sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
+                                 "  FROM searchIndex"
+                                 "  WHERE score > 0"
+                                 "  ORDER BY score DESC");
+        } else {
+            sql = QStringLiteral("SELECT name, type, path, ''"
+                                 "  FROM searchIndex"
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  ORDER BY name COLLATE NOCASE");
+        }
     } else {
-        sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
-                             "  FROM searchIndex"
-                             "  WHERE score > 0"
-                             "  ORDER BY score DESC");
+        if (m_fuzzySearchEnabled) {
+            sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
+                                 "  FROM searchIndex"
+                                 "  WHERE score > 0"
+                                 "  ORDER BY score DESC");
+        } else {
+            sql = QStringLiteral("SELECT name, type, path, fragment"
+                                 "  FROM searchIndex"
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  ORDER BY name COLLATE NOCASE");
+        }
     }
 
     // Limit for very short queries.
@@ -641,6 +655,16 @@ QString Docset::parseSymbolType(const QString &str)
     };
 
     return aliases.value(str, str);
+}
+
+bool Docset::isFuzzySearchEnabled() const
+{
+    return m_fuzzySearchEnabled;
+}
+
+void Docset::setFuzzySearchEnabled(bool enabled)
+{
+    m_fuzzySearchEnabled = enabled;
 }
 
 /**

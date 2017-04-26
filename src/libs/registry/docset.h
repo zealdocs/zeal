@@ -75,6 +75,9 @@ public:
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
+    bool isFuzzySearchEnabled() const;
+    void setFuzzySearchEnabled(bool enabled);
+
 private:
     enum class Type {
         Invalid,
@@ -107,6 +110,7 @@ private:
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
+    bool m_fuzzySearchEnabled = false;
 };
 
 } // namespace Registry

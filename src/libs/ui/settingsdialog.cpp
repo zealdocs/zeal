@@ -102,6 +102,9 @@ void SettingsDialog::loadSettings()
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
 
+    // Search Tab
+    ui->fuzzySearchCheckBox->setChecked(settings->fuzzySearchEnabled);
+
     // Content Tab
     ui->minimumFontSizeSpinBox->setValue(settings->minimumFontSize);
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
@@ -146,6 +149,9 @@ void SettingsDialog::saveSettings()
 
     // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
+
+    // Search Tab
+    settings->fuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();
 
     // Content Tab
     settings->minimumFontSize = ui->minimumFontSizeSpinBox->text().toInt();

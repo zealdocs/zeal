@@ -80,6 +80,24 @@ void DocsetRegistry::setStoragePath(const QString &path)
     addDocsetsFromFolder(path);
 }
 
+bool DocsetRegistry::isFuzzySearchEnabled() const
+{
+    return m_fuzzySearchEnabled;
+}
+
+void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
+{
+    if (enabled == m_fuzzySearchEnabled) {
+        return;
+    }
+
+    m_fuzzySearchEnabled = enabled;
+
+    for (Docset *docset : m_docsets) {
+        docset->setFuzzySearchEnabled(enabled);
+    }
+}
+
 int DocsetRegistry::count() const
 {
     return m_docsets.count();
@@ -134,10 +152,12 @@ void DocsetRegistry::addDocset(const QString &path)
             return;
         }
 
-        const QString name = docset->name();
+        docset->setFuzzySearchEnabled(m_fuzzySearchEnabled);
 
-        if (m_docsets.contains(name))
+        const QString name = docset->name();
+        if (m_docsets.contains(name)) {
             remove(name);
+        }
 
         m_docsets[name] = docset;
         emit docsetAdded(name);

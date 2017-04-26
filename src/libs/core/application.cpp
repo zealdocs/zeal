@@ -192,6 +192,7 @@ void Application::checkForUpdates(bool quiet)
 void Application::applySettings()
 {
     m_docsetRegistry->setStoragePath(m_settings->docsetPath);
+    m_docsetRegistry->setFuzzySearchEnabled(m_settings->fuzzySearchEnabled);
 
     // HTTP Proxy Settings
     switch (m_settings->proxyType) {
