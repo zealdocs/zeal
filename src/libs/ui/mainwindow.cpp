@@ -529,6 +529,8 @@ void MainWindow::createTab(int index)
     m_tabStates.insert(index, newTab);
     m_tabBar->insertTab(index, tr("Loading..."));
     m_tabBar->setCurrentIndex(index);
+
+    ui->lineEdit->setFocus();
 }
 
 void MainWindow::duplicateTab(int index)
