@@ -28,6 +28,7 @@
 
 class QxtGlobalShortcut;
 
+class QItemSelection;
 class QModelIndex;
 class QSystemTrayIcon;
 class QTabBar;
@@ -79,6 +80,8 @@ protected:
 private slots:
     void applySettings();
     void openDocset(const QModelIndex &index);
+    void openAndFocusDocset(const QModelIndex &index);
+    void openDocsetDelayed(const QModelIndex &index);
     void queryCompleted();
     void closeTab(int index = -1);
     void moveTab(int from, int to);

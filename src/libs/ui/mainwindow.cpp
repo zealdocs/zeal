@@ -328,9 +328,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
+    // Focus web view on any active interaction with tree (enter, clicking)
+    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openAndFocusDocset);
+    connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openAndFocusDocset);
+
+    // Handle selections in the table of contents list
     connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
-    connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
 
     connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::searchCompleted,
@@ -386,9 +389,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
 
         openDocset(index);
-
-        // Get focus back.
-        ui->lineEdit->setFocus(Qt::MouseFocusReason);
     });
 
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
@@ -463,13 +463,31 @@ void MainWindow::search(const Registry::SearchQuery &query)
     emit ui->treeView->activated(ui->treeView->currentIndex());
 }
 
+// Open the docset at index immediately
 void MainWindow::openDocset(const QModelIndex &index)
 {
+    // Cancel any other pending docset open
+    m_openDocsetTimer->stop();
+
     const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
     if (url.isNull())
         return;
 
     currentTab()->load(url.toUrl());
+}
+
+// Open the docset at index after a delay (for typing, keyboard selection, etc)
+void MainWindow::openDocsetDelayed(const QModelIndex &index)
+{
+    m_openDocsetTimer->stop();
+    m_openDocsetTimer->setProperty("index", index);
+    m_openDocsetTimer->start();
+}
+
+// Open the docset at index and move focus to the web view
+void MainWindow::openAndFocusDocset(const QModelIndex &index)
+{
+    openDocset(index);
     currentTab()->focus();
 }
 
@@ -493,8 +511,7 @@ void MainWindow::queryCompleted()
 
     ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
 
-    m_openDocsetTimer->setProperty("index", ui->treeView->currentIndex());
-    m_openDocsetTimer->start();
+    openDocsetDelayed(ui->treeView->currentIndex());
 }
 
 void MainWindow::closeTab(int index)
@@ -580,8 +597,20 @@ void MainWindow::syncTreeView()
 
     // TODO: Remove once QTBUG-49966 is addressed.
     QItemSelectionModel *newSelectionModel = ui->treeView->selectionModel();
-    if (oldSelectionModel && newSelectionModel != oldSelectionModel) {
-        oldSelectionModel->deleteLater();
+    if (newSelectionModel != oldSelectionModel) {
+        if (oldSelectionModel) {
+            oldSelectionModel->deleteLater();
+        }
+
+        // Connect to new selection model
+        connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this](const QItemSelection &selected) {
+                if (selected.isEmpty()) {
+                    return;
+                }
+
+                openDocsetDelayed(selected.indexes().first());
+            });
     }
 
     ui->treeView->reset();
