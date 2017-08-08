@@ -5,6 +5,7 @@
 [![Telegram Chat](https://img.shields.io/badge/chat-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocschat)
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fzealdocs%2Fzeal.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fzealdocs%2Fzeal?ref=badge_shield)
 
 > **zeal** *noun*
 >
@@ -78,3 +79,6 @@ We want your feedback! Here's a list of different ways to contact developers and
 ## License
 
 This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](http://opensource.org/licenses/gpl-3.0.html).
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fzealdocs%2Fzeal.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fzealdocs%2Fzeal?ref=badge_large)
