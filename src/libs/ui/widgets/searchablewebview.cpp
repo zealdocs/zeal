@@ -61,8 +61,10 @@ void SearchableWebView::setPage(QWebPage *page)
     m_webView->setPage(page);
 
     connect(page, &QWebPage::linkHovered, [&](const QString &link) {
-        if (!link.startsWith(QLatin1String("file:")))
-            setToolTip(link);
+        if (link.startsWith(QLatin1String("file:")) || link.startsWith(QLatin1String("qrc:")))
+            return;
+
+        setToolTip(link);
     });
 }
 
