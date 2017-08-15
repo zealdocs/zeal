@@ -35,10 +35,22 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
                                              const QNetworkRequest &request,
                                              QIODevice *outgoingData)
 {
-    // Detect URLs without schema, and prevent them from being requested on a local filesytem.
+    static const QStringList localSchemes = {QStringLiteral("file"), QStringLiteral("qrc")};
+
     const QUrl url = request.url();
-    if (url.scheme() == QLatin1String("file") && !url.host().isEmpty())
-        return QNetworkAccessManager::createRequest(GetOperation, QNetworkRequest(), outgoingData);
+
+    // Forward all non-local schemaless URLs via HTTPS.
+    if (localSchemes.contains(url.scheme()) && !url.host().isEmpty()) {
+        QUrl overrideUrl(url);
+        overrideUrl.setScheme(QStringLiteral("https"));
+
+        QNetworkRequest overrideRequest(request);
+        overrideRequest.setUrl(overrideUrl);
+
+        return QNetworkAccessManager::createRequest(GetOperation, overrideRequest, outgoingData);
+    }
+
+
 
     return QNetworkAccessManager::createRequest(op, request, outgoingData);
 }
