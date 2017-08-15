@@ -64,6 +64,7 @@ public:
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
     QString customCssFile;
+    bool isAdDisabled;
 
     // TODO: bool askOnExternalLink;
     // TODO: QString customCss;

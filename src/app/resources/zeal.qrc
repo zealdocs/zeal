@@ -8,6 +8,7 @@
         <file>browser/assets/css/main.css</file>
         <file>browser/assets/fonts/fontawesome-webfont.woff</file>
         <file>browser/welcome.html</file>
+        <file>browser/welcome-noad.html</file>
         <file>icons/type/_DashAnnotations.png</file>
         <file>icons/type/_DashAnnotations@2x.png</file>
         <file>icons/type/_Struct.png</file>

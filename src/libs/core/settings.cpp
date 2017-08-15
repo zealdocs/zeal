@@ -88,6 +88,7 @@ void Settings::load()
     darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
+    isAdDisabled = settings->value(QStringLiteral("disable_ad"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
@@ -156,6 +157,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
     settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
+    settings->setValue(QStringLiteral("disable_ad"), isAdDisabled);
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);

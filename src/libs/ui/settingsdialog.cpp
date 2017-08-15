@@ -110,6 +110,7 @@ void SettingsDialog::loadSettings()
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
     ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
+    ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     // Network Tab
     switch (settings->proxyType) {
@@ -158,6 +159,7 @@ void SettingsDialog::saveSettings()
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
+    settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     // Network Tab
     // Proxy settings

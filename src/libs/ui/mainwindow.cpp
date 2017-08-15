@@ -57,7 +57,8 @@ using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
-const char startPageUrl[] = "qrc:///browser/welcome.html";
+const char WelcomePageUrl[] = "qrc:///browser/welcome.html";
+const char WelcomePageNoAdUrl[] = "qrc:///browser/welcome-noad.html";
 const char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
 const char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
 }
@@ -352,7 +353,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
             if (docsetName(tabState->url()) == name) {
                 tabState->tocModel->setResults();
-                tabState->loadUrl(QUrl(startPageUrl));
+                // TODO: Add custom 'Page has been removed' page.
+                if (m_settings->isAdDisabled) {
+                    tabState->loadUrl(QUrl(WelcomePageNoAdUrl));
+                } else {
+                    tabState->loadUrl(QUrl(WelcomePageUrl));
+                }
             }
 
             // TODO: Cleanup history
@@ -524,7 +530,11 @@ void MainWindow::createTab(int index)
     connect(newTab->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
 
-    newTab->loadUrl(QUrl(startPageUrl));
+    if (m_settings->isAdDisabled) {
+        newTab->loadUrl(QUrl(WelcomePageNoAdUrl));
+    } else {
+        newTab->loadUrl(QUrl(WelcomePageUrl));
+    }
 
     m_tabStates.insert(index, newTab);
     m_tabBar->insertTab(index, tr("Loading..."));
