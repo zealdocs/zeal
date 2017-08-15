@@ -57,9 +57,9 @@ using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
-const char startPageUrl[] = "qrc:///browser/start.html";
-const char DarkModeCssUrl[] = ":/browser/darkmode.css";
-const char HighlightOnNavigateCssUrl[] = ":/browser/highlight.css";;
+const char startPageUrl[] = "qrc:///browser/welcome.html";
+const char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
+const char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
 }
 
 namespace Zeal {
@@ -608,7 +608,7 @@ void MainWindow::setupTabBar()
     m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
-    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { min-width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
         static const char PreviousTabIndexProperty[] = "previousTabIndex";
