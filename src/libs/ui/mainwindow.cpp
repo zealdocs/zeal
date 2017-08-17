@@ -618,7 +618,7 @@ void MainWindow::setupTabBar()
     m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
-    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { min-width: 150px; }"));
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
         static const char PreviousTabIndexProperty[] = "previousTabIndex";
