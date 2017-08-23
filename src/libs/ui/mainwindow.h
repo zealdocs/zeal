@@ -81,6 +81,8 @@ private slots:
     void closeTab(int index = -1);
     void duplicateTab(int index);
 
+    void on_treeView_clicked(const QModelIndex &index);
+
 private:
     void syncTreeView();
     void syncToc();
