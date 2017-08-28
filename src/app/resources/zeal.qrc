@@ -9,10 +9,6 @@
         <file>browser/assets/fonts/fontawesome-webfont.woff</file>
         <file>browser/welcome.html</file>
         <file>browser/welcome-noad.html</file>
-        <file>icons/type/_DashAnnotations.png</file>
-        <file>icons/type/_DashAnnotations@2x.png</file>
-        <file>icons/type/_Struct.png</file>
-        <file>icons/type/_Struct@2x.png</file>
         <file>icons/type/Abbreviation.png</file>
         <file>icons/type/Abbreviation@2x.png</file>
         <file>icons/type/Alias.png</file>
@@ -57,8 +53,6 @@
         <file>icons/type/Define@2x.png</file>
         <file>icons/type/Delegate.png</file>
         <file>icons/type/Delegate@2x.png</file>
-        <file>icons/type/DeletedSnippet.png</file>
-        <file>icons/type/DeletedSnippet@2x.png</file>
         <file>icons/type/Diagram.png</file>
         <file>icons/type/Diagram@2x.png</file>
         <file>icons/type/Directive.png</file>
@@ -191,8 +185,6 @@
         <file>icons/type/Shortcut@2x.png</file>
         <file>icons/type/Signature.png</file>
         <file>icons/type/Signature@2x.png</file>
-        <file>icons/type/Snippet.png</file>
-        <file>icons/type/Snippet@2x.png</file>
         <file>icons/type/Special Form.png</file>
         <file>icons/type/Special Form@2x.png</file>
         <file>icons/type/Statement.png</file>
@@ -231,8 +223,6 @@
         <file>icons/type/Variant@2x.png</file>
         <file>icons/type/View.png</file>
         <file>icons/type/View@2x.png</file>
-        <file>icons/type/Web.png</file>
-        <file>icons/type/Web@2x.png</file>
         <file>icons/type/Word.png</file>
         <file>icons/type/Word@2x.png</file>
         <file>icons/logo/64x64.png</file>
