@@ -45,6 +45,8 @@
         <file>icons/type/Constructor@2x.png</file>
         <file>icons/type/Conversion.png</file>
         <file>icons/type/Conversion@2x.png</file>
+        <file>icons/type/Data Source.png</file>
+        <file>icons/type/Data Source@2x.png</file>
         <file>icons/type/Database.png</file>
         <file>icons/type/Database@2x.png</file>
         <file>icons/type/Decorator.png</file>
@@ -79,6 +81,8 @@
         <file>icons/type/File@2x.png</file>
         <file>icons/type/Filter.png</file>
         <file>icons/type/Filter@2x.png</file>
+        <file>icons/type/Flag.png</file>
+        <file>icons/type/Flag@2x.png</file>
         <file>icons/type/Foreign Key.png</file>
         <file>icons/type/Foreign Key@2x.png</file>
         <file>icons/type/Framework.png</file>
@@ -115,6 +119,10 @@
         <file>icons/type/Literal@2x.png</file>
         <file>icons/type/Macro.png</file>
         <file>icons/type/Macro@2x.png</file>
+        <file>icons/type/Member.png</file>
+        <file>icons/type/Member@2x.png</file>
+        <file>icons/type/Message.png</file>
+        <file>icons/type/Message@2x.png</file>
         <file>icons/type/Method.png</file>
         <file>icons/type/Method@2x.png</file>
         <file>icons/type/Mixin.png</file>
@@ -127,6 +135,8 @@
         <file>icons/type/Namespace@2x.png</file>
         <file>icons/type/NewSnippet.png</file>
         <file>icons/type/NewSnippet@2x.png</file>
+        <file>icons/type/Node.png</file>
+        <file>icons/type/Node@2x.png</file>
         <file>icons/type/Notation.png</file>
         <file>icons/type/Notation@2x.png</file>
         <file>icons/type/Object.png</file>
@@ -159,6 +169,8 @@
         <file>icons/type/Provisioner@2x.png</file>
         <file>icons/type/Query.png</file>
         <file>icons/type/Query@2x.png</file>
+        <file>icons/type/Reference.png</file>
+        <file>icons/type/Reference@2x.png</file>
         <file>icons/type/Record.png</file>
         <file>icons/type/Record@2x.png</file>
         <file>icons/type/Relationship.png</file>
@@ -177,6 +189,8 @@
         <file>icons/type/Script@2x.png</file>
         <file>icons/type/Section.png</file>
         <file>icons/type/Section@2x.png</file>
+        <file>icons/type/Sender.png</file>
+        <file>icons/type/Sender@2x.png</file>
         <file>icons/type/Service.png</file>
         <file>icons/type/Service@2x.png</file>
         <file>icons/type/Setting.png</file>
