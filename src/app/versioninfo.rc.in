@@ -1,5 +1,7 @@
 #include <winver.h>
 
+#pragma code_page(65001)
+
 IDI_ICON1 ICON DISCARDABLE "resources/zeal.ico"
 
 #define VER_COMPANYNAME_STR "${PROJECT_COMPANY_NAME}"
@@ -34,7 +36,7 @@ FILESUBTYPE    	VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904E4"
+        BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName",      VER_COMPANYNAME_STR
             VALUE "FileDescription",  VER_FILEDESCRIPTION_STR
@@ -51,6 +53,6 @@ BEGIN
 
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x409, 1252
+        VALUE "Translation", 0x0409, 1200
     END
 END
