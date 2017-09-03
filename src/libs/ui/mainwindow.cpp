@@ -449,12 +449,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_application->checkForUpdates(true);
 
     connect(ui->treeView, &QTreeView::pressed, [this](const QModelIndex& index){
+        if (index.data(Zeal::Registry::DocsetNameRole).isNull()) {
+            return; // not a docset
+        }
         QPoint mousePos = ui->treeView->mapFromGlobal(QCursor::pos());
         QRect itemrect = ui->treeView->visualRect(index);
         itemrect.setX(itemrect.x() + itemrect.width() - itemrect.height());
                       // assume that the icon is square
         if (itemrect.contains(mousePos)) {
-            this->fillDocsetName(index);
+            fillDocsetName(index);
             ui->treeView->selectionModel()->select(index,
                 QItemSelectionModel::SelectionFlag::Clear);
         }

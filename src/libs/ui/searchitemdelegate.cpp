@@ -29,6 +29,8 @@
 #include <QPainter>
 #include <QToolTip>
 
+#include <registry/itemdatarole.h>
+
 using namespace Zeal::WidgetUi;
 
 SearchItemDelegate::SearchItemDelegate(QObject *parent) :
@@ -64,7 +66,8 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
-    if (!index.parent().isValid() && option.state & QStyle::State_MouseOver) {
+    if (index.data(Zeal::Registry::DocsetNameRole).isValid()
+            && option.state & QStyle::State_MouseOver) {
         QIcon& icon = getSearchIcon();
         auto rect = option.rect;
         icon.paint(painter, rect, Qt::AlignRight);
