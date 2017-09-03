@@ -80,6 +80,7 @@ private slots:
     void queryCompleted();
     void closeTab(int index = -1);
     void duplicateTab(int index);
+    void fillDocsetName(const QModelIndex &index);
 
 private:
     void syncTreeView();

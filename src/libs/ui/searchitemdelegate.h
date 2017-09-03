@@ -50,6 +50,8 @@ public slots:
 private:
     QList<int> m_decorationRoles = {Qt::DecorationRole};
     QString m_highlight;
+
+    static QIcon& getSearchIcon();
 };
 
 } // namespace WidgetUi

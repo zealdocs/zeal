@@ -287,7 +287,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     setupSearchBoxCompletions();
     SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textEdited, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
     });
     ui->treeView->setItemDelegate(delegate);
@@ -372,7 +372,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         setupSearchBoxCompletions();
     });
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textEdited, [this](const QString &text) {
         if (text == currentTabState()->searchQuery)
             return;
 
@@ -447,6 +447,16 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     if (m_settings->checkForUpdate)
         m_application->checkForUpdates(true);
+
+    connect(ui->treeView, &QTreeView::pressed, [this](const QModelIndex& index){
+        QPoint mousePos = ui->treeView->mapFromGlobal(QCursor::pos());
+        QRect itemrect = ui->treeView->visualRect(index);
+        itemrect.setX(itemrect.x() + itemrect.width() - itemrect.height()); // assume that the icon is square
+        if(itemrect.contains(mousePos)) {
+            this->fillDocsetName(index);
+            ui->treeView->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Clear);
+        }
+    });
 }
 
 MainWindow::~MainWindow()
@@ -784,6 +794,7 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     case Qt::Key_Escape:
         ui->lineEdit->setFocus();
         ui->lineEdit->clearQuery();
+        emit ui->lineEdit->textEdited(ui->lineEdit->text()); // text is not changed programmatically
         break;
     case Qt::Key_Question:
         ui->lineEdit->setFocus();
@@ -844,4 +855,22 @@ void MainWindow::toggleWindow()
             showMinimized();
         }
     }
+}
+
+void MainWindow::fillDocsetName(const QModelIndex &index)
+{
+    QString docname = index.data(Zeal::Registry::DocsetNameRole).toString();
+    Zeal::Registry::Docset* docset = m_application->docsetRegistry()->docset(docname);
+    if (!docset)
+        return;
+    auto keywords = docset->keywords();
+    if (keywords.empty()) {
+        qDebug() << "keywords are empty for docset " << docname;
+        return;
+    }
+    ui->lineEdit->setText(keywords.front() + ":");
+    QTimer::singleShot(0, [this]{
+        ui->lineEdit->setFocus();
+        ui->lineEdit->deselect();
+    });
 }
