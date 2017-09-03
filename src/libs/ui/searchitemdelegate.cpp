@@ -64,7 +64,7 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
-    if(!index.parent().isValid() && option.state & QStyle::State_MouseOver) {
+    if (!index.parent().isValid() && option.state & QStyle::State_MouseOver) {
         QIcon& icon = getSearchIcon();
         auto rect = option.rect;
         icon.paint(painter, rect, Qt::AlignRight);
@@ -220,9 +220,9 @@ void SearchItemDelegate::setHighlight(const QString &text)
 QIcon& SearchItemDelegate::getSearchIcon()
 {
     static QIcon searchicon;
-    if(searchicon.isNull()) {
+    if (searchicon.isNull()) {
         searchicon = QIcon::fromTheme(QStringLiteral("search"));
-        if(searchicon.isNull()) {
+        if (searchicon.isNull()) {
             searchicon = QIcon(QString::fromUtf8(":/icons/search.svg"));
         }
     }

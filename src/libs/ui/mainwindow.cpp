@@ -451,10 +451,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->treeView, &QTreeView::pressed, [this](const QModelIndex& index){
         QPoint mousePos = ui->treeView->mapFromGlobal(QCursor::pos());
         QRect itemrect = ui->treeView->visualRect(index);
-        itemrect.setX(itemrect.x() + itemrect.width() - itemrect.height()); // assume that the icon is square
-        if(itemrect.contains(mousePos)) {
+        itemrect.setX(itemrect.x() + itemrect.width() - itemrect.height());
+                      // assume that the icon is square
+        if (itemrect.contains(mousePos)) {
             this->fillDocsetName(index);
-            ui->treeView->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::Clear);
+            ui->treeView->selectionModel()->select(index,
+                QItemSelectionModel::SelectionFlag::Clear);
         }
     });
 }
