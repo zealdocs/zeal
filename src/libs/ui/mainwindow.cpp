@@ -695,7 +695,7 @@ void MainWindow::createTrayIcon()
         return;
 
     m_trayIcon = new QSystemTrayIcon(this);
-    m_trayIcon->setIcon(windowIcon());
+    m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), windowIcon()));
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
     connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
