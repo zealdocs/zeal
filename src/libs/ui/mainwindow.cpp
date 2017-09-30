@@ -518,6 +518,10 @@ void MainWindow::closeTab(int index)
         createTab();
 }
 
+void MainWindow::moveTab(int from, int to) {
+  m_tabStates.swap(from, to);
+}
+
 void MainWindow::createTab(int index)
 {
     if (m_settings->openNewTabAfterActive)
@@ -619,6 +623,7 @@ void MainWindow::setupTabBar()
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+    m_tabBar->setMovable(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
         static const char PreviousTabIndexProperty[] = "previousTabIndex";
@@ -664,6 +669,7 @@ void MainWindow::setupTabBar()
         ui->tocListView->verticalScrollBar()->setValue(tabState->tocScrollPosition);
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+    connect(m_tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
 
     for (int i = 1; i < 10; i++) {
         QAction *action = new QAction(m_tabBar);
