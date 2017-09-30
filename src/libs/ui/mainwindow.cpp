@@ -20,7 +20,6 @@
 ** along with Zeal. If not, see <https://www.gnu.org/licenses/>.
 **
 ****************************************************************************/
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -40,6 +39,7 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
@@ -394,6 +394,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->lineEdit->setFocus(Qt::MouseFocusReason);
     });
 
+    ui->actionOpenFile->setShortcut(QKeySequence::Open);
+    connect(ui->actionOpenFile, &QAction::triggered, this, [this]() { openFile(); });
+    addAction(ui->actionOpenFile);
+
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
     connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
@@ -516,6 +520,20 @@ void MainWindow::closeTab(int index)
 
     if (m_tabStates.isEmpty())
         createTab();
+}
+
+void MainWindow::openFile() {
+  QString filePath = QFileDialog::getOpenFileName(this, tr("Open HTML"), QDir::homePath(), tr("HTML Files (*.htm *.html)"));
+  // check if filePath is empty
+  if ( filePath.isEmpty() || filePath.isNull() ) {
+    return;
+  }
+  // create new tab
+  createTab();
+  int tabIndex = m_tabStates.size()-1;
+  TabState *newTab = m_tabStates.at(tabIndex);
+  // convert from local path to url, then load it
+  newTab->loadUrl(QUrl::fromLocalFile(filePath));
 }
 
 void MainWindow::createTab(int index)

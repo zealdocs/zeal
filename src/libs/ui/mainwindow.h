@@ -63,6 +63,7 @@ public:
 
     void search(const Zeal::Registry::SearchQuery &query);
     void bringToFront();
+    void openFile();
     void createTab(int index = -1);
 
 public slots:
