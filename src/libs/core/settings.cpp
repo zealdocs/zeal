@@ -74,6 +74,7 @@ void Settings::load()
 
     settings->beginGroup(GroupTabs);
     openNewTabAfterActive = settings->value(QStringLiteral("open_new_tab_after_active"), false).toBool();
+    tabsMovable = settings->value(QStringLiteral("tabs_movable"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupSearch);
@@ -146,6 +147,7 @@ void Settings::save()
 
     settings->beginGroup(GroupTabs);
     settings->setValue(QStringLiteral("open_new_tab_after_active"), openNewTabAfterActive);
+    settings->setValue(QStringLiteral("tabs_movable"), tabsMovable);
     settings->endGroup();
 
     settings->beginGroup(GroupSearch);

@@ -63,6 +63,7 @@ public:
 
     void search(const Zeal::Registry::SearchQuery &query);
     void bringToFront();
+    void openFile();
     void createTab(int index = -1);
 
 public slots:
@@ -79,6 +80,7 @@ private slots:
     void openDocset(const QModelIndex &index);
     void queryCompleted();
     void closeTab(int index = -1);
+    void moveTab(int from, int to);
     void duplicateTab(int index);
 
 private:

@@ -187,6 +187,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionOpenFile"/>
     <addaction name="actionNewTab"/>
     <addaction name="actionCloseTab"/>
     <addaction name="separator"/>
@@ -270,6 +271,11 @@
    </property>
    <property name="text">
     <string>&amp;Forward</string>
+   </property>
+  </action>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>Open &amp;File</string>
    </property>
   </action>
   <action name="actionNewTab">
