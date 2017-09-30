@@ -101,6 +101,7 @@ void SettingsDialog::loadSettings()
 
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
+    ui->tabsMovable->setChecked(settings->tabsMovable);
 
     // Search Tab
     ui->fuzzySearchCheckBox->setChecked(settings->fuzzySearchEnabled);
@@ -150,6 +151,7 @@ void SettingsDialog::saveSettings()
 
     // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
+    settings->tabsMovable = ui->tabsMovable->isChecked();
 
     // Search Tab
     settings->fuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();

@@ -522,6 +522,10 @@ void MainWindow::closeTab(int index)
         createTab();
 }
 
+void MainWindow::moveTab(int from, int to) {
+  m_tabStates.swap(from, to);
+}
+
 void MainWindow::openFile() {
   QString filePath = QFileDialog::getOpenFileName(this, tr("Open HTML"), QDir::homePath(), tr("HTML Files (*.htm *.html)"));
   // check if filePath is empty
@@ -682,6 +686,7 @@ void MainWindow::setupTabBar()
         ui->tocListView->verticalScrollBar()->setValue(tabState->tocScrollPosition);
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
+    connect(m_tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
 
     for (int i = 1; i < 10; i++) {
         QAction *action = new QAction(m_tabBar);
@@ -821,6 +826,9 @@ void MainWindow::applySettings()
         createTrayIcon();
     else
         removeTrayIcon();
+
+    // Tabs
+    m_tabBar->setMovable(m_settings->tabsMovable);
 
     // Content
     QByteArray ba;

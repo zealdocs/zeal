@@ -55,6 +55,7 @@ public:
 
     // Tabs Behavior
     bool openNewTabAfterActive;
+    bool tabsMovable;
 
     // Search
     bool fuzzySearchEnabled;
