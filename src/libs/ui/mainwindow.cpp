@@ -519,7 +519,7 @@ void MainWindow::closeTab(int index)
 }
 
 void MainWindow::moveTab(int from, int to) {
-  m_tabStates.swap(from, to);
+    m_tabStates.swap(from, to);
 }
 
 void MainWindow::createTab(int index)
