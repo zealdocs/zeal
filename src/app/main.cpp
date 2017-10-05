@@ -22,11 +22,12 @@
 ****************************************************************************/
 
 #include <core/application.h>
-#include <core/localserver.h>
+#include <core/applicationsingleton.h>
 #include <registry/searchquery.h>
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QDataStream>
 #include <QDesktopServices>
 #include <QDir>
 #include <QIcon>
@@ -204,57 +205,38 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    // Detect already running instance and optionally send the search query to it.
-    if (!clParams.force && Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation))
-        return 0;
+    QScopedPointer<Core::ApplicationSingleton> appSingleton(new Core::ApplicationSingleton());
+    if (appSingleton->isSecondary()) {
+        QByteArray ba;
+        QDataStream out(&ba, QIODevice::WriteOnly);
+        out << clParams.query << clParams.preventActivation;
+        // TODO: Check for a possible error.
+        appSingleton->sendMessage(ba);
+        return EXIT_SUCCESS;
+    }
 
     // Set application-wide window icon. All message boxes and other windows will use it by default.
     qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
                                          QIcon(QStringLiteral(":/zeal.ico"))));
 
-    QScopedPointer<Core::LocalServer> localServer(new Core::LocalServer());
-    if (!localServer->start()) {
-        QScopedPointer<QMessageBox> msgBox(new QMessageBox());
-        msgBox->setWindowTitle(QStringLiteral("Zeal"));
-
-        msgBox->setIcon(QMessageBox::Warning);
-        msgBox->setText(QObject::tr("Another application instance can be still running, "
-                                    "or has crashed.<br>Make sure to start Zeal only once."));
-        msgBox->addButton(QMessageBox::Help);
-        msgBox->setDefaultButton(msgBox->addButton(QMessageBox::Retry));
-        msgBox->addButton(QObject::tr("&Quit"), QMessageBox::DestructiveRole);
-
-        switch (msgBox->exec()) {
-        case QMessageBox::Rejected:
-            return EXIT_SUCCESS;
-        case QMessageBox::Help:
-            QDesktopServices::openUrl(QUrl(contactUrl));
-        }
-
-        msgBox->removeButton(msgBox->button(QMessageBox::Retry));
-
-        if (!localServer->start(true)) {
-            msgBox->setIcon(QMessageBox::Critical);
-            msgBox->setText(QObject::tr("Zeal is unable to start. Please report the issue "
-                                        "providing the details below."));
-            msgBox->setDetailedText(localServer->errorString());
-
-            if (msgBox->exec() == QMessageBox::Help)
-                QDesktopServices::openUrl(QUrl(contactUrl));
-
-            return EXIT_SUCCESS;
-        }
-    }
-
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     QScopedPointer<Core::Application> app(new Core::Application());
-    QObject::connect(localServer.data(), &Core::LocalServer::newQuery,
-                     app.data(), &Core::Application::executeQuery);
+
+    QObject::connect(appSingleton.data(), &Core::ApplicationSingleton::messageReceived,
+                     [&app](const QByteArray &data) {
+        Registry::SearchQuery query;
+        bool preventActivation;
+
+        QDataStream in(data);
+        in >> query >> preventActivation;
+
+        app->executeQuery(query, preventActivation);
+    });
 
     if (!clParams.query.isEmpty()) {
-        QTimer::singleShot(0, [clParams] {
-            Core::LocalServer::sendQuery(clParams.query, clParams.preventActivation);
+        QTimer::singleShot(0, [&app, clParams] {
+            app->executeQuery(clParams.query, clParams.preventActivation);
         });
     }
 
