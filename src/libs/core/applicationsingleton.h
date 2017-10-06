@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
+** Copyright (C) 2017 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -20,41 +20,48 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_CORE_LOCALSERVER_H
-#define ZEAL_CORE_LOCALSERVER_H
+#ifndef ZEAL_CORE_APPLICATIONSINGLETON_H
+#define ZEAL_CORE_APPLICATIONSINGLETON_H
 
 #include <QObject>
 
 class QLocalServer;
+class QSharedMemory;
 
 namespace Zeal {
-
-namespace Registry {
-class SearchQuery;
-} // namespace Registry
-
 namespace Core {
 
-class LocalServer : public QObject
+class ApplicationSingleton : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocalServer(QObject *parent = 0);
+    explicit ApplicationSingleton(QObject *parent = nullptr);
 
-    QString errorString() const;
+    bool isPrimary() const;
+    bool isSecondary() const;
+    qint64 primaryPid() const;
 
-    bool start(bool force = false);
-
-    static bool sendQuery(const Registry::SearchQuery &query, bool preventActivation);
+    bool sendMessage(QByteArray &data, int timeout = 500);
 
 signals:
-    void newQuery(const Registry::SearchQuery &query, bool preventActivation);
+    void messageReceived(const QByteArray &data);
 
 private:
+    void setupPrimary();
+    void setupSecondary();
+
+    static QString computeId();
+
+    QString m_id;
+
+    bool m_isPrimary = false;
+    qint64 m_primaryPid = 0;
+
+    QSharedMemory *m_sharedMemory = nullptr;
     QLocalServer *m_localServer = nullptr;
 };
 
 } // namespace Core
 } // namespace Zeal
 
-#endif // ZEAL_CORE_LOCALSERVER_H
+#endif // ZEAL_CORE_APPLICATIONSINGLETON_H
