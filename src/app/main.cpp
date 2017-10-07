@@ -38,6 +38,8 @@
 
 #ifdef Q_OS_WIN32
 #include <QSettings>
+
+#include <Windows.h>
 #endif
 
 #include <cstdlib>
@@ -207,6 +209,9 @@ int main(int argc, char *argv[])
 
     QScopedPointer<Core::ApplicationSingleton> appSingleton(new Core::ApplicationSingleton());
     if (appSingleton->isSecondary()) {
+#ifdef Q_OS_WIN32
+        ::AllowSetForegroundWindow(appSingleton->primaryPid());
+#endif
         QByteArray ba;
         QDataStream out(&ba, QIODevice::WriteOnly);
         out << clParams.query << clParams.preventActivation;
