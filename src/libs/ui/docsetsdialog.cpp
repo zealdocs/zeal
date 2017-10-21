@@ -28,6 +28,7 @@
 #include "progressitemdelegate.h"
 
 #include <core/application.h>
+#include <core/filemanager.h>
 #include <core/settings.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
@@ -36,15 +37,15 @@
 
 #include <QClipboard>
 #include <QDir>
-#include <QFutureWatcher>
 #include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QMessageBox>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QMessageBox>
+#include <QStandardPaths>
 #include <QTemporaryFile>
 #include <QUrl>
-
-#include <QtConcurrent/QtConcurrent>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -188,7 +189,7 @@ DocsetsDialog::~DocsetsDialog()
 
 void DocsetsDialog::reject()
 {
-    if (m_replies.isEmpty() && m_tmpFiles.isEmpty() && m_docsetsBeingDeleted.isEmpty()) {
+    if (m_replies.isEmpty() && m_tmpFiles.isEmpty()) {
         QDialog::reject();
         return;
     }
@@ -415,11 +416,11 @@ void DocsetsDialog::downloadCompleted()
 
     case DownloadDocset: {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
+        const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
 
-        // TODO: Implement an explicit and verbose docset update logic
-        const QDir dir(m_application->settings()->docsetPath);
-        if (dir.exists(docsetName + QLatin1String(".docset")))
+        if (QDir(m_application->settings()->docsetPath).exists(docsetDirectoryName)) {
             removeDocset(docsetName);
+        }
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
         if (!tmpFile) {
@@ -439,7 +440,7 @@ void DocsetsDialog::downloadCompleted()
         }
 
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
-                               docsetName + QLatin1String(".docset"));
+                               docsetDirectoryName);
         break;
     }
     }
@@ -684,26 +685,16 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 
 void DocsetsDialog::removeDocset(const QString &name)
 {
-    if (m_docsetsBeingDeleted.contains(name))
-        return;
-
-    m_docsetsBeingDeleted.append(name);
-
-    const QString docsetPath
-            = QDir(m_application->settings()->docsetPath).filePath(name + QLatin1String(".docset"));
-    const QString tmpPath = docsetPath + QLatin1String(".deleteme.")
-            + QString::number(QDateTime::currentMSecsSinceEpoch());
-
     if (m_docsetRegistry->contains(name)) {
         m_docsetRegistry->remove(name);
     }
 
-    // Rename first to allow simultaneous installation.
-    if (!QDir().rename(docsetPath, tmpPath)) {
+    const QString docsetPath
+            = QDir(m_application->settings()->docsetPath).filePath(name + QLatin1String(".docset"));
+    if (!m_application->fileManager()->removeRecursively(docsetPath)) {
         const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
-                                 "by another process.").arg(docsetPath);
+                                 " by another process.").arg(docsetPath);
         QMessageBox::warning(this, QStringLiteral("Zeal"), error);
-        m_docsetsBeingDeleted.removeOne(name);
         return;
     }
 
@@ -711,17 +702,6 @@ void DocsetsDialog::removeDocset(const QString &name)
     if (listItem) {
         listItem->setHidden(false);
     }
-
-    QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-    connect(watcher, &QFutureWatcher<bool>::finished, [=] {
-        // TODO: Log error if watcher->result() == false.
-        watcher->deleteLater();
-        m_docsetsBeingDeleted.removeOne(name);
-    });
-
-    watcher->setFuture(QtConcurrent::run([tmpPath] {
-        return QDir(tmpPath).removeRecursively();
-    }));
 }
 
 void DocsetsDialog::updateCombinedProgress()

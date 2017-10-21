@@ -99,7 +99,6 @@ private:
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
-    QStringList m_docsetsBeingDeleted;
 
     QListWidgetItem *findDocsetListItem(const QString &name) const;
     bool updatesAvailable() const;
