@@ -718,19 +718,14 @@ void MainWindow::createTrayIcon()
 
     QMenu *trayIconMenu = new QMenu(this);
 
-#ifdef Q_OS_LINUX
-    if (QString::fromLocal8Bit(qgetenv("XDG_CURRENT_DESKTOP")) == QLatin1String("Unity")) {
-        QAction *showAction = trayIconMenu->addAction(tr("Show"));
-        connect(showAction, &QAction::triggered, this, &MainWindow::toggleWindow);
+    // TODO: [Qt 5.6] Use addAction(text, receiver, method...).
+    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"));
+    connect(toggleAction, &QAction::triggered, this, &MainWindow::toggleWindow);
+    connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
+        toggleAction->setText(isVisible() ? tr("Minimize to Tray") : tr("Show Zeal"));
+    });
 
-        connect(trayIconMenu, &QMenu::aboutToShow, this, [this, showAction]() {
-            showAction->setText(isVisible() ? tr("Hide") : tr("Show"));
-        });
-
-        trayIconMenu->addSeparator();
-    }
-#endif
-
+    trayIconMenu->addSeparator();
     trayIconMenu->addAction(ui->actionQuit);
     m_trayIcon->setContextMenu(trayIconMenu);
 
