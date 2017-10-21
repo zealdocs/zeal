@@ -337,7 +337,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         currentTabState()->searchModel->setResults(results);
     });
 
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAboutToBeRemoved,
+    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAboutToBeUnloaded,
             this, [this](const QString &name) {
         for (TabState *tabState : m_tabStates) {
             if (tabState == currentTabState()) {
@@ -367,7 +367,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         setupSearchBoxCompletions();
     });
 
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAdded,
+    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetLoaded,
             this, [this](const QString &) {
         setupSearchBoxCompletions();
     });

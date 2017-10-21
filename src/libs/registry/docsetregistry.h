@@ -53,7 +53,10 @@ public:
     int count() const;
     bool contains(const QString &name) const;
     QStringList names() const;
-    void remove(const QString &name);
+
+    void loadDocset(const QString &path);
+    void unloadDocset(const QString &name);
+    void unloadAllDocsets();
 
     Docset *docset(const QString &name) const;
     Docset *docset(int index) const;
@@ -62,13 +65,10 @@ public:
     void search(const QString &query);
     const QList<SearchResult> &queryResults();
 
-public slots:
-    void addDocset(const QString &path);
-
 signals:
-    void docsetAdded(const QString &name);
-    void docsetAboutToBeRemoved(const QString &name);
-    void docsetRemoved(const QString &name);
+    void docsetLoaded(const QString &name);
+    void docsetAboutToBeUnloaded(const QString &name);
+    void docsetUnloaded(const QString &name);
     void searchCompleted(const QList<SearchResult> &results);
 
 private slots:

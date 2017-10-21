@@ -73,10 +73,7 @@ void DocsetRegistry::setStoragePath(const QString &path)
 
     m_storagePath = path;
 
-    for (const QString &name : m_docsets.keys()) {
-        remove(name);
-    }
-
+    unloadAllDocsets();
     addDocsetsFromFolder(path);
 }
 
@@ -113,31 +110,7 @@ QStringList DocsetRegistry::names() const
     return m_docsets.keys();
 }
 
-void DocsetRegistry::remove(const QString &name)
-{
-    emit docsetAboutToBeRemoved(name);
-    delete m_docsets.take(name);
-    emit docsetRemoved(name);
-}
-
-Docset *DocsetRegistry::docset(const QString &name) const
-{
-    return m_docsets[name];
-}
-
-Docset *DocsetRegistry::docset(int index) const
-{
-    if (index < 0 || index >= m_docsets.size())
-        return nullptr;
-    return (m_docsets.cbegin() + index).value();
-}
-
-QList<Docset *> DocsetRegistry::docsets() const
-{
-    return m_docsets.values();
-}
-
-void DocsetRegistry::addDocset(const QString &path)
+void DocsetRegistry::loadDocset(const QString &path)
 {
     QFutureWatcher<Docset *> *watcher = new QFutureWatcher<Docset *>();
     connect(watcher, &QFutureWatcher<Docset *>::finished, this, [this, watcher] {
@@ -156,16 +129,47 @@ void DocsetRegistry::addDocset(const QString &path)
 
         const QString name = docset->name();
         if (m_docsets.contains(name)) {
-            remove(name);
+            unloadDocset(name);
         }
 
         m_docsets[name] = docset;
-        emit docsetAdded(name);
+        emit docsetLoaded(name);
     });
 
     watcher->setFuture(QtConcurrent::run([path] {
         return new Docset(path);
     }));
+}
+
+void DocsetRegistry::unloadDocset(const QString &name)
+{
+    emit docsetAboutToBeUnloaded(name);
+    delete m_docsets.take(name);
+    emit docsetUnloaded(name);
+}
+
+void DocsetRegistry::unloadAllDocsets()
+{
+    for (const QString &name : m_docsets.keys()) {
+        unloadDocset(name);
+    }
+}
+
+Docset *DocsetRegistry::docset(const QString &name) const
+{
+    return m_docsets[name];
+}
+
+Docset *DocsetRegistry::docset(int index) const
+{
+    if (index < 0 || index >= m_docsets.size())
+        return nullptr;
+    return (m_docsets.cbegin() + index).value();
+}
+
+QList<Docset *> DocsetRegistry::docsets() const
+{
+    return m_docsets.values();
 }
 
 void DocsetRegistry::search(const QString &query)
@@ -222,7 +226,7 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
     const QDir dir(path);
     for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
         if (subdir.suffix() == QLatin1String("docset"))
-            addDocset(subdir.filePath());
+            loadDocset(subdir.filePath());
         else
             addDocsetsFromFolder(subdir.filePath());
     }

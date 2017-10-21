@@ -152,14 +152,14 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     connect(ui->downloadDocsetsButton, &QPushButton::clicked,
             this, &DocsetsDialog::downloadSelectedDocsets);
 
-    connect(m_docsetRegistry, &DocsetRegistry::docsetRemoved, this, [this](const QString name) {
+    connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString name) {
         QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;
 
         item->setHidden(false);
     });
-    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, [this](const QString name) {
+    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString name) {
         QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;
@@ -506,7 +506,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
               : m_userFeeds[docsetName];
     metadata.save(docsetPath, metadata.latestVersion());
 
-    m_docsetRegistry->addDocset(docsetPath);
+    m_docsetRegistry->loadDocset(docsetPath);
 
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem) {
@@ -686,7 +686,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 void DocsetsDialog::removeDocset(const QString &name)
 {
     if (m_docsetRegistry->contains(name)) {
-        m_docsetRegistry->remove(name);
+        m_docsetRegistry->unloadDocset(name);
     }
 
     const QString docsetPath
