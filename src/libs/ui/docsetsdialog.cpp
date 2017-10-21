@@ -689,39 +689,33 @@ void DocsetsDialog::removeDocset(const QString &name)
 
     m_docsetsBeingDeleted.append(name);
 
-    Registry::Docset *docset = m_docsetRegistry->docset(name);
-    const QString title = docset->title();
-    const QString docsetPath = docset->path();
+    const QString docsetPath
+            = QDir(m_application->settings()->docsetPath).filePath(name + QLatin1String(".docset"));
     const QString tmpPath = docsetPath + QLatin1String(".deleteme.")
             + QString::number(QDateTime::currentMSecsSinceEpoch());
 
-    // Remove from registry first to avoid renaming files in use on Windows.
-    m_docsetRegistry->remove(name);
+    if (m_docsetRegistry->contains(name)) {
+        m_docsetRegistry->remove(name);
+    }
 
     // Rename first to allow simultaneous installation.
     if (!QDir().rename(docsetPath, tmpPath)) {
-        const QString error = tr("Cannot delete docset <b>%1</b>! Please try closing other "
-                                 "applications first, as they may be accessing the docset "
-                                 "files.").arg(title);
+        const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
+                                 "by another process.").arg(docsetPath);
         QMessageBox::warning(this, QStringLiteral("Zeal"), error);
         m_docsetsBeingDeleted.removeOne(name);
-        m_docsetRegistry->addDocset(docsetPath);
         return;
     }
 
+    QListWidgetItem *listItem = findDocsetListItem(name);
+    if (listItem) {
+        listItem->setHidden(false);
+    }
+
     QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
-    connect(watcher, &QFutureWatcher<void>::finished, [=] {
-        if (!watcher->result()) {
-            QMessageBox::warning(this, QStringLiteral("Zeal"),
-                                 tr("Cannot delete docset <b>%1</b>!").arg(title));
-        }
-
-        QListWidgetItem *listItem = findDocsetListItem(name);
-        if (listItem)
-            listItem->setHidden(false);
-
+    connect(watcher, &QFutureWatcher<bool>::finished, [=] {
+        // TODO: Log error if watcher->result() == false.
         watcher->deleteLater();
-
         m_docsetsBeingDeleted.removeOne(name);
     });
 
