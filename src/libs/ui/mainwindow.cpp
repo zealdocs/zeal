@@ -712,8 +712,21 @@ void MainWindow::createTrayIcon()
     });
 
     QMenu *trayIconMenu = new QMenu(this);
-    trayIconMenu->addAction(ui->actionQuit);
 
+#ifdef Q_OS_LINUX
+    if (QString::fromLocal8Bit(qgetenv("XDG_CURRENT_DESKTOP")) == QLatin1String("Unity")) {
+        QAction *showAction = trayIconMenu->addAction(tr("Show"));
+        connect(showAction, &QAction::triggered, this, &MainWindow::toggleWindow);
+
+        connect(trayIconMenu, &QMenu::aboutToShow, this, [this, showAction]() {
+            showAction->setText(isVisible() ? tr("Hide") : tr("Show"));
+        });
+
+        trayIconMenu->addSeparator();
+    }
+#endif
+
+    trayIconMenu->addAction(ui->actionQuit);
     m_trayIcon->setContextMenu(trayIconMenu);
 
     m_trayIcon->show();
