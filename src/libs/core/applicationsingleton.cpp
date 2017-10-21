@@ -31,9 +31,9 @@
 #include <QScopedPointer>
 #include <QSharedMemory>
 
-Q_LOGGING_CATEGORY(log, "zeal.core.applicationsingleton")
-
 using namespace Zeal::Core;
+
+static Q_LOGGING_CATEGORY(log, "zeal.core.applicationsingleton")
 
 struct SharedData {
     qint64 primaryPid;
@@ -47,6 +47,7 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
     }
 
     m_id = computeId();
+    qCDebug(log, "Singleton ID: %s", qPrintable(m_id));
 
     m_sharedMemory = new QSharedMemory(m_id, this);
 
@@ -116,6 +117,8 @@ void ApplicationSingleton::setupPrimary()
 {
     m_primaryPid = QCoreApplication::applicationPid();
 
+    qCInfo(log, "Starting as a primary instance. (PID: %lld)", m_primaryPid);
+
     m_sharedMemory->lock();
     SharedData *sd = static_cast<SharedData *>(m_sharedMemory->data());
     sd->primaryPid = m_primaryPid;
@@ -148,6 +151,8 @@ void ApplicationSingleton::setupSecondary()
     SharedData *sd = static_cast<SharedData *>(m_sharedMemory->data());
     m_primaryPid = sd->primaryPid;
     m_sharedMemory->unlock();
+
+    qCInfo(log, "Starting as a secondary instance. (Primary PID: %lld)", m_primaryPid);
 }
 
 QString ApplicationSingleton::computeId()
