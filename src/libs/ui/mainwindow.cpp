@@ -185,6 +185,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     else
         ui->actionQuit->setShortcut(QKeySequence::Quit);
 
+    // Follow Windows HIG.
+#ifdef Q_OS_WIN32
+    ui->actionQuit->setText(tr("E&xit"));
+#endif
+
     connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     // Edit
