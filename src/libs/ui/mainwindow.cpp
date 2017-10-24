@@ -402,6 +402,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
     connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
+    connect(m_tabBar, &QTabBar::tabBarDoubleClicked, this, [this](int index) {
+        if (index == -1)
+            createTab();
+    });
 
     // Save expanded items
     connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
