@@ -23,6 +23,7 @@
 #include "application.h"
 
 #include "extractor.h"
+#include "filemanager.h"
 #include "networkaccessmanager.h"
 #include "settings.h"
 
@@ -60,6 +61,8 @@ Application::Application(QObject *parent) :
 
     m_settings = new Settings(this);
     m_networkManager = new NetworkAccessManager(this);
+
+    m_fileManager = new FileManager(this);
 
     // Extractor setup
     m_extractorThread = new QThread(this);
@@ -119,6 +122,11 @@ Settings *Application::settings() const
 Registry::DocsetRegistry *Application::docsetRegistry()
 {
     return m_docsetRegistry;
+}
+
+FileManager *Application::fileManager() const
+{
+    return m_fileManager;
 }
 
 void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)

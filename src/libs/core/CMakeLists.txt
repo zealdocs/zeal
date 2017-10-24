@@ -2,6 +2,7 @@ add_library(Core
     application.cpp
     applicationsingleton.cpp
     extractor.cpp
+    filemanager.cpp
     networkaccessmanager.cpp
     settings.cpp
 )

@@ -33,8 +33,8 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     QAbstractItemModel(parent),
     m_docsetRegistry(docsetRegistry)
 {
-    connect(m_docsetRegistry, &DocsetRegistry::docsetAdded, this, &ListModel::addDocset);
-    connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeRemoved, this, &ListModel::removeDocset);
+    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, &ListModel::addDocset);
+    connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeUnloaded, this, &ListModel::removeDocset);
 
     for (const QString &name : m_docsetRegistry->names())
         addDocset(name);

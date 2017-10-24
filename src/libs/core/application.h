@@ -44,6 +44,7 @@ class MainWindow;
 namespace Core {
 
 class Extractor;
+class FileManager;
 class Settings;
 
 class Application : public QObject
@@ -59,6 +60,7 @@ public:
     Settings *settings() const;
 
     Registry::DocsetRegistry *docsetRegistry();
+    FileManager *fileManager() const;
 
 public slots:
     void executeQuery(const Registry::SearchQuery &query, bool preventActivation);
@@ -85,6 +87,8 @@ private:
     Settings *m_settings = nullptr;
 
     QNetworkAccessManager *m_networkManager = nullptr;
+
+    FileManager *m_fileManager = nullptr;
 
     QThread *m_extractorThread = nullptr;
     Extractor *m_extractor = nullptr;
