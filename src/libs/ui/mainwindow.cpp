@@ -242,14 +242,18 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             return;
         }
 
+        // TODO: Remove this ugly workaround for #637.
+        qApp->setQuitOnLastWindowClosed(false);
         const int ret
                 = QMessageBox::information(this, QStringLiteral("Zeal"),
                                            tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
                                            QMessageBox::Yes | QMessageBox::Default,
-                                           QMessageBox::No | QMessageBox::Escape,
-                                           QMessageBox::NoButton);
-        if (ret == QMessageBox::Yes)
+                                           QMessageBox::No | QMessageBox::Escape);
+        qApp->setQuitOnLastWindowClosed(true);
+
+        if (ret == QMessageBox::Yes) {
             QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
+        }
     });
 
     m_backMenu = new QMenu(ui->backButton);
