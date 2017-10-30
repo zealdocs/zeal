@@ -509,7 +509,8 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
-    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).filePath(realPath));
+    // Absolute file path is required here to handle relative path to the docset storage (see #806).
+    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
     if (!realFragment.isEmpty()) {
         if (realFragment.startsWith(QLatin1String("//apple_ref"))
                 || realFragment.startsWith(QLatin1String("//dash_ref"))) {
