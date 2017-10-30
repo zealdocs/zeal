@@ -181,7 +181,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;, the OS X Documentation Browser.&lt;/i&gt;</string>
+          <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.&lt;/i&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>
