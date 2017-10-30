@@ -81,7 +81,7 @@ void Extractor::extract(const QString &filePath, const QString &destination, con
 
 void Extractor::progressCallback(void *ptr)
 {
-    ExtractInfo *info = reinterpret_cast<ExtractInfo *>(ptr);
+    ExtractInfo *info = static_cast<ExtractInfo *>(ptr);
 
     const qint64 extractedBytes = archive_filter_bytes(info->archiveHandle, -1);
     if (extractedBytes == info->extractedBytes)

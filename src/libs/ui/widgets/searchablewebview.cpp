@@ -81,7 +81,7 @@ void SearchableWebView::setZoomFactor(int value)
 bool SearchableWebView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_searchLineEdit && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = reinterpret_cast<QKeyEvent *>(event);
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
         case Qt::Key_Escape:
             hideSearchBar();

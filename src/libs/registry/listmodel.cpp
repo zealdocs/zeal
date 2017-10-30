@@ -59,12 +59,12 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case Level::DocsetLevel:
             return m_docsetRegistry->docset(index.row())->icon();
         case Level::GroupLevel: {
-            DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
+            DocsetItem *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
             return docsetItem->docset->symbolTypeIcon(symbolType);
         }
         case Level::SymbolLevel: {
-            GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
+            GroupItem *groupItem = static_cast<GroupItem *>(index.internalPointer());
             return groupItem->docsetItem->docset->symbolTypeIcon(groupItem->symbolType);
         }
         default:
@@ -75,13 +75,13 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case Level::DocsetLevel:
             return m_docsetRegistry->docset(index.row())->title();
         case Level::GroupLevel: {
-            DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(index.internalPointer());
+            DocsetItem *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
             return QStringLiteral("%1 (%2)").arg(pluralize(symbolType),
                                                  QString::number(docsetItem->docset->symbolCount(symbolType)));
         }
         case Level::SymbolLevel: {
-            GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
+            GroupItem *groupItem = static_cast<GroupItem *>(index.internalPointer());
             auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin() + index.row();
             return it.key();
         }
@@ -93,7 +93,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case Level::DocsetLevel:
             return m_docsetRegistry->docset(index.row())->indexFileUrl();
         case Level::SymbolLevel: {
-            GroupItem *groupItem = reinterpret_cast<GroupItem *>(index.internalPointer());
+            GroupItem *groupItem = static_cast<GroupItem *>(index.internalPointer());
             auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin() + index.row();
             return it.value();
         }
@@ -123,10 +123,10 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         return createIndex(row, column);
     case Level::DocsetLevel: {
         auto it = m_docsetItems.begin() + parent.row();
-        return createIndex(row, column, reinterpret_cast<void *>(it.value()));
+        return createIndex(row, column, static_cast<void *>(it.value()));
     }
     case Level::GroupLevel: {
-        DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(parent.internalPointer());
+        DocsetItem *docsetItem = static_cast<DocsetItem *>(parent.internalPointer());
         return createIndex(row, column, docsetItem->groups.at(parent.row()));
     }
     default:
@@ -138,11 +138,11 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
 {
     switch (indexLevel(child)) {
     case Level::GroupLevel: {
-        DocsetItem *item = reinterpret_cast<DocsetItem *>(child.internalPointer());
+        DocsetItem *item = static_cast<DocsetItem *>(child.internalPointer());
         return createIndex(m_docsetItems.keys().indexOf(item->docset->name()), 0);
     }
     case SymbolLevel: {
-        GroupItem *item = reinterpret_cast<GroupItem *>(child.internalPointer());
+        GroupItem *item = static_cast<GroupItem *>(child.internalPointer());
         return createIndex(item->docsetItem->groups.indexOf(item), 0, item->docsetItem);
     }
     default:
@@ -167,7 +167,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
     case Level::DocsetLevel:
         return m_docsetRegistry->docset(parent.row())->symbolCounts().count();
     case Level::GroupLevel: {
-        DocsetItem *docsetItem = reinterpret_cast<DocsetItem *>(parent.internalPointer());
+        DocsetItem *docsetItem = static_cast<DocsetItem *>(parent.internalPointer());
         return docsetItem->docset->symbolCount(docsetItem->groups.at(parent.row())->symbolType);
     }
     default:
@@ -225,7 +225,7 @@ ListModel::Level ListModel::indexLevel(const QModelIndex &index)
         return Level::RootLevel;
     else if (!index.internalPointer())
         return Level::DocsetLevel;
-    else if (*reinterpret_cast<Level *>(index.internalPointer()) == Level::DocsetLevel)
+    else if (*static_cast<Level *>(index.internalPointer()) == Level::DocsetLevel)
         return Level::GroupLevel;
     else
         return Level::SymbolLevel;

@@ -704,7 +704,7 @@ void MainWindow::setupTabBar()
         addAction(action);
     }
 
-    QHBoxLayout *layout = reinterpret_cast<QHBoxLayout *>(ui->navigationBar->layout());
+    QHBoxLayout *layout = static_cast<QHBoxLayout *>(ui->navigationBar->layout());
     layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 }
 
@@ -783,7 +783,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     if (object == m_tabBar) {
         switch (event->type()) {
         case QEvent::MouseButtonRelease: {
-            QMouseEvent *e = reinterpret_cast<QMouseEvent *>(event);
+            QMouseEvent *e = static_cast<QMouseEvent *>(event);
             if (e->button() == Qt::MiddleButton) {
                 const int index = m_tabBar->tabAt(e->pos());
                 if (index != -1) {

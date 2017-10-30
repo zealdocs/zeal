@@ -121,7 +121,7 @@ bool SQLiteDatabase::prepare(const QString &sql)
         updateLastError();
         finalize();
         return false;
-    } else if (pzTail && !QString(reinterpret_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
+    } else if (pzTail && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
         // Unable to execute multiple statements at a time
         updateLastError();
         finalize();
@@ -198,7 +198,7 @@ QVariant SQLiteDatabase::value(int index) const
         ret = QVariant(QVariant::String);
         break;
     default:
-        ret = QString(reinterpret_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
+        ret = QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
                       sqlite3_column_bytes16(m_stmt, index) / 2); // 2 = sizeof(QChar)
         break;
     }
@@ -229,7 +229,7 @@ void SQLiteDatabase::updateLastError()
     if (!m_db)
         return;
 
-    m_lastError = QString(reinterpret_cast<const QChar *>(sqlite3_errmsg16(m_db)));
+    m_lastError = QString(static_cast<const QChar *>(sqlite3_errmsg16(m_db)));
 }
 
 sqlite3 *SQLiteDatabase::handle() const

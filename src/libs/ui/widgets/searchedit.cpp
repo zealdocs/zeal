@@ -80,7 +80,7 @@ bool SearchEdit::event(QEvent *event)
         return QLineEdit::event(event);
 
     // Tab key cannot be overriden in keyPressEvent()
-    if (reinterpret_cast<QKeyEvent *>(event)->key() != Qt::Key_Tab)
+    if (static_cast<QKeyEvent *>(event)->key() != Qt::Key_Tab)
         return QLineEdit::event(event);
 
     const QString completed = currentCompletion(text());
