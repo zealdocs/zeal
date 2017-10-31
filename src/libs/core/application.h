@@ -20,8 +20,8 @@
 **
 ****************************************************************************/
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef ZEAL_CORE_APPLICATION_H
+#define ZEAL_CORE_APPLICATION_H
 
 #include <QObject>
 
@@ -101,4 +101,4 @@ private:
 } // namespace Core
 } // namespace Zeal
 
-#endif // APPLICATION_H
+#endif // ZEAL_CORE_APPLICATION_H

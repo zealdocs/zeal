@@ -20,8 +20,8 @@
 **
 ****************************************************************************/
 
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef ZEAL_UTIL_VERSION_H
+#define ZEAL_UTIL_VERSION_H
 
 #include <QString>
 
@@ -60,4 +60,4 @@ private:
 } // namespace Util
 } // namespace Zeal
 
-#endif // VERSION_H
+#endif // ZEAL_UTIL_VERSION_H

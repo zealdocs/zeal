@@ -20,8 +20,8 @@
 **
 ****************************************************************************/
 
-#ifndef EXTRACTOR_H
-#define EXTRACTOR_H
+#ifndef ZEAL_CORE_EXTRACTOR_H
+#define ZEAL_CORE_EXTRACTOR_H
 
 #include <QObject>
 
@@ -59,4 +59,4 @@ private:
 } // namespace Core
 } // namespace Zeal
 
-#endif // EXTRACTOR_H
+#endif // ZEAL_CORE_EXTRACTOR_H
