@@ -29,7 +29,6 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QThread;
 
-
 namespace Zeal {
 
 namespace Registry {

@@ -35,7 +35,6 @@ static Q_LOGGING_CATEGORY(log, "zeal.core.filemanager")
 FileManager::FileManager(QObject *parent)
     : QObject(parent)
 {
-
 }
 
 bool FileManager::removeRecursively(const QString &path)

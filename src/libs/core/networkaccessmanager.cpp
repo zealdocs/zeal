@@ -32,8 +32,8 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
 }
 
 QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,
-                                             const QNetworkRequest &request,
-                                             QIODevice *outgoingData)
+                                                   const QNetworkRequest &request,
+                                                   QIODevice *outgoingData)
 {
     static const QStringList localSchemes = {QStringLiteral("file"), QStringLiteral("qrc")};
 
