@@ -26,8 +26,19 @@ find_library(SQLite_LIBRARY NAMES sqlite3
     ${PC_SQLITE_LIBRARY_DIRS}
 )
 
-# TODO: Set version when library is found not via pkg-config.
-set(SQLite_VERSION_STRING ${PC_SQLITE_VERSION})
+if(PC_SQLITE_VERSION)
+    set(SQLite_VERSION_STRING ${PC_SQLITE_VERSION})
+elseif(SQLite_INCLUDE_DIR AND EXISTS "${SQLite_INCLUDE_DIR}/sqlite3.h")
+    # Parse sqlite3.h for the version macro:
+    # #define SQLITE_VERSION        "3.20.1"
+    set(_SQLite_VERSION_REGEX "^#define[ \t]+SQLITE_VERSION[ \t]+\"([0-9]+)\\.([0-9]+)\\.([0-9]+)\".*$")
+    file(STRINGS "${SQLite_INCLUDE_DIR}/sqlite3.h" _SQLite_VERSION_MACRO LIMIT_COUNT 1 REGEX "${_SQLite_VERSION_REGEX}")
+    if(_SQLite_VERSION_MACRO)
+        string(REGEX REPLACE "${_SQLite_VERSION_REGEX}" "\\1.\\2.\\3" SQLite_VERSION_STRING "${_SQLite_VERSION_MACRO}")
+    endif()
+    unset(_SQLite_VERSION_MACRO)
+    unset(_SQLite_VERSION_REGEX)
+endif()
 
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SQLite
