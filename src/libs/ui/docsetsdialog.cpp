@@ -407,9 +407,22 @@ void DocsetsDialog::downloadCompleted()
         }
 
         m_userFeeds[metadata.name()] = metadata;
-        QNetworkReply *reply = download(metadata.url());
-        reply->setProperty(DocsetNameProperty, metadata.name());
-        reply->setProperty(DownloadTypeProperty, DownloadDocset);
+        Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
+        if (docset == nullptr) {
+            // Fetch docset only on first feed download,
+            // since further downloads are only update checks
+            QNetworkReply *reply = download(metadata.url());
+            reply->setProperty(DocsetNameProperty, metadata.name());
+            reply->setProperty(DownloadTypeProperty, DownloadDocset);
+        } else {
+            // Check for feed update
+            if (metadata.latestVersion() != docset->version()
+                    || metadata.revision() > docset->revision()) {
+                docset->hasUpdate = true;
+                ui->updateAllDocsetsButton->setEnabled(true);
+                ui->installedDocsetList->reset();
+            }
+        }
 
         break;
     }
@@ -542,6 +555,8 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
 
 void DocsetsDialog::loadDocsetList()
 {
+    loadUserFeedList();
+
     const QFileInfo fi(cacheLocation(DocsetListCacheFileName));
     if (!fi.exists() || fi.lastModified().msecsTo(QDateTime::currentDateTime()) > CacheTimeout) {
         downloadDocsetList();
@@ -628,6 +643,16 @@ void DocsetsDialog::cancelDownloads()
     resetProgress();
 }
 
+void DocsetsDialog::loadUserFeedList()
+{
+    for (Registry::Docset *docset : m_docsetRegistry->docsets()) {
+        if (!docset->feedUrl().isEmpty()) {
+            QNetworkReply *reply = download(QUrl(docset->feedUrl()));
+            reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
+        }
+    }
+}
+
 void DocsetsDialog::downloadDocsetList()
 {
     ui->availableDocsetList->clear();
@@ -672,11 +697,19 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
     const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
 
-    if (!m_availableDocsets.contains(name))
+    if (!m_availableDocsets.contains(name) && !m_userFeeds.contains(name))
         return;
 
-    const QString urlString = RedirectServerUrl + QStringLiteral("/d/com.kapeli/%1/latest");
-    QNetworkReply *reply = download(QUrl(urlString.arg(name)));
+    QUrl url;
+    if (!m_userFeeds.contains(name)) {
+        // No feed present means that this is a Kapeli docset
+        QString urlString = RedirectServerUrl + QString("/d/com.kapeli/%1/latest");
+        url = QUrl(urlString.arg(name));
+    } else {
+        url = m_userFeeds[name].url();
+    }
+
+    QNetworkReply *reply = download(url);
     reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
     reply->setProperty(ListItemIndexProperty,
