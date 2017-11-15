@@ -7,14 +7,6 @@
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
 
-> **zeal** *noun*
->
-> 1. a feeling of strong eagerness (usually in favor of a person or cause)
-> 2. excessive fervor to do something or accomplish some end
-> 3. prompt willingness
->
-> (from WordNet 3.0)
-
 Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
 
 ![Screenshot](https://i.imgur.com/v63u1ZJ.png)
@@ -36,7 +28,7 @@ Get binary builds for Windows and Linux from the [download page](https://zealdoc
 
 ## How to use
 
-After installing Zeal, you need to download docsets. Go to *Tools->Docsets*, select the ones you want, and click the *Download* button.
+After installing Zeal, go to *Tools->Docsets*, select the ones you want, and click the *Download* button.
 
 ## How to compile
 
@@ -77,7 +69,7 @@ If you prefer, you can start Zeal with a query from the command line:
 
 ## Creating your own docsets
 
-You can use [Dash's instructions for generating docsets](https://kapeli.com/docsets).
+Follow the [Dash Docset Generation Guide](https://kapeli.com/docsets).
 
 ## Contact and Support
 
