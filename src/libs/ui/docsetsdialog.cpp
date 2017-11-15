@@ -130,7 +130,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
         ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, tr("Downloading"), ProgressItemDelegate::FormatRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -297,7 +297,7 @@ void DocsetsDialog::downloadSelectedDocsets()
             continue;
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, tr("Downloading"), ProgressItemDelegate::FormatRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -449,7 +449,7 @@ void DocsetsDialog::downloadCompleted()
         QListWidgetItem *item = findDocsetListItem(docsetName);
         if (item) {
             item->setData(ProgressItemDelegate::ValueRole, 0);
-            item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
+            item->setData(ProgressItemDelegate::FormatRole, tr("Installing"));
         }
 
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
