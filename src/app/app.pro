@@ -2,7 +2,7 @@ include($$ZEAL_COMMON_PRI)
 
 TEMPLATE = app
 
-QT += gui widgets concurrent
+QT += gui widgets
 
 SOURCES += \
     main.cpp

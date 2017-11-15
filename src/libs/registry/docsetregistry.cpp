@@ -30,7 +30,7 @@
 #include <QDir>
 #include <QThread>
 
-#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent>
 
 #include <functional>
 

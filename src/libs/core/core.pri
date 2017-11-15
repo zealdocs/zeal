@@ -1,6 +1,6 @@
 ZEAL_LIB_NAME = Core
 
-QT += network webkit widgets
+QT += concurrent network webkit widgets
 
 unix:!macx {
     CONFIG += link_pkgconfig

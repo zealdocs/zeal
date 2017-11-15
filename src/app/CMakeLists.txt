@@ -16,8 +16,8 @@ add_executable(App WIN32
 
 target_link_libraries(App Core Util)
 
-find_package(Qt5 COMPONENTS Concurrent Widgets REQUIRED)
-target_link_libraries(App Qt5::Concurrent Qt5::Widgets)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+target_link_libraries(App Qt5::Widgets)
 
 set_target_properties(App PROPERTIES
     OUTPUT_NAME ${PROJECT_OUTPUT_NAME}
