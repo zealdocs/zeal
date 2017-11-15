@@ -26,7 +26,7 @@
 #include <QFutureWatcher>
 #include <QLoggingCategory>
 
-#include <QtConcurrent>
+#include <QtConcurrent/QtConcurrent>
 
 using namespace Zeal::Core;
 
