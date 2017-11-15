@@ -54,6 +54,7 @@ public:
 
     QString version() const;
     QString revision() const;
+    QString feedUrl() const;
 
     QString path() const;
     QString documentPath() const;
@@ -100,6 +101,7 @@ private:
     QStringList m_keywords;
     QString m_version;
     QString m_revision;
+    QString m_feedUrl;
     Docset::Type m_type = Type::Invalid;
     QString m_path;
     QIcon m_icon;

@@ -106,6 +106,7 @@ private:
     QNetworkReply *download(const QUrl &url);
     void cancelDownloads();
 
+    void loadUserFeedList();
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
 

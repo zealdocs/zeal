@@ -211,6 +211,11 @@ QString Docset::revision() const
     return m_revision;
 }
 
+QString Docset::feedUrl() const
+{
+    return m_feedUrl;
+}
+
 QString Docset::path() const
 {
     return m_path;
@@ -370,6 +375,10 @@ void Docset::loadMetadata()
     m_title = jsonObject[QStringLiteral("title")].toString();
     m_version = jsonObject[QStringLiteral("version")].toString();
     m_revision = jsonObject[QStringLiteral("revision")].toString();
+
+    if (jsonObject.contains(QStringLiteral("feed_url"))) {
+        m_feedUrl = jsonObject[QStringLiteral("feed_url")].toString();
+    }
 
     if (jsonObject.contains(QStringLiteral("extra"))) {
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
