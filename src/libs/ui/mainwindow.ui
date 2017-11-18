@@ -159,7 +159,7 @@
          </widget>
         </item>
         <item>
-         <widget class="SearchableWebView" name="webView" native="true">
+         <widget class="WebViewTab" name="webView" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -327,9 +327,9 @@
    <header>ui/widgets/searchedit.h</header>
   </customwidget>
   <customwidget>
-   <class>SearchableWebView</class>
+   <class>WebViewTab</class>
    <extends>QWidget</extends>
-   <header>ui/widgets/searchablewebview.h</header>
+   <header>ui/widgets/webviewtab.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

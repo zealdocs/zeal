@@ -1,11 +1,11 @@
 add_subdirectory(qxtglobalshortcut)
 
 list(APPEND Widgets_SOURCES
-    widgets/searchablewebview.cpp
     widgets/searchedit.cpp
     widgets/shortcutedit.cpp
     widgets/toolbarframe.cpp
     widgets/webview.cpp
+    widgets/webviewtab.cpp
 )
 
 set(Ui_FORMS

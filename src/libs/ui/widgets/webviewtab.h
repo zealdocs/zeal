@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H
-#define ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H
+#ifndef ZEAL_WIDGETUI_WEBVIEWTAB_H
+#define ZEAL_WIDGETUI_WEBVIEWTAB_H
 
 #include <QWidget>
 
@@ -34,11 +34,11 @@ namespace WidgetUi {
 
 class WebView;
 
-class SearchableWebView : public QWidget
+class WebViewTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SearchableWebView(QWidget *parent = nullptr);
+    explicit WebViewTab(QWidget *parent = nullptr);
 
     void load(const QUrl &url);
     void focus();
@@ -80,4 +80,4 @@ private:
 } // namespace WidgetUi
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_SEARCHABLEWEBVIEW_H
+#endif // ZEAL_WIDGETUI_WEBVIEWTAB_H

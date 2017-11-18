@@ -195,7 +195,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // Edit
     ui->actionFind->setShortcut(QKeySequence::Find);
-    connect(ui->actionFind, &QAction::triggered, ui->webView, &SearchableWebView::showSearchBar);
+    connect(ui->actionFind, &QAction::triggered, ui->webView, &WebViewTab::showSearchBar);
 
     connect(ui->actionPreferences, &QAction::triggered, [this]() {
         m_globalShortcut->setEnabled(false);
@@ -208,8 +208,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionBack);
     ui->actionForward->setShortcut(QKeySequence::Forward);
     addAction(ui->actionForward);
-    connect(ui->actionBack, &QAction::triggered, ui->webView, &SearchableWebView::back);
-    connect(ui->actionForward, &QAction::triggered, ui->webView, &SearchableWebView::forward);
+    connect(ui->actionBack, &QAction::triggered, ui->webView, &WebViewTab::back);
+    connect(ui->actionForward, &QAction::triggered, ui->webView, &WebViewTab::forward);
 
     // Tools Menu
     connect(ui->actionDocsets, &QAction::triggered, [this]() {
@@ -314,7 +314,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
 
-    connect(ui->webView, &SearchableWebView::urlChanged, [this](const QUrl &url) {
+    connect(ui->webView, &WebViewTab::urlChanged, [this](const QUrl &url) {
         const QString name = docsetName(url);
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
 
@@ -326,7 +326,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->actionForward->setEnabled(ui->webView->canGoForward());
     });
 
-    connect(ui->webView, &SearchableWebView::titleChanged, [this](const QString &title) {
+    connect(ui->webView, &WebViewTab::titleChanged, [this](const QString &title) {
         if (title.isEmpty())
             return;
 
@@ -335,7 +335,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_tabBar->setTabToolTip(m_tabBar->currentIndex(), title);
     });
 
-    connect(ui->webView, &SearchableWebView::linkClicked, [this](const QUrl &url) {
+    connect(ui->webView, &WebViewTab::linkClicked, [this](const QUrl &url) {
         const QString message = tr("Do you want to open an external link?<br>URL: <b>%1</b>");
         int ret = QMessageBox::question(this, QStringLiteral("Zeal"), message.arg(url.toString()));
         if (ret == QMessageBox::Yes)
