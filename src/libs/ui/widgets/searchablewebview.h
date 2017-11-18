@@ -48,8 +48,8 @@ public:
     bool canGoForward() const;
     void setPage(QWebPage *page);
 
-    int zoomFactor() const;
-    void setZoomFactor(int value);
+    int zoomLevel() const;
+    void setZoomLevel(int level);
 
     bool eventFilter(QObject *object, QEvent *event) override;
 

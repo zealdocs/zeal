@@ -68,14 +68,14 @@ void SearchableWebView::setPage(QWebPage *page)
     });
 }
 
-int SearchableWebView::zoomFactor() const
+int SearchableWebView::zoomLevel() const
 {
-    return m_webView->zealZoomFactor();
+    return m_webView->zoomLevel();
 }
 
-void SearchableWebView::setZoomFactor(int value)
+void SearchableWebView::setZoomLevel(int level)
 {
-    m_webView->setZealZoomFactor(value);
+    m_webView->setZoomLevel(level);
 }
 
 bool SearchableWebView::eventFilter(QObject *object, QEvent *event)

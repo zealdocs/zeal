@@ -29,6 +29,7 @@
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "qxtglobalshortcut/qxtglobalshortcut.h"
+#include "widgets/webview.h"
 
 #include <core/application.h>
 #include <core/settings.h>
@@ -84,7 +85,7 @@ struct TabState
         , expansions(other.expansions)
         , searchScrollPosition(other.searchScrollPosition)
         , tocScrollPosition(other.tocScrollPosition)
-        , webViewZoomFactor(other.webViewZoomFactor)
+        , zoomLevel(other.zoomLevel)
     {
         searchModel = new Registry::SearchModel(*other.searchModel);
         tocModel = new Registry::SearchModel(*other.tocModel);
@@ -145,7 +146,7 @@ struct TabState
     int tocScrollPosition = 0;
 
     QWebPage *webPage = nullptr;
-    int webViewZoomFactor = 0;
+    int zoomLevel = WebView::defaultZoomLevel();
 };
 
 } // namespace WidgetUi
@@ -651,7 +652,7 @@ void MainWindow::setupTabBar()
             previousTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
             previousTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
             previousTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
-            previousTabState->webViewZoomFactor = ui->webView->zoomFactor();
+            previousTabState->zoomLevel = ui->webView->zoomLevel();
         }
 
         // Load current tab state
@@ -673,7 +674,7 @@ void MainWindow::setupTabBar()
         ui->treeView->blockSignals(false);
 
         ui->webView->setPage(tabState->webPage);
-        ui->webView->setZoomFactor(tabState->webViewZoomFactor);
+        ui->webView->setZoomLevel(tabState->zoomLevel);
 
         ui->actionBack->setEnabled(ui->webView->canGoBack());
         ui->actionForward->setEnabled(ui->webView->canGoForward());

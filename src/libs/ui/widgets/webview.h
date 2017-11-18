@@ -24,6 +24,7 @@
 #ifndef ZEAL_WIDGETUI_WEBVIEW_H
 #define ZEAL_WIDGETUI_WEBVIEW_H
 
+#include <QVector>
 #include <QWebView>
 
 namespace Zeal {
@@ -35,8 +36,19 @@ class WebView : public QWebView
 public:
     explicit WebView(QWidget *parent = nullptr);
 
-    int zealZoomFactor() const;
-    void setZealZoomFactor(int zf);
+    int zoomLevel() const;
+    void setZoomLevel(int level);
+
+    static const QVector<int> &availableZoomLevels();
+    static const int defaultZoomLevel();
+
+public slots:
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
+
+signals:
+    void zoomLevelChanged();
 
 protected:
     QWebView *createWindow(QWebPage::WebWindowType type) override;
@@ -46,10 +58,9 @@ protected:
 
 private:
     QUrl clickedLink(const QPoint &pos) const;
-    void updateZoomFactor();
 
     QUrl m_clickedLink;
-    int m_zoomFactor = 0;
+    int m_zoomLevel = defaultZoomLevel();
 };
 
 } // namespace WidgetUi

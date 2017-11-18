@@ -36,15 +36,53 @@ WebView::WebView(QWidget *parent) :
 {
 }
 
-int WebView::zealZoomFactor() const
+int WebView::zoomLevel() const
 {
-    return m_zoomFactor;
+    return m_zoomLevel;
 }
 
-void WebView::setZealZoomFactor(int zf)
+void WebView::setZoomLevel(int level)
 {
-    m_zoomFactor = zf;
-    updateZoomFactor();
+    if (level == m_zoomLevel) {
+        return;
+    }
+
+    level = qMax(0, level);
+    level = qMin(level, availableZoomLevels().size() - 1);
+
+    m_zoomLevel = level;
+
+    setZoomFactor(availableZoomLevels().at(level) / 100.0);
+    emit zoomLevelChanged();
+}
+
+const QVector<int> &WebView::availableZoomLevels()
+{
+    static const QVector<int> zoomLevels = {30, 40, 50, 67, 80, 90, 100,
+                                            110, 120, 133, 150, 170, 200,
+                                            220, 233, 250, 270, 285, 300};
+    return zoomLevels;
+}
+
+const int WebView::defaultZoomLevel()
+{
+    static const int level = availableZoomLevels().indexOf(100);
+    return level;
+}
+
+void WebView::zoomIn()
+{
+    setZoomLevel(m_zoomLevel + 1);
+}
+
+void WebView::zoomOut()
+{
+    setZoomLevel(m_zoomLevel - 1);
+}
+
+void WebView::resetZoom()
+{
+    setZoomLevel(defaultZoomLevel());
 }
 
 QWebView *WebView::createWindow(QWebPage::WebWindowType type)
@@ -104,11 +142,22 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
 void WebView::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier) {
-        m_zoomFactor += event->delta() / 120;
-        updateZoomFactor();
-    } else {
-        QWebView::wheelEvent(event);
+        const QPoint angleDelta = event->angleDelta();
+        int delta = qAbs(angleDelta.x()) > qAbs(angleDelta.y()) ? angleDelta.x() : angleDelta.y();
+        const int direction = delta > 0 ? 1 : -1;
+
+        int levelDelta = 0;
+        while (delta * direction >= 120) {
+            levelDelta += direction;
+            delta -= 120 * direction;
+        }
+
+        setZoomLevel(m_zoomLevel + levelDelta);
+        event->accept();
+        return;
     }
+
+    QWebView::wheelEvent(event);
 }
 
 QUrl WebView::clickedLink(const QPoint &pos) const
@@ -118,9 +167,4 @@ QUrl WebView::clickedLink(const QPoint &pos) const
         return QUrl();
 
     return frame->hitTestContent(pos).linkUrl();
-}
-
-void WebView::updateZoomFactor()
-{
-    setZoomFactor(1 + m_zoomFactor / 10.);
 }
