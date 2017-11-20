@@ -640,15 +640,15 @@ void MainWindow::setupTabBar()
     m_tabBar->setMovable(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
-        static const char PreviousTabIndexProperty[] = "previousTabIndex";
+        static const char PreviousTabState[] = "previousTabState";
 
         if (index == -1)
             return;
 
-        // Save previous tab state
-        const QVariant previousTabIndex = m_tabBar->property(PreviousTabIndexProperty);
-        if (previousTabIndex.isValid() && previousTabIndex.toInt() < m_tabStates.size()) {
-            TabState *previousTabState = m_tabStates.at(previousTabIndex.toInt());
+        // Save previous tab state. Using 'void *' to avoid Q_DECLARE_METATYPE.
+        TabState *previousTabState
+                = static_cast<TabState *>(m_tabBar->property(PreviousTabState).value<void *>());
+        if (m_tabStates.contains(previousTabState)) {
             previousTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
             previousTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
             previousTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
@@ -656,8 +656,8 @@ void MainWindow::setupTabBar()
         }
 
         // Load current tab state
-        m_tabBar->setProperty(PreviousTabIndexProperty, index);
         TabState *tabState = m_tabStates.at(index);
+        m_tabBar->setProperty(PreviousTabState, qVariantFromValue(static_cast<void *>(tabState)));
 
         ui->lineEdit->setText(tabState->searchQuery);
         ui->tocListView->setModel(tabState->tocModel);
