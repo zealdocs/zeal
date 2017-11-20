@@ -96,6 +96,8 @@ private:
     void createTrayIcon();
     void removeTrayIcon();
 
+    void syncTabState(TabState *tabState);
+
     QList<TabState *> m_tabStates;
 
     Ui::MainWindow *ui = nullptr;

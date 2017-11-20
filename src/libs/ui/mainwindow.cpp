@@ -566,8 +566,11 @@ void MainWindow::duplicateTab(int index)
     if (index < 0 || index >= m_tabStates.size())
         return;
 
+    TabState *tabState = m_tabStates.at(index);
+    syncTabState(tabState);
+
     using Registry::SearchModel;
-    TabState *newTab = new TabState(*m_tabStates.at(index));
+    TabState *newTab = new TabState(*tabState);
     connect(newTab->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
     connect(newTab->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
 
@@ -649,10 +652,7 @@ void MainWindow::setupTabBar()
         TabState *previousTabState
                 = static_cast<TabState *>(m_tabBar->property(PreviousTabState).value<void *>());
         if (m_tabStates.contains(previousTabState)) {
-            previousTabState->selections = ui->treeView->selectionModel()->selectedIndexes();
-            previousTabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
-            previousTabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
-            previousTabState->zoomLevel = ui->webView->zoomLevel();
+            syncTabState(previousTabState);
         }
 
         // Load current tab state
@@ -750,6 +750,14 @@ void MainWindow::removeTrayIcon()
     delete m_trayIcon;
     m_trayIcon = nullptr;
     delete trayIconMenu;
+}
+
+void MainWindow::syncTabState(TabState *tabState)
+{
+    tabState->selections = ui->treeView->selectionModel()->selectedIndexes();
+    tabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
+    tabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
+    tabState->zoomLevel = ui->webView->zoomLevel();
 }
 
 void MainWindow::bringToFront()
