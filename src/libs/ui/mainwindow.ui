@@ -159,14 +159,7 @@
          </widget>
         </item>
         <item>
-         <widget class="WebViewTab" name="webView" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
+         <widget class="QStackedWidget" name="webViewStack"/>
         </item>
        </layout>
       </widget>
@@ -180,7 +173,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -325,12 +318,6 @@
    <class>SearchEdit</class>
    <extends>QLineEdit</extends>
    <header>ui/widgets/searchedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>WebViewTab</class>
-   <extends>QWidget</extends>
-   <header>ui/widgets/webviewtab.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ToolBarFrame</class>

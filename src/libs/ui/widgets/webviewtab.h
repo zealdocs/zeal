@@ -27,7 +27,7 @@
 #include <QWidget>
 
 class QLineEdit;
-class QWebPage;
+class QWebHistory;
 
 namespace Zeal {
 namespace WidgetUi {
@@ -43,10 +43,13 @@ public:
     void load(const QUrl &url);
     void focus();
     QSize sizeHint() const override;
-    QWebPage *page() const;
     bool canGoBack() const;
     bool canGoForward() const;
-    void setPage(QWebPage *page);
+
+    QString title() const;
+    QUrl url() const;
+
+    QWebHistory *history() const;
 
     int zoomLevel() const;
     void setZoomLevel(int level);
@@ -54,9 +57,9 @@ public:
     bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
-    void urlChanged(const QUrl &url);
-    void titleChanged(const QString &title);
     void linkClicked(const QUrl &url);
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
 
 public slots:
     void back();

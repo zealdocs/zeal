@@ -32,40 +32,43 @@
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebPage>
+#include <QVBoxLayout>
 
 using namespace Zeal::WidgetUi;
 
 WebViewTab::WebViewTab(QWidget *parent) :
     QWidget(parent),
-    m_searchLineEdit(new QLineEdit(this)),
-    m_webView(new WebView(this))
+    m_searchLineEdit(new QLineEdit(this))
 {
-    m_webView->setAttribute(Qt::WA_AcceptTouchEvents, false);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
 
     m_searchLineEdit->hide();
     m_searchLineEdit->installEventFilter(this);
     connect(m_searchLineEdit, &QLineEdit::textChanged, this, &WebViewTab::find);
 
-    connect(m_webView, &QWebView::loadFinished, [&](bool ok) {
+    m_webView = new WebView();
+    connect(m_webView, &QWebView::loadFinished, this, [this](bool ok) {
         Q_UNUSED(ok)
         moveLineEdit();
     });
 
-    connect(m_webView, &QWebView::urlChanged, this, &WebViewTab::urlChanged);
-    connect(m_webView, &QWebView::titleChanged, this, &WebViewTab::titleChanged);
-    connect(m_webView, &QWebView::linkClicked, this, &WebViewTab::linkClicked);
-}
-
-void WebViewTab::setPage(QWebPage *page)
-{
-    m_webView->setPage(page);
-
-    connect(page, &QWebPage::linkHovered, [&](const QString &link) {
+    connect(m_webView->page(), &QWebPage::linkHovered, [this](const QString &link) {
         if (link.startsWith(QLatin1String("file:")) || link.startsWith(QLatin1String("qrc:")))
             return;
 
         setToolTip(link);
     });
+
+    connect(m_webView, &QWebView::linkClicked, this, &WebViewTab::linkClicked);
+    connect(m_webView, &QWebView::titleChanged, this, &WebViewTab::titleChanged);
+    connect(m_webView, &QWebView::urlChanged, this, &WebViewTab::urlChanged);
+
+    layout->addWidget(m_webView);
+
+    setLayout(layout);
+
 }
 
 int WebViewTab::zoomLevel() const
@@ -114,11 +117,6 @@ void WebViewTab::focus()
     m_webView->setFocus();
 }
 
-QWebPage *WebViewTab::page() const
-{
-    return m_webView->page();
-}
-
 QSize WebViewTab::sizeHint() const
 {
     return m_webView->sizeHint();
@@ -158,6 +156,21 @@ bool WebViewTab::canGoBack() const
 bool WebViewTab::canGoForward() const
 {
     return m_webView->history()->canGoForward();
+}
+
+QString WebViewTab::title() const
+{
+    return m_webView->title();
+}
+
+QUrl WebViewTab::url() const
+{
+    return m_webView->url();
+}
+
+QWebHistory *WebViewTab::history() const
+{
+    return m_webView->history();
 }
 
 void WebViewTab::keyPressEvent(QKeyEvent *event)
