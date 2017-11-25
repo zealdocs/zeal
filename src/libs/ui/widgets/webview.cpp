@@ -25,6 +25,8 @@
 
 #include "../mainwindow.h"
 
+#include <core/application.h>
+
 #include <QApplication>
 #include <QWebFrame>
 #include <QWheelEvent>
@@ -34,6 +36,9 @@ using namespace Zeal::WidgetUi;
 WebView::WebView(QWidget *parent) :
     QWebView(parent)
 {
+    setAttribute(Qt::WA_AcceptTouchEvents, false);
+    page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
+    page()->setNetworkAccessManager(Core::Application::instance()->networkManager());
 }
 
 int WebView::zoomLevel() const

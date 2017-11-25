@@ -52,6 +52,8 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
+class WebViewTab;
+
 struct TabState;
 
 class MainWindow : public QMainWindow
@@ -89,6 +91,10 @@ private:
     void setupTabBar();
 
     TabState *currentTabState() const;
+    WebViewTab *currentTab() const;
+
+    void attachTab(TabState *tabState);
+    void detachTab(TabState *tabState);
 
     QString docsetName(const QUrl &url) const;
     QIcon docsetIcon(const QString &docsetName) const;
