@@ -280,6 +280,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->forwardButton->setDefaultAction(ui->actionForward);
     ui->forwardButton->setMenu(m_forwardMenu);
 
+    // Set default stretch factor.
+    ui->splitter->setStretchFactor(1, 2);
+
     // treeView and lineEdit
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
