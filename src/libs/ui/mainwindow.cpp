@@ -596,7 +596,11 @@ void MainWindow::attachTab(TabState *tabState)
         if (title.isEmpty())
             return;
 
+#ifndef PORTABLE_BUILD
         setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
+#else
+        setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
+#endif
         m_tabBar->setTabText(m_tabBar->currentIndex(), title);
         m_tabBar->setTabToolTip(m_tabBar->currentIndex(), title);
     });
