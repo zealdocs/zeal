@@ -33,8 +33,8 @@
 
 using namespace Zeal::WidgetUi;
 
-WebView::WebView(QWidget *parent) :
-    QWebView(parent)
+WebView::WebView(QWidget *parent)
+    : QWebView(parent)
 {
     setAttribute(Qt::WA_AcceptTouchEvents, false);
     page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);

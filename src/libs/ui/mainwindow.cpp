@@ -183,7 +183,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // Edit
     ui->actionFind->setShortcut(QKeySequence::Find);
     connect(ui->actionFind, &QAction::triggered, this, [this]() {
-        currentTab()->showSearchBar();
+        currentTab()->activateSearchBar();
     });
 
     connect(ui->actionPreferences, &QAction::triggered, [this]() {

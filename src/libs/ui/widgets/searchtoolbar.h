@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
+** Copyright (C) 2018 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -21,62 +20,52 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBVIEWTAB_H
-#define ZEAL_WIDGETUI_WEBVIEWTAB_H
+#ifndef ZEAL_WIDGETUI_SEARCHTOOLBAR_H
+#define ZEAL_WIDGETUI_SEARCHTOOLBAR_H
 
 #include <QWidget>
 
 class QLineEdit;
-class QWebHistory;
+class QToolButton;
+class QWebView;
 
 namespace Zeal {
 namespace WidgetUi {
 
-class SearchToolBar;
-class WebView;
-
-class WebViewTab : public QWidget
+class SearchToolBar : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WebViewTab(QWidget *parent = nullptr);
+    explicit SearchToolBar(QWebView *webView, QWidget *parent = nullptr);
 
-    void load(const QUrl &url);
-    void focus();
-    QSize sizeHint() const override;
-    bool canGoBack() const;
-    bool canGoForward() const;
+    void setText(const QString &text);
+    void activate();
 
-    QString title() const;
-    QUrl url() const;
-
-    QWebHistory *history() const;
-
-    int zoomLevel() const;
-    void setZoomLevel(int level);
-
-signals:
-    void linkClicked(const QUrl &url);
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
-
-public slots:
-    void activateSearchBar();
-    void back();
-    void forward();
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 protected:
+    void hideEvent(QHideEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void find(const QString &text);
-    void findNext(const QString &text, bool backward = false);
+    void findNext();
+    void findPrevious();
 
-    WebView *m_webView = nullptr;
-    SearchToolBar *m_searchToolBar = nullptr;
+    void hideHighlight();
+    void updateHighlight();
+
+    QLineEdit *m_lineEdit = nullptr;
+    QToolButton *m_findNextButton = nullptr;
+    QToolButton *m_findPreviousButton = nullptr;
+    QToolButton *m_highlightAllButton = nullptr;
+    QToolButton *m_matchCaseButton = nullptr;
+
+    QWebView *m_webView = nullptr;
 };
 
 } // namespace WidgetUi
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_WEBVIEWTAB_H
+#endif // ZEAL_WIDGETUI_SEARCHTOOLBAR_H
