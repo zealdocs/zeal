@@ -2,7 +2,6 @@
 
 [![Changelog](https://img.shields.io/github/release/zealdocs/zeal.svg?style=flat-square)](https://github.com/zealdocs/zeal/releases)
 [![Gitter](https://img.shields.io/gitter/room/zealdocs/zeal.svg?style=flat-square)](https://gitter.im/zealdocs/zeal)
-[![Telegram Chat](https://img.shields.io/badge/chat-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocschat)
 [![IRC](https://img.shields.io/badge/chat-on%20irc-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
@@ -42,7 +41,6 @@ After installing Zeal, go to *Tools->Docsets*, select the ones you want, and cli
 
 ### Building instructions
 
-
 ```sh
 mkdir build && cd build
 cmake ..
@@ -65,7 +63,7 @@ You can also search multiple docsets separating them with a comma:
 
 If you prefer, you can start Zeal with a query from the command line:
 
-`zeal python:bomb`
+`zeal python:pprint`
 
 ## Creating your own docsets
 
@@ -75,9 +73,9 @@ Follow the [Dash Docset Generation Guide](https://kapeli.com/docsets).
 
 We want your feedback! Here's a list of different ways to contact developers and request help:
 * Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
+* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal), or IRC channel #zealdocs on [Freenode](https://freenode.net/).
 * Ask any questions in our [Google Group](https://groups.google.com/d/forum/zealdocs). You can simply send an email to zealdocs@googlegroups.com.
-* For a quick chat with developers and other Zeal users use our IRC channel: #zealdocs on [Freenode](https://freenode.net/). Also available through Kiwi IRC [web interface](https://kiwiirc.com/client/irc.freenode.net/#zealdocs). Please, take into consideration possible time zone differences.
-* Finally, for private communications send us [email](mailto:zeal@zealdocs.org).
+* Finally, for private communications email us at zeal@zealdocs.org.
 * And do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
 
 ## License
