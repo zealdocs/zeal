@@ -30,7 +30,7 @@ RCC_DIR = $$BUILD_ROOT/.rcc
 UI_DIR = $$BUILD_ROOT/.ui
 
 # Application version
-VERSION = 0.4.0
+VERSION = 0.5.0
 DEFINES += ZEAL_VERSION=\\\"$${VERSION}\\\"
 
 # Portable build
