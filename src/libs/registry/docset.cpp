@@ -270,7 +270,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                  "  FROM searchIndex"
                                  "  WHERE score > 0");
         } else {
-            sql = QStringLiteral("SELECT name, type, path, ''"
+            sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
         }
@@ -280,7 +280,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                  "  FROM searchIndex"
                                  "  WHERE score > 0");
         } else {
-            sql = QStringLiteral("SELECT name, type, path, fragment"
+            sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
         }
