@@ -40,6 +40,11 @@ bool Plist::read(const QString &fileName)
         m_hasError = true;
         return false;
     }
+    
+    char buf;
+    // Skip whitespace at the beginning of file
+    while (file->peek(&buf, 1) > 0 && isspace(buf))
+        file->read(1);
 
     QXmlStreamReader xml(file.data());
 
