@@ -82,11 +82,6 @@ void WebViewTab::focus()
     m_webView->setFocus();
 }
 
-QSize WebViewTab::sizeHint() const
-{
-    return m_webView->sizeHint();
-}
-
 void WebViewTab::activateSearchBar()
 {
     if (m_searchToolBar == nullptr) {

@@ -43,7 +43,6 @@ public:
 
     void load(const QUrl &url);
     void focus();
-    QSize sizeHint() const override;
     bool canGoBack() const;
     bool canGoForward() const;
 
