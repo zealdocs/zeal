@@ -16,10 +16,10 @@ Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli
 
 [![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
 
-OS \ Branch | master | stable
-------------|--------|-------
-Linux | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84) | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/stable.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84)
-Windows | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/stable.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal)
+| OS       | Build Status |
+| -------- | ------------ |
+| Linux    | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84) |
+| Windows  | [![AppVeyor](https://img.shields.io/appveyor/ci/trollixx/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/trollixx/zeal) |
 
 ## Download
 
