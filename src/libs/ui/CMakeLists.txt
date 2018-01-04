@@ -2,6 +2,7 @@ add_subdirectory(qxtglobalshortcut)
 
 list(APPEND Widgets_SOURCES
     widgets/searchedit.cpp
+    widgets/searchtoolbar.cpp
     widgets/shortcutedit.cpp
     widgets/toolbarframe.cpp
     widgets/webview.cpp
