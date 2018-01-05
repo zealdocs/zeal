@@ -146,26 +146,3 @@ void WebViewTab::keyPressEvent(QKeyEvent *event)
         break;
     }
 }
-
-void WebViewTab::find(const QString &text)
-{
-    if (m_webView->selectedText() != text) {
-        m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
-        m_webView->findText(QString());
-        if (text.isEmpty())
-            return;
-
-        m_webView->findText(text, QWebPage::FindWrapsAroundDocument);
-    }
-
-    m_webView->findText(text, QWebPage::HighlightAllOccurrences);
-}
-
-void WebViewTab::findNext(const QString &text, bool backward)
-{
-    QWebPage::FindFlags flags = QWebPage::FindWrapsAroundDocument;
-    if (backward)
-        flags |= QWebPage::FindBackward;
-
-    m_webView->findText(text, flags);
-}

@@ -68,9 +68,6 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    void find(const QString &text);
-    void findNext(const QString &text, bool backward = false);
-
     WebView *m_webView = nullptr;
     SearchToolBar *m_searchToolBar = nullptr;
 };
