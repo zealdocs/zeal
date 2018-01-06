@@ -102,6 +102,7 @@ QWebView *WebView::createWindow(QWebPage::WebWindowType type)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
+#if QT_VERSION >= 0x050600
     const QWebHitTestResult hitTestResult = hitTestContent(event->pos());
 
     // Return standard menu for input fields.
@@ -158,7 +159,9 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     }
 
     m_contextMenu->popup(event->globalPos());
-
+#else
+    QWebView::contextMenuEvent(event);
+#endif
 }
 
 void WebView::mousePressEvent(QMouseEvent *event)
