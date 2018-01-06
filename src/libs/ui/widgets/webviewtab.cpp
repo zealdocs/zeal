@@ -139,7 +139,6 @@ void WebViewTab::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Slash:
         activateSearchBar();
-        event->accept();
         break;
     default:
         event->ignore();
