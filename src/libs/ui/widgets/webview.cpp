@@ -29,7 +29,6 @@
 #include <core/application.h>
 
 #include <QApplication>
-#include <QWebFrame>
 #include <QWheelEvent>
 
 using namespace Zeal::WidgetUi;
@@ -105,19 +104,23 @@ void WebView::mousePressEvent(QMouseEvent *event)
     case Qt::BackButton:
         back();
         event->accept();
-        break;
+        return;
     case Qt::ForwardButton:
         forward();
         event->accept();
-        break;
+        return;
     case Qt::LeftButton:
-        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier))
+        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier)) {
             break;
+        }
     case Qt::MiddleButton:
-        m_clickedLink = clickedLink(event->pos());
-        if (m_clickedLink.isValid())
-            event->accept();
-        break;
+        m_clickedLink = hitTestContent(event->pos()).linkUrl();
+        if (!m_clickedLink.isValid()) {
+            break;
+        }
+
+        event->accept();
+        return;
     default:
         break;
     }
@@ -129,19 +132,22 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
 {
     switch (event->button()) {
     case Qt::LeftButton:
-        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier))
+        if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier)) {
             break;
+        }
     case Qt::MiddleButton:
-        if (m_clickedLink == clickedLink(event->pos()) && m_clickedLink.isValid()) {
+        if (!m_clickedLink.isEmpty() && m_clickedLink == hitTestContent(event->pos()).linkUrl()) {
             QWebView *webView = createWindow(QWebPage::WebBrowserWindow);
             webView->load(m_clickedLink);
             event->accept();
             return;
         }
+
         break;
     default:
         break;
     }
+
     QWebView::mouseReleaseEvent(event);
 }
 
@@ -166,11 +172,7 @@ void WebView::wheelEvent(QWheelEvent *event)
     QWebView::wheelEvent(event);
 }
 
-QUrl WebView::clickedLink(const QPoint &pos) const
+QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const
 {
-    QWebFrame *frame = page()->frameAt(pos);
-    if (!frame)
-        return QUrl();
-
-    return frame->hitTestContent(pos).linkUrl();
+    return page()->mainFrame()->hitTestContent(pos);
 }

@@ -25,6 +25,7 @@
 #define ZEAL_WIDGETUI_WEBVIEW_H
 
 #include <QVector>
+#include <QWebFrame>
 #include <QWebView>
 
 namespace Zeal {
@@ -57,8 +58,9 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    QUrl clickedLink(const QPoint &pos) const;
+    QWebHitTestResult hitTestContent(const QPoint &pos) const;
 
+    QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
     int m_zoomLevel = defaultZoomLevel();
 };
