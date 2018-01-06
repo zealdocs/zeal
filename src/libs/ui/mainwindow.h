@@ -65,7 +65,7 @@ public:
 
     void search(const Zeal::Registry::SearchQuery &query);
     void bringToFront();
-    void createTab(int index = -1);
+    WebViewTab *createTab(int index = -1);
 
 public slots:
     void toggleWindow();

@@ -68,6 +68,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
+    friend class WebView;
+
     WebView *m_webView = nullptr;
     SearchToolBar *m_searchToolBar = nullptr;
 };

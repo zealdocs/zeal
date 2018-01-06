@@ -23,6 +23,7 @@
 
 #include "webview.h"
 
+#include "webviewtab.h"
 #include "../mainwindow.h"
 
 #include <core/application.h>
@@ -94,9 +95,8 @@ QWebView *WebView::createWindow(QWebPage::WebWindowType type)
 {
     Q_UNUSED(type)
 
-    MainWindow *mw = qobject_cast<MainWindow *>(qApp->activeWindow());
-    mw->createTab();
-    return this;
+    MainWindow *mainWindow = qobject_cast<MainWindow *>(qApp->activeWindow());
+    return mainWindow->createTab()->m_webView;
 }
 
 void WebView::mousePressEvent(QMouseEvent *event)

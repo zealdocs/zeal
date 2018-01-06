@@ -505,7 +505,7 @@ void MainWindow::moveTab(int from, int to) {
     ui->webViewStack->insertWidget(to, w);
 }
 
-void MainWindow::createTab(int index)
+WebViewTab *MainWindow::createTab(int index)
 {
     if (m_settings->openNewTabAfterActive)
         index = m_tabBar->currentIndex() + 1;
@@ -521,6 +521,8 @@ void MainWindow::createTab(int index)
     m_tabBar->setCurrentIndex(index);
 
     ui->lineEdit->setFocus();
+
+    return newState->widget;
 }
 
 void MainWindow::duplicateTab(int index)
