@@ -390,12 +390,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
-    connect(ui->openUrlButton, &QPushButton::clicked, [this]() {
-        const QUrl url(currentTab()->url());
-        if (url.scheme() != QLatin1String("qrc"))
-            QDesktopServices::openUrl(url);
-    });
-
     ui->actionNextTab->setShortcuts({QKeySequence::NextChild,
                                      QKeySequence(Qt::ControlModifier| Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
