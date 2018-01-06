@@ -53,6 +53,7 @@ signals:
 
 protected:
     QWebView *createWindow(QWebPage::WebWindowType type) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;

@@ -29,6 +29,8 @@
 #include <core/application.h>
 
 #include <QApplication>
+#include <QDesktopServices>
+#include <QMenu>
 #include <QWheelEvent>
 
 using namespace Zeal::WidgetUi;
@@ -96,6 +98,67 @@ QWebView *WebView::createWindow(QWebPage::WebWindowType type)
 
     MainWindow *mainWindow = qobject_cast<MainWindow *>(qApp->activeWindow());
     return mainWindow->createTab()->m_webView;
+}
+
+void WebView::contextMenuEvent(QContextMenuEvent *event)
+{
+    const QWebHitTestResult hitTestResult = hitTestContent(event->pos());
+
+    // Return standard menu for input fields.
+    if (hitTestResult.isContentEditable()) {
+         QWebView::contextMenuEvent(event);
+         return;
+    }
+
+    event->accept();
+
+    if (m_contextMenu) {
+        m_contextMenu->deleteLater();
+    }
+
+    QMenu *m_contextMenu = new QMenu(this);
+
+    const QUrl linkUrl = hitTestResult.linkUrl();
+    const QString linkText = hitTestResult.linkText();
+
+    if (linkUrl.isValid()) {
+        m_contextMenu->addAction(tr("Open Link in New Tab"), this, [this]() {
+            triggerPageAction(QWebPage::WebAction::OpenLinkInNewWindow);
+        });
+
+        if (linkUrl.scheme() != QLatin1String("qrc")) {
+            m_contextMenu->addAction(tr("Open Link in Desktop Browser"), this, [linkUrl]() {
+                QDesktopServices::openUrl(linkUrl);
+            });
+
+            m_contextMenu->addAction(pageAction(QWebPage::CopyLinkToClipboard));
+        }
+    }
+
+    if (hitTestResult.isContentSelected()) {
+        if (!m_contextMenu->isEmpty()) {
+            m_contextMenu->addSeparator();
+        }
+
+        m_contextMenu->addAction(pageAction(QWebPage::Copy));
+    }
+
+    if (!linkUrl.isValid() && url().scheme() != QLatin1String("qrc")) {
+        if (!m_contextMenu->isEmpty()) {
+            m_contextMenu->addSeparator();
+        }
+
+        m_contextMenu->addAction(tr("Open Page in Desktop Browser"), this, [this]() {
+            QDesktopServices::openUrl(url());
+        });
+    }
+
+    if (m_contextMenu->isEmpty()) {
+        return;
+    }
+
+    m_contextMenu->popup(event->globalPos());
+
 }
 
 void WebView::mousePressEvent(QMouseEvent *event)
