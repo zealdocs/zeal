@@ -136,6 +136,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
             QWebView *webView = createWindow(QWebPage::WebBrowserWindow);
             webView->load(m_clickedLink);
             event->accept();
+            return;
         }
         break;
     default:
