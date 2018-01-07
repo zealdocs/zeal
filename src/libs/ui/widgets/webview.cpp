@@ -42,7 +42,6 @@ using namespace Zeal::WidgetUi;
 WebView::WebView(QWidget *parent)
     : QWebView(parent)
 {
-    setAttribute(Qt::WA_AcceptTouchEvents, false);
     page()->setNetworkAccessManager(Core::Application::instance()->networkManager());
 }
 
