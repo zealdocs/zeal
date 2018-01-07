@@ -19,6 +19,10 @@ add_executable(App WIN32
 target_link_libraries(App Core Util)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+if (Qt5Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
+    message(FATAL_ERROR "Qt version >= ${QT_MINIMUM_VERSION} is required.")
+endif()
+
 target_link_libraries(App Qt5::Widgets)
 
 set_target_properties(App PROPERTIES
