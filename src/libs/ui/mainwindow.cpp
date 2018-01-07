@@ -193,12 +193,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_globalShortcut->setEnabled(true);
     });
 
+    ui->actionBack->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
     ui->actionBack->setShortcut(QKeySequence::Back);
-    addAction(ui->actionBack);
-    ui->actionForward->setShortcut(QKeySequence::Forward);
-    addAction(ui->actionForward);
     connect(ui->actionBack, &QAction::triggered, this, [this]() { currentTab()->back(); });
+    addAction(ui->actionBack);
+
+    ui->actionForward->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
+    ui->actionForward->setShortcut(QKeySequence::Forward);
     connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->forward(); });
+    addAction(ui->actionForward);
 
     // Tools Menu
     connect(ui->actionDocsets, &QAction::triggered, [this]() {

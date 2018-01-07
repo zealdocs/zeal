@@ -139,8 +139,8 @@
              <property name="text">
               <string>←</string>
              </property>
-             <property name="icon">
-              <iconset theme="go-previous"/>
+             <property name="autoRaise">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -155,8 +155,8 @@
              <property name="text">
               <string>→</string>
              </property>
-             <property name="icon">
-              <iconset theme="go-next"/>
+             <property name="autoRaise">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
