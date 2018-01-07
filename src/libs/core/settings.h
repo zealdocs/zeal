@@ -74,9 +74,6 @@ public:
     QString customCssFile;
     bool isAdDisabled;
 
-    // TODO: bool askOnExternalLink;
-    // TODO: QString customCss;
-
     // Network
     enum ProxyType : unsigned int {
         None,
