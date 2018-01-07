@@ -26,7 +26,6 @@
 
 #include <QWidget>
 
-class QLineEdit;
 class QWebHistory;
 
 namespace Zeal {

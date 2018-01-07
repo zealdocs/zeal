@@ -27,9 +27,8 @@
 #include "webview.h"
 
 #include <QCoreApplication>
-#include <QLineEdit>
+#include <QKeyEvent>
 #include <QStyle>
-#include <QResizeEvent>
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebPage>
