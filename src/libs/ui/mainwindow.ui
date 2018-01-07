@@ -46,8 +46,17 @@
            <string notr="true"/>
           </property>
           <layout class="QVBoxLayout" name="searchToolBarFrame">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
            <property name="topMargin">
             <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
            </property>
            <property name="bottomMargin">
             <number>0</number>
@@ -104,8 +113,17 @@
         <item>
          <widget class="ToolBarFrame" name="navigationBar" native="true">
           <layout class="QHBoxLayout" name="toolbox">
+           <property name="spacing">
+            <number>4</number>
+           </property>
+           <property name="leftMargin">
+            <number>4</number>
+           </property>
            <property name="topMargin">
             <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>4</number>
            </property>
            <property name="bottomMargin">
             <number>0</number>
@@ -141,6 +159,19 @@
               <iconset theme="go-next"/>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
