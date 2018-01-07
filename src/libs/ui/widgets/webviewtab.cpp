@@ -52,7 +52,6 @@ WebViewTab::WebViewTab(QWidget *parent)
         setToolTip(link);
     });
 
-    connect(m_webView, &QWebView::linkClicked, this, &WebViewTab::linkClicked);
     connect(m_webView, &QWebView::titleChanged, this, &WebViewTab::titleChanged);
     connect(m_webView, &QWebView::urlChanged, this, &WebViewTab::urlChanged);
 

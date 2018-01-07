@@ -314,6 +314,39 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>External Link Behavior</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_13">
+          <item>
+           <widget class="QRadioButton" name="radioExternalLinkAsk">
+            <property name="text">
+             <string>Ask Everytime</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioExternalLinkOpenDesktop">
+            <property name="text">
+             <string>Open in Desktop Browser</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioExternalLinkOpen">
+            <property name="text">
+             <string>Open in Zeal</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Other</string>

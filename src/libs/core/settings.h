@@ -60,6 +60,14 @@ public:
     bool fuzzySearchEnabled;
 
     // Content
+    enum class ExternalLinkPolicy : unsigned int {
+        Ask = 0,
+        Open,
+        OpenInSystemBrowser
+    };
+    Q_ENUM(ExternalLinkPolicy)
+    ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
+
     int minimumFontSize;
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
@@ -117,5 +125,10 @@ private:
 
 } // namespace Core
 } // namespace Zeal
+
+QDataStream &operator<<(QDataStream &out, const Zeal::Core::Settings::ExternalLinkPolicy &policy);
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
+
+Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)
 
 #endif // ZEAL_CORE_SETTINGS_H

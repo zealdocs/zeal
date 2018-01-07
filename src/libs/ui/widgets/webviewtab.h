@@ -55,7 +55,6 @@ public:
     void setZoomLevel(int level);
 
 signals:
-    void linkClicked(const QUrl &url);
     void titleChanged(const QString &title);
     void urlChanged(const QUrl &url);
 

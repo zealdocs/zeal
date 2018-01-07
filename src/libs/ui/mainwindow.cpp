@@ -604,13 +604,6 @@ void MainWindow::attachTab(TabState *tabState)
         m_tabBar->setTabToolTip(m_tabBar->currentIndex(), title);
     });
 
-    connect(tabState->widget, &WebViewTab::linkClicked, this, [this](const QUrl &url) {
-        const QString message = tr("Do you want to open an external link?<br>URL: <b>%1</b>");
-        int ret = QMessageBox::question(this, QStringLiteral("Zeal"), message.arg(url.toString()));
-        if (ret == QMessageBox::Yes)
-            QDesktopServices::openUrl(url);
-    });
-
     ui->lineEdit->setText(tabState->searchQuery);
     ui->tocListView->setModel(tabState->tocModel);
 

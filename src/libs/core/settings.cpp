@@ -47,6 +47,8 @@ using namespace Zeal::Core;
 Settings::Settings(QObject *parent) :
     QObject(parent)
 {
+    qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
+
     load();
 }
 
@@ -88,6 +90,8 @@ void Settings::load()
     darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
+    externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
+                                         QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
     isAdDisabled = settings->value(QStringLiteral("disable_ad"), false).toBool();
     settings->endGroup();
 
@@ -157,6 +161,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
     settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
+    settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("disable_ad"), isAdDisabled);
     settings->endGroup();
 
@@ -253,4 +258,18 @@ QSettings *Settings::qsettings(QObject *parent)
     return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
                          QSettings::IniFormat, parent);
 #endif
+}
+
+QDataStream &operator<<(QDataStream &out, const Settings::ExternalLinkPolicy &policy)
+{
+    out << static_cast<std::underlying_type<Settings::ExternalLinkPolicy>::type>(policy);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Settings::ExternalLinkPolicy &policy)
+{
+    std::underlying_type<Settings::ExternalLinkPolicy>::type value;
+    in >> value;
+    policy = static_cast<Settings::ExternalLinkPolicy>(value);
+    return in;
 }

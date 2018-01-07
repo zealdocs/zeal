@@ -61,6 +61,8 @@ protected:
 private:
     QWebHitTestResult hitTestContent(const QPoint &pos) const;
 
+    static bool isUrlExternal(const QUrl &url);
+
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
     int m_zoomLevel = defaultZoomLevel();

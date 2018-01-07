@@ -112,6 +112,18 @@ void SettingsDialog::loadSettings()
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
     ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
+    switch (settings->externalLinkPolicy) {
+    case Core::Settings::ExternalLinkPolicy::Ask:
+        ui->radioExternalLinkAsk->setChecked(true);
+        break;
+    case Core::Settings::ExternalLinkPolicy::Open:
+        ui->radioExternalLinkOpen->setChecked(true);
+        break;
+    case Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser:
+        ui->radioExternalLinkOpenDesktop->setChecked(true);
+        break;
+    }
+
     // Network Tab
     switch (settings->proxyType) {
     case Core::Settings::ProxyType::None:
@@ -160,6 +172,14 @@ void SettingsDialog::saveSettings()
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
     settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
+
+    if (ui->radioExternalLinkAsk->isChecked()) {
+        settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::Ask;
+    } else if (ui->radioExternalLinkOpen->isChecked()) {
+        settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::Open;
+    } else if (ui->radioExternalLinkOpenDesktop->isChecked()) {
+        settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser;
+    }
 
     // Network Tab
     // Proxy settings
