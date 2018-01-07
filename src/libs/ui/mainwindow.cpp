@@ -219,9 +219,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
     });
-    connect(ui->actionAboutQt, &QAction::triggered, [this]() {
-        QMessageBox::aboutQt(this);
-    });
 
     // Update check
     connect(m_application, &Core::Application::updateCheckError, [this](const QString &message) {

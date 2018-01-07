@@ -211,7 +211,6 @@
     <addaction name="actionCheckForUpdates"/>
     <addaction name="separator"/>
     <addaction name="actionAboutZeal"/>
-    <addaction name="actionAboutQt"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -254,11 +253,6 @@
    </property>
    <property name="text">
     <string>About &amp;Zeal</string>
-   </property>
-  </action>
-  <action name="actionAboutQt">
-   <property name="text">
-    <string>About &amp;Qt</string>
    </property>
   </action>
   <action name="actionBack">
