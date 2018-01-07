@@ -72,6 +72,7 @@ public:
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
     QString customCssFile;
+    bool isSmoothScrollingEnabled;
     bool isAdDisabled;
 
     // Network

@@ -879,6 +879,9 @@ void MainWindow::applySettings()
 
     const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();
     QWebSettings::globalSettings()->setUserStyleSheetUrl(QUrl(cssUrl));
+
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::ScrollAnimatorEnabled,
+                                                 m_settings->isSmoothScrollingEnabled);
 }
 
 void MainWindow::toggleWindow()

@@ -110,7 +110,6 @@ void SettingsDialog::loadSettings()
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
     ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
-    ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     switch (settings->externalLinkPolicy) {
     case Core::Settings::ExternalLinkPolicy::Ask:
@@ -123,6 +122,9 @@ void SettingsDialog::loadSettings()
         ui->radioExternalLinkOpenDesktop->setChecked(true);
         break;
     }
+
+    ui->useSmoothScrollingCheckBox->setChecked(settings->isSmoothScrollingEnabled);
+    ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     // Network Tab
     switch (settings->proxyType) {
@@ -171,7 +173,6 @@ void SettingsDialog::saveSettings()
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
-    settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     if (ui->radioExternalLinkAsk->isChecked()) {
         settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::Ask;
@@ -180,6 +181,9 @@ void SettingsDialog::saveSettings()
     } else if (ui->radioExternalLinkOpenDesktop->isChecked()) {
         settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser;
     }
+
+    settings->isSmoothScrollingEnabled = ui->useSmoothScrollingCheckBox->isChecked();
+    settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     // Network Tab
     // Proxy settings

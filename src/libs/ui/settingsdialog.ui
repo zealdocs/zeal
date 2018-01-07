@@ -353,6 +353,13 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
+           <widget class="QCheckBox" name="useSmoothScrollingCheckBox">
+            <property name="text">
+             <string>Use smooth scrolling</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="disableAdCheckBox">
             <property name="text">
              <string>Disable advertisement on the welcome page</string>
