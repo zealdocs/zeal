@@ -132,7 +132,8 @@ Docset::Docset(const QString &path) :
     sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr,
                             sqliteScoreFunction, nullptr, nullptr);
 
-    m_type = m_db->tables().contains(QStringLiteral("searchIndex")) ? Type::Dash : Type::ZDash;
+    m_type = m_db->tables().contains(QStringLiteral("searchIndex"), Qt::CaseInsensitive)
+            ? Type::Dash : Type::ZDash;
 
     createIndex();
 
