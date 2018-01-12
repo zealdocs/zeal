@@ -50,6 +50,10 @@
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
+#ifdef Q_OS_WIN32
+extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
+#endif
+
 namespace {
 const char ApiServerUrl[] = "http://api.zealdocs.org/v1";
 const char RedirectServerUrl[] = "https://go.zealdocs.org";
@@ -72,11 +76,20 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     m_application(app),
     m_docsetRegistry(app->docsetRegistry())
 {
-    using Registry::DocsetRegistry;
-    using Registry::ListModel;
-
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    loadDocsetList();
+
+#ifdef Q_OS_WIN32
+    qt_ntfs_permission_lookup++;
+#endif
+
+    m_isStorageReadOnly = !QFileInfo(m_application->settings()->docsetPath).isWritable();
+
+#ifdef Q_OS_WIN32
+    qt_ntfs_permission_lookup--;
+#endif
 
 #ifdef Q_OS_OSX
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -85,90 +98,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
     ui->combinedProgressBar->hide();
     ui->cancelButton->hide();
-
-    // Installed docsets tab
-    ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
-    ui->installedDocsetList->setModel(new ListModel(app->docsetRegistry(), this));
-    connect(ui->installedDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
-        if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
-            return;
-        }
-
-        downloadDashDocset(index);
-    });
-
-    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
-    connect(selectionModel, &QItemSelectionModel::selectionChanged,
-            [this, selectionModel]() {
-        ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
-
-        for (const QModelIndex &index : selectionModel->selectedRows()) {
-            if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
-                ui->updateSelectedDocsetsButton->setEnabled(true);
-                return;
-            }
-        }
-
-        ui->updateSelectedDocsetsButton->setEnabled(false);
-    });
-    connect(ui->updateSelectedDocsetsButton, &QPushButton::clicked,
-            this, &DocsetsDialog::updateSelectedDocsets);
-    connect(ui->updateAllDocsetsButton, &QPushButton::clicked,
-            this, &DocsetsDialog::updateAllDocsets);
-    connect(ui->removeDocsetsButton, &QPushButton::clicked,
-            this, &DocsetsDialog::removeSelectedDocsets);
-    connect(ui->docsetFilterInput, &QLineEdit::textEdited,
-            this, &DocsetsDialog::updateDocsetFilter);
-
-    // Available docsets tab
-    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
-    connect(ui->availableDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
-        // TODO: Cancel download if it's already in progress.
-        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
-            return;
-
-        ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
-
-        QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
-        model->setData(index, 0, ProgressItemDelegate::ValueRole);
-        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
-
-        downloadDashDocset(index);
-    });
-
-    selectionModel = ui->availableDocsetList->selectionModel();
-    connect(selectionModel, &QItemSelectionModel::selectionChanged, [this, selectionModel]() {
-        for (const QModelIndex &index : selectionModel->selectedRows()) {
-            if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
-                ui->downloadDocsetsButton->setEnabled(true);
-                return;
-            }
-        }
-
-        ui->downloadDocsetsButton->setEnabled(false);
-    });
-
-    connect(ui->downloadDocsetsButton, &QPushButton::clicked,
-            this, &DocsetsDialog::downloadSelectedDocsets);
-
-    connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString name) {
-        QListWidgetItem *item = findDocsetListItem(name);
-        if (!item)
-            return;
-
-        item->setHidden(false);
-    });
-    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString name) {
-        QListWidgetItem *item = findDocsetListItem(name);
-        if (!item)
-            return;
-
-        item->setHidden(true);
-    });
-
-    connect(ui->addFeedButton, &QPushButton::clicked, this, &DocsetsDialog::addDashFeed);
-    connect(ui->refreshButton, &QPushButton::clicked, this, &DocsetsDialog::downloadDocsetList);
+    ui->readOnlyLabel->setVisible(m_isStorageReadOnly);
 
     connect(m_application, &Core::Application::extractionCompleted,
             this, &DocsetsDialog::extractionCompleted);
@@ -179,7 +109,15 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &DocsetsDialog::cancelDownloads);
 
-    loadDocsetList();
+    setupInstalledDocsetsTab();
+    setupAvailableDocsetsTab();
+
+    if (m_isStorageReadOnly) {
+        disableControls();
+
+        // Updating the docset list is fine;
+        ui->refreshButton->setEnabled(true);
+    }
 }
 
 DocsetsDialog::~DocsetsDialog()
@@ -419,7 +357,11 @@ void DocsetsDialog::downloadCompleted()
             if (metadata.latestVersion() != docset->version()
                     || metadata.revision() > docset->revision()) {
                 docset->hasUpdate = true;
-                ui->updateAllDocsetsButton->setEnabled(true);
+
+                if (!m_isStorageReadOnly) {
+                    ui->updateAllDocsetsButton->setEnabled(true);
+                }
+
                 ui->installedDocsetList->reset();
             }
         }
@@ -515,8 +457,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
 
     // Write metadata about docset
     Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
-            ? m_availableDocsets[docsetName]
-              : m_userFeeds[docsetName];
+            ? m_availableDocsets[docsetName] : m_userFeeds[docsetName];
     metadata.save(docsetPath, metadata.latestVersion());
 
     m_docsetRegistry->loadDocset(docsetPath);
@@ -582,6 +523,149 @@ void DocsetsDialog::loadDocsetList()
     processDocsetList(jsonDoc.array());
 }
 
+void DocsetsDialog::setupInstalledDocsetsTab()
+{
+    using Registry::ListModel;
+
+    ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
+    ui->installedDocsetList->setModel(new ListModel(m_application->docsetRegistry(), this));
+
+    if (m_isStorageReadOnly) {
+        return;
+    }
+
+    connect(ui->installedDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
+        if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
+            return;
+        }
+
+        downloadDashDocset(index);
+    });
+
+    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    connect(selectionModel, &QItemSelectionModel::selectionChanged,
+            [this, selectionModel]() {
+        ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
+
+        for (const QModelIndex &index : selectionModel->selectedRows()) {
+            if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
+                ui->updateSelectedDocsetsButton->setEnabled(true);
+                return;
+            }
+        }
+
+        ui->updateSelectedDocsetsButton->setEnabled(false);
+    });
+
+    connect(ui->addFeedButton, &QPushButton::clicked, this, &DocsetsDialog::addDashFeed);
+
+    connect(ui->updateSelectedDocsetsButton, &QPushButton::clicked,
+            this, &DocsetsDialog::updateSelectedDocsets);
+    connect(ui->updateAllDocsetsButton, &QPushButton::clicked,
+            this, &DocsetsDialog::updateAllDocsets);
+    connect(ui->removeDocsetsButton, &QPushButton::clicked,
+            this, &DocsetsDialog::removeSelectedDocsets);
+}
+
+void DocsetsDialog::setupAvailableDocsetsTab()
+{
+    using Registry::DocsetRegistry;
+
+    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
+
+    connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString name) {
+        QListWidgetItem *item = findDocsetListItem(name);
+        if (!item)
+            return;
+
+        item->setHidden(false);
+    });
+    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString name) {
+        QListWidgetItem *item = findDocsetListItem(name);
+        if (!item)
+            return;
+
+        item->setHidden(true);
+    });
+
+    connect(ui->refreshButton, &QPushButton::clicked, this, &DocsetsDialog::downloadDocsetList);
+
+    connect(ui->docsetFilterInput, &QLineEdit::textEdited,
+            this, &DocsetsDialog::updateDocsetFilter);
+
+    if (m_isStorageReadOnly) {
+        return;
+    }
+
+    connect(ui->availableDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
+        // TODO: Cancel download if it's already in progress.
+        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
+            return;
+
+        ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
+
+        QAbstractItemModel *model = ui->availableDocsetList->model();
+        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, 0, ProgressItemDelegate::ValueRole);
+        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
+
+        downloadDashDocset(index);
+    });
+
+    QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
+    connect(selectionModel, &QItemSelectionModel::selectionChanged, [this, selectionModel]() {
+        for (const QModelIndex &index : selectionModel->selectedRows()) {
+            if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
+                ui->downloadDocsetsButton->setEnabled(true);
+                return;
+            }
+        }
+
+        ui->downloadDocsetsButton->setEnabled(false);
+    });
+
+    connect(ui->downloadDocsetsButton, &QPushButton::clicked,
+            this, &DocsetsDialog::downloadSelectedDocsets);
+}
+
+void DocsetsDialog::enableControls()
+{
+    // Available docsets
+    ui->refreshButton->setEnabled(true);
+
+    if (m_isStorageReadOnly) {
+        return;
+    }
+
+    // Installed docsets
+    ui->addFeedButton->setEnabled(true);
+    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    bool hasSelectedUpdates = false;
+    for (const QModelIndex &index : selectionModel->selectedRows()) {
+        if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
+            hasSelectedUpdates = true;
+            break;
+        }
+    }
+
+    ui->updateSelectedDocsetsButton->setEnabled(hasSelectedUpdates);
+    ui->updateAllDocsetsButton->setEnabled(updatesAvailable());
+    ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
+}
+
+void DocsetsDialog::disableControls()
+{
+    // Installed docsets
+    ui->addFeedButton->setEnabled(false);
+    ui->updateSelectedDocsetsButton->setEnabled(false);
+    ui->updateAllDocsetsButton->setEnabled(false);
+    ui->downloadDocsetsButton->setEnabled(false);
+    ui->removeDocsetsButton->setEnabled(false);
+
+    // Available docsets
+    ui->refreshButton->setEnabled(false);
+}
+
 QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
 {
     for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
@@ -611,14 +695,7 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);
 
-    // Installed docsets
-    ui->addFeedButton->setEnabled(false);
-    ui->updateSelectedDocsetsButton->setEnabled(false);
-    ui->updateAllDocsetsButton->setEnabled(false);
-    ui->removeDocsetsButton->setEnabled(false);
-
-    // Available docsets
-    ui->refreshButton->setEnabled(false);
+    disableControls();
 
     updateCombinedProgress();
 
@@ -685,7 +762,10 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
             if (metadata.latestVersion() != docset->version()
                     || metadata.revision() > docset->revision()) {
                 docset->hasUpdate = true;
-                ui->updateAllDocsetsButton->setEnabled(true);
+
+                if (!m_isStorageReadOnly) {
+                    ui->updateAllDocsetsButton->setEnabled(true);
+                }
             }
         }
     }
@@ -761,23 +841,7 @@ void DocsetsDialog::resetProgress()
     m_combinedReceived = 0;
     m_combinedTotal = 0;
 
-    // Installed docsets
-    ui->addFeedButton->setEnabled(true);
-    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
-    bool hasSelectedUpdates = false;
-    for (const QModelIndex &index : selectionModel->selectedRows()) {
-        if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
-            hasSelectedUpdates = true;
-            break;
-        }
-    }
-
-    ui->updateSelectedDocsetsButton->setEnabled(hasSelectedUpdates);
-    ui->updateAllDocsetsButton->setEnabled(updatesAvailable());
-    ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
-
-    // Available docsets
-    ui->refreshButton->setEnabled(true);
+    enableControls();
 }
 
 QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const

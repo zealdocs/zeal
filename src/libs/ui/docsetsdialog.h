@@ -35,7 +35,6 @@ class QNetworkReply;
 class QTemporaryFile;
 class QUrl;
 
-
 namespace Zeal {
 
 namespace Registry {
@@ -90,6 +89,8 @@ private:
     Core::Application *m_application = nullptr;
     Registry::DocsetRegistry *m_docsetRegistry = nullptr;
 
+    bool m_isStorageReadOnly = false;
+
     QList<QNetworkReply *> m_replies;
     qint64 m_combinedTotal = 0;
     qint64 m_combinedReceived = 0;
@@ -99,6 +100,12 @@ private:
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
+
+    void setupInstalledDocsetsTab();
+    void setupAvailableDocsetsTab();
+
+    void enableControls();
+    void disableControls();
 
     QListWidgetItem *findDocsetListItem(const QString &name) const;
     bool updatesAvailable() const;

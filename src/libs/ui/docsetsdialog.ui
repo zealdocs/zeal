@@ -196,7 +196,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1">
      <item>
       <widget class="QProgressBar" name="combinedProgressBar">
        <property name="minimumSize">
@@ -211,6 +211,13 @@
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="readOnlyLabel">
+       <property name="text">
+        <string>&lt;b&gt;Docset storage is read only.&lt;/b&gt;</string>
        </property>
       </widget>
      </item>
