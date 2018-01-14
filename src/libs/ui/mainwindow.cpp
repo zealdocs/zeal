@@ -40,6 +40,7 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QDebug>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
@@ -285,22 +286,24 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
+
+    SearchItemDelegate *delegate = new SearchItemDelegate(*ui->treeView, ui->treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     connect(ui->lineEdit, &QLineEdit::textEdited, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
     });
+    auto searchBtn = QSharedPointer<HoverButton>::create (SearchItemDelegate::getSearchIcon());
+    connect(&*searchBtn, &HoverButton::pressed, this, &MainWindow::fillDocsetName);
+    delegate->hoverPanel().addButton(searchBtn);
     ui->treeView->setItemDelegate(delegate);
 
-    ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
+    ui->tocListView->setItemDelegate(new SearchItemDelegate(*ui->tocListView, ui->tocListView));
     connect(ui->tocSplitter, &QSplitter::splitterMoved, this, [this]() {
         m_settings->tocSplitterState = ui->tocSplitter->saveState();
     });
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
-    connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
 
@@ -447,21 +450,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     if (m_settings->checkForUpdate)
         m_application->checkForUpdates(true);
-
-    connect(ui->treeView, &QTreeView::pressed, [this](const QModelIndex& index){
-        if (index.data(Zeal::Registry::DocsetNameRole).isNull()) {
-            return; // not a docset
-        }
-        QPoint mousePos = ui->treeView->mapFromGlobal(QCursor::pos());
-        QRect itemrect = ui->treeView->visualRect(index);
-        itemrect.setX(itemrect.x() + itemrect.width() - itemrect.height());
-                      // assume that the icon is square
-        if (itemrect.contains(mousePos)) {
-            fillDocsetName(index);
-            ui->treeView->selectionModel()->select(index,
-                QItemSelectionModel::SelectionFlag::Clear);
-        }
-    });
 }
 
 MainWindow::~MainWindow()
@@ -864,18 +852,17 @@ void MainWindow::toggleWindow()
 
 void MainWindow::fillDocsetName(const QModelIndex &index)
 {
-    QString docname = index.data(Zeal::Registry::DocsetNameRole).toString();
-    Zeal::Registry::Docset* docset = m_application->docsetRegistry()->docset(docname);
+    QString docName = index.data(Zeal::Registry::DocsetNameRole).toString();
+    Zeal::Registry::Docset* docset = m_application->docsetRegistry()->docset(docName);
     if (!docset)
         return;
     auto keywords = docset->keywords();
     if (keywords.empty()) {
-        qDebug() << "keywords are empty for docset " << docname;
+        qDebug() << "keywords are empty for docset " << docName;
         return;
     }
     ui->lineEdit->setText(keywords.front() + ":");
-    QTimer::singleShot(0, [this]{
-        ui->lineEdit->setFocus();
-        ui->lineEdit->deselect();
-    });
+
+    ui->lineEdit->setFocus();
+    ui->lineEdit->deselect();
 }

@@ -33,9 +33,25 @@
 
 using namespace Zeal::WidgetUi;
 
-SearchItemDelegate::SearchItemDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+QIcon& SearchItemDelegate::getSearchIcon()
 {
+    static QIcon result;
+    if(!result.isNull())
+        return result;
+    for(auto iconName : {"edit-find", "search"}) {
+        auto icon = QIcon::fromTheme(QString::fromUtf8(iconName));
+        if (!icon.isNull())
+            result = icon;
+    }
+    result = QIcon(QStringLiteral(":/icons/search.svg"));
+    return result;
+}
+
+SearchItemDelegate::SearchItemDelegate(const QAbstractItemView& relativeWidget, QObject *parent) :
+    QStyledItemDelegate(parent),
+    m_hoverPanel(relativeWidget)
+{
+
 }
 
 QList<int> SearchItemDelegate::decorationRoles() const
@@ -63,15 +79,22 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
     return true;
 }
 
+bool SearchItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option,
+                                     const QModelIndex &index)
+{
+    if (event->type() == QEvent::MouseButtonPress
+            && dynamic_cast<QMouseEvent*>(event)->button() == Qt::MouseButton::LeftButton) {
+        if (index.data(Zeal::Registry::DocsetNameRole).isValid()) {
+            if (m_hoverPanel.handlePressed(index))
+                return true;
+        }
+    }
+    return QAbstractItemDelegate::editorEvent(event, model, option, index);
+}
+
 void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                const QModelIndex &index) const
 {
-    if (index.data(Zeal::Registry::DocsetNameRole).isValid()
-            && option.state & QStyle::State_MouseOver) {
-        QIcon& icon = getSearchIcon();
-        auto rect = option.rect;
-        icon.paint(painter, rect, Qt::AlignRight);
-    }
     QStyleOptionViewItem opt(option);
 
     QStyle *style = opt.widget->style();
@@ -183,6 +206,10 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                                                   QSize(1, fm.height()), textRect);
     painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
     painter->restore();
+    if (index.data(Zeal::Registry::DocsetNameRole).isValid()
+            && option.state & QStyle::State_MouseOver) {
+        m_hoverPanel.paint(painter, option);
+    }
 }
 
 QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -215,19 +242,12 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     return size;
 }
 
+Zeal::HoverPanel &SearchItemDelegate::hoverPanel()
+{
+    return m_hoverPanel;
+}
+
 void SearchItemDelegate::setHighlight(const QString &text)
 {
     m_highlight = text;
-}
-
-QIcon& SearchItemDelegate::getSearchIcon()
-{
-    static QIcon searchicon;
-    if (searchicon.isNull()) {
-        searchicon = QIcon::fromTheme(QStringLiteral("search"));
-        if (searchicon.isNull()) {
-            searchicon = QIcon(QString::fromUtf8(":/icons/search.svg"));
-        }
-    }
-    return searchicon;
 }

@@ -19,6 +19,7 @@ add_library(Ui
     aboutdialog.cpp
     docsetlistitemdelegate.cpp
     docsetsdialog.cpp
+    hoverpanel.cpp
     mainwindow.cpp
     progressitemdelegate.cpp
     searchitemdelegate.cpp

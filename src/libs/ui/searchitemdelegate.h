@@ -25,6 +25,7 @@
 #define ZEAL_WIDGETUI_SEARCHITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
+#include "hoverpanel.h"
 
 namespace Zeal {
 namespace WidgetUi {
@@ -33,16 +34,20 @@ class SearchItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit SearchItemDelegate(QObject *parent = nullptr);
+    static QIcon& getSearchIcon();
+    explicit SearchItemDelegate(const QAbstractItemView& relativeWidget, QObject *parent = nullptr);
 
     QList<int> decorationRoles() const;
     void setDecorationRoles(const QList<int> &roles);
 
     bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option,
                    const QModelIndex &index) override;
+    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option,
+                   const QModelIndex &index) override;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    HoverPanel& hoverPanel();
 
 public slots:
     void setHighlight(const QString &text);
@@ -50,8 +55,7 @@ public slots:
 private:
     QList<int> m_decorationRoles = {Qt::DecorationRole};
     QString m_highlight;
-
-    static QIcon& getSearchIcon();
+    HoverPanel m_hoverPanel;
 };
 
 } // namespace WidgetUi
