@@ -29,7 +29,7 @@
 using namespace Zeal::WidgetUi;
 
 ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
-    QItemDelegate(parent)
+    QStyledItemDelegate(parent)
 {
 }
 
@@ -37,7 +37,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
                                  const QModelIndex &index) const
 {
     if (!index.model()->data(index, ShowProgressRole).toBool()) {
-        QItemDelegate::paint(painter, option, index);
+        QStyledItemDelegate::paint(painter, option, index);
         return;
     }
 
@@ -45,7 +45,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     const int value = index.model()->data(index, ValueRole).toInt(&ok);
 
     if (!ok) {
-        QItemDelegate::paint(painter, option, index);
+        QStyledItemDelegate::paint(painter, option, index);
         return;
     }
 
@@ -71,5 +71,5 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     painter->restore();
 
-    QItemDelegate::paint(painter, styleOption, index);
+    QStyledItemDelegate::paint(painter, styleOption, index);
 }

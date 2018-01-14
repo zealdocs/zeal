@@ -24,12 +24,12 @@
 #ifndef ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
 #define ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
 namespace Zeal {
 namespace WidgetUi {
 
-class ProgressItemDelegate : public QItemDelegate
+class ProgressItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:

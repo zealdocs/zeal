@@ -24,12 +24,12 @@
 #ifndef ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H
 #define ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
 namespace Zeal {
 namespace WidgetUi {
 
-class DocsetListItemDelegate : public QItemDelegate
+class DocsetListItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
