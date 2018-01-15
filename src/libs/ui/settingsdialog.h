@@ -27,11 +27,6 @@
 #include <QDialog>
 
 namespace Zeal {
-
-namespace Core {
-class Application;
-} // namespace Core
-
 namespace WidgetUi {
 
 namespace Ui {
@@ -42,7 +37,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit SettingsDialog(Core::Application *app, QWidget *parent = nullptr);
+    explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog() override;
 
 private slots:
@@ -50,11 +45,11 @@ private slots:
     void chooseDocsetStoragePath();
 
 private:
-    Ui::SettingsDialog *ui = nullptr;
-    Core::Application *m_application = nullptr;
-
     void loadSettings();
     void saveSettings();
+
+private:
+    Ui::SettingsDialog *ui = nullptr;
 };
 
 } // namespace WidgetUi

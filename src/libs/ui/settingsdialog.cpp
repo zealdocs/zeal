@@ -34,10 +34,9 @@
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
-SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent) :
+SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SettingsDialog()),
-    m_application(app)
+    ui(new Ui::SettingsDialog())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -86,7 +85,8 @@ void SettingsDialog::chooseDocsetStoragePath()
 
 void SettingsDialog::loadSettings()
 {
-    const Core::Settings * const settings = m_application->settings();
+    const Core::Settings * const settings = Core::Application::instance()->settings();
+
     // General Tab
     ui->startMinimizedCheckBox->setChecked(settings->startMinimized);
     ui->checkForUpdateCheckBox->setChecked(settings->checkForUpdate);
@@ -148,7 +148,7 @@ void SettingsDialog::loadSettings()
 
 void SettingsDialog::saveSettings()
 {
-    Core::Settings * const settings = m_application->settings();
+    Core::Settings * const settings = Core::Application::instance()->settings();
 
     // General Tab
     settings->startMinimized = ui->startMinimizedCheckBox->isChecked();

@@ -188,7 +188,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(ui->actionPreferences, &QAction::triggered, [this]() {
         m_globalShortcut->setEnabled(false);
-        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(m_application, this));
+        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
         m_globalShortcut->setEnabled(true);
     });
