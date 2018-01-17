@@ -186,6 +186,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         currentTab()->activateSearchBar();
     });
 
+    if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
+        ui->actionPreferences->setShortcut(QStringLiteral("Ctrl+,"));
+    } else {
+        ui->actionPreferences->setShortcut(QKeySequence::Quit);
+    }
+
     connect(ui->actionPreferences, &QAction::triggered, [this]() {
         m_globalShortcut->setEnabled(false);
         QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
