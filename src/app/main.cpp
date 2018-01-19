@@ -46,10 +46,6 @@
 
 using namespace Zeal;
 
-namespace {
-const char contactUrl[] = "https://go.zealdocs.org/l/contact";
-}
-
 struct CommandLineParameters
 {
     bool force;
