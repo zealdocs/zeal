@@ -24,8 +24,6 @@
 #ifndef ZEAL_WIDGETUI_MAINWINDOW_H
 #define ZEAL_WIDGETUI_MAINWINDOW_H
 
-#include <registry/searchquery.h>
-
 #include <QMainWindow>
 
 class QxtGlobalShortcut;
@@ -44,6 +42,7 @@ class Settings;
 
 namespace Registry {
 class ListModel;
+class SearchQuery;
 } //namespace Registry
 
 namespace WidgetUi {
@@ -60,10 +59,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit MainWindow(Zeal::Core::Application *app, QWidget *parent = nullptr);
+    explicit MainWindow(Core::Application *app, QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    void search(const Zeal::Registry::SearchQuery &query);
+    void search(const Registry::SearchQuery &query);
     void bringToFront();
     WebViewTab *createTab(int index = -1);
 
@@ -107,9 +106,9 @@ private:
     QList<TabState *> m_tabStates;
 
     Ui::MainWindow *ui = nullptr;
-    Zeal::Core::Application *m_application = nullptr;
-    Zeal::Core::Settings *m_settings = nullptr;
-    Zeal::Registry::ListModel *m_zealListModel = nullptr;
+    Core::Application *m_application = nullptr;
+    Core::Settings *m_settings = nullptr;
+    Registry::ListModel *m_zealListModel = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;

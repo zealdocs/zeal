@@ -38,6 +38,7 @@
 #include <registry/itemdatarole.h>
 #include <registry/listmodel.h>
 #include <registry/searchmodel.h>
+#include <registry/searchquery.h>
 
 #include <QCloseEvent>
 #include <QDesktopServices>
