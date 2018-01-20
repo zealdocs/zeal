@@ -83,9 +83,46 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
+    // Fonts
+    QWebSettings *webSettings = QWebSettings::globalSettings();
+    serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
+                                      webSettings->fontFamily(QWebSettings::SerifFont)).toString();
+    sansSerifFontFamily = settings->value(QStringLiteral("sans_serif_font_family"),
+                                          webSettings->fontFamily(QWebSettings::SansSerifFont)).toString();
+    fixedFontFamily = settings->value(QStringLiteral("fixed_font_family"),
+                                      webSettings->fontFamily(QWebSettings::FixedFont)).toString();
+
+    static const QMap<QString, QWebSettings::FontFamily> fontFamilies = {
+        {QStringLiteral("sans-serif"), QWebSettings::SansSerifFont},
+        {QStringLiteral("serif"), QWebSettings::SerifFont},
+        {QStringLiteral("monospace"), QWebSettings::FixedFont}
+    };
+
+    defaultFontFamily = settings->value(QStringLiteral("default_font_family"),
+                                        QStringLiteral("serif")).toString();
+
+    // Fallback to the serif font family.
+    if (!fontFamilies.contains(defaultFontFamily)) {
+        defaultFontFamily = QStringLiteral("serif");
+    }
+
+    webSettings->setFontFamily(QWebSettings::SansSerifFont, sansSerifFontFamily);
+    webSettings->setFontFamily(QWebSettings::SerifFont, serifFontFamily);
+    webSettings->setFontFamily(QWebSettings::FixedFont, fixedFontFamily);
+
+    const QString defaultFontFamilyResolved = webSettings->fontFamily(fontFamilies.value(defaultFontFamily));
+    webSettings->setFontFamily(QWebSettings::StandardFont, defaultFontFamilyResolved);
+
+    defaultFontSize = settings->value(QStringLiteral("default_font_size"),
+                                      webSettings->fontSize(QWebSettings::DefaultFontSize)).toInt();
+    defaultFixedFontSize = settings->value(QStringLiteral("default_fixed_font_size"),
+                                           webSettings->fontSize(QWebSettings::DefaultFixedFontSize)).toInt();
     minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
-                                      QWebSettings::globalSettings()->fontSize(QWebSettings::MinimumFontSize)).toInt();
-    QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
+                                      webSettings->fontSize(QWebSettings::MinimumFontSize)).toInt();
+
+    webSettings->setFontSize(QWebSettings::DefaultFontSize, defaultFontSize);
+    webSettings->setFontSize(QWebSettings::DefaultFixedFontSize, defaultFixedFontSize);
+    webSettings->setFontSize(QWebSettings::MinimumFontSize, minimumFontSize);
 
     darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
@@ -158,7 +195,15 @@ void Settings::save()
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
+    settings->setValue(QStringLiteral("default_font_family"), defaultFontFamily);
+    settings->setValue(QStringLiteral("serif_font_family"), serifFontFamily);
+    settings->setValue(QStringLiteral("sans_serif_font_family"), sansSerifFontFamily);
+    settings->setValue(QStringLiteral("fixed_font_family"), fixedFontFamily);
+
+    settings->setValue(QStringLiteral("default_font_size"), defaultFontSize);
+    settings->setValue(QStringLiteral("default_fixed_font_size"), defaultFixedFontSize);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
+
     settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
     settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);

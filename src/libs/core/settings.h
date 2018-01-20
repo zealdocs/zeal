@@ -60,6 +60,15 @@ public:
     bool fuzzySearchEnabled;
 
     // Content
+    QString defaultFontFamily;
+    QString serifFontFamily;
+    QString sansSerifFontFamily;
+    QString fixedFontFamily;
+
+    int defaultFontSize;
+    int defaultFixedFontSize;
+    int minimumFontSize;
+
     enum class ExternalLinkPolicy : unsigned int {
         Ask = 0,
         Open,
@@ -68,7 +77,6 @@ public:
     Q_ENUM(ExternalLinkPolicy)
     ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
 
-    int minimumFontSize;
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
     QString customCssFile;
