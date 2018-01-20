@@ -109,6 +109,11 @@ Application *Application::instance()
     return m_instance;
 }
 
+WidgetUi::MainWindow *Application::mainWindow() const
+{
+    return m_mainWindow;
+}
+
 QNetworkAccessManager *Application::networkManager() const
 {
     return m_networkManager;

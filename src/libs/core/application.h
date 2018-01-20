@@ -55,6 +55,8 @@ public:
 
     static Application *instance();
 
+    WidgetUi::MainWindow *mainWindow() const;
+
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
 

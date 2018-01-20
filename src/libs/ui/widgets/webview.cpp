@@ -29,7 +29,6 @@
 #include <core/application.h>
 #include <core/settings.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDesktopServices>
 #include <QMenu>
@@ -97,9 +96,7 @@ void WebView::resetZoom()
 QWebView *WebView::createWindow(QWebPage::WebWindowType type)
 {
     Q_UNUSED(type)
-
-    MainWindow *mainWindow = qobject_cast<MainWindow *>(qApp->activeWindow());
-    return mainWindow->createTab()->m_webView;
+    return Core::Application::instance()->mainWindow()->createTab()->m_webView;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
