@@ -266,7 +266,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             const QIcon icon = docsetIcon(docsetName(it->url()));
             const QWebHistoryItem item = *it;
 #if QT_VERSION >= 0x050600
-             m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
+            m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
 #else
             QAction *action = m_backMenu->addAction(icon, it->title());
             connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
