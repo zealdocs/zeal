@@ -256,7 +256,10 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label">
                 <property name="text">
-                 <string>Default:</string>
+                 <string>De&amp;fault:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>defaultFontComboBox</cstring>
                 </property>
                </widget>
               </item>
@@ -266,7 +269,10 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_4">
                 <property name="text">
-                 <string>Serif:</string>
+                 <string>&amp;Serif:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>serifFontComboBox</cstring>
                 </property>
                </widget>
               </item>
@@ -280,7 +286,10 @@
               <item row="2" column="0">
                <widget class="QLabel" name="label_6">
                 <property name="text">
-                 <string>Sans-serif:</string>
+                 <string>Sa&amp;ns-serif:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>sansSerifFontComboBox</cstring>
                 </property>
                </widget>
               </item>
@@ -294,7 +303,10 @@
               <item row="3" column="0">
                <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string>Monospace:</string>
+                 <string>&amp;Monospace:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>fixedFontComboBox</cstring>
                 </property>
                </widget>
               </item>
@@ -314,7 +326,10 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="text">
-                   <string>Size:</string>
+                   <string>Si&amp;ze:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>fontSizeComboBox</cstring>
                   </property>
                  </widget>
                 </item>
@@ -341,7 +356,10 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_11">
                   <property name="text">
-                   <string>Size:</string>
+                   <string>Siz&amp;e:</string>
+                  </property>
+                  <property name="buddy">
+                   <cstring>fixedFontSizeComboBox</cstring>
                   </property>
                  </widget>
                 </item>
@@ -372,7 +390,7 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>&amp;Minimum font size:</string>
+               <string>Minimum f&amp;ont size:</string>
               </property>
               <property name="buddy">
                <cstring>minFontSizeComboBox</cstring>
@@ -396,14 +414,14 @@
           <item row="1" column="0" colspan="2">
            <widget class="QCheckBox" name="darkModeCheckBox">
             <property name="text">
-             <string>&amp;Dark Mode</string>
+             <string>&amp;Dark mode</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0" colspan="2">
            <widget class="QCheckBox" name="highlightOnNavigateCheckBox">
             <property name="text">
-             <string>&amp;Highlight on Navigate</string>
+             <string>&amp;Highlight on navigate</string>
             </property>
            </widget>
           </item>
@@ -412,7 +430,7 @@
             <item>
              <widget class="QLabel" name="customCssFileLabel">
               <property name="text">
-               <string>&amp;Custom CSS File:</string>
+               <string>&amp;Custom CSS file:</string>
               </property>
               <property name="buddy">
                <cstring>customCssFileEdit</cstring>
@@ -429,7 +447,7 @@
             <item>
              <widget class="QPushButton" name="customCssFileBrowseButton">
               <property name="text">
-               <string>&amp;Browse...</string>
+               <string>Bro&amp;wse...</string>
               </property>
              </widget>
             </item>
@@ -447,7 +465,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkAsk">
             <property name="text">
-             <string>Ask Everytime</string>
+             <string>&amp;Ask everytime</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -457,14 +475,14 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkOpenDesktop">
             <property name="text">
-             <string>Open in Desktop Browser</string>
+             <string>&amp;Open in desktop browser</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="radioExternalLinkOpen">
             <property name="text">
-             <string>Open in Zeal</string>
+             <string>O&amp;pen in Zeal</string>
             </property>
            </widget>
           </item>
@@ -480,14 +498,14 @@
           <item>
            <widget class="QCheckBox" name="useSmoothScrollingCheckBox">
             <property name="text">
-             <string>Use smooth scrolling</string>
+             <string>Use smoo&amp;th scrolling</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="disableAdCheckBox">
             <property name="text">
-             <string>Disable advertisement on the welcome page</string>
+             <string>Disable ad&amp;vertisement on the welcome page</string>
             </property>
            </widget>
           </item>
