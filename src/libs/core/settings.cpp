@@ -22,6 +22,8 @@
 
 #include "settings.h"
 
+#include "filemanager.h"
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
@@ -48,6 +50,11 @@ Settings::Settings(QObject *parent) :
     QObject(parent)
 {
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
+
+    // Enable local storage due to https://github.com/zealdocs/zeal/issues/872.
+    QWebSettings *webSettings = QWebSettings::globalSettings();
+    webSettings->setLocalStoragePath(FileManager::cacheLocation() + QLatin1String("/localStorage"));
+    webSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
     load();
 }
