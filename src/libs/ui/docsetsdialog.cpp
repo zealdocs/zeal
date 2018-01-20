@@ -43,7 +43,6 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QStandardPaths>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -865,13 +864,5 @@ int DocsetsDialog::percent(qint64 fraction, qint64 total)
 
 QString DocsetsDialog::cacheLocation(const QString &fileName)
 {
-#ifndef PORTABLE_BUILD
-    const QDir cacheDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-#else
-    const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
-#endif
-    // TODO: Report error
-    QDir().mkpath(cacheDir.path());
-
-    return cacheDir.filePath(fileName);
+    return QDir(Core::FileManager::cacheLocation()).filePath(fileName);
 }

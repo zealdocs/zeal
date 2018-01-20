@@ -30,12 +30,13 @@ namespace Core {
 
 class FileManager : public QObject
 {
+    Q_OBJECT
 public:
-    typedef unsigned int JobId;
-
     explicit FileManager(QObject *parent = nullptr);
 
     bool removeRecursively(const QString &path);
+
+    static QString cacheLocation();
 };
 
 } // namespace Core
