@@ -87,6 +87,6 @@ QString FileManager::cacheLocation()
 #ifndef PORTABLE_BUILD
     return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 #else
-    const QDir cacheDir(QCoreApplication::applicationDirPath() + QLatin1String("/cache"));
+    return QCoreApplication::applicationDirPath() + QLatin1String("/cache");
 #endif
 }
