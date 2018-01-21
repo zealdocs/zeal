@@ -551,15 +551,21 @@ void MainWindow::duplicateTab(int index)
 
 void MainWindow::syncTreeView()
 {
-    TabState *tabState = currentTabState();
+    QItemSelectionModel *oldSelectionModel = ui->treeView->selectionModel();
 
-    if (!tabState->searchQuery.isEmpty()) {
+    TabState *tabState = currentTabState();
+    if (tabState->searchQuery.isEmpty()) {
+        ui->treeView->setModel(m_zealListModel);
+        ui->treeView->setRootIsDecorated(true);
+    } else {
         ui->treeView->setModel(tabState->searchModel);
         ui->treeView->setRootIsDecorated(false);
-    } else {
-        ui->treeView->setModel(m_zealListModel);
-        ui->treeView->setColumnHidden(1, true);
-        ui->treeView->setRootIsDecorated(true);
+    }
+
+    // TODO: Remove once QTBUG-49966 is addressed.
+    QItemSelectionModel *newSelectionModel = ui->treeView->selectionModel();
+    if (oldSelectionModel && newSelectionModel != oldSelectionModel) {
+        oldSelectionModel->deleteLater();
     }
 
     ui->treeView->reset();
