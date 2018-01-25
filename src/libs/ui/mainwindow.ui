@@ -79,6 +79,12 @@
         </item>
         <item>
          <widget class="QSplitter" name="tocSplitter">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -180,7 +186,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QStackedWidget" name="webViewStack"/>
+         <widget class="QStackedWidget" name="webViewStack">
+          <property name="minimumSize">
+           <size>
+            <width>600</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
