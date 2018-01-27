@@ -24,3 +24,4 @@ COPYING
 *.icns binary
 *.ico binary
 *.png binary
+*.woff binary
