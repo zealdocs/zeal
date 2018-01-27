@@ -2,10 +2,13 @@
     <qresource prefix="/">
         <file>zeal.ico</file>
         <file>browser/assets/css/darkmode.css</file>
-        <file>browser/assets/css/font-awesome.min.css</file>
+        <file>browser/assets/css/fa-brands.min.css</file>
+        <file>browser/assets/css/fa-solid.min.css</file>
+        <file>browser/assets/css/fontawesome.min.css</file>
         <file>browser/assets/css/highlight.css</file>
         <file>browser/assets/css/welcome.min.css</file>
-        <file>browser/assets/fonts/fontawesome-webfont.woff</file>
+        <file>browser/assets/fonts/fa-brands-400.woff</file>
+        <file>browser/assets/fonts/fa-solid-900.woff</file>
         <file>browser/welcome.html</file>
         <file>browser/welcome-noad.html</file>
         <file>icons/type/Abbreviation.png</file>
