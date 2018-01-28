@@ -36,6 +36,7 @@
 #include <registry/listmodel.h>
 
 #include <QClipboard>
+#include <QDateTime>
 #include <QDir>
 #include <QInputDialog>
 #include <QJsonArray>
