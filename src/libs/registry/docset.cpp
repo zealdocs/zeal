@@ -158,8 +158,9 @@ Docset::Docset(const QString &path) :
 
     if (plist.contains(InfoPlist::DashDocSetFamily)) {
         const QString kw = plist[InfoPlist::DashDocSetFamily].toString();
-        if (kw != QLatin1String("dashtoc") && kw != QLatin1String("unsorteddashtoc"))
+        if (!kw.contains(QLatin1String("dashtoc"))) {
             m_keywords << kw;
+        }
     }
 
     m_keywords.removeDuplicates();
