@@ -24,6 +24,7 @@ add_library(Ui
     progressitemdelegate.cpp
     searchitemdelegate.cpp
     settingsdialog.cpp
+    webbridge.cpp
     ${Widgets_SOURCES}
     ${Ui_FORMS} # For Qt Creator.
 )

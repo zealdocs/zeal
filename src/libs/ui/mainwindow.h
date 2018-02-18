@@ -51,6 +51,7 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
+class WebBridge;
 class WebViewTab;
 
 struct TabState;
@@ -109,6 +110,8 @@ private:
     Core::Application *m_application = nullptr;
     Core::Settings *m_settings = nullptr;
     Registry::ListModel *m_zealListModel = nullptr;
+
+    WebBridge *m_webBridge = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;

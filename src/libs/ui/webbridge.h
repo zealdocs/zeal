@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
+** Copyright (C) 2018 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -21,60 +20,33 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBVIEWTAB_H
-#define ZEAL_WIDGETUI_WEBVIEWTAB_H
+#ifndef ZEAL_WIDGETUI_WEBBRIDGE_H
+#define ZEAL_WIDGETUI_WEBBRIDGE_H
 
-#include <QWidget>
-
-class QWebHistory;
+#include <QObject>
 
 namespace Zeal {
 namespace WidgetUi {
 
-class SearchToolBar;
-class WebView;
-
-class WebViewTab : public QWidget
+class WebBridge : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString AppVersion READ appVersion CONSTANT)
 public:
-    explicit WebViewTab(QWidget *parent = nullptr);
-
-    void load(const QUrl &url);
-    void focus();
-    bool canGoBack() const;
-    bool canGoForward() const;
-
-    QString title() const;
-    QUrl url() const;
-
-    QWebHistory *history() const;
-
-    int zoomLevel() const;
-    void setZoomLevel(int level);
-
-    void setWebBridgeObject(const QString &name, QObject *object);
+    explicit WebBridge(QObject *parent = nullptr);
 
 signals:
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
+    void actionTriggered(const QString &action);
 
 public slots:
-    void activateSearchBar();
-    void back();
-    void forward();
-
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    Q_INVOKABLE void openShortUrl(const QString &key);
+    Q_INVOKABLE void triggerAction(const QString &action);
 
 private:
-    friend class WebView;
-
-    WebView *m_webView = nullptr;
-    SearchToolBar *m_searchToolBar = nullptr;
+    QString appVersion() const;
 };
 
 } // namespace WidgetUi
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_WEBVIEWTAB_H
+#endif // ZEAL_WIDGETUI_WEBBRIDGE_H

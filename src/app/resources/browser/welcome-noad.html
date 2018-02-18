@@ -12,38 +12,36 @@
 
 <body class="is-unselectable">
   <section class="hero is-fullheight">
-    <div class="hero-head">
-      <header class="navbar is-transparent" role="navigation">
-        <div class="navbar-brand">
-          <a class="navbar-item" href="https://zealdocs.org/">zealdocs.org</a>
-        </div>
-        <div class="navbar-menu">
-          <div class="navbar-end">
-            <a class="navbar-item" href="https://go.zealdocs.org/l/gitter">
-              <span class="icon">
-                <i class="fab fa-gitter"></i>
-              </span>
-              <span>Gitter</span>
-            </a>
-            <a class="navbar-item" href="https://go.zealdocs.org/l/github">
-              <span class="icon">
-                <i class="fab fa-github"></i>
-              </span>
-              <span>GitHub</span>
-            </a>
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-vcentered">
+          <div class="column has-text-centered">
+            <p class="title">Zeal
+              <span id="version" class="has-text-weight-light is-size-5"></span>
+            </p>
+            <p class="subtitle">Docs for everyone</p>
+          </div>
+          <div class="column">
+            <p class="subtitle is-5">Customize</p>
+            <div class="command-block" onclick="zAppBridge.triggerAction('openDocsetManager')">
+              <p class="title is-6">Docsets</p>
+              <p class="subtitle is-6">Install and update docsets</p>
+            </div>
+            <div class="command-block" onclick="zAppBridge.triggerAction('openPreferences')">
+              <p class="title is-6">Preferences</p>
+              <p class="subtitle is-6">Adjust application settings</p>
+            </div>
+            <p class="subtitle is-5">Get in touch</p>
+            <div class="command-block" onclick="zAppBridge.openShortUrl('gitter')">
+              <p class="title is-6">Gitter</p>
+              <p class="subtitle is-6">Chat with developers and other users</p>
+            </div>
+            <div class="command-block" onclick="zAppBridge.openShortUrl('github')">
+              <p class="title is-6">GitHub</p>
+              <p class="subtitle is-6">Contribute to the project</p>
+            </div>
           </div>
         </div>
-      </header>
-    </div>
-
-    <div class="hero-body">
-      <div class="container has-text-centered">
-        <h1 class="title">
-          Zeal
-        </h1>
-        <h2 class="subtitle">
-          Docs for everyone
-        </h2>
       </div>
     </div>
 
@@ -51,18 +49,18 @@
       <div class="container">
         <div class="content has-text-centered">
           <p>
-            <a class="icon" href="https://go.zealdocs.org/l/github">
+            <a class="icon" onclick="zAppBridge.openShortUrl('github')">
               <i class="fab fa-github"></i>
             </a>
-            <a class="icon" href="https://go.zealdocs.org/l/gitter">
+            <a class="icon" onclick="zAppBridge.openShortUrl('gitter')">
               <i class="fab fa-gitter"></i>
             </a>
-            <a class="icon" href="https://go.zealdocs.org/l/twitter">
+            <a class="icon" onclick="zAppBridge.openShortUrl('twiter')">
               <i class="fab fa-twitter"></i>
             </a>
           </p>
           <p>
-            <a class="is-size-7" href="https://go.zealdocs.org/l/report-bug">
+            <a class="is-size-7" onclick="zAppBridge.openShortUrl('report-bug')">
               <span class="icon">
                 <i class="fas fa-bug"></i>
               </span>
@@ -74,6 +72,10 @@
       </div>
     </div>
   </section>
+
+  <script>
+    document.getElementById("version").textContent = zAppBridge.AppVersion;
+  </script>
 </body>
 
 </html>

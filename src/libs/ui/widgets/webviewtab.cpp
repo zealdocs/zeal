@@ -70,6 +70,14 @@ void WebViewTab::setZoomLevel(int level)
     m_webView->setZoomLevel(level);
 }
 
+void WebViewTab::setWebBridgeObject(const QString &name, QObject *object)
+{
+    connect(m_webView->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared,
+            this, [=]() {
+        m_webView->page()->mainFrame()->addToJavaScriptWindowObject(name, object);
+    });
+}
+
 void WebViewTab::load(const QUrl &url)
 {
     m_webView->load(url);

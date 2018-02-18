@@ -28,6 +28,7 @@
 #include "docsetsdialog.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
+#include "webbridge.h"
 #include "qxtglobalshortcut/qxtglobalshortcut.h"
 #include "widgets/webviewtab.h"
 
@@ -312,6 +313,17 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_settings->tocSplitterState = ui->tocSplitter->saveState();
     });
 
+
+    m_webBridge = new WebBridge(this);
+    connect(m_webBridge, &WebBridge::actionTriggered, this, [this](const QString &action) {
+        // TODO: In the future connect directly to the ActionManager.
+        if (action == "openDocsetManager") {
+            ui->actionDocsets->trigger();
+        } else if (action == "openPreferences") {
+            ui->actionPreferences->trigger();
+        }
+    });
+
     createTab();
 
     connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
@@ -520,6 +532,7 @@ WebViewTab *MainWindow::createTab(int index)
         index = m_tabStates.size();
 
     TabState *newState = new TabState();
+    newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
     newState->goToStartPage();
 
     m_tabStates.insert(index, newState);
@@ -541,6 +554,7 @@ void MainWindow::duplicateTab(int index)
     syncTabState(tabState);
 
     TabState *newState = new TabState(*tabState);
+    newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
 
     ++index;
     m_tabStates.insert(index, newState);
