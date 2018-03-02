@@ -191,7 +191,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
         ui->actionPreferences->setShortcut(QStringLiteral("Ctrl+,"));
     } else {
-        ui->actionPreferences->setShortcut(QKeySequence::Quit);
+        ui->actionPreferences->setShortcut(QKeySequence::Preferences);
     }
 
     connect(ui->actionPreferences, &QAction::triggered, [this]() {
