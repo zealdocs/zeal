@@ -217,20 +217,25 @@ void Application::applySettings()
         QNetworkProxyFactory::setUseSystemConfiguration(true);
         break;
 
-    case Core::Settings::ProxyType::UserDefined: {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_settings->proxyHost, m_settings->proxyPort);
-        if (m_settings->proxyAuthenticate) {
-            proxy.setUser(m_settings->proxyUserName);
-            proxy.setPassword(m_settings->proxyPassword);
-        }
-
-        QNetworkProxy::setApplicationProxy(proxy);
-
-        // Force NM to pick up changes.
-        m_networkManager->clearAccessCache();
+    case Core::Settings::ProxyType::HTTP:
+        applyProxy(QNetworkProxy::HttpProxy);
+        break;
+    case Core::Settings::ProxyType::SOCKS5:
+        applyProxy(QNetworkProxy::Socks5Proxy);
         break;
     }
+}
+
+void Application::applyProxy(const QNetworkProxy::ProxyType &type) {
+    QNetworkProxy proxy(type, m_settings->proxyHost, m_settings->proxyPort);
+    if (m_settings->proxyAuthenticate) {
+        proxy.setUser(m_settings->proxyUserName);
+        proxy.setPassword(m_settings->proxyPassword);
     }
+    QNetworkProxy::setApplicationProxy(proxy);
+
+    // Force NM to pick up changes.
+    m_networkManager->clearAccessCache();
 }
 
 QString Application::userAgent()

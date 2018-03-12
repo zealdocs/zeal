@@ -215,16 +215,19 @@ void SettingsDialog::loadSettings()
     case Core::Settings::ProxyType::System:
         ui->systemProxySettings->setChecked(true);
         break;
-    case Core::Settings::ProxyType::UserDefined:
-        ui->manualProxySettings->setChecked(true);
+    case Core::Settings::ProxyType::HTTP:
+        ui->httpProxySettings->setChecked(true);
+        break;
+    case Core::Settings::ProxyType::SOCKS5:
+        ui->socks5ProxySettings->setChecked(true);
         break;
     }
 
-    ui->httpProxy->setText(settings->proxyHost);
-    ui->httpProxyPort->setValue(settings->proxyPort);
-    ui->httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
-    ui->httpProxyUser->setText(settings->proxyUserName);
-    ui->httpProxyPass->setText(settings->proxyPassword);
+    ui->proxyHost->setText(settings->proxyHost);
+    ui->proxyPort->setValue(settings->proxyPort);
+    ui->proxyNeedsAuth->setChecked(settings->proxyAuthenticate);
+    ui->proxyUser->setText(settings->proxyUserName);
+    ui->proxyPass->setText(settings->proxyPassword);
 }
 
 void SettingsDialog::saveSettings()
@@ -280,14 +283,16 @@ void SettingsDialog::saveSettings()
         settings->proxyType = Core::Settings::ProxyType::None;
     else if (ui->systemProxySettings->isChecked())
         settings->proxyType = Core::Settings::ProxyType::System;
-    else if (ui->manualProxySettings->isChecked())
-        settings->proxyType = Core::Settings::ProxyType::UserDefined;
+    else if (ui->httpProxySettings->isChecked())
+        settings->proxyType = Core::Settings::ProxyType::HTTP;
+    else if (ui->socks5ProxySettings->isChecked())
+        settings->proxyType = Core::Settings::ProxyType::SOCKS5;
 
-    settings->proxyHost = ui->httpProxy->text();
-    settings->proxyPort = ui->httpProxyPort->text().toUShort();
-    settings->proxyAuthenticate = ui->httpProxyNeedsAuth->isChecked();
-    settings->proxyUserName = ui->httpProxyUser->text();
-    settings->proxyPassword = ui->httpProxyPass->text();
+    settings->proxyHost = ui->proxyHost->text();
+    settings->proxyPort = ui->proxyPort->text().toUShort();
+    settings->proxyAuthenticate = ui->proxyNeedsAuth->isChecked();
+    settings->proxyUserName = ui->proxyUser->text();
+    settings->proxyPassword = ui->proxyPass->text();
 
     settings->save();
 }

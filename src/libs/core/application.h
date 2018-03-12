@@ -24,6 +24,7 @@
 #define ZEAL_CORE_APPLICATION_H
 
 #include <QObject>
+#include <QNetworkProxy>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -78,6 +79,7 @@ signals:
 
 private slots:
     void applySettings();
+    void applyProxy(const QNetworkProxy::ProxyType &type);
 
 private:
     static inline QString userAgent();

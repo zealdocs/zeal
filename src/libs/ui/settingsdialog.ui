@@ -562,35 +562,42 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="manualProxySettings">
+           <widget class="QRadioButton" name="httpProxySettings">
             <property name="text">
-             <string>Manual proxy configuration</string>
+             <string>Manual HTTP proxy configuration</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="httpRootLayout">
+           <widget class="QRadioButton" name="socks5ProxySettings">
+            <property name="text">
+             <string>Manual SOCKS5 proxy configuration</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="proxyRootLayout">
             <item>
-             <layout class="QHBoxLayout" name="httpProxyLayout">
+             <layout class="QHBoxLayout" name="proxyLayout">
               <item>
-               <widget class="QLabel" name="httpProxyLabel">
+               <widget class="QLabel" name="proxyLabel">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>HTTP proxy:</string>
+                 <string>Proxy:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="httpProxy">
+               <widget class="QLineEdit" name="proxyHost">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="httpProxyPortLabel">
+               <widget class="QLabel" name="proxyPortLabel">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -600,7 +607,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="httpProxyPort">
+               <widget class="QSpinBox" name="proxyPort">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -612,17 +619,17 @@
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="httpProxyNeedsAuth">
+             <widget class="QCheckBox" name="proxyNeedsAuth">
               <property name="enabled">
                <bool>false</bool>
               </property>
               <property name="text">
-               <string>HTTP proxy requires authentication</string>
+               <string>Proxy requires authentication</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="httpAuthWidget" native="true">
+             <widget class="QWidget" name="proxyAuthWidget" native="true">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -637,7 +644,7 @@
                 <number>0</number>
                </property>
                <item row="0" column="0">
-                <widget class="QLabel" name="httpProxyUserLabel">
+                <widget class="QLabel" name="proxyUserLabel">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -647,14 +654,14 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QLineEdit" name="httpProxyUser">
+                <widget class="QLineEdit" name="proxyUser">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item row="1" column="0">
-                <widget class="QLabel" name="httpProxyPassLabel">
+                <widget class="QLabel" name="proxyPassLabel">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -664,7 +671,7 @@
                 </widget>
                </item>
                <item row="1" column="1">
-                <widget class="QLineEdit" name="httpProxyPass">
+                <widget class="QLineEdit" name="proxyPass">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -749,9 +756,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyLabel</receiver>
+   <receiver>proxyLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -765,9 +772,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyPortLabel</receiver>
+   <receiver>portLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -781,9 +788,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxy</receiver>
+   <receiver>proxyHost</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -797,9 +804,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyPort</receiver>
+   <receiver>proxyPort</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -813,9 +820,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyNeedsAuth</receiver>
+   <receiver>proxyNeedsAuth</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -829,9 +836,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>httpProxyNeedsAuth</sender>
+   <sender>proxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyPass</receiver>
+   <receiver>proxyPass</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -845,9 +852,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>httpProxyNeedsAuth</sender>
+   <sender>proxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyUser</receiver>
+   <receiver>proxyUser</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -861,9 +868,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
+   <sender>httpProxySettings</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpAuthWidget</receiver>
+   <receiver>proxyAuthWidget</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -877,9 +884,137 @@
    </hints>
   </connection>
   <connection>
-   <sender>httpProxyNeedsAuth</sender>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyLabel</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>104</x>
+    <y>74</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>121</x>
+    <y>97</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>portLabel</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>349</x>
+    <y>78</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>347</x>
+    <y>96</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyHost</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>232</x>
+    <y>77</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>232</x>
+    <y>97</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyPort</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>392</x>
+    <y>74</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>392</x>
+    <y>96</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyNeedsAuth</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>53</x>
+    <y>75</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>100</x>
+    <y>129</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>proxyNeedsAuth</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyPass</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>287</x>
+    <y>134</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>285</x>
+    <y>182</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>proxyNeedsAuth</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyUser</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>183</x>
+    <y>135</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>182</x>
+    <y>154</y>
+   </hint>
+  </hints>
+ </connection>
+ <connection>
+  <sender>socks5ProxySettings</sender>
+  <signal>toggled(bool)</signal>
+  <receiver>proxyAuthWidget</receiver>
+  <slot>setEnabled(bool)</slot>
+  <hints>
+   <hint type="sourcelabel">
+    <x>54</x>
+    <y>79</y>
+   </hint>
+   <hint type="destinationlabel">
+    <x>53</x>
+    <y>179</y>
+   </hint>
+  </hints>
+ </connection>
+  <connection>
+   <sender>proxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyUserLabel</receiver>
+   <receiver>proxyUserLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -893,9 +1028,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>httpProxyNeedsAuth</sender>
+   <sender>proxyNeedsAuth</sender>
    <signal>toggled(bool)</signal>
-   <receiver>httpProxyPassLabel</receiver>
+   <receiver>proxyPassLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -87,7 +87,8 @@ public:
     enum ProxyType : unsigned int {
         None,
         System,
-        UserDefined
+        HTTP,
+        SOCKS5
     };
     Q_ENUM(ProxyType)
 
