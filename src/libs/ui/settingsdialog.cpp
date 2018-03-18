@@ -256,7 +256,7 @@ void SettingsDialog::saveSettings()
     settings->fixedFontFamily = ui->fixedFontComboBox->currentText();
 
     settings->defaultFontSize = ui->fontSizeComboBox->currentData().toInt();
-    settings->defaultFixedFontSize = ui->fixedFontComboBox->currentData().toInt();
+    settings->defaultFixedFontSize = ui->fixedFontSizeComboBox->currentData().toInt();
     settings->minimumFontSize = ui->minFontSizeComboBox->currentData().toInt();
 
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
