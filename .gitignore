@@ -30,3 +30,6 @@ Makefile*
 
 # CMake
 CMakeLists.txt.user
+
+# build artifacts
+zeal.appdata.xml
