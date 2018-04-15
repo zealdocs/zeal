@@ -41,7 +41,7 @@ public:
     void setZoomLevel(int level);
 
     static const QVector<int> &availableZoomLevels();
-    static const int defaultZoomLevel();
+    static const int &defaultZoomLevel();
 
 public slots:
     void zoomIn();

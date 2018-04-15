@@ -72,7 +72,7 @@ const QVector<int> &WebView::availableZoomLevels()
     return zoomLevels;
 }
 
-const int WebView::defaultZoomLevel()
+const int &WebView::defaultZoomLevel()
 {
     static const int level = availableZoomLevels().indexOf(100);
     return level;
