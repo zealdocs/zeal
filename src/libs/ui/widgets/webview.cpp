@@ -154,6 +154,10 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
             m_contextMenu->addSeparator();
         }
 
+        m_contextMenu->addAction(pageAction(QWebPage::Back));
+        m_contextMenu->addAction(pageAction(QWebPage::Forward));
+        m_contextMenu->addSeparator();
+
         m_contextMenu->addAction(tr("Open Page in Desktop Browser"), this, [this]() {
             QDesktopServices::openUrl(url());
         });
