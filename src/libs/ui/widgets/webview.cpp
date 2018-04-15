@@ -306,6 +306,11 @@ QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const
 
 bool WebView::isUrlExternal(const QUrl &url)
 {
+    static const QStringList localSchemes = {
+        QStringLiteral("file"),
+        QStringLiteral("qrc"),
+    };
+
     const QString scheme = url.scheme();
-    return !scheme.isEmpty() && scheme != QLatin1String("file") && scheme != QLatin1String("qrc");
+    return !scheme.isEmpty() && !localSchemes.contains(scheme);
 }
