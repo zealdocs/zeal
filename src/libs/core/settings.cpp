@@ -143,6 +143,11 @@ void Settings::load()
     settings->beginGroup(GroupProxy);
     proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
                                                        ProxyType::System).toUInt());
+    proxyProtocol = static_cast<ProxyProtocol>(settings->value(QStringLiteral("protocol"),
+                                                       ProxyProtocol::Http).toUInt());
+    proxyHost = settings->value(QStringLiteral("host")).toString();
+    proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
+    proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
     proxyHost = settings->value(QStringLiteral("host")).toString();
     proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
@@ -221,6 +226,7 @@ void Settings::save()
 
     settings->beginGroup(GroupProxy);
     settings->setValue(QStringLiteral("type"), proxyType);
+    settings->setValue(QStringLiteral("protocol"), proxyProtocol);
     settings->setValue(QStringLiteral("host"), proxyHost);
     settings->setValue(QStringLiteral("port"), proxyPort);
     settings->setValue(QStringLiteral("authenticate"), proxyAuthenticate);

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>625</height>
+    <width>940</width>
+    <height>888</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -570,15 +570,21 @@
           </item>
           <item>
            <layout class="QVBoxLayout" name="httpRootLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
             <item>
              <layout class="QHBoxLayout" name="httpProxyLayout">
+              <property name="spacing">
+               <number>6</number>
+              </property>
               <item>
                <widget class="QLabel" name="httpProxyLabel">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>HTTP proxy:</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;proxy:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -612,16 +618,6 @@
              </layout>
             </item>
             <item>
-             <widget class="QCheckBox" name="httpProxyNeedsAuth">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>HTTP proxy requires authentication</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QWidget" name="httpAuthWidget" native="true">
               <property name="enabled">
                <bool>false</bool>
@@ -636,7 +632,7 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item row="0" column="0">
+               <item row="7" column="0">
                 <widget class="QLabel" name="httpProxyUserLabel">
                  <property name="enabled">
                   <bool>false</bool>
@@ -646,14 +642,14 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="1">
+               <item row="7" column="1">
                 <widget class="QLineEdit" name="httpProxyUser">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0">
+               <item row="8" column="0">
                 <widget class="QLabel" name="httpProxyPassLabel">
                  <property name="enabled">
                   <bool>false</bool>
@@ -663,13 +659,46 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
+               <item row="8" column="1">
                 <widget class="QLineEdit" name="httpProxyPass">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                  <property name="echoMode">
                   <enum>QLineEdit::Password</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QCheckBox" name="httpProxyNeedsAuth">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>HTTP proxy requires authentication</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QRadioButton" name="httpProtocol">
+                 <property name="statusTip">
+                  <string/>
+                 </property>
+                 <property name="whatsThis">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string>http</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QRadioButton" name="socks5Protocol">
+                 <property name="text">
+                  <string>socks5</string>
                  </property>
                 </widget>
                </item>

@@ -220,6 +220,15 @@ void SettingsDialog::loadSettings()
         break;
     }
 
+    switch (settings->proxyProtocol) {
+    case Core::Settings::ProxyProtocol::Http:
+        ui->httpProtocol->setChecked(true);
+        break;
+    case Core::Settings::ProxyProtocol::Socks5:
+        ui->socks5Protocol->setChecked(true);
+        break;
+    }
+
     ui->httpProxy->setText(settings->proxyHost);
     ui->httpProxyPort->setValue(settings->proxyPort);
     ui->httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
@@ -282,6 +291,12 @@ void SettingsDialog::saveSettings()
         settings->proxyType = Core::Settings::ProxyType::System;
     else if (ui->manualProxySettings->isChecked())
         settings->proxyType = Core::Settings::ProxyType::UserDefined;
+
+    if (ui->httpProtocol->isChecked()) {
+        settings->proxyProtocol = Core::Settings::ProxyProtocol::Http;
+    } else if (ui->socks5Protocol->isChecked()) {
+        settings->proxyProtocol = Core::Settings::ProxyProtocol::Socks5;
+    }
 
     settings->proxyHost = ui->httpProxy->text();
     settings->proxyPort = ui->httpProxyPort->text().toUShort();

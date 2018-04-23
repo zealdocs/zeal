@@ -91,6 +91,12 @@ public:
     };
     Q_ENUM(ProxyType)
 
+    enum ProxyProtocol : unsigned int {
+        Http,
+        Socks5
+    };
+    Q_ENUM(ProxyProtocol)
+
     // Internal
     // --------
     // InstallId is a UUID used to indentify a Zeal installation. Created on first start or after
@@ -99,6 +105,7 @@ public:
     QString installId;
 
     ProxyType proxyType = ProxyType::System;
+    ProxyProtocol proxyProtocol = ProxyProtocol::Http;
     QString proxyHost;
     quint16 proxyPort;
     bool proxyAuthenticate;

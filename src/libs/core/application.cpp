@@ -218,7 +218,16 @@ void Application::applySettings()
         break;
 
     case Core::Settings::ProxyType::UserDefined: {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_settings->proxyHost, m_settings->proxyPort);
+        QNetworkProxy::ProxyType proxyType;
+        switch (m_settings->proxyProtocol) {
+            case Core::Settings::ProxyProtocol::Http:
+                proxyType = QNetworkProxy::HttpProxy;
+            case Core::Settings::ProxyProtocol::Socks5:
+                proxyType = QNetworkProxy::Socks5Proxy;
+            default:
+                proxyType = QNetworkProxy::DefaultProxy;
+        }
+        QNetworkProxy proxy(proxyType, m_settings->proxyHost, m_settings->proxyPort);
         if (m_settings->proxyAuthenticate) {
             proxy.setUser(m_settings->proxyUserName);
             proxy.setPassword(m_settings->proxyPassword);
