@@ -222,10 +222,13 @@ void Application::applySettings()
         switch (m_settings->proxyProtocol) {
             case Core::Settings::ProxyProtocol::Http:
                 proxyType = QNetworkProxy::HttpProxy;
+                break;
             case Core::Settings::ProxyProtocol::Socks5:
                 proxyType = QNetworkProxy::Socks5Proxy;
+                break;
             default:
                 proxyType = QNetworkProxy::DefaultProxy;
+                break;
         }
         QNetworkProxy proxy(proxyType, m_settings->proxyHost, m_settings->proxyPort);
         if (m_settings->proxyAuthenticate) {
