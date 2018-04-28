@@ -30,3 +30,6 @@ Makefile*
 
 # CMake
 CMakeLists.txt.user
+
+# Linux appdata
+/assets/freedesktop/org.zealdocs.Zeal.appdata.xml

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>io.zealdocs.Zeal.desktop</id>
+  <name>Zeal</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <summary>Documentation browser</summary>
+  <description>
+    <p>Zeal is a simple offline documentation browser inspired by Dash.</p>
+  </description>
+  <url type="homepage">https://zealdocs.org/</url>
+  <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
+  <url type="help">https://zealdocs.org/usage.html</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://i.imgur.com/qBkZduS.png</image>
+    </screenshot>
+  </screenshots>
+  <provides>
+    <id>zeal.desktop</id>
+  </provides>
+  <releases>
+    <release date="${RELEASE_DATE}" version="${Zeal_VERSION}">
+    </release>
+  </releases>
+  <update_contact>zeal@zealdocs.org</update_contact>
+</component>

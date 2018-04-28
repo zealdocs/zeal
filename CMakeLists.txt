@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 project(Zeal VERSION 0.6.0)
+set(RELEASE_DATE 2018-02-18)
 
 # Project information.
 if(APPLE)
