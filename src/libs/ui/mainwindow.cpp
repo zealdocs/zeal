@@ -879,7 +879,7 @@ void MainWindow::applySettings()
         removeTrayIcon();
 
     // Content
-    QByteArray ba;
+    QByteArray ba = QByteArrayLiteral("body { background-color: white; }");
     if (m_settings->darkModeEnabled) {
         QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
         if (file->open(QIODevice::ReadOnly)) {
