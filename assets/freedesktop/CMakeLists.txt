@@ -12,7 +12,15 @@ if(UNIX AND NOT APPLE)
                       DESTINATION ${KDE_INSTALL_ICONDIR}
     )
 
-    # TODO: Generate via zeal.desktop.in.
+    configure_file(
+        zeal.appdata.xml.in
+        zeal.appdata.xml
+    )
+
+    install(FILES "zeal.appdata.xml"
+            DESTINATION ${KDE_INSTALL_METAINFODIR}
+    )
+
     install(FILES "zeal.desktop"
             DESTINATION ${KDE_INSTALL_APPDIR}
     )
