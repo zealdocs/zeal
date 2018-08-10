@@ -170,6 +170,19 @@
             </widget>
            </item>
            <item>
+            <widget class="QToolButton" name="newTabButton">
+             <property name="toolTip">
+              <string>Create a new tab</string>
+             </property>
+             <property name="text">
+              <string>+</string>
+             </property>
+             <property name="autoRaise">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -337,6 +350,17 @@
   <action name="actionDocsets">
    <property name="text">
     <string>&amp;Docsets...</string>
+   </property>
+  </action>
+  <action name="actionNewTabButton">
+   <property name="icon">
+    <iconset theme="tab-new"/>
+   </property>
+   <property name="text">
+    <string>New &amp;Tab</string>
+   </property>
+   <property name="toolTip">
+    <string>New Tab</string>
    </property>
   </action>
  </widget>
