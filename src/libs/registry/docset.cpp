@@ -408,6 +408,13 @@ void Docset::countSymbols()
 
     while (m_db->next()) {
         const QString symbolTypeStr = m_db->value(0).toString();
+
+        // A workaround for https://github.com/zealdocs/zeal/issues/980.
+        if (symbolTypeStr.isEmpty()) {
+            qWarning("Empty symbol type in the '%s' docset, skipping...", qPrintable(m_name));
+            continue;
+        }
+
         const QString symbolType = parseSymbolType(symbolTypeStr);
         m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += m_db->value(1).toInt();
