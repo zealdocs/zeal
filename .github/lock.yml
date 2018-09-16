@@ -1,0 +1,6 @@
+# Configuration for the Lock Threads app - https://probot.github.io/apps/lock/
+
+daysUntilLock: 180
+exemptLabels: []
+setLockReason: false
+only: issues
