@@ -31,5 +31,8 @@ Makefile*
 # CMake
 CMakeLists.txt.user
 
+# VS Code
+/.vscode
+
 # Linux appdata
 /assets/freedesktop/org.zealdocs.Zeal.appdata.xml
