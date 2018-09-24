@@ -66,8 +66,7 @@ public:
     /// Returns true if there's a docset filter for the given query
     bool hasKeywords() const;
 
-    /// Returns true if the docset prefix match the ones given on query
-    bool hasKeyword(const QString &keyword) const;
+    /// Returns true if one the query contains one of the @c keywords.
     bool hasKeywords(const QStringList &keywords) const;
 
     /// Returns the docset filter raw size for the given query
