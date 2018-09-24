@@ -105,9 +105,11 @@ bool SearchQuery::hasKeyword(const QString &keyword) const
 bool SearchQuery::hasKeywords(const QStringList &keywords) const
 {
     for (const QString &keyword : keywords) {
-        if (m_keywords.contains(keyword))
+        if (m_keywords.contains(keyword, Qt::CaseInsensitive)) {
             return true;
+        }
     }
+
     return false;
 }
 
