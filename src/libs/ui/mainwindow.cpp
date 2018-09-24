@@ -157,12 +157,19 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     setupTabBar();
 
-    QShortcut *focusSearch = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(focusSearch, &QShortcut::activated,
+    // Setup application wide shortcuts.
+    // Focus search bar.
+    QShortcut *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
+    connect(shortcut, &QShortcut::activated,
             ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
 
-    QShortcut *duplicate = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
-    connect(duplicate, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
+    connect(shortcut, &QShortcut::activated,
+            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+
+    // Duplicate current tab.
+    shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
 
     restoreGeometry(m_settings->windowGeometry);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
