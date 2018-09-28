@@ -143,12 +143,21 @@ void SettingsDialog::chooseCustomCssFile()
 
 void SettingsDialog::chooseDocsetStoragePath()
 {
-    const QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                          ui->docsetStorageEdit->text());
-    if (dir.isEmpty())
+    QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                     ui->docsetStorageEdit->text());
+    if (path.isEmpty()) {
         return;
+    }
 
-    ui->docsetStorageEdit->setText(QDir::toNativeSeparators(dir));
+#ifdef PORTABLE_BUILD
+    // Use relative path if selected directory is under the application binary path.
+    if (path.startsWith(QCoreApplication::applicationDirPath() + QLatin1String("/"))) {
+        const QDir appDirPath(QCoreApplication::applicationDirPath());
+        path = appDirPath.relativeFilePath(path);
+    }
+#endif
+
+    ui->docsetStorageEdit->setText(QDir::toNativeSeparators(path));
 }
 
 void SettingsDialog::loadSettings()
