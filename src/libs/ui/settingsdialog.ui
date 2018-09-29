@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -465,7 +465,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkAsk">
             <property name="text">
-             <string>&amp;Ask everytime</string>
+             <string>Ask e&amp;verytime</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -499,6 +499,13 @@
            <widget class="QCheckBox" name="useSmoothScrollingCheckBox">
             <property name="text">
              <string>Use smoo&amp;th scrolling</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="disableJavaScriptCheckBox">
+            <property name="text">
+             <string>Disable &amp;JavaScript in Web View</string>
             </property>
            </widget>
           </item>
@@ -541,7 +548,7 @@
           <item>
            <widget class="QRadioButton" name="noProxySettings">
             <property name="text">
-             <string>No proxy</string>
+             <string>No pro&amp;xy</string>
             </property>
             <property name="checked">
              <bool>false</bool>

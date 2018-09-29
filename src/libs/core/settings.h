@@ -81,6 +81,7 @@ public:
     bool highlightOnNavigateEnabled;
     QString customCssFile;
     bool isSmoothScrollingEnabled;
+    bool isJavaScriptDisabled;
     bool isAdDisabled;
 
     // Network

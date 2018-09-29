@@ -122,6 +122,11 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
         webSettings->setFontSize(QWebSettings::MinimumFontSize, fontSize);
     });
 
+    connect(ui->disableJavaScriptCheckBox, &QCheckBox::stateChanged, this, [webSettings](int state) {
+        bool isJavaScriptDisabled = (state == Qt::Checked);
+        webSettings->setAttribute(QWebSettings::JavascriptEnabled, !isJavaScriptDisabled);
+    });
+
     loadSettings();
 }
 
@@ -214,6 +219,7 @@ void SettingsDialog::loadSettings()
     }
 
     ui->useSmoothScrollingCheckBox->setChecked(settings->isSmoothScrollingEnabled);
+    ui->disableJavaScriptCheckBox->setChecked(settings->isJavaScriptDisabled);
     ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     // Network Tab
@@ -281,6 +287,7 @@ void SettingsDialog::saveSettings()
     }
 
     settings->isSmoothScrollingEnabled = ui->useSmoothScrollingCheckBox->isChecked();
+    settings->isJavaScriptDisabled = ui->disableJavaScriptCheckBox->isChecked();
     settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     // Network Tab
