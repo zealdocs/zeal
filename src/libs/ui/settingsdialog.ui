@@ -465,7 +465,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkAsk">
             <property name="text">
-             <string>Ask e&amp;verytime</string>
+             <string>&amp;Ask everytime</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -548,7 +548,7 @@
           <item>
            <widget class="QRadioButton" name="noProxySettings">
             <property name="text">
-             <string>No pro&amp;xy</string>
+             <string>No proxy</string>
             </property>
             <property name="checked">
              <bool>false</bool>
