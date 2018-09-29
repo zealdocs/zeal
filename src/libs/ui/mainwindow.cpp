@@ -404,6 +404,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             createTab();
     });
 
+    // New tab button
+    connect(ui->actionNewTabButton, &QAction::triggered, this, [this]() { createTab(); });
+    addAction(ui->actionNewTabButton);
+    ui->newTabButton->setDefaultAction(ui->actionNewTabButton);
+
     // Save expanded items
     connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
         if (currentTabState()->expansions.indexOf(index) == -1)
@@ -747,7 +752,7 @@ void MainWindow::setupTabBar()
     }
 
     QHBoxLayout *layout = static_cast<QHBoxLayout *>(ui->navigationBar->layout());
-    layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
+    layout->insertWidget(3, m_tabBar, 0, Qt::AlignBottom);
 }
 
 void MainWindow::createTrayIcon()
