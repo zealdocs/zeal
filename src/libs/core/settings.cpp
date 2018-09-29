@@ -137,6 +137,7 @@ void Settings::load()
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
                                          QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
     isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), false).toBool();
+    isJavaScriptDisabled = settings->value(QStringLiteral("disable_js"), false).toBool();
     isAdDisabled = settings->value(QStringLiteral("disable_ad"), false).toBool();
     settings->endGroup();
 
@@ -216,6 +217,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("smooth_scrolling"), isSmoothScrollingEnabled);
+    settings->setValue(QStringLiteral("disable_js"), isJavaScriptDisabled);
     settings->setValue(QStringLiteral("disable_ad"), isAdDisabled);
     settings->endGroup();
 
