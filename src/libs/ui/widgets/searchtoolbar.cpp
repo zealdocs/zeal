@@ -60,8 +60,6 @@ SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
     // A workaround for QAbstractButton lacking support for multiple shortcuts.
     QAction *action = new QAction(m_findPreviousButton);
     action->setShortcuts(QKeySequence::FindPrevious);
-    // TODO: Investigate why direct connection does not work.
-    //connect(action, &QAction::triggered, m_findPreviousButton, &QToolButton::animateClick);
     connect(action, &QAction::triggered, this, [this]() { m_findPreviousButton->animateClick(); });
     addAction(action);
 
