@@ -70,6 +70,11 @@ void WebViewTab::setZoomLevel(int level)
     m_webView->setZoomLevel(level);
 }
 
+void WebViewTab::setJavaScriptEnabled(bool isJavaScriptEnabled)
+{
+    this->m_webView->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, isJavaScriptEnabled);
+}
+
 void WebViewTab::setWebBridgeObject(const QString &name, QObject *object)
 {
     connect(m_webView->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared,
