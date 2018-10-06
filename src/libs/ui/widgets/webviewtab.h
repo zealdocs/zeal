@@ -52,6 +52,7 @@ public:
 
     int zoomLevel() const;
     void setZoomLevel(int level);
+    void setJavaScriptEnabled(bool isJavaScriptEnabled);
 
     void setWebBridgeObject(const QString &name, QObject *object);
 
