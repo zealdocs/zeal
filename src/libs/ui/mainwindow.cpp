@@ -624,9 +624,10 @@ void MainWindow::attachTab(TabState *tabState)
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
 
         Registry::Docset *docset = m_application->docsetRegistry()->docset(name);
-        if (docset)
+        if (docset) {
             tabState->tocModel->setResults(docset->relatedLinks(url));
-
+            tabState->widget->setJavaScriptEnabled(docset->isJavaScriptEnabled());
+        }
         ui->actionBack->setEnabled(tabState->widget->canGoBack());
         ui->actionForward->setEnabled(tabState->widget->canGoForward());
     });

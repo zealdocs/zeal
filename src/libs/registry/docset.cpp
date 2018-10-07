@@ -57,7 +57,7 @@ const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
 const char DashIndexFilePath[] = "dashIndexFilePath";
 const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 //const char IsDashDocset[] = "isDashDocset";
-//const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
 }
 
@@ -161,6 +161,10 @@ Docset::Docset(const QString &path) :
         if (!kw.contains(QLatin1String("dashtoc"))) {
             m_keywords << kw;
         }
+    }
+
+    if (plist.contains(InfoPlist::IsJavaScriptEnabled)) {
+        m_javaScriptEnabled = plist[InfoPlist::IsJavaScriptEnabled].toBool();
     }
 
     m_keywords.removeDuplicates();
@@ -680,6 +684,11 @@ bool Docset::isFuzzySearchEnabled() const
 void Docset::setFuzzySearchEnabled(bool enabled)
 {
     m_fuzzySearchEnabled = enabled;
+}
+
+bool Docset::isJavaScriptEnabled() const
+{
+    return m_javaScriptEnabled;
 }
 
 /**
