@@ -163,9 +163,9 @@ Docset::Docset(const QString &path) :
         }
     }
 
-    // Set if javascript enabled
-    if (plist.contains(InfoPlist::IsJavaScriptEnabled))
+    if (plist.contains(InfoPlist::IsJavaScriptEnabled)) {
         m_javaScriptEnabled = plist[InfoPlist::IsJavaScriptEnabled].toBool();
+    }
 
     m_keywords.removeDuplicates();
 
