@@ -218,6 +218,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->forward(); });
     addAction(ui->actionForward);
 
+    shortcut = new QShortcut(QStringLiteral("Ctrl++"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomIn(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+-"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomOut(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->resetZoom(); });
+
     // Tools Menu
     connect(ui->actionDocsets, &QAction::triggered, [this]() {
         QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));

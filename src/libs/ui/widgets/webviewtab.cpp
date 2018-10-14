@@ -70,6 +70,21 @@ void WebViewTab::setZoomLevel(int level)
     m_webView->setZoomLevel(level);
 }
 
+void WebViewTab::zoomIn()
+{
+    m_webView->zoomIn();
+}
+
+void WebViewTab::zoomOut()
+{
+    m_webView->zoomOut();
+}
+
+void WebViewTab::resetZoom()
+{
+    m_webView->resetZoom();
+}
+
 void WebViewTab::setJavaScriptEnabled(bool enabled)
 {
     m_webView->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, enabled);
