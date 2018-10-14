@@ -158,7 +158,7 @@ void Settings::load()
         docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
                 + QLatin1String("/docsets");
 #else
-        docsetPath = QCoreApplication::applicationDirPath() + QLatin1String("/docsets");
+        docsetPath = QStringLiteral("docsets");
 #endif
         QDir().mkpath(docsetPath);
     }
