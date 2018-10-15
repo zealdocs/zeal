@@ -313,8 +313,7 @@ void DocsetsDialog::downloadCompleted()
         if (file->open(QIODevice::WriteOnly))
             file->write(data);
 
-        ReadableInterval lastModifiedInterval(QFileInfo(file->fileName()).lastModified());
-        ui->lastUpdatedLabel->setText(lastModifiedInterval.toReadableString());
+        ui->lastUpdatedLabel->setText(ReadableInterval::toReadableString(QFileInfo(file->fileName()).lastModified()));
 
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
@@ -520,8 +519,7 @@ void DocsetsDialog::loadDocsetList()
         return;
     }
 
-    ReadableInterval lastModifiedInterval(fi.lastModified());
-    ui->lastUpdatedLabel->setText(lastModifiedInterval.toReadableString());
+    ui->lastUpdatedLabel->setText(ReadableInterval::toReadableString(fi.lastModified()));
     processDocsetList(jsonDoc.array());
 }
 

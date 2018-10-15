@@ -28,53 +28,60 @@
 
 using namespace Zeal::Util;
 
-ReadableInterval::ReadableInterval(QDateTime timestamp, QDateTime reference) :
-    m_timestamp(timestamp),
-    m_reference(reference)
-{
-    m_delta = m_reference.toSecsSinceEpoch() - m_timestamp.toSecsSinceEpoch();
+namespace {
+const qint16 SECONDSPERMINUTE = 60;
+const qint16 SECONDSPERHOUR = SECONDSPERMINUTE * 60;
+const qint32 SECONDSPERDAY = SECONDSPERHOUR * 24;
+const qint32 SECONDSPERYEAR = SECONDSPERDAY * 365;
+
+const qint8 MAX_FIELDS_DISPLAYED = 3;
+
+const QString ZERO_INTERVAL_STRING = "now";
+const QString PAST_INTERVAL_STRING = "ago";
+const QString FUTURE_INTERVAL_STRING = "from now";
+const QString YEAR = "Year";
+const QString DAY = "Day";
+const QString HOUR = "Hour";
+const QString MIN = "Minute";
+const QString SEC = "Second";
+const QString JOIN_SEQ= ", ";
 }
 
-ReadableInterval::ReadableInterval(QDateTime timestamp) :
-    m_timestamp(timestamp)
-{
-    m_reference = QDateTime::currentDateTime();
-    m_delta = m_reference.toSecsSinceEpoch() - m_timestamp.toSecsSinceEpoch();
-}
-
-QString ReadableInterval::pluralForm(QString word, qint64 quantity)
+QString ReadableInterval::pluralForm(const QString &word, qint64 quantity)
 {
     return word + (quantity > 1 ? "s" : "");
 }
 
-void ReadableInterval::computeDateTimeComponents()
+QString ReadableInterval::toReadableString(const QDateTime& timestamp, const QDateTime& reference)
 {
-    m_isPast = m_delta > 0;
-    m_year = m_delta / SECONDSPERYEAR;
-    m_day = (m_delta % SECONDSPERYEAR) / SECONDSPERDAY;
-    m_hour = ((m_delta % SECONDSPERYEAR) % SECONDSPERDAY) / SECONDSPERHOUR;
-    m_min = (((m_delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) / SECONDSPERMINUTE;
-    m_sec = (((m_delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) % SECONDSPERMINUTE;
-}
+    qint64 delta, year, day, hour, min, sec;
+    bool isPast;
 
-QString ReadableInterval::toReadableString()
-{
-    if (m_delta == 0)
-        return ZERO_INTERVAL_STRING;
-    else {
+    delta = reference.toSecsSinceEpoch() - timestamp.toSecsSinceEpoch();
+
+    if (delta) {
         QStringList list;
         qint8 fieldCount = 0;
-        computeDateTimeComponents();
-        if (m_year && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(m_year).arg(pluralForm(YEAR, m_year)));
-        if (m_day && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(m_day).arg(pluralForm(DAY, m_day)));
-        if (m_hour && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(m_hour).arg(pluralForm(HOUR, m_hour)));
-        if (m_min && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(m_min).arg(pluralForm(MIN, m_min)));
-        if (m_sec && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(m_sec).arg(pluralForm(SEC, m_sec)));
-        return QStringLiteral("%1 %2").arg(list.join(JOIN_SEQ)).arg(m_isPast ? PAST_INTERVAL_STRING : FUTURE_INTERVAL_STRING);
+
+        isPast = delta > 0;
+        year = delta / SECONDSPERYEAR;
+        day = (delta % SECONDSPERYEAR) / SECONDSPERDAY;
+        hour = ((delta % SECONDSPERYEAR) % SECONDSPERDAY) / SECONDSPERHOUR;
+        min = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) / SECONDSPERMINUTE;
+        sec = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) % SECONDSPERMINUTE;
+
+        if (year && ++fieldCount <= MAX_FIELDS_DISPLAYED)
+            list.append(QStringLiteral("%1 %2").arg(year).arg(ReadableInterval::pluralForm(YEAR, year)));
+        if (day && ++fieldCount <= MAX_FIELDS_DISPLAYED)
+            list.append(QStringLiteral("%1 %2").arg(day).arg(ReadableInterval::pluralForm(DAY, day)));
+        if (hour && ++fieldCount <= MAX_FIELDS_DISPLAYED)
+            list.append(QStringLiteral("%1 %2").arg(hour).arg(ReadableInterval::pluralForm(HOUR, hour)));
+        if (min && ++fieldCount <= MAX_FIELDS_DISPLAYED)
+            list.append(QStringLiteral("%1 %2").arg(min).arg(ReadableInterval::pluralForm(MIN, min)));
+        if (sec && ++fieldCount <= MAX_FIELDS_DISPLAYED)
+            list.append(QStringLiteral("%1 %2").arg(sec).arg(ReadableInterval::pluralForm(SEC, sec)));
+        return QStringLiteral("%1 %2").arg(list.join(JOIN_SEQ), isPast ? PAST_INTERVAL_STRING : FUTURE_INTERVAL_STRING);
+    } else {
+        return ZERO_INTERVAL_STRING;
     }
 }
