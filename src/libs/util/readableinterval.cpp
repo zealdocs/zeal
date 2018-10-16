@@ -23,65 +23,55 @@
 
 #include "readableinterval.h"
 
-#include <QStringBuilder>
+#include <QList>
 #include <QStringList>
 
 using namespace Zeal::Util;
 
-namespace {
-const qint16 SECONDSPERMINUTE = 60;
-const qint16 SECONDSPERHOUR = SECONDSPERMINUTE * 60;
-const qint32 SECONDSPERDAY = SECONDSPERHOUR * 24;
-const qint32 SECONDSPERYEAR = SECONDSPERDAY * 365;
-
-const qint8 MAX_FIELDS_DISPLAYED = 3;
-
-const QString ZERO_INTERVAL_STRING = "now";
-const QString PAST_INTERVAL_STRING = "ago";
-const QString FUTURE_INTERVAL_STRING = "from now";
-const QString YEAR = "Year";
-const QString DAY = "Day";
-const QString HOUR = "Hour";
-const QString MIN = "Minute";
-const QString SEC = "Second";
-const QString JOIN_SEQ= ", ";
+const char* ReadableInterval::describeTimeUnit(TIME_UNITS unit)
+{
+    switch (unit) {
+    case YEAR: return QT_TR_NOOP("%n year(s)");
+    case DAY: return QT_TR_NOOP("%n day(s)");
+    case HOUR: return QT_TR_NOOP("%n hour(s)");
+    case MIN: return QT_TR_NOOP("%n min(s)");
+    case SEC: return QT_TR_NOOP("%n sec(s)");
+    }
+    return QT_TR_NOOP("%n unit(s)");
 }
 
-QString ReadableInterval::pluralForm(const QString &word, qint64 quantity)
+QString ReadableInterval::pluralForm(TIME_UNITS unit, qint64 quantity)
 {
-    return word + (quantity > 1 ? "s" : "");
+    return tr(describeTimeUnit(unit), "", static_cast<int>(quantity));
 }
 
 QString ReadableInterval::toReadableString(const QDateTime& timestamp, const QDateTime& reference)
 {
     qint64 delta, year, day, hour, min, sec;
-    bool isPast;
 
     delta = reference.toSecsSinceEpoch() - timestamp.toSecsSinceEpoch();
 
-    if (delta) {
-        QStringList list;
-        qint8 fieldCount = 0;
-
-        isPast = delta > 0;
-        year = delta / SECONDSPERYEAR;
-        day = (delta % SECONDSPERYEAR) / SECONDSPERDAY;
-        hour = ((delta % SECONDSPERYEAR) % SECONDSPERDAY) / SECONDSPERHOUR;
-        min = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) / SECONDSPERMINUTE;
-        sec = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) % SECONDSPERMINUTE;
-
-        if (year && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(year).arg(ReadableInterval::pluralForm(YEAR, year)));
-        if (day && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(day).arg(ReadableInterval::pluralForm(DAY, day)));
-        if (hour && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(hour).arg(ReadableInterval::pluralForm(HOUR, hour)));
-        if (min && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(min).arg(ReadableInterval::pluralForm(MIN, min)));
-        if (sec && ++fieldCount <= MAX_FIELDS_DISPLAYED)
-            list.append(QStringLiteral("%1 %2").arg(sec).arg(ReadableInterval::pluralForm(SEC, sec)));
-        return QStringLiteral("%1 %2").arg(list.join(JOIN_SEQ), isPast ? PAST_INTERVAL_STRING : FUTURE_INTERVAL_STRING);
-    } else {
-        return ZERO_INTERVAL_STRING;
+    if (!delta) {
+        return tr("now");
     }
+
+    bool isPast = delta > 0;
+    year = delta / SECONDSPERYEAR;
+    day = (delta % SECONDSPERYEAR) / SECONDSPERDAY;
+    hour = ((delta % SECONDSPERYEAR) % SECONDSPERDAY) / SECONDSPERHOUR;
+    min = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) / SECONDSPERMINUTE;
+    sec = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) % SECONDSPERMINUTE;
+
+    QStringList list;
+    QList<qint64> fields({year, day, hour, min, sec});
+    QList<qint64> units({YEAR, DAY, HOUR, MIN, SEC});
+
+    for (qint8 i = 0, j = 0; i < fields.length() && j <= MAX_FIELDS_DISPLAYED; ++i) {
+        if (fields[i] && ++j) {
+            list.append(pluralForm(static_cast<TIME_UNITS>(units[i]), fields[i]));
+        }
+    }
+
+    return QStringLiteral("%1 %2").arg(list.join(tr(", ")),
+                                       isPast ? tr("ago") : tr("from now"));
 }

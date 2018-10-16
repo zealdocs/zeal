@@ -24,17 +24,40 @@
 #define ZEAL_UTIL_READABLEINTERVAL_H
 
 #include <QDateTime>
+#include <QCoreApplication>
+
+namespace  {
+
+enum TIME_CONSTANTS {
+    SECONDSPERMINUTE = 60,
+    SECONDSPERHOUR = SECONDSPERMINUTE * 60,
+    SECONDSPERDAY = SECONDSPERHOUR * 24,
+    SECONDSPERYEAR = SECONDSPERDAY * 365,
+};
+
+enum TIME_UNITS {
+    YEAR,
+    DAY,
+    HOUR,
+    MIN,
+    SEC
+};
+
+const qint8 MAX_FIELDS_DISPLAYED = 3;
+
+} // namespace
 
 namespace Zeal {
 namespace Util {
 
 class ReadableInterval
 {
+    Q_DECLARE_TR_FUNCTIONS(ReadableInterval)
 public:
     static QString toReadableString(const QDateTime& timestamp, const QDateTime& reference = QDateTime::currentDateTime());
-
 private:
-    static QString pluralForm(const QString& word, qint64 quantity);
+    static const char* describeTimeUnit(TIME_UNITS unit);
+    static QString pluralForm(TIME_UNITS unit, qint64 quantity);
 };
 
 } // namespace Util
