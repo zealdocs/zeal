@@ -220,6 +220,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     shortcut = new QShortcut(QStringLiteral("Ctrl++"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomIn(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomIn(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+-"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomOut(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
