@@ -66,7 +66,7 @@ QString ReadableInterval::toReadableString(const QDateTime& timestamp, const QDa
     QList<qint64> fields({year, day, hour, min, sec});
     QList<qint64> units({YEAR, DAY, HOUR, MIN, SEC});
 
-    for (qint8 i = 0, j = 0; i < fields.length() && j <= MAX_FIELDS_DISPLAYED; ++i) {
+    for (int i = 0, j = 0; i < fields.length() && j <= MAX_FIELDS_DISPLAYED; ++i) {
         if (fields[i] && ++j) {
             list.append(pluralForm(static_cast<TIME_UNITS>(units[i]), fields[i]));
         }
