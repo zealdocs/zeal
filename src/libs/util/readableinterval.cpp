@@ -49,7 +49,7 @@ QString ReadableInterval::toReadableString(const QDateTime& timestamp, const QDa
 {
     qint64 delta, year, day, hour, min, sec;
 
-    delta = reference.toSecsSinceEpoch() - timestamp.toSecsSinceEpoch();
+    delta = (reference.toMSecsSinceEpoch() - timestamp.toMSecsSinceEpoch()) / MILLISECONDSPERSECOND;
 
     if (!delta) {
         return tr("now");
