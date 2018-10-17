@@ -218,11 +218,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->forward(); });
     addAction(ui->actionForward);
 
-    shortcut = new QShortcut(QStringLiteral("Ctrl++"), this);
+    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomIn(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomIn(); });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+-"), this);
+    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->zoomOut(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->resetZoom(); });

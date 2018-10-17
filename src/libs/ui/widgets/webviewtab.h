@@ -64,6 +64,7 @@ public slots:
     void activateSearchBar();
     void back();
     void forward();
+    
     void zoomIn();
     void zoomOut();
     void resetZoom();
