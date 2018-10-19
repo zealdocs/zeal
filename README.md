@@ -26,7 +26,7 @@ After installing Zeal, go to *Tools->Docsets*, select the ones you want, and cli
 ### Required dependencies
 
 * [CMake](https://cmake.org/).
-* [Qt](https://www.qt.io/) version 5.5.1 or above. Required module: Qt WebKit Widgets.
+* [Qt](https://www.qt.io/) version 5.9.5 or above. Required module: Qt WebKit Widgets.
 * [libarchive](http://libarchive.org/).
 * [SQLite](https://sqlite.org/).
 * X11 platforms only: Qt X11 Extras and `xcb-util-keysyms`.
