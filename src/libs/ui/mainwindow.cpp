@@ -275,19 +275,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_backMenu->clear();
         QWebHistory *history = currentTab()->history();
         QList<QWebHistoryItem> items = history->backItems(10);
-#if QT_VERSION >= 0x050600
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
-#else
-        for (auto it = items.cend() - 1; it >= items.cbegin(); --it) {
-#endif
             const QIcon icon = docsetIcon(docsetName(it->url()));
             const QWebHistoryItem item = *it;
-#if QT_VERSION >= 0x050600
             m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
-#else
-            QAction *action = m_backMenu->addAction(icon, it->title());
-            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
-#endif
         }
     });
     ui->backButton->setDefaultAction(ui->actionBack);
@@ -299,12 +290,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         QWebHistory *history = currentTab()->history();
         for (const QWebHistoryItem &item: history->forwardItems(10)) {
             const QIcon icon = docsetIcon(docsetName(item.url()));
-#if QT_VERSION >= 0x050600
             m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
-#else
-            QAction *action = m_forwardMenu->addAction(icon, item.title());
-            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
-#endif
         }
     });
     ui->forwardButton->setDefaultAction(ui->actionForward);
@@ -777,13 +763,8 @@ void MainWindow::createTrayIcon()
     });
 
     QMenu *trayIconMenu = new QMenu(this);
-#if QT_VERSION >= 0x050600
     QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"),
                                                     this, &MainWindow::toggleWindow);
-#else
-    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"));
-    connect(toggleAction, &QAction::triggered, this, &MainWindow::toggleWindow);
-#endif
 
     connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
         toggleAction->setText(isVisible() ? tr("Minimize to Tray") : tr("Show Zeal"));
