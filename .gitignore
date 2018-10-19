@@ -9,18 +9,6 @@
 *.dll
 *.dylib
 
-# qmake
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.moc
-moc_*.cpp
-qrc_*.cpp
-ui_*.h
-Makefile*
-*-build-*
-
 # Qt Creator
 *.autosave
 
@@ -30,6 +18,7 @@ Makefile*
 
 # CMake
 CMakeLists.txt.user
+build/
 
 # VS Code
 /.vscode
