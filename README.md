@@ -6,18 +6,12 @@
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
 
+[![AppVeyor](https://img.shields.io/appveyor/ci/zealdocs/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/zealdocs/zeal)
+[![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
+
 Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
 
 ![Screenshot](https://i.imgur.com/qBkZduS.png)
-
-## Build Status
-
-[![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
-
-| OS       | Build Status |
-| -------- | ------------ |
-| Linux    | [![Shippable](https://img.shields.io/shippable/54ac2ce4d46935d5fbc19b84/master.svg?style=flat-square)](https://app.shippable.com/projects/54ac2ce4d46935d5fbc19b84) |
-| Windows  | [![AppVeyor](https://img.shields.io/appveyor/ci/zealdocs/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/zealdocs/zeal) |
 
 ## Download
 
