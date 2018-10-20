@@ -26,6 +26,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QUrl>
@@ -160,9 +161,19 @@ void Settings::load()
 #else
         docsetPath = QStringLiteral("docsets");
 #endif
-        QDir().mkpath(docsetPath);
     }
     settings->endGroup();
+
+    // Create the docset storage directory if it doesn't exist.
+    const QFileInfo fi(docsetPath);
+    if (!fi.exists()) {
+        // TODO: Report QDir::mkpath() errors.
+        if (fi.isRelative()) {
+            QDir().mkpath(QCoreApplication::applicationDirPath() + "/" + docsetPath);
+        } else {
+            QDir().mkpath(docsetPath);
+        }
+    }
 
     settings->beginGroup(GroupState);
     windowGeometry = settings->value(QStringLiteral("window_geometry")).toByteArray();
