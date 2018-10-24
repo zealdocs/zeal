@@ -475,7 +475,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkOpenDesktop">
             <property name="text">
-             <string>&amp;Open in desktop browser</string>
+             <string>Open in desktop &amp;browser</string>
             </property>
            </widget>
           </item>
