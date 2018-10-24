@@ -24,8 +24,9 @@
 #ifndef LISTMODEL_H
 #define LISTMODEL_H
 
+#include <util/caseinsensitivemap.h>
+
 #include <QAbstractItemModel>
-#include <QMap>
 
 namespace Zeal {
 namespace Registry {
@@ -76,7 +77,9 @@ private:
         QList<GroupItem *> groups;
     };
 
-    QMap<QString, DocsetItem *> m_docsetItems;
+    inline DocsetItem *itemInRow(int row) const;
+
+    Util::CaseInsensitiveMap<DocsetItem *> m_docsetItems;
 };
 
 } // namespace Registry

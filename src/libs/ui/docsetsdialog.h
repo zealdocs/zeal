@@ -25,6 +25,7 @@
 #define ZEAL_WIDGETUI_DOCSETSDIALOG_H
 
 #include <registry/docsetmetadata.h>
+#include <util/caseinsensitivemap.h>
 
 #include <QDialog>
 #include <QHash>
@@ -96,7 +97,7 @@ private:
     qint64 m_combinedReceived = 0;
 
     // TODO: Create a special model
-    QMap<QString, Registry::DocsetMetadata> m_availableDocsets;
+    Util::CaseInsensitiveMap<Registry::DocsetMetadata> m_availableDocsets;
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
