@@ -54,6 +54,7 @@ install:
       libqt5webkit5-dev \
       libqt5x11extras5-dev \
       libarchive-dev \
+      libsqlite3-dev \
       libxcb-keysyms1-dev
 before_build:
 - ps: |-
