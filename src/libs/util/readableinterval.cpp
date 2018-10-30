@@ -26,7 +26,10 @@
 #include <QList>
 #include <QStringList>
 
+#include <chrono>
+
 using namespace Zeal::Util;
+using namespace std::chrono;
 
 const char* ReadableInterval::describeTimeUnit(TIME_UNITS unit)
 {
@@ -47,26 +50,34 @@ QString ReadableInterval::pluralForm(TIME_UNITS unit, qint64 quantity)
 
 QString ReadableInterval::toReadableString(const QDateTime& timestamp, const QDateTime& reference)
 {
-    qint64 delta, year, day, hour, min, sec;
+    qint64 delta = reference.toMSecsSinceEpoch() - timestamp.toMSecsSinceEpoch();
+    bool isPast = delta > 0;
+    milliseconds ms(abs(delta));
 
-    delta = (reference.toMSecsSinceEpoch() - timestamp.toMSecsSinceEpoch()) / MILLISECONDSPERSECOND;
-
-    if (!delta) {
+    if (ms < seconds(1)) {
         return tr("now");
     }
 
-    bool isPast = delta > 0;
-    year = delta / SECONDSPERYEAR;
-    day = (delta % SECONDSPERYEAR) / SECONDSPERDAY;
-    hour = ((delta % SECONDSPERYEAR) % SECONDSPERDAY) / SECONDSPERHOUR;
-    min = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) / SECONDSPERMINUTE;
-    sec = (((delta % SECONDSPERYEAR) % SECONDSPERDAY) % SECONDSPERHOUR) % SECONDSPERMINUTE;
+    auto year = duration_cast<years>(ms);
+    ms -= year;
+
+    auto day = duration_cast<days>(ms);
+    ms -= day;
+
+    auto hour = duration_cast<hours>(ms);
+    ms -= hour;
+
+    auto min = duration_cast<minutes>(ms);
+    ms -= min;
+
+    auto sec = duration_cast<seconds>(ms);
+    ms -= sec;
 
     QStringList list;
-    QList<qint64> fields({year, day, hour, min, sec});
+    QList<qint64> fields({year.count(), day.count(), hour.count(), min.count(), sec.count()});
     QList<qint64> units({YEAR, DAY, HOUR, MIN, SEC});
 
-    for (int i = 0, j = 0; i < fields.length() && j <= MAX_FIELDS_DISPLAYED; ++i) {
+    for (int i = 0, j = 0; i < fields.length() && j < MAX_FIELDS_DISPLAYED; ++i) {
         if (fields[i] && ++j) {
             list.append(pluralForm(static_cast<TIME_UNITS>(units[i]), fields[i]));
         }

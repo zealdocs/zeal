@@ -26,15 +26,12 @@
 #include <QDateTime>
 #include <QCoreApplication>
 
-namespace  {
+#include <chrono>
 
-enum TIME_CONSTANTS {
-    MILLISECONDSPERSECOND = 1000,
-    SECONDSPERMINUTE = 60,
-    SECONDSPERHOUR = SECONDSPERMINUTE * 60,
-    SECONDSPERDAY = SECONDSPERHOUR * 24,
-    SECONDSPERYEAR = SECONDSPERDAY * 365
-};
+namespace  {
+// TODO : remove with c++20
+using days = std::chrono::duration<qint64, std::ratio<86400>>;
+using years = std::chrono::duration<qint64, std::ratio<31556952>>;
 
 enum TIME_UNITS {
     YEAR,
