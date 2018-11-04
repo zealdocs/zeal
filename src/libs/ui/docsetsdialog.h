@@ -112,6 +112,7 @@ private:
     bool updatesAvailable() const;
 
     QNetworkReply *download(const QUrl &url);
+    void cancelDownload(const QModelIndex &index);
     void cancelDownloads();
 
     void loadUserFeedList();

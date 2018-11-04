@@ -24,7 +24,10 @@
 #include "progressitemdelegate.h"
 
 #include <QPainter>
+#include <QEvent>
 #include <QProgressBar>
+#include <QPushButton>
+#include <QMouseEvent>
 
 using namespace Zeal::WidgetUi;
 
@@ -51,7 +54,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     // Adjust maximum text width
     QStyleOptionViewItem styleOption = option;
-    styleOption.rect.setRight(styleOption.rect.right() - progressBarWidth);
+    styleOption.rect.setRight(styleOption.rect.right() - progressBarWidth - cancelButtonWidth);
 
     // Size progress bar
     QScopedPointer<QProgressBar> renderer(new QProgressBar());
@@ -69,7 +72,28 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     painter->translate(styleOption.rect.topRight());
     renderer->render(painter);
 
+    // Button
+    QScopedPointer<QPushButton> buttonRenderer(new QPushButton(tr("Cancel")));
+    buttonRenderer->resize(cancelButtonWidth, styleOption.rect.height());
+
+    painter->translate(progressBarWidth, 0);
+    buttonRenderer->render(painter);
     painter->restore();
 
     QStyledItemDelegate::paint(painter, styleOption, index);
+}
+
+bool ProgressItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+                                       const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+    QRect cancelBounds = option.rect;
+    cancelBounds.setLeft(cancelBounds.right() - cancelButtonWidth);
+
+    if (event->type() == QEvent::MouseButtonRelease
+            && index.model()->data(index, ShowProgressRole).toBool()
+            && cancelBounds.contains(mouseEvent->pos()))
+        emit cancelButtonClicked(index);
+
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
