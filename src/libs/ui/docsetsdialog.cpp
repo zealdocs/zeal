@@ -726,6 +726,7 @@ void DocsetsDialog::cancelDownload(const QModelIndex &index)
     // This also triggers selectionChanged() and the state of downloadDocsetsButton
     // is recomputed on the next selection
     ui->availableDocsetList->selectionModel()->clearSelection();
+    updateCombinedProgress();
 }
 
 void DocsetsDialog::cancelDownloads()
