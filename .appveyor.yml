@@ -87,11 +87,9 @@ before_build:
       -DZEAL_PORTABLE_BUILD="${ZEAL_PORTABLE_BUILD}"
 
     cd ..
-build:
-  project: dist\ALL_BUILD.vcxproj
-  parallel: true
-  verbosity: minimal
 build_script:
+  - ps: |-
+      msbuild "dist\ALL_BUILD.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - sh: |-
       cmake --build build
 test: off
