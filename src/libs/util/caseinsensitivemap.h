@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
+** Copyright (C) 2018 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -20,44 +20,26 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_CORE_EXTRACTOR_H
-#define ZEAL_CORE_EXTRACTOR_H
+#ifndef ZEAL_UTIL_CASEINSENSITIVEMAP_H
+#define ZEAL_UTIL_CASEINSENSITIVEMAP_H
 
-#include <QObject>
+#include <QString>
 
-struct archive;
+#include <map>
 
 namespace Zeal {
-namespace Core {
+namespace Util {
 
-class Extractor : public QObject
-{
-    Q_OBJECT
-public:
-    explicit Extractor(QObject *parent = nullptr);
-
-public slots:
-    void extract(const QString &sourceFile,
-                 const QString &destination,
-                 const QString &root = QString());
-
-signals:
-    void error(const QString &filePath, const QString &message);
-    void completed(const QString &filePath);
-    void progress(const QString &filePath, qint64 extracted, qint64 total);
-
-private:
-    struct ExtractInfo {
-        archive *archiveHandle;
-        QString filePath;
-        qint64 totalBytes;
-        qint64 extractedBytes;
-    };
-
-    void emitProgress(ExtractInfo &info);
+struct CaseInsensitiveStringComparator {
+    bool operator()(const QString &lhs, const QString &rhs) const {
+        return QString::compare(lhs, rhs, Qt::CaseInsensitive) < 0;
+    }
 };
 
-} // namespace Core
+template <typename T>
+using CaseInsensitiveMap = std::map<QString, T, CaseInsensitiveStringComparator>;
+
+} // namespace Util
 } // namespace Zeal
 
-#endif // ZEAL_CORE_EXTRACTOR_H
+#endif // ZEAL_UTIL_CASEINSENSITIVEMAP_H

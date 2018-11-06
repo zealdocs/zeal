@@ -52,6 +52,7 @@ public:
 
     int zoomLevel() const;
     void setZoomLevel(int level);
+    void setJavaScriptEnabled(bool enabled);
 
     void setWebBridgeObject(const QString &name, QObject *object);
 
@@ -63,6 +64,10 @@ public slots:
     void activateSearchBar();
     void back();
     void forward();
+    
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

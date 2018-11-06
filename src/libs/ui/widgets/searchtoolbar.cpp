@@ -60,8 +60,6 @@ SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
     // A workaround for QAbstractButton lacking support for multiple shortcuts.
     QAction *action = new QAction(m_findPreviousButton);
     action->setShortcuts(QKeySequence::FindPrevious);
-    // TODO: Investigate why direct connection does not work.
-    //connect(action, &QAction::triggered, m_findPreviousButton, &QToolButton::animateClick);
     connect(action, &QAction::triggered, this, [this]() { m_findPreviousButton->animateClick(); });
     addAction(action);
 
@@ -176,13 +174,7 @@ void SearchToolBar::findNext()
     }
 
     QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-#if QT_VERSION >= 0x050700
     ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
-#else
-    if (m_matchCaseButton->isChecked()) {
-        ff |= QWebPage::FindCaseSensitively;
-    }
-#endif
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
@@ -193,16 +185,8 @@ void SearchToolBar::findPrevious()
     }
 
     QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-#if QT_VERSION >= 0x050700
     ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
     ff.setFlag(QWebPage::FindBackward);
-#else
-    if (m_matchCaseButton->isChecked()) {
-        ff |= QWebPage::FindCaseSensitively;
-    }
-
-    ff |= QWebPage::FindBackward;
-#endif
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
@@ -217,13 +201,7 @@ void SearchToolBar::updateHighlight()
 
     if (m_highlightAllButton->isChecked()) {
         QWebPage::FindFlags ff = QWebPage::HighlightAllOccurrences;
-#if QT_VERSION >= 0x050700
         ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
-#else
-        if (m_matchCaseButton->isChecked()) {
-            ff |= QWebPage::FindCaseSensitively;
-        }
-#endif
         m_webView->findText(m_lineEdit->text(), ff);
     }
 }

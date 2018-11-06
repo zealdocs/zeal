@@ -456,7 +456,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     const QString docsetPath = dataDir.filePath(docsetName + QLatin1String(".docset"));
 
     // Write metadata about docset
-    Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+    Registry::DocsetMetadata metadata = m_availableDocsets.count(docsetName)
             ? m_availableDocsets[docsetName] : m_userFeeds[docsetName];
     metadata.save(docsetPath, metadata.latestVersion());
 
@@ -745,11 +745,13 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         QJsonObject docsetJson = v.toObject();
 
         Registry::DocsetMetadata metadata(docsetJson);
-        m_availableDocsets.insert(metadata.name(), metadata);
+        m_availableDocsets.insert({metadata.name(), metadata});
     }
 
     // TODO: Move into dedicated method
-    for (const Registry::DocsetMetadata &metadata : m_availableDocsets) {
+    for (const auto &kv : m_availableDocsets) {
+        const auto &metadata = kv.second;
+
         QListWidgetItem *listItem
                 = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
@@ -777,7 +779,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
     const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
 
-    if (!m_availableDocsets.contains(name) && !m_userFeeds.contains(name))
+    if (m_availableDocsets.count(name) == 0 && !m_userFeeds.contains(name))
         return;
 
     QUrl url;

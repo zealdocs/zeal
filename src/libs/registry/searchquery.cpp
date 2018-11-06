@@ -91,23 +91,14 @@ bool SearchQuery::hasKeywords() const
     return !m_keywords.isEmpty();
 }
 
-bool SearchQuery::hasKeyword(const QString &keyword) const
-{
-    // Temporary workaround for #333
-    // TODO: Remove once #167 is implemented
-    for (const QString &kw : m_keywords) {
-        if (keyword.startsWith(kw, Qt::CaseInsensitive))
-            return true;
-    }
-    return false;
-}
-
 bool SearchQuery::hasKeywords(const QStringList &keywords) const
 {
     for (const QString &keyword : keywords) {
-        if (m_keywords.contains(keyword))
+        if (m_keywords.contains(keyword, Qt::CaseInsensitive)) {
             return true;
+        }
     }
+
     return false;
 }
 
