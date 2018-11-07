@@ -92,8 +92,7 @@ build_script:
       msbuild "dist\ALL_BUILD.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - sh: |-
       cmake --build build
-test: off
-before_package:
+after_build:
 - ps: |-
     $package = "zeal"
 
@@ -159,6 +158,7 @@ before_package:
 
     $archiveName = "$deploymentDir.zip"
     & 7z a -mx=9 "$archiveName" "$deploymentDir"
+test: off
 artifacts:
   - path: zeal-*.zip
 deploy:
@@ -172,4 +172,3 @@ deploy:
     version: $(ZEAL_PKG_VERSION)
     publish: true
     override: true
-
