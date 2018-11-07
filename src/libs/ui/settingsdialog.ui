@@ -541,7 +541,7 @@
           <item>
            <widget class="QRadioButton" name="noProxySettings">
             <property name="text">
-             <string>No proxy</string>
+             <string>No prox&amp;y</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -554,7 +554,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>Use system proxy settings</string>
+             <string>&amp;Use system proxy settings</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -564,7 +564,7 @@
           <item>
            <widget class="QRadioButton" name="manualProxySettings">
             <property name="text">
-             <string>Manual proxy configuration</string>
+             <string>&amp;Manual proxy configuration</string>
             </property>
            </widget>
           </item>
@@ -577,7 +577,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="proxyHostLabel">
                <property name="text">
-                <string>Proxy host:</string>
+                <string>Pro&amp;xy host:</string>
                </property>
                <property name="buddy">
                 <cstring>proxyHostEdit</cstring>
@@ -596,7 +596,7 @@
                <item>
                 <widget class="QRadioButton" name="proxyTypeHttpRadioButton">
                  <property name="text">
-                  <string>HTTP</string>
+                  <string>&amp;HTTP</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
@@ -609,7 +609,7 @@
                <item>
                 <widget class="QRadioButton" name="proxyTypeSocks5RadioButton">
                  <property name="text">
-                  <string>SOCKS5</string>
+                  <string>&amp;SOCKS5</string>
                  </property>
                  <attribute name="buttonGroup">
                   <string notr="true">proxyTypeButtonGroup</string>
@@ -639,7 +639,7 @@
                <item>
                 <widget class="QLabel" name="proxyPortLabel">
                  <property name="text">
-                  <string>Port:</string>
+                  <string>&amp;Port:</string>
                  </property>
                  <property name="buddy">
                   <cstring>proxyPortEdit</cstring>
@@ -658,7 +658,7 @@
              <item row="2" column="0" colspan="2">
               <widget class="QCheckBox" name="proxyRequiresAuthCheckBox">
                <property name="text">
-                <string>Authentication required</string>
+                <string>&amp;Authentication required</string>
                </property>
               </widget>
              </item>
@@ -668,7 +668,7 @@
                 <bool>false</bool>
                </property>
                <property name="text">
-                <string>Username:</string>
+                <string>User&amp;name:</string>
                </property>
                <property name="buddy">
                 <cstring>proxyUsernameEdit</cstring>
@@ -681,7 +681,7 @@
                 <bool>false</bool>
                </property>
                <property name="text">
-                <string>Password:</string>
+                <string>Pass&amp;word:</string>
                </property>
                <property name="buddy">
                 <cstring>proxyPasswordEdit</cstring>
