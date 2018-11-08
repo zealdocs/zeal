@@ -26,7 +26,6 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QEvent>
 #include <QProgressBar>
 #include <QPushButton>
 
