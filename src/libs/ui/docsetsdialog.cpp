@@ -237,6 +237,7 @@ void DocsetsDialog::downloadSelectedDocsets()
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
         model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, true, ProgressItemDelegate::CancellableRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -392,6 +393,7 @@ void DocsetsDialog::downloadCompleted()
         QListWidgetItem *item = findDocsetListItem(docsetName);
         if (item) {
             item->setData(ProgressItemDelegate::ValueRole, 0);
+            item->setData(ProgressItemDelegate::CancellableRole, false);
             item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
@@ -573,9 +575,9 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 {
     using Registry::DocsetRegistry;
 
-    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
-    ProgressItemDelegate* del = static_cast<ProgressItemDelegate*>(ui->availableDocsetList->itemDelegate());
-    connect(del, &ProgressItemDelegate::cancelButtonClicked, this, &DocsetsDialog::cancelDownload);
+    ProgressItemDelegate *delegate = new ProgressItemDelegate(this);
+    connect(delegate, &ProgressItemDelegate::cancelButtonClicked, this, &DocsetsDialog::cancelDownload);
+    ui->availableDocsetList->setItemDelegate(delegate);
 
     connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString name) {
         QListWidgetItem *item = findDocsetListItem(name);
@@ -610,6 +612,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
         model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, true, ProgressItemDelegate::CancellableRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -710,16 +713,18 @@ void DocsetsDialog::cancelDownload(const QModelIndex &index)
 {
     // Find and delete download jobs corresponding to index
     for (QNetworkReply *reply : m_replies) {
-        if (reply->property(ListItemIndexProperty).toInt() == index.row()
-                && reply->property(DownloadTypeProperty).toInt() == DownloadDocset) {
-            QListWidgetItem *listItem = ui->availableDocsetList->item(index.row());
-            listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
-            delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
-            reply->abort();
-
-            m_combinedReceived -= reply->property(DownloadPreviousReceived).toLongLong();
-            m_combinedTotal -= reply->property(DownloadTotalSize).toLongLong();
+        if (reply->property(ListItemIndexProperty).toInt() != index.row()
+                || reply->property(DownloadTypeProperty).toInt() != DownloadDocset) {
+            continue;
         }
+
+        QListWidgetItem *listItem = ui->availableDocsetList->item(index.row());
+        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
+        reply->abort();
+
+        m_combinedReceived -= reply->property(DownloadPreviousReceived).toLongLong();
+        m_combinedTotal -= reply->property(DownloadTotalSize).toLongLong();
     }
 
     // As the current download is cancelled, unselect the current selected item
