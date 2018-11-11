@@ -159,13 +159,14 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // Setup application wide shortcuts.
     // Focus search bar.
-    QShortcut *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(shortcut, &QShortcut::activated,
-            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
-
-    shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
-    connect(shortcut, &QShortcut::activated,
-            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+    QShortcut *shortcut;
+    QStringList searchBarFocusShortcuts;
+    searchBarFocusShortcuts << "Ctrl+K" << "Ctrl+L";
+    for (auto it = searchBarFocusShortcuts.begin(); it != searchBarFocusShortcuts.end(); ++it) {
+        shortcut = new QShortcut(*it, this);
+        connect(shortcut, &QShortcut::activated,
+                ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+    }
 
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
