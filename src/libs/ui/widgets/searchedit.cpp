@@ -90,6 +90,14 @@ bool SearchEdit::event(QEvent *event)
     return true;
 }
 
+void SearchEdit::setFocusByShortcut() {
+    // When want the keyboard shortcut that focuses the search bar to always have the same
+    // behavior, even if the search bar is already focused. focusInEvent won't be called if it's
+    // already focused so we work around that by clearing focus before setting focus.
+    clearFocus();
+    setFocus();
+}
+
 void SearchEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);

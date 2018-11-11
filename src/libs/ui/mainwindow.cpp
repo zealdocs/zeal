@@ -165,7 +165,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     for (auto it = searchBarFocusShortcuts.begin(); it != searchBarFocusShortcuts.end(); ++it) {
         shortcut = new QShortcut(*it, this);
         connect(shortcut, &QShortcut::activated,
-                ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+                ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocusByShortcut));
     }
 
     // Duplicate current tab.

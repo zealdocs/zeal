@@ -44,6 +44,7 @@ public:
     void clearQuery();
     void selectQuery();
     void setCompletions(const QStringList &completions);
+    void setFocusByShortcut();
 
 protected:
     bool event(QEvent *event) override;
