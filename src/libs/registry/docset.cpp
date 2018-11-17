@@ -265,27 +265,25 @@ const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 
 QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
 {
-    QString sql;
-    if (m_type == Docset::Type::Dash) {
-        if (m_fuzzySearchEnabled) {
-            sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
+    QString sql = QStringLiteral("SELECT name, type, path, %1, %2 as score"
                                  "  FROM searchIndex"
-                                 "  WHERE score > 0");
-        } else {
-            sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
-                                 "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
-        }
+                                 "  WHERE %3");
+
+    // Replace %1
+    if (m_type == Docset::Type::Dash)
+        sql = sql.arg(QStringLiteral("''"));
+    else
+        sql = sql.arg(QStringLiteral("fragment"));
+
+    // Replace %2 and %3
+    if (m_fuzzySearchEnabled) {
+        sql = sql.arg(QStringLiteral("zealScore('%99', name)"));
+        // update WHERE clause (%3)
+        sql = sql.arg(QStringLiteral("score > 0"));
     } else {
-        if (m_fuzzySearchEnabled) {
-            sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
-                                 "  FROM searchIndex"
-                                 "  WHERE score > 0");
-        } else {
-            sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
-                                 "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
-        }
+        sql = sql.arg(QStringLiteral("-length(name)"));
+        // update WHERE clause (%3)
+        sql = sql.arg(QStringLiteral("(name LIKE '%%99%' ESCAPE '\\')"));
     }
 
     // Limit for very short queries.
