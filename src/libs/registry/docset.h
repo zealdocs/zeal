@@ -24,6 +24,8 @@
 #ifndef DOCSET_H
 #define DOCSET_H
 
+#include "searchquery.h"
+
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
@@ -67,7 +69,7 @@ public:
 
     const QMap<QString, QUrl> &symbols(const QString &symbolType) const;
 
-    QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
+    QList<SearchResult> search(const SearchQuery &query, const CancellationToken &token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     // FIXME: This a temporary solution to create URL on demand.

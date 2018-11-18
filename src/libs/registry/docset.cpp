@@ -24,6 +24,7 @@
 #include "docset.h"
 
 #include "cancellationtoken.h"
+#include "searchquery.h"
 #include "searchresult.h"
 
 #include <util/plist.h>
@@ -263,7 +264,7 @@ const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
-QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
+QList<SearchResult> Docset::search(const SearchQuery &query, const CancellationToken &token) const
 {
     QString sql = QStringLiteral("SELECT name, type, path, %1, %2 as score"
                                  "  FROM searchIndex"
@@ -288,12 +289,12 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
     // Limit for very short queries.
     // TODO: Show a notification about the reduced result set.
-    if (query.size() < 3) {
+    if (query.query().size() < 3) {
         sql += QLatin1String("  LIMIT 1000");
     }
 
     // Make it safe to use in a SQL query.
-    QString sanitizedQuery = query;
+    QString sanitizedQuery = query.query();
     sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
     m_db->prepare(sql.arg(sanitizedQuery));
 

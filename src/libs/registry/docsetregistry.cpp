@@ -204,7 +204,7 @@ void DocsetRegistry::_runQuery(const QString &query)
             = QtConcurrent::mappedReduced(enabledDocsets,
                                           std::bind(&Docset::search,
                                                     std::placeholders::_1,
-                                                    searchQuery.query(),
+                                                    searchQuery,
                                                     std::ref(m_cancellationToken)),
                                           &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
