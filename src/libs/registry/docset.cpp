@@ -42,6 +42,7 @@
 #include <sqlite3.h>
 
 #include <cstring>
+#include <algorithm>
 
 using namespace Zeal::Registry;
 
@@ -298,14 +299,26 @@ QList<SearchResult> Docset::search(const SearchQuery &query, const CancellationT
     sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
     m_db->prepare(sql.arg(sanitizedQuery));
 
-    QList<SearchResult> results;
+    QList<SearchResult> unfiltered_results;
     while (m_db->next() && !token.isCanceled()) {
-        results.append({m_db->value(0).toString(),
+        unfiltered_results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
                         m_db->value(2).toString(), m_db->value(3).toString(),
                         const_cast<Docset *>(this), m_db->value(4).toInt()});
     }
 
+    QList<SearchResult> results;
+    if(!query.type().isNull()) {
+        std::copy_if(
+            unfiltered_results.cbegin(),
+            unfiltered_results.cend(),
+            std::back_inserter(results),
+            [&query](const SearchResult &e){
+                return e.type == query.type();
+        });
+    } else {
+        results = unfiltered_results;
+    }
     return results;
 }
 
