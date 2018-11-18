@@ -318,7 +318,7 @@ QList<SearchResult> Docset::search(const SearchQuery &query, const CancellationT
             unfiltered_results.cend(),
             std::back_inserter(results),
             [&query](const SearchResult &e){
-                return e.type == query.type();
+                return e.type.compare(query.type(), Qt::CaseInsensitive) == 0;
         });
     } else {
         results = unfiltered_results;
