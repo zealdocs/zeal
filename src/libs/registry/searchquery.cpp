@@ -22,12 +22,15 @@
 ****************************************************************************/
 
 #include "searchquery.h"
+#include <QRegularExpression>
 
 using namespace Zeal::Registry;
 
 namespace {
 const char prefixSeparator = ':';
 const char keywordSeparator = ',';
+const QRegularExpression RegexpType("\\bt:(?P<type>\\w*)");
+const QRegularExpression RegexpDocset("\\bd:(?P<docset>\\w*)");
 }
 
 SearchQuery::SearchQuery()
@@ -42,21 +45,20 @@ SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
 
 SearchQuery SearchQuery::fromString(const QString &str)
 {
-    const int sepAt = str.indexOf(prefixSeparator);
-    const int next = sepAt + 1;
-
-    QString query;
+    auto query = str; // To edit the string
     QStringList keywords;
-    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
-        query = str.mid(next).trimmed();
-
-        const QString keywordStr = str.left(sepAt).trimmed();
-        keywords = keywordStr.split(keywordSeparator);
-    } else {
-        query = str.trimmed();
+    auto match_type = RegexpType.match(str);
+    auto match_docset = RegexpDocset.match(str);
+    if(match_type.hasMatch()) {
+        keywords << match_type.captured("type");
+        query = query.remove(RegexpType);
+    }
+    if(match_docset.hasMatch()) {
+        keywords << match_docset.captured("docset");
+        query = query.remove(RegexpDocset);
     }
 
-    return SearchQuery(query, keywords);
+    return SearchQuery(query.trimmed(), keywords);
 }
 
 QString SearchQuery::toString() const
