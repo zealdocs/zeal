@@ -85,9 +85,10 @@ public:
 
     // Network
     enum ProxyType : unsigned int {
-        None,
-        System,
-        UserDefined
+        None = 0,
+        System = 1,
+        Http = 3,
+        Socks5 = 4
     };
     Q_ENUM(ProxyType)
 

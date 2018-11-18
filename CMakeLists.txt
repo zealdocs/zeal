@@ -16,7 +16,7 @@ set(PROJECT_COPYRIGHT "© 2015-2018 Oleg Shparber")
 set(PROJECT_DESCRIPTION "A simple documentation browser.")
 set(PROJECT_URL "https://zealdocs.org")
 
-set(QT_MINIMUM_VERSION 5.5.1)
+set(QT_MINIMUM_VERSION 5.9.5)
 
 add_subdirectory(assets)
 add_subdirectory(src)

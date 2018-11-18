@@ -2,6 +2,7 @@
 set(CMAKE_AUTOMOC OFF)
 
 add_library(Util
+    caseinsensitivemap.h
     plist.cpp
     sqlitedatabase.cpp
     version.cpp

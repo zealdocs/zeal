@@ -209,16 +209,21 @@ void Application::applySettings()
 
     // HTTP Proxy Settings
     switch (m_settings->proxyType) {
-    case Core::Settings::ProxyType::None:
+    case Settings::ProxyType::None:
         QNetworkProxy::setApplicationProxy(QNetworkProxy::NoProxy);
         break;
 
-    case Core::Settings::ProxyType::System:
+    case Settings::ProxyType::System:
         QNetworkProxyFactory::setUseSystemConfiguration(true);
         break;
 
-    case Core::Settings::ProxyType::UserDefined: {
-        QNetworkProxy proxy(QNetworkProxy::HttpProxy, m_settings->proxyHost, m_settings->proxyPort);
+    case Settings::ProxyType::Http:
+    case Settings::ProxyType::Socks5: {
+        const QNetworkProxy::ProxyType type = m_settings->proxyType == Settings::ProxyType::Socks5
+                ? QNetworkProxy::Socks5Proxy
+                : QNetworkProxy::HttpProxy;
+
+        QNetworkProxy proxy(type, m_settings->proxyHost, m_settings->proxyPort);
         if (m_settings->proxyAuthenticate) {
             proxy.setUser(m_settings->proxyUserName);
             proxy.setPassword(m_settings->proxyPassword);

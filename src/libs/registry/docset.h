@@ -81,6 +81,8 @@ public:
     bool isFuzzySearchEnabled() const;
     void setFuzzySearchEnabled(bool enabled);
 
+    bool isJavaScriptEnabled() const;
+
 private:
     enum class Type {
         Invalid,
@@ -115,6 +117,7 @@ private:
     mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
     bool m_fuzzySearchEnabled = false;
+    bool m_javaScriptEnabled = false;
 };
 
 } // namespace Registry
