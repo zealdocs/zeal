@@ -43,6 +43,12 @@ SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
     setKeywords(keywords);
 }
 
+SearchQuery::SearchQuery(const QString &query, const QString &type, const QStringList &keywords) :
+    m_query(query), m_type(type)
+{
+    setKeywords(keywords);
+}
+
 SearchQuery SearchQuery::fromString(const QString &str)
 {
     auto query = str; // To edit the string
@@ -50,7 +56,6 @@ SearchQuery SearchQuery::fromString(const QString &str)
     auto match_type = RegexpType.match(str);
     auto match_docset = RegexpDocset.match(str);
     if(match_type.hasMatch()) {
-        keywords << match_type.captured("type");
         query = query.remove(RegexpType);
     }
     if(match_docset.hasMatch()) {
@@ -58,7 +63,7 @@ SearchQuery SearchQuery::fromString(const QString &str)
         query = query.remove(RegexpDocset);
     }
 
-    return SearchQuery(query.trimmed(), keywords);
+    return SearchQuery(query.trimmed(), match_type.captured("type"), keywords);
 }
 
 QString SearchQuery::toString() const
