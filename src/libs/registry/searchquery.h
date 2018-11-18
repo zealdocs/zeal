@@ -74,6 +74,7 @@ public:
     int keywordPrefixSize() const;
 
     QString query() const;
+    QString type() const;
     void setQuery(const QString &str);
 
 private:

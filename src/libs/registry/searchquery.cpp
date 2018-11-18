@@ -119,6 +119,11 @@ QString SearchQuery::query() const
     return m_query;
 }
 
+QString SearchQuery::type() const
+{
+    return m_type;
+}
+
 void SearchQuery::setQuery(const QString &str)
 {
     m_query = str;
