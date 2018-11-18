@@ -162,7 +162,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QShortcut *shortcut;
     QStringList searchBarFocusShortcuts;
     searchBarFocusShortcuts << "Ctrl+K" << "Ctrl+L";
-    for (auto it = searchBarFocusShortcuts.begin(); it != searchBarFocusShortcuts.end(); ++it) {
+    for (auto it = searchBarFocusShortcuts.cbegin(); it != searchBarFocusShortcuts.cend(); ++it) {
         shortcut = new QShortcut(*it, this);
         connect(shortcut, &QShortcut::activated,
                 ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocusByShortcut));
