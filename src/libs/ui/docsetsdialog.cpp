@@ -144,6 +144,7 @@ void DocsetsDialog::addDashFeed()
 
     QString feedUrl = QInputDialog::getText(this, QStringLiteral("Zeal"), tr("Feed URL:"),
                                             QLineEdit::Normal, clipboardText);
+    feedUrl = feedUrl.trimmed();
     if (feedUrl.isEmpty())
         return;
 
