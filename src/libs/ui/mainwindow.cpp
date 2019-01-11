@@ -432,7 +432,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->tocListView->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
