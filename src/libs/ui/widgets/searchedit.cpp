@@ -108,6 +108,7 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Escape:
         clearQuery();
         event->accept();
+        emit textEdited(text()); // text is not changed programmatically
         break;
     case Qt::Key_Return:
     case Qt::Key_Down:

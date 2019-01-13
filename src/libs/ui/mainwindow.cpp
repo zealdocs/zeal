@@ -43,6 +43,7 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QDebug>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
@@ -303,14 +304,18 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
+
+    SearchItemDelegate *delegate = new SearchItemDelegate(*ui->treeView, ui->treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textEdited, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
     });
+    auto searchBtn = QSharedPointer<HoverButton>::create (SearchItemDelegate::getSearchIcon());
+    connect(&*searchBtn, &HoverButton::pressed, this, &MainWindow::fillDocsetName);
+    delegate->hoverPanel().addButton(searchBtn);
     ui->treeView->setItemDelegate(delegate);
 
-    ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
+    ui->tocListView->setItemDelegate(new SearchItemDelegate(*ui->tocListView, ui->tocListView));
     connect(ui->tocSplitter, &QSplitter::splitterMoved, this, [this]() {
         m_settings->tocSplitterState = ui->tocSplitter->saveState();
     });
@@ -328,8 +333,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
-    connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
     connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
     connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
 
@@ -369,7 +372,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         setupSearchBoxCompletions();
     });
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textEdited, [this](const QString &text) {
         if (text == currentTabState()->searchQuery)
             return;
 
@@ -856,6 +859,7 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     case Qt::Key_Escape:
         ui->lineEdit->setFocus();
         ui->lineEdit->clearQuery();
+        emit ui->lineEdit->textEdited(ui->lineEdit->text()); // text is not changed programmatically
         break;
     case Qt::Key_Question:
         ui->lineEdit->setFocus();
@@ -919,4 +923,21 @@ void MainWindow::toggleWindow()
             showMinimized();
         }
     }
+}
+
+void MainWindow::fillDocsetName(const QModelIndex &index)
+{
+    QString docName = index.data(Zeal::Registry::DocsetNameRole).toString();
+    Zeal::Registry::Docset* docset = m_application->docsetRegistry()->docset(docName);
+    if (!docset)
+        return;
+    auto keywords = docset->keywords();
+    if (keywords.empty()) {
+        qDebug() << "keywords are empty for docset " << docName;
+        return;
+    }
+    ui->lineEdit->setText(keywords.front() + ":");
+
+    ui->lineEdit->setFocus();
+    ui->lineEdit->deselect();
 }
