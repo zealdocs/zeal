@@ -55,32 +55,32 @@
 
 #include <QAbstractEventDispatcher>
 
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
 int QxtGlobalShortcutPrivate::ref = 0;
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 
 QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> QxtGlobalShortcutPrivate::shortcuts;
 
 QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq) :
     q_ptr(qq)
 {
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
     if (ref == 0)
         QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
     ++ref;
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 }
 
 QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 {
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
     --ref;
     if (ref == 0) {
         QAbstractEventDispatcher *ed = QAbstractEventDispatcher::instance();
         if (ed != 0)
             ed->removeNativeEventFilter(this);
     }
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 }
 
 bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)

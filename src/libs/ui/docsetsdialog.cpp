@@ -91,7 +91,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
     qt_ntfs_permission_lookup--;
 #endif
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->installedDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
