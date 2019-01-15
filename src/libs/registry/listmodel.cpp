@@ -195,7 +195,8 @@ void ListModel::addDocset(const QString &name)
     DocsetItem *docsetItem = new DocsetItem();
     docsetItem->docset = m_docsetRegistry->docset(name);
 
-    for (const QString &symbolType : docsetItem->docset->symbolCounts().keys()) {
+    const auto keys = docsetItem->docset->symbolCounts().keys();
+    for (const QString &symbolType : keys) {
         GroupItem *groupItem = new GroupItem();
         groupItem->docsetItem = docsetItem;
         groupItem->symbolType = symbolType;

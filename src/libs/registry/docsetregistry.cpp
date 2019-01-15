@@ -150,7 +150,8 @@ void DocsetRegistry::unloadDocset(const QString &name)
 
 void DocsetRegistry::unloadAllDocsets()
 {
-    for (const QString &name : m_docsets.keys()) {
+    const auto keys = m_docsets.keys();
+    for (const QString &name : keys) {
         unloadDocset(name);
     }
 }

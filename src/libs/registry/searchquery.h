@@ -36,7 +36,7 @@ class SearchQuery
 {
 public:
     explicit SearchQuery();
-    explicit SearchQuery(const QString &query, const QStringList &keywords = QStringList());
+    explicit SearchQuery(QString query, const QStringList &keywords = QStringList());
 
     /// Creates a search query from a string. Single separator will be
     /// used to contstruct docset filter, but separator repeated twice

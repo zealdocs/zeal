@@ -43,7 +43,7 @@ struct SearchResult;
 class Docset
 {
 public:
-    explicit Docset(const QString &path);
+    explicit Docset(QString path);
     ~Docset();
 
     bool isValid() const;
