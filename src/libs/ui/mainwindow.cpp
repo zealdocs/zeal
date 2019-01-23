@@ -470,7 +470,7 @@ void MainWindow::openDocset(const QModelIndex &index)
         return;
 
     currentTab()->load(url.toUrl());
-    currentTab()->focus();
+    currentTab()->setFocus();
 }
 
 QString MainWindow::docsetName(const QUrl &url) const

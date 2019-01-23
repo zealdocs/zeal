@@ -41,7 +41,6 @@ public:
     explicit WebViewTab(QWidget *parent = nullptr);
 
     void load(const QUrl &url);
-    void focus();
     bool canGoBack() const;
     bool canGoForward() const;
 
