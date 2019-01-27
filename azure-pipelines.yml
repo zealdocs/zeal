@@ -8,8 +8,8 @@ container: ubuntu:18.04
 
 steps:
 - script: |
-    sudo apt-get -y -qq update
-    sudo apt-get -y -qq install \
+    apt-get -y -qq update
+    apt-get -y -qq install \
       --no-install-recommends \
       cmake \
       extra-cmake-modules \
