@@ -24,7 +24,7 @@
 #include "webview.h"
 
 #include "webviewtab.h"
-#include "../mainwindow.h"
+#include <ui/mainwindow.h>
 
 #include <core/application.h>
 #include <core/settings.h>

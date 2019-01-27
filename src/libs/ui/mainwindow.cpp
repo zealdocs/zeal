@@ -29,8 +29,8 @@
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
 #include "webbridge.h"
-#include "qxtglobalshortcut/qxtglobalshortcut.h"
-#include "widgets/webviewtab.h"
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
+#include <widgets/webviewtab.h>
 
 #include <core/application.h>
 #include <core/settings.h>
@@ -470,7 +470,7 @@ void MainWindow::openDocset(const QModelIndex &index)
         return;
 
     currentTab()->load(url.toUrl());
-    currentTab()->focus();
+    currentTab()->setFocus();
 }
 
 QString MainWindow::docsetName(const QUrl &url) const

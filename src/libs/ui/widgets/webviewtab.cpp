@@ -44,13 +44,14 @@ WebViewTab::WebViewTab(QWidget *parent)
     layout->setSpacing(0);
 
     m_webView = new WebView();
+    setFocusProxy(m_webView);
+
     connect(m_webView->page(), &QWebPage::linkHovered, [this](const QString &link) {
         if (link.startsWith(QLatin1String("file:")) || link.startsWith(QLatin1String("qrc:")))
             return;
 
         setToolTip(link);
     });
-
     connect(m_webView, &QWebView::titleChanged, this, &WebViewTab::titleChanged);
     connect(m_webView, &QWebView::urlChanged, this, &WebViewTab::urlChanged);
 
@@ -101,11 +102,6 @@ void WebViewTab::setWebBridgeObject(const QString &name, QObject *object)
 void WebViewTab::load(const QUrl &url)
 {
     m_webView->load(url);
-}
-
-void WebViewTab::focus()
-{
-    m_webView->setFocus();
 }
 
 void WebViewTab::activateSearchBar()
