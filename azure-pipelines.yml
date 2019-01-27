@@ -8,15 +8,14 @@ container: ubuntu:18.04
 
 steps:
 - script: |
-    apt-get -y -qq update
-    apt-get -y -qq install  --no-install-recommends cmake extra-cmake-modules ninja-build qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libsqlite3-dev libxcb-keysyms1-dev
+    sudo apt-get -y -qq update
+    sudo apt-get -y -qq install  --no-install-recommends cmake extra-cmake-modules ninja-build qt5-default libqt5webkit5-dev libqt5x11extras5-dev libarchive-dev libsqlite3-dev libxcb-keysyms1-dev
   displayName: Install dependencies and tools
 
 - script: mkdir build
   displayName: Create build directory
 
-- script: |
-    cmake $(Build.Repository.LocalPath) -G ninja
+- script: cmake $(Build.Repository.LocalPath) -G ninja
   displayName: Configure project with CMake
   workingDirectory: build
 
