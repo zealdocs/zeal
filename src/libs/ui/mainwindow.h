@@ -35,6 +35,11 @@ class QTimer;
 
 namespace Zeal {
 
+namespace Browser {
+class WebBridge;
+class WebControl;
+} // namespace Browser
+
 namespace Core {
 class Application;
 class Settings;
@@ -51,9 +56,6 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
-class WebBridge;
-class WebViewTab;
-
 struct TabState;
 
 class MainWindow : public QMainWindow
@@ -65,7 +67,7 @@ public:
 
     void search(const Registry::SearchQuery &query);
     void bringToFront();
-    WebViewTab *createTab(int index = -1);
+    Browser::WebControl *createTab(int index = -1);
 
 public slots:
     void toggleWindow();
@@ -91,7 +93,7 @@ private:
     void setupTabBar();
 
     TabState *currentTabState() const;
-    WebViewTab *currentTab() const;
+    Browser::WebControl *currentTab() const;
 
     void attachTab(TabState *tabState);
     void detachTab(TabState *tabState);
@@ -111,7 +113,7 @@ private:
     Core::Settings *m_settings = nullptr;
     Registry::ListModel *m_zealListModel = nullptr;
 
-    WebBridge *m_webBridge = nullptr;
+    Browser::WebBridge *m_webBridge = nullptr;
 
     QMenu *m_backMenu = nullptr;
     QMenu *m_forwardMenu = nullptr;

@@ -16,11 +16,10 @@ add_library(Ui
     progressitemdelegate.cpp
     searchitemdelegate.cpp
     settingsdialog.cpp
-    webbridge.cpp
     ${Ui_FORMS} # For Qt Creator.
 )
 
-target_link_libraries(Ui QxtGlobalShortcut Widgets Registry)
+target_link_libraries(Ui Browser QxtGlobalShortcut Widgets Registry)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-target_link_libraries(Ui Qt5::Widgets)
+find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED)
+target_link_libraries(Ui Qt5::WebKitWidgets)

@@ -23,11 +23,11 @@
 
 #include "webview.h"
 
-#include "webviewtab.h"
-#include <ui/mainwindow.h>
+#include "webcontrol.h"
 
 #include <core/application.h>
 #include <core/settings.h>
+#include <ui/mainwindow.h>
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -36,7 +36,7 @@
 #include <QPushButton>
 #include <QWheelEvent>
 
-using namespace Zeal::WidgetUi;
+using namespace Zeal::Browser;
 
 WebView::WebView(QWidget *parent)
     : QWebView(parent)

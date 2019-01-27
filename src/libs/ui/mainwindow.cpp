@@ -28,10 +28,10 @@
 #include "docsetsdialog.h"
 #include "searchitemdelegate.h"
 #include "settingsdialog.h"
-#include "webbridge.h"
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
-#include <widgets/webviewtab.h>
 
+#include <browser/webcontrol.h>
+#include <browser/webbridge.h>
 #include <core/application.h>
 #include <core/settings.h>
 #include <registry/docset.h>
@@ -75,7 +75,7 @@ struct TabState
         searchModel = new Registry::SearchModel();
         tocModel = new Registry::SearchModel();
 
-        widget = new WebViewTab();
+        widget = new Browser::WebControl();
     }
 
     TabState(const TabState &other)
@@ -88,7 +88,7 @@ struct TabState
         searchModel = new Registry::SearchModel(*other.searchModel);
         tocModel = new Registry::SearchModel(*other.tocModel);
 
-        widget = new WebViewTab();
+        widget = new Browser::WebControl();
         restoreHistory(other.saveHistory());
     }
 
@@ -137,7 +137,7 @@ struct TabState
     Registry::SearchModel *tocModel = nullptr;
     int tocScrollPosition = 0;
 
-    WebViewTab *widget = nullptr;
+    Browser::WebControl *widget = nullptr;
 };
 
 } // namespace WidgetUi
@@ -319,8 +319,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
 
-    m_webBridge = new WebBridge(this);
-    connect(m_webBridge, &WebBridge::actionTriggered, this, [this](const QString &action) {
+    m_webBridge = new Browser::WebBridge(this);
+    connect(m_webBridge, &Browser::WebBridge::actionTriggered, this, [this](const QString &action) {
         // TODO: In the future connect directly to the ActionManager.
         if (action == "openDocsetManager") {
             ui->actionDocsets->trigger();
@@ -529,7 +529,7 @@ void MainWindow::moveTab(int from, int to) {
     ui->webViewStack->insertWidget(to, w);
 }
 
-WebViewTab *MainWindow::createTab(int index)
+Browser::WebControl *MainWindow::createTab(int index)
 {
     if (m_settings->openNewTabAfterActive)
         index = m_tabBar->currentIndex() + 1;
@@ -606,9 +606,9 @@ TabState *MainWindow::currentTabState() const
     return m_tabStates.at(m_tabBar->currentIndex());
 }
 
-WebViewTab *MainWindow::currentTab() const
+Browser::WebControl *MainWindow::currentTab() const
 {
-    return qobject_cast<WebViewTab *>(ui->webViewStack->currentWidget());
+    return qobject_cast<Browser::WebControl *>(ui->webViewStack->currentWidget());
 }
 
 void MainWindow::attachTab(TabState *tabState)
@@ -617,7 +617,7 @@ void MainWindow::attachTab(TabState *tabState)
     connect(tabState->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
     connect(tabState->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
 
-    connect(tabState->widget, &WebViewTab::urlChanged, this, [this, tabState](const QUrl &url) {
+    connect(tabState->widget, &Browser::WebControl::urlChanged, this, [this, tabState](const QUrl &url) {
         const QString name = docsetName(url);
         m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
 
@@ -630,7 +630,7 @@ void MainWindow::attachTab(TabState *tabState)
         ui->actionForward->setEnabled(tabState->widget->canGoForward());
     });
 
-    connect(tabState->widget, &WebViewTab::titleChanged, this, [this](const QString &title) {
+    connect(tabState->widget, &Browser::WebControl::titleChanged, this, [this](const QString &title) {
         if (title.isEmpty())
             return;
 
