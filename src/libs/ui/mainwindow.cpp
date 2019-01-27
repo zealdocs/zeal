@@ -104,16 +104,12 @@ struct TabState
 
     void restoreHistory(const QByteArray &array) const
     {
-        QDataStream stream(array);
-        stream >> *widget->history();
+        widget->restoreHistory(array);
     }
 
     QByteArray saveHistory() const
     {
-        QByteArray array;
-        QDataStream stream(&array, QIODevice::WriteOnly);
-        stream << *widget->history();
-        return array;
+        return widget->saveHistory();
     }
 
     void goToStartPage()

@@ -156,6 +156,20 @@ QWebHistory *WebControl::history() const
     return m_webView->history();
 }
 
+void WebControl::restoreHistory(const QByteArray &array)
+{
+    QDataStream stream(array);
+    stream >> *m_webView->history();
+}
+
+QByteArray WebControl::saveHistory() const
+{
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+    stream << *m_webView->history();
+    return array;
+}
+
 void WebControl::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {

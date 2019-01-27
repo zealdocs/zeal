@@ -48,6 +48,8 @@ public:
     QUrl url() const;
 
     QWebHistory *history() const;
+    void restoreHistory(const QByteArray &array);
+    QByteArray saveHistory() const;
 
     int zoomLevel() const;
     void setZoomLevel(int level);
