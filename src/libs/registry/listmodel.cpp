@@ -38,7 +38,8 @@ ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
     connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, &ListModel::addDocset);
     connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeUnloaded, this, &ListModel::removeDocset);
 
-    for (const QString &name : m_docsetRegistry->names()) {
+    const auto names = m_docsetRegistry->names();
+    for (const QString &name : names) {
         addDocset(name);
     }
 }

@@ -90,7 +90,7 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 
     m_fuzzySearchEnabled = enabled;
 
-    for (Docset *docset : m_docsets) {
+    for (Docset *docset : qAsConst(m_docsets)) {
         docset->setFuzzySearchEnabled(enabled);
     }
 }
@@ -193,7 +193,7 @@ void DocsetRegistry::_runQuery(const QString &query)
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     if (searchQuery.hasKeywords()) {
-        for (Docset *docset : m_docsets) {
+        for (Docset *docset : qAsConst(m_docsets)) {
             if (searchQuery.hasKeywords(docset->keywords()))
                 enabledDocsets << docset;
         }
@@ -225,7 +225,8 @@ void DocsetRegistry::_runQuery(const QString &query)
 void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
     const QDir dir(path);
-    for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+    const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
+    for (const QFileInfo &subdir : subDirectories) {
         if (subdir.suffix() == QLatin1String("docset"))
             loadDocset(subdir.filePath());
         else

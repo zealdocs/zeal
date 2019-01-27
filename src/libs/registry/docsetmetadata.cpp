@@ -89,8 +89,10 @@ void DocsetMetadata::save(const QString &path, const QString &version)
 
     if (!m_urls.isEmpty()) {
         QJsonArray urls;
-        for (const QUrl &url : m_urls)
+        for (const QUrl &url : qAsConst(m_urls)) {
             urls.append(url.toString());
+        }
+
         jsonObject[QStringLiteral("urls")] = urls;
     }
 

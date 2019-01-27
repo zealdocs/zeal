@@ -74,7 +74,8 @@ Docset::Docset(QString path) :
     loadMetadata();
 
     // Attempt to find the icon in any supported format
-    for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
+    const auto iconFiles = dir.entryList({QStringLiteral("icon.*")}, QDir::Files);
+    for (const QString &iconFile : iconFiles) {
         m_icon = QIcon(dir.filePath(iconFile));
         if (!m_icon.availableSizes().isEmpty())
             break;
@@ -490,8 +491,9 @@ void Docset::createIndex()
     }
 
     // Drop old indexes
-    for (const QString &oldIndexName : oldIndexes)
+    for (const QString &oldIndexName : qAsConst(oldIndexes)) {
         m_db->execute(indexDropQuery.arg(oldIndexName));
+    }
 
     m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }

@@ -290,7 +290,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(m_forwardMenu, &QMenu::aboutToShow, this, [this]() {
         m_forwardMenu->clear();
         QWebHistory *history = currentTab()->history();
-        for (const QWebHistoryItem &item: history->forwardItems(10)) {
+        const auto forwardItems = history->forwardItems(10);
+        for (const QWebHistoryItem &item: forwardItems) {
             const QIcon icon = docsetIcon(docsetName(item.url()));
             m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
         }
@@ -342,7 +343,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAboutToBeUnloaded,
             this, [this](const QString &name) {
-        for (TabState *tabState : m_tabStates) {
+        for (TabState *tabState : qAsConst(m_tabStates)) {
             if (tabState == currentTabState()) {
                 // Disable updates because removeSearchResultWithName can
                 // call {begin,end}RemoveRows multiple times, and cause
@@ -650,10 +651,14 @@ void MainWindow::attachTab(TabState *tabState)
 
     // Bring back the selections and expansions
     ui->treeView->blockSignals(true);
-    for (const QModelIndex &selection: tabState->selections)
+    for (const QModelIndex &selection: qAsConst(tabState->selections)) {
         ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (const QModelIndex &expandedIndex: tabState->expansions)
+    }
+
+    for (const QModelIndex &expandedIndex: qAsConst(tabState->expansions)) {
         ui->treeView->expand(expandedIndex);
+    }
+
     ui->treeView->blockSignals(false);
 
     ui->actionBack->setEnabled(tabState->widget->canGoBack());
@@ -674,7 +679,8 @@ void MainWindow::detachTab(TabState *tabState)
 void MainWindow::setupSearchBoxCompletions()
 {
     QStringList completions;
-    for (const Registry::Docset * const docset: m_application->docsetRegistry()->docsets()) {
+    const auto docsets = m_application->docsetRegistry()->docsets();
+    for (const Registry::Docset * const docset: docsets) {
         if (docset->keywords().isEmpty())
             continue;
 

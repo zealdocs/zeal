@@ -159,7 +159,8 @@ void DocsetsDialog::addDashFeed()
 
 void DocsetsDialog::updateSelectedDocsets()
 {
-    for (const QModelIndex &index : ui->installedDocsetList->selectionModel()->selectedRows()) {
+    const auto selectedRows = ui->installedDocsetList->selectionModel()->selectedRows();
+    for (const QModelIndex &index : selectedRows) {
         if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool())
             continue;
 
@@ -228,7 +229,8 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
 void DocsetsDialog::downloadSelectedDocsets()
 {
     QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
-    for (const QModelIndex &index : selectionModel->selectedRows()) {
+    const auto selectedRows = selectionModel->selectedRows();
+    for (const QModelIndex &index : selectedRows) {
         selectionModel->select(index, QItemSelectionModel::Deselect);
 
         // Do nothing if a download is already in progress.
@@ -548,7 +550,8 @@ void DocsetsDialog::setupInstalledDocsetsTab()
             this, [this, selectionModel]() {
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
-        for (const QModelIndex &index : selectionModel->selectedRows()) {
+        const auto selectedRows = selectionModel->selectedRows();
+        for (const QModelIndex &index : selectedRows) {
             if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
                 ui->updateSelectedDocsetsButton->setEnabled(true);
                 return;
@@ -615,7 +618,8 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
     QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [this, selectionModel]() {
-        for (const QModelIndex &index : selectionModel->selectedRows()) {
+        const auto selectedRows = selectionModel->selectedRows();
+        for (const QModelIndex &index : selectedRows) {
             if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
                 ui->downloadDocsetsButton->setEnabled(true);
                 return;
@@ -642,7 +646,8 @@ void DocsetsDialog::enableControls()
     ui->addFeedButton->setEnabled(true);
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     bool hasSelectedUpdates = false;
-    for (const QModelIndex &index : selectionModel->selectedRows()) {
+    const auto selectedRows = selectionModel->selectedRows();
+    for (const QModelIndex &index : selectedRows) {
         if (index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
             hasSelectedUpdates = true;
             break;
@@ -681,7 +686,8 @@ QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
 
 bool DocsetsDialog::updatesAvailable() const
 {
-    for (Registry::Docset *docset : m_docsetRegistry->docsets()) {
+    const auto docsets = m_docsetRegistry->docsets();
+    for (Registry::Docset *docset : docsets) {
         if (docset->hasUpdate)
             return true;
     }
@@ -705,7 +711,7 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
 
 void DocsetsDialog::cancelDownloads()
 {
-    for (QNetworkReply *reply : m_replies) {
+    for (QNetworkReply *reply : qAsConst(m_replies)) {
         // Hide progress bar
         QListWidgetItem *listItem
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
@@ -723,7 +729,8 @@ void DocsetsDialog::cancelDownloads()
 
 void DocsetsDialog::loadUserFeedList()
 {
-    for (Registry::Docset *docset : m_docsetRegistry->docsets()) {
+    const auto docsets = m_docsetRegistry->docsets();
+    for (Registry::Docset *docset : docsets) {
         if (!docset->feedUrl().isEmpty()) {
             QNetworkReply *reply = download(QUrl(docset->feedUrl()));
             reply->setProperty(DownloadTypeProperty, DownloadDashFeed);
