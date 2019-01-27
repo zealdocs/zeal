@@ -133,7 +133,7 @@ private:
 } // namespace Core
 } // namespace Zeal
 
-QDataStream &operator<<(QDataStream &out, const Zeal::Core::Settings::ExternalLinkPolicy &policy);
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
 
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)

@@ -325,7 +325,7 @@ QSettings *Settings::qsettings(QObject *parent)
 #endif
 }
 
-QDataStream &operator<<(QDataStream &out, const Settings::ExternalLinkPolicy &policy)
+QDataStream &operator<<(QDataStream &out, Settings::ExternalLinkPolicy policy)
 {
     out << static_cast<std::underlying_type<Settings::ExternalLinkPolicy>::type>(policy);
     return out;
