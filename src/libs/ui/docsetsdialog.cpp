@@ -574,14 +574,14 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
     ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
 
-    connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString name) {
+    connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;
 
         item->setHidden(false);
     });
-    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString name) {
+    connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
         if (!item)
             return;

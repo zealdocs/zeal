@@ -400,12 +400,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     // Save expanded items
-    connect(ui->treeView, &QTreeView::expanded, this, [this](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::expanded, this, [this](const QModelIndex &index) {
         if (currentTabState()->expansions.indexOf(index) == -1)
             currentTabState()->expansions.append(index);
     });
 
-    connect(ui->treeView, &QTreeView::collapsed, this, [this](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::collapsed, this, [this](const QModelIndex &index) {
         currentTabState()->expansions.removeOne(index);
     });
 
