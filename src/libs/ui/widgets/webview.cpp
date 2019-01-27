@@ -118,8 +118,6 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     auto m_contextMenu = new QMenu(this);
 
     const QUrl linkUrl = hitTestResult.linkUrl();
-    const QString linkText = hitTestResult.linkText();
-
     if (linkUrl.isValid()) {
         const QString scheme = linkUrl.scheme();
 
