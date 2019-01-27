@@ -92,6 +92,8 @@ struct TabState
         restoreHistory(other.saveHistory());
     }
 
+    TabState &operator=(const TabState &) = delete;
+
     ~TabState()
     {
         delete searchModel;
