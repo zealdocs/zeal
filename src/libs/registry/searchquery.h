@@ -35,7 +35,7 @@ namespace Registry {
 class SearchQuery
 {
 public:
-    explicit SearchQuery();
+    explicit SearchQuery() = default;
     explicit SearchQuery(QString query, const QStringList &keywords = QStringList());
 
     /// Creates a search query from a string. Single separator will be

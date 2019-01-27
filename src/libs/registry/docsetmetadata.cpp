@@ -32,10 +32,6 @@
 
 using namespace Zeal::Registry;
 
-DocsetMetadata::DocsetMetadata()
-{
-}
-
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
     m_name = jsonObject[QStringLiteral("name")].toString();

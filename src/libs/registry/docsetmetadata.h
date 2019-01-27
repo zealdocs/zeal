@@ -35,7 +35,7 @@ namespace Registry {
 class DocsetMetadata
 {
 public:
-    explicit DocsetMetadata();
+    explicit DocsetMetadata() = default;
     explicit DocsetMetadata(const QJsonObject &jsonObject);
 
     void save(const QString &path, const QString &version);
