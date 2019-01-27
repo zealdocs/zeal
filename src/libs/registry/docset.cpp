@@ -41,6 +41,7 @@
 #include <sqlite3.h>
 
 #include <cstring>
+#include <utility>
 
 using namespace Zeal::Registry;
 
@@ -63,8 +64,8 @@ const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
 
-Docset::Docset(const QString &path) :
-    m_path(path)
+Docset::Docset(QString path) :
+    m_path(std::move(path))
 {
     QDir dir(m_path);
     if (!dir.exists())
@@ -428,8 +429,11 @@ void Docset::countSymbols()
 // TODO: Fetch and cache only portions of symbols
 void Docset::loadSymbols(const QString &symbolType) const
 {
-    for (const QString &symbol : m_symbolStrings.values(symbolType))
-        loadSymbols(symbolType, symbol);
+    // itPair is a QPair<QMap::const_iterator, QMap::const_iterator>, with itPair.first and itPair.second respectively
+    // pointing to the start and the end of the range of nodes having symbolType as key. It effectively represents a
+    // contiguous view over the nodes with a specified key.
+    for (auto itPair = qAsConst(m_symbolStrings).equal_range(symbolType); itPair.first != itPair.second; ++itPair.first)
+        loadSymbols(symbolType, itPair.first.value());
 }
 
 void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const

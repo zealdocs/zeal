@@ -23,6 +23,8 @@
 
 #include "searchquery.h"
 
+#include <utility>
+
 using namespace Zeal::Registry;
 
 namespace {
@@ -34,8 +36,8 @@ SearchQuery::SearchQuery()
 {
 }
 
-SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
-    m_query(query)
+SearchQuery::SearchQuery(QString query, const QStringList &keywords) :
+    m_query(std::move(query))
 {
     setKeywords(keywords);
 }
