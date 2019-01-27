@@ -59,10 +59,9 @@ bool FileManager::removeRecursively(const QString &path)
     if (!QDir().rename(path, deletePath)) {
         qCWarning(log, "Failed to rename '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
         return false;
-    } else {
-        qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
     }
 
+    qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
 
     auto watcher = new QFutureWatcher<bool>();

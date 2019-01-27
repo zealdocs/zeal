@@ -65,10 +65,7 @@ bool Version::fromString(const QString &str)
         return false;
 
     m_patch = parts[2].toUInt(&ok);
-    if (!ok)
-        return false;
-
-    return true;
+    return ok;
 }
 
 namespace Zeal {
@@ -81,18 +78,25 @@ bool operator==(const Version &lhs, const Version &rhs)
 
 bool operator<(const Version &lhs, const Version &rhs)
 {
-    if (lhs.m_major < rhs.m_major)
+    if (lhs.m_major < rhs.m_major) {
         return true;
-    else if (lhs.m_major > rhs.m_major)
-        return false;
+    }
 
-    if (lhs.m_minor < rhs.m_minor)
-        return true;
-    else if (lhs.m_minor > rhs.m_minor)
+    if (lhs.m_major > rhs.m_major) {
         return false;
+    }
 
-    if (lhs.m_patch < rhs.m_patch)
+    if (lhs.m_minor < rhs.m_minor) {
         return true;
+    }
+
+    if (lhs.m_minor > rhs.m_minor) {
+        return false;
+    }
+
+    if (lhs.m_patch < rhs.m_patch) {
+        return true;
+    }
 
     return false;
 }

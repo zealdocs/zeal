@@ -704,16 +704,18 @@ bool Docset::isJavaScriptEnabled() const
  */
 static int scoreFuzzy(const char *str, int index, int length)
 {
+    // Score between 66..99, if the match follows a dot, or starts the string.
     if (index == 0 || str[index - 1] == '.') {
-        // score between 66..99, if the match follows a dot, or starts the string
         return qMax(66, 100 - length);
-    } else if (str[index + length] == 0) {
-        // score between 33..66, if the match is at the end of the string
-        return qMax(33, 67 - length);
-    } else {
-        // score between 1..33 otherwise (match in the middle of the string)
-        return qMax(1, 34 - length);
     }
+
+    // Score between 33..66, if the match is at the end of the string.
+    if (str[index + length] == 0) {
+        return qMax(33, 67 - length);
+    }
+
+    // Score between 1..33 otherwise (match in the middle of the string).
+    return qMax(1, 34 - length);
 }
 
 // Based on https://github.com/bevacqua/fuzzysearch
@@ -901,10 +903,12 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
                    &matchIndex, &matchLength);
     }
 
-    if (matchIndex == -1 && exactIndex == -1) { // no match
-        // simply return 0
+    if (matchIndex == -1 && exactIndex == -1) {
+        // no match
         return 0;
-    } else if (exactIndex != -1) {
+    }
+
+    if (exactIndex != -1) {
         // +100 to make sure exact matches are always on top.
         score = scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 100;
     } else {

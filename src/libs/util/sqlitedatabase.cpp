@@ -121,7 +121,9 @@ bool SQLiteDatabase::prepare(const QString &sql)
         updateLastError();
         finalize();
         return false;
-    } else if (pzTail && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
+    }
+
+    if (pzTail && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
         // Unable to execute multiple statements at a time
         updateLastError();
         finalize();

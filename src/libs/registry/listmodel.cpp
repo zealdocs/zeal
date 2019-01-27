@@ -228,22 +228,28 @@ void ListModel::removeDocset(const QString &name)
 
 QString ListModel::pluralize(const QString &s)
 {
-    if (s.endsWith(QLatin1String("y")))
+    if (s.endsWith(QLatin1String("y"))) {
         return s.left(s.length() - 1) + QLatin1String("ies");
-    else
-        return s + (s.endsWith('s') ? QLatin1String("es") : QLatin1String("s"));
+    }
+
+    return s + (s.endsWith('s') ? QLatin1String("es") : QLatin1String("s"));
 }
 
 ListModel::Level ListModel::indexLevel(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return Level::RootLevel;
-    else if (!index.internalPointer())
+    }
+
+    if (!index.internalPointer()) {
         return Level::DocsetLevel;
-    else if (*static_cast<Level *>(index.internalPointer()) == Level::DocsetLevel)
+    }
+
+    if (*static_cast<Level *>(index.internalPointer()) == Level::DocsetLevel) {
         return Level::GroupLevel;
-    else
-        return Level::SymbolLevel;
+    }
+
+    return Level::SymbolLevel;
 }
 
 ListModel::DocsetItem *ListModel::itemInRow(int row) const

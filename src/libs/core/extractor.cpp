@@ -79,7 +79,9 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
         if (filetype == S_IFDIR) {
             QDir().mkpath(QFileInfo(filePath).absolutePath());
             continue;
-        } else if (filetype != S_IFREG) {
+        }
+
+        if (filetype != S_IFREG) {
             qWarning("Unsupported filetype %d for %s!", filetype, qPrintable(pathname));
             continue;
         }

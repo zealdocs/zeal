@@ -245,7 +245,9 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
                 }
 
                 break;
-            } else if (mb->clickedButton() == openInBrowserButton) {
+            }
+
+            if (mb->clickedButton() == openInBrowserButton) {
                 if (checkBox->isChecked()) {
                     Core::Application::instance()->settings()->externalLinkPolicy
                             = Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser;

@@ -63,10 +63,11 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
 QString SearchQuery::toString() const
 {
-    if (m_keywords.isEmpty())
+    if (m_keywords.isEmpty()) {
         return m_query;
-    else
-        return m_keywordPrefix + m_query;
+    }
+
+    return m_keywordPrefix + m_query;
 }
 
 bool SearchQuery::isEmpty() const
