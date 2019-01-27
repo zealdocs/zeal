@@ -545,7 +545,7 @@ void DocsetsDialog::setupInstalledDocsetsTab()
 
     QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged,
-            [this, selectionModel]() {
+            this, [this, selectionModel]() {
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
         for (const QModelIndex &index : selectionModel->selectedRows()) {
@@ -614,7 +614,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
     });
 
     QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
-    connect(selectionModel, &QItemSelectionModel::selectionChanged, [this, selectionModel]() {
+    connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [this, selectionModel]() {
         for (const QModelIndex &index : selectionModel->selectedRows()) {
             if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
                 ui->downloadDocsetsButton->setEnabled(true);

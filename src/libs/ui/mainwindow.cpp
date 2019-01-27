@@ -201,7 +201,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->actionPreferences->setShortcut(QKeySequence::Preferences);
     }
 
-    connect(ui->actionPreferences, &QAction::triggered, [this]() {
+    connect(ui->actionPreferences, &QAction::triggered, this, [this]() {
         m_globalShortcut->setEnabled(false);
         QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
@@ -228,28 +228,28 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->resetZoom(); });
 
     // Tools Menu
-    connect(ui->actionDocsets, &QAction::triggered, [this]() {
+    connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
         QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
         dialog->exec();
     });
 
     // Help Menu
-    connect(ui->actionSubmitFeedback, &QAction::triggered, [this]() {
+    connect(ui->actionSubmitFeedback, &QAction::triggered, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
     });
     connect(ui->actionCheckForUpdates, &QAction::triggered,
             m_application, &Core::Application::checkForUpdates);
-    connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
+    connect(ui->actionAboutZeal, &QAction::triggered, this, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
     });
 
     // Update check
-    connect(m_application, &Core::Application::updateCheckError, [this](const QString &message) {
+    connect(m_application, &Core::Application::updateCheckError, this, [this](const QString &message) {
         QMessageBox::warning(this, QStringLiteral("Zeal"), message);
     });
 
-    connect(m_application, &Core::Application::updateCheckDone, [this](const QString &version) {
+    connect(m_application, &Core::Application::updateCheckDone, this, [this](const QString &version) {
         if (version.isEmpty()) {
             QMessageBox::information(this, QStringLiteral("Zeal"),
                                      tr("You are using the latest version."));
@@ -305,7 +305,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     setupSearchBoxCompletions();
     auto delegate = new SearchItemDelegate(ui->treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textChanged, this, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
     });
     ui->treeView->setItemDelegate(delegate);
@@ -369,7 +369,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         setupSearchBoxCompletions();
     });
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(ui->lineEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         if (text == currentTabState()->searchQuery)
             return;
 
@@ -400,12 +400,12 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     });
 
     // Save expanded items
-    connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::expanded, this, [this](QModelIndex index) {
         if (currentTabState()->expansions.indexOf(index) == -1)
             currentTabState()->expansions.append(index);
     });
 
-    connect(ui->treeView, &QTreeView::collapsed, [this](QModelIndex index) {
+    connect(ui->treeView, &QTreeView::collapsed, this, [this](QModelIndex index) {
         currentTabState()->expansions.removeOne(index);
     });
 
@@ -420,7 +420,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionNextTab->setShortcuts({QKeySequence::NextChild,
                                      QKeySequence(Qt::ControlModifier| Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
-    connect(ui->actionNextTab, &QAction::triggered, [this]() {
+    connect(ui->actionNextTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
@@ -428,7 +428,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
                                          QKeySequence(Qt::ControlModifier| Qt::Key_PageUp)});
     addAction(ui->actionPreviousTab);
-    connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
+    connect(ui->actionPreviousTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
 
@@ -730,11 +730,11 @@ void MainWindow::setupTabBar()
         action->setShortcut(QStringLiteral("Ctrl+%1").arg(i));
 #endif
         if (i == 9) {
-            connect(action, &QAction::triggered, [=]() {
+            connect(action, &QAction::triggered, this, [=]() {
                 m_tabBar->setCurrentIndex(m_tabBar->count() - 1);
             });
         } else {
-            connect(action, &QAction::triggered, [=]() {
+            connect(action, &QAction::triggered, this, [=]() {
                 m_tabBar->setCurrentIndex(i - 1);
             });
         }
@@ -755,7 +755,7 @@ void MainWindow::createTrayIcon()
     m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), windowIcon()));
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
-    connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
+    connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
         if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
             return;
 

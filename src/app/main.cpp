@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     });
 
     if (!clParams.query.isEmpty()) {
-        QTimer::singleShot(0, [&app, clParams] {
+        QTimer::singleShot(0, app.data(), [&app, clParams] {
             app->executeQuery(clParams.query, clParams.preventActivation);
         });
     }

@@ -129,9 +129,9 @@ void ApplicationSingleton::setupPrimary()
     m_localServer = new QLocalServer(this);
     m_localServer->setSocketOptions(QLocalServer::UserAccessOption);
 
-    connect(m_localServer, &QLocalServer::newConnection, [this] {
+    connect(m_localServer, &QLocalServer::newConnection, this, [this] {
         QLocalSocket *socket = m_localServer->nextPendingConnection();
-        connect(socket, &QLocalSocket::readyRead, [this, socket] {
+        connect(socket, &QLocalSocket::readyRead, this, [this, socket] {
             QByteArray data = socket->readAll();
             emit messageReceived(data);
             socket->deleteLater();

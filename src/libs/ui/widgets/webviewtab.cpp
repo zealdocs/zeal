@@ -46,7 +46,7 @@ WebViewTab::WebViewTab(QWidget *parent)
     m_webView = new WebView();
     setFocusProxy(m_webView);
 
-    connect(m_webView->page(), &QWebPage::linkHovered, [this](const QString &link) {
+    connect(m_webView->page(), &QWebPage::linkHovered, this, [this](const QString &link) {
         if (link.startsWith(QLatin1String("file:")) || link.startsWith(QLatin1String("qrc:")))
             return;
 
