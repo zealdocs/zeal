@@ -119,7 +119,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
-        return QModelIndex();
+        return {};
 
     switch (indexLevel(parent)) {
     case Level::RootLevel:
@@ -131,7 +131,7 @@ QModelIndex ListModel::index(int row, int column, const QModelIndex &parent) con
         return createIndex(row, column, docsetItem->groups.at(parent.row()));
     }
     default:
-        return QModelIndex();
+        return {};
     }
 }
 
@@ -147,7 +147,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
 
         if (it == m_docsetItems.cend()) {
             // TODO: Report error, this should never happen.
-            return QModelIndex();
+            return {};
         }
 
         const int row = std::distance(m_docsetItems.begin(), it);
@@ -158,7 +158,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
         return createIndex(item->docsetItem->groups.indexOf(item), 0, item->docsetItem);
     }
     default:
-        return QModelIndex();
+        return {};
     }
 }
 

@@ -72,7 +72,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() || m_dataList.count() <= row || column > 1)
-        return QModelIndex();
+        return {};
 
     // FIXME: const_cast
     auto item = const_cast<SearchResult *>(&m_dataList.at(row));
