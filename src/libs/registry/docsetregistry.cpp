@@ -112,7 +112,7 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::loadDocset(const QString &path)
 {
-    QFutureWatcher<Docset *> *watcher = new QFutureWatcher<Docset *>();
+    auto watcher = new QFutureWatcher<Docset *>();
     connect(watcher, &QFutureWatcher<Docset *>::finished, this, [this, watcher] {
         QScopedPointer<QFutureWatcher<Docset *>, QScopedPointerDeleteLater> guard(watcher);
 

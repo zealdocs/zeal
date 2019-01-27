@@ -64,7 +64,8 @@ bool FileManager::removeRecursively(const QString &path)
     }
 
 
-    QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+
+    auto watcher = new QFutureWatcher<bool>();
     connect(watcher, &QFutureWatcher<bool>::finished, [=] {
         if (!watcher->result()) {
             qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));

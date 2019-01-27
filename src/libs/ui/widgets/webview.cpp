@@ -115,7 +115,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         m_contextMenu->deleteLater();
     }
 
-    QMenu *m_contextMenu = new QMenu(this);
+    auto m_contextMenu = new QMenu(this);
 
     const QUrl linkUrl = hitTestResult.linkUrl();
     const QString linkText = hitTestResult.linkText();

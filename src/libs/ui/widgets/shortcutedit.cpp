@@ -45,7 +45,7 @@ bool ShortcutEdit::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
         case Qt::Key_Alt:
         case Qt::Key_Control:

@@ -49,7 +49,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    SearchResult *item = static_cast<SearchResult *>(index.internalPointer());
+    auto item = static_cast<SearchResult *>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -75,7 +75,7 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
         return QModelIndex();
 
     // FIXME: const_cast
-    SearchResult *item = const_cast<SearchResult *>(&m_dataList.at(row));
+    auto item = const_cast<SearchResult *>(&m_dataList.at(row));
     return createIndex(row, column, item);
 }
 

@@ -120,7 +120,7 @@ void ApplicationSingleton::setupPrimary()
     qCInfo(log, "Starting as a primary instance. (PID: %lld)", m_primaryPid);
 
     m_sharedMemory->lock();
-    SharedData *sd = static_cast<SharedData *>(m_sharedMemory->data());
+    auto sd = static_cast<SharedData *>(m_sharedMemory->data());
     sd->primaryPid = m_primaryPid;
     m_sharedMemory->unlock();
 
@@ -148,7 +148,7 @@ void ApplicationSingleton::setupPrimary()
 void ApplicationSingleton::setupSecondary()
 {
     m_sharedMemory->lock();
-    SharedData *sd = static_cast<SharedData *>(m_sharedMemory->data());
+    auto sd = static_cast<SharedData *>(m_sharedMemory->data());
     m_primaryPid = sd->primaryPid;
     m_sharedMemory->unlock();
 

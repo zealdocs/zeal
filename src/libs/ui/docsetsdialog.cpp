@@ -413,7 +413,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     if (total == -1 || received < 10240)
         return;
 
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    auto reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply || !reply->isOpen())
         return;
 

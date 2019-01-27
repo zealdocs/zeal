@@ -936,8 +936,8 @@ static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_valu
 {
     Q_UNUSED(argc);
 
-    const char *needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
-    const char *haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+    auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
 
     sqlite3_result_int(context, scoreFunction(needle, haystack));
 }

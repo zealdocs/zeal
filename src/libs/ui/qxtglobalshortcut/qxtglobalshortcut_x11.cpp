@@ -74,11 +74,11 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if (eventType != "xcb_generic_event_t")
         return false;
 
-    xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t*>(message);
+    auto event = static_cast<xcb_generic_event_t*>(message);
     if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
         return false;
 
-    xcb_key_press_event_t *keyPressEvent = reinterpret_cast<xcb_key_press_event_t *>(event);
+    auto keyPressEvent = static_cast<xcb_key_press_event_t *>(message);
 
     // Avoid keyboard freeze
     xcb_connection_t *xcbConnection = QX11Info::connection();

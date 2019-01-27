@@ -303,7 +303,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui->lineEdit->setTreeView(ui->treeView);
     ui->lineEdit->setFocus();
     setupSearchBoxCompletions();
-    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
+    auto delegate = new SearchItemDelegate(ui->treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
         delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
@@ -533,7 +533,7 @@ WebViewTab *MainWindow::createTab(int index)
     else if (index == -1)
         index = m_tabStates.size();
 
-    TabState *newState = new TabState();
+    auto newState = new TabState();
     newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
     newState->goToStartPage();
 
@@ -552,10 +552,10 @@ void MainWindow::duplicateTab(int index)
     if (index < 0 || index >= m_tabStates.size())
         return;
 
-    TabState *tabState = m_tabStates.at(index);
+    auto tabState = m_tabStates.at(index);
     syncTabState(tabState);
 
-    TabState *newState = new TabState(*tabState);
+    auto newState = new TabState(*tabState);
     newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
 
     ++index;
@@ -723,7 +723,7 @@ void MainWindow::setupTabBar()
     connect(m_tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
 
     for (int i = 1; i < 10; i++) {
-        QAction *action = new QAction(m_tabBar);
+        auto action = new QAction(m_tabBar);
 #ifdef Q_OS_LINUX
         action->setShortcut(QStringLiteral("Alt+%1").arg(i));
 #else
@@ -742,7 +742,7 @@ void MainWindow::setupTabBar()
         addAction(action);
     }
 
-    QHBoxLayout *layout = static_cast<QHBoxLayout *>(ui->navigationBar->layout());
+    auto layout = static_cast<QHBoxLayout *>(ui->navigationBar->layout());
     layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
 }
 
@@ -762,7 +762,7 @@ void MainWindow::createTrayIcon()
         toggleWindow();
     });
 
-    QMenu *trayIconMenu = new QMenu(this);
+    auto trayIconMenu = new QMenu(this);
     QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"),
                                                     this, &MainWindow::toggleWindow);
 
@@ -828,7 +828,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     if (object == m_tabBar) {
         switch (event->type()) {
         case QEvent::MouseButtonRelease: {
-            QMouseEvent *e = static_cast<QMouseEvent *>(event);
+            auto e = static_cast<QMouseEvent *>(event);
             if (e->button() == Qt::MiddleButton) {
                 const int index = m_tabBar->tabAt(e->pos());
                 if (index != -1) {
