@@ -678,7 +678,7 @@ void MainWindow::setupSearchBoxCompletions()
         if (docset->keywords().isEmpty())
             continue;
 
-        completions << docset->keywords().first() + QLatin1Char(':');
+        completions << docset->keywords().constFirst() + QLatin1Char(':');
     }
 
     ui->lineEdit->setCompletions(completions);
