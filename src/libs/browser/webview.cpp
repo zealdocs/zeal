@@ -27,6 +27,7 @@
 
 #include <core/application.h>
 #include <core/settings.h>
+#include <ui/browsertab.h>
 #include <ui/mainwindow.h>
 
 #include <QCheckBox>
@@ -101,7 +102,7 @@ void WebView::resetZoom()
 QWebView *WebView::createWindow(QWebPage::WebWindowType type)
 {
     Q_UNUSED(type)
-    return Core::Application::instance()->mainWindow()->createTab()->m_webView;
+    return Core::Application::instance()->mainWindow()->createTab()->webControl()->m_webView;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)

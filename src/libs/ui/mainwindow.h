@@ -28,10 +28,8 @@
 
 class QxtGlobalShortcut;
 
-class QModelIndex;
 class QSystemTrayIcon;
 class QTabBar;
-class QTimer;
 
 namespace Zeal {
 
@@ -55,7 +53,8 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
-struct TabState;
+class BrowserTab;
+class SidebarViewProvider;
 
 class MainWindow : public QMainWindow
 {
@@ -66,10 +65,13 @@ public:
 
     void search(const Registry::SearchQuery &query);
     void bringToFront();
-    Browser::WebControl *createTab(int index = -1);
+    BrowserTab *createTab();
 
 public slots:
     void toggleWindow();
+
+signals:
+    void currentTabChanged();
 
 protected:
     void changeEvent(QEvent *event) override;
@@ -79,33 +81,21 @@ protected:
 
 private slots:
     void applySettings();
-    void openDocset(const QModelIndex &index);
-    void queryCompleted();
     void closeTab(int index = -1);
     void moveTab(int from, int to);
     void duplicateTab(int index);
 
 private:
-    void syncTreeView();
-    void syncToc();
-    void setupSearchBoxCompletions();
     void setupTabBar();
 
-    TabState *currentTabState() const;
-    Browser::WebControl *currentTab() const;
-
-    void attachTab(TabState *tabState);
-    void detachTab(TabState *tabState);
-
-    QString docsetName(const QUrl &url) const;
-    QIcon docsetIcon(const QString &docsetName) const;
+    void addTab(BrowserTab *tab, int index = -1);
+    BrowserTab *currentTab() const;
+    BrowserTab *tabAt(int index) const;
 
     void createTrayIcon();
     void removeTrayIcon();
 
-    void syncTabState(TabState *tabState);
-
-    QList<TabState *> m_tabStates;
+    void syncTabState(BrowserTab *tab);
 
     Ui::MainWindow *ui = nullptr;
     Core::Application *m_application = nullptr;
@@ -120,9 +110,10 @@ private:
 
     QTabBar *m_tabBar = nullptr;
 
-    QSystemTrayIcon *m_trayIcon = nullptr;
+    friend class SidebarViewProvider;
+    SidebarViewProvider *m_sbViewProvider = nullptr;
 
-    QTimer *m_openDocsetTimer = nullptr;
+    QSystemTrayIcon *m_trayIcon = nullptr;
 };
 
 } // namespace WidgetUi
