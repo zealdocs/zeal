@@ -33,10 +33,11 @@ SearchModel::SearchModel(QObject *parent) :
 {
 }
 
-SearchModel::SearchModel(const SearchModel &other) :
-    QAbstractListModel(other.d_ptr->parent),
-    m_dataList(other.m_dataList)
+SearchModel *SearchModel::clone(QObject *parent)
 {
+    auto model = new SearchModel(parent);
+    model->m_dataList = m_dataList;
+    return model;
 }
 
 bool SearchModel::isEmpty() const

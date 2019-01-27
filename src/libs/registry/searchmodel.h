@@ -36,7 +36,7 @@ class SearchModel : public QAbstractListModel
     Q_OBJECT
 public:
     explicit SearchModel(QObject *parent = nullptr);
-    SearchModel(const SearchModel &other);
+    SearchModel *clone(QObject *parent = nullptr);
 
     bool isEmpty() const;
 
@@ -53,6 +53,7 @@ signals:
     void updated();
 
 private:
+    Q_DISABLE_COPY(SearchModel)
     QList<SearchResult> m_dataList;
 };
 

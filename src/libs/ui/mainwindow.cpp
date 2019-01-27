@@ -85,8 +85,8 @@ struct TabState
         , searchScrollPosition(other.searchScrollPosition)
         , tocScrollPosition(other.tocScrollPosition)
     {
-        searchModel = new Registry::SearchModel(*other.searchModel);
-        tocModel = new Registry::SearchModel(*other.tocModel);
+        searchModel = other.searchModel->clone();
+        tocModel = other.tocModel->clone();
 
         widget = new Browser::WebControl();
         restoreHistory(other.saveHistory());
