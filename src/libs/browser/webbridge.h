@@ -20,13 +20,13 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBBRIDGE_H
-#define ZEAL_WIDGETUI_WEBBRIDGE_H
+#ifndef ZEAL_BROWSER_WEBBRIDGE_H
+#define ZEAL_BROWSER_WEBBRIDGE_H
 
 #include <QObject>
 
 namespace Zeal {
-namespace WidgetUi {
+namespace Browser {
 
 class WebBridge : public QObject
 {
@@ -46,7 +46,7 @@ private:
     QString appVersion() const;
 };
 
-} // namespace WidgetUi
+} // namespace Browser
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_WEBBRIDGE_H
+#endif // ZEAL_BROWSER_WEBBRIDGE_H

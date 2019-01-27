@@ -20,8 +20,8 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_SEARCHTOOLBAR_H
-#define ZEAL_WIDGETUI_SEARCHTOOLBAR_H
+#ifndef ZEAL_BROWSER_SEARCHTOOLBAR_H
+#define ZEAL_BROWSER_SEARCHTOOLBAR_H
 
 #include <QWidget>
 
@@ -30,7 +30,7 @@ class QToolButton;
 class QWebView;
 
 namespace Zeal {
-namespace WidgetUi {
+namespace Browser {
 
 class SearchToolBar : public QWidget
 {
@@ -65,7 +65,7 @@ private:
     QWebView *m_webView = nullptr;
 };
 
-} // namespace WidgetUi
+} // namespace Browser
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_SEARCHTOOLBAR_H
+#endif // ZEAL_BROWSER_SEARCHTOOLBAR_H

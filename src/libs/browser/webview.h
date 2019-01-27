@@ -21,64 +21,54 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBVIEWTAB_H
-#define ZEAL_WIDGETUI_WEBVIEWTAB_H
+#ifndef ZEAL_BROWSER_WEBVIEW_H
+#define ZEAL_BROWSER_WEBVIEW_H
 
-#include <QWidget>
-
-class QWebHistory;
+#include <QVector>
+#include <QWebFrame>
+#include <QWebView>
 
 namespace Zeal {
-namespace WidgetUi {
+namespace Browser {
 
-class SearchToolBar;
-class WebView;
-
-class WebViewTab : public QWidget
+class WebView : public QWebView
 {
     Q_OBJECT
 public:
-    explicit WebViewTab(QWidget *parent = nullptr);
-
-    void load(const QUrl &url);
-    bool canGoBack() const;
-    bool canGoForward() const;
-
-    QString title() const;
-    QUrl url() const;
-
-    QWebHistory *history() const;
+    explicit WebView(QWidget *parent = nullptr);
 
     int zoomLevel() const;
     void setZoomLevel(int level);
-    void setJavaScriptEnabled(bool enabled);
 
-    void setWebBridgeObject(const QString &name, QObject *object);
-
-signals:
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
+    static const QVector<int> &availableZoomLevels();
+    static const int &defaultZoomLevel();
 
 public slots:
-    void activateSearchBar();
-    void back();
-    void forward();
-    
     void zoomIn();
     void zoomOut();
     void resetZoom();
 
+signals:
+    void zoomLevelChanged();
+
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    QWebView *createWindow(QWebPage::WebWindowType type) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
-    friend class WebView;
+    QWebHitTestResult hitTestContent(const QPoint &pos) const;
 
-    WebView *m_webView = nullptr;
-    SearchToolBar *m_searchToolBar = nullptr;
+    static bool isUrlExternal(const QUrl &url);
+
+    QMenu *m_contextMenu = nullptr;
+    QUrl m_clickedLink;
+    int m_zoomLevel = defaultZoomLevel();
 };
 
-} // namespace WidgetUi
+} // namespace Browser
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_WEBVIEWTAB_H
+#endif // ZEAL_BROWSER_WEBVIEW_H

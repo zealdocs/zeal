@@ -26,7 +26,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-using namespace Zeal::WidgetUi;
+using namespace Zeal::Browser;
 
 WebBridge::WebBridge(QObject *parent)
     : QObject(parent)

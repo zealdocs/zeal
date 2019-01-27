@@ -32,7 +32,7 @@
 #include <QWebPage>
 #include <QWebView>
 
-using namespace Zeal::WidgetUi;
+using namespace Zeal::Browser;
 
 SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
     : QWidget(parent)

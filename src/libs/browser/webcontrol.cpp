@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "webviewtab.h"
+#include "webcontrol.h"
 
 #include "searchtoolbar.h"
 #include "webview.h"
@@ -34,9 +34,9 @@
 #include <QWebPage>
 #include <QVBoxLayout>
 
-using namespace Zeal::WidgetUi;
+using namespace Zeal::Browser;
 
-WebViewTab::WebViewTab(QWidget *parent)
+WebControl::WebControl(QWidget *parent)
     : QWidget(parent)
 {
     auto layout = new QVBoxLayout(this);
@@ -52,8 +52,8 @@ WebViewTab::WebViewTab(QWidget *parent)
 
         setToolTip(link);
     });
-    connect(m_webView, &QWebView::titleChanged, this, &WebViewTab::titleChanged);
-    connect(m_webView, &QWebView::urlChanged, this, &WebViewTab::urlChanged);
+    connect(m_webView, &QWebView::titleChanged, this, &WebControl::titleChanged);
+    connect(m_webView, &QWebView::urlChanged, this, &WebControl::urlChanged);
 
     layout->addWidget(m_webView);
 
@@ -61,37 +61,37 @@ WebViewTab::WebViewTab(QWidget *parent)
 
 }
 
-int WebViewTab::zoomLevel() const
+int WebControl::zoomLevel() const
 {
     return m_webView->zoomLevel();
 }
 
-void WebViewTab::setZoomLevel(int level)
+void WebControl::setZoomLevel(int level)
 {
     m_webView->setZoomLevel(level);
 }
 
-void WebViewTab::zoomIn()
+void WebControl::zoomIn()
 {
     m_webView->zoomIn();
 }
 
-void WebViewTab::zoomOut()
+void WebControl::zoomOut()
 {
     m_webView->zoomOut();
 }
 
-void WebViewTab::resetZoom()
+void WebControl::resetZoom()
 {
     m_webView->resetZoom();
 }
 
-void WebViewTab::setJavaScriptEnabled(bool enabled)
+void WebControl::setJavaScriptEnabled(bool enabled)
 {
     m_webView->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, enabled);
 }
 
-void WebViewTab::setWebBridgeObject(const QString &name, QObject *object)
+void WebControl::setWebBridgeObject(const QString &name, QObject *object)
 {
     connect(m_webView->page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared,
             this, [=]() {
@@ -99,12 +99,12 @@ void WebViewTab::setWebBridgeObject(const QString &name, QObject *object)
     });
 }
 
-void WebViewTab::load(const QUrl &url)
+void WebControl::load(const QUrl &url)
 {
     m_webView->load(url);
 }
 
-void WebViewTab::activateSearchBar()
+void WebControl::activateSearchBar()
 {
     if (m_searchToolBar == nullptr) {
         m_searchToolBar = new SearchToolBar(m_webView);
@@ -121,42 +121,42 @@ void WebViewTab::activateSearchBar()
     m_searchToolBar->activate();
 }
 
-void WebViewTab::back()
+void WebControl::back()
 {
     m_webView->back();
 }
 
-void WebViewTab::forward()
+void WebControl::forward()
 {
     m_webView->forward();
 }
 
-bool WebViewTab::canGoBack() const
+bool WebControl::canGoBack() const
 {
     return m_webView->history()->canGoBack();
 }
 
-bool WebViewTab::canGoForward() const
+bool WebControl::canGoForward() const
 {
     return m_webView->history()->canGoForward();
 }
 
-QString WebViewTab::title() const
+QString WebControl::title() const
 {
     return m_webView->title();
 }
 
-QUrl WebViewTab::url() const
+QUrl WebControl::url() const
 {
     return m_webView->url();
 }
 
-QWebHistory *WebViewTab::history() const
+QWebHistory *WebControl::history() const
 {
     return m_webView->history();
 }
 
-void WebViewTab::keyPressEvent(QKeyEvent *event)
+void WebControl::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Slash:
