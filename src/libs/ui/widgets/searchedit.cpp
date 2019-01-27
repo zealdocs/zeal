@@ -54,8 +54,7 @@ void SearchEdit::setTreeView(QTreeView *view)
 // Makes the line edit use autocompletions.
 void SearchEdit::setCompletions(const QStringList &completions)
 {
-    if (m_prefixCompleter)
-        delete m_prefixCompleter;
+    delete m_prefixCompleter;
 
     m_prefixCompleter = new QCompleter(completions, this);
     m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
