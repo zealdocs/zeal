@@ -5,6 +5,7 @@ add_library(Util
     caseinsensitivemap.h
     plist.cpp
     sqlitedatabase.cpp
+    readableinterval.cpp
     version.cpp
 )
 
