@@ -38,7 +38,6 @@ class ListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit ListModel(DocsetRegistry *docsetRegistry, QObject *parent = nullptr);
     ~ListModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -52,12 +51,16 @@ private slots:
     void removeDocset(const QString &name);
 
 private:
+    friend class DocsetRegistry;
+
     enum Level {
         RootLevel,
         DocsetLevel,
         GroupLevel,
         SymbolLevel
     };
+
+    explicit ListModel(DocsetRegistry *docsetRegistry);
 
     inline static QString pluralize(const QString &s);
     inline static Level indexLevel(const QModelIndex &index);

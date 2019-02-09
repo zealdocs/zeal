@@ -46,7 +46,6 @@ class Settings;
 } // namespace Core
 
 namespace Registry {
-class ListModel;
 class SearchQuery;
 } //namespace Registry
 
@@ -111,7 +110,6 @@ private:
     Ui::MainWindow *ui = nullptr;
     Core::Application *m_application = nullptr;
     Core::Settings *m_settings = nullptr;
-    Registry::ListModel *m_zealListModel = nullptr;
 
     Browser::WebBridge *m_webBridge = nullptr;
 

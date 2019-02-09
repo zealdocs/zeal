@@ -29,6 +29,7 @@
 #include <QMap>
 #include <QObject>
 
+class QAbstractItemModel;
 class QThread;
 
 namespace Zeal {
@@ -43,6 +44,8 @@ class DocsetRegistry : public QObject
 public:
     explicit DocsetRegistry(QObject *parent = nullptr);
     ~DocsetRegistry() override;
+
+    QAbstractItemModel *model() const;
 
     QString storagePath() const;
     void setStoragePath(const QString &path);
@@ -76,6 +79,8 @@ private slots:
 
 private:
     void addDocsetsFromFolder(const QString &path);
+
+    QAbstractItemModel *m_model = nullptr;
 
     QString m_storagePath;
     bool m_fuzzySearchEnabled = false;

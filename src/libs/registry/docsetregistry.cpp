@@ -24,6 +24,7 @@
 #include "docsetregistry.h"
 
 #include "docset.h"
+#include "listmodel.h"
 #include "searchquery.h"
 #include "searchresult.h"
 
@@ -41,9 +42,10 @@ void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResul
     finalResult << partial;
 }
 
-DocsetRegistry::DocsetRegistry(QObject *parent) :
-    QObject(parent),
-    m_thread(new QThread(this))
+DocsetRegistry::DocsetRegistry(QObject *parent)
+    : QObject(parent)
+    , m_model(new ListModel(this))
+    , m_thread(new QThread(this))
 {
     // Register for use in signal connections.
     qRegisterMetaType<QList<SearchResult>>("QList<SearchResult>");
@@ -58,6 +60,11 @@ DocsetRegistry::~DocsetRegistry()
     m_thread->exit();
     m_thread->wait();
     qDeleteAll(m_docsets);
+}
+
+QAbstractItemModel *DocsetRegistry::model() const
+{
+    return m_model;
 }
 
 QString DocsetRegistry::storagePath() const

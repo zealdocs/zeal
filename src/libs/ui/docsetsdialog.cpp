@@ -33,7 +33,6 @@
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
-#include <registry/listmodel.h>
 
 #include <QClipboard>
 #include <QDateTime>
@@ -528,10 +527,8 @@ void DocsetsDialog::loadDocsetList()
 
 void DocsetsDialog::setupInstalledDocsetsTab()
 {
-    using Registry::ListModel;
-
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
-    ui->installedDocsetList->setModel(new ListModel(m_application->docsetRegistry(), this));
+    ui->installedDocsetList->setModel(m_application->docsetRegistry()->model());
 
     if (m_isStorageReadOnly) {
         return;

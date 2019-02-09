@@ -37,7 +37,6 @@
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
-#include <registry/listmodel.h>
 #include <registry/searchmodel.h>
 #include <registry/searchquery.h>
 
@@ -144,7 +143,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     ui(new Ui::MainWindow),
     m_application(app),
     m_settings(app->settings()),
-    m_zealListModel(new Registry::ListModel(app->docsetRegistry(), this)),
     m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this)),
     m_openDocsetTimer(new QTimer(this))
 {
@@ -570,7 +568,7 @@ void MainWindow::syncTreeView()
 
     TabState *tabState = currentTabState();
     if (tabState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(m_zealListModel);
+        ui->treeView->setModel(m_application->docsetRegistry()->model());
         ui->treeView->setRootIsDecorated(true);
     } else {
         ui->treeView->setModel(tabState->searchModel);

@@ -31,17 +31,12 @@
 
 using namespace Zeal::Registry;
 
-ListModel::ListModel(DocsetRegistry *docsetRegistry, QObject *parent) :
-    QAbstractItemModel(parent),
+ListModel::ListModel(DocsetRegistry *docsetRegistry) :
+    QAbstractItemModel(docsetRegistry),
     m_docsetRegistry(docsetRegistry)
 {
     connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, &ListModel::addDocset);
     connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeUnloaded, this, &ListModel::removeDocset);
-
-    const auto names = m_docsetRegistry->names();
-    for (const QString &name : names) {
-        addDocset(name);
-    }
 }
 
 ListModel::~ListModel()
