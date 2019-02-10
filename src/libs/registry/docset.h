@@ -40,11 +40,12 @@ namespace Registry {
 class CancellationToken;
 struct SearchResult;
 
-class Docset
+class Docset final
 {
+    Q_DISABLE_COPY(Docset)
 public:
     explicit Docset(QString path);
-    ~Docset();
+    virtual ~Docset();
 
     bool isValid() const;
 

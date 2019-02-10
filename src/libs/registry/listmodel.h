@@ -34,9 +34,10 @@ namespace Registry {
 class Docset;
 class DocsetRegistry;
 
-class ListModel : public QAbstractItemModel
+class ListModel final : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY(ListModel)
 public:
     ~ListModel() override;
 

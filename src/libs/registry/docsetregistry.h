@@ -38,9 +38,10 @@ namespace Registry {
 class Docset;
 struct SearchResult;
 
-class DocsetRegistry : public QObject
+class DocsetRegistry final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(DocsetRegistry)
 public:
     explicit DocsetRegistry(QObject *parent = nullptr);
     ~DocsetRegistry() override;
