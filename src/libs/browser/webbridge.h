@@ -28,9 +28,10 @@
 namespace Zeal {
 namespace Browser {
 
-class WebBridge : public QObject
+class WebBridge final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WebBridge)
     Q_PROPERTY(QString AppVersion READ appVersion CONSTANT)
 public:
     explicit WebBridge(QObject *parent = nullptr);

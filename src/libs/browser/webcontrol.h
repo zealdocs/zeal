@@ -34,9 +34,10 @@ namespace Browser {
 class SearchToolBar;
 class WebView;
 
-class WebControl : public QWidget
+class WebControl final : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WebControl)
 public:
     explicit WebControl(QWidget *parent = nullptr);
 

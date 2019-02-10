@@ -32,9 +32,10 @@ class QWebView;
 namespace Zeal {
 namespace Browser {
 
-class SearchToolBar : public QWidget
+class SearchToolBar final : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SearchToolBar)
 public:
     explicit SearchToolBar(QWebView *webView, QWidget *parent = nullptr);
 

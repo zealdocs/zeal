@@ -31,9 +31,10 @@
 namespace Zeal {
 namespace Browser {
 
-class WebView : public QWebView
+class WebView final : public QWebView
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WebView)
 public:
     explicit WebView(QWidget *parent = nullptr);
 
