@@ -46,9 +46,10 @@ class Extractor;
 class FileManager;
 class Settings;
 
-class Application : public QObject
+class Application final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Application)
 public:
     explicit Application(QObject *parent = nullptr);
     ~Application() override;

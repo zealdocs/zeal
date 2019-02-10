@@ -30,9 +30,10 @@ struct archive;
 namespace Zeal {
 namespace Core {
 
-class Extractor : public QObject
+class Extractor final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Extractor)
 public:
     explicit Extractor(QObject *parent = nullptr);
 

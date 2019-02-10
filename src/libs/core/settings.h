@@ -31,9 +31,10 @@ class QSettings;
 namespace Zeal {
 namespace Core {
 
-class Settings : public QObject
+class Settings final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Settings)
 public:
     /* This public members are here just for simplification and should go away
      * once a more advanced settings management come in place.
