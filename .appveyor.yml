@@ -94,6 +94,11 @@ build_script:
       cmake --build build
 after_build:
 - ps: |-
+    if ($Env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        Write-Output "Deployment is disabled for pull requests."
+        Exit-AppveyorBuild
+    }
+
     $package = "zeal"
 
     if ($Env:ZEAL_PORTABLE_BUILD -eq "ON") {
