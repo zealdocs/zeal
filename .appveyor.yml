@@ -180,4 +180,4 @@ deploy:
     publish: true
     override: true
     on:
-      - branch: stable
+      branch: stable
