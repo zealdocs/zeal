@@ -177,3 +177,5 @@ deploy:
     version: $(ZEAL_PKG_VERSION)
     publish: true
     override: true
+    on:
+      - branch: stable
