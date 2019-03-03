@@ -163,6 +163,8 @@ after_build:
 
     $archiveName = "$deploymentDir.zip"
     & 7z a -mx=9 "$archiveName" "$deploymentDir"
+
+    Push-AppveyorArtifact "$archiveName"
 test: off
 artifacts:
   - path: zeal-*.zip
