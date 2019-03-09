@@ -1,4 +1,4 @@
-add_library(Browser
+add_library(Browser STATIC
     webcontrol.cpp
     searchtoolbar.cpp
     webbridge.cpp

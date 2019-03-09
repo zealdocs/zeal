@@ -19,7 +19,7 @@ elseif(WIN32)
     )
 endif()
 
-add_library(QxtGlobalShortcut ${QxtGlobalShortcut_SOURCES})
+add_library(QxtGlobalShortcut STATIC ${QxtGlobalShortcut_SOURCES})
 
 find_package(Qt5Gui REQUIRED)
 target_link_libraries(QxtGlobalShortcut Qt5::Gui)
