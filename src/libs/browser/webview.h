@@ -66,7 +66,7 @@ private:
 
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
-    int m_zoomLevel;
+    int m_zoomLevel = 0;
 };
 
 } // namespace Browser

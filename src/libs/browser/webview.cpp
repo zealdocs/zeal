@@ -39,7 +39,7 @@
 using namespace Zeal::Browser;
 
 WebView::WebView(QWidget *parent)
-    : QWebView(parent), m_zoomLevel(0)
+    : QWebView(parent)
 {
     page()->setNetworkAccessManager(Core::Application::instance()->networkManager());
     // Applies any DPI based scaling.
@@ -63,7 +63,7 @@ void WebView::setZoomLevel(int level)
     m_zoomLevel = level;
 
     // Scale the webview relative to the DPI of the screen.
-    qreal dpiZoomFactor = logicalDpiY() / 96.0;
+    const float dpiZoomFactor = logicalDpiY() / 96.0;
 
     setZoomFactor(availableZoomLevels().at(level) / 100.0 * dpiZoomFactor);
     emit zoomLevelChanged();
