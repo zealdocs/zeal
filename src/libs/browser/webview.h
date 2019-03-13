@@ -42,7 +42,7 @@ public:
     void setZoomLevel(int level);
 
     static const QVector<int> &availableZoomLevels();
-    static const int &defaultZoomLevel();
+    static int defaultZoomLevel();
 
 public slots:
     void zoomIn();
@@ -66,7 +66,7 @@ private:
 
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
-    int m_zoomLevel = defaultZoomLevel();
+    int m_zoomLevel = 0;
 };
 
 } // namespace Browser
