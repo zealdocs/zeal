@@ -1,4 +1,4 @@
-add_library(Core
+add_library(Core STATIC
     application.cpp
     applicationsingleton.cpp
     extractor.cpp

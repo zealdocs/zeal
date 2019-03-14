@@ -94,6 +94,11 @@ build_script:
       cmake --build build
 after_build:
 - ps: |-
+    if ($Env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        Write-Output "Deployment is disabled for pull requests."
+        Exit-AppveyorBuild
+    }
+
     $package = "zeal"
 
     if ($Env:ZEAL_PORTABLE_BUILD -eq "ON") {
@@ -158,6 +163,8 @@ after_build:
 
     $archiveName = "$deploymentDir.zip"
     & 7z a -mx=9 "$archiveName" "$deploymentDir"
+
+    Push-AppveyorArtifact "$archiveName"
 test: off
 artifacts:
   - path: zeal-*.zip
@@ -172,3 +179,5 @@ deploy:
     version: $(ZEAL_PKG_VERSION)
     publish: true
     override: true
+    on:
+      branch: stable

@@ -8,7 +8,7 @@ set(Ui_FORMS
     settingsdialog.ui
 )
 
-add_library(Ui
+add_library(Ui STATIC
     aboutdialog.cpp
     docsetlistitemdelegate.cpp
     docsetsdialog.cpp
