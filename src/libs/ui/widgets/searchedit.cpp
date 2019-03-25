@@ -37,18 +37,15 @@ using namespace Zeal::WidgetUi;
 SearchEdit::SearchEdit(QWidget *parent) :
     QLineEdit(parent)
 {
+    setClearButtonEnabled(true);
+    setPlaceholderText(tr("Search"));
+
     m_completionLabel = new QLabel(this);
     m_completionLabel->setObjectName(QStringLiteral("completer"));
     m_completionLabel->setStyleSheet(QStringLiteral("QLabel#completer { color: gray; }"));
     m_completionLabel->setFont(font());
 
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
-}
-
-void SearchEdit::setTreeView(QTreeView *view)
-{
-    m_treeView = view;
-    m_focusing = false;
 }
 
 // Makes the line edit use autocompletions.
@@ -108,13 +105,6 @@ void SearchEdit::keyPressEvent(QKeyEvent *event)
         clearQuery();
         event->accept();
         break;
-    case Qt::Key_Return:
-    case Qt::Key_Down:
-    case Qt::Key_Up:
-    case Qt::Key_PageDown:
-    case Qt::Key_PageUp:
-        QCoreApplication::sendEvent(m_treeView, event);
-        break;
     default:
         QLineEdit::keyPressEvent(event);
         break;
@@ -132,6 +122,9 @@ void SearchEdit::mousePressEvent(QMouseEvent *event)
 
 void SearchEdit::showCompletions(const QString &newValue)
 {
+    if (!isVisible())
+        return;
+
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     const int textWidth = fontMetrics().width(newValue);
 

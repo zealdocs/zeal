@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
+** Copyright (C) 2019 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -21,47 +20,31 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_SEARCHEDIT_H
-#define ZEAL_WIDGETUI_SEARCHEDIT_H
+#ifndef ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H
+#define ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H
 
-#include <QLineEdit>
-
-class QCompleter;
-class QEvent;
-class QLabel;
+#include <sidebar/viewprovider.h>
 
 namespace Zeal {
 namespace WidgetUi {
 
-class SearchEdit : public QLineEdit
+class MainWindow;
+
+class SidebarViewProvider : public Sidebar::ViewProvider
 {
     Q_OBJECT
 public:
-    explicit SearchEdit(QWidget *parent = nullptr);
+    explicit SidebarViewProvider(MainWindow *mainWindow);
 
-    void clearQuery();
-    void selectQuery();
-    void setCompletions(const QStringList &completions);
-
-protected:
-    bool event(QEvent *event) override;
-    void focusInEvent(QFocusEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-
-private slots:
-    void showCompletions(const QString &text);
+    Sidebar::View *view(const QString &id = QString()) const override;
 
 private:
-    QString currentCompletion(const QString &text) const;
-    int queryStart() const;
+    Q_DISABLE_COPY(SidebarViewProvider)
 
-    QCompleter *m_prefixCompleter = nullptr;
-    QLabel *m_completionLabel = nullptr;
-    bool m_focusing = false;
+    MainWindow *m_mainWindow = nullptr;
 };
 
-} // namespace WidgetUi
+} // namespace Sidebar
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_SEARCHEDIT_H
+#endif // ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H

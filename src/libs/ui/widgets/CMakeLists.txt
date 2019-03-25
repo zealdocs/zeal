@@ -1,4 +1,5 @@
 add_library(Widgets STATIC
+    layouthelper.cpp
     searchedit.cpp
     shortcutedit.cpp
     toolbarframe.cpp
