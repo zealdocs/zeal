@@ -73,7 +73,12 @@ void SearchEdit::selectQuery()
     const int pos = hasSelectedText() ? selectionStart() : cursorPosition();
     const int queryPos = queryStart();
     const int textSize = text().size();
+#if QT_VERSION >= 0x050A00 // 5.10.0
     if (pos >= queryPos && selectionEnd() < textSize) {
+#else
+    const int selectionEnd = hasSelectedText() ? pos + selectedText().size() : -1;
+    if (pos >= queryPos && selectionEnd < textSize) {
+#endif
         setSelection(queryPos, textSize);
         return;
     }
