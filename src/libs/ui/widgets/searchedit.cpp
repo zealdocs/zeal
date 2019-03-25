@@ -67,57 +67,73 @@ void SearchEdit::clearQuery()
 
 void SearchEdit::selectQuery()
 {
-    setSelection(queryStart(), text().size());
+    if (text().isEmpty())
+        return;
+
+    const int pos = hasSelectedText() ? selectionStart() : cursorPosition();
+    const int queryPos = queryStart();
+    const int textSize = text().size();
+    if (pos >= queryPos && selectionEnd() < textSize) {
+        setSelection(queryPos, textSize);
+        return;
+    }
+
+    selectAll();
 }
 
 bool SearchEdit::event(QEvent *event)
 {
-    if (event->type() != QEvent::KeyPress)
-        return QLineEdit::event(event);
+    switch (event->type()) {
+    case QEvent::KeyPress: {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        // Tab key cannot be overriden in keyPressEvent().
+        if (keyEvent->key() == Qt::Key_Tab) {
+            const QString completed = currentCompletion(text());
+            if (!completed.isEmpty()) {
+                setText(completed);
+            }
 
-    // Tab key cannot be overriden in keyPressEvent()
-    if (static_cast<QKeyEvent *>(event)->key() != Qt::Key_Tab)
-        return QLineEdit::event(event);
+            return true;
+        } else if (keyEvent->key() == Qt::Key_Escape) {
+            clearQuery();
+            return true;
+        }
 
-    const QString completed = currentCompletion(text());
-    if (!completed.isEmpty())
-        setText(completed);
+        break;
+    }
+    case QEvent::ShortcutOverride: {
+        // TODO: Should be obtained from the ActionManager.
+        static const QStringList focusShortcuts = {
+            QStringLiteral("Ctrl+K"),
+            QStringLiteral("Ctrl+L")
+        };
 
-    return true;
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        const int keyCode = keyEvent->key() | static_cast<int>(keyEvent->modifiers());
+        if (focusShortcuts.contains(QKeySequence(keyCode).toString())) {
+            selectQuery();
+            event->accept();
+            return true;
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return QLineEdit::event(event);
 }
 
 void SearchEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
 
-    // Do not change default behaviour when focused with mouse
+    // Do not change the default behaviour when focused with mouse.
     if (event->reason() == Qt::MouseFocusReason)
         return;
 
     selectQuery();
-    m_focusing = true;
-}
-
-void SearchEdit::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Escape:
-        clearQuery();
-        event->accept();
-        break;
-    default:
-        QLineEdit::keyPressEvent(event);
-        break;
-    }
-}
-
-void SearchEdit::mousePressEvent(QMouseEvent *event)
-{
-    // Let the focusInEvent code deal with initial selection on focus.
-    if (!m_focusing)
-        QLineEdit::mousePressEvent(event);
-
-    m_focusing = false;
 }
 
 void SearchEdit::showCompletions(const QString &newValue)

@@ -46,8 +46,6 @@ public:
 protected:
     bool event(QEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
 
 private slots:
     void showCompletions(const QString &text);
@@ -58,7 +56,6 @@ private:
 
     QCompleter *m_prefixCompleter = nullptr;
     QLabel *m_completionLabel = nullptr;
-    bool m_focusing = false;
 };
 
 } // namespace WidgetUi
