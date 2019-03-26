@@ -399,6 +399,10 @@ void Docset::loadMetadata()
             for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray())
                 m_keywords << kw.toString();
         }
+
+        if (extra.contains(QStringLiteral("isJavaScriptEnabled"))) {
+            m_javaScriptEnabled = extra[QStringLiteral("isJavaScriptEnabled")].toBool();
+        }
     }
 }
 
