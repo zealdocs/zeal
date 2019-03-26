@@ -35,6 +35,9 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
                                                    const QNetworkRequest &request,
                                                    QIODevice *outgoingData)
 {
+    QNetworkRequest overrideRequest(request);
+    overrideRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
     static const QStringList localSchemes = {QStringLiteral("file"), QStringLiteral("qrc")};
 
     const QUrl url = request.url();
@@ -44,13 +47,9 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
         QUrl overrideUrl(url);
         overrideUrl.setScheme(QStringLiteral("https"));
 
-        QNetworkRequest overrideRequest(request);
         overrideRequest.setUrl(overrideUrl);
-
         return QNetworkAccessManager::createRequest(GetOperation, overrideRequest, outgoingData);
     }
 
-
-
-    return QNetworkAccessManager::createRequest(op, request, outgoingData);
+    return QNetworkAccessManager::createRequest(op, overrideRequest, outgoingData);
 }
