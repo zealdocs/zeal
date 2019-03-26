@@ -47,7 +47,7 @@ using namespace Zeal;
 using namespace Zeal::Core;
 
 namespace {
-const char ReleasesApiUrl[] = "http://api.zealdocs.org/v1/releases";
+const char ReleasesApiUrl[] = "https://api.zealdocs.org/v1/releases";
 }
 
 Application *Application::m_instance = nullptr;
