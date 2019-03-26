@@ -286,25 +286,6 @@ void DocsetsDialog::downloadCompleted()
         return;
     }
 
-    QUrl redirectUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-    if (redirectUrl.isValid()) {
-        if (redirectUrl.isRelative())
-            redirectUrl = reply->request().url().resolved(redirectUrl);
-
-        // TODO: Verify if scheme can be missing
-        if (redirectUrl.scheme().isEmpty())
-            redirectUrl.setScheme(reply->request().url().scheme());
-
-        QNetworkReply *newReply = download(redirectUrl);
-
-        // Copy properties
-        newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
-        newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
-        newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
-
-        return;
-    }
-
     switch (reply->property(DownloadTypeProperty).toUInt()) {
     case DownloadDocsetList: {
         const QByteArray data = reply->readAll();
