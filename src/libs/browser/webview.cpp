@@ -184,14 +184,16 @@ void WebView::mousePressEvent(QMouseEvent *event)
         event->accept();
         return;
     case Qt::LeftButton:
-    case Qt::MiddleButton:
-        m_clickedLink = hitTestContent(event->pos()).linkUrl();
-        if (!m_clickedLink.isValid() || m_clickedLink.scheme() == QLatin1String("javascript")) {
-            break;
+    case Qt::MiddleButton: {
+        m_clickedLink.clear();
+
+        const QUrl clickedLink = hitTestContent(event->pos()).linkUrl();
+        if (clickedLink.isValid() && clickedLink.scheme() != QLatin1String("javascript")) {
+            m_clickedLink = clickedLink;
         }
 
-        event->accept();
-        return;
+        break;
+    }
     default:
         break;
     }
@@ -201,7 +203,8 @@ void WebView::mousePressEvent(QMouseEvent *event)
 
 void WebView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton && event->button() != Qt::MiddleButton) {
+    if (m_clickedLink.isEmpty()
+            || (event->button() != Qt::LeftButton && event->button() != Qt::MiddleButton)) {
         QWebView::mouseReleaseEvent(event);
         return;
     }
@@ -268,8 +271,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
     switch (event->button()) {
     case Qt::LeftButton:
         if (!(event->modifiers() & Qt::ControlModifier || event->modifiers() & Qt::ShiftModifier)) {
-            load(clickedLink);
-            event->accept();
+            QWebView::mouseReleaseEvent(event);
             return;
         }
     case Qt::MiddleButton:
