@@ -43,7 +43,6 @@ WebView::WebView(QWidget *parent)
     : QWebView(parent)
 {
     page()->setNetworkAccessManager(Core::Application::instance()->networkManager());
-    // Applies any DPI based scaling.
     setZoomLevel(defaultZoomLevel());
 }
 
@@ -64,7 +63,7 @@ void WebView::setZoomLevel(int level)
     m_zoomLevel = level;
 
     // Scale the webview relative to the DPI of the screen.
-    const float dpiZoomFactor = logicalDpiY() / 96.0;
+    const double dpiZoomFactor = logicalDpiY() / 96.0;
 
     setZoomFactor(availableZoomLevels().at(level) / 100.0 * dpiZoomFactor);
     emit zoomLevelChanged();
