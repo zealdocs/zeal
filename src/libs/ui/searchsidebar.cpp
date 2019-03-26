@@ -63,7 +63,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_treeView->setHeaderHidden(true);
     m_treeView->setUniformRowHeights(true);
 #ifdef Q_OS_MACOS
-    m_searchResultView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
     // Save expanded items.
