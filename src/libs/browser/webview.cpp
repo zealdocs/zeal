@@ -214,7 +214,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    if (isUrlExternal(clickedLink)) {
+    if (isExternalUrl(clickedLink)) {
         switch (Core::Application::instance()->settings()->externalLinkPolicy) {
         case Core::Settings::ExternalLinkPolicy::Open:
             break;
@@ -310,7 +310,7 @@ QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const
     return page()->mainFrame()->hitTestContent(pos);
 }
 
-bool WebView::isUrlExternal(const QUrl &url)
+bool WebView::isExternalUrl(const QUrl &url)
 {
     static const QStringList localSchemes = {
         QStringLiteral("file"),
