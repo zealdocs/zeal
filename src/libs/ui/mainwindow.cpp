@@ -217,16 +217,13 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             createTab();
     });
 
-#ifdef Q_OS_WIN32
-    ui->actionCloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
-#else
-    ui->actionCloseTab->setShortcut(QKeySequence::Close);
-#endif
+    ui->actionCloseTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_W),
+                                      QKeySequence::Close});
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
     ui->actionNextTab->setShortcuts({QKeySequence::NextChild,
-                                     QKeySequence(Qt::ControlModifier| Qt::Key_PageDown)});
+                                     QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
     connect(ui->actionNextTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
@@ -234,7 +231,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
     ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
-                                         QKeySequence(Qt::ControlModifier| Qt::Key_PageUp)});
+                                         QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
     addAction(ui->actionPreviousTab);
     connect(ui->actionPreviousTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
