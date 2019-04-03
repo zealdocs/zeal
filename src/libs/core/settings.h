@@ -82,7 +82,6 @@ public:
     bool highlightOnNavigateEnabled;
     QString customCssFile;
     bool isSmoothScrollingEnabled;
-    bool isAdDisabled;
 
     // Network
     enum ProxyType : unsigned int {

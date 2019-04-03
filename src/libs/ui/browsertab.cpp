@@ -47,7 +47,6 @@ using namespace Zeal::WidgetUi;
 
 namespace {
 const char WelcomePageUrl[] = "qrc:///browser/welcome.html";
-const char WelcomePageNoAdUrl[] = "qrc:///browser/welcome-noad.html";
 } // namespace
 
 BrowserTab::BrowserTab(QWidget *parent)
@@ -195,11 +194,7 @@ SearchSidebar *BrowserTab::searchSidebar()
 
 void BrowserTab::navigateToStartPage()
 {
-    if (Core::Application::instance()->settings()->isAdDisabled) {
-        m_webControl->load(QUrl(WelcomePageNoAdUrl));
-    } else {
-        m_webControl->load(QUrl(WelcomePageUrl));
-    }
+    m_webControl->load(QUrl(WelcomePageUrl));
 }
 
 void BrowserTab::search(const Registry::SearchQuery &query)

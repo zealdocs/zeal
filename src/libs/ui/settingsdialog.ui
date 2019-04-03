@@ -502,13 +502,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="disableAdCheckBox">
-            <property name="text">
-             <string>Disable ad&amp;vertisement on the welcome page</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>

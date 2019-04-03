@@ -214,7 +214,6 @@ void SettingsDialog::loadSettings()
     }
 
     ui->useSmoothScrollingCheckBox->setChecked(settings->isSmoothScrollingEnabled);
-    ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     // Network Tab
     switch (settings->proxyType) {
@@ -286,7 +285,6 @@ void SettingsDialog::saveSettings()
     }
 
     settings->isSmoothScrollingEnabled = ui->useSmoothScrollingCheckBox->isChecked();
-    settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     // Network Tab
     // Proxy settings
