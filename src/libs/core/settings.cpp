@@ -274,6 +274,18 @@ void Settings::migrate(QSettings *settings) const
     settings->endGroup();
 
     //
+    // 0.6.0
+    //
+
+    // Unset content.default_fixed_font_size.
+    // The causing bug was 0.6.1 (#903), but the incorrect setting still comes to haunt us (#1054).
+    if (version == QLatin1String("0.6.0")) {
+        settings->beginGroup(GroupContent);
+        settings->remove(QStringLiteral("default_fixed_font_size"));
+        settings->endGroup();
+    }
+
+    //
     // Pre 0.4
     //
 
