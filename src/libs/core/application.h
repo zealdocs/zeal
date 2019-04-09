@@ -24,6 +24,7 @@
 #define ZEAL_CORE_APPLICATION_H
 
 #include <QObject>
+#include <QVersionNumber>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -63,6 +64,8 @@ public:
 
     Registry::DocsetRegistry *docsetRegistry();
     FileManager *fileManager() const;
+
+    static QVersionNumber version();
 
 public slots:
     void executeQuery(const Registry::SearchQuery &query, bool preventActivation);

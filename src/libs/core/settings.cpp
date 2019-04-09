@@ -22,6 +22,7 @@
 
 #include "settings.h"
 
+#include "application.h"
 #include "filemanager.h"
 
 #include <QCoreApplication>
@@ -250,7 +251,7 @@ void Settings::save()
     settings->beginGroup(GroupInternal);
     settings->setValue(QStringLiteral("install_id"), installId);
     // Version of configuration file format, should match Zeal version. Used for migration rules.
-    settings->setValue(QStringLiteral("version"), QCoreApplication::applicationVersion());
+    settings->setValue(QStringLiteral("version"), Application::version().toString());
     settings->endGroup();
 
     settings->sync();
@@ -269,8 +270,7 @@ void Settings::save()
 void Settings::migrate(QSettings *settings) const
 {
     settings->beginGroup(GroupInternal);
-    // TODO: [Qt 5.6] Use QVersionNumber.
-    const QString version = settings->value(QStringLiteral("version")).toString();
+    const auto version = QVersionNumber::fromString(settings->value(QStringLiteral("version")).toString());
     settings->endGroup();
 
     //
@@ -279,7 +279,7 @@ void Settings::migrate(QSettings *settings) const
 
     // Unset content.default_fixed_font_size.
     // The causing bug was 0.6.1 (#903), but the incorrect setting still comes to haunt us (#1054).
-    if (version == QLatin1String("0.6.0")) {
+    if (version == QVersionNumber(0, 6, 0)) {
         settings->beginGroup(GroupContent);
         settings->remove(QStringLiteral("default_fixed_font_size"));
         settings->endGroup();
@@ -290,7 +290,7 @@ void Settings::migrate(QSettings *settings) const
     //
 
     // Rename 'browser' group into 'content'.
-    if (version < QLatin1String("0.4")) {
+    if (version < QVersionNumber(0, 4, 0)) {
         settings->beginGroup(QStringLiteral("browser"));
         const QVariant tmpMinimumFontSize = settings->value(QStringLiteral("minimum_font_size"));
         settings->endGroup();
@@ -309,7 +309,7 @@ void Settings::migrate(QSettings *settings) const
     //
 
     // Unset 'state/splitter_geometry', because custom styles were removed.
-    if (version < QLatin1String("0.3")) {
+    if (version < QVersionNumber(0, 3, 0)) {
         settings->beginGroup(GroupState);
         settings->remove(QStringLiteral("splitter_geometry"));
         settings->endGroup();

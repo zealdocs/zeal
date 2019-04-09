@@ -30,7 +30,6 @@
 #include <registry/docsetregistry.h>
 #include <registry/searchquery.h>
 #include <ui/mainwindow.h>
-#include <util/version.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -134,6 +133,11 @@ FileManager *Application::fileManager() const
     return m_fileManager;
 }
 
+QVersionNumber Application::version()
+{
+    return QVersionNumber::fromString(QCoreApplication::applicationVersion());
+}
+
 void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)
 {
     m_mainWindow->search(query);
@@ -193,12 +197,14 @@ void Application::checkForUpdates(bool quiet)
             return;
         }
 
-        const QJsonObject latestVersionInfo = jsonDoc.array().first().toObject();
-        const Util::Version latestVersion = latestVersionInfo[QStringLiteral("version")].toString();
-        if (latestVersion > Util::Version(QCoreApplication::applicationVersion()))
+        const QJsonObject versionInfo = jsonDoc.array().first().toObject(); // Latest is the first.
+        const auto latestVersion
+                = QVersionNumber::fromString(versionInfo[QLatin1String("version")].toString());
+        if (latestVersion > version()) {
             emit updateCheckDone(latestVersion.toString());
-        else if (!quiet)
+        } else if (!quiet) {
             emit updateCheckDone();
+        }
     });
 }
 
