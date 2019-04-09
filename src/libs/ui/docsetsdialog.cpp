@@ -259,7 +259,10 @@ void DocsetsDialog::downloadCompleted()
 
     if (reply->error() != QNetworkReply::NoError) {
         if (reply->error() != QNetworkReply::OperationCanceledError) {
-            const int ret = QMessageBox::warning(this, QStringLiteral("Zeal"), reply->errorString(),
+            const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
+                    .arg(reply->errorString())
+                    .arg(reply->request().url().toString());
+            const int ret = QMessageBox::warning(this, QStringLiteral("Zeal"), msg,
                                                  QMessageBox::Retry | QMessageBox::Default,
                                                  QMessageBox::Cancel | QMessageBox::Escape,
                                                  QMessageBox::NoButton);
