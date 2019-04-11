@@ -667,6 +667,7 @@ QString Docset::parseSymbolType(const QString &str)
         // Protocol
         {QStringLiteral("intf"), QStringLiteral("Protocol")},
         // Structure
+        {QStringLiteral("_Struct"), QStringLiteral("Structure")},
         {QStringLiteral("struct"), QStringLiteral("Structure")},
         {QStringLiteral("Data Structures"), QStringLiteral("Structure")},
         {QStringLiteral("Struct"), QStringLiteral("Structure")},
