@@ -22,13 +22,14 @@
 
 #include "filemanager.h"
 
+#include "application.h"
+
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QLoggingCategory>
-#include <QStandardPaths>
 
 #include <QtConcurrent>
 
@@ -41,7 +42,7 @@ FileManager::FileManager(QObject *parent)
 {
     // Ensure that cache location exists.
     // TODO: Check for errors.
-    QDir().mkpath(cacheLocation());
+    QDir().mkpath(Application::cacheLocation());
 }
 
 bool FileManager::removeRecursively(const QString &path)
@@ -80,13 +81,4 @@ bool FileManager::removeRecursively(const QString &path)
     }));
 
     return true;
-}
-
-QString FileManager::cacheLocation()
-{
-#ifndef PORTABLE_BUILD
-    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-#else
-    return QCoreApplication::applicationDirPath() + QLatin1String("/cache");
-#endif
 }

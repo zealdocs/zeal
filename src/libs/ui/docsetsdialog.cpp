@@ -856,5 +856,5 @@ int DocsetsDialog::percent(qint64 fraction, qint64 total)
 
 QString DocsetsDialog::cacheLocation(const QString &fileName)
 {
-    return QDir(Core::FileManager::cacheLocation()).filePath(fileName);
+    return QDir(Core::Application::cacheLocation()).filePath(fileName);
 }

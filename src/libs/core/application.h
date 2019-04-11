@@ -65,6 +65,7 @@ public:
     Registry::DocsetRegistry *docsetRegistry();
     FileManager *fileManager() const;
 
+    static QString cacheLocation();
     static QVersionNumber version();
 
 public slots:

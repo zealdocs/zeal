@@ -39,6 +39,7 @@
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QScopedPointer>
+#include <QStandardPaths>
 #include <QSysInfo>
 #include <QThread>
 
@@ -131,6 +132,15 @@ Registry::DocsetRegistry *Application::docsetRegistry()
 FileManager *Application::fileManager() const
 {
     return m_fileManager;
+}
+
+QString Application::cacheLocation()
+{
+#ifndef PORTABLE_BUILD
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+#else
+    return QCoreApplication::applicationDirPath() + QLatin1String("/cache");
+#endif
 }
 
 QVersionNumber Application::version()

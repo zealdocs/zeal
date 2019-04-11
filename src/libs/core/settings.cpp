@@ -23,7 +23,6 @@
 #include "settings.h"
 
 #include "application.h"
-#include "filemanager.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -55,7 +54,7 @@ Settings::Settings(QObject *parent) :
 
     // Enable local storage due to https://github.com/zealdocs/zeal/issues/872.
     QWebSettings *webSettings = QWebSettings::globalSettings();
-    webSettings->setLocalStoragePath(FileManager::cacheLocation() + QLatin1String("/localStorage"));
+    webSettings->setLocalStoragePath(Application::cacheLocation() + QLatin1String("/localStorage"));
     webSettings->setAttribute(QWebSettings::LocalStorageEnabled, true);
 
     load();

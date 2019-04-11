@@ -36,8 +36,6 @@ public:
     explicit FileManager(QObject *parent = nullptr);
 
     bool removeRecursively(const QString &path);
-
-    static QString cacheLocation();
 };
 
 } // namespace Core
