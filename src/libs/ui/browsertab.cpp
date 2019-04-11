@@ -118,9 +118,14 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     connect(m_forwardButton, &QToolButton::clicked, m_webControl, &Browser::WebControl::forward);
 
-    auto label = new QLabel("Test");
+    auto label = new QLabel();
     label->setAlignment(Qt::AlignCenter);
-    connect(m_webControl, &Browser::WebControl::titleChanged, label, &QLabel::setText);
+    connect(m_webControl, &Browser::WebControl::titleChanged, this, [label](const QString &title) {
+        if (title.isEmpty())
+            return;
+
+        label->setText(title);
+    });
 
     auto toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
