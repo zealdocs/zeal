@@ -66,6 +66,7 @@ public:
     FileManager *fileManager() const;
 
     static QString cacheLocation();
+    static QString configLocation();
     static QVersionNumber version();
 
 public slots:

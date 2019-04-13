@@ -143,6 +143,16 @@ QString Application::cacheLocation()
 #endif
 }
 
+QString Application::configLocation()
+{
+#ifndef PORTABLE_BUILD
+    // TODO: Replace 'Zeal/Zeal' with 'zeal'.
+    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+#else
+    return QCoreApplication::applicationDirPath() + QLatin1String("/config");
+#endif
+}
+
 QVersionNumber Application::version()
 {
     return QVersionNumber::fromString(QCoreApplication::applicationVersion());
