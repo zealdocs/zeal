@@ -217,8 +217,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             createTab();
     });
 
-    ui->actionCloseTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_W),
-                                      QKeySequence::Close});
+    ui->actionCloseTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_W)});
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
