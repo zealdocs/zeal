@@ -62,10 +62,10 @@ BrowserTab::BrowserTab(QWidget *parent)
 
         Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docset(name);
         if (docset) {
-            m_searchSidebar->pageTocModel()->setResults(docset->relatedLinks(url));
+            searchSidebar()->pageTocModel()->setResults(docset->relatedLinks(url));
             m_webControl->setJavaScriptEnabled(docset->isJavaScriptEnabled());
         } else {
-            m_searchSidebar->pageTocModel()->setResults();
+            searchSidebar()->pageTocModel()->setResults();
             // Always enable JS outside of docsets.
             m_webControl->setJavaScriptEnabled(true);
         }
