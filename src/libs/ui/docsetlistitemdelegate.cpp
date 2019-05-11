@@ -38,45 +38,14 @@ DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent) :
 void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
-    QStyledItemDelegate::paint(painter, option, index);
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
 
     if (Q_UNLIKELY(index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())) {
-
-        const QString text = tr("Update available");
-
-        QFont font(painter->font());
-        font.setItalic(true);
-
-        const QFontMetrics fontMetrics(font);
-
-        QRect textRect = option.rect;
-        textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
-
-        QPalette palette = option.palette;
-
-    #ifdef Q_OS_WIN32
-        // QWindowsVistaStyle overrides highlight colour.
-        if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
-            palette.setColor(QPalette::All, QPalette::HighlightedText,
-                            palette.color(QPalette::Active, QPalette::Text));
-        }
-    #endif
-
-        const QPalette::ColorGroup cg = (option.state & QStyle::State_Active)
-                ? QPalette::Normal : QPalette::Inactive;
-
-        painter->save();
-
-        if (option.state & QStyle::State_Selected) {
-            painter->setPen(palette.color(cg, QPalette::HighlightedText));
-        } else {
-            painter->setPen(palette.color(cg, QPalette::Text));
-        }
-
-        painter->setFont(font);
-        painter->drawText(textRect, text);
-
-        painter->restore();
-
+        opt.font.setBold(true);
     }
+
+    const QWidget *widget = opt.widget;
+    QStyle *style = widget->style();
+    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
 }
