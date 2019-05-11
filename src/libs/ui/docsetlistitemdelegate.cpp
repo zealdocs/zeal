@@ -40,42 +40,43 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 {
     QStyledItemDelegate::paint(painter, option, index);
 
-    if (!index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())
-        return;
+    if (Q_UNLIKELY(index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())) {
 
-    const QString text = tr("Update available");
+        const QString text = tr("Update available");
 
-    QFont font(painter->font());
-    font.setItalic(true);
+        QFont font(painter->font());
+        font.setItalic(true);
 
-    const QFontMetrics fontMetrics(font);
+        const QFontMetrics fontMetrics(font);
 
-    QRect textRect = option.rect;
-    textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
+        QRect textRect = option.rect;
+        textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
 
-    painter->save();
+        QPalette palette = option.palette;
 
-    QPalette palette = option.palette;
+    #ifdef Q_OS_WIN32
+        // QWindowsVistaStyle overrides highlight colour.
+        if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
+            palette.setColor(QPalette::All, QPalette::HighlightedText,
+                            palette.color(QPalette::Active, QPalette::Text));
+        }
+    #endif
 
-#ifdef Q_OS_WIN32
-    // QWindowsVistaStyle overrides highlight colour.
-    if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
-        palette.setColor(QPalette::All, QPalette::HighlightedText,
-                         palette.color(QPalette::Active, QPalette::Text));
+        const QPalette::ColorGroup cg = (option.state & QStyle::State_Active)
+                ? QPalette::Normal : QPalette::Inactive;
+
+        painter->save();
+
+        if (option.state & QStyle::State_Selected) {
+            painter->setPen(palette.color(cg, QPalette::HighlightedText));
+        } else {
+            painter->setPen(palette.color(cg, QPalette::Text));
+        }
+
+        painter->setFont(font);
+        painter->drawText(textRect, text);
+
+        painter->restore();
+
     }
-#endif
-
-    const QPalette::ColorGroup cg = (option.state & QStyle::State_Active)
-            ? QPalette::Normal : QPalette::Inactive;
-
-    if (option.state & QStyle::State_Selected) {
-        painter->setPen(palette.color(cg, QPalette::HighlightedText));
-    } else {
-        painter->setPen(palette.color(cg, QPalette::Text));
-    }
-
-    painter->setFont(font);
-    painter->drawText(textRect, text);
-
-    painter->restore();
 }
