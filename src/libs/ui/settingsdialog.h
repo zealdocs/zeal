@@ -42,6 +42,7 @@ public:
 
 private slots:
     void chooseCustomCssFile();
+    void chooseCustomUiCssFile();
     void chooseDocsetStoragePath();
 
 private:

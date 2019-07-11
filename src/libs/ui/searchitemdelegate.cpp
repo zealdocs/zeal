@@ -123,13 +123,18 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QString elidedText = fm.elidedText(opt.text, opt.textElideMode, textRect.width());
 
     if (!m_highlight.isEmpty()) {
+        QColor highlightColor = QColor::fromRgb(255, 255, 100);
+        if(painter->pen().color().toHsv().value() > 127)
+            highlightColor = QColor::fromRgb(100, 100, 0);;
+
+        if(opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
+            highlightColor.setAlpha(20);
+        else
+            highlightColor.setAlpha(120);
+
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
         painter->setPen(QColor::fromRgb(255, 253, 0));
-
-        const QColor highlightColor
-                = (opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
-                ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
         for (int i = 0;;) {
             const int matchIndex = opt.text.indexOf(m_highlight, i, Qt::CaseInsensitive);
