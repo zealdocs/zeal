@@ -516,6 +516,24 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
+namespace
+{
+    void addFileContent(QByteArray& destinationArray, const QString& filename)
+    {
+        if (filename.isEmpty()) {
+            return;
+        }
+        if (QFileInfo::exists(filename)) {
+            QFile file(filename);
+            if (file.open(QIODevice::ReadOnly)) {
+                destinationArray += file.readAll();
+            }
+        } else {
+            qWarning("File does not exists: %s", filename.toUtf8().data());
+        }
+    }
+}
+
 void MainWindow::applySettings()
 {
     m_globalShortcut->setShortcut(m_settings->showShortcut);
@@ -525,27 +543,33 @@ void MainWindow::applySettings()
     else
         removeTrayIcon();
 
+    // UI style
+    QByteArray uiCsssContent;
+    switch (m_settings->uiStyle) {
+    case Core::Settings::UiStyle::SystemDefault:
+        // system style = no css content
+        break;
+    case Core::Settings::UiStyle::Dark:
+        addFileContent(uiCsssContent, ":/css/darkorange.stylesheet");
+        break;
+    case Core::Settings::UiStyle::CustomCssFile:
+        addFileContent(uiCsssContent, m_settings->customUiCssFile);
+        break;
+    }
+    qApp->setStyleSheet(QString::fromUtf8(uiCsssContent));
+
     // Content
     QByteArray ba = QByteArrayLiteral("body { background-color: white; }");
     if (m_settings->darkModeEnabled) {
-        QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, DarkModeCssUrl);
     }
 
     if (m_settings->highlightOnNavigateEnabled) {
-        QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, HighlightOnNavigateCssUrl);
     }
 
     if (QFileInfo::exists(m_settings->customCssFile)) {
-        QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, m_settings->customCssFile);
     }
 
     const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();
