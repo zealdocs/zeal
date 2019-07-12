@@ -39,7 +39,7 @@
 #include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
-#include <QWebHistory>
+#include <QWebEngineHistory>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -83,11 +83,11 @@ BrowserTab::BrowserTab(QWidget *parent)
     auto backMenu = new QMenu(m_backButton);
     connect(backMenu, &QMenu::aboutToShow, this, [this, backMenu]() {
         backMenu->clear();
-        QWebHistory *history = m_webControl->history();
-        QList<QWebHistoryItem> items = history->backItems(10);
+        QWebEngineHistory *history = m_webControl->history();
+        QList<QWebEngineHistoryItem> items = history->backItems(10);
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
             const QIcon icon = docsetIcon(it->url());
-            const QWebHistoryItem item = *it;
+            const QWebEngineHistoryItem item = *it;
             backMenu->addAction(icon, it->title(), this, [=](bool) { history->goToItem(item); });
         }
     });
@@ -105,9 +105,9 @@ BrowserTab::BrowserTab(QWidget *parent)
     auto forwardMenu = new QMenu(m_forwardButton);
     connect(forwardMenu, &QMenu::aboutToShow, this, [this, forwardMenu]() {
         forwardMenu->clear();
-        QWebHistory *history = m_webControl->history();
+        QWebEngineHistory *history = m_webControl->history();
         const auto forwardItems = history->forwardItems(10);
-        for (const QWebHistoryItem &item : forwardItems) {
+        for (const QWebEngineHistoryItem &item : forwardItems) {
             const QIcon icon = docsetIcon(item.url());
             forwardMenu->addAction(icon, item.title(), this, [=](bool) { history->goToItem(item); });
         }

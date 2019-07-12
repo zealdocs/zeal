@@ -40,7 +40,7 @@ AppDir:
       - libqt5x11extras5
       - libqt5concurrent5
       - libqt5webchannel5
-      - libqt5webkit5
+      - libqt5webengine5
       - libqt5widgets5
       - qtwayland5
       # Other dependencies.

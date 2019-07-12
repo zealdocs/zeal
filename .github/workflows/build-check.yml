@@ -27,11 +27,11 @@ jobs:
             cmake \
             extra-cmake-modules \
             libarchive-dev \
-            libqt5webkit5-dev \
             libqt5x11extras5-dev \
             libsqlite3-dev \
             libxcb-keysyms1-dev \
-            qt5-default
+            qt5-default \
+            qtwebengine5-dev
 
       - name: Configure
         run: |
@@ -59,12 +59,12 @@ jobs:
             cmake extra-cmake-modules
             libappindicator-dev
             libarchive-dev
-            libqt5webkit5-dev
             libqt5x11extras5-dev
             libsqlite3-dev
             libxcb-keysyms1-dev
             ninja-build
             qtbase5-dev
+            qtwebengine5-dev
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v2-preview

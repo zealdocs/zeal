@@ -41,22 +41,16 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
-#include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QWebSettings>
+#include <QWebEngineSettings>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
-
-namespace {
-constexpr char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
-constexpr char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
-} // namespace
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     : QMainWindow(parent)
@@ -531,34 +525,8 @@ void MainWindow::applySettings()
     else
         removeTrayIcon();
 
-    // Content
-    QByteArray ba = QByteArrayLiteral("body { background-color: white; }");
-    if (m_settings->darkModeEnabled) {
-        QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    if (m_settings->highlightOnNavigateEnabled) {
-        QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    if (QFileInfo::exists(m_settings->customCssFile)) {
-        QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();
-    QWebSettings::globalSettings()->setUserStyleSheetUrl(QUrl(cssUrl));
-
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::ScrollAnimatorEnabled,
-                                                 m_settings->isSmoothScrollingEnabled);
+    QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::ScrollAnimatorEnabled,
+                                                       m_settings->isSmoothScrollingEnabled);
 }
 
 void MainWindow::toggleWindow()

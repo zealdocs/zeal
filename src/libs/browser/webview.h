@@ -24,12 +24,12 @@
 #ifndef ZEAL_BROWSER_WEBVIEW_H
 #define ZEAL_BROWSER_WEBVIEW_H
 
-#include <QWebView>
+#include <QWebEngineView>
 
 namespace Zeal {
 namespace Browser {
 
-class WebView final : public QWebView
+class WebView final : public QWebEngineView
 {
     Q_OBJECT
     Q_DISABLE_COPY(WebView)
@@ -38,6 +38,8 @@ public:
 
     int zoomLevel() const;
     void setZoomLevel(int level);
+
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     static const QVector<int> &availableZoomLevels();
     static int defaultZoomLevel();
@@ -51,15 +53,12 @@ signals:
     void zoomLevelChanged();
 
 protected:
-    QWebView *createWindow(QWebPage::WebWindowType type) override;
+    QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    QWebHitTestResult hitTestContent(const QPoint &pos) const;
-
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
     int m_zoomLevel = 0;
