@@ -218,6 +218,10 @@ int main(int argc, char *argv[])
     qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
                                          QIcon(QStringLiteral(":/zeal.ico"))));
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
+    qapp->setDesktopFileName(QStringLiteral("org.zealdocs.Zeal.desktop"));
+#endif
+
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     QScopedPointer<Core::Application> app(new Core::Application());
