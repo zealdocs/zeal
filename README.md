@@ -70,6 +70,13 @@ We want your feedback! Here's a list of different ways to contact developers and
 * Finally, for private communications email us at zeal@zealdocs.org.
 * And do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
 
+If you feel generous and want to show some extra appreciation:
+
+[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
+
+[buymeacoffee]: https://www.buymeacoffee.com/trollixx
+[buymeacoffee-shield]: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
+
 ## License
 
 This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](http://opensource.org/licenses/gpl-3.0.html).
