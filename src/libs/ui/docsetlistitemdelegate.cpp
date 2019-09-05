@@ -51,7 +51,7 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     const QFontMetrics fontMetrics(font);
 
     QRect textRect = option.rect;
-#if QT_VERSION >= 0x050B00 // 5.11.0
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     textRect.setLeft(textRect.right() - fontMetrics.horizontalAdvance(text) - 2);
 #else
     textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
