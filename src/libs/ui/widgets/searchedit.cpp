@@ -154,9 +154,10 @@ void SearchEdit::showCompletions(const QString &newValue)
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
     const QSize labelSize(fontMetrics().width(completed), size().height());
+    const int shiftX = static_cast<int>(window()->devicePixelRatioF() * (frameWidth + 2)) + textWidth;
 
     m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->move(shiftX, 0);
     m_completionLabel->setText(completed);
 }
 
