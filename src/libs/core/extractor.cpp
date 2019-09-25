@@ -56,7 +56,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
 
     QDir destinationDir(destination);
     if (!root.isEmpty()) {
-        destinationDir = destinationDir.filePath(root);
+        destinationDir.setPath(destinationDir.filePath(root));
     }
 
     // TODO: Do not strip root directory in archive if it equals to 'root'
