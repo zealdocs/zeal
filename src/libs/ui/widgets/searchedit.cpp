@@ -147,13 +147,21 @@ void SearchEdit::showCompletions(const QString &newValue)
         return;
 
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    const int textWidth = fontMetrics().horizontalAdvance(newValue);
+#else
     const int textWidth = fontMetrics().width(newValue);
+#endif
 
     if (m_prefixCompleter)
         m_prefixCompleter->setCompletionPrefix(text());
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    const QSize labelSize(fontMetrics().horizontalAdvance(completed), size().height());
+#else
     const QSize labelSize(fontMetrics().width(completed), size().height());
+#endif
     const int shiftX = static_cast<int>(window()->devicePixelRatioF() * (frameWidth + 2)) + textWidth;
 
     m_completionLabel->setMinimumSize(labelSize);
