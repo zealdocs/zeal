@@ -875,7 +875,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
         if ((i > 0 && needleOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             needle[j] = '.';
-        } else if (c >= 'A' && c <= 'Z')  {
+        } else if (c >= 'A' && c <= 'Z') {
             needle[j] = c + 32;
         } else {
             needle[j] = c;
@@ -887,7 +887,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
         if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             haystack[j] = '.';
-        } else if (c >= 'A' && c <= 'Z')  {
+        } else if (c >= 'A' && c <= 'Z') {
             haystack[j] = c + 32;
         } else {
             haystack[j] = c;
