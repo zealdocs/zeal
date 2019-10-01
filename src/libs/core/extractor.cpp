@@ -31,8 +31,8 @@
 
 using namespace Zeal::Core;
 
-Extractor::Extractor(QObject *parent) :
-    QObject(parent)
+Extractor::Extractor(QObject *parent)
+    : QObject(parent)
 {
 }
 

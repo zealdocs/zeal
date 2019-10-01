@@ -47,8 +47,8 @@ const char GroupProxy[] = "proxy";
 
 using namespace Zeal::Core;
 
-Settings::Settings(QObject *parent) :
-    QObject(parent)
+Settings::Settings(QObject *parent)
+    : QObject(parent)
 {
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
 
