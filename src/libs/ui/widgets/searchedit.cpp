@@ -34,8 +34,8 @@
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
-SearchEdit::SearchEdit(QWidget *parent) :
-    QLineEdit(parent)
+SearchEdit::SearchEdit(QWidget *parent)
+    : QLineEdit(parent)
 {
     setClearButtonEnabled(true);
     setPlaceholderText(tr("Search"));

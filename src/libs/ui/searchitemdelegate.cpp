@@ -31,8 +31,8 @@
 
 using namespace Zeal::WidgetUi;
 
-SearchItemDelegate::SearchItemDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+SearchItemDelegate::SearchItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
 }
 

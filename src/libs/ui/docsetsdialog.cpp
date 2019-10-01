@@ -69,11 +69,11 @@ const char DownloadPreviousReceived[] = "downloadPreviousReceived";
 const char ListItemIndexProperty[] = "listItem";
 }
 
-DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DocsetsDialog()),
-    m_application(app),
-    m_docsetRegistry(app->docsetRegistry())
+DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::DocsetsDialog())
+    , m_application(app)
+    , m_docsetRegistry(app->docsetRegistry())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

@@ -30,8 +30,8 @@
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
-DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
 }
 

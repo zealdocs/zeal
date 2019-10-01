@@ -62,8 +62,8 @@ int QxtGlobalShortcutPrivate::ref = 0;
 
 QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> QxtGlobalShortcutPrivate::shortcuts;
 
-QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq) :
-    q_ptr(qq)
+QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq)
+    : q_ptr(qq)
 {
 #ifndef Q_OS_MACOS
     if (ref == 0)
@@ -163,18 +163,18 @@ bool QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
 /*!
     Constructs a new QxtGlobalShortcut with \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(QObject *parent) :
-    QObject(parent),
-    d_ptr(new QxtGlobalShortcutPrivate(this))
+QxtGlobalShortcut::QxtGlobalShortcut(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QxtGlobalShortcutPrivate(this))
 {
 }
 
 /*!
     Constructs a new QxtGlobalShortcut with \a shortcut and \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *parent) :
-    QObject(parent),
-    d_ptr(new QxtGlobalShortcutPrivate(this))
+QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QxtGlobalShortcutPrivate(this))
 {
     setShortcut(shortcut);
 }

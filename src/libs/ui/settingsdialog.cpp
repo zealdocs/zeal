@@ -46,9 +46,9 @@ const QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
                                                       QWebSettings::FixedFont};
 }
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SettingsDialog())
+SettingsDialog::SettingsDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::SettingsDialog())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

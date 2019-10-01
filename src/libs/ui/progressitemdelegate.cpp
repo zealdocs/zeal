@@ -28,8 +28,8 @@
 
 using namespace Zeal::WidgetUi;
 
-ProgressItemDelegate::ProgressItemDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+ProgressItemDelegate::ProgressItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
 {
 }
 

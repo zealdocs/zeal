@@ -63,11 +63,11 @@ const char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
 const char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
 }
 
-MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_application(app),
-    m_settings(app->settings())
+MainWindow::MainWindow(Core::Application *app, QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , m_application(app)
+    , m_settings(app->settings())
 {
     ui->setupUi(this);
 
