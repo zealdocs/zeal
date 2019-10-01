@@ -32,8 +32,8 @@ const char prefixSeparator = ':';
 const char keywordSeparator = ',';
 }
 
-SearchQuery::SearchQuery(QString query, const QStringList &keywords) :
-    m_query(std::move(query))
+SearchQuery::SearchQuery(QString query, const QStringList &keywords)
+    : m_query(std::move(query))
 {
     setKeywords(keywords);
 }

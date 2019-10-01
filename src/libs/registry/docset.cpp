@@ -64,8 +64,8 @@ const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
 
-Docset::Docset(QString path) :
-    m_path(std::move(path))
+Docset::Docset(QString path)
+    : m_path(std::move(path))
 {
     QDir dir(m_path);
     if (!dir.exists())

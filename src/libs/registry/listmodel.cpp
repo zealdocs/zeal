@@ -31,9 +31,9 @@
 
 using namespace Zeal::Registry;
 
-ListModel::ListModel(DocsetRegistry *docsetRegistry) :
-    QAbstractItemModel(docsetRegistry),
-    m_docsetRegistry(docsetRegistry)
+ListModel::ListModel(DocsetRegistry *docsetRegistry)
+    : QAbstractItemModel(docsetRegistry)
+    , m_docsetRegistry(docsetRegistry)
 {
     connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, &ListModel::addDocset);
     connect(m_docsetRegistry, &DocsetRegistry::docsetAboutToBeUnloaded, this, &ListModel::removeDocset);

@@ -28,8 +28,8 @@
 
 using namespace Zeal::Registry;
 
-SearchModel::SearchModel(QObject *parent) :
-    QAbstractListModel(parent)
+SearchModel::SearchModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
 }
 
