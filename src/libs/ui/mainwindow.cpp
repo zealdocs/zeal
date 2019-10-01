@@ -67,13 +67,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_application(app),
-    m_settings(app->settings()),
-    m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this))
+    m_settings(app->settings())
 {
     ui->setupUi(this);
 
-    // initialise key grabber
-    connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+    // Initialize the global shortcut handler if supported.
+    if (QxtGlobalShortcut::isSupported()) {
+        m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
+        connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+    }
 
     setupTabBar();
 
@@ -119,10 +121,16 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     }
 
     connect(ui->actionPreferences, &QAction::triggered, this, [this]() {
-        m_globalShortcut->setEnabled(false);
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(false);
+        }
+
         QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
-        m_globalShortcut->setEnabled(true);
+
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(true);
+        }
     });
 
     ui->actionBack->setShortcut(QKeySequence::Back);
@@ -518,7 +526,9 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 
 void MainWindow::applySettings()
 {
-    m_globalShortcut->setShortcut(m_settings->showShortcut);
+    if (m_globalShortcut) {
+        m_globalShortcut->setShortcut(m_settings->showShortcut);
+    }
 
     if (m_settings->showSystrayIcon)
         createTrayIcon();
@@ -557,7 +567,7 @@ void MainWindow::applySettings()
 
 void MainWindow::toggleWindow()
 {
-    const bool checkActive = sender() == m_globalShortcut;
+    const bool checkActive = m_globalShortcut && sender() == m_globalShortcut;
 
     if (!isVisible() || (checkActive && !isActiveWindow())) {
         bringToFront();

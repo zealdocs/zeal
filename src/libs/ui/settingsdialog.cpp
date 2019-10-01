@@ -24,6 +24,8 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
+
 #include <core/application.h>
 #include <core/settings.h>
 
@@ -74,6 +76,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // Fix tab order.
     setTabOrder(ui->defaultFontComboBox, ui->fontSizeComboBox);
     setTabOrder(ui->fontSizeComboBox, ui->serifFontComboBox);
+
+    // Disable global shortcut settings if not supported.
+    ui->globalHotKeyGroupBox->setEnabled(QxtGlobalShortcut::isSupported());
 
     QWebSettings *webSettings = QWebSettings::globalSettings();
 

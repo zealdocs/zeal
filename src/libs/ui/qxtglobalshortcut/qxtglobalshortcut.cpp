@@ -54,6 +54,7 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QAbstractEventDispatcher>
+#include <QGuiApplication>
 
 #ifndef Q_OS_MACOS
 int QxtGlobalShortcutPrivate::ref = 0;
@@ -233,6 +234,16 @@ bool QxtGlobalShortcut::isEnabled() const
 {
     Q_D(const QxtGlobalShortcut);
     return d->enabled;
+}
+
+/*!
+ * \brief QxtGlobalShortcut::isSupported checks if the current platform is supported.
+ */
+bool QxtGlobalShortcut::isSupported()
+{
+    return QGuiApplication::platformName() == QLatin1String("windows")
+            || QGuiApplication::platformName() == QLatin1String("xcb")
+            || QGuiApplication::platformName() == QLatin1String("cocoa");
 }
 
 void QxtGlobalShortcut::setEnabled(bool enabled)
