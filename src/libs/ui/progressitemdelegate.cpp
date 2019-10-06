@@ -23,8 +23,11 @@
 
 #include "progressitemdelegate.h"
 
+#include <QEvent>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QProgressBar>
+#include <QPushButton>
 
 using namespace Zeal::WidgetUi;
 
@@ -51,7 +54,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     // Adjust maximum text width
     QStyleOptionViewItem styleOption = option;
-    styleOption.rect.setRight(styleOption.rect.right() - progressBarWidth);
+    styleOption.rect.setRight(styleOption.rect.right() - progressBarWidth - cancelButtonWidth);
 
     // Size progress bar
     QScopedPointer<QProgressBar> renderer(new QProgressBar());
@@ -60,6 +63,7 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     renderer->setValue(value);
 
     const QString format = index.model()->data(index, FormatRole).toString();
+    const bool isCancellable = index.model()->data(index, CancellableRole).toBool();
     if (!format.isEmpty())
         renderer->setFormat(format);
 
@@ -69,7 +73,30 @@ void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     painter->translate(styleOption.rect.topRight());
     renderer->render(painter);
 
+    // Button
+    if (isCancellable) {
+        QScopedPointer<QPushButton> buttonRenderer(new QPushButton(tr("Cancel")));
+        buttonRenderer->resize(cancelButtonWidth, styleOption.rect.height());
+        painter->translate(progressBarWidth, 0);
+        buttonRenderer->render(painter);
+    }
     painter->restore();
 
     QStyledItemDelegate::paint(painter, styleOption, index);
+}
+
+bool ProgressItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+                                       const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+    QRect cancelBounds = option.rect;
+    cancelBounds.setLeft(cancelBounds.right() - cancelButtonWidth);
+
+    if (event->type() == QEvent::MouseButtonRelease
+            && index.model()->data(index, ShowProgressRole).toBool()
+            && cancelBounds.contains(mouseEvent->pos())) {
+        emit cancelButtonClicked(index);
+    }
+
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

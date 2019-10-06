@@ -66,6 +66,7 @@ constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 const char DocsetNameProperty[] = "docsetName";
 const char DownloadTypeProperty[] = "downloadType";
 const char DownloadPreviousReceived[] = "downloadPreviousReceived";
+const char DownloadTotalSize[] = "downloadTotalSize";
 const char ListItemIndexProperty[] = "listItem";
 }
 
@@ -238,6 +239,7 @@ void DocsetsDialog::downloadSelectedDocsets()
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
         model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, true, ProgressItemDelegate::CancellableRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -377,6 +379,7 @@ void DocsetsDialog::downloadCompleted()
         QListWidgetItem *item = findDocsetListItem(docsetName);
         if (item) {
             item->setData(ProgressItemDelegate::ValueRole, 0);
+            item->setData(ProgressItemDelegate::CancellableRole, false);
             item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
@@ -423,11 +426,12 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
 
     qint64 previousReceived = 0;
     const QVariant previousReceivedVariant = reply->property(DownloadPreviousReceived);
-    if (!previousReceivedVariant.isValid())
+    if (!previousReceivedVariant.isValid()) {
+        reply->setProperty(DownloadTotalSize, total);
         m_combinedTotal += total;
-    else
+    } else {
         previousReceived = previousReceivedVariant.toLongLong();
-
+    }
     m_combinedReceived += received - previousReceived;
     reply->setProperty(DownloadPreviousReceived, received);
 
@@ -556,7 +560,9 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 {
     using Registry::DocsetRegistry;
 
-    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
+    ProgressItemDelegate *delegate = new ProgressItemDelegate(this);
+    connect(delegate, &ProgressItemDelegate::cancelButtonClicked, this, &DocsetsDialog::cancelDownload);
+    ui->availableDocsetList->setItemDelegate(delegate);
 
     connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
@@ -591,6 +597,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
         model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
+        model->setData(index, true, ProgressItemDelegate::CancellableRole);
         model->setData(index, 0, ProgressItemDelegate::ValueRole);
         model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
 
@@ -688,6 +695,31 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
     updateCombinedProgress();
 
     return reply;
+}
+
+void DocsetsDialog::cancelDownload(const QModelIndex &index)
+{
+    // Find and delete download jobs corresponding to index
+    for (QNetworkReply *reply : m_replies) {
+        if (reply->property(ListItemIndexProperty).toInt() != index.row()
+                || reply->property(DownloadTypeProperty).toInt() != DownloadDocset) {
+            continue;
+        }
+
+        QListWidgetItem *listItem = ui->availableDocsetList->item(index.row());
+        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
+        reply->abort();
+
+        m_combinedReceived -= reply->property(DownloadPreviousReceived).toLongLong();
+        m_combinedTotal -= reply->property(DownloadTotalSize).toLongLong();
+    }
+
+    // As the current download is cancelled, unselect the current selected item
+    // This also triggers selectionChanged() and the state of downloadDocsetsButton
+    // is recomputed on the next selection
+    ui->availableDocsetList->selectionModel()->clearSelection();
+    updateCombinedProgress();
 }
 
 void DocsetsDialog::cancelDownloads()

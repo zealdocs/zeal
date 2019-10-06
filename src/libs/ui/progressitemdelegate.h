@@ -36,7 +36,8 @@ public:
     enum ProgressRoles {
         ValueRole = Qt::UserRole + 10,
         FormatRole,
-        ShowProgressRole
+        ShowProgressRole,
+        CancellableRole
     };
 
     explicit ProgressItemDelegate(QObject *parent = nullptr);
@@ -44,8 +45,16 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
+protected:
+    bool editorEvent(QEvent *event, QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option, const QModelIndex &index) override;
+
+signals:
+    void cancelButtonClicked(const QModelIndex& index);
+
 private:
     static const int progressBarWidth = 150;
+    static const int cancelButtonWidth = 50;
 };
 
 } // namespace WidgetUi
