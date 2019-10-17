@@ -87,6 +87,15 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    case Qt::ToolTipRole:
+        switch (indexLevel(index)) {
+        case Level::DocsetLevel: {
+            const auto docset = itemInRow(index.row())->docset;
+            return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
+        }
+        default:
+            return QVariant();
+        }
     case ItemDataRole::UrlRole:
         switch (indexLevel(index)) {
         case Level::DocsetLevel:
