@@ -65,7 +65,6 @@ constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 // QNetworkReply properties
 const char DocsetNameProperty[] = "docsetName";
 const char DownloadTypeProperty[] = "downloadType";
-const char DownloadPreviousReceived[] = "downloadPreviousReceived";
 const char ListItemIndexProperty[] = "listItem";
 }
 
@@ -95,8 +94,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     ui->installedDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
-    ui->combinedProgressBar->hide();
-    ui->cancelButton->hide();
+    ui->statusLabel->clear(); // Clear text shown in the designer mode.
     ui->readOnlyLabel->setVisible(m_isStorageReadOnly);
 
     connect(m_application, &Core::Application::extractionCompleted,
@@ -106,33 +104,30 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     connect(m_application, &Core::Application::extractionProgress,
             this, &DocsetsDialog::extractionProgress);
 
-    connect(ui->cancelButton, &QPushButton::clicked, this, &DocsetsDialog::cancelDownloads);
+    // Setup signals & slots
+    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
+        if (button == ui->buttonBox->button(QDialogButtonBox::Cancel)) {
+            cancelDownloads();
+            return;
+        }
+
+        if (button == ui->buttonBox->button(QDialogButtonBox::Close)) {
+            close();
+            return;
+        }
+    });
 
     setupInstalledDocsetsTab();
     setupAvailableDocsetsTab();
 
     if (m_isStorageReadOnly) {
         disableControls();
-
-        // Updating the docset list is fine;
-        ui->refreshButton->setEnabled(true);
     }
 }
 
 DocsetsDialog::~DocsetsDialog()
 {
     delete ui;
-}
-
-void DocsetsDialog::reject()
-{
-    if (m_replies.isEmpty() && m_tmpFiles.isEmpty()) {
-        QDialog::reject();
-        return;
-    }
-
-    QMessageBox::information(this, QStringLiteral("Zeal"),
-                             tr("Please wait for all operations to finish."));
 }
 
 void DocsetsDialog::addDashFeed()
@@ -284,7 +279,7 @@ void DocsetsDialog::downloadCompleted()
                 listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
         }
 
-        resetProgress();
+        updateStatus();
         return;
     }
 
@@ -385,9 +380,8 @@ void DocsetsDialog::downloadCompleted()
     }
     }
 
-    // If all enqueued downloads have finished executing
-    if (m_replies.isEmpty())
-        resetProgress();
+    // If all enqueued downloads have finished executing.
+    updateStatus();
 }
 
 // creates a total download progress for multiple QNetworkReplies
@@ -417,20 +411,9 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     // Try to get the item associated to the request
     QListWidgetItem *item
             = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
-    if (item)
+    if (item) {
         item->setData(ProgressItemDelegate::ValueRole, percent(received, total));
-
-    qint64 previousReceived = 0;
-    const QVariant previousReceivedVariant = reply->property(DownloadPreviousReceived);
-    if (!previousReceivedVariant.isValid())
-        m_combinedTotal += total;
-    else
-        previousReceived = previousReceivedVariant.toLongLong();
-
-    m_combinedReceived += received - previousReceived;
-    reply->setProperty(DownloadPreviousReceived, received);
-
-    updateCombinedProgress();
+    }
 }
 
 void DocsetsDialog::extractionCompleted(const QString &filePath)
@@ -453,8 +436,9 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
         listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
     }
 
-    resetProgress();
     delete m_tmpFiles.take(docsetName);
+
+    updateStatus();
 }
 
 void DocsetsDialog::extractionError(const QString &filePath, const QString &errorString)
@@ -615,12 +599,15 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
 void DocsetsDialog::enableControls()
 {
-    // Available docsets
-    ui->refreshButton->setEnabled(true);
-
-    if (m_isStorageReadOnly) {
+    if (m_isStorageReadOnly || !m_replies.isEmpty() || !m_tmpFiles.isEmpty()) {
         return;
     }
+
+    // Dialog buttons.
+    ui->buttonBox->setStandardButtons(QDialogButtonBox::Close);
+
+    // Available docsets
+    ui->refreshButton->setEnabled(true);
 
     // Installed docsets
     ui->addFeedButton->setEnabled(true);
@@ -641,6 +628,9 @@ void DocsetsDialog::enableControls()
 
 void DocsetsDialog::disableControls()
 {
+    // Dialog buttons.
+    ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
+
     // Installed docsets
     ui->addFeedButton->setEnabled(false);
     ui->updateSelectedDocsetsButton->setEnabled(false);
@@ -683,8 +673,7 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
     m_replies.append(reply);
 
     disableControls();
-
-    updateCombinedProgress();
+    updateStatus();
 
     return reply;
 }
@@ -704,7 +693,7 @@ void DocsetsDialog::cancelDownloads()
         reply->abort();
     }
 
-    resetProgress();
+    updateStatus();
 }
 
 void DocsetsDialog::loadUserFeedList()
@@ -807,29 +796,19 @@ void DocsetsDialog::removeDocset(const QString &name)
     }
 }
 
-void DocsetsDialog::updateCombinedProgress()
+void DocsetsDialog::updateStatus()
 {
-    if (m_replies.isEmpty()) {
-        resetProgress();
-        return;
+    QString text;
+
+    if (!m_replies.isEmpty()) {
+        text = tr("Downloading: %n.", nullptr, m_replies.size());
     }
 
-    ui->combinedProgressBar->show();
-    ui->combinedProgressBar->setValue(percent(m_combinedReceived, m_combinedTotal));
-    ui->cancelButton->show();
-}
+    if (!m_tmpFiles.isEmpty()) {
+        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, m_replies.size());
+    }
 
-void DocsetsDialog::resetProgress()
-{
-    if (!m_replies.isEmpty())
-        return;
-
-    ui->cancelButton->hide();
-    ui->combinedProgressBar->hide();
-    ui->combinedProgressBar->setValue(0);
-
-    m_combinedReceived = 0;
-    m_combinedTotal = 0;
+    ui->statusLabel->setText(text);
 
     enableControls();
 }
