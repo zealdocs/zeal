@@ -537,7 +537,7 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
         realFragment = fragment;
     }
 
-    static const QRegularExpression dashEntryRegExp(QLatin1String("<dash_entry_.*>"));
+    static const QRegularExpression dashEntryRegExp(QStringLiteral("<dash_entry_.*>"));
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
@@ -945,7 +945,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
 {
-    Q_UNUSED(argc);
+    Q_UNUSED(argc)
 
     auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
     auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));

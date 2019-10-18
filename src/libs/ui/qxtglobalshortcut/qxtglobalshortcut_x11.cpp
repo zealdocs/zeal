@@ -57,9 +57,9 @@
 #include <QVector>
 #include <QX11Info>
 
+#include <X11/Xlib.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
-#include <X11/Xlib.h>
 
 namespace {
 const quint32 maskModifiers[] = {
