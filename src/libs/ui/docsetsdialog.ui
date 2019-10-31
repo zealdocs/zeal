@@ -218,11 +218,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="readOnlyLabel">
-       <property name="text">
-        <string>&lt;b&gt;Docset storage is read only.&lt;/b&gt;</string>
-       </property>
-      </widget>
+      <widget class="QLabel" name="storageStatusLabel"/>
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">

@@ -83,7 +83,9 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     qt_ntfs_permission_lookup++;
 #endif
 
-    m_isStorageReadOnly = !QFileInfo(m_application->settings()->docsetPath).isWritable();
+    const QFileInfo fi(m_application->settings()->docsetPath);
+
+    m_isStorageReadOnly = !fi.isWritable();
 
 #ifdef Q_OS_WIN32
     qt_ntfs_permission_lookup--;
@@ -95,7 +97,10 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 #endif
 
     ui->statusLabel->clear(); // Clear text shown in the designer mode.
-    ui->readOnlyLabel->setVisible(m_isStorageReadOnly);
+    ui->storageStatusLabel->setVisible(m_isStorageReadOnly);
+    ui->storageStatusLabel->setText(fi.exists() ?
+                                    QStringLiteral("<b>Docset storage is read only.</b>") :
+                                    QStringLiteral("<b>Docset storage does not exist.</b>"));
 
     connect(m_application, &Core::Application::extractionCompleted,
             this, &DocsetsDialog::extractionCompleted);
