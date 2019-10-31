@@ -35,14 +35,14 @@
 
 namespace {
 // Configuration file groups
-const char GroupContent[] = "content";
-const char GroupDocsets[] = "docsets";
-const char GroupGlobalShortcuts[] = "global_shortcuts";
-const char GroupSearch[] = "search";
-const char GroupTabs[] = "tabs";
-const char GroupInternal[] = "internal";
-const char GroupState[] = "state";
-const char GroupProxy[] = "proxy";
+constexpr char GroupContent[] = "content";
+constexpr char GroupDocsets[] = "docsets";
+constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
+constexpr char GroupSearch[] = "search";
+constexpr char GroupTabs[] = "tabs";
+constexpr char GroupInternal[] = "internal";
+constexpr char GroupState[] = "state";
+constexpr char GroupProxy[] = "proxy";
 }
 
 using namespace Zeal::Core;

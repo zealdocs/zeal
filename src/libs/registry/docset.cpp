@@ -46,19 +46,19 @@
 using namespace Zeal::Registry;
 
 namespace {
-const char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
-const char IndexNameVersion[] = "0001"; // Current index version
+constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
+constexpr char IndexNameVersion[] = "0001"; // Current index version
 
 namespace InfoPlist {
-const char CFBundleName[] = "CFBundleName";
+constexpr char CFBundleName[] = "CFBundleName";
 //const char CFBundleIdentifier[] = "CFBundleIdentifier";
-const char DashDocSetFamily[] = "DashDocSetFamily";
-const char DashDocSetKeyword[] = "DashDocSetKeyword";
-const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
-const char DashIndexFilePath[] = "dashIndexFilePath";
-const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
+constexpr char DashDocSetFamily[] = "DashDocSetFamily";
+constexpr char DashDocSetKeyword[] = "DashDocSetKeyword";
+constexpr char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
+constexpr char DashIndexFilePath[] = "dashIndexFilePath";
+constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 //const char IsDashDocset[] = "isDashDocset";
-const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 }
 }
 

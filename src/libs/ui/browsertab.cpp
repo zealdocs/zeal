@@ -46,7 +46,7 @@ using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
-const char WelcomePageUrl[] = "qrc:///browser/welcome.html";
+constexpr char WelcomePageUrl[] = "qrc:///browser/welcome.html";
 } // namespace
 
 BrowserTab::BrowserTab(QWidget *parent)

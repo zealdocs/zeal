@@ -227,7 +227,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
                         .arg(clickedLink.toString()));
 
 
-            QCheckBox *checkBox = new QCheckBox("Do &not ask again");
+            auto checkBox = new QCheckBox("Do &not ask again");
             mb->setCheckBox(checkBox);
 
             QPushButton *openInBrowserButton = mb->addButton(tr("Open in &Desktop Browser"),

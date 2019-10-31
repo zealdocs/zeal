@@ -38,12 +38,12 @@ using namespace Zeal::WidgetUi;
 
 namespace {
 // QFontDatabase::standardSizes() lacks some sizes, like 13, which QtWK uses by default.
-const int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-                                  20, 22, 24, 26, 28, 30, 32, 34, 36,
-                                  40, 44, 48, 56, 64, 72};
-const QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
-                                                      QWebSettings::SansSerifFont,
-                                                      QWebSettings::FixedFont};
+constexpr int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                      20, 22, 24, 26, 28, 30, 32, 34, 36,
+                                      40, 44, 48, 56, 64, 72};
+constexpr QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
+                                                          QWebSettings::SansSerifFont,
+                                                          QWebSettings::FixedFont};
 }
 
 SettingsDialog::SettingsDialog(QWidget *parent)

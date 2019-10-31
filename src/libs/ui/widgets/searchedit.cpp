@@ -90,7 +90,7 @@ bool SearchEdit::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto keyEvent = static_cast<QKeyEvent *>(event);
         // Tab key cannot be overriden in keyPressEvent().
         if (keyEvent->key() == Qt::Key_Tab) {
             const QString completed = currentCompletion(text());
@@ -113,7 +113,7 @@ bool SearchEdit::event(QEvent *event)
             QStringLiteral("Ctrl+L")
         };
 
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto keyEvent = static_cast<QKeyEvent *>(event);
         const int keyCode = keyEvent->key() | static_cast<int>(keyEvent->modifiers());
         if (focusShortcuts.contains(QKeySequence(keyCode).toString())) {
             selectQuery();

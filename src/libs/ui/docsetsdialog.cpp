@@ -54,18 +54,18 @@ extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
 namespace {
-const char ApiServerUrl[] = "https://api.zealdocs.org/v1";
-const char RedirectServerUrl[] = "https://go.zealdocs.org";
+constexpr char ApiServerUrl[] = "https://api.zealdocs.org/v1";
+constexpr char RedirectServerUrl[] = "https://go.zealdocs.org";
 // TODO: Each source plugin should have its own cache
-const char DocsetListCacheFileName[] = "com.kapeli.json";
+constexpr char DocsetListCacheFileName[] = "com.kapeli.json";
 
 // TODO: Make the timeout period configurable
 constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 
 // QNetworkReply properties
-const char DocsetNameProperty[] = "docsetName";
-const char DownloadTypeProperty[] = "downloadType";
-const char ListItemIndexProperty[] = "listItem";
+constexpr char DocsetNameProperty[] = "docsetName";
+constexpr char DownloadTypeProperty[] = "downloadType";
+constexpr char ListItemIndexProperty[] = "listItem";
 }
 
 DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
@@ -729,8 +729,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     for (const auto &kv : m_availableDocsets) {
         const auto &metadata = kv.second;
 
-        QListWidgetItem *listItem
-                = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
+        auto listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
 
         if (m_docsetRegistry->contains(metadata.name())) {
