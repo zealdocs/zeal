@@ -55,10 +55,7 @@ Container::Container(QWidget *parent)
     setLayout(layout);
 }
 
-Container::~Container()
-{
-
-}
+Container::~Container() = default;
 
 void Container::addView(View *view)
 {

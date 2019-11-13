@@ -28,13 +28,15 @@
 
 #include <QVBoxLayout>
 
+#include <utility>
+
 using namespace Zeal;
 using namespace Zeal::Sidebar;
 
-ProxyView::ProxyView(ViewProvider *provider, const QString &id, QWidget *parent)
+ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
     : View(parent)
     , m_viewProvider(provider)
-    , m_viewId(id)
+    , m_viewId(std::move(id))
 {
     setLayout(WidgetUi::LayoutHelper::createBorderlessLayout<QVBoxLayout>());
 

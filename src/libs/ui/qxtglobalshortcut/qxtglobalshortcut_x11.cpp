@@ -62,7 +62,7 @@
 #include <xcb/xcb_keysyms.h>
 
 namespace {
-const quint32 maskModifiers[] = {
+constexpr quint32 maskModifiers[] = {
     0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
 };
 } // namespace

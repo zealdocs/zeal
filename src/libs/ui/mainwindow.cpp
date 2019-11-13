@@ -59,8 +59,8 @@ using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
-const char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
-const char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
+constexpr char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
+constexpr char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
 }
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
@@ -81,7 +81,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     // Setup application wide shortcuts.
     // Focus search bar.
-    QShortcut *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
+    auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
 
     shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);

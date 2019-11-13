@@ -34,7 +34,7 @@ class ProxyView final : public View
 {
     Q_OBJECT
 public:
-    explicit ProxyView(ViewProvider *provider, const QString &id = QString(), QWidget *parent = nullptr);
+    explicit ProxyView(ViewProvider *provider, QString id = QString(), QWidget *parent = nullptr);
     ~ProxyView() override;
 
 private:
