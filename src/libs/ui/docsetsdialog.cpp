@@ -99,8 +99,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     ui->statusLabel->clear(); // Clear text shown in the designer mode.
     ui->storageStatusLabel->setVisible(m_isStorageReadOnly);
     ui->storageStatusLabel->setText(fi.exists() ?
-                                    QStringLiteral("<b>Docset storage is read only.</b>") :
-                                    QStringLiteral("<b>Docset storage does not exist.</b>"));
+                                    tr("<b>Docset storage is read only.</b>") :
+                                    tr("<b>Docset storage does not exist.</b>"));
 
     connect(m_application, &Core::Application::extractionCompleted,
             this, &DocsetsDialog::extractionCompleted);
