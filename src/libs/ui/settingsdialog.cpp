@@ -44,7 +44,7 @@ constexpr int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
 constexpr QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
                                                           QWebSettings::SansSerifFont,
                                                           QWebSettings::FixedFont};
-}
+} // namespace
 
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent)

@@ -64,7 +64,6 @@ bool FileManager::removeRecursively(const QString &path)
 
     qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
-
     auto watcher = new QFutureWatcher<bool>();
     connect(watcher, &QFutureWatcher<bool>::finished, [=] {
         if (!watcher->result()) {

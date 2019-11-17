@@ -29,10 +29,10 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QStyle>
+#include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QWebPage>
-#include <QVBoxLayout>
 
 using namespace Zeal::Browser;
 
@@ -58,7 +58,6 @@ WebControl::WebControl(QWidget *parent)
     layout->addWidget(m_webView);
 
     setLayout(layout);
-
 }
 
 int WebControl::zoomLevel() const

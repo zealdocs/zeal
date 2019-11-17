@@ -64,7 +64,6 @@ QStringList SQLiteDatabase::tables()
         return {};
     }
 
-
     QStringList list;
     while (next()) {
         list.append(value(0).toString());
@@ -88,7 +87,6 @@ QStringList SQLiteDatabase::views()
     if (m_db == nullptr || !prepare(sql)) {
         return {};
     }
-
 
     QStringList list;
     while (next()) {

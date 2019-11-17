@@ -35,7 +35,8 @@ using namespace Zeal::Core;
 
 static Q_LOGGING_CATEGORY(log, "zeal.core.applicationsingleton")
 
-struct SharedData {
+struct SharedData
+{
     qint64 primaryPid;
 };
 

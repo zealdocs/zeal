@@ -44,7 +44,7 @@ private:
     MainWindow *m_mainWindow = nullptr;
 };
 
-} // namespace Sidebar
+} // namespace WidgetUi
 } // namespace Zeal
 
 #endif // ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H

@@ -30,13 +30,15 @@
 namespace Zeal {
 namespace Util {
 
-struct CaseInsensitiveStringComparator {
-    bool operator()(const QString &lhs, const QString &rhs) const {
+struct CaseInsensitiveStringComparator
+{
+    bool operator()(const QString &lhs, const QString &rhs) const
+    {
         return QString::compare(lhs, rhs, Qt::CaseInsensitive) < 0;
     }
 };
 
-template <typename T>
+template<typename T>
 using CaseInsensitiveMap = std::map<QString, T, CaseInsensitiveStringComparator>;
 
 } // namespace Util

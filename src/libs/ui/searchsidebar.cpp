@@ -127,7 +127,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             m_treeView->setRootIsDecorated(true);
             m_treeView->setModel(Core::Application::instance()->docsetRegistry()->model());
 
-            for (const QModelIndex &index: other->m_expandedIndexList) {
+            for (const QModelIndex &index : other->m_expandedIndexList) {
                 m_treeView->expand(index);
             }
         } else {
@@ -138,7 +138,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             m_treeView->setModel(m_searchModel);
         }
 
-        for (const QModelIndex &index: other->m_treeView->selectionModel()->selectedIndexes()) {
+        for (const QModelIndex &index : other->m_treeView->selectionModel()->selectedIndexes()) {
             m_treeView->selectionModel()->select(index, QItemSelectionModel::Select);
         }
 
@@ -286,7 +286,7 @@ void SearchSidebar::setupSearchBoxCompletions()
 {
     QStringList completions;
     const auto docsets = Core::Application::instance()->docsetRegistry()->docsets();
-    for (const Registry::Docset *docset: docsets) {
+    for (const Registry::Docset *docset : docsets) {
         const QStringList keywords = docset->keywords();
         if (keywords.isEmpty())
             continue;

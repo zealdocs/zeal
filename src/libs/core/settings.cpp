@@ -43,7 +43,7 @@ constexpr char GroupTabs[] = "tabs";
 constexpr char GroupInternal[] = "internal";
 constexpr char GroupState[] = "state";
 constexpr char GroupProxy[] = "proxy";
-}
+} // namespace
 
 using namespace Zeal::Core;
 
@@ -301,7 +301,6 @@ void Settings::migrate(QSettings *settings) const
             settings->endGroup();
         }
     }
-
 
     //
     // Pre 0.3

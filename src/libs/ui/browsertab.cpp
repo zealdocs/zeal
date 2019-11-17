@@ -26,7 +26,6 @@
 #include "widgets/layouthelper.h"
 #include "widgets/toolbarframe.h"
 
-#include <core/application.h>
 #include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
@@ -109,7 +108,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         forwardMenu->clear();
         QWebHistory *history = m_webControl->history();
         const auto forwardItems = history->forwardItems(10);
-        for (const QWebHistoryItem &item: forwardItems) {
+        for (const QWebHistoryItem &item : forwardItems) {
             const QIcon icon = docsetIcon(docsetName(item.url()));
             forwardMenu->addAction(icon, item.title(), this, [=](bool) { history->goToItem(item); });
         }

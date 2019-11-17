@@ -35,8 +35,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <QVariant>
 #include <QVarLengthArray>
+#include <QVariant>
 
 #include <sqlite3.h>
 
@@ -47,7 +47,7 @@ using namespace Zeal::Registry;
 
 namespace {
 constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
-constexpr char IndexNameVersion[] = "0001"; // Current index version
+constexpr char IndexNameVersion[] = "0001";     // Current index version
 
 namespace InfoPlist {
 constexpr char CFBundleName[] = "CFBundleName";
@@ -59,8 +59,8 @@ constexpr char DashIndexFilePath[] = "dashIndexFilePath";
 constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 //const char IsDashDocset[] = "isDashDocset";
 constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
-}
-}
+} // namespace InfoPlist
+} // namespace
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
 
@@ -748,7 +748,7 @@ static void matchFuzzy(const char *needle, int needleLength,
         while (j < haystackLength) {
             if (needle[i] == haystack[j++]) {
                 if (*start == -1) {
-                    *start = j;  // first matched char
+                    *start = j; // first matched char
 
                     // try starting the search later in case the first character occurs again later
                     int recursiveStart;
@@ -841,8 +841,8 @@ static int scoreExact(int matchIndex, int matchLen, const char *value, int value
             while (i >= 0 && value[i] != DOT)
                 --i;
 
-            score -= (matchIndex - i)                      // (1)
-                    + (valueLen - matchLen - matchIndex);  // (2)
+            score -= (matchIndex - i)                     // (1)
+                    + (valueLen - matchLen - matchIndex); // (2)
         }
 
         // Remove one point for each dot preceding the query, except for the

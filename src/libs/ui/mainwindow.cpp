@@ -32,8 +32,8 @@
 #include "sidebarviewprovider.h"
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
 
-#include <browser/webcontrol.h>
 #include <browser/webbridge.h>
+#include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
 #include <registry/docset.h>
@@ -61,7 +61,7 @@ using namespace Zeal::WidgetUi;
 namespace {
 constexpr char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
 constexpr char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
-}
+} // namespace
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     : QMainWindow(parent)
@@ -285,7 +285,8 @@ void MainWindow::closeTab(int index)
     }
 }
 
-void MainWindow::moveTab(int from, int to) {
+void MainWindow::moveTab(int from, int to)
+{
     const QSignalBlocker blocker(ui->webViewStack);
     QWidget *w = ui->webViewStack->widget(from);
     ui->webViewStack->removeWidget(w);

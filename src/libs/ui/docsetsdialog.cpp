@@ -66,7 +66,7 @@ constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
 constexpr char DocsetNameProperty[] = "docsetName";
 constexpr char DownloadTypeProperty[] = "downloadType";
 constexpr char ListItemIndexProperty[] = "listItem";
-}
+} // namespace
 
 DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     : QDialog(parent)
@@ -84,7 +84,6 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 #endif
 
     const QFileInfo fi(m_application->settings()->docsetPath);
-
     m_isStorageReadOnly = !fi.isWritable();
 
 #ifdef Q_OS_WIN32

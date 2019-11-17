@@ -25,8 +25,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QHBoxLayout>
-#include <QLineEdit>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QStyle>
 #include <QToolButton>
 #include <QWebPage>
@@ -141,7 +141,6 @@ bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
             break;
         }
     }
-
 
     return QWidget::eventFilter(object, event);
 }

@@ -30,7 +30,7 @@ using namespace Zeal::Registry;
 namespace {
 const char prefixSeparator = ':';
 const char keywordSeparator = ',';
-}
+} // namespace
 
 SearchQuery::SearchQuery(QString query, const QStringList &keywords)
     : m_query(std::move(query))

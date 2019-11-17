@@ -31,7 +31,8 @@ namespace WidgetUi {
 namespace LayoutHelper {
 
 template<class Layout>
-Layout *createBorderlessLayout() {
+Layout *createBorderlessLayout()
+{
     static_assert(std::is_base_of<QLayout, Layout>::value, "Layout must derive from QLayout");
     auto layout = new Layout();
     layout->setContentsMargins(0, 0, 0, 0);

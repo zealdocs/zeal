@@ -23,8 +23,8 @@
 #ifndef ZEAL_CORE_SETTINGS_H
 #define ZEAL_CORE_SETTINGS_H
 
-#include <QObject>
 #include <QKeySequence>
+#include <QObject>
 
 class QSettings;
 

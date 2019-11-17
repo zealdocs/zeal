@@ -73,10 +73,11 @@ OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event,
         Identifier id = keyIDs.key(keyID.id);
         QxtGlobalShortcutPrivate::activateShortcut(id.second, id.first);
     }
+
     return noErr;
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, long *result)
 {
     Q_UNUSED(eventType)
@@ -232,9 +233,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
         if (charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat)
             continue;
 
-        for (quint32 j=0; j < charTable->keyToCharTableCount; ++j) {
+        for (quint32 j = 0; j < charTable->keyToCharTableCount; ++j) {
             UCKeyOutput *keyToChar = reinterpret_cast<UCKeyOutput *>(data + charTable->keyToCharTableOffsets[j]);
-            for (quint32 k=0; k < charTable->keyToCharTableSize; ++k) {
+            for (quint32 k = 0; k < charTable->keyToCharTableSize; ++k) {
                 if (keyToChar[k] & kUCKeyOutputTestForIndexMask) {
                     long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
                     if (stateRec && idx < stateRec->keyStateRecordCount) {
