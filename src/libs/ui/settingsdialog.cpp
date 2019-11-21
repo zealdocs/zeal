@@ -146,6 +146,17 @@ void SettingsDialog::chooseCustomCssFile()
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(file));
 }
 
+void SettingsDialog::chooseCustomPolyfillsFile()
+{
+    const QString file = QFileDialog::getOpenFileName(this, tr("Choose JS polyfills File"),
+                                                      ui->customPolyfillsFileEdit->text(),
+                                                      tr("JS Files (*.js);;All Files (*.*)"));
+    if (file.isEmpty())
+        return;
+
+    ui->customPolyfillsFileEdit->setText(QDir::toNativeSeparators(file));
+}
+
 void SettingsDialog::chooseDocsetStoragePath()
 {
     QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -205,6 +216,7 @@ void SettingsDialog::loadSettings()
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
     ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
+    ui->customPolyfillsFileEdit->setText(QDir::toNativeSeparators(settings->customPolyfillsFile));
 
     switch (settings->externalLinkPolicy) {
     case Core::Settings::ExternalLinkPolicy::Ask:
@@ -280,6 +292,7 @@ void SettingsDialog::saveSettings()
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
+    settings->customPolyfillsFile = QDir::fromNativeSeparators(ui->customPolyfillsFileEdit->text());
 
     if (ui->radioExternalLinkAsk->isChecked()) {
         settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::Ask;

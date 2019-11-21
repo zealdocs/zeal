@@ -135,6 +135,7 @@ void Settings::load()
     darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
+    customPolyfillsFile = settings->value(QStringLiteral("custom_polyfills_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
                                          QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
     isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), false).toBool();
@@ -224,6 +225,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
     settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
+    settings->setValue(QStringLiteral("custom_polyfills_file"), customPolyfillsFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("smooth_scrolling"), isSmoothScrollingEnabled);
     settings->endGroup();

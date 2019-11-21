@@ -32,6 +32,7 @@
 
 #include <QCheckBox>
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
@@ -42,6 +43,7 @@ using namespace Zeal::Browser;
 WebView::WebView(QWidget *parent)
     : QWebView(parent)
 {
+    connect(page()->mainFrame(), &QWebFrame::javaScriptWindowObjectCleared, this, &WebView::onJavaScriptWindowObjectCleared);
     page()->setNetworkAccessManager(Core::Application::instance()->networkManager());
     setZoomLevel(defaultZoomLevel());
 }
@@ -304,6 +306,20 @@ void WebView::wheelEvent(QWheelEvent *event)
     }
 
     QWebView::wheelEvent(event);
+}
+
+void WebView::onJavaScriptWindowObjectCleared()
+{
+    QByteArray ba = QByteArray();
+
+    if (QFileInfo::exists(Core::Application::instance()->settings()->customPolyfillsFile)) {
+        QScopedPointer<QFile> file(new QFile(Core::Application::instance()->settings()->customPolyfillsFile));
+        if (file->open(QIODevice::ReadOnly)) {
+            ba = file->readAll();
+        }
+    }
+
+    page()->mainFrame()->evaluateJavaScript(QString::fromLocal8Bit(ba.data(), ba.size()));
 }
 
 QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const

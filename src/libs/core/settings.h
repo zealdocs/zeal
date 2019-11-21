@@ -81,6 +81,7 @@ public:
     bool darkModeEnabled;
     bool highlightOnNavigateEnabled;
     QString customCssFile;
+    QString customPolyfillsFile;
     bool isSmoothScrollingEnabled;
 
     // Network

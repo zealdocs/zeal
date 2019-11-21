@@ -42,6 +42,7 @@ public:
 
 private slots:
     void chooseCustomCssFile();
+    void chooseCustomPolyfillsFile();
     void chooseDocsetStoragePath();
 
 private:

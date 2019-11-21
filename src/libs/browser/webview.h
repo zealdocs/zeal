@@ -58,6 +58,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void onJavaScriptWindowObjectCleared();
 
 private:
     QWebHitTestResult hitTestContent(const QPoint &pos) const;
