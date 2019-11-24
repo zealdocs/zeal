@@ -202,9 +202,10 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_delayedNavigationTimer->setInterval(400);
     m_delayedNavigationTimer->setSingleShot(true);
     connect(m_delayedNavigationTimer, &QTimer::timeout, this, [this]() {
-        QModelIndex index = m_delayedNavigationTimer->property("index").toModelIndex();
-        if (!index.isValid())
+        const QModelIndex index = m_delayedNavigationTimer->property("index").toModelIndex();
+        if (!index.isValid()) {
             return;
+        }
 
         indexActivated(index);
 
@@ -217,10 +218,18 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     using Registry::DocsetRegistry;
     connect(registry, &DocsetRegistry::searchCompleted,
             this, [this](const QList<Registry::SearchResult> &results) {
-        if (!isVisible())
+        if (!isVisible()) {
             return;
+        }
+
+        m_delayedNavigationTimer->stop();
 
         m_searchModel->setResults(results);
+
+        const QModelIndex index = m_searchModel->index(0, 0, QModelIndex());
+        m_treeView->setCurrentIndex(index);
+        m_delayedNavigationTimer->setProperty("index", index);
+        m_delayedNavigationTimer->start();
     });
 
     connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this](const QString &name) {
