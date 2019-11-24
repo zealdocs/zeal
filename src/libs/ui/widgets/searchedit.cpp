@@ -26,10 +26,9 @@
 #include <registry/searchquery.h>
 
 #include <QCompleter>
-#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QTreeView>
+#include <QStyle>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;

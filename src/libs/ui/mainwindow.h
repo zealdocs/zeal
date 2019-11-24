@@ -35,7 +35,6 @@ namespace Zeal {
 
 namespace Browser {
 class WebBridge;
-class WebControl;
 } // namespace Browser
 
 namespace Core {

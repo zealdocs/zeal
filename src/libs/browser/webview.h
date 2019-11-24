@@ -24,8 +24,6 @@
 #ifndef ZEAL_BROWSER_WEBVIEW_H
 #define ZEAL_BROWSER_WEBVIEW_H
 
-#include <QVector>
-#include <QWebFrame>
 #include <QWebView>
 
 namespace Zeal {

@@ -28,11 +28,8 @@
 #include <core/settings.h>
 #include <ui/widgets/layouthelper.h>
 
-#include <QLabel>
 #include <QSplitter>
 #include <QVBoxLayout>
-
-#include <type_traits>
 
 using namespace Zeal;
 using namespace Zeal::Sidebar;

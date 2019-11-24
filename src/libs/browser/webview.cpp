@@ -35,7 +35,9 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QVector>
 #include <QWheelEvent>
+#include <QWebFrame>
 
 using namespace Zeal::Browser;
 

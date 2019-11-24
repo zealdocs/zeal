@@ -36,10 +36,6 @@
 #include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
-#include <registry/docset.h>
-#include <registry/docsetregistry.h>
-#include <registry/searchmodel.h>
-#include <registry/searchquery.h>
 #include <sidebar/container.h>
 #include <sidebar/proxyview.h>
 
@@ -52,7 +48,6 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QWebHistory>
 #include <QWebSettings>
 
 using namespace Zeal;

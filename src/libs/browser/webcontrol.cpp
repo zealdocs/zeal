@@ -26,9 +26,7 @@
 #include "searchtoolbar.h"
 #include "webview.h"
 
-#include <QCoreApplication>
 #include <QKeyEvent>
-#include <QStyle>
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebHistory>

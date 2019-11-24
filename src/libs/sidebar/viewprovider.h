@@ -23,7 +23,7 @@
 #ifndef ZEAL_SIDEBAR_VIEWPROVIDER_H
 #define ZEAL_SIDEBAR_VIEWPROVIDER_H
 
-#include <QWidget>
+#include <QObject>
 
 namespace Zeal {
 namespace Sidebar {
