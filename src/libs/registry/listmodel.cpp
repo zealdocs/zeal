@@ -155,7 +155,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
             return {};
         }
 
-        const int row = std::distance(m_docsetItems.begin(), it);
+        const int row = static_cast<int>(std::distance(m_docsetItems.begin(), it));
         return createIndex(row, 0);
     }
     case SymbolLevel: {
@@ -169,7 +169,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
 
 int ListModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 1;
 }
 
@@ -194,7 +194,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
 
 void ListModel::addDocset(const QString &name)
 {
-    const int row = std::distance(m_docsetItems.begin(), m_docsetItems.upper_bound(name));
+    const int row = static_cast<int>(std::distance(m_docsetItems.begin(), m_docsetItems.upper_bound(name)));
     beginInsertRows(QModelIndex(), row, row);
 
     auto docsetItem = new DocsetItem();
@@ -221,7 +221,7 @@ void ListModel::removeDocset(const QString &name)
         return;
     }
 
-    const int row = std::distance(m_docsetItems.begin(), it);
+    const int row = static_cast<int>(std::distance(m_docsetItems.begin(), it));
     beginRemoveRows(QModelIndex(), row, row);
 
     qDeleteAll(it->second->groups);
