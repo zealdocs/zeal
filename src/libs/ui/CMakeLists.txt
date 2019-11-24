@@ -14,7 +14,6 @@ add_library(Ui STATIC
     docsetlistitemdelegate.cpp
     docsetsdialog.cpp
     mainwindow.cpp
-    progressitemdelegate.cpp
     searchitemdelegate.cpp
     searchsidebar.cpp
     settingsdialog.cpp

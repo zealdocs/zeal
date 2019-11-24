@@ -26,18 +26,28 @@
 #include <registry/itemdatarole.h>
 
 #include <QPainter>
+#include <QProgressBar>
 
-using namespace Zeal;
 using namespace Zeal::WidgetUi;
+
+namespace {
+constexpr int ProgressBarWidth = 150;
+} // namespace
 
 DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
 }
 
-void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
+void DocsetListItemDelegate::paint(QPainter *painter,
+                                 const QStyleOptionViewItem &option,
+                                 const QModelIndex &index) const
 {
+    if (index.model()->data(index, ShowProgressRole).toBool()) {
+        paintProgressBar(painter, option, index);
+        return;
+    }
+
     QStyledItemDelegate::paint(painter, option, index);
 
     if (!index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())
@@ -82,4 +92,42 @@ void DocsetListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     painter->drawText(textRect, text);
 
     painter->restore();
+}
+
+void DocsetListItemDelegate::paintProgressBar(QPainter *painter,
+                                            const QStyleOptionViewItem &option,
+                                            const QModelIndex &index) const
+{
+    bool ok;
+    const int value = index.model()->data(index, ValueRole).toInt(&ok);
+
+    if (!ok) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
+    }
+
+    // Adjust maximum text width
+    QStyleOptionViewItem styleOption = option;
+    styleOption.rect.setRight(styleOption.rect.right() - ProgressBarWidth);
+
+    // Size progress bar
+    QScopedPointer<QProgressBar> renderer(new QProgressBar());
+    renderer->resize(ProgressBarWidth, styleOption.rect.height());
+    renderer->setRange(0, 100);
+    renderer->setValue(value);
+
+    const QString format = index.model()->data(index, FormatRole).toString();
+    if (!format.isEmpty()) {
+        renderer->setFormat(format);
+    }
+
+    painter->save();
+
+    // Paint progress bar
+    painter->translate(styleOption.rect.topRight());
+    renderer->render(painter);
+
+    painter->restore();
+
+    QStyledItemDelegate::paint(painter, styleOption, index);
 }

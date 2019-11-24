@@ -25,7 +25,6 @@
 #include "ui_docsetsdialog.h"
 
 #include "docsetlistitemdelegate.h"
-#include "progressitemdelegate.h"
 
 #include <core/application.h>
 #include <core/filemanager.h>
@@ -232,13 +231,13 @@ void DocsetsDialog::downloadSelectedDocsets()
         selectionModel->select(index, QItemSelectionModel::Deselect);
 
         // Do nothing if a download is already in progress.
-        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
+        if (index.data(DocsetListItemDelegate::ShowProgressRole).toBool())
             continue;
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
-        model->setData(index, 0, ProgressItemDelegate::ValueRole);
-        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
+        model->setData(index, tr("Downloading: %p%"), DocsetListItemDelegate::FormatRole);
+        model->setData(index, 0, DocsetListItemDelegate::ValueRole);
+        model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
 
         downloadDashDocset(index);
     }
@@ -280,7 +279,7 @@ void DocsetsDialog::downloadCompleted()
             QListWidgetItem *listItem = ui->availableDocsetList->item(
                         reply->property(ListItemIndexProperty).toInt(&ok));
             if (ok && listItem)
-                listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+                listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
         }
 
         updateStatus();
@@ -374,8 +373,8 @@ void DocsetsDialog::downloadCompleted()
 
         QListWidgetItem *item = findDocsetListItem(docsetName);
         if (item) {
-            item->setData(ProgressItemDelegate::ValueRole, 0);
-            item->setData(ProgressItemDelegate::FormatRole, tr("Installing: %p%"));
+            item->setData(DocsetListItemDelegate::ValueRole, 0);
+            item->setData(DocsetListItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath,
@@ -416,7 +415,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     QListWidgetItem *item
             = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
     if (item) {
-        item->setData(ProgressItemDelegate::ValueRole, percent(received, total));
+        item->setData(DocsetListItemDelegate::ValueRole, percent(received, total));
     }
 }
 
@@ -437,7 +436,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem) {
         listItem->setHidden(true);
-        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
     }
 
     delete m_tmpFiles.take(docsetName);
@@ -454,7 +453,7 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
 
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem)
-        listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+        listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
 
     delete m_tmpFiles.take(docsetName);
 }
@@ -464,7 +463,7 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
     const QString docsetName = docsetNameForTmpFilePath(filePath);
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem)
-        listItem->setData(ProgressItemDelegate::ValueRole, percent(extracted, total));
+        listItem->setData(DocsetListItemDelegate::ValueRole, percent(extracted, total));
 }
 
 void DocsetsDialog::loadDocsetList()
@@ -543,7 +542,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 {
     using Registry::DocsetRegistry;
 
-    ui->availableDocsetList->setItemDelegate(new ProgressItemDelegate(this));
+    ui->availableDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
 
     connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
@@ -571,15 +570,15 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
     connect(ui->availableDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
         // TODO: Cancel download if it's already in progress.
-        if (index.data(ProgressItemDelegate::ShowProgressRole).toBool())
+        if (index.data(DocsetListItemDelegate::ShowProgressRole).toBool())
             return;
 
         ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), ProgressItemDelegate::FormatRole);
-        model->setData(index, 0, ProgressItemDelegate::ValueRole);
-        model->setData(index, true, ProgressItemDelegate::ShowProgressRole);
+        model->setData(index, tr("Downloading: %p%"), DocsetListItemDelegate::FormatRole);
+        model->setData(index, 0, DocsetListItemDelegate::ValueRole);
+        model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
 
         downloadDashDocset(index);
     });
@@ -588,7 +587,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [this, selectionModel]() {
         const auto selectedRows = selectionModel->selectedRows();
         for (const QModelIndex &index : selectedRows) {
-            if (!index.data(ProgressItemDelegate::ShowProgressRole).toBool()) {
+            if (!index.data(DocsetListItemDelegate::ShowProgressRole).toBool()) {
                 ui->downloadDocsetsButton->setEnabled(true);
                 return;
             }
@@ -689,7 +688,7 @@ void DocsetsDialog::cancelDownloads()
         QListWidgetItem *listItem
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (listItem)
-            listItem->setData(ProgressItemDelegate::ShowProgressRole, false);
+            listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
 
         if (reply->property(DownloadTypeProperty).toInt() == DownloadDocset)
             delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
@@ -736,18 +735,20 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         auto listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
 
-        if (m_docsetRegistry->contains(metadata.name())) {
-            listItem->setHidden(true);
+        if (!m_docsetRegistry->contains(metadata.name())) {
+            continue;
+        }
 
-            Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
+        listItem->setHidden(true);
 
-            if (metadata.latestVersion() != docset->version()
-                    || metadata.revision() > docset->revision()) {
-                docset->hasUpdate = true;
+        Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
 
-                if (!m_isStorageReadOnly) {
-                    ui->updateAllDocsetsButton->setEnabled(true);
-                }
+        if (metadata.latestVersion() != docset->version()
+                || metadata.revision() > docset->revision()) {
+            docset->hasUpdate = true;
+
+            if (!m_isStorageReadOnly) {
+                ui->updateAllDocsetsButton->setEnabled(true);
             }
         }
     }
