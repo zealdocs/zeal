@@ -20,8 +20,8 @@
 **
 ****************************************************************************/
 
-#ifndef CANCELLATIONTOKEN_H
-#define CANCELLATIONTOKEN_H
+#ifndef ZEAL_REGISTRY_CANCELLATIONTOKEN_H
+#define ZEAL_REGISTRY_CANCELLATIONTOKEN_H
 
 #include <atomic>
 
@@ -45,4 +45,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // CANCELLATIONTOKEN_H
+#endif // ZEAL_REGISTRY_CANCELLATIONTOKEN_H

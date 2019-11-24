@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETMETADATA_H
-#define DOCSETMETADATA_H
+#ifndef ZEAL_REGISTRY_DOCSETMETADATA_H
+#define ZEAL_REGISTRY_DOCSETMETADATA_H
 
 #include <QIcon>
 #include <QJsonObject>
@@ -74,4 +74,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // DOCSETMETADATA_H
+#endif // ZEAL_REGISTRY_DOCSETMETADATA_H

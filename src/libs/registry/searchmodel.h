@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHMODEL_H
-#define SEARCHMODEL_H
+#ifndef ZEAL_REGISTRY_SEARCHMODEL_H
+#define ZEAL_REGISTRY_SEARCHMODEL_H
 
 #include "searchresult.h"
 
@@ -60,4 +60,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // SEARCHMODEL_H
+#endif // ZEAL_REGISTRY_SEARCHMODEL_H

@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETREGISTRY_H
-#define DOCSETREGISTRY_H
+#ifndef ZEAL_REGISTRY_DOCSETREGISTRY_H
+#define ZEAL_REGISTRY_DOCSETREGISTRY_H
 
 #include "cancellationtoken.h"
 
@@ -95,4 +95,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // DOCSETREGISTRY_H
+#endif // ZEAL_REGISTRY_DOCSETREGISTRY_H

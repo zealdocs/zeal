@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHQUERY_H
-#define SEARCHQUERY_H
+#ifndef ZEAL_REGISTRY_SEARCHQUERY_H
+#define ZEAL_REGISTRY_SEARCHQUERY_H
 
 #include <QStringList>
 
@@ -87,4 +87,4 @@ private:
 QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query);
 QDataStream &operator>>(QDataStream &in, Zeal::Registry::SearchQuery &query);
 
-#endif // SEARCHQUERY_H
+#endif // ZEAL_REGISTRY_SEARCHQUERY_H

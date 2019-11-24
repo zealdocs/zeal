@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef LISTMODEL_H
-#define LISTMODEL_H
+#ifndef ZEAL_REGISTRY_LISTMODEL_H
+#define ZEAL_REGISTRY_LISTMODEL_H
 
 #include <util/caseinsensitivemap.h>
 
@@ -89,4 +89,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // LISTMODEL_H
+#endif // ZEAL_REGISTRY_LISTMODEL_H

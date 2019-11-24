@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSET_H
-#define DOCSET_H
+#ifndef ZEAL_REGISTRY_DOCSET_H
+#define ZEAL_REGISTRY_DOCSET_H
 
 #include <QIcon>
 #include <QMap>
@@ -122,4 +122,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // DOCSET_H
+#endif // ZEAL_REGISTRY_DOCSET_H
