@@ -71,6 +71,7 @@ protected:
 private:
     Q_DISABLE_COPY(SearchSidebar)
     explicit SearchSidebar(const SearchSidebar *other, QWidget *parent = nullptr);
+    void setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated);
 
     SearchEdit *m_searchEdit = nullptr;
     bool m_pendingSearchEditFocus = false;

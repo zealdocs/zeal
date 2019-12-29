@@ -123,9 +123,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     if (other) {
         if (other->m_searchEdit->text().isEmpty()) {
             m_searchModel = new Registry::SearchModel(this);
-
-            m_treeView->setRootIsDecorated(true);
-            m_treeView->setModel(Core::Application::instance()->docsetRegistry()->model());
+            setTreeViewModel(Core::Application::instance()->docsetRegistry()->model(), true);
 
             for (const QModelIndex &index : other->m_expandedIndexList) {
                 m_treeView->expand(index);
@@ -134,8 +132,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             m_searchEdit->setText(other->m_searchEdit->text());
 
             m_searchModel = other->m_searchModel->clone(this);
-            m_treeView->setRootIsDecorated(false);
-            m_treeView->setModel(m_searchModel);
+            setTreeViewModel(m_searchModel, false);
         }
 
         for (const QModelIndex &index : other->m_treeView->selectionModel()->selectedIndexes()) {
@@ -146,26 +143,35 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         m_pendingVerticalPosition = other->m_treeView->verticalScrollBar()->value();
     } else {
         m_searchModel = new Registry::SearchModel(this);
-
-        m_treeView->setRootIsDecorated(true);
-        m_treeView->setModel(Core::Application::instance()->docsetRegistry()->model());
+        setTreeViewModel(Core::Application::instance()->docsetRegistry()->model(), true);
     }
 
     connect(m_searchEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         QItemSelectionModel *oldSelectionModel = m_treeView->selectionModel();
 
         if (text.isEmpty()) {
-            m_treeView->setModel(Core::Application::instance()->docsetRegistry()->model());
-            m_treeView->setRootIsDecorated(true);
+            setTreeViewModel(Core::Application::instance()->docsetRegistry()->model(), true);
         } else {
-            m_treeView->setModel(m_searchModel);
-            m_treeView->setRootIsDecorated(false);
+            setTreeViewModel(m_searchModel, false);
         }
 
-        // TODO: Remove once QTBUG-49966 is addressed.
         QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
-        if (oldSelectionModel && newSelectionModel != oldSelectionModel) {
-            oldSelectionModel->deleteLater();
+        if (newSelectionModel != oldSelectionModel) {
+            // TODO: Remove once QTBUG-49966 is addressed.
+            if (oldSelectionModel) {
+                oldSelectionModel->deleteLater();
+            }
+
+            // Connect to the new selection model.
+            connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                    this, [this](const QItemSelection &selected) {
+                if (selected.isEmpty()) {
+                    return;
+                }
+
+                m_delayedNavigationTimer->setProperty("index", selected.indexes().first());
+                m_delayedNavigationTimer->start();
+            });
         }
 
         m_treeView->reset();
@@ -250,6 +256,33 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     connect(registry, &DocsetRegistry::docsetLoaded, this, [this](const QString &) {
         setupSearchBoxCompletions();
     });
+}
+
+void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated)
+{
+    QItemSelectionModel *oldSelectionModel = m_treeView->selectionModel();
+
+    m_treeView->setModel(model);
+    m_treeView->setRootIsDecorated(isRootDecorated);
+
+    QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
+    if (newSelectionModel != oldSelectionModel) {
+        // TODO: Remove once QTBUG-49966 is addressed.
+        if (oldSelectionModel) {
+            oldSelectionModel->deleteLater();
+        }
+
+        // Connect to the new selection model.
+        connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, [this](const QItemSelection &selected) {
+            if (selected.isEmpty()) {
+                return;
+            }
+
+            m_delayedNavigationTimer->setProperty("index", selected.indexes().first());
+            m_delayedNavigationTimer->start();
+        });
+    }
 }
 
 SearchSidebar *SearchSidebar::clone(QWidget *parent) const
