@@ -347,6 +347,14 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     if (object == m_searchEdit && event->type() == QEvent::KeyPress) {
         auto e = static_cast<QKeyEvent *>(event);
         switch (e->key()) {
+        case Qt::Key_Home:
+        case Qt::Key_End:
+        case Qt::Key_Left:
+        case Qt::Key_Right:
+            if (!m_searchEdit->text().isEmpty()) {
+                break;
+            }
+            [[clang::fallthrough]];
         case Qt::Key_Return:
         case Qt::Key_Down:
         case Qt::Key_Up:
