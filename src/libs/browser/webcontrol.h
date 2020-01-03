@@ -41,6 +41,7 @@ class WebControl final : public QWidget
 public:
     explicit WebControl(QWidget *parent = nullptr);
 
+    void focus();
     void load(const QUrl &url);
     bool canGoBack() const;
     bool canGoForward() const;

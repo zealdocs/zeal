@@ -41,6 +41,7 @@
 #include <QKeyEvent>
 #include <QListView>
 #include <QScrollBar>
+#include <QShortcut>
 #include <QSplitter>
 #include <QTimer>
 #include <QTreeView>
@@ -80,8 +81,20 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     m_treeView->setItemDelegate(delegate);
 
-    connect(m_treeView, &QTreeView::activated, this, &SearchSidebar::indexActivated);
-    connect(m_treeView, &QTreeView::clicked, this, &SearchSidebar::indexActivated);
+    connect(m_treeView, &QTreeView::activated, this, &SearchSidebar::navigateToIndexAndActivate);
+    connect(m_treeView, &QTreeView::clicked, this, &SearchSidebar::navigateToIndex);
+
+    // Setup Alt+Up, Alt+Down, etc shortcuts.
+    const auto keyList = {Qt::Key_Up, Qt::Key_Down, Qt::Key_Left, Qt::Key_Right,
+                          Qt::Key_PageUp, Qt::Key_PageDown,
+                          Qt::Key_Home, Qt::Key_End};
+    for (const auto key : keyList) {
+        auto shortcut = new QShortcut(key | Qt::AltModifier, this);
+        connect(shortcut, &QShortcut::activated, this, [this, key]() {
+            QKeyEvent event(QKeyEvent::KeyPress, key, Qt::NoModifier);
+            QCoreApplication::sendEvent(m_treeView, &event);
+        });
+    }
 
     // Setup page TOC view.
     // TODO: Move to a separate Sidebar View.
@@ -106,8 +119,8 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     });
     m_pageTocView->setModel(m_pageTocModel);
 
-    connect(m_pageTocView, &QListView::activated, this, &SearchSidebar::indexActivated);
-    connect(m_pageTocView, &QListView::clicked, this, &SearchSidebar::indexActivated);
+    connect(m_pageTocView, &QListView::activated, this, &SearchSidebar::navigateToIndexAndActivate);
+    connect(m_pageTocView, &QListView::clicked, this, &SearchSidebar::navigateToIndex);
 
     // Setup search input box.
     m_searchEdit = new SearchEdit();
@@ -164,14 +177,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
 
             // Connect to the new selection model.
             connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                    this, [this](const QItemSelection &selected) {
-                if (selected.isEmpty()) {
-                    return;
-                }
-
-                m_delayedNavigationTimer->setProperty("index", selected.indexes().first());
-                m_delayedNavigationTimer->start();
-            });
+                    this, &SearchSidebar::navigateToSelectionWithDelay);
         }
 
         m_treeView->reset();
@@ -213,10 +219,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             return;
         }
 
-        indexActivated(index);
-
-        // Get focus back.
-        m_searchEdit->setFocus(Qt::MouseFocusReason);
+        navigateToIndex(index);
     });
 
     // Setup Docset Registry.
@@ -274,14 +277,7 @@ void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecor
 
         // Connect to the new selection model.
         connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                this, [this](const QItemSelection &selected) {
-            if (selected.isEmpty()) {
-                return;
-            }
-
-            m_delayedNavigationTimer->setProperty("index", selected.indexes().first());
-            m_delayedNavigationTimer->start();
-        });
+                this, &SearchSidebar::navigateToSelectionWithDelay);
     }
 }
 
@@ -315,13 +311,41 @@ void SearchSidebar::search(const Registry::SearchQuery &query)
     m_searchEdit->setText(query.toString());
 }
 
-void SearchSidebar::indexActivated(const QModelIndex &index)
+void SearchSidebar::navigateToIndex(const QModelIndex &index)
 {
+    // When triggered by click, cancel delayed navigation request caused by the selection change.
+    if (m_delayedNavigationTimer->isActive()
+            && m_delayedNavigationTimer->property("index").toModelIndex() == index) {
+        m_delayedNavigationTimer->stop();
+    }
+
     const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
-    if (url.isNull())
+    if (url.isNull()) {
         return;
+    }
 
     emit navigationRequested(url.toUrl());
+}
+
+void SearchSidebar::navigateToIndexAndActivate(const QModelIndex &index)
+{
+    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
+    if (url.isNull()) {
+        return;
+    }
+
+    emit navigationRequested(url.toUrl());
+    emit activated();
+}
+
+void SearchSidebar::navigateToSelectionWithDelay(const QItemSelection &selection)
+{
+    if (selection.isEmpty()) {
+        return;
+    }
+
+    m_delayedNavigationTimer->setProperty("index", selection.indexes().first());
+    m_delayedNavigationTimer->start();
 }
 
 void SearchSidebar::setupSearchBoxCompletions()
@@ -347,6 +371,9 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     if (object == m_searchEdit && event->type() == QEvent::KeyPress) {
         auto e = static_cast<QKeyEvent *>(event);
         switch (e->key()) {
+        case Qt::Key_Return:
+            emit activated();
+            break;
         case Qt::Key_Home:
         case Qt::Key_End:
         case Qt::Key_Left:
@@ -355,13 +382,13 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
                 break;
             }
             [[clang::fallthrough]];
-        case Qt::Key_Return:
         case Qt::Key_Down:
         case Qt::Key_Up:
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
             QCoreApplication::sendEvent(m_treeView, event);
             break;
+
         }
     }
 

@@ -28,6 +28,7 @@
 #include <QModelIndexList>
 #include <QWidget>
 
+class QItemSelection;
 class QSplitter;
 class QListView;
 class QTimer;
@@ -54,6 +55,7 @@ public:
     Registry::SearchModel *pageTocModel() const;
 
 signals:
+    void activated();
     void navigationRequested(const QUrl &url);
 
 public slots:
@@ -61,7 +63,9 @@ public slots:
     void search(const Registry::SearchQuery &query);
 
 private slots:
-    void indexActivated(const QModelIndex &index);
+    void navigateToIndex(const QModelIndex &index);
+    void navigateToIndexAndActivate(const QModelIndex &index);
+    void navigateToSelectionWithDelay(const QItemSelection &selection);
     void setupSearchBoxCompletions();
 
 protected:

@@ -58,6 +58,11 @@ WebControl::WebControl(QWidget *parent)
     setLayout(layout);
 }
 
+void WebControl::focus()
+{
+    m_webView->setFocus();
+}
+
 int WebControl::zoomLevel() const
 {
     return m_webView->zoomLevel();
@@ -99,7 +104,6 @@ void WebControl::setWebBridgeObject(const QString &name, QObject *object)
 void WebControl::load(const QUrl &url)
 {
     m_webView->load(url);
-    m_webView->setFocus();
 }
 
 void WebControl::activateSearchBar()

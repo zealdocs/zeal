@@ -161,6 +161,8 @@ BrowserTab *BrowserTab::clone(QWidget *parent) const
 
     if (m_searchSidebar) {
         tab->m_searchSidebar = m_searchSidebar->clone();
+        connect(tab->m_searchSidebar, &SearchSidebar::activated,
+                tab->m_webControl, &Browser::WebControl::focus);
         connect(tab->m_searchSidebar, &SearchSidebar::navigationRequested,
                 tab->m_webControl, &Browser::WebControl::load);
     }
@@ -189,6 +191,8 @@ SearchSidebar *BrowserTab::searchSidebar()
     if (m_searchSidebar == nullptr) {
         // Create SearchSidebar managed by this tab.
         m_searchSidebar = new SearchSidebar();
+        connect(m_searchSidebar, &SearchSidebar::activated,
+                m_webControl, &Browser::WebControl::focus);
         connect(m_searchSidebar, &SearchSidebar::navigationRequested,
                 m_webControl, &Browser::WebControl::load);
     }
