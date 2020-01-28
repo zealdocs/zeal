@@ -315,11 +315,13 @@ QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const
 
 bool WebView::isExternalUrl(const QUrl &url)
 {
-    static const QStringList localSchemes = {
-        QStringLiteral("file"),
-        QStringLiteral("qrc"),
-    };
+    if (url.isLocalFile() || url.scheme() == QStringLiteral("qrc")) {
+        return false;
+    }
 
-    const QString scheme = url.scheme();
-    return !scheme.isEmpty() && !localSchemes.contains(scheme);
+    if (url.host().startsWith(QStringLiteral("127."))) {
+        return false;
+    }
+
+    return true;
 }
