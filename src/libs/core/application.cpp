@@ -24,6 +24,7 @@
 
 #include "extractor.h"
 #include "filemanager.h"
+#include "httpserver.h"
 #include "networkaccessmanager.h"
 #include "settings.h"
 
@@ -63,6 +64,7 @@ Application::Application(QObject *parent)
     m_networkManager = new NetworkAccessManager(this);
 
     m_fileManager = new FileManager(this);
+    m_httpServer = new HttpServer(this);
 
     // Extractor setup
     m_extractorThread = new QThread(this);
@@ -132,6 +134,11 @@ Registry::DocsetRegistry *Application::docsetRegistry()
 FileManager *Application::fileManager() const
 {
     return m_fileManager;
+}
+
+HttpServer *Application::httpServer() const
+{
+    return m_httpServer;
 }
 
 QString Application::cacheLocation()

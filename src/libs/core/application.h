@@ -45,6 +45,7 @@ namespace Core {
 
 class Extractor;
 class FileManager;
+class HttpServer;
 class Settings;
 
 class Application final : public QObject
@@ -64,6 +65,7 @@ public:
 
     Registry::DocsetRegistry *docsetRegistry();
     FileManager *fileManager() const;
+    HttpServer *httpServer() const;
 
     static QString cacheLocation();
     static QString configLocation();
@@ -96,6 +98,7 @@ private:
     QNetworkAccessManager *m_networkManager = nullptr;
 
     FileManager *m_fileManager = nullptr;
+    HttpServer *m_httpServer = nullptr;
 
     QThread *m_extractorThread = nullptr;
     Extractor *m_extractor = nullptr;
