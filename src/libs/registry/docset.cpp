@@ -194,7 +194,7 @@ Docset::Docset(QString path)
         m_indexFilePath = QStringLiteral("index.html");
     }
 
-    // Log if unable to determine the index page.
+    // Log if unable to determine the index page. Otherwise the path will be set in setBaseUrl().
     if (m_indexFilePath.isEmpty()) {
         qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
         m_indexFileUrl.setUrl(NotFoundPageUrl);
@@ -567,8 +567,9 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
-    // Absolute file path is required here to handle relative path to the docset storage (see #806).
-    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
+    QUrl url = m_baseUrl;
+    url.setPath(m_baseUrl.path() + "/" + realPath, QUrl::TolerantMode);
+
     if (!realFragment.isEmpty()) {
         if (realFragment.startsWith(QLatin1String("//apple_ref"))
                 || realFragment.startsWith(QLatin1String("//dash_ref"))) {
@@ -713,6 +714,20 @@ QString Docset::parseSymbolType(const QString &str)
     };
 
     return aliases.value(str, str);
+}
+
+QUrl Docset::baseUrl() const
+{
+    return m_baseUrl;
+}
+
+void Docset::setBaseUrl(const QUrl &baseUrl)
+{
+    m_baseUrl = baseUrl;
+
+    if (!m_indexFilePath.isEmpty()) {
+        m_indexFileUrl = createPageUrl(m_indexFilePath);
+    }
 }
 
 bool Docset::isFuzzySearchEnabled() const

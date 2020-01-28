@@ -28,6 +28,9 @@
 #include "searchquery.h"
 #include "searchresult.h"
 
+#include <core/application.h>
+#include <core/httpserver.h>
+
 #include <QDir>
 #include <QThread>
 
@@ -139,7 +142,19 @@ void DocsetRegistry::loadDocset(const QString &path)
             unloadDocset(name);
         }
 
+        // Setup HTTP mount.
+        QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
+        if (url.isEmpty()) {
+            qWarning("Could not enable docset from '%s'. Reinstall the docset.",
+                     qPrintable(docset->path()));
+            delete docset;
+            return;
+        }
+
+        docset->setBaseUrl(url);
+
         m_docsets[name] = docset;
+
         emit docsetLoaded(name);
     });
 
