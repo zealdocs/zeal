@@ -9,6 +9,7 @@
         <file>browser/assets/css/welcome.min.css</file>
         <file>browser/assets/fonts/fa-brands-400.woff</file>
         <file>browser/assets/fonts/fa-solid-900.woff</file>
+        <file>browser/404.html</file>
         <file>browser/welcome.html</file>
         <file>icons/type/Abbreviation.png</file>
         <file>icons/type/Abbreviation@2x.png</file>

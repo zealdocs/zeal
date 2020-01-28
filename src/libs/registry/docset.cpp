@@ -49,6 +49,8 @@ namespace {
 constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
 constexpr char IndexNameVersion[] = "0001";     // Current index version
 
+constexpr char NotFoundPageUrl[] = "qrc:///browser/404.html";
+
 namespace InfoPlist {
 constexpr char CFBundleName[] = "CFBundleName";
 //const char CFBundleIdentifier[] = "CFBundleIdentifier";
@@ -171,15 +173,35 @@ Docset::Docset(QString path)
 
     m_keywords.removeDuplicates();
 
-    // Prefer index path provided by the docset over metadata.
+    // Determine index page. This is ridiculous.
+
+    // Prefer index path provided by the docset.
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
-        m_indexFileUrl = createPageUrl(plist[InfoPlist::DashIndexFilePath].toString());
-    } else if (m_indexFileUrl.isEmpty()) {
-        if (dir.exists(QStringLiteral("index.html")))
-            m_indexFileUrl = createPageUrl(QStringLiteral("index.html"));
-        else
-            qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+        const QString indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
+        if (dir.exists(indexFilePath)) {
+            m_indexFilePath = indexFilePath;
+        }
     }
+
+    // Check the metadata.
+    if (m_indexFilePath.isEmpty() && !dir.exists(m_indexFilePath)) {
+        // Well, metadata was wrong.
+        m_indexFileUrl.clear();
+    }
+
+    // What if there is index.html.
+    if (m_indexFilePath.isEmpty() && dir.exists(QStringLiteral("index.html"))) {
+        m_indexFilePath = QStringLiteral("index.html");
+    }
+
+    // Log if unable to determine the index page.
+    if (m_indexFilePath.isEmpty()) {
+        qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+        m_indexFileUrl.setUrl(NotFoundPageUrl);
+    } else {
+        m_indexFileUrl = createPageUrl(m_indexFilePath);
+    }
+
 
     countSymbols();
 }
@@ -392,7 +414,7 @@ void Docset::loadMetadata()
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
 
         if (extra.contains(QStringLiteral("indexFilePath"))) {
-            m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
+            m_indexFilePath = extra[QStringLiteral("indexFilePath")].toString();
         }
 
         if (extra.contains(QStringLiteral("keywords"))) {

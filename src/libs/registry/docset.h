@@ -110,6 +110,7 @@ private:
     QIcon m_icon;
 
     QUrl m_indexFileUrl;
+    QString m_indexFilePath;
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
