@@ -77,6 +77,9 @@ public:
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
 
+    QUrl baseUrl() const;
+    void setBaseUrl(const QUrl &baseUrl);
+
     bool isFuzzySearchEnabled() const;
     void setFuzzySearchEnabled(bool enabled);
 
@@ -118,6 +121,8 @@ private:
     Util::SQLiteDatabase *m_db = nullptr;
     bool m_fuzzySearchEnabled = false;
     bool m_javaScriptEnabled = false;
+
+    QUrl m_baseUrl;
 };
 
 } // namespace Registry
