@@ -47,6 +47,7 @@ public:
     QUrl baseUrl() const;
 
     QUrl mount(const QString &prefix, const QString &path);
+    bool unmount(const QString &prefix);
 
 private:
     static QString sanitizePrefix(const QString &prefix);

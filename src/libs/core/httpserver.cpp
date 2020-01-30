@@ -90,6 +90,19 @@ QUrl HttpServer::mount(const QString &prefix, const QString &path)
     return mountUrl;
 }
 
+bool HttpServer::unmount(const QString &prefix)
+{
+    const QString pfx = sanitizePrefix(prefix);
+    const bool ok = m_server->remove_mount_point(pfx.toUtf8());
+    if (!ok) {
+        qCWarning(log, "Failed to unmount '%s' to '%s'.", qPrintable(prefix), qPrintable(pfx));
+    }
+
+    qCDebug(log, "Unmounted prefix '%s' ('%s').", qPrintable(prefix), qPrintable(pfx));
+
+    return ok;
+}
+
 QString HttpServer::sanitizePrefix(const QString &prefix)
 {
     QString pfx = (prefix.startsWith(QLatin1String("/")) ? prefix.right(1) : prefix).toLower();
