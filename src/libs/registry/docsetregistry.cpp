@@ -166,6 +166,7 @@ void DocsetRegistry::loadDocset(const QString &path)
 void DocsetRegistry::unloadDocset(const QString &name)
 {
     emit docsetAboutToBeUnloaded(name);
+    Core::Application::instance()->httpServer()->unmount(name);
     delete m_docsets.take(name);
     emit docsetUnloaded(name);
 }
