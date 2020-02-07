@@ -23,6 +23,8 @@
         <file>icons/type/Axiom@2x.png</file>
         <file>icons/type/Binding.png</file>
         <file>icons/type/Binding@2x.png</file>
+        <file>icons/type/Block.png</file>
+        <file>icons/type/Block@2x.png</file>
         <file>icons/type/Bookmark.png</file>
         <file>icons/type/Bookmark@2x.png</file>
         <file>icons/type/Builtin.png</file>
@@ -57,6 +59,8 @@
         <file>icons/type/Define@2x.png</file>
         <file>icons/type/Delegate.png</file>
         <file>icons/type/Delegate@2x.png</file>
+        <file>icons/type/Device.png</file>
+        <file>icons/type/Device@2x.png</file>
         <file>icons/type/Diagram.png</file>
         <file>icons/type/Diagram@2x.png</file>
         <file>icons/type/Directive.png</file>
@@ -75,6 +79,8 @@
         <file>icons/type/Event@2x.png</file>
         <file>icons/type/Exception.png</file>
         <file>icons/type/Exception@2x.png</file>
+        <file>icons/type/Expression.png</file>
+        <file>icons/type/Expression@2x.png</file>
         <file>icons/type/Extension.png</file>
         <file>icons/type/Extension@2x.png</file>
         <file>icons/type/Field.png</file>
@@ -93,8 +99,12 @@
         <file>icons/type/Function@2x.png</file>
         <file>icons/type/Global.png</file>
         <file>icons/type/Global@2x.png</file>
+        <file>icons/type/Glossary.png</file>
+        <file>icons/type/Glossary@2x.png</file>
         <file>icons/type/Guide.png</file>
         <file>icons/type/Guide@2x.png</file>
+        <file>icons/type/Handler.png</file>
+        <file>icons/type/Handler@2x.png</file>
         <file>icons/type/Helper.png</file>
         <file>icons/type/Helper@2x.png</file>
         <file>icons/type/Hook.png</file>
@@ -111,8 +121,12 @@
         <file>icons/type/Instruction@2x.png</file>
         <file>icons/type/Interface.png</file>
         <file>icons/type/Interface@2x.png</file>
+        <file>icons/type/Iterator.png</file>
+        <file>icons/type/Iterator@2x.png</file>
         <file>icons/type/Keyword.png</file>
         <file>icons/type/Keyword@2x.png</file>
+        <file>icons/type/Kind.png</file>
+        <file>icons/type/Kind@2x.png</file>
         <file>icons/type/Lemma.png</file>
         <file>icons/type/Lemma@2x.png</file>
         <file>icons/type/Library.png</file>
@@ -173,6 +187,8 @@
         <file>icons/type/Query@2x.png</file>
         <file>icons/type/Reference.png</file>
         <file>icons/type/Reference@2x.png</file>
+        <file>icons/type/Register.png</file>
+        <file>icons/type/Register@2x.png</file>
         <file>icons/type/Record.png</file>
         <file>icons/type/Record@2x.png</file>
         <file>icons/type/Relationship.png</file>
@@ -183,6 +199,8 @@
         <file>icons/type/Request@2x.png</file>
         <file>icons/type/Resource.png</file>
         <file>icons/type/Resource@2x.png</file>
+        <file>icons/type/Role.png</file>
+        <file>icons/type/Role@2x.png</file>
         <file>icons/type/Sample.png</file>
         <file>icons/type/Sample@2x.png</file>
         <file>icons/type/Schema.png</file>
@@ -203,6 +221,8 @@
         <file>icons/type/Signature@2x.png</file>
         <file>icons/type/Special Form.png</file>
         <file>icons/type/Special Form@2x.png</file>
+        <file>icons/type/State.png</file>
+        <file>icons/type/State@2x.png</file>
         <file>icons/type/Statement.png</file>
         <file>icons/type/Statement@2x.png</file>
         <file>icons/type/Structure.png</file>
@@ -219,6 +239,8 @@
         <file>icons/type/Tactic@2x.png</file>
         <file>icons/type/Tag.png</file>
         <file>icons/type/Tag@2x.png</file>
+        <file>icons/type/Template.png</file>
+        <file>icons/type/Template@2x.png</file>
         <file>icons/type/Test.png</file>
         <file>icons/type/Test@2x.png</file>
         <file>icons/type/Trait.png</file>
@@ -239,6 +261,8 @@
         <file>icons/type/Variant@2x.png</file>
         <file>icons/type/View.png</file>
         <file>icons/type/View@2x.png</file>
+        <file>icons/type/Widget.png</file>
+        <file>icons/type/Widget@2x.png</file>
         <file>icons/type/Word.png</file>
         <file>icons/type/Word@2x.png</file>
         <file>icons/logo/64x64.png</file>
