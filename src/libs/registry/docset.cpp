@@ -202,7 +202,6 @@ Docset::Docset(QString path)
         m_indexFileUrl = createPageUrl(m_indexFilePath);
     }
 
-
     countSymbols();
 }
 
@@ -418,8 +417,9 @@ void Docset::loadMetadata()
         }
 
         if (extra.contains(QStringLiteral("keywords"))) {
-            for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray())
+            for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray()) {
                 m_keywords << kw.toString();
+            }
         }
 
         if (extra.contains(QStringLiteral("isJavaScriptEnabled"))) {
@@ -456,11 +456,13 @@ void Docset::countSymbols()
 // TODO: Fetch and cache only portions of symbols
 void Docset::loadSymbols(const QString &symbolType) const
 {
-    // itPair is a QPair<QMap::const_iterator, QMap::const_iterator>, with itPair.first and itPair.second respectively
-    // pointing to the start and the end of the range of nodes having symbolType as key. It effectively represents a
+    // Iterator `it` is a QPair<QMap::const_iterator, QMap::const_iterator>,
+    // with it.first and it.second respectively pointing to the start and the end
+    // of the range of nodes having symbolType as key. It effectively represents a
     // contiguous view over the nodes with a specified key.
-    for (auto itPair = qAsConst(m_symbolStrings).equal_range(symbolType); itPair.first != itPair.second; ++itPair.first)
-        loadSymbols(symbolType, itPair.first.value());
+    for (auto it = qAsConst(m_symbolStrings).equal_range(symbolType); it.first != it.second; ++it.first) {
+        loadSymbols(symbolType, it.first.value());
+    }
 }
 
 void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const
@@ -484,9 +486,11 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     }
 
     QMap<QString, QUrl> &symbols = m_symbols[symbolType];
-    while (m_db->next())
+    while (m_db->next()) {
         symbols.insertMulti(m_db->value(0).toString(),
-                            createPageUrl(m_db->value(1).toString(), m_db->value(2).toString()));
+                            createPageUrl(m_db->value(1).toString(),
+                                          m_db->value(2).toString()));
+    }
 }
 
 void Docset::createIndex()
@@ -862,8 +866,9 @@ static int scoreExact(int matchIndex, int matchLen, const char *value, int value
             // (2) Remove one point for each unmatched character
             //     following the query.
             int i = matchIndex - 2;
-            while (i >= 0 && value[i] != DOT)
+            while (i >= 0 && value[i] != DOT) {
                 --i;
+            }
 
             score -= (matchIndex - i)                     // (1)
                     + (valueLen - matchLen - matchIndex); // (2)

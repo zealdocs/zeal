@@ -48,18 +48,21 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_icon.addPixmap(pixmap);
     }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray()) {
         m_aliases << vv.toString();
+    }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray()) {
         m_versions << vv.toString();
+    }
 
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray()) {
         m_urls.append(QUrl(vv.toString()));
+    }
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }

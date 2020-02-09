@@ -228,7 +228,6 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
             mb->setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>")
                         .arg(clickedLink.toString()));
 
-
             auto checkBox = new QCheckBox("Do &not ask again");
             mb->setCheckBox(checkBox);
 

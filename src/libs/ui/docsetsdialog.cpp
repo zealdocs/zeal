@@ -96,9 +96,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 
     ui->statusLabel->clear(); // Clear text shown in the designer mode.
     ui->storageStatusLabel->setVisible(m_isStorageReadOnly);
-    ui->storageStatusLabel->setText(fi.exists() ?
-                                    tr("<b>Docset storage is read only.</b>") :
-                                    tr("<b>Docset storage does not exist.</b>"));
+    ui->storageStatusLabel->setText(fi.exists() ? tr("<b>Docset storage is read only.</b>")
+                                                : tr("<b>Docset storage does not exist.</b>"));
 
     connect(m_application, &Core::Application::extractionCompleted,
             this, &DocsetsDialog::extractionCompleted);
@@ -196,16 +195,19 @@ void DocsetsDialog::removeSelectedDocsets()
                                        selectedIndexes.size()));
     }
 
-    if (ret == QMessageBox::No)
+    if (ret == QMessageBox::No) {
         return;
+    }
 
     // Gather names first, because model indicies become invalid when docsets are removed.
     QStringList names;
-    for (const QModelIndex &index : selectedIndexes)
+    for (const QModelIndex &index : selectedIndexes) {
         names.append(index.data(Registry::ItemDataRole::DocsetNameRole).toString());
+    }
 
-    for (const QString &name : names)
+    for (const QString &name : names) {
         removeDocset(name);
+    }
 }
 
 void DocsetsDialog::updateDocsetFilter(const QString &filterString)
@@ -367,8 +369,10 @@ void DocsetsDialog::downloadCompleted()
             m_tmpFiles.insert(docsetName, tmpFile);
         }
 
-        while (reply->bytesAvailable())
-            tmpFile->write(reply->read(1024 * 1024)); // Use small chunks
+        while (reply->bytesAvailable()) {
+            tmpFile->write(reply->read(1024 * 1024)); // Use small chunks.
+        }
+
         tmpFile->close();
 
         QListWidgetItem *item = findDocsetListItem(docsetName);
@@ -498,7 +502,7 @@ void DocsetsDialog::loadDocsetList()
 void DocsetsDialog::setupInstalledDocsetsTab()
 {
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
-    ui->installedDocsetList->setModel(m_application->docsetRegistry()->model());
+    ui->installedDocsetList->setModel(m_docsetRegistry->model());
 
     if (m_isStorageReadOnly) {
         return;

@@ -163,8 +163,9 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
     const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
     QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
 
-    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it)
+    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
         reg->remove(it.key());
+    }
 }
 #endif
 
