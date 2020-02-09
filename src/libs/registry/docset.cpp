@@ -174,6 +174,7 @@ Docset::Docset(QString path)
     m_keywords.removeDuplicates();
 
     // Determine index page. This is ridiculous.
+    const QString mdIndexFilePath = m_indexFilePath; // Save path from the metadata.
 
     // Prefer index path provided by the docset.
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
@@ -184,9 +185,8 @@ Docset::Docset(QString path)
     }
 
     // Check the metadata.
-    if (m_indexFilePath.isEmpty() && !dir.exists(m_indexFilePath)) {
-        // Well, metadata was wrong.
-        m_indexFileUrl.clear();
+    if (m_indexFilePath.isEmpty() && !mdIndexFilePath.isEmpty() && dir.exists(mdIndexFilePath)) {
+        m_indexFilePath = mdIndexFilePath;
     }
 
     // What if there is index.html.
