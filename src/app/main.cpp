@@ -163,24 +163,23 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
     const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
     QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
 
-    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it)
+    for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
         reg->remove(it.key());
+    }
 }
 #endif
 
 int main(int argc, char *argv[])
 {
     // Do not allow Qt version lower than the app was compiled with.
-    QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR);
+    QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR)
 
     QCoreApplication::setApplicationName(QStringLiteral("Zeal"));
     QCoreApplication::setApplicationVersion(ZEAL_VERSION);
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
-#if QT_VERSION >= 0x050600
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
@@ -217,6 +216,7 @@ int main(int argc, char *argv[])
     }
 
     // Set application-wide window icon. All message boxes and other windows will use it by default.
+    qapp->setDesktopFileName(QStringLiteral("org.zealdocs.Zeal.desktop"));
     qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
                                          QIcon(QStringLiteral(":/zeal.ico"))));
 
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
     });
 
     if (!clParams.query.isEmpty()) {
-        QTimer::singleShot(0, [&app, clParams] {
+        QTimer::singleShot(0, app.data(), [&app, clParams] {
             app->executeQuery(clParams.query, clParams.preventActivation);
         });
     }

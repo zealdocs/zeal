@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSET_H
-#define DOCSET_H
+#ifndef ZEAL_REGISTRY_DOCSET_H
+#define ZEAL_REGISTRY_DOCSET_H
 
 #include <QIcon>
 #include <QMap>
@@ -40,11 +40,12 @@ namespace Registry {
 class CancellationToken;
 struct SearchResult;
 
-class Docset
+class Docset final
 {
+    Q_DISABLE_COPY(Docset)
 public:
-    explicit Docset(const QString &path);
-    ~Docset();
+    explicit Docset(QString path);
+    virtual ~Docset();
 
     bool isValid() const;
 
@@ -109,6 +110,7 @@ private:
     QIcon m_icon;
 
     QUrl m_indexFileUrl;
+    QString m_indexFilePath;
 
     QMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
@@ -121,4 +123,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // DOCSET_H
+#endif // ZEAL_REGISTRY_DOCSET_H

@@ -38,158 +38,16 @@
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="resultPane">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="ToolBarFrame" name="searchEditWidget" native="true">
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <layout class="QVBoxLayout" name="searchToolBarFrame">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="SearchEdit" name="lineEdit">
-             <property name="placeholderText">
-              <string>Enter your query</string>
-             </property>
-             <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSplitter" name="tocSplitter">
-          <property name="minimumSize">
-           <size>
-            <width>150</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <widget class="QTreeView" name="treeView">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="uniformRowHeights">
-            <bool>true</bool>
-           </property>
-           <attribute name="headerVisible">
-            <bool>false</bool>
-           </attribute>
-          </widget>
-          <widget class="QListView" name="tocListView">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="uniformItemSizes">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="layoutWidget_2">
        <layout class="QVBoxLayout" name="viewInfo">
         <property name="spacing">
          <number>0</number>
         </property>
         <item>
-         <widget class="ToolBarFrame" name="navigationBar" native="true">
-          <layout class="QHBoxLayout" name="toolbox">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QToolButton" name="backButton">
-             <property name="toolTip">
-              <string>Go back one page</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
-             </property>
-             <property name="text">
-              <string>←</string>
-             </property>
-             <property name="autoRaise">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="forwardButton">
-             <property name="toolTip">
-              <string>Go forward one page</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QToolButton::menu-indicator { image: none; }</string>
-             </property>
-             <property name="text">
-              <string>→</string>
-             </property>
-             <property name="autoRaise">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
          <widget class="QStackedWidget" name="webViewStack">
           <property name="minimumSize">
            <size>
-            <width>600</width>
+            <width>400</width>
             <height>0</height>
            </size>
           </property>
@@ -249,7 +107,8 @@
   </widget>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -257,7 +116,8 @@
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset theme="preferences-desktop"/>
+    <iconset theme="preferences-desktop">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Prefere&amp;nces</string>
@@ -265,7 +125,8 @@
   </action>
   <action name="actionAboutZeal">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>About &amp;Zeal</string>
@@ -276,7 +137,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="go-previous"/>
+    <iconset theme="go-previous">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Back</string>
@@ -287,7 +149,8 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset theme="go-next"/>
+    <iconset theme="go-next">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Forward</string>
@@ -295,7 +158,8 @@
   </action>
   <action name="actionNewTab">
    <property name="icon">
-    <iconset theme="tab-new"/>
+    <iconset theme="tab-new">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>New &amp;Tab</string>
@@ -328,7 +192,8 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset theme="edit-find"/>
+    <iconset theme="edit-find">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Find</string>
@@ -341,19 +206,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>SearchEdit</class>
-   <extends>QLineEdit</extends>
-   <header>ui/widgets/searchedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ToolBarFrame</class>
-   <extends>QWidget</extends>
-   <header>ui/widgets/toolbarframe.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

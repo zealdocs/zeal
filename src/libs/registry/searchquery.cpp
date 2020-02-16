@@ -23,19 +23,17 @@
 
 #include "searchquery.h"
 
+#include <utility>
+
 using namespace Zeal::Registry;
 
 namespace {
 const char prefixSeparator = ':';
 const char keywordSeparator = ',';
-}
+} // namespace
 
-SearchQuery::SearchQuery()
-{
-}
-
-SearchQuery::SearchQuery(const QString &query, const QStringList &keywords) :
-    m_query(query)
+SearchQuery::SearchQuery(QString query, const QStringList &keywords)
+    : m_query(std::move(query))
 {
     setKeywords(keywords);
 }
@@ -61,10 +59,11 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
 QString SearchQuery::toString() const
 {
-    if (m_keywords.isEmpty())
+    if (m_keywords.isEmpty()) {
         return m_query;
-    else
-        return m_keywordPrefix + m_query;
+    }
+
+    return m_keywordPrefix + m_query;
 }
 
 bool SearchQuery::isEmpty() const

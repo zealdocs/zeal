@@ -24,6 +24,7 @@
 #include "docsetregistry.h"
 
 #include "docset.h"
+#include "listmodel.h"
 #include "searchquery.h"
 #include "searchresult.h"
 
@@ -41,9 +42,10 @@ void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResul
     finalResult << partial;
 }
 
-DocsetRegistry::DocsetRegistry(QObject *parent) :
-    QObject(parent),
-    m_thread(new QThread(this))
+DocsetRegistry::DocsetRegistry(QObject *parent)
+    : QObject(parent)
+    , m_model(new ListModel(this))
+    , m_thread(new QThread(this))
 {
     // Register for use in signal connections.
     qRegisterMetaType<QList<SearchResult>>("QList<SearchResult>");
@@ -58,6 +60,11 @@ DocsetRegistry::~DocsetRegistry()
     m_thread->exit();
     m_thread->wait();
     qDeleteAll(m_docsets);
+}
+
+QAbstractItemModel *DocsetRegistry::model() const
+{
+    return m_model;
 }
 
 QString DocsetRegistry::storagePath() const
@@ -90,7 +97,7 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 
     m_fuzzySearchEnabled = enabled;
 
-    for (Docset *docset : m_docsets) {
+    for (Docset *docset : qAsConst(m_docsets)) {
         docset->setFuzzySearchEnabled(enabled);
     }
 }
@@ -112,7 +119,7 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::loadDocset(const QString &path)
 {
-    QFutureWatcher<Docset *> *watcher = new QFutureWatcher<Docset *>();
+    auto watcher = new QFutureWatcher<Docset *>();
     connect(watcher, &QFutureWatcher<Docset *>::finished, this, [this, watcher] {
         QScopedPointer<QFutureWatcher<Docset *>, QScopedPointerDeleteLater> guard(watcher);
 
@@ -150,7 +157,8 @@ void DocsetRegistry::unloadDocset(const QString &name)
 
 void DocsetRegistry::unloadAllDocsets()
 {
-    for (const QString &name : m_docsets.keys()) {
+    const auto keys = m_docsets.keys();
+    for (const QString &name : keys) {
         unloadDocset(name);
     }
 }
@@ -192,7 +200,7 @@ void DocsetRegistry::_runQuery(const QString &query)
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     if (searchQuery.hasKeywords()) {
-        for (Docset *docset : m_docsets) {
+        for (Docset *docset : qAsConst(m_docsets)) {
             if (searchQuery.hasKeywords(docset->keywords()))
                 enabledDocsets << docset;
         }
@@ -224,7 +232,8 @@ void DocsetRegistry::_runQuery(const QString &query)
 void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
     const QDir dir(path);
-    for (const QFileInfo &subdir : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs)) {
+    const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
+    for (const QFileInfo &subdir : subDirectories) {
         if (subdir.suffix() == QLatin1String("docset"))
             loadDocset(subdir.filePath());
         else

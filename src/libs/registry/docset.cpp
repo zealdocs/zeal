@@ -35,36 +35,39 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <QVariant>
 #include <QVarLengthArray>
+#include <QVariant>
 
 #include <sqlite3.h>
 
 #include <cstring>
+#include <utility>
 
 using namespace Zeal::Registry;
 
 namespace {
-const char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
-const char IndexNameVersion[] = "0001"; // Current index version
+constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
+constexpr char IndexNameVersion[] = "0001";     // Current index version
+
+constexpr char NotFoundPageUrl[] = "qrc:///browser/404.html";
 
 namespace InfoPlist {
-const char CFBundleName[] = "CFBundleName";
+constexpr char CFBundleName[] = "CFBundleName";
 //const char CFBundleIdentifier[] = "CFBundleIdentifier";
-const char DashDocSetFamily[] = "DashDocSetFamily";
-const char DashDocSetKeyword[] = "DashDocSetKeyword";
-const char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
-const char DashIndexFilePath[] = "dashIndexFilePath";
-const char DocSetPlatformFamily[] = "DocSetPlatformFamily";
+constexpr char DashDocSetFamily[] = "DashDocSetFamily";
+constexpr char DashDocSetKeyword[] = "DashDocSetKeyword";
+constexpr char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
+constexpr char DashIndexFilePath[] = "dashIndexFilePath";
+constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 //const char IsDashDocset[] = "isDashDocset";
-const char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
-}
-}
+constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+} // namespace InfoPlist
+} // namespace
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
 
-Docset::Docset(const QString &path) :
-    m_path(path)
+Docset::Docset(QString path)
+    : m_path(std::move(path))
 {
     QDir dir(m_path);
     if (!dir.exists())
@@ -73,7 +76,8 @@ Docset::Docset(const QString &path) :
     loadMetadata();
 
     // Attempt to find the icon in any supported format
-    for (const QString &iconFile : dir.entryList({QStringLiteral("icon.*")}, QDir::Files)) {
+    const auto iconFiles = dir.entryList({QStringLiteral("icon.*")}, QDir::Files);
+    for (const QString &iconFile : iconFiles) {
         m_icon = QIcon(dir.filePath(iconFile));
         if (!m_icon.availableSizes().isEmpty())
             break;
@@ -169,14 +173,33 @@ Docset::Docset(const QString &path) :
 
     m_keywords.removeDuplicates();
 
-    // Prefer index path provided by the docset over metadata.
+    // Determine index page. This is ridiculous.
+    const QString mdIndexFilePath = m_indexFilePath; // Save path from the metadata.
+
+    // Prefer index path provided by the docset.
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
-        m_indexFileUrl = createPageUrl(plist[InfoPlist::DashIndexFilePath].toString());
-    } else if (m_indexFileUrl.isEmpty()) {
-        if (dir.exists(QStringLiteral("index.html")))
-            m_indexFileUrl = createPageUrl(QStringLiteral("index.html"));
-        else
-            qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+        const QString indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
+        if (dir.exists(indexFilePath)) {
+            m_indexFilePath = indexFilePath;
+        }
+    }
+
+    // Check the metadata.
+    if (m_indexFilePath.isEmpty() && !mdIndexFilePath.isEmpty() && dir.exists(mdIndexFilePath)) {
+        m_indexFilePath = mdIndexFilePath;
+    }
+
+    // What if there is index.html.
+    if (m_indexFilePath.isEmpty() && dir.exists(QStringLiteral("index.html"))) {
+        m_indexFilePath = QStringLiteral("index.html");
+    }
+
+    // Log if unable to determine the index page.
+    if (m_indexFilePath.isEmpty()) {
+        qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+        m_indexFileUrl.setUrl(NotFoundPageUrl);
+    } else {
+        m_indexFileUrl = createPageUrl(m_indexFilePath);
     }
 
     countSymbols();
@@ -390,12 +413,17 @@ void Docset::loadMetadata()
         const QJsonObject extra = jsonObject[QStringLiteral("extra")].toObject();
 
         if (extra.contains(QStringLiteral("indexFilePath"))) {
-            m_indexFileUrl = createPageUrl(extra[QStringLiteral("indexFilePath")].toString());
+            m_indexFilePath = extra[QStringLiteral("indexFilePath")].toString();
         }
 
         if (extra.contains(QStringLiteral("keywords"))) {
-            for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray())
+            for (const QJsonValueRef kw : extra[QStringLiteral("keywords")].toArray()) {
                 m_keywords << kw.toString();
+            }
+        }
+
+        if (extra.contains(QStringLiteral("isJavaScriptEnabled"))) {
+            m_javaScriptEnabled = extra[QStringLiteral("isJavaScriptEnabled")].toBool();
         }
     }
 }
@@ -428,8 +456,13 @@ void Docset::countSymbols()
 // TODO: Fetch and cache only portions of symbols
 void Docset::loadSymbols(const QString &symbolType) const
 {
-    for (const QString &symbol : m_symbolStrings.values(symbolType))
-        loadSymbols(symbolType, symbol);
+    // Iterator `it` is a QPair<QMap::const_iterator, QMap::const_iterator>,
+    // with it.first and it.second respectively pointing to the start and the end
+    // of the range of nodes having symbolType as key. It effectively represents a
+    // contiguous view over the nodes with a specified key.
+    for (auto it = qAsConst(m_symbolStrings).equal_range(symbolType); it.first != it.second; ++it.first) {
+        loadSymbols(symbolType, it.first.value());
+    }
 }
 
 void Docset::loadSymbols(const QString &symbolType, const QString &symbolString) const
@@ -453,9 +486,11 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     }
 
     QMap<QString, QUrl> &symbols = m_symbols[symbolType];
-    while (m_db->next())
+    while (m_db->next()) {
         symbols.insertMulti(m_db->value(0).toString(),
-                            createPageUrl(m_db->value(1).toString(), m_db->value(2).toString()));
+                            createPageUrl(m_db->value(1).toString(),
+                                          m_db->value(2).toString()));
+    }
 }
 
 void Docset::createIndex()
@@ -486,8 +521,9 @@ void Docset::createIndex()
     }
 
     // Drop old indexes
-    for (const QString &oldIndexName : oldIndexes)
+    for (const QString &oldIndexName : qAsConst(oldIndexes)) {
         m_db->execute(indexDropQuery.arg(oldIndexName));
+    }
 
     m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }
@@ -527,7 +563,7 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
         realFragment = fragment;
     }
 
-    static const QRegularExpression dashEntryRegExp(QLatin1String("<dash_entry_.*>"));
+    static const QRegularExpression dashEntryRegExp(QStringLiteral("<dash_entry_.*>"));
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
@@ -657,7 +693,10 @@ QString Docset::parseSymbolType(const QString &str)
         // Protocol
         {QStringLiteral("intf"), QStringLiteral("Protocol")},
         // Structure
+        {QStringLiteral("_Struct"), QStringLiteral("Structure")},
+        {QStringLiteral("_Structs"), QStringLiteral("Structure")},
         {QStringLiteral("struct"), QStringLiteral("Structure")},
+        {QStringLiteral("Сontrol Structure"), QStringLiteral("Structure")},
         {QStringLiteral("Data Structures"), QStringLiteral("Structure")},
         {QStringLiteral("Struct"), QStringLiteral("Structure")},
         // Type
@@ -700,16 +739,18 @@ bool Docset::isJavaScriptEnabled() const
  */
 static int scoreFuzzy(const char *str, int index, int length)
 {
+    // Score between 66..99, if the match follows a dot, or starts the string.
     if (index == 0 || str[index - 1] == '.') {
-        // score between 66..99, if the match follows a dot, or starts the string
         return qMax(66, 100 - length);
-    } else if (str[index + length] == 0) {
-        // score between 33..66, if the match is at the end of the string
-        return qMax(33, 67 - length);
-    } else {
-        // score between 1..33 otherwise (match in the middle of the string)
-        return qMax(1, 34 - length);
     }
+
+    // Score between 33..66, if the match is at the end of the string.
+    if (str[index + length] == 0) {
+        return qMax(33, 67 - length);
+    }
+
+    // Score between 1..33 otherwise (match in the middle of the string).
+    return qMax(1, 34 - length);
 }
 
 // Based on https://github.com/bevacqua/fuzzysearch
@@ -735,7 +776,7 @@ static void matchFuzzy(const char *needle, int needleLength,
         while (j < haystackLength) {
             if (needle[i] == haystack[j++]) {
                 if (*start == -1) {
-                    *start = j;  // first matched char
+                    *start = j; // first matched char
 
                     // try starting the search later in case the first character occurs again later
                     int recursiveStart;
@@ -825,11 +866,12 @@ static int scoreExact(int matchIndex, int matchLen, const char *value, int value
             // (2) Remove one point for each unmatched character
             //     following the query.
             int i = matchIndex - 2;
-            while (i >= 0 && value[i] != DOT)
+            while (i >= 0 && value[i] != DOT) {
                 --i;
+            }
 
-            score -= (matchIndex - i)                      // (1)
-                    + (valueLen - matchLen - matchIndex);  // (2)
+            score -= (matchIndex - i)                     // (1)
+                    + (valueLen - matchLen - matchIndex); // (2)
         }
 
         // Remove one point for each dot preceding the query, except for the
@@ -862,7 +904,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
         if ((i > 0 && needleOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             needle[j] = '.';
-        } else if (c >= 'A' && c <= 'Z')  {
+        } else if (c >= 'A' && c <= 'Z') {
             needle[j] = c + 32;
         } else {
             needle[j] = c;
@@ -874,7 +916,7 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
         if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
                 || c == '/' || c == '_' || c == ' ') { // Go, some Guides
             haystack[j] = '.';
-        } else if (c >= 'A' && c <= 'Z')  {
+        } else if (c >= 'A' && c <= 'Z') {
             haystack[j] = c + 32;
         } else {
             haystack[j] = c;
@@ -897,10 +939,12 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
                    &matchIndex, &matchLength);
     }
 
-    if (matchIndex == -1 && exactIndex == -1) { // no match
-        // simply return 0
+    if (matchIndex == -1 && exactIndex == -1) {
+        // no match
         return 0;
-    } else if (exactIndex != -1) {
+    }
+
+    if (exactIndex != -1) {
         // +100 to make sure exact matches are always on top.
         score = scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 100;
     } else {
@@ -930,10 +974,10 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
 {
-    Q_UNUSED(argc);
+    Q_UNUSED(argc)
 
-    const char *needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
-    const char *haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+    auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
 
     sqlite3_result_int(context, scoreFunction(needle, haystack));
 }

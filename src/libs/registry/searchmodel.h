@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHMODEL_H
-#define SEARCHMODEL_H
+#ifndef ZEAL_REGISTRY_SEARCHMODEL_H
+#define ZEAL_REGISTRY_SEARCHMODEL_H
 
 #include "searchresult.h"
 
@@ -31,12 +31,13 @@
 namespace Zeal {
 namespace Registry {
 
-class SearchModel : public QAbstractListModel
+class SearchModel final : public QAbstractListModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SearchModel)
 public:
     explicit SearchModel(QObject *parent = nullptr);
-    SearchModel(const SearchModel &other);
+    SearchModel *clone(QObject *parent = nullptr);
 
     bool isEmpty() const;
 
@@ -59,4 +60,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // SEARCHMODEL_H
+#endif // ZEAL_REGISTRY_SEARCHMODEL_H

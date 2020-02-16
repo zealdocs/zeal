@@ -28,15 +28,16 @@
 
 using namespace Zeal::Registry;
 
-SearchModel::SearchModel(QObject *parent) :
-    QAbstractListModel(parent)
+SearchModel::SearchModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
 }
 
-SearchModel::SearchModel(const SearchModel &other) :
-    QAbstractListModel(other.d_ptr->parent),
-    m_dataList(other.m_dataList)
+SearchModel *SearchModel::clone(QObject *parent)
 {
+    auto model = new SearchModel(parent);
+    model->m_dataList = m_dataList;
+    return model;
 }
 
 bool SearchModel::isEmpty() const
@@ -49,7 +50,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    SearchResult *item = static_cast<SearchResult *>(index.internalPointer());
+    auto item = static_cast<SearchResult *>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -72,10 +73,10 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() || m_dataList.count() <= row || column > 1)
-        return QModelIndex();
+        return {};
 
     // FIXME: const_cast
-    SearchResult *item = const_cast<SearchResult *>(&m_dataList.at(row));
+    auto item = const_cast<SearchResult *>(&m_dataList.at(row));
     return createIndex(row, column, item);
 }
 

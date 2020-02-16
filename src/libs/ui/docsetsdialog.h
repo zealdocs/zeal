@@ -25,6 +25,7 @@
 #define ZEAL_WIDGETUI_DOCSETSDIALOG_H
 
 #include <registry/docsetmetadata.h>
+#include <util/caseinsensitivemap.h>
 
 #include <QDialog>
 #include <QHash>
@@ -58,8 +59,6 @@ public:
     explicit DocsetsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~DocsetsDialog() override;
 
-    void reject() override;
-
 private slots:
     void addDashFeed();
     void updateSelectedDocsets();
@@ -92,11 +91,9 @@ private:
     bool m_isStorageReadOnly = false;
 
     QList<QNetworkReply *> m_replies;
-    qint64 m_combinedTotal = 0;
-    qint64 m_combinedReceived = 0;
 
     // TODO: Create a special model
-    QMap<QString, Registry::DocsetMetadata> m_availableDocsets;
+    Util::CaseInsensitiveMap<Registry::DocsetMetadata> m_availableDocsets;
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
@@ -120,8 +117,7 @@ private:
     void downloadDashDocset(const QModelIndex &index);
     void removeDocset(const QString &name);
 
-    void updateCombinedProgress();
-    void resetProgress();
+    void updateStatus();
 
     // FIXME: Come up with a better approach
     QString docsetNameForTmpFilePath(const QString &filePath) const;

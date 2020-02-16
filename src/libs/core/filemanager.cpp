@@ -22,13 +22,14 @@
 
 #include "filemanager.h"
 
+#include "application.h"
+
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QLoggingCategory>
-#include <QStandardPaths>
 
 #include <QtConcurrent>
 
@@ -41,7 +42,7 @@ FileManager::FileManager(QObject *parent)
 {
     // Ensure that cache location exists.
     // TODO: Check for errors.
-    QDir().mkpath(cacheLocation());
+    QDir().mkpath(Application::cacheLocation());
 }
 
 bool FileManager::removeRecursively(const QString &path)
@@ -59,12 +60,11 @@ bool FileManager::removeRecursively(const QString &path)
     if (!QDir().rename(path, deletePath)) {
         qCWarning(log, "Failed to rename '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
         return false;
-    } else {
-        qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
     }
 
+    qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
-    QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+    auto watcher = new QFutureWatcher<bool>();
     connect(watcher, &QFutureWatcher<bool>::finished, [=] {
         if (!watcher->result()) {
             qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
@@ -80,13 +80,4 @@ bool FileManager::removeRecursively(const QString &path)
     }));
 
     return true;
-}
-
-QString FileManager::cacheLocation()
-{
-#ifndef PORTABLE_BUILD
-    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-#else
-    return QCoreApplication::applicationDirPath() + QLatin1String("/cache");
-#endif
 }

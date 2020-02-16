@@ -31,9 +31,10 @@ class QSharedMemory;
 namespace Zeal {
 namespace Core {
 
-class ApplicationSingleton : public QObject
+class ApplicationSingleton final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(ApplicationSingleton)
 public:
     explicit ApplicationSingleton(QObject *parent = nullptr);
 

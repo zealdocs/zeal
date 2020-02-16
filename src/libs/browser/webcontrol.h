@@ -21,54 +21,68 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBVIEW_H
-#define ZEAL_WIDGETUI_WEBVIEW_H
+#ifndef ZEAL_BROWSER_WEBCONTROL_H
+#define ZEAL_BROWSER_WEBCONTROL_H
 
-#include <QVector>
-#include <QWebFrame>
-#include <QWebView>
+#include <QWidget>
+
+class QWebHistory;
 
 namespace Zeal {
-namespace WidgetUi {
+namespace Browser {
 
-class WebView : public QWebView
+class SearchToolBar;
+class WebView;
+
+class WebControl final : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(WebControl)
 public:
-    explicit WebView(QWidget *parent = nullptr);
+    explicit WebControl(QWidget *parent = nullptr);
+
+    void focus();
+    void load(const QUrl &url);
+    bool canGoBack() const;
+    bool canGoForward() const;
+
+    QString title() const;
+    QUrl url() const;
+
+    QWebHistory *history() const;
+    void restoreHistory(const QByteArray &array);
+    QByteArray saveHistory() const;
 
     int zoomLevel() const;
     void setZoomLevel(int level);
+    void setJavaScriptEnabled(bool enabled);
 
-    static const QVector<int> &availableZoomLevels();
-    static const int &defaultZoomLevel();
+    void setWebBridgeObject(const QString &name, QObject *object);
+
+signals:
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
 
 public slots:
+    void activateSearchBar();
+    void back();
+    void forward();
+
     void zoomIn();
     void zoomOut();
     void resetZoom();
 
-signals:
-    void zoomLevelChanged();
-
 protected:
-    QWebView *createWindow(QWebPage::WebWindowType type) override;
-    void contextMenuEvent(QContextMenuEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    QWebHitTestResult hitTestContent(const QPoint &pos) const;
+    friend class WebView;
 
-    static bool isUrlExternal(const QUrl &url);
-
-    QMenu *m_contextMenu = nullptr;
-    QUrl m_clickedLink;
-    int m_zoomLevel = defaultZoomLevel();
+    WebView *m_webView = nullptr;
+    SearchToolBar *m_searchToolBar = nullptr;
 };
 
-} // namespace WidgetUi
+} // namespace Browser
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_WEBVIEW_H
+#endif // ZEAL_BROWSER_WEBCONTROL_H

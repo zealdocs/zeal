@@ -24,6 +24,8 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
+
 #include <core/application.h>
 #include <core/settings.h>
 
@@ -36,17 +38,17 @@ using namespace Zeal::WidgetUi;
 
 namespace {
 // QFontDatabase::standardSizes() lacks some sizes, like 13, which QtWK uses by default.
-const int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-                                  20, 22, 24, 26, 28, 30, 32, 34, 36,
-                                  40, 44, 48, 56, 64, 72};
-const QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
-                                                      QWebSettings::SansSerifFont,
-                                                      QWebSettings::FixedFont};
-}
+constexpr int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                      20, 22, 24, 26, 28, 30, 32, 34, 36,
+                                      40, 44, 48, 56, 64, 72};
+constexpr QWebSettings::FontFamily BasicFontFamilies[] = {QWebSettings::SerifFont,
+                                                          QWebSettings::SansSerifFont,
+                                                          QWebSettings::FixedFont};
+} // namespace
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SettingsDialog())
+SettingsDialog::SettingsDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::SettingsDialog())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -74,6 +76,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // Fix tab order.
     setTabOrder(ui->defaultFontComboBox, ui->fontSizeComboBox);
     setTabOrder(ui->fontSizeComboBox, ui->serifFontComboBox);
+
+    // Disable global shortcut settings if not supported.
+    ui->globalHotKeyGroupBox->setEnabled(QxtGlobalShortcut::isSupported());
 
     QWebSettings *webSettings = QWebSettings::globalSettings();
 
@@ -214,7 +219,6 @@ void SettingsDialog::loadSettings()
     }
 
     ui->useSmoothScrollingCheckBox->setChecked(settings->isSmoothScrollingEnabled);
-    ui->disableAdCheckBox->setChecked(settings->isAdDisabled);
 
     // Network Tab
     switch (settings->proxyType) {
@@ -224,16 +228,21 @@ void SettingsDialog::loadSettings()
     case Core::Settings::ProxyType::System:
         ui->systemProxySettings->setChecked(true);
         break;
-    case Core::Settings::ProxyType::UserDefined:
+    case Core::Settings::ProxyType::Http:
         ui->manualProxySettings->setChecked(true);
+        ui->proxyTypeHttpRadioButton->setChecked(true);
+        break;
+    case Core::Settings::ProxyType::Socks5:
+        ui->manualProxySettings->setChecked(true);
+        ui->proxyTypeSocks5RadioButton->setChecked(true);
         break;
     }
 
-    ui->httpProxy->setText(settings->proxyHost);
-    ui->httpProxyPort->setValue(settings->proxyPort);
-    ui->httpProxyNeedsAuth->setChecked(settings->proxyAuthenticate);
-    ui->httpProxyUser->setText(settings->proxyUserName);
-    ui->httpProxyPass->setText(settings->proxyPassword);
+    ui->proxyHostEdit->setText(settings->proxyHost);
+    ui->proxyPortEdit->setValue(settings->proxyPort);
+    ui->proxyRequiresAuthCheckBox->setChecked(settings->proxyAuthenticate);
+    ui->proxyUsernameEdit->setText(settings->proxyUserName);
+    ui->proxyPasswordEdit->setText(settings->proxyPassword);
 }
 
 void SettingsDialog::saveSettings()
@@ -281,22 +290,26 @@ void SettingsDialog::saveSettings()
     }
 
     settings->isSmoothScrollingEnabled = ui->useSmoothScrollingCheckBox->isChecked();
-    settings->isAdDisabled = ui->disableAdCheckBox->isChecked();
 
     // Network Tab
     // Proxy settings
-    if (ui->noProxySettings->isChecked())
+    if (ui->noProxySettings->isChecked()) {
         settings->proxyType = Core::Settings::ProxyType::None;
-    else if (ui->systemProxySettings->isChecked())
+    } else if (ui->systemProxySettings->isChecked()) {
         settings->proxyType = Core::Settings::ProxyType::System;
-    else if (ui->manualProxySettings->isChecked())
-        settings->proxyType = Core::Settings::ProxyType::UserDefined;
+    } else if (ui->manualProxySettings->isChecked()) {
+        if (ui->proxyTypeSocks5RadioButton->isChecked()) {
+            settings->proxyType = Core::Settings::ProxyType::Socks5;
+        } else {
+            settings->proxyType = Core::Settings::ProxyType::Http;
+        }
+    }
 
-    settings->proxyHost = ui->httpProxy->text();
-    settings->proxyPort = ui->httpProxyPort->text().toUShort();
-    settings->proxyAuthenticate = ui->httpProxyNeedsAuth->isChecked();
-    settings->proxyUserName = ui->httpProxyUser->text();
-    settings->proxyPassword = ui->httpProxyPass->text();
+    settings->proxyHost = ui->proxyHostEdit->text();
+    settings->proxyPort = ui->proxyPortEdit->text().toUShort();
+    settings->proxyAuthenticate = ui->proxyRequiresAuthCheckBox->isChecked();
+    settings->proxyUserName = ui->proxyUsernameEdit->text();
+    settings->proxyPassword = ui->proxyPasswordEdit->text();
 
     settings->save();
 }

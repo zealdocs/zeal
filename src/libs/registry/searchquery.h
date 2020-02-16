@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHQUERY_H
-#define SEARCHQUERY_H
+#ifndef ZEAL_REGISTRY_SEARCHQUERY_H
+#define ZEAL_REGISTRY_SEARCHQUERY_H
 
 #include <QStringList>
 
@@ -35,8 +35,8 @@ namespace Registry {
 class SearchQuery
 {
 public:
-    explicit SearchQuery();
-    explicit SearchQuery(const QString &query, const QStringList &keywords = QStringList());
+    explicit SearchQuery() = default;
+    explicit SearchQuery(QString query, const QStringList &keywords = QStringList());
 
     /// Creates a search query from a string. Single separator will be
     /// used to contstruct docset filter, but separator repeated twice
@@ -87,4 +87,4 @@ private:
 QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query);
 QDataStream &operator>>(QDataStream &in, Zeal::Registry::SearchQuery &query);
 
-#endif // SEARCHQUERY_H
+#endif // ZEAL_REGISTRY_SEARCHQUERY_H

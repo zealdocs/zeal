@@ -1,13 +1,5 @@
 add_subdirectory(qxtglobalshortcut)
-
-list(APPEND Widgets_SOURCES
-    widgets/searchedit.cpp
-    widgets/searchtoolbar.cpp
-    widgets/shortcutedit.cpp
-    widgets/toolbarframe.cpp
-    widgets/webview.cpp
-    widgets/webviewtab.cpp
-)
+add_subdirectory(widgets)
 
 set(Ui_FORMS
     aboutdialog.ui
@@ -16,20 +8,20 @@ set(Ui_FORMS
     settingsdialog.ui
 )
 
-add_library(Ui
+add_library(Ui STATIC
     aboutdialog.cpp
+    browsertab.cpp
     docsetlistitemdelegate.cpp
     docsetsdialog.cpp
     mainwindow.cpp
-    progressitemdelegate.cpp
     searchitemdelegate.cpp
+    searchsidebar.cpp
     settingsdialog.cpp
-    webbridge.cpp
-    ${Widgets_SOURCES}
+    sidebarviewprovider.cpp
     ${Ui_FORMS} # For Qt Creator.
 )
 
-target_link_libraries(Ui QxtGlobalShortcut Registry)
+target_link_libraries(Ui Browser Sidebar QxtGlobalShortcut Widgets Registry)
 
 find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED)
 target_link_libraries(Ui Qt5::WebKitWidgets)

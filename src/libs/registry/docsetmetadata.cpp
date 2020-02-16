@@ -32,10 +32,6 @@
 
 using namespace Zeal::Registry;
 
-DocsetMetadata::DocsetMetadata()
-{
-}
-
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
     m_name = jsonObject[QStringLiteral("name")].toString();
@@ -52,18 +48,21 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_icon.addPixmap(pixmap);
     }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray()) {
         m_aliases << vv.toString();
+    }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray()) {
         m_versions << vv.toString();
+    }
 
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray())
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray()) {
         m_urls.append(QUrl(vv.toString()));
+    }
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
 }
@@ -93,8 +92,10 @@ void DocsetMetadata::save(const QString &path, const QString &version)
 
     if (!m_urls.isEmpty()) {
         QJsonArray urls;
-        for (const QUrl &url : m_urls)
+        for (const QUrl &url : qAsConst(m_urls)) {
             urls.append(url.toString());
+        }
+
         jsonObject[QStringLiteral("urls")] = urls;
     }
 

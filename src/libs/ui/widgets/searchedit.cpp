@@ -26,17 +26,19 @@
 #include <registry/searchquery.h>
 
 #include <QCompleter>
-#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QTreeView>
+#include <QStyle>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
-SearchEdit::SearchEdit(QWidget *parent) :
-    QLineEdit(parent)
+SearchEdit::SearchEdit(QWidget *parent)
+    : QLineEdit(parent)
 {
+    setClearButtonEnabled(true);
+    setPlaceholderText(tr("Search"));
+
     m_completionLabel = new QLabel(this);
     m_completionLabel->setObjectName(QStringLiteral("completer"));
     m_completionLabel->setStyleSheet(QStringLiteral("QLabel#completer { color: gray; }"));
@@ -45,17 +47,10 @@ SearchEdit::SearchEdit(QWidget *parent) :
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
 }
 
-void SearchEdit::setTreeView(QTreeView *view)
-{
-    m_treeView = view;
-    m_focusing = false;
-}
-
 // Makes the line edit use autocompletions.
 void SearchEdit::setCompletions(const QStringList &completions)
 {
-    if (m_prefixCompleter)
-        delete m_prefixCompleter;
+    delete m_prefixCompleter;
 
     m_prefixCompleter = new QCompleter(completions, this);
     m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
@@ -71,79 +66,105 @@ void SearchEdit::clearQuery()
 
 void SearchEdit::selectQuery()
 {
-    setSelection(queryStart(), text().size());
+    if (text().isEmpty())
+        return;
+
+    const int pos = hasSelectedText() ? selectionStart() : cursorPosition();
+    const int queryPos = queryStart();
+    const int textSize = text().size();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+    if (pos >= queryPos && selectionEnd() < textSize) {
+#else
+    const int selectionEnd = hasSelectedText() ? pos + selectedText().size() : -1;
+    if (pos >= queryPos && selectionEnd < textSize) {
+#endif
+        setSelection(queryPos, textSize);
+        return;
+    }
+
+    selectAll();
 }
 
 bool SearchEdit::event(QEvent *event)
 {
-    if (event->type() != QEvent::KeyPress)
-        return QLineEdit::event(event);
+    switch (event->type()) {
+    case QEvent::KeyPress: {
+        auto keyEvent = static_cast<QKeyEvent *>(event);
+        // Tab key cannot be overriden in keyPressEvent().
+        if (keyEvent->key() == Qt::Key_Tab) {
+            const QString completed = currentCompletion(text());
+            if (!completed.isEmpty()) {
+                setText(completed);
+            }
 
-    // Tab key cannot be overriden in keyPressEvent()
-    if (static_cast<QKeyEvent *>(event)->key() != Qt::Key_Tab)
-        return QLineEdit::event(event);
+            return true;
+        } else if (keyEvent->key() == Qt::Key_Escape) {
+            clearQuery();
+            return true;
+        }
 
-    const QString completed = currentCompletion(text());
-    if (!completed.isEmpty())
-        setText(completed);
+        break;
+    }
+    case QEvent::ShortcutOverride: {
+        // TODO: Should be obtained from the ActionManager.
+        static const QStringList focusShortcuts = {
+            QStringLiteral("Ctrl+K"),
+            QStringLiteral("Ctrl+L")
+        };
 
-    return true;
+        auto keyEvent = static_cast<QKeyEvent *>(event);
+        const int keyCode = keyEvent->key() | static_cast<int>(keyEvent->modifiers());
+        if (focusShortcuts.contains(QKeySequence(keyCode).toString())) {
+            selectQuery();
+            event->accept();
+            return true;
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return QLineEdit::event(event);
 }
 
 void SearchEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
 
-    // Do not change default behaviour when focused with mouse
+    // Do not change the default behaviour when focused with mouse.
     if (event->reason() == Qt::MouseFocusReason)
         return;
 
     selectQuery();
-    m_focusing = true;
-}
-
-void SearchEdit::keyPressEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_Escape:
-        clearQuery();
-        event->accept();
-        break;
-    case Qt::Key_Return:
-    case Qt::Key_Down:
-    case Qt::Key_Up:
-    case Qt::Key_PageDown:
-    case Qt::Key_PageUp:
-        QCoreApplication::sendEvent(m_treeView, event);
-        break;
-    default:
-        QLineEdit::keyPressEvent(event);
-        break;
-    }
-}
-
-void SearchEdit::mousePressEvent(QMouseEvent *event)
-{
-    // Let the focusInEvent code deal with initial selection on focus.
-    if (!m_focusing)
-        QLineEdit::mousePressEvent(event);
-
-    m_focusing = false;
 }
 
 void SearchEdit::showCompletions(const QString &newValue)
 {
+    if (!isVisible())
+        return;
+
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    const int textWidth = fontMetrics().horizontalAdvance(newValue);
+#else
     const int textWidth = fontMetrics().width(newValue);
+#endif
 
     if (m_prefixCompleter)
         m_prefixCompleter->setCompletionPrefix(text());
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    const QSize labelSize(fontMetrics().horizontalAdvance(completed), size().height());
+#else
     const QSize labelSize(fontMetrics().width(completed), size().height());
+#endif
+    const int shiftX = static_cast<int>(window()->devicePixelRatioF() * (frameWidth + 2)) + textWidth;
 
     m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(frameWidth + 2 + textWidth, 0);
+    m_completionLabel->move(shiftX, 0);
     m_completionLabel->setText(completed);
 }
 

@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHRESULT_H
-#define SEARCHRESULT_H
+#ifndef ZEAL_REGISTRY_SEARCHRESULT_H
+#define ZEAL_REGISTRY_SEARCHRESULT_H
 
 #include <QString>
 #include <QUrl>
@@ -55,4 +55,4 @@ struct SearchResult
 } // namespace Registry
 } // namespace Zeal
 
-#endif // SEARCHRESULT_H
+#endif // ZEAL_REGISTRY_SEARCHRESULT_H

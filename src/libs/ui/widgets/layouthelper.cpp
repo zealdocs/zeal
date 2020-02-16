@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Oleg Shparber
+** Copyright (C) 2019 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -20,33 +20,4 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_WEBBRIDGE_H
-#define ZEAL_WIDGETUI_WEBBRIDGE_H
-
-#include <QObject>
-
-namespace Zeal {
-namespace WidgetUi {
-
-class WebBridge : public QObject
-{
-    Q_OBJECT
-    Q_PROPERTY(QString AppVersion READ appVersion CONSTANT)
-public:
-    explicit WebBridge(QObject *parent = nullptr);
-
-signals:
-    void actionTriggered(const QString &action);
-
-public slots:
-    Q_INVOKABLE void openShortUrl(const QString &key);
-    Q_INVOKABLE void triggerAction(const QString &action);
-
-private:
-    QString appVersion() const;
-};
-
-} // namespace WidgetUi
-} // namespace Zeal
-
-#endif // ZEAL_WIDGETUI_WEBBRIDGE_H
+#include "layouthelper.h"

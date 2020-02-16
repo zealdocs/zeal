@@ -21,14 +21,15 @@
 **
 ****************************************************************************/
 
-#ifndef DOCSETREGISTRY_H
-#define DOCSETREGISTRY_H
+#ifndef ZEAL_REGISTRY_DOCSETREGISTRY_H
+#define ZEAL_REGISTRY_DOCSETREGISTRY_H
 
 #include "cancellationtoken.h"
 
 #include <QMap>
 #include <QObject>
 
+class QAbstractItemModel;
 class QThread;
 
 namespace Zeal {
@@ -37,12 +38,15 @@ namespace Registry {
 class Docset;
 struct SearchResult;
 
-class DocsetRegistry : public QObject
+class DocsetRegistry final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(DocsetRegistry)
 public:
     explicit DocsetRegistry(QObject *parent = nullptr);
     ~DocsetRegistry() override;
+
+    QAbstractItemModel *model() const;
 
     QString storagePath() const;
     void setStoragePath(const QString &path);
@@ -77,6 +81,8 @@ private slots:
 private:
     void addDocsetsFromFolder(const QString &path);
 
+    QAbstractItemModel *m_model = nullptr;
+
     QString m_storagePath;
     bool m_fuzzySearchEnabled = false;
 
@@ -89,4 +95,4 @@ private:
 } // namespace Registry
 } // namespace Zeal
 
-#endif // DOCSETREGISTRY_H
+#endif // ZEAL_REGISTRY_DOCSETREGISTRY_H

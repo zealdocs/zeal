@@ -25,21 +25,19 @@
 #include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
+#include "browsertab.h"
 #include "docsetsdialog.h"
-#include "searchitemdelegate.h"
+#include "searchsidebar.h"
 #include "settingsdialog.h"
-#include "webbridge.h"
-#include "qxtglobalshortcut/qxtglobalshortcut.h"
-#include "widgets/webviewtab.h"
+#include "sidebarviewprovider.h"
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
 
+#include <browser/webbridge.h>
+#include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
-#include <registry/docset.h>
-#include <registry/docsetregistry.h>
-#include <registry/itemdatarole.h>
-#include <registry/listmodel.h>
-#include <registry/searchmodel.h>
-#include <registry/searchquery.h>
+#include <sidebar/container.h>
+#include <sidebar/proxyview.h>
 
 #include <QCloseEvent>
 #include <QDesktopServices>
@@ -47,132 +45,48 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
-#include <QScrollBar>
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QTimer>
-#include <QWebHistory>
 #include <QWebSettings>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 namespace {
-const char WelcomePageUrl[] = "qrc:///browser/welcome.html";
-const char WelcomePageNoAdUrl[] = "qrc:///browser/welcome-noad.html";
-const char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
-const char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
-}
+constexpr char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
+constexpr char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
+} // namespace
 
-namespace Zeal {
-namespace WidgetUi {
-
-struct TabState
-{
-    explicit TabState()
-    {
-        searchModel = new Registry::SearchModel();
-        tocModel = new Registry::SearchModel();
-
-        widget = new WebViewTab();
-    }
-
-    TabState(const TabState &other)
-        : searchQuery(other.searchQuery)
-        , selections(other.selections)
-        , expansions(other.expansions)
-        , searchScrollPosition(other.searchScrollPosition)
-        , tocScrollPosition(other.tocScrollPosition)
-    {
-        searchModel = new Registry::SearchModel(*other.searchModel);
-        tocModel = new Registry::SearchModel(*other.tocModel);
-
-        widget = new WebViewTab();
-        restoreHistory(other.saveHistory());
-    }
-
-    ~TabState()
-    {
-        delete searchModel;
-        delete tocModel;
-
-        widget->deleteLater();
-    }
-
-    void restoreHistory(const QByteArray &array) const
-    {
-        QDataStream stream(array);
-        stream >> *widget->history();
-    }
-
-    QByteArray saveHistory() const
-    {
-        QByteArray array;
-        QDataStream stream(&array, QIODevice::WriteOnly);
-        stream << *widget->history();
-        return array;
-    }
-
-    void goToStartPage()
-    {
-        if (Core::Application::instance()->settings()->isAdDisabled) {
-            widget->load(QUrl(WelcomePageNoAdUrl));
-        } else {
-            widget->load(QUrl(WelcomePageUrl));
-        }
-    }
-
-    QString searchQuery;
-
-    // Content/Search results tree view state
-    Registry::SearchModel *searchModel = nullptr;
-    QModelIndexList selections;
-    QModelIndexList expansions;
-    int searchScrollPosition = 0;
-
-    // TOC list view state
-    Registry::SearchModel *tocModel = nullptr;
-    int tocScrollPosition = 0;
-
-    WebViewTab *widget = nullptr;
-};
-
-} // namespace WidgetUi
-} // namespace Zeal
-
-MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_application(app),
-    m_settings(app->settings()),
-    m_zealListModel(new Registry::ListModel(app->docsetRegistry(), this)),
-    m_globalShortcut(new QxtGlobalShortcut(m_settings->showShortcut, this)),
-    m_openDocsetTimer(new QTimer(this))
+MainWindow::MainWindow(Core::Application *app, QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , m_application(app)
+    , m_settings(app->settings())
 {
     ui->setupUi(this);
 
-    // initialise key grabber
-    connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+    // Initialize the global shortcut handler if supported.
+    if (QxtGlobalShortcut::isSupported()) {
+        m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
+        connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+    }
 
     setupTabBar();
 
     // Setup application wide shortcuts.
     // Focus search bar.
-    QShortcut *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(shortcut, &QShortcut::activated,
-            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+    auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
 
     shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
-    connect(shortcut, &QShortcut::activated,
-            ui->lineEdit, static_cast<void (SearchEdit::*)()>(&SearchEdit::setFocus));
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
 
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
 
     restoreGeometry(m_settings->windowGeometry);
-    ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
 
     // Menu
     // File
@@ -192,7 +106,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
     // Edit
     ui->actionFind->setShortcut(QKeySequence::Find);
     connect(ui->actionFind, &QAction::triggered, this, [this]() {
-        currentTab()->activateSearchBar();
+        currentTab()->webControl()->activateSearchBar();
     });
 
     if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
@@ -201,46 +115,59 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         ui->actionPreferences->setShortcut(QKeySequence::Preferences);
     }
 
-    connect(ui->actionPreferences, &QAction::triggered, [this]() {
-        m_globalShortcut->setEnabled(false);
+    connect(ui->actionPreferences, &QAction::triggered, this, [this]() {
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(false);
+        }
+
         QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
-        m_globalShortcut->setEnabled(true);
+
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(true);
+        }
     });
 
-    ui->actionBack->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
     ui->actionBack->setShortcut(QKeySequence::Back);
-    connect(ui->actionBack, &QAction::triggered, this, [this]() { currentTab()->back(); });
+    connect(ui->actionBack, &QAction::triggered, this, [this]() { currentTab()->webControl()->back(); });
     addAction(ui->actionBack);
 
-    ui->actionForward->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
     ui->actionForward->setShortcut(QKeySequence::Forward);
-    connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->forward(); });
+    connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->webControl()->forward(); });
     addAction(ui->actionForward);
 
+    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
+
     // Tools Menu
-    connect(ui->actionDocsets, &QAction::triggered, [this]() {
+    connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
         QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
         dialog->exec();
     });
 
     // Help Menu
-    connect(ui->actionSubmitFeedback, &QAction::triggered, [this]() {
+    connect(ui->actionSubmitFeedback, &QAction::triggered, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
     });
     connect(ui->actionCheckForUpdates, &QAction::triggered,
             m_application, &Core::Application::checkForUpdates);
-    connect(ui->actionAboutZeal, &QAction::triggered, [this]() {
+    connect(ui->actionAboutZeal, &QAction::triggered, this, [this]() {
         QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
         dialog->exec();
     });
 
     // Update check
-    connect(m_application, &Core::Application::updateCheckError, [this](const QString &message) {
+    connect(m_application, &Core::Application::updateCheckError, this, [this](const QString &message) {
         QMessageBox::warning(this, QStringLiteral("Zeal"), message);
     });
 
-    connect(m_application, &Core::Application::updateCheckDone, [this](const QString &version) {
+    connect(m_application, &Core::Application::updateCheckDone, this, [this](const QString &version) {
         if (version.isEmpty()) {
             QMessageBox::information(this, QStringLiteral("Zeal"),
                                      tr("You are using the latest version."));
@@ -261,68 +188,20 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
         }
     });
 
-    m_backMenu = new QMenu(ui->backButton);
-    connect(m_backMenu, &QMenu::aboutToShow, this, [this]() {
-        m_backMenu->clear();
-        QWebHistory *history = currentTab()->history();
-        QList<QWebHistoryItem> items = history->backItems(10);
-#if QT_VERSION >= 0x050600
-        for (auto it = items.crbegin(); it != items.crend(); ++it) {
-#else
-        for (auto it = items.cend() - 1; it >= items.cbegin(); --it) {
-#endif
-            const QIcon icon = docsetIcon(docsetName(it->url()));
-            const QWebHistoryItem item = *it;
-#if QT_VERSION >= 0x050600
-            m_backMenu->addAction(icon, it->title(), [=](bool) { history->goToItem(item); });
-#else
-            QAction *action = m_backMenu->addAction(icon, it->title());
-            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
-#endif
-        }
-    });
-    ui->backButton->setDefaultAction(ui->actionBack);
-    ui->backButton->setMenu(m_backMenu);
+    // Setup sidebar.
+    auto m_sbViewProvider = new SidebarViewProvider(this);
+    auto sbView = new Sidebar::ProxyView(m_sbViewProvider, QStringLiteral("index"));
 
-    m_forwardMenu = new QMenu(ui->forwardButton);
-    connect(m_forwardMenu, &QMenu::aboutToShow, this, [this]() {
-        m_forwardMenu->clear();
-        QWebHistory *history = currentTab()->history();
-        for (const QWebHistoryItem &item: history->forwardItems(10)) {
-            const QIcon icon = docsetIcon(docsetName(item.url()));
-#if QT_VERSION >= 0x050600
-            m_forwardMenu->addAction(icon, item.title(), [=](bool) { history->goToItem(item); });
-#else
-            QAction *action = m_forwardMenu->addAction(icon, item.title());
-            connect(action, &QAction::triggered, [=](bool) { history->goToItem(item); });
-#endif
-        }
-    });
-    ui->forwardButton->setDefaultAction(ui->actionForward);
-    ui->forwardButton->setMenu(m_forwardMenu);
+    auto sb = new Sidebar::Container();
+    sb->addView(sbView);
 
-    // Set default stretch factor.
-    ui->splitter->setStretchFactor(1, 2);
+    // Setup splitter.
+    ui->splitter->insertWidget(0, sb);
+    ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
 
-    // treeView and lineEdit
-    ui->lineEdit->setTreeView(ui->treeView);
-    ui->lineEdit->setFocus();
-    setupSearchBoxCompletions();
-    SearchItemDelegate *delegate = new SearchItemDelegate(ui->treeView);
-    delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
-    connect(ui->lineEdit, &QLineEdit::textChanged, [delegate](const QString &text) {
-        delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
-    });
-    ui->treeView->setItemDelegate(delegate);
-
-    ui->tocListView->setItemDelegate(new SearchItemDelegate(ui->tocListView));
-    connect(ui->tocSplitter, &QSplitter::splitterMoved, this, [this]() {
-        m_settings->tocSplitterState = ui->tocSplitter->saveState();
-    });
-
-
-    m_webBridge = new WebBridge(this);
-    connect(m_webBridge, &WebBridge::actionTriggered, this, [this](const QString &action) {
+    // Setup web bridge.
+    m_webBridge = new Browser::WebBridge(this);
+    connect(m_webBridge, &Browser::WebBridge::actionTriggered, this, [this](const QString &action) {
         // TODO: In the future connect directly to the ActionManager.
         if (action == "openDocsetManager") {
             ui->actionDocsets->trigger();
@@ -333,69 +212,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
 
     createTab();
 
-    connect(ui->treeView, &QTreeView::clicked, this, &MainWindow::openDocset);
-    connect(ui->tocListView, &QListView::clicked, this, &MainWindow::openDocset);
-    connect(ui->treeView, &QTreeView::activated, this, &MainWindow::openDocset);
-    connect(ui->tocListView, &QListView::activated, this, &MainWindow::openDocset);
-
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::searchCompleted,
-            this, [this](const QList<Registry::SearchResult> &results) {
-        currentTabState()->searchModel->setResults(results);
-    });
-
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetAboutToBeUnloaded,
-            this, [this](const QString &name) {
-        for (TabState *tabState : m_tabStates) {
-            if (tabState == currentTabState()) {
-                // Disable updates because removeSearchResultWithName can
-                // call {begin,end}RemoveRows multiple times, and cause
-                // degradation of UI responsiveness.
-                ui->treeView->setUpdatesEnabled(false);
-                tabState->searchModel->removeSearchResultWithName(name);
-                ui->treeView->setUpdatesEnabled(true);
-            } else {
-                tabState->searchModel->removeSearchResultWithName(name);
-            }
-
-            if (docsetName(tabState->widget->url()) == name) {
-                tabState->tocModel->setResults();
-                // TODO: Add custom 'Page has been removed' page.
-                tabState->goToStartPage();
-            }
-
-            // TODO: Cleanup history
-        }
-
-        setupSearchBoxCompletions();
-    });
-
-    connect(m_application->docsetRegistry(), &Registry::DocsetRegistry::docsetLoaded,
-            this, [this](const QString &) {
-        setupSearchBoxCompletions();
-    });
-
-    connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-        if (text == currentTabState()->searchQuery)
-            return;
-
-        currentTabState()->searchQuery = text;
-        m_application->docsetRegistry()->search(text);
-    });
-
-    // Setup delayed navigation to a page until user makes a pause in typing a search query.
-    m_openDocsetTimer->setInterval(400);
-    m_openDocsetTimer->setSingleShot(true);
-    connect(m_openDocsetTimer, &QTimer::timeout, this, [this]() {
-        QModelIndex index = m_openDocsetTimer->property("index").toModelIndex();
-        if (!index.isValid())
-            return;
-
-        openDocset(index);
-
-        // Get focus back.
-        ui->lineEdit->setFocus(Qt::MouseFocusReason);
-    });
-
     ui->actionNewTab->setShortcut(QKeySequence::AddTab);
     connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
@@ -404,43 +220,24 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent) :
             createTab();
     });
 
-    // Save expanded items
-    connect(ui->treeView, &QTreeView::expanded, [this](QModelIndex index) {
-        if (currentTabState()->expansions.indexOf(index) == -1)
-            currentTabState()->expansions.append(index);
-    });
-
-    connect(ui->treeView, &QTreeView::collapsed, [this](QModelIndex index) {
-        currentTabState()->expansions.removeOne(index);
-    });
-
-#ifdef Q_OS_WIN32
-    ui->actionCloseTab->setShortcut(QKeySequence(Qt::Key_W + Qt::CTRL));
-#else
-    ui->actionCloseTab->setShortcut(QKeySequence::Close);
-#endif
+    ui->actionCloseTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_W)});
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
     ui->actionNextTab->setShortcuts({QKeySequence::NextChild,
-                                     QKeySequence(Qt::ControlModifier| Qt::Key_PageDown)});
+                                     QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
-    connect(ui->actionNextTab, &QAction::triggered, [this]() {
+    connect(ui->actionNextTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
     // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 is fixed.
     ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
-                                         QKeySequence(Qt::ControlModifier| Qt::Key_PageUp)});
+                                         QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
     addAction(ui->actionPreviousTab);
-    connect(ui->actionPreviousTab, &QAction::triggered, [this]() {
+    connect(ui->actionPreviousTab, &QAction::triggered, this, [this]() {
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
     });
-
-#ifdef Q_OS_OSX
-    ui->treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->tocListView->setAttribute(Qt::WA_MacShowFocusRect, false);
-#endif
 
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
     applySettings();
@@ -454,185 +251,69 @@ MainWindow::~MainWindow()
     m_settings->verticalSplitterGeometry = ui->splitter->saveState();
     m_settings->windowGeometry = saveGeometry();
 
-    // Delete the UI first, because it depends on tab states.
     delete ui;
-    qDeleteAll(m_tabStates);
 }
 
 void MainWindow::search(const Registry::SearchQuery &query)
 {
-    if (query.isEmpty())
-        return;
-
-    ui->lineEdit->setText(query.toString());
-    emit ui->treeView->activated(ui->treeView->currentIndex());
-}
-
-void MainWindow::openDocset(const QModelIndex &index)
-{
-    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
-    if (url.isNull())
-        return;
-
-    currentTab()->load(url.toUrl());
-    currentTab()->focus();
-}
-
-QString MainWindow::docsetName(const QUrl &url) const
-{
-    const QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
-    return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QString();
-}
-
-QIcon MainWindow::docsetIcon(const QString &docsetName) const
-{
-    Registry::Docset *docset = m_application->docsetRegistry()->docset(docsetName);
-    return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
-}
-
-void MainWindow::queryCompleted()
-{
-    m_openDocsetTimer->stop();
-
-    syncTreeView();
-
-    ui->treeView->setCurrentIndex(currentTabState()->searchModel->index(0, 0, QModelIndex()));
-
-    m_openDocsetTimer->setProperty("index", ui->treeView->currentIndex());
-    m_openDocsetTimer->start();
+    currentTab()->search(query);
 }
 
 void MainWindow::closeTab(int index)
 {
-    if (index == -1)
+    if (index == -1) {
         index = m_tabBar->currentIndex();
+    }
 
     if (index == -1)
         return;
 
-    TabState *state = m_tabStates.takeAt(index);
-    ui->webViewStack->removeWidget(state->widget);
+    BrowserTab *tab = tabAt(index);
+    ui->webViewStack->removeWidget(tab);
+    tab->deleteLater();
 
     // Handle the tab bar last to avoid currentChanged signal coming too early.
     m_tabBar->removeTab(index);
 
-    delete state;
-
-    if (m_tabStates.isEmpty())
+    if (ui->webViewStack->count() == 0) {
         createTab();
+    }
 }
 
-void MainWindow::moveTab(int from, int to) {
-    m_tabStates.swap(from, to);
-
+void MainWindow::moveTab(int from, int to)
+{
     const QSignalBlocker blocker(ui->webViewStack);
     QWidget *w = ui->webViewStack->widget(from);
     ui->webViewStack->removeWidget(w);
     ui->webViewStack->insertWidget(to, w);
 }
 
-WebViewTab *MainWindow::createTab(int index)
+BrowserTab *MainWindow::createTab()
 {
-    if (m_settings->openNewTabAfterActive)
-        index = m_tabBar->currentIndex() + 1;
-    else if (index == -1)
-        index = m_tabStates.size();
-
-    TabState *newState = new TabState();
-    newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
-    newState->goToStartPage();
-
-    m_tabStates.insert(index, newState);
-    ui->webViewStack->insertWidget(index, newState->widget);
-    m_tabBar->insertTab(index, tr("Loading..."));
-    m_tabBar->setCurrentIndex(index);
-
-    ui->lineEdit->setFocus();
-
-    return newState->widget;
+    auto tab = new BrowserTab();
+    tab->navigateToStartPage();
+    addTab(tab);
+    return tab;
 }
 
 void MainWindow::duplicateTab(int index)
 {
-    if (index < 0 || index >= m_tabStates.size())
+    BrowserTab *tab = tabAt(index);
+    if (tab == nullptr)
         return;
 
-    TabState *tabState = m_tabStates.at(index);
-    syncTabState(tabState);
-
-    TabState *newState = new TabState(*tabState);
-    newState->widget->setWebBridgeObject("zAppBridge", m_webBridge);
-
-    ++index;
-    m_tabStates.insert(index, newState);
-    ui->webViewStack->insertWidget(index, newState->widget);
-    m_tabBar->insertTab(index, newState->widget->title());
-    m_tabBar->setCurrentIndex(index);
+    // Add a duplicate next to the `index`.
+    addTab(tab->clone(), index + 1);
 }
 
-void MainWindow::syncTreeView()
+void MainWindow::addTab(BrowserTab *tab, int index)
 {
-    QItemSelectionModel *oldSelectionModel = ui->treeView->selectionModel();
-
-    TabState *tabState = currentTabState();
-    if (tabState->searchQuery.isEmpty()) {
-        ui->treeView->setModel(m_zealListModel);
-        ui->treeView->setRootIsDecorated(true);
-    } else {
-        ui->treeView->setModel(tabState->searchModel);
-        ui->treeView->setRootIsDecorated(false);
-    }
-
-    // TODO: Remove once QTBUG-49966 is addressed.
-    QItemSelectionModel *newSelectionModel = ui->treeView->selectionModel();
-    if (oldSelectionModel && newSelectionModel != oldSelectionModel) {
-        oldSelectionModel->deleteLater();
-    }
-
-    ui->treeView->reset();
-}
-
-void MainWindow::syncToc()
-{
-    if (!currentTabState()->tocModel->isEmpty()) {
-        ui->tocListView->show();
-        ui->tocSplitter->restoreState(m_settings->tocSplitterState);
-    } else {
-        ui->tocListView->hide();
-    }
-
-}
-
-TabState *MainWindow::currentTabState() const
-{
-    return m_tabStates.at(m_tabBar->currentIndex());
-}
-
-WebViewTab *MainWindow::currentTab() const
-{
-    return qobject_cast<WebViewTab *>(ui->webViewStack->currentWidget());
-}
-
-void MainWindow::attachTab(TabState *tabState)
-{
-    using Registry::SearchModel;
-    connect(tabState->searchModel, &SearchModel::updated, this, &MainWindow::queryCompleted);
-    connect(tabState->tocModel, &SearchModel::updated, this, &MainWindow::syncToc);
-
-    connect(tabState->widget, &WebViewTab::urlChanged, this, [this, tabState](const QUrl &url) {
-        const QString name = docsetName(url);
-        m_tabBar->setTabIcon(m_tabBar->currentIndex(), docsetIcon(name));
-
-        Registry::Docset *docset = m_application->docsetRegistry()->docset(name);
-        if (docset) {
-            tabState->tocModel->setResults(docset->relatedLinks(url));
-            tabState->widget->setJavaScriptEnabled(docset->isJavaScriptEnabled());
-        }
-        ui->actionBack->setEnabled(tabState->widget->canGoBack());
-        ui->actionForward->setEnabled(tabState->widget->canGoForward());
+    connect(tab, &BrowserTab::iconChanged, this, [this, tab](const QIcon &icon) {
+        const int index = ui->webViewStack->indexOf(tab);
+        Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
+        m_tabBar->setTabIcon(index, icon);
     });
-
-    connect(tabState->widget, &WebViewTab::titleChanged, this, [this](const QString &title) {
+    connect(tab, &BrowserTab::titleChanged, this, [this, tab](const QString &title) {
         if (title.isEmpty())
             return;
 
@@ -641,50 +322,35 @@ void MainWindow::attachTab(TabState *tabState)
 #else
         setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
 #endif
-        m_tabBar->setTabText(m_tabBar->currentIndex(), title);
-        m_tabBar->setTabToolTip(m_tabBar->currentIndex(), title);
+        const int index = ui->webViewStack->indexOf(tab);
+        Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
+        m_tabBar->setTabText(index, title);
+        m_tabBar->setTabToolTip(index, title);
     });
 
-    ui->lineEdit->setText(tabState->searchQuery);
-    ui->tocListView->setModel(tabState->tocModel);
+    tab->webControl()->setWebBridgeObject("zAppBridge", m_webBridge);
+    tab->searchSidebar()->focusSearchEdit();
 
-    syncTreeView();
-    syncToc();
-
-    // Bring back the selections and expansions
-    ui->treeView->blockSignals(true);
-    for (const QModelIndex &selection: tabState->selections)
-        ui->treeView->selectionModel()->select(selection, QItemSelectionModel::Select);
-    for (const QModelIndex &expandedIndex: tabState->expansions)
-        ui->treeView->expand(expandedIndex);
-    ui->treeView->blockSignals(false);
-
-    ui->actionBack->setEnabled(tabState->widget->canGoBack());
-    ui->actionForward->setEnabled(tabState->widget->canGoForward());
-
-    ui->treeView->verticalScrollBar()->setValue(tabState->searchScrollPosition);
-    ui->tocListView->verticalScrollBar()->setValue(tabState->tocScrollPosition);
-}
-
-void MainWindow::detachTab(TabState *tabState)
-{
-    tabState->searchModel->disconnect(this);
-    tabState->tocModel->disconnect(this);
-    tabState->widget->disconnect(this);
-}
-
-// Sets up the search box autocompletions.
-void MainWindow::setupSearchBoxCompletions()
-{
-    QStringList completions;
-    for (const Registry::Docset * const docset: m_application->docsetRegistry()->docsets()) {
-        if (docset->keywords().isEmpty())
-            continue;
-
-        completions << docset->keywords().first() + QLatin1Char(':');
+    if (index == -1) {
+        index = m_settings->openNewTabAfterActive
+                ? m_tabBar->currentIndex() + 1
+                : ui->webViewStack->count();
     }
 
-    ui->lineEdit->setCompletions(completions);
+    ui->webViewStack->insertWidget(index, tab);
+    m_tabBar->insertTab(index, tr("Loading..."));
+    m_tabBar->setCurrentIndex(index);
+    m_tabBar->setTabData(index, QVariant::fromValue(tab));
+}
+
+BrowserTab *MainWindow::currentTab() const
+{
+    return tabAt(m_tabBar->currentIndex());
+}
+
+BrowserTab *MainWindow::tabAt(int index) const
+{
+    return qobject_cast<BrowserTab *>(ui->webViewStack->widget(index));
 }
 
 void MainWindow::setupTabBar()
@@ -697,49 +363,41 @@ void MainWindow::setupTabBar()
     m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     m_tabBar->setExpanding(false);
     m_tabBar->setUsesScrollButtons(true);
-    m_tabBar->setDrawBase(false);
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
     m_tabBar->setMovable(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
-        static const char PreviousTabState[] = "previousTabState";
-
         if (index == -1)
             return;
 
-        // Save previous tab state. Using 'void *' to avoid Q_DECLARE_METATYPE.
-        TabState *previousTabState
-                = static_cast<TabState *>(m_tabBar->property(PreviousTabState).value<void *>());
-        if (m_tabStates.contains(previousTabState)) {
-            syncTabState(previousTabState);
-            detachTab(previousTabState);
-        }
-
-        // Load current tab state
-        TabState *tabState = m_tabStates.at(index);
-        m_tabBar->setProperty(PreviousTabState, qVariantFromValue(static_cast<void *>(tabState)));
-        attachTab(tabState);
+        BrowserTab *tab = tabAt(index);
+#ifndef PORTABLE_BUILD
+        setWindowTitle(QStringLiteral("%1 - Zeal").arg(tab->webControl()->title()));
+#else
+        setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(tab->webControl()->title()));
+#endif
 
         ui->webViewStack->setCurrentIndex(index);
+        emit currentTabChanged();
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
     connect(m_tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
 
     for (int i = 1; i < 10; i++) {
-        QAction *action = new QAction(m_tabBar);
+        auto action = new QAction(m_tabBar);
 #ifdef Q_OS_LINUX
         action->setShortcut(QStringLiteral("Alt+%1").arg(i));
 #else
         action->setShortcut(QStringLiteral("Ctrl+%1").arg(i));
 #endif
         if (i == 9) {
-            connect(action, &QAction::triggered, [=]() {
+            connect(action, &QAction::triggered, this, [=]() {
                 m_tabBar->setCurrentIndex(m_tabBar->count() - 1);
             });
         } else {
-            connect(action, &QAction::triggered, [=]() {
+            connect(action, &QAction::triggered, this, [=]() {
                 m_tabBar->setCurrentIndex(i - 1);
             });
         }
@@ -747,8 +405,7 @@ void MainWindow::setupTabBar()
         addAction(action);
     }
 
-    QHBoxLayout *layout = static_cast<QHBoxLayout *>(ui->navigationBar->layout());
-    layout->insertWidget(2, m_tabBar, 0, Qt::AlignBottom);
+    ui->centralWidgetLayout->insertWidget(0, m_tabBar);
 }
 
 void MainWindow::createTrayIcon()
@@ -760,21 +417,16 @@ void MainWindow::createTrayIcon()
     m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), windowIcon()));
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
-    connect(m_trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
+    connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
         if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
             return;
 
         toggleWindow();
     });
 
-    QMenu *trayIconMenu = new QMenu(this);
-#if QT_VERSION >= 0x050600
+    auto trayIconMenu = new QMenu(this);
     QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"),
                                                     this, &MainWindow::toggleWindow);
-#else
-    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"));
-    connect(toggleAction, &QAction::triggered, this, &MainWindow::toggleWindow);
-#endif
 
     connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
         toggleAction->setText(isVisible() ? tr("Minimize to Tray") : tr("Show Zeal"));
@@ -798,13 +450,6 @@ void MainWindow::removeTrayIcon()
     delete trayIconMenu;
 }
 
-void MainWindow::syncTabState(TabState *tabState)
-{
-    tabState->selections = ui->treeView->selectionModel()->selectedIndexes();
-    tabState->searchScrollPosition = ui->treeView->verticalScrollBar()->value();
-    tabState->tocScrollPosition = ui->tocListView->verticalScrollBar()->value();
-}
-
 void MainWindow::bringToFront()
 {
     show();
@@ -812,7 +457,7 @@ void MainWindow::bringToFront()
     raise();
     activateWindow();
 
-    ui->lineEdit->setFocus();
+    currentTab()->searchSidebar()->focusSearchEdit();
 }
 
 void MainWindow::changeEvent(QEvent *event)
@@ -838,7 +483,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     if (object == m_tabBar) {
         switch (event->type()) {
         case QEvent::MouseButtonRelease: {
-            QMouseEvent *e = static_cast<QMouseEvent *>(event);
+            auto e = static_cast<QMouseEvent *>(event);
             if (e->button() == Qt::MiddleButton) {
                 const int index = m_tabBar->tabAt(e->pos());
                 if (index != -1) {
@@ -864,12 +509,10 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 {
     switch (keyEvent->key()) {
     case Qt::Key_Escape:
-        ui->lineEdit->setFocus();
-        ui->lineEdit->clearQuery();
+        currentTab()->searchSidebar()->focusSearchEdit(true);
         break;
     case Qt::Key_Question:
-        ui->lineEdit->setFocus();
-        ui->lineEdit->selectQuery();
+        currentTab()->searchSidebar()->focusSearchEdit();
         break;
     default:
         QMainWindow::keyPressEvent(keyEvent);
@@ -879,7 +522,9 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 
 void MainWindow::applySettings()
 {
-    m_globalShortcut->setShortcut(m_settings->showShortcut);
+    if (m_globalShortcut) {
+        m_globalShortcut->setShortcut(m_settings->showShortcut);
+    }
 
     if (m_settings->showSystrayIcon)
         createTrayIcon();
@@ -918,7 +563,7 @@ void MainWindow::applySettings()
 
 void MainWindow::toggleWindow()
 {
-    const bool checkActive = sender() == m_globalShortcut;
+    const bool checkActive = m_globalShortcut && sender() == m_globalShortcut;
 
     if (!isVisible() || (checkActive && !isActiveWindow())) {
         bringToFront();

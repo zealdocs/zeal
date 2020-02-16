@@ -15,22 +15,11 @@
     <div class="hero-body">
       <div class="container">
         <div class="columns is-vcentered">
-          <div class="column has-text-centered">
-            <p class="title">Zeal
-              <span id="version" class="has-text-weight-light is-size-5"></span>
-            </p>
-            <p class="subtitle">Docs for everyone</p>
+          <div class="column">
+            <p class="title">File not found</p>
+            <p class="subtitle">Encountered a problem? Please <a onclick="zAppBridge.openShortUrl('report-bug')">report</a>!</p>
           </div>
           <div class="column">
-            <p class="subtitle is-5">Customize</p>
-            <div class="command-block" onclick="zAppBridge.triggerAction('openDocsetManager')">
-              <p class="title is-6">Docsets</p>
-              <p class="subtitle is-6">Install and update docsets</p>
-            </div>
-            <div class="command-block" onclick="zAppBridge.triggerAction('openPreferences')">
-              <p class="title is-6">Preferences</p>
-              <p class="subtitle is-6">Adjust application settings</p>
-            </div>
             <p class="subtitle is-5">Get in touch</p>
             <div class="command-block" onclick="zAppBridge.openShortUrl('gitter')">
               <p class="title is-6">Gitter</p>
@@ -72,10 +61,6 @@
       </div>
     </div>
   </section>
-
-  <script>
-    document.getElementById("version").textContent = zAppBridge.AppVersion;
-  </script>
 </body>
 
 </html>

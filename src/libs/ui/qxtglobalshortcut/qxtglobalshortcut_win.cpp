@@ -70,7 +70,6 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     return false;
 }
 
-
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     // MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN

@@ -23,17 +23,18 @@
 #ifndef ZEAL_CORE_SETTINGS_H
 #define ZEAL_CORE_SETTINGS_H
 
-#include <QObject>
 #include <QKeySequence>
+#include <QObject>
 
 class QSettings;
 
 namespace Zeal {
 namespace Core {
 
-class Settings : public QObject
+class Settings final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Settings)
 public:
     /* This public members are here just for simplification and should go away
      * once a more advanced settings management come in place.
@@ -81,13 +82,13 @@ public:
     bool highlightOnNavigateEnabled;
     QString customCssFile;
     bool isSmoothScrollingEnabled;
-    bool isAdDisabled;
 
     // Network
     enum ProxyType : unsigned int {
-        None,
-        System,
-        UserDefined
+        None = 0,
+        System = 1,
+        Http = 3,
+        Socks5 = 4
     };
     Q_ENUM(ProxyType)
 
@@ -132,7 +133,7 @@ private:
 } // namespace Core
 } // namespace Zeal
 
-QDataStream &operator<<(QDataStream &out, const Zeal::Core::Settings::ExternalLinkPolicy &policy);
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
 
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)

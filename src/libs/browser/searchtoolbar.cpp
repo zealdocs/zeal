@@ -25,20 +25,20 @@
 #include <QAction>
 #include <QApplication>
 #include <QHBoxLayout>
-#include <QLineEdit>
 #include <QKeyEvent>
+#include <QLineEdit>
 #include <QStyle>
 #include <QToolButton>
 #include <QWebPage>
 #include <QWebView>
 
-using namespace Zeal::WidgetUi;
+using namespace Zeal::Browser;
 
 SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
     : QWidget(parent)
     , m_webView(webView)
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(4, 4, 4, 4);
     layout->setSpacing(4);
 
@@ -58,7 +58,7 @@ SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
     layout->addWidget(m_findPreviousButton);
 
     // A workaround for QAbstractButton lacking support for multiple shortcuts.
-    QAction *action = new QAction(m_findPreviousButton);
+    auto action = new QAction(m_findPreviousButton);
     action->setShortcuts(QKeySequence::FindPrevious);
     connect(action, &QAction::triggered, this, [this]() { m_findPreviousButton->animateClick(); });
     addAction(action);
@@ -91,7 +91,7 @@ SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
 
     layout->addStretch();
 
-    QToolButton *closeButton = new QToolButton();
+    auto closeButton = new QToolButton();
     closeButton->setAutoRaise(true);
     closeButton->setIcon(qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     closeButton->setToolTip(tr("Close find bar"));
@@ -120,7 +120,7 @@ void SearchToolBar::activate()
 bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_lineEdit && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto keyEvent = static_cast<QKeyEvent *>(event);
 
         switch (keyEvent->key()) {
         case Qt::Key_Enter:
@@ -141,7 +141,6 @@ bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
             break;
         }
     }
-
 
     return QWidget::eventFilter(object, event);
 }
@@ -174,13 +173,7 @@ void SearchToolBar::findNext()
     }
 
     QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-#if QT_VERSION >= 0x050700
     ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
-#else
-    if (m_matchCaseButton->isChecked()) {
-        ff |= QWebPage::FindCaseSensitively;
-    }
-#endif
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
@@ -191,16 +184,8 @@ void SearchToolBar::findPrevious()
     }
 
     QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-#if QT_VERSION >= 0x050700
     ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
     ff.setFlag(QWebPage::FindBackward);
-#else
-    if (m_matchCaseButton->isChecked()) {
-        ff |= QWebPage::FindCaseSensitively;
-    }
-
-    ff |= QWebPage::FindBackward;
-#endif
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
@@ -215,13 +200,7 @@ void SearchToolBar::updateHighlight()
 
     if (m_highlightAllButton->isChecked()) {
         QWebPage::FindFlags ff = QWebPage::HighlightAllOccurrences;
-#if QT_VERSION >= 0x050700
         ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
-#else
-        if (m_matchCaseButton->isChecked()) {
-            ff |= QWebPage::FindCaseSensitively;
-        }
-#endif
         m_webView->findText(m_lineEdit->text(), ff);
     }
 }

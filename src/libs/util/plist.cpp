@@ -27,11 +27,6 @@
 
 using namespace Zeal::Util;
 
-Plist::Plist() :
-    QHash<QString, QVariant>()
-{
-}
-
 bool Plist::read(const QString &fileName)
 {
     QScopedPointer<QFile> file(new QFile(fileName));

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
+** Copyright (C) 2019 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -21,34 +20,41 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
-#define ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
+#ifndef ZEAL_SIDEBAR_CONTAINER_H
+#define ZEAL_SIDEBAR_CONTAINER_H
 
-#include <QStyledItemDelegate>
+#include <QWidget>
+
+class QSplitter;
 
 namespace Zeal {
-namespace WidgetUi {
+namespace Sidebar {
 
-class ProgressItemDelegate : public QStyledItemDelegate
+class View;
+
+// TODO: Implement view groups (alt. naming: tabs, pages) (move splitter into a group?).
+class Container : public QWidget
 {
     Q_OBJECT
 public:
-    enum ProgressRoles {
-        ValueRole = Qt::UserRole + 10,
-        FormatRole,
-        ShowProgressRole
-    };
+    explicit Container(QWidget *parent = nullptr);
+    ~Container() override;
 
-    explicit ProgressItemDelegate(QObject *parent = nullptr);
+    void addView(View *view);
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
+public slots:
+
+signals:
 
 private:
-    static const int progressBarWidth = 150;
+    Q_DISABLE_COPY(Container)
+
+    QSplitter *m_splitter = nullptr;
+
+    QList<View *> m_views;
 };
 
-} // namespace WidgetUi
+} // namespace Sidebar
 } // namespace Zeal
 
-#endif // ZEAL_WIDGETUI_PROGRESSITEMDELEGATE_H
+#endif // ZEAL_SIDEBAR_CONTAINER_H

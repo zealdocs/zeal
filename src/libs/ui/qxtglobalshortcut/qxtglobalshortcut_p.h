@@ -72,15 +72,14 @@ public:
     Qt::Key key = Qt::Key(0);
     Qt::KeyboardModifiers mods = Qt::NoModifier;
 
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
     static int ref;
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 
     bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
-    virtual bool nativeEventFilter(const QByteArray &eventType, void *message,
-                                   long *result) override;
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
 
     static bool activateShortcut(quint32 nativeKey, quint32 nativeMods);
 

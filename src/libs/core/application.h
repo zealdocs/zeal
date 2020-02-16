@@ -24,6 +24,7 @@
 #define ZEAL_CORE_APPLICATION_H
 
 #include <QObject>
+#include <QVersionNumber>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -46,9 +47,10 @@ class Extractor;
 class FileManager;
 class Settings;
 
-class Application : public QObject
+class Application final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Application)
 public:
     explicit Application(QObject *parent = nullptr);
     ~Application() override;
@@ -62,6 +64,10 @@ public:
 
     Registry::DocsetRegistry *docsetRegistry();
     FileManager *fileManager() const;
+
+    static QString cacheLocation();
+    static QString configLocation();
+    static QVersionNumber version();
 
 public slots:
     void executeQuery(const Registry::SearchQuery &query, bool preventActivation);

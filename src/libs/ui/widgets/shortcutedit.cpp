@@ -28,13 +28,13 @@
 
 using namespace Zeal::WidgetUi;
 
-ShortcutEdit::ShortcutEdit(QWidget *parent) :
-    ShortcutEdit(QString(), parent)
+ShortcutEdit::ShortcutEdit(QWidget *parent)
+    : ShortcutEdit(QString(), parent)
 {
 }
 
-ShortcutEdit::ShortcutEdit(const QString &text, QWidget *parent) :
-    QLineEdit(text, parent)
+ShortcutEdit::ShortcutEdit(const QString &text, QWidget *parent)
+    : QLineEdit(text, parent)
 {
     connect(this, &QLineEdit::textChanged, [this](const QString &text) {
         m_key = QKeySequence(text, QKeySequence::NativeText)[0];
@@ -45,7 +45,7 @@ bool ShortcutEdit::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        auto keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()) {
         case Qt::Key_Alt:
         case Qt::Key_Control:

@@ -28,15 +28,14 @@
 namespace Zeal {
 namespace Core {
 
-class FileManager : public QObject
+class FileManager final : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(FileManager)
 public:
     explicit FileManager(QObject *parent = nullptr);
 
     bool removeRecursively(const QString &path);
-
-    static QString cacheLocation();
 };
 
 } // namespace Core

@@ -32,7 +32,7 @@ namespace Util {
 class Plist : public QHash<QString, QVariant>
 {
 public:
-    Plist();
+    Plist() = default;
 
     bool read(const QString &fileName);
     bool hasError() const;

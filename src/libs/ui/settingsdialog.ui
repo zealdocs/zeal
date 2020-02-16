@@ -475,7 +475,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkOpenDesktop">
             <property name="text">
-             <string>&amp;Open in desktop browser</string>
+             <string>Open in desktop &amp;browser</string>
             </property>
            </widget>
           </item>
@@ -499,13 +499,6 @@
            <widget class="QCheckBox" name="useSmoothScrollingCheckBox">
             <property name="text">
              <string>Use smoo&amp;th scrolling</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="disableAdCheckBox">
-            <property name="text">
-             <string>Disable ad&amp;vertisement on the welcome page</string>
             </property>
            </widget>
           </item>
@@ -535,13 +528,13 @@
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>HTTP Proxy</string>
+          <string>Proxy Settings</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
            <widget class="QRadioButton" name="noProxySettings">
             <property name="text">
-             <string>No proxy</string>
+             <string>No prox&amp;y</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -554,7 +547,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>System proxy settings</string>
+             <string>&amp;Use system proxy settings</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -564,119 +557,149 @@
           <item>
            <widget class="QRadioButton" name="manualProxySettings">
             <property name="text">
-             <string>Manual proxy configuration</string>
+             <string>&amp;Manual proxy configuration</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="httpRootLayout">
-            <item>
-             <layout class="QHBoxLayout" name="httpProxyLayout">
-              <item>
-               <widget class="QLabel" name="httpProxyLabel">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>HTTP proxy:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="httpProxy">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="httpProxyPortLabel">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="text">
-                 <string>Port:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="httpProxyPort">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="maximum">
-                 <number>65535</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="httpProxyNeedsAuth">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>HTTP proxy requires authentication</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QWidget" name="httpAuthWidget" native="true">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_2">
-               <property name="topMargin">
-                <number>0</number>
+           <widget class="QWidget" name="manualProxySettingsGroup" native="true">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <layout class="QFormLayout" name="manualProxyConfigurationLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="proxyHostLabel">
+               <property name="text">
+                <string>Pro&amp;xy host:</string>
                </property>
-               <property name="rightMargin">
-                <number>0</number>
+               <property name="buddy">
+                <cstring>proxyHostEdit</cstring>
                </property>
-               <property name="bottomMargin">
-                <number>0</number>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="proxyTypeLabel">
+               <property name="text">
+                <string>Type:</string>
                </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="httpProxyUserLabel">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <layout class="QHBoxLayout" name="proxyTypeLayout">
+               <item>
+                <widget class="QRadioButton" name="proxyTypeHttpRadioButton">
                  <property name="text">
-                  <string>Username:</string>
+                  <string>&amp;HTTP</string>
                  </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">proxyTypeButtonGroup</string>
+                 </attribute>
                 </widget>
                </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="httpProxyUser">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="httpProxyPassLabel">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
+               <item>
+                <widget class="QRadioButton" name="proxyTypeSocks5RadioButton">
                  <property name="text">
-                  <string>Password:</string>
+                  <string>&amp;SOCKS5</string>
+                 </property>
+                 <attribute name="buttonGroup">
+                  <string notr="true">proxyTypeButtonGroup</string>
+                 </attribute>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout" name="proxyHostPortLayout">
+               <item>
+                <widget class="QLineEdit" name="proxyHostEdit"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="proxyPortLabel">
+                 <property name="text">
+                  <string>&amp;Port:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>proxyPortEdit</cstring>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="httpProxyPass">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="echoMode">
-                  <enum>QLineEdit::Password</enum>
+               <item>
+                <widget class="QSpinBox" name="proxyPortEdit">
+                 <property name="maximum">
+                  <number>65535</number>
                  </property>
                 </widget>
                </item>
               </layout>
-             </widget>
-            </item>
-           </layout>
+             </item>
+             <item row="2" column="0" colspan="2">
+              <widget class="QCheckBox" name="proxyRequiresAuthCheckBox">
+               <property name="text">
+                <string>&amp;Authentication required</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="proxyUsernameLabel">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>User&amp;name:</string>
+               </property>
+               <property name="buddy">
+                <cstring>proxyUsernameEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="proxyPasswordLabel">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Pass&amp;word:</string>
+               </property>
+               <property name="buddy">
+                <cstring>proxyPasswordEdit</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="proxyUsernameEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="proxyPasswordEdit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="echoMode">
+                <enum>QLineEdit::Password</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -749,166 +772,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyLabel</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>104</x>
-     <y>74</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
-     <y>97</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyPortLabel</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>349</x>
-     <y>78</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>347</x>
-     <y>96</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxy</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>232</x>
-     <y>77</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>232</x>
-     <y>97</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyPort</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>392</x>
-     <y>74</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>392</x>
-     <y>96</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyNeedsAuth</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>53</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>100</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyPass</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>287</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>285</x>
-     <y>182</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyUser</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>183</x>
-     <y>135</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>182</x>
-     <y>154</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>manualProxySettings</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpAuthWidget</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>79</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>53</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyUserLabel</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>81</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>70</x>
-     <y>154</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>httpProxyNeedsAuth</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>httpProxyPassLabel</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>87</x>
-     <y>137</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>84</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>customCssFileBrowseButton</sender>
    <signal>clicked()</signal>
    <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
@@ -940,5 +803,88 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>manualProxySettings</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>manualProxySettingsGroup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>proxyRequiresAuthCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>proxyUsernameLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>proxyRequiresAuthCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>proxyUsernameEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>proxyRequiresAuthCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>proxyPasswordLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>65</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>proxyRequiresAuthCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>proxyPasswordEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="proxyTypeButtonGroup"/>
+ </buttongroups>
 </ui>

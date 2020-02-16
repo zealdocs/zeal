@@ -77,6 +77,8 @@ public:
 
     bool isEnabled() const;
 
+    static bool isSupported();
+
 public slots:
     void setEnabled(bool enabled);
 

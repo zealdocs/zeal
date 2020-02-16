@@ -1,11 +1,11 @@
 # Nothing to moc here, so avoid empty build units.
 set(CMAKE_AUTOMOC OFF)
 
-add_library(Util
+add_library(Util STATIC
+    caseinsensitivemap.h
     plist.cpp
     sqlitedatabase.cpp
     readableinterval.cpp
-    version.cpp
 )
 
 find_package(Qt5Core REQUIRED)

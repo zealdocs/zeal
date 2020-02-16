@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 Oleg Shparber
+** Copyright (C) 2019 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -20,30 +20,31 @@
 **
 ****************************************************************************/
 
-#include "webbridge.h"
+#ifndef ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H
+#define ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H
 
-#include <QCoreApplication>
-#include <QDesktopServices>
-#include <QUrl>
+#include <sidebar/viewprovider.h>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal {
+namespace WidgetUi {
 
-WebBridge::WebBridge(QObject *parent)
-    : QObject(parent)
+class MainWindow;
+
+class SidebarViewProvider : public Sidebar::ViewProvider
 {
-}
+    Q_OBJECT
+public:
+    explicit SidebarViewProvider(MainWindow *mainWindow);
 
-void WebBridge::openShortUrl(const QString &key)
-{
-    QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/") + key));
-}
+    Sidebar::View *view(const QString &id = QString()) const override;
 
-void WebBridge::triggerAction(const QString &action)
-{
-    emit actionTriggered(action);
-}
+private:
+    Q_DISABLE_COPY(SidebarViewProvider)
 
-QString WebBridge::appVersion() const
-{
-    return QCoreApplication::applicationVersion();
-}
+    MainWindow *m_mainWindow = nullptr;
+};
+
+} // namespace WidgetUi
+} // namespace Zeal
+
+#endif // ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H

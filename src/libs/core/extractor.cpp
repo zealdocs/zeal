@@ -31,18 +31,18 @@
 
 using namespace Zeal::Core;
 
-Extractor::Extractor(QObject *parent) :
-    QObject(parent)
+Extractor::Extractor(QObject *parent)
+    : QObject(parent)
 {
 }
 
 void Extractor::extract(const QString &sourceFile, const QString &destination, const QString &root)
 {
     ExtractInfo info = {
-        archive_read_new(), // archiveHandle
-        sourceFile, // filePath
+        archive_read_new(),           // archiveHandle
+        sourceFile,                   // filePath
         QFileInfo(sourceFile).size(), // totalBytes
-        0 // extractedBytes
+        0                             // extractedBytes
     };
 
     archive_read_support_filter_all(info.archiveHandle);
@@ -56,7 +56,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
 
     QDir destinationDir(destination);
     if (!root.isEmpty()) {
-        destinationDir = destinationDir.filePath(root);
+        destinationDir.setPath(destinationDir.filePath(root));
     }
 
     // TODO: Do not strip root directory in archive if it equals to 'root'
@@ -79,7 +79,9 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
         if (filetype == S_IFDIR) {
             QDir().mkpath(QFileInfo(filePath).absolutePath());
             continue;
-        } else if (filetype != S_IFREG) {
+        }
+
+        if (filetype != S_IFREG) {
             qWarning("Unsupported filetype %d for %s!", filetype, qPrintable(pathname));
             continue;
         }

@@ -4,7 +4,8 @@
 
 using namespace Zeal::WidgetUi;
 
-ToolBarFrame::ToolBarFrame(QWidget *parent) : QWidget(parent)
+ToolBarFrame::ToolBarFrame(QWidget *parent)
+    : QWidget(parent)
 {
     setMaximumHeight(40);
     setMinimumHeight(40);

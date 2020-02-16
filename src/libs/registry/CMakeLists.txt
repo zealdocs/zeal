@@ -1,4 +1,4 @@
-add_library(Registry
+add_library(Registry STATIC
     cancellationtoken.h
     docset.cpp
     docsetmetadata.cpp

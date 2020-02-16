@@ -54,33 +54,35 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QAbstractEventDispatcher>
+#include <QGuiApplication>
 
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
 int QxtGlobalShortcutPrivate::ref = 0;
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 
 QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> QxtGlobalShortcutPrivate::shortcuts;
 
-QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq) :
-    q_ptr(qq)
+QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq)
+    : q_ptr(qq)
 {
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
     if (ref == 0)
         QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
     ++ref;
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 }
 
 QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 {
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
     --ref;
     if (ref == 0) {
         QAbstractEventDispatcher *ed = QAbstractEventDispatcher::instance();
-        if (ed != 0)
+        if (ed != nullptr) {
             ed->removeNativeEventFilter(this);
+        }
     }
-#endif // Q_OS_OSX
+#endif // Q_OS_MACOS
 }
 
 bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
@@ -88,7 +90,7 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
     Q_Q(QxtGlobalShortcut);
     Qt::KeyboardModifiers allMods = Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier;
     key = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key((shortcut[0] ^ allMods) & shortcut[0]);
-    mods = shortcut.isEmpty() ? Qt::KeyboardModifiers(0) : Qt::KeyboardModifiers(shortcut[0] & allMods);
+    mods = shortcut.isEmpty() ? Qt::KeyboardModifiers(Qt::NoModifier) : Qt::KeyboardModifiers(shortcut[0] & allMods);
     const quint32 nativeKey = nativeKeycode(key);
     const quint32 nativeMods = nativeModifiers(mods);
     const bool res = registerShortcut(nativeKey, nativeMods);
@@ -116,7 +118,7 @@ bool QxtGlobalShortcutPrivate::unsetShortcut()
         qWarning("QxtGlobalShortcut failed to unregister: %s", qPrintable(QKeySequence(key + mods).toString()));
 
     key = Qt::Key(0);
-    mods = Qt::KeyboardModifiers(0);
+    mods = Qt::KeyboardModifiers(Qt::NoModifier);
     return res;
 }
 
@@ -161,18 +163,18 @@ bool QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
 /*!
     Constructs a new QxtGlobalShortcut with \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(QObject *parent) :
-    QObject(parent),
-    d_ptr(new QxtGlobalShortcutPrivate(this))
+QxtGlobalShortcut::QxtGlobalShortcut(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QxtGlobalShortcutPrivate(this))
 {
 }
 
 /*!
     Constructs a new QxtGlobalShortcut with \a shortcut and \a parent.
  */
-QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *parent) :
-    QObject(parent),
-    d_ptr(new QxtGlobalShortcutPrivate(this))
+QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *parent)
+    : QObject(parent)
+    , d_ptr(new QxtGlobalShortcutPrivate(this))
 {
     setShortcut(shortcut);
 }
@@ -232,6 +234,16 @@ bool QxtGlobalShortcut::isEnabled() const
 {
     Q_D(const QxtGlobalShortcut);
     return d->enabled;
+}
+
+/*!
+ * \brief QxtGlobalShortcut::isSupported checks if the current platform is supported.
+ */
+bool QxtGlobalShortcut::isSupported()
+{
+    return QGuiApplication::platformName() == QLatin1String("windows")
+            || QGuiApplication::platformName() == QLatin1String("xcb")
+            || QGuiApplication::platformName() == QLatin1String("cocoa");
 }
 
 void QxtGlobalShortcut::setEnabled(bool enabled)
