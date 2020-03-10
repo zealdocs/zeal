@@ -1,0 +1,46 @@
+# language target
+language: cpp
+compiler: gcc
+
+# main build matrix
+matrix:
+  include:
+    - name: "Bionic Ubuntu Linux"
+      os: linux
+      dist: bionic
+      sudo: required
+
+
+install:
+  - sudo apt update -y
+  # Instal build dependencies
+  - sudo apt install -y build-essential g++ cmake libarchive-dev extra-cmake-modules qtbase5-dev libqt5webkit5-dev libqt5x11extras5-dev libxcb-keysyms1-dev  libsqlite3-dev qtbase5-private-dev xmlto libqt5webkit5-dev libappindicator-dev
+
+  # Install appimage-builder
+  - sudo apt install -y build-essential python3 python3-setuptools python3-pip patchelf gnupg2 file desktop-file-utils fakeroot
+  - sudo pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git
+
+  # Install appimagetool
+  - wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /tmp/appimagetool
+  - chmod +x /tmp/appimagetool
+  - sudo mv /tmp/appimagetool /usr/bin
+
+# build & test scripts
+script:
+ - appimage-builder --skip-test --recipe ./appimage-amd64.yml
+
+
+notifications:
+  email: false
+
+after_success:
+  # listing the result
+  - ls -lh *.AppImage
+
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - bash upload.sh zeal*.AppImage*
+
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous.*)$/

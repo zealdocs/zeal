@@ -1,0 +1,78 @@
+version: 1
+
+script:
+  - mkdir -p build
+  - cd build; cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+  - cd build; make -j`nproc` install DESTDIR=AppDir
+
+AppDir:
+  path: ./build/AppDir
+
+  app_info:
+    id: org.zealdocs.zeal
+    name: zeal
+    icon: zeal
+    version: 0.6.1
+    exec: usr/bin/zeal
+    exec_args: $@
+
+  runtime:
+    generator: wrapper
+    APPDIR_LIBRARY_PATH: "$APPDIR/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu"
+
+  apt:
+    arch: amd64
+
+    sources:
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse'
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse'
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse'
+        key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32'
+
+    include:
+        # QT
+        - qtwayland5
+        - libqt5gui5
+        - libqt5network5
+        - libqt5x11extras5
+        - libqt5sql5-sqlite
+        - libqt5concurrent5
+        - libqt5sensors5
+        - libqt5webchannel5
+        - libqt5printsupport5
+        - libqt5webkit5
+        - libqt5widgets5
+        # base
+        - libsqlite3-0
+        - libarchive13
+
+
+    exclude:
+        - "*dbgsym*"
+        - sound-theme-freedesktop
+        - systemd
+        - systemd-*
+        - perl
+        - perl-*
+        - gnupg
+
+  files:
+    exclude:
+      - usr/include
+      - usr/share/man
+      - usr/share/doc
+      - usr/share/doc/*/README.*
+      - usr/share/doc/*/changelog.*
+      - usr/share/doc/*/NEWS.*
+      - usr/share/doc/*/TODO.*
+      - lib/systemd
+      - etc/systemd
+      - usr/bin/systemd*
+      - usr/bin/dpkg*
+      - usr/bin/*-linux-gnu-*
+      - usr/share/locale
+
+AppImage:
+  arch: "x86_64"
+  update-information: None
+  sign-key: None
