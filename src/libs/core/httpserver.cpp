@@ -31,7 +31,7 @@
 using namespace Zeal::Core;
 
 namespace {
-constexpr char LocalHttpServerHost[] = "127.0.0.22";
+constexpr char LocalHttpServerHost[] = "127.0.0.1"; // macOS only routes 127.0.0.1 by default.
 } // namespace
 
 static Q_LOGGING_CATEGORY(log, "zeal.core.httpserver")
