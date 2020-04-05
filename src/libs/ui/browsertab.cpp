@@ -55,11 +55,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_webControl = new Browser::WebControl(this);
     connect(m_webControl, &Browser::WebControl::titleChanged, this, &BrowserTab::titleChanged);
     connect(m_webControl, &Browser::WebControl::urlChanged, this, [this](const QUrl &url) {
-        const QString name = docsetName(url);
         // TODO: Check if changed.
-        emit iconChanged(docsetIcon(name));
+        emit iconChanged(docsetIcon(url));
 
-        Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docset(name);
+        Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
         if (docset) {
             searchSidebar()->pageTocModel()->setResults(docset->relatedLinks(url));
             m_webControl->setJavaScriptEnabled(docset->isJavaScriptEnabled());
@@ -87,7 +86,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         QWebHistory *history = m_webControl->history();
         QList<QWebHistoryItem> items = history->backItems(10);
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
-            const QIcon icon = docsetIcon(docsetName(it->url()));
+            const QIcon icon = docsetIcon(it->url());
             const QWebHistoryItem item = *it;
             backMenu->addAction(icon, it->title(), this, [=](bool) { history->goToItem(item); });
         }
@@ -109,7 +108,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         QWebHistory *history = m_webControl->history();
         const auto forwardItems = history->forwardItems(10);
         for (const QWebHistoryItem &item : forwardItems) {
-            const QIcon icon = docsetIcon(docsetName(item.url()));
+            const QIcon icon = docsetIcon(item.url());
             forwardMenu->addAction(icon, item.title(), this, [=](bool) { history->goToItem(item); });
         }
     });
@@ -145,12 +144,17 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     auto registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
-    connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this](const QString &name) {
-        if (docsetName(m_webControl->url()) != name)
+    connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded,
+            this, [this, registry](const QString &name) {
+        Registry::Docset *docset = registry->docsetForUrl(m_webControl->url());
+        if (docset == nullptr ||  docset->name() != name) {
             return;
+        }
+
 
         // TODO: Add custom 'Page has been removed' page.
         navigateToStartPage();
+
         // TODO: Cleanup history.
     });
 }
@@ -213,14 +217,8 @@ void BrowserTab::search(const Registry::SearchQuery &query)
     m_searchSidebar->search(query);
 }
 
-QString BrowserTab::docsetName(const QUrl &url) const
+QIcon BrowserTab::docsetIcon(const QUrl &url) const
 {
-    const QRegExp docsetRegex(QStringLiteral("/([^/]+)[.]docset"));
-    return docsetRegex.indexIn(url.path()) != -1 ? docsetRegex.cap(1) : QString();
-}
-
-QIcon BrowserTab::docsetIcon(const QString &docsetName) const
-{
-    Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docset(docsetName);
+    Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
     return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
 }

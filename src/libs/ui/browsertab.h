@@ -65,8 +65,7 @@ signals:
 
 private:
     Q_DISABLE_COPY(BrowserTab)
-    QString docsetName(const QUrl &url) const;
-    QIcon docsetIcon(const QString &docsetName) const;
+    QIcon docsetIcon(const QUrl &url) const;
 
     // Widgets.
     SearchSidebar *m_searchSidebar = nullptr;

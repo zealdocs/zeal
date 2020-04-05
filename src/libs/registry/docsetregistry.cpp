@@ -191,6 +191,16 @@ Docset *DocsetRegistry::docset(int index) const
     return (m_docsets.cbegin() + index).value();
 }
 
+Docset *DocsetRegistry::docsetForUrl(const QUrl &url)
+{
+    for (Docset *docset : qAsConst(m_docsets)) {
+        if (docset->baseUrl().isParentOf(url))
+            return docset;
+    }
+
+    return nullptr;
+}
+
 QList<Docset *> DocsetRegistry::docsets() const
 {
     return m_docsets.values();
