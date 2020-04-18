@@ -19,6 +19,13 @@
 # CMake
 CMakeLists.txt.user
 build/
+build.*/
+
+# AppImage Builder
+*.AppImage
+*.AppImage.zsync
+appimage-builder-cache/
+squashfs-root/
 
 # VS Code
 /.vscode

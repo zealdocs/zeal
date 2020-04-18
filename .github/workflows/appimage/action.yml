@@ -1,0 +1,16 @@
+name: 'AppImage Builder'
+description: 'Create an AppImage with appimage-builder.'
+inputs:
+  recipe:
+    description: 'Path to the appimage-builder recipe.'
+    required: true
+    default: 'AppImageBuilder.yml'
+  apt_dependencies:
+    description: 'List of packages to install with apt-get.'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.recipe }}
+    - ${{ inputs.apt_dependencies }}
