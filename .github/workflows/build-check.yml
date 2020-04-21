@@ -1,0 +1,46 @@
+name: Build Check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  appimage:
+    name: AppImage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build AppImage
+        uses: ./.github/workflows/appimage/
+        with:
+          recipe: pkg/appimage/appimage-amd64.yml
+          apt_dependencies: >-
+            build-essential
+            cmake extra-cmake-modules
+            libappindicator-dev
+            libarchive-dev
+            libqt5webkit5-dev
+            libqt5x11extras5-dev
+            libsqlite3-dev
+            libxcb-keysyms1-dev
+            ninja-build
+            qtbase5-dev
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
+          path: zeal-*.AppImage
+
+      # TODO: Enable for releases.
+      - name: Upload AppImage.zsync
+        uses: actions/upload-artifact@v2-preview
+        if: github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.ref, 'v')
+        with:
+          name: zeal-dev-x86_64.AppImage.zsync
+          path: zeal-*.AppImage.zsync
