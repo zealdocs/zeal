@@ -7,6 +7,41 @@ on:
     branches: [master]
 
 jobs:
+  build-ubuntu:
+    name: Ubuntu (PORTABLE_BUILD=${{ matrix.env.ZEAL_PORTABLE_BUILD }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env:
+          - ZEAL_PORTABLE_BUILD: "OFF"
+          - ZEAL_PORTABLE_BUILD: "ON"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq --no-install-recommends install \
+            cmake \
+            extra-cmake-modules \
+            libarchive-dev \
+            libqt5webkit5-dev \
+            libqt5x11extras5-dev \
+            libsqlite3-dev \
+            libxcb-keysyms1-dev \
+            qt5-default
+
+      - name: Configure
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DZEAL_PORTABLE_BUILD="${ZEAL_PORTABLE_BUILD}" ..
+
+      - name: Build
+        run: cmake --build build
+
   appimage:
     name: AppImage
     runs-on: ubuntu-latest
