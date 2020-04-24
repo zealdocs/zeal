@@ -8,20 +8,14 @@ branches:
     - /release\/.*/
 image:
   - Visual Studio 2015
-  - Ubuntu1804
 configuration: Release
 platform:
   - x86
   - x64
 environment:
-  APPVEYOR_YML_DISABLE_PS_LINUX: true
   matrix:
     - ZEAL_PORTABLE_BUILD: "OFF"
     - ZEAL_PORTABLE_BUILD: "ON"
-matrix:
-  exclude:
-    - image: Ubuntu1804
-      platform: x86
 init:
 - ps: |-
     if ($Env:PLATFORM -eq "x64") {
@@ -44,18 +38,6 @@ install:
     appveyor Downloadfile "https://dl.bintray.com/zealdocs/windows-ci/$qtWebKitArchiveBaseName.zip"
     7z x "$qtWebKitArchiveBaseName.zip"
     Get-ChildItem ".\$qtWebKitArchiveBaseName" | Copy -Destination ${Env:QT_ROOT} -Recurse -Force
-- sh: |-
-    sudo apt-get -y -qq update
-    sudo apt-get -y -qq install \
-      --no-install-recommends \
-      cmake \
-      extra-cmake-modules \
-      qt5-default \
-      libqt5webkit5-dev \
-      libqt5x11extras5-dev \
-      libarchive-dev \
-      libsqlite3-dev \
-      libxcb-keysyms1-dev
 before_build:
 - ps: |-
     Write-Output "Source directory: ${Env:APPVEYOR_BUILD_FOLDER}"
@@ -79,19 +61,9 @@ before_build:
       -DCMAKE_TOOLCHAIN_FILE="${Env:VCPKG_ROOT}\scripts\buildsystems\vcpkg.cmake"
 
     Set-Location -Path ${Env:APPVEYOR_BUILD_FOLDER}
-- sh: |-
-    mkdir build
-    cd build
-
-    cmake .. \
-      -DZEAL_PORTABLE_BUILD="${ZEAL_PORTABLE_BUILD}"
-
-    cd ..
 build_script:
   - ps: |-
       msbuild "dist\ALL_BUILD.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  - sh: |-
-      cmake --build build
 after_build:
 - ps: |-
     if ($Env:APPVEYOR_PULL_REQUEST_NUMBER) {
