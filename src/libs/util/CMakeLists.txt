@@ -2,9 +2,11 @@
 set(CMAKE_AUTOMOC OFF)
 
 add_library(Util STATIC
-    caseinsensitivemap.h
     plist.cpp
     sqlitedatabase.cpp
+
+    # Show headers without .cpp in Qt Creator.
+    caseinsensitivemap.h
 )
 
 find_package(Qt5Core REQUIRED)

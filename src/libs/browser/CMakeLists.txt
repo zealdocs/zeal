@@ -1,7 +1,7 @@
 add_library(Browser STATIC
-    webcontrol.cpp
     searchtoolbar.cpp
     webbridge.cpp
+    webcontrol.cpp
     webview.cpp
 )
 
