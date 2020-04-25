@@ -24,6 +24,7 @@
 #ifndef ZEAL_REGISTRY_SEARCHQUERY_H
 #define ZEAL_REGISTRY_SEARCHQUERY_H
 
+#include <QDataStream>
 #include <QStringList>
 
 namespace Zeal {

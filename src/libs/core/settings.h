@@ -23,6 +23,7 @@
 #ifndef ZEAL_CORE_SETTINGS_H
 #define ZEAL_CORE_SETTINGS_H
 
+#include <QDataStream>
 #include <QKeySequence>
 #include <QObject>
 
