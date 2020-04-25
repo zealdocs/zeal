@@ -74,7 +74,7 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
     if (eventType != "xcb_generic_event_t")
         return false;
 
-    auto event = static_cast<xcb_generic_event_t*>(message);
+    auto event = static_cast<xcb_generic_event_t *>(message);
     if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
         return false;
 

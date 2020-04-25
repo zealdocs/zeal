@@ -144,7 +144,7 @@ bool QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
 
     Example usage:
     \code
-    QxtGlobalShortcut* shortcut = new QxtGlobalShortcut(window);
+    QxtGlobalShortcut *shortcut = new QxtGlobalShortcut(window);
     connect(shortcut, SIGNAL(activated()), window, SLOT(toggleVisibility()));
     shortcut->setShortcut(QKeySequence("Ctrl+Shift+F12"));
     \endcode
