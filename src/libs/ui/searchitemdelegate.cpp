@@ -27,6 +27,7 @@
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QToolTip>
 
 using namespace Zeal::WidgetUi;
