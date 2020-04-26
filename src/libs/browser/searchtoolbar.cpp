@@ -29,12 +29,12 @@
 #include <QLineEdit>
 #include <QStyle>
 #include <QToolButton>
-#include <QWebPage>
-#include <QWebView>
+#include <QWebEnginePage>
+#include <QWebEngineView>
 
 using namespace Zeal::Browser;
 
-SearchToolBar::SearchToolBar(QWebView *webView, QWidget *parent)
+SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     : QWidget(parent)
     , m_webView(webView)
 {
@@ -172,8 +172,8 @@ void SearchToolBar::findNext()
         return;
     }
 
-    QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-    ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
+    QWebEnginePage::FindFlags ff;
+    ff.setFlag(QWebEnginePage::FindCaseSensitively, m_matchCaseButton->isChecked());
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
@@ -183,15 +183,15 @@ void SearchToolBar::findPrevious()
         return;
     }
 
-    QWebPage::FindFlags ff = QWebPage::FindWrapsAroundDocument;
-    ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
-    ff.setFlag(QWebPage::FindBackward);
+    QWebEnginePage::FindFlags ff;
+    ff.setFlag(QWebEnginePage::FindCaseSensitively, m_matchCaseButton->isChecked());
+    ff.setFlag(QWebEnginePage::FindBackward);
     m_webView->findText(m_lineEdit->text(), ff);
 }
 
 void SearchToolBar::hideHighlight()
 {
-    m_webView->findText(QString(), QWebPage::HighlightAllOccurrences);
+    m_webView->findText(QString());
 }
 
 void SearchToolBar::updateHighlight()
@@ -199,8 +199,8 @@ void SearchToolBar::updateHighlight()
     hideHighlight();
 
     if (m_highlightAllButton->isChecked()) {
-        QWebPage::FindFlags ff = QWebPage::HighlightAllOccurrences;
-        ff.setFlag(QWebPage::FindCaseSensitively, m_matchCaseButton->isChecked());
+        QWebEnginePage::FindFlags ff;
+        ff.setFlag(QWebEnginePage::FindCaseSensitively, m_matchCaseButton->isChecked());
         m_webView->findText(m_lineEdit->text(), ff);
     }
 }

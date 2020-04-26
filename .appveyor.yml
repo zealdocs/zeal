@@ -7,7 +7,7 @@ branches:
     - stable
     - /release\/.*/
 image:
-  - Visual Studio 2015
+  - Visual Studio 2017
 configuration: Release
 platform:
   - x86
@@ -19,9 +19,9 @@ environment:
 init:
 - ps: |-
     if ($Env:PLATFORM -eq "x64") {
-        $Env:QT_ROOT = "C:\Qt\5.11\msvc2015_64"
+        $Env:QT_ROOT = "C:\Qt\5.12\msvc2017_64"
     } else {
-        $Env:QT_ROOT = "C:\Qt\5.11\msvc2015"
+        $Env:QT_ROOT = "C:\Qt\5.12\msvc2017"
     }
 
     $Env:Path += ";${Env:QT_ROOT}\bin;C:\Program Files\7-Zip"
@@ -29,15 +29,9 @@ install:
 - ps: |-
     # Install vcpkg toolchain.
     $Env:VCPKG_ROOT = "c:\projects\vcpkg-export"
-    $vcpkgArchive = "vcpkg-export-20181014.4-${Env:PLATFORM}.7z"
+    $vcpkgArchive = "vcpkg-export-20200420.6-${Env:PLATFORM}.7z"
     appveyor DownloadFile "https://dl.bintray.com/zealdocs/windows-ci/$vcpkgArchive"
     7z x $vcpkgArchive -o"${Env:VCPKG_ROOT}"
-
-    # Install QtWebKit.
-    $qtWebKitArchiveBaseName = "qtwebkit-5.212.0_72cfbd7-qt5111-msvc2015-${Env:PLATFORM}"
-    appveyor Downloadfile "https://dl.bintray.com/zealdocs/windows-ci/$qtWebKitArchiveBaseName.zip"
-    7z x "$qtWebKitArchiveBaseName.zip"
-    Get-ChildItem ".\$qtWebKitArchiveBaseName" | Copy -Destination ${Env:QT_ROOT} -Recurse -Force
 before_build:
 - ps: |-
     Write-Output "Source directory: ${Env:APPVEYOR_BUILD_FOLDER}"
@@ -46,7 +40,7 @@ before_build:
     Set-Location -Path dist
 
     # Prepare .sln with CMake:
-    $cmakeGenerator = "Visual Studio 14 2015"
+    $cmakeGenerator = "Visual Studio 15 2017"
     if ($Env:PLATFORM -eq "x64") {
         $cmakeGenerator += " Win64"
     }

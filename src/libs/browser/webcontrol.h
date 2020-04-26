@@ -26,7 +26,7 @@
 
 #include <QWidget>
 
-class QWebHistory;
+class QWebEngineHistory;
 
 namespace Zeal {
 namespace Browser {
@@ -49,7 +49,7 @@ public:
     QString title() const;
     QUrl url() const;
 
-    QWebHistory *history() const;
+    QWebEngineHistory *history() const;
     void restoreHistory(const QByteArray &array);
     QByteArray saveHistory() const;
 

@@ -73,8 +73,13 @@
     </div>
   </section>
 
+  <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
   <script>
-    document.getElementById("version").textContent = zAppBridge.AppVersion;
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+      var JSobject = channel.objects.zAppBridge;
+      document.getElementById("version").textContent = JSobject.AppVersion;
+      window.zAppBridge = channel.objects.zAppBridge;
+    });
   </script>
 </body>
 
