@@ -49,6 +49,9 @@
 #include <QSystemTrayIcon>
 #include <QTabBar>
 #include <QWebSettings>
+#include <QPalette>
+#include <QStyleFactory>
+#include <QStyle>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -520,6 +523,34 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
+namespace
+{
+    void addFileContent(QByteArray& destinationArray, const QString& filename)
+    {
+        if (filename.isEmpty()) {
+            return;
+        }
+        if (QFileInfo::exists(filename)) {
+            QFile file(filename);
+            if (file.open(QIODevice::ReadOnly)) {
+                destinationArray += file.readAll();
+            }
+        } else {
+            qWarning("File does not exists: %s", filename.toUtf8().data());
+        }
+    }
+
+    void forceUpdateAllWidgets()
+    {
+        for (QWidget *widget : QApplication::allWidgets())
+        {
+            QString styleSheet = widget->styleSheet();
+            widget->setStyleSheet("color:blue;");
+            widget->setStyleSheet(styleSheet);
+        }
+    }
+}
+
 void MainWindow::applySettings()
 {
     if (m_globalShortcut) {
@@ -531,27 +562,67 @@ void MainWindow::applySettings()
     else
         removeTrayIcon();
 
+
+    // UI style
+    static const QPalette defaultPalette;
+    static const QString defaultSytleName = QApplication::style()->objectName();
+
+    switch (m_settings->uiStyle) {
+    case Core::Settings::UiStyle::SystemDefault:
+        // system style = no css content or custom palette
+        QApplication::setStyle(QStyleFactory::create(defaultSytleName));
+        QApplication::setPalette(defaultPalette);
+        forceUpdateAllWidgets();
+
+        break;
+    case Core::Settings::UiStyle::Dark:
+        {
+            QApplication::setStyle(QStyleFactory::create("Fusion"));
+            QPalette palette;
+            palette.setColor(QPalette::WindowText, QColor(220, 220, 220));
+            palette.setColor(QPalette::Window, QColor(45, 45, 45));
+            palette.setColor(QPalette::Button, QColor(45, 45, 45 ));
+            palette.setColor(QPalette::ButtonText, QColor(200, 200, 200));
+            palette.setColor(QPalette::Base, QColor(65, 65, 65));
+            palette.setColor(QPalette::Text, QColor(220, 220, 220));
+            palette.setColor(QPalette::Highlight, QColor(95, 95, 175));
+            palette.setColor(QPalette::HighlightedText, QColor(220, 220, 220));
+
+            palette.setColor(QPalette::Light, QColor(35, 35, 35));
+            palette.setColor(QPalette::Midlight, QColor(45, 45, 45));
+            palette.setColor(QPalette::Dark, QColor(85, 85, 85 ));
+            palette.setColor(QPalette::Mid, QColor(65, 65, 65 ));
+            palette.setColor(QPalette::Shadow, QColor(120, 120, 120));
+            QApplication::setPalette(palette);
+
+            forceUpdateAllWidgets();
+        }
+        break;
+    case Core::Settings::UiStyle::CustomCssFile:
+        {
+            QApplication::setPalette(defaultPalette);
+            QApplication::setStyle(QStyleFactory::create(defaultSytleName));
+            forceUpdateAllWidgets();
+
+            QByteArray uiCsssContent;
+            addFileContent(uiCsssContent, m_settings->customUiCssFile);
+            qApp->setStyleSheet(QString::fromUtf8(uiCsssContent));
+        }
+        break;
+    }
+
     // Content
     QByteArray ba = QByteArrayLiteral("body { background-color: white; }");
     if (m_settings->darkModeEnabled) {
-        QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, DarkModeCssUrl);
     }
 
     if (m_settings->highlightOnNavigateEnabled) {
-        QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, HighlightOnNavigateCssUrl);
     }
 
     if (QFileInfo::exists(m_settings->customCssFile)) {
-        QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
+        addFileContent(ba, m_settings->customCssFile);
     }
 
     const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();

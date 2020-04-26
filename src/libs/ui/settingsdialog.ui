@@ -80,6 +80,54 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>UI Style</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_15">
+          <item>
+           <widget class="QRadioButton" name="radioUiStyleSystemDefault">
+            <property name="text">
+             <string>System default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioUiStyleDark">
+            <property name="text">
+             <string>Dark style</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QRadioButton" name="radioUiStyleCustomCssFile">
+              <property name="text">
+               <string>Custom CSS file: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="customUiCssFileEdit">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="customUiCssFileBrowseButton">
+              <property name="text">
+               <string>Browse...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="globalHotKeyGroupBox">
          <property name="title">
           <string>Global shortcuts</string>
@@ -408,7 +456,7 @@
        <item>
         <widget class="QGroupBox" name="styleGroupBox">
          <property name="title">
-          <string>Style</string>
+          <string>Doc Style</string>
          </property>
          <layout class="QFormLayout" name="formLayout_5">
           <item row="1" column="0" colspan="2">
@@ -776,6 +824,22 @@
    <signal>clicked()</signal>
    <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
    <slot>chooseCustomCssFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>526</x>
+     <y>232</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>customUiCssFileBrowseButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
+   <slot>chooseCustomUiCssFile()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>526</x>

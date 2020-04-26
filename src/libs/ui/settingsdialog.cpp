@@ -146,6 +146,17 @@ void SettingsDialog::chooseCustomCssFile()
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(file));
 }
 
+void SettingsDialog::chooseCustomUiCssFile()
+{
+    const QString file = QFileDialog::getOpenFileName(this, tr("Choose UI CSS File"),
+                                                      ui->customCssFileEdit->text(),
+                                                      tr("CSS Files (*.css);;All Files (*.*)"));
+    if (file.isEmpty())
+        return;
+
+    ui->customUiCssFileEdit->setText(QDir::toNativeSeparators(file));
+}
+
 void SettingsDialog::chooseDocsetStoragePath()
 {
     QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -205,6 +216,19 @@ void SettingsDialog::loadSettings()
     ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
     ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
+
+    switch (settings->uiStyle) {
+    case Core::Settings::UiStyle::SystemDefault:
+        ui->radioUiStyleSystemDefault->setChecked(true);
+        break;
+    case Core::Settings::UiStyle::Dark:
+        ui->radioUiStyleDark->setChecked(true);
+        break;
+    case Core::Settings::UiStyle::CustomCssFile:
+        ui->radioUiStyleCustomCssFile->setChecked(true);
+        break;
+    }
+    ui->customUiCssFileEdit->setText(QDir::toNativeSeparators(settings->customUiCssFile));
 
     switch (settings->externalLinkPolicy) {
     case Core::Settings::ExternalLinkPolicy::Ask:
@@ -280,6 +304,15 @@ void SettingsDialog::saveSettings()
     settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
     settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
+
+    if (ui->radioUiStyleSystemDefault->isChecked()) {
+        settings->uiStyle = Core::Settings::UiStyle::SystemDefault;
+    } else if (ui->radioUiStyleDark->isChecked()) {
+        settings->uiStyle = Core::Settings::UiStyle::Dark;
+    } else if (ui->radioUiStyleCustomCssFile->isChecked()) {
+        settings->uiStyle = Core::Settings::UiStyle::CustomCssFile;
+    }
+    settings->customUiCssFile = QDir::fromNativeSeparators(ui->customUiCssFileEdit->text());
 
     if (ui->radioExternalLinkAsk->isChecked()) {
         settings->externalLinkPolicy = Core::Settings::ExternalLinkPolicy::Ask;

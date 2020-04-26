@@ -51,6 +51,7 @@ Settings::Settings(QObject *parent)
     : QObject(parent)
 {
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
+    qRegisterMetaTypeStreamOperators<UiStyle>("UiStyle");
 
     // Enable local storage due to https://github.com/zealdocs/zeal/issues/872.
     QWebSettings *webSettings = QWebSettings::globalSettings();
@@ -135,6 +136,9 @@ void Settings::load()
     darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
+    uiStyle = settings->value(QStringLiteral("ui_style"),
+                                         QVariant::fromValue(UiStyle::SystemDefault)).value<UiStyle>();
+    customUiCssFile = settings->value(QStringLiteral("custom_ui_css_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
                                          QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
     isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), false).toBool();
@@ -224,6 +228,8 @@ void Settings::save()
     settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
     settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
+    settings->setValue(QStringLiteral("ui_style"), QVariant::fromValue(uiStyle));
+    settings->setValue(QStringLiteral("custom_ui_css_file"), customUiCssFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("smooth_scrolling"), isSmoothScrollingEnabled);
     settings->endGroup();
@@ -344,5 +350,19 @@ QDataStream &operator>>(QDataStream &in, Settings::ExternalLinkPolicy &policy)
     std::underlying_type<Settings::ExternalLinkPolicy>::type value;
     in >> value;
     policy = static_cast<Settings::ExternalLinkPolicy>(value);
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, Settings::UiStyle uiStyle)
+{
+    out << static_cast<std::underlying_type<Settings::UiStyle>::type>(uiStyle);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Settings::UiStyle &uiStyle)
+{
+    std::underlying_type<Settings::UiStyle>::type value;
+    in >> value;
+    uiStyle = static_cast<Settings::UiStyle>(value);
     return in;
 }

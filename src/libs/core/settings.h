@@ -84,6 +84,15 @@ public:
     QString customCssFile;
     bool isSmoothScrollingEnabled;
 
+    enum class UiStyle {
+        SystemDefault,
+        Dark,
+        CustomCssFile
+    };
+    Q_ENUM(UiStyle)
+    UiStyle uiStyle = UiStyle::SystemDefault;
+    QString customUiCssFile;
+
     // Network
     enum ProxyType : unsigned int {
         None = 0,
