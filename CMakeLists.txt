@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
+
+# CMake options.
+set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 project(Zeal VERSION 0.6.1)
