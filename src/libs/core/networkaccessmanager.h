@@ -35,6 +35,9 @@ class NetworkAccessManager final : public QNetworkAccessManager
 public:
     NetworkAccessManager(QObject *parent = nullptr);
 
+    static bool isLocalFile(const QUrl &url);
+    static bool isLocalUrl(const QUrl &url);
+
 protected:
     QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
                                  QIODevice *outgoingData = nullptr) override;

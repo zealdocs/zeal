@@ -26,6 +26,8 @@
 #include "searchtoolbar.h"
 #include "webview.h"
 
+#include <core/networkaccessmanager.h>
+
 #include <QDataStream>
 #include <QKeyEvent>
 #include <QVBoxLayout>
@@ -46,8 +48,9 @@ WebControl::WebControl(QWidget *parent)
     setFocusProxy(m_webView);
 
     connect(m_webView->page(), &QWebPage::linkHovered, this, [this](const QString &link) {
-        if (link.startsWith(QLatin1String("file:")) || link.startsWith(QLatin1String("qrc:")))
+        if (Core::NetworkAccessManager::isLocalUrl(QUrl(link))) {
             return;
+        }
 
         setToolTip(link);
     });

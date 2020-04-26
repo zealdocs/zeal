@@ -26,6 +26,7 @@
 #include "webcontrol.h"
 
 #include <core/application.h>
+#include <core/networkaccessmanager.h>
 #include <core/settings.h>
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
@@ -218,7 +219,7 @@ void WebView::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    if (isExternalUrl(clickedLink)) {
+    if (!Core::NetworkAccessManager::isLocalUrl(clickedLink)) {
         switch (Core::Application::instance()->settings()->externalLinkPolicy) {
         case Core::Settings::ExternalLinkPolicy::Open:
             break;
@@ -310,17 +311,4 @@ void WebView::wheelEvent(QWheelEvent *event)
 QWebHitTestResult WebView::hitTestContent(const QPoint &pos) const
 {
     return page()->mainFrame()->hitTestContent(pos);
-}
-
-bool WebView::isExternalUrl(const QUrl &url)
-{
-    if (url.isLocalFile() || url.scheme() == QStringLiteral("qrc")) {
-        return false;
-    }
-
-    if (url.host().startsWith(QStringLiteral("127."))) {
-        return false;
-    }
-
-    return true;
 }

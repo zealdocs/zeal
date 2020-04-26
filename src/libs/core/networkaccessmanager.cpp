@@ -22,6 +22,9 @@
 
 #include "networkaccessmanager.h"
 
+#include "application.h"
+#include "httpserver.h"
+
 #include <QNetworkRequest>
 
 using namespace Zeal::Core;
@@ -31,6 +34,25 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent)
 {
 }
 
+bool NetworkAccessManager::isLocalFile(const QUrl &url)
+{
+    return url.isLocalFile() || url.scheme() == QLatin1String("qrc");
+}
+
+bool NetworkAccessManager::isLocalUrl(const QUrl &url)
+{
+    if (isLocalFile(url)) {
+        return true;
+    }
+
+    const QUrl &baseUrl = Application::instance()->httpServer()->baseUrl();
+    if (baseUrl.isParentOf(url)) {
+        return true;
+    }
+
+    return false;
+}
+
 QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,
                                                    const QNetworkRequest &request,
                                                    QIODevice *outgoingData)
@@ -38,17 +60,15 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
     QNetworkRequest overrideRequest(request);
     overrideRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 
-    static const QStringList localSchemes = {QStringLiteral("file"), QStringLiteral("qrc")};
-
-    const QUrl url = request.url();
-
     // Forward all non-local schemaless URLs via HTTPS.
-    if (localSchemes.contains(url.scheme()) && !url.host().isEmpty()) {
+    const QUrl url = request.url();
+    if (isLocalFile(url) && !url.host().isEmpty()) {
         QUrl overrideUrl(url);
         overrideUrl.setScheme(QStringLiteral("https"));
 
         overrideRequest.setUrl(overrideUrl);
-        return QNetworkAccessManager::createRequest(GetOperation, overrideRequest, outgoingData);
+
+        op = QNetworkAccessManager::GetOperation;
     }
 
     return QNetworkAccessManager::createRequest(op, overrideRequest, outgoingData);
