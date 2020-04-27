@@ -63,6 +63,9 @@ WebPage::WebPage(QWebEngineProfile *profile, QObject *parent)
 
 bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
 {
+    Q_UNUSED(type)
+    Q_UNUSED(isMainFrame)
+
     if (Core::NetworkAccessManager::isLocalUrl(url)) {
         return true;
     }
