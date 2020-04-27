@@ -206,7 +206,7 @@ bool WebView::handleMousePressEvent(QMouseEvent *event)
     return false;
 }
 
-void WebView::wheelEvent(QWheelEvent *event)
+bool WebView::handleWheelEvent(QWheelEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier) {
         const QPoint angleDelta = event->angleDelta();
@@ -221,10 +221,10 @@ void WebView::wheelEvent(QWheelEvent *event)
 
         setZoomLevel(m_zoomLevel + levelDelta);
         event->accept();
-        return;
+        return true;
     }
 
-    QWebEngineView::wheelEvent(event);
+    return false;
 }
 
 bool WebView::eventFilter(QObject *watched, QEvent *event)
@@ -233,6 +233,13 @@ bool WebView::eventFilter(QObject *watched, QEvent *event)
         switch (event->type()) {
         case QEvent::MouseButtonPress:
             if (handleMousePressEvent(static_cast<QMouseEvent *>(event))) {
+                return true;
+            }
+
+            break;
+
+        case QEvent::Wheel:
+            if (handleWheelEvent(static_cast<QWheelEvent *>(event))) {
                 return true;
             }
 
