@@ -55,10 +55,11 @@ signals:
 protected:
     QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private:
+    bool handleMousePressEvent(QMouseEvent *event);
+
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
     int m_zoomLevel = 0;

@@ -186,21 +186,24 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     m_contextMenu->popup(event->globalPos());
 }
 
-void WebView::mousePressEvent(QMouseEvent *event)
+bool WebView::handleMousePressEvent(QMouseEvent *event)
 {
     switch (event->button()) {
     case Qt::BackButton:
         back();
         event->accept();
-        return;
+        return true;
+
     case Qt::ForwardButton:
         forward();
         event->accept();
-        return;
+        return true;
+
     default:
         break;
     }
-    QWebEngineView::mousePressEvent(event);
+
+    return false;
 }
 
 void WebView::wheelEvent(QWheelEvent *event)
@@ -232,22 +235,10 @@ bool WebView::eventFilter(QObject *watched, QEvent *event)
     }
 
     switch (event->type()) {
-    case QEvent::MouseButtonPress: {
-        QMouseEvent *mevent = static_cast<QMouseEvent *>(event);
-        switch (mevent->button()) {
-        case Qt::BackButton:
-            back();
-            event->accept();
+    case QEvent::MouseButtonPress:
+        if (handleMousePressEvent(static_cast<QMouseEvent *>(event))) {
             return true;
-        case Qt::ForwardButton:
-            forward();
-            event->accept();
-            return true;
-        default:
-            break;
         }
-        break;
-    }
     default:
         break;
     }
