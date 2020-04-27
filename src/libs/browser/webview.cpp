@@ -229,19 +229,19 @@ void WebView::wheelEvent(QWheelEvent *event)
 
 bool WebView::eventFilter(QObject *watched, QEvent *event)
 {
-    // https://forum.qt.io/topic/54233/how-to-capture-mouse-events-in-webengineview
-    if (watched->parent() != this) {
-        return false;
-    }
+    if (watched->parent() == this) {
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+            if (handleMousePressEvent(static_cast<QMouseEvent *>(event))) {
+                return true;
+            }
 
-    switch (event->type()) {
-    case QEvent::MouseButtonPress:
-        if (handleMousePressEvent(static_cast<QMouseEvent *>(event))) {
-            return true;
+            break;
+
+        default:
+            break;
         }
-    default:
-        break;
     }
 
-    return false;
+    return QWebEngineView::eventFilter(watched, event);
 }
