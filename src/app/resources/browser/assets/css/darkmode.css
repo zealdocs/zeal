@@ -1,5 +1,4 @@
 /* Dark mode (see #466). */
-/* TODO: Check if we need -webkit-filter for old Qt WebKit. */
 
 html {
     background-color: #262626 !important;
