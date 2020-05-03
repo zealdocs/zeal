@@ -8,13 +8,21 @@ on:
 
 jobs:
   build-ubuntu:
-    name: Ubuntu (PORTABLE_BUILD=${{ matrix.env.ZEAL_PORTABLE_BUILD }})
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       matrix:
-        env:
-          - ZEAL_PORTABLE_BUILD: "OFF"
-          - ZEAL_PORTABLE_BUILD: "ON"
+        config:
+          - {
+              name: "Ubuntu 18.04",
+              os: ubuntu-18.04,
+              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+            }
+          - {
+              name: "Ubuntu 18.04, Portable",
+              os: ubuntu-18.04,
+              options: { ZEAL_PORTABLE_BUILD: "ON" },
+            }
 
     steps:
       - name: Checkout
@@ -37,7 +45,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -DZEAL_PORTABLE_BUILD="${ZEAL_PORTABLE_BUILD}" ..
+          cmake -DZEAL_PORTABLE_BUILD="${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}" ..
 
       - name: Build
         run: cmake --build build
