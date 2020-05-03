@@ -11,6 +11,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
+      fail-fast: false
       matrix:
         config:
           - {
@@ -49,6 +50,66 @@ jobs:
 
       - name: Build
         run: cmake --build build
+
+  build-windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Windows Server 2019",
+              os: windows-2019,
+              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+            }
+          - {
+              name: "Windows Server 2019, Portable",
+              os: windows-2019,
+              options: { ZEAL_PORTABLE_BUILD: "ON" },
+            }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Prepare vcpkg
+        uses: lukka/run-vcpkg@v2
+        id: runvcpkg
+        with:
+          vcpkgArguments: libarchive[core] openssl sqlite3
+          vcpkgDirectory: ${{ runner.workspace }}/vcpkg/
+          vcpkgGitCommitId: 0ab1a9e1c64a3968631b59647e771beda7d1f256
+          vcpkgTriplet: x64-windows
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ${{ runner.workspace }}/Qt/
+          key: ${{ runner.os }}-QtCache
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          arch: win64_msvc2017_64
+          modules: qtwebengine
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          extra: --external 7z
+
+      - name: Print Environment
+        run: gci env:* | sort-object name
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v2
+        with:
+          buildDirectory: ${{ runner.workspace }}/build/
+          cmakeAppendedArgs: -GNinja -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          useVcpkgToolchainFile: true
 
   appimage:
     name: AppImage
