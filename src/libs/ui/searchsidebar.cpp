@@ -381,7 +381,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
             if (!m_searchEdit->text().isEmpty()) {
                 break;
             }
-            [[clang::fallthrough]];
+            [[fallthrough]];
         case Qt::Key_Down:
         case Qt::Key_Up:
         case Qt::Key_PageDown:
