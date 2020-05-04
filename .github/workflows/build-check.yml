@@ -73,9 +73,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-
       - name: Prepare vcpkg
         uses: lukka/run-vcpkg@v2
         id: runvcpkg
