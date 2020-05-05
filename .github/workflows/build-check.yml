@@ -96,6 +96,7 @@ jobs:
           modules: qtwebengine
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
           extra: --external 7z
+          version: '5.14.2'
 
       - name: Print Environment
         run: gci env:* | sort-object name
