@@ -27,7 +27,11 @@
 #include <core/networkaccessmanager.h>
 #include <core/settings.h>
 
+#include <QLoggingCategory>
+
 using namespace Zeal::Browser;
+
+static Q_LOGGING_CATEGORY(log, "zeal.browser.urlrequestinterceptor")
 
 UrlRequestInterceptor::UrlRequestInterceptor(QObject *parent)
     : QWebEngineUrlRequestInterceptor(parent)
@@ -77,5 +81,6 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 
 void UrlRequestInterceptor::blockRequest(QWebEngineUrlRequestInfo &info)
 {
+    qCDebug(log, "Blocked request: %s '%s'.", info.requestMethod().data(), qPrintable(info.requestUrl().toString()));
     info.block(true);
 }
