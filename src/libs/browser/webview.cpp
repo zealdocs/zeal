@@ -51,7 +51,7 @@ WebView::WebView(QWidget *parent)
 {
     UrlRequestInterceptor *requestInterceptor = new UrlRequestInterceptor(this);
     QWebEngineProfile *profile = new QWebEngineProfile(this);
-    profile->setRequestInterceptor(requestInterceptor);
+    profile->setUrlRequestInterceptor(requestInterceptor);
     QWebEnginePage *p = new WebPage(profile, this);
     setPage(p);
     setZoomLevel(defaultZoomLevel());
