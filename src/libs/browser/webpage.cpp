@@ -49,10 +49,14 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
         return true;
     }
 
-    switch (Core::Application::instance()->settings()->externalLinkPolicy) {
-    case Core::Settings::ExternalLinkPolicy::Open:
+    auto appSettings = Core::Application::instance()->settings();
+    // TODO: [C++20] using enum Core::Settings::ExternalLinkPolicy;
+    typedef Core::Settings::ExternalLinkPolicy ExternalLinkPolicy;
+
+    switch (appSettings->externalLinkPolicy) {
+    case ExternalLinkPolicy::Open:
         break;
-    case Core::Settings::ExternalLinkPolicy::Ask: {
+    case ExternalLinkPolicy::Ask: {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>")
@@ -74,9 +78,8 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
 
         if (mb.clickedButton() == openInZealButton) {
             if (checkBox->isChecked()) {
-                Core::Application::instance()->settings()->externalLinkPolicy
-                        = Core::Settings::ExternalLinkPolicy::Open;
-                Core::Application::instance()->settings()->save();
+                appSettings->externalLinkPolicy = ExternalLinkPolicy::Open;
+                appSettings->save();
             }
 
             return true;
@@ -84,9 +87,8 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
 
         if (mb.clickedButton() == openInBrowserButton) {
             if (checkBox->isChecked()) {
-                Core::Application::instance()->settings()->externalLinkPolicy
-                        = Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser;
-                Core::Application::instance()->settings()->save();
+                appSettings->externalLinkPolicy = ExternalLinkPolicy::OpenInSystemBrowser;
+                appSettings->save();
             }
 
             QDesktopServices::openUrl(url);
@@ -95,7 +97,7 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
 
         break;
     }
-    case Core::Settings::ExternalLinkPolicy::OpenInSystemBrowser:
+    case ExternalLinkPolicy::OpenInSystemBrowser:
         QDesktopServices::openUrl(url);
         return false;
     }

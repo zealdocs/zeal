@@ -36,8 +36,8 @@ UrlRequestInterceptor::UrlRequestInterceptor(QObject *parent)
 
 void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 {
-    QUrl requestUrl = info.requestUrl();
-    QUrl firstPartyUrl = info.firstPartyUrl();
+    const QUrl requestUrl = info.requestUrl();
+    const QUrl firstPartyUrl = info.firstPartyUrl();
 
     if (!firstPartyUrl.isValid()) {
         return;
@@ -55,16 +55,18 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
         return;
     }
 
-    Core::Settings::ExternalLinkPolicy linkPolicy = Core::Application::instance()->settings()->externalLinkPolicy;
+    // TODO: [C++20] using enum Core::Settings::ExternalLinkPolicy;
+    typedef Core::Settings::ExternalLinkPolicy ExternalLinkPolicy;
+
+    ExternalLinkPolicy linkPolicy = Core::Application::instance()->settings()->externalLinkPolicy;
     switch (info.resourceType()) {
     case QWebEngineUrlRequestInfo::ResourceTypeMainFrame:
-        if (linkPolicy != Core::Settings::ExternalLinkPolicy::Open
-                && linkPolicy != Core::Settings::ExternalLinkPolicy::Ask) {
+        if (linkPolicy != ExternalLinkPolicy::Open && linkPolicy != ExternalLinkPolicy::Ask) {
             blockRequest(info);
         }
         break;
     case QWebEngineUrlRequestInfo::ResourceTypeSubFrame:
-        if (linkPolicy != Core::Settings::ExternalLinkPolicy::Open) {
+        if (linkPolicy != ExternalLinkPolicy::Open) {
             blockRequest(info);
         }
         break;
