@@ -45,7 +45,11 @@ Settings::Settings(Core::Settings *appSettings, QObject *parent)
     , m_webProfile(QWebEngineProfile::defaultProfile())
 {
     // Setup URL interceptor.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     m_webProfile->setUrlRequestInterceptor(new UrlRequestInterceptor(this));
+#else
+    m_webProfile->setRequestInterceptor(new UrlRequestInterceptor(this));
+#endif
 
     // Disable on-disk cache.
     m_webProfile->setHttpCacheType(QWebEngineProfile::MemoryHttpCache);
