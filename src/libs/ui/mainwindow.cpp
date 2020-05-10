@@ -32,6 +32,7 @@
 #include "sidebarviewprovider.h"
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
 
+#include <browser/settings.h>
 #include <browser/webbridge.h>
 #include <browser/webcontrol.h>
 #include <core/application.h>
@@ -47,7 +48,6 @@
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QWebEngineSettings>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -192,6 +192,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     // Setup splitter.
     ui->splitter->insertWidget(0, sb);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
+
+    // Setup web settings.
+    auto webSettings = new Browser::Settings(m_settings, this);
 
     // Setup web bridge.
     m_webBridge = new Browser::WebBridge(this);
@@ -524,9 +527,6 @@ void MainWindow::applySettings()
         createTrayIcon();
     else
         removeTrayIcon();
-
-    QWebEngineSettings::globalSettings()->setAttribute(QWebEngineSettings::ScrollAnimatorEnabled,
-                                                       m_settings->isSmoothScrollingEnabled);
 }
 
 void MainWindow::toggleWindow()

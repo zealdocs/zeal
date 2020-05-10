@@ -32,33 +32,12 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QWebEngineScript>
-#include <QWebEngineScriptCollection>
-
-namespace {
-constexpr char DarkModeCssUrl[] = "qrc:///browser/assets/css/darkmode.css";
-constexpr char HighlightOnNavigateCssUrl[] = "qrc:///browser/assets/css/highlight.css";
-}
 
 using namespace Zeal::Browser;
 
-WebPage::WebPage(QWebEngineProfile *profile, QObject *parent)
-    : QWebEnginePage (profile, parent)
+WebPage::WebPage(QObject *parent)
+    : QWebEnginePage(parent)
 {
-    auto settings = Core::Application::instance()->settings();
-
-    if (settings->darkModeEnabled) {
-        insertCssWithJS(DarkModeCssUrl);
-        setBackgroundColor(QColor::fromRgb(26, 26, 26));
-    }
-
-    if (settings->highlightOnNavigateEnabled) {
-        insertCssWithJS(HighlightOnNavigateCssUrl);
-    }
-
-    if (QFileInfo::exists(settings->customCssFile)) {
-        insertCssWithJS(settings->customCssFile);
-    }
 }
 
 bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
@@ -122,21 +101,4 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
     }
 
     return false;
-}
-
-void WebPage::insertCssWithJS(const QString &cssUrl)
-{
-    QString cssInjectCode = QLatin1String(
-                "var head = document.getElementsByTagName('head')[0];"
-                "var link = document.createElement('link');"
-                "link.rel = 'stylesheet';"
-                "link.type = 'text/css';"
-                "link.href = '%1';"
-                "link.media = 'all';"
-                "head.appendChild(link);");
-
-    QWebEngineScript injectCssScript;
-    injectCssScript.setSourceCode(cssInjectCode.arg(cssUrl));
-    injectCssScript.setInjectionPoint(QWebEngineScript::DocumentReady);
-    scripts().insert(injectCssScript);
 }

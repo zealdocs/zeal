@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2020 Oleg Shparber
-** Copyright (C) 2019 Kay Gawlik
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -21,26 +20,39 @@
 **
 ****************************************************************************/
 
-#ifndef ZEAL_BROWSER_WEBPAGE_H
-#define ZEAL_BROWSER_WEBPAGE_H
+#ifndef ZEAL_BROWSER_SETTINGS_H
+#define ZEAL_BROWSER_SETTINGS_H
 
-#include <QWebEnginePage>
+#include <QObject>
+
+class QWebEngineProfile;
 
 namespace Zeal {
+
+namespace Core {
+class Settings;
+}
+
 namespace Browser {
 
-class WebPage final : public QWebEnginePage
+class Settings final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WebPage)
+    Q_DISABLE_COPY(Settings)
 public:
-    explicit WebPage(QObject *parent = nullptr);
+    explicit Settings(Core::Settings *appSettings, QObject *parent = nullptr);
 
-protected:
-    bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override;
+private slots:
+    void applySettings();
+
+private:
+    void setCustomStyleSheet(const QString &name, const QString &cssUrl);
+
+    Core::Settings *m_appSettings = nullptr;
+    QWebEngineProfile *m_webProfile = nullptr;
 };
 
 } // namespace Browser
 } // namespace Zeal
 
-#endif // ZEAL_BROWSER_WEBPAGE_H
+#endif // ZEAL_BROWSER_SETTINGS_H

@@ -23,7 +23,6 @@
 
 #include "webview.h"
 
-#include "urlrequestinterceptor.h"
 #include "webcontrol.h"
 #include "webpage.h"
 
@@ -49,11 +48,7 @@ using namespace Zeal::Browser;
 WebView::WebView(QWidget *parent)
     : QWebEngineView(parent)
 {
-    UrlRequestInterceptor *requestInterceptor = new UrlRequestInterceptor(this);
-    QWebEngineProfile *profile = new QWebEngineProfile(this);
-    profile->setUrlRequestInterceptor(requestInterceptor);
-    QWebEnginePage *p = new WebPage(profile, this);
-    setPage(p);
+    setPage(new WebPage(this));
     setZoomLevel(defaultZoomLevel());
 
     QApplication::instance()->installEventFilter(this);
