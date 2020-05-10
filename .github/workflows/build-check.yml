@@ -61,11 +61,13 @@ jobs:
           - {
               name: "Windows Server 2019",
               os: windows-2019,
+              qt_version: '5.14.2',
               options: { ZEAL_PORTABLE_BUILD: "OFF" },
             }
           - {
               name: "Windows Server 2019, Portable",
               os: windows-2019,
+              qt_version: '5.14.2',
               options: { ZEAL_PORTABLE_BUILD: "ON" },
             }
 
@@ -87,7 +89,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ runner.workspace }}/Qt/
-          key: ${{ runner.os }}-QtCache
+          key: ${{ runner.os }}-qt-${{ matrix.config.qt_version }}
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -96,7 +98,7 @@ jobs:
           modules: qtwebengine
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
           extra: --external 7z
-          version: '5.14.2'
+          version: ${{ matrix.config.qt_version }}
 
       - name: Print Environment
         run: gci env:* | sort-object name
