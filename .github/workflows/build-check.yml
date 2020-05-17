@@ -39,17 +39,18 @@ jobs:
             libqt5x11extras5-dev \
             libsqlite3-dev \
             libxcb-keysyms1-dev \
+            ninja-build \
             qt5-default \
             qtwebengine5-dev
 
-      - name: Configure
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DZEAL_PORTABLE_BUILD="${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}" ..
-
-      - name: Build
-        run: cmake --build build
+      - name: Configure & Build
+        uses: lukka/run-cmake@v2
+        with:
+          buildDirectory: ${{ runner.workspace }}/build/
+          cmakeAppendedArgs: >-
+            -G Ninja
+            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
 
   build-windows:
     name: ${{ matrix.config.name }}
@@ -107,7 +108,9 @@ jobs:
         uses: lukka/run-cmake@v2
         with:
           buildDirectory: ${{ runner.workspace }}/build/
-          cmakeAppendedArgs: -GNinja -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
+          cmakeAppendedArgs: >-
+            -G Ninja
+            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           useVcpkgToolchainFile: true
 
