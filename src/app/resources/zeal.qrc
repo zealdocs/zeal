@@ -7,8 +7,8 @@
         <file>browser/assets/css/fontawesome.min.css</file>
         <file>browser/assets/css/highlight.css</file>
         <file>browser/assets/css/welcome.min.css</file>
-        <file>browser/assets/fonts/fa-brands-400.woff</file>
-        <file>browser/assets/fonts/fa-solid-900.woff</file>
+        <file>browser/assets/webfonts/fa-brands-400.woff2</file>
+        <file>browser/assets/webfonts/fa-solid-900.woff2</file>
         <file>browser/404.html</file>
         <file>browser/welcome.html</file>
         <file>icons/type/Abbreviation.png</file>

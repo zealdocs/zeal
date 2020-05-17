@@ -25,3 +25,4 @@ COPYING
 *.ico binary
 *.png binary
 *.woff binary
+*.woff2 binary
