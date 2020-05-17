@@ -37,6 +37,7 @@ constexpr char DarkModeCssUrl[] = "qrc:///browser/assets/css/darkmode.css";
 constexpr char HighlightOnNavigateCssUrl[] = "qrc:///browser/assets/css/highlight.css";
 }
 
+using namespace Zeal;
 using namespace Zeal::Browser;
 
 Settings::Settings(Core::Settings *appSettings, QObject *parent)
