@@ -339,17 +339,12 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
 QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 {
-    QList<SearchResult> results;
+    if (!m_baseUrl.isParentOf(url)) {
+        return {};
+    }
 
-    // Strip docset path and anchor from url
-    const QString dir = documentPath();
-    QString urlPath = url.path();
-    int dirPosition = urlPath.indexOf(dir);
-    QString path = url.path().mid(dirPosition + dir.size() + 1);
-
-    // Get the url without the #anchor.
-    QUrl cleanUrl(path);
-    cleanUrl.setFragment(QString());
+    // Get page path within the docset.
+    const QString path = url.path().mid(m_baseUrl.path().length() + 1);
 
     // Prepare the query to look up all pages with the same url.
     QString sql;
@@ -363,7 +358,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                              "  WHERE path = \"%1\" AND fragment IS NOT NULL");
     }
 
-    m_db->prepare(sql.arg(cleanUrl.toString()));
+    QList<SearchResult> results;
+
+    m_db->prepare(sql.arg(path));
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -371,8 +368,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                         const_cast<Docset *>(this), 0});
     }
 
-    if (results.size() == 1)
-        results.clear();
+    if (results.size() == 1) {
+        return {};
+    }
 
     return results;
 }
