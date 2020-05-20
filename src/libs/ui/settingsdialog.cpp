@@ -80,7 +80,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // Disable global shortcut settings if not supported.
     ui->globalHotKeyGroupBox->setEnabled(QxtGlobalShortcut::isSupported());
 
-    QWebEngineSettings *webSettings = QWebEngineSettings::globalSettings();
+    QWebEngineSettings *webSettings = QWebEngineSettings::defaultSettings();
 
     // Avoid casting in each connect.
     auto currentIndexChangedSignal

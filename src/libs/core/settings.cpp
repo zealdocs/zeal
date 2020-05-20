@@ -91,7 +91,7 @@ void Settings::load()
 
     settings->beginGroup(GroupContent);
     // Fonts
-    QWebEngineSettings *webSettings = QWebEngineSettings::globalSettings();
+    QWebEngineSettings *webSettings = QWebEngineSettings::defaultSettings();
     serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
                                       webSettings->fontFamily(QWebEngineSettings::SerifFont)).toString();
     sansSerifFontFamily = settings->value(QStringLiteral("sans_serif_font_family"),
