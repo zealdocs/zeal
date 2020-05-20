@@ -52,10 +52,6 @@ Settings::Settings(QObject *parent)
 {
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
 
-    // Enable local storage due to https://github.com/zealdocs/zeal/issues/872.
-    QWebEngineSettings *webSettings = QWebEngineSettings::globalSettings();
-    webSettings->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
-
     load();
 }
 

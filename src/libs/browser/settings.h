@@ -42,6 +42,8 @@ class Settings final : public QObject
 public:
     explicit Settings(Core::Settings *appSettings, QObject *parent = nullptr);
 
+    static QWebEngineProfile *defaultProfile();
+
 private slots:
     void applySettings();
 
@@ -49,7 +51,7 @@ private:
     void setCustomStyleSheet(const QString &name, const QString &cssUrl);
 
     Core::Settings *m_appSettings = nullptr;
-    QWebEngineProfile *m_webProfile = nullptr;
+    static QWebEngineProfile *m_webProfile;
 };
 
 } // namespace Browser

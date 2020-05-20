@@ -40,20 +40,23 @@ constexpr char HighlightOnNavigateCssUrl[] = "qrc:///browser/assets/css/highligh
 using namespace Zeal;
 using namespace Zeal::Browser;
 
+QWebEngineProfile *Settings::m_webProfile = nullptr;
+
 Settings::Settings(Core::Settings *appSettings, QObject *parent)
     : QObject(parent)
     , m_appSettings(appSettings)
-    , m_webProfile(QWebEngineProfile::defaultProfile())
 {
+    Q_ASSERT(!m_webProfile);
+
+    // Create a new off-the-record profile.
+    m_webProfile = new QWebEngineProfile(this);
+
     // Setup URL interceptor.
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     m_webProfile->setUrlRequestInterceptor(new UrlRequestInterceptor(this));
 #else
     m_webProfile->setRequestInterceptor(new UrlRequestInterceptor(this));
 #endif
-
-    // Disable on-disk cache.
-    m_webProfile->setHttpCacheType(QWebEngineProfile::MemoryHttpCache);
 
     // Listen to settings changes.
     connect(m_appSettings, &Core::Settings::updated, this, &Settings::applySettings);
@@ -80,6 +83,12 @@ void Settings::applySettings()
     if (QFileInfo::exists(m_appSettings->customCssFile)) {
         setCustomStyleSheet(QStringLiteral("_zeal_userstylesheet"), m_appSettings->customCssFile);
     }
+}
+
+QWebEngineProfile *Settings::defaultProfile()
+{
+    Q_ASSERT(m_webProfile);
+    return m_webProfile;
 }
 
 void Settings::setCustomStyleSheet(const QString &name, const QString &cssUrl)

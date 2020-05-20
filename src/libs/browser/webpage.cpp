@@ -23,6 +23,8 @@
 
 #include "webpage.h"
 
+#include "settings.h"
+
 #include <core/application.h>
 #include <core/networkaccessmanager.h>
 #include <core/settings.h>
@@ -36,7 +38,7 @@
 using namespace Zeal::Browser;
 
 WebPage::WebPage(QObject *parent)
-    : QWebEnginePage(parent)
+    : QWebEnginePage(Settings::defaultProfile(), parent)
 {
 }
 
