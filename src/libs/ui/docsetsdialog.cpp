@@ -45,6 +45,8 @@
 #include <QTemporaryFile>
 #include <QUrl>
 
+#include <memory>
+
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
