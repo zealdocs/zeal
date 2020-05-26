@@ -125,6 +125,7 @@ private:
     static inline int percent(qint64 fraction, qint64 total);
 
     static QString cacheLocation(const QString &fileName);
+    static bool isDirWritable(const QString &path);
 };
 
 } // namespace WidgetUi
