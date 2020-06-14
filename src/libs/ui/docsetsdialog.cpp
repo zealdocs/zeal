@@ -39,6 +39,7 @@
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLocale>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -291,8 +292,9 @@ void DocsetsDialog::downloadCompleted()
         if (file->open(QIODevice::WriteOnly))
             file->write(data);
 
-        ui->lastUpdatedLabel->setText(QFileInfo(file->fileName())
-                                      .lastModified().toString(Qt::SystemLocaleShortDate));
+        const QString updateTime = QFileInfo(file->fileName())
+                .lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
+        ui->lastUpdatedLabel->setText(updateTime);
 
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
@@ -490,7 +492,9 @@ void DocsetsDialog::loadDocsetList()
     }
 
     // TODO: Show more user friendly labels, like "5 hours ago"
-    ui->lastUpdatedLabel->setText(fi.lastModified().toString(Qt::SystemLocaleShortDate));
+    const QString updateTime
+            = fi.lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
+    ui->lastUpdatedLabel->setText(updateTime);
     processDocsetList(jsonDoc.array());
 }
 
