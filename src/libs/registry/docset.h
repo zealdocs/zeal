@@ -27,6 +27,7 @@
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
+#include <QMultiMap>
 #include <QUrl>
 
 namespace Zeal {
@@ -115,9 +116,9 @@ private:
     QUrl m_indexFileUrl;
     QString m_indexFilePath;
 
-    QMap<QString, QString> m_symbolStrings;
+    QMultiMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
-    mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
+    mutable QMap<QString, QMultiMap<QString, QUrl>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
     bool m_fuzzySearchEnabled = false;
     bool m_javaScriptEnabled = false;

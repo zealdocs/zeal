@@ -446,7 +446,7 @@ void Docset::countSymbols()
         }
 
         const QString symbolType = parseSymbolType(symbolTypeStr);
-        m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
+        m_symbolStrings.insert(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += m_db->value(1).toInt();
     }
 }
@@ -485,9 +485,9 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
 
     QMap<QString, QUrl> &symbols = m_symbols[symbolType];
     while (m_db->next()) {
-        symbols.insertMulti(m_db->value(0).toString(),
-                            createPageUrl(m_db->value(1).toString(),
-                                          m_db->value(2).toString()));
+        symbols.insert(m_db->value(0).toString(),
+                       createPageUrl(m_db->value(1).toString(),
+                                     m_db->value(2).toString()));
     }
 }
 
