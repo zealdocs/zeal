@@ -465,7 +465,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkAsk">
             <property name="text">
-             <string>&amp;Ask everytime</string>
+             <string>&amp;Ask every time</string>
             </property>
             <property name="checked">
              <bool>true</bool>
