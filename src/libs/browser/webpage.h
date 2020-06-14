@@ -37,7 +37,7 @@ public:
     explicit WebPage(QObject *parent = nullptr);
 
 protected:
-    bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override;
+    bool acceptNavigationRequest(const QUrl &requestUrl, NavigationType type, bool isMainFrame) override;
     void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceId) override;
 };
 

@@ -32,38 +32,53 @@
 #include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
 
 using namespace Zeal::Browser;
+
+static Q_LOGGING_CATEGORY(log, "zeal.browser.webpage")
 
 WebPage::WebPage(QObject *parent)
     : QWebEnginePage(Settings::defaultProfile(), parent)
 {
 }
 
-bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
+bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::NavigationType type, bool isMainFrame)
 {
     Q_UNUSED(type)
-    Q_UNUSED(isMainFrame)
 
-    if (Core::NetworkAccessManager::isLocalUrl(url)) {
+    // Local elements are always allowed.
+    if (Core::NetworkAccessManager::isLocalUrl(requestUrl)) {
         return true;
     }
 
+    // Allow external resources if already on an external page.
+    const QUrl pageUrl = url();
+    if (pageUrl.isValid() && !Core::NetworkAccessManager::isLocalUrl(pageUrl)) {
+        return true;
+    }
+
+    // Block external elements on local pages.
+    if (!isMainFrame) {
+        qCDebug(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
+        return false;
+    }
+
     auto appSettings = Core::Application::instance()->settings();
+
     // TODO: [C++20] using enum Core::Settings::ExternalLinkPolicy;
     typedef Core::Settings::ExternalLinkPolicy ExternalLinkPolicy;
 
     switch (appSettings->externalLinkPolicy) {
     case ExternalLinkPolicy::Open:
-        break;
+        return true;
     case ExternalLinkPolicy::Ask: {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
         mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>")
-                   .arg(url.toString()));
-
+                   .arg(requestUrl.toString()));
 
         QCheckBox *checkBox = new QCheckBox("Do &not ask again");
         mb.setCheckBox(checkBox);
@@ -75,6 +90,7 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
         mb.setDefaultButton(openInBrowserButton);
 
         if (mb.exec() == QMessageBox::Cancel) {
+            qCDebug(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
             return false;
         }
 
@@ -93,16 +109,19 @@ bool WebPage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::Navigatio
                 appSettings->save();
             }
 
-            QDesktopServices::openUrl(url);
+            QDesktopServices::openUrl(requestUrl);
             return false;
         }
 
         break;
     }
     case ExternalLinkPolicy::OpenInSystemBrowser:
-        QDesktopServices::openUrl(url);
+        QDesktopServices::openUrl(requestUrl);
         return false;
     }
+
+    // This code should not be reachable so log a warning.
+    qCWarning(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
 
     return false;
 }
