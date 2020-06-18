@@ -184,7 +184,11 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
     DocsetMetadata metadata;
 
     metadata.m_name = feedUrl.fileName();
-    metadata.m_name.chop(4); // Strip ".xml" extension
+
+    // Strip ".xml" extension if any.
+    if (metadata.m_name.endsWith(QLatin1String(".xml"))) {
+        metadata.m_name.chop(4);
+    }
 
     metadata.m_title = metadata.m_name;
     metadata.m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
