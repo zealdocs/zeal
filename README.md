@@ -27,7 +27,7 @@ After installing Zeal, go to *Tools->Docsets*, select the ones you want, and cli
 
 * [CMake](https://cmake.org/).
 * [Qt](https://www.qt.io/) version 5.9.5 or above. Required module: Qt WebEngine Widgets.
-* [libarchive](http://libarchive.org/).
+* [libarchive](https://libarchive.org/).
 * [SQLite](https://sqlite.org/).
 * X11 platforms only: Qt X11 Extras and `xcb-util-keysyms`.
 
@@ -79,4 +79,4 @@ If you feel generous and want to show some extra appreciation:
 
 ## License
 
-This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](http://opensource.org/licenses/gpl-3.0.html).
+This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](https://www.gnu.org/licenses/gpl-3.0.html).
