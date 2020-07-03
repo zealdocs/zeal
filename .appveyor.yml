@@ -109,8 +109,8 @@ after_build:
     AddItem "$binaryDir\*"
 
     # OpenSSL is a runtime dependency, so copy it manually.
-    AddItem "${Env:VCPKG_ROOT}\installed\${Env:PLATFORM}-windows\bin\libeay32.dll"
-    AddItem "${Env:VCPKG_ROOT}\installed\${Env:PLATFORM}-windows\bin\ssleay32.dll"
+    AddItem "${Env:VCPKG_ROOT}\installed\${Env:PLATFORM}-windows\bin\libcrypto-1_1-x64.dll"
+    AddItem "${Env:VCPKG_ROOT}\installed\${Env:PLATFORM}-windows\bin\libssl-1_1-x64.dll"
 
     function AddQtPlugin ($directory, $plugin) {
         if ( -Not (Test-Path "$deploymentDir\$directory")) {
