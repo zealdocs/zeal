@@ -62,13 +62,13 @@ jobs:
           - {
               name: "Windows Server 2019",
               os: windows-2019,
-              qt_version: '5.14.2',
+              qt_version: '5.15.0',
               options: { ZEAL_PORTABLE_BUILD: "OFF" },
             }
           - {
               name: "Windows Server 2019, Portable",
               os: windows-2019,
-              qt_version: '5.14.2',
+              qt_version: '5.15.0',
               options: { ZEAL_PORTABLE_BUILD: "ON" },
             }
 
@@ -95,7 +95,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          arch: win64_msvc2017_64
+          arch: win64_msvc2019_64
           modules: qtwebengine
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
           extra: --external 7z
