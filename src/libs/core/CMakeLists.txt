@@ -11,6 +11,9 @@ add_library(Core STATIC
     httplib.h
 )
 
+# Configure cpp-httplib.
+add_definitions(-DCPPHTTPLIB_USE_POLL)
+
 target_link_libraries(Core Registry Ui)
 
 find_package(Qt5 COMPONENTS Network WebEngine Widgets REQUIRED)
