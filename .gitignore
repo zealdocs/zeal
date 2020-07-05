@@ -28,7 +28,7 @@ appimage-builder-cache/
 squashfs-root/
 
 # VS Code
-/.vscode
+.vscode/
 
 # Linux appdata
 /assets/freedesktop/org.zealdocs.Zeal.appdata.xml
