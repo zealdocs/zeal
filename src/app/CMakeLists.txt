@@ -49,3 +49,31 @@ elseif(UNIX)
 
     install(TARGETS App DESTINATION ${KDE_INSTALL_BINDIR})
 endif()
+
+#
+# CPack Configuration.
+#
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR ${PROJECT_COMPANY_NAME})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+
+set(CPACK_VERBATIM_VARIABLES YES)
+
+# Set options for the source package.
+# Usage: cmake --build build --target package_source
+set(CPACK_SOURCE_GENERATOR "TGZ;TXZ;ZIP")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_OUTPUT_NAME}-${PROJECT_VERSION}")
+set(CPACK_SOURCE_IGNORE_FILES
+    # Directories.
+    ".git/"
+    ".github/"
+    ".vscode/"
+    "build/"
+    # Files.
+    ".appveyor.yml"
+    ".editorconfig"
+    ".gitattributes"
+    ".gitignore"
+)
+
+include(CPack)
