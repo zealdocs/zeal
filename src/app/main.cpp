@@ -35,6 +35,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QUrlQuery>
+#include <QTranslator>
 
 #ifdef Q_OS_WIN32
 #include <QSettings>
@@ -183,6 +184,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
+
+    //判断当前语言环境，增加中文支持
+    QLocale locale = QLocale::system();
+    if(locale.language() == QLocale::Chinese){
+        QTranslator *translator = new QTranslator;
+        translator->load(":/language/zh_CN.qm");
+        QCoreApplication::installTranslator(translator);
+    }
 
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 

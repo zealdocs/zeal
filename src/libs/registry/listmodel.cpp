@@ -28,6 +28,7 @@
 #include "itemdatarole.h"
 
 #include <iterator>
+#include <QLocale>
 
 using namespace Zeal::Registry;
 
@@ -233,6 +234,12 @@ void ListModel::removeDocset(const QString &name)
 
 QString ListModel::pluralize(const QString &s)
 {
+    //非英文环境下不处理单词复数
+    QLocale locale = QLocale::system();
+    if(locale.language() != QLocale::English){
+        return s;
+    }
+
     if (s.endsWith(QLatin1String("y"))) {
         return s.left(s.length() - 1) + QLatin1String("ies");
     }
