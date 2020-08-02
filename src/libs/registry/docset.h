@@ -67,7 +67,7 @@ public:
     QMap<QString, int> symbolCounts() const;
     int symbolCount(const QString &symbolType) const;
 
-    const QMap<QString, QUrl> &symbols(const QString &symbolType) const;
+    const QMultiMap<QString, QUrl> &symbols(const QString &symbolType) const;
 
     QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;

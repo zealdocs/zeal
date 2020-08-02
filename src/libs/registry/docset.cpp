@@ -283,7 +283,7 @@ int Docset::symbolCount(const QString &symbolType) const
     return m_symbolCounts.value(symbolType);
 }
 
-const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
+const QMultiMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 {
     if (!m_symbols.contains(symbolType))
         loadSymbols(symbolType);
@@ -483,7 +483,7 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
         return;
     }
 
-    QMap<QString, QUrl> &symbols = m_symbols[symbolType];
+    QMultiMap<QString, QUrl> &symbols = m_symbols[symbolType];
     while (m_db->next()) {
         symbols.insert(m_db->value(0).toString(),
                        createPageUrl(m_db->value(1).toString(),
