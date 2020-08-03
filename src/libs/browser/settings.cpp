@@ -22,6 +22,8 @@
 
 #include "settings.h"
 
+#include "urlrequestinterceptor.h"
+
 #include <core/settings.h>
 
 #include <QFileInfo>
@@ -48,6 +50,13 @@ Settings::Settings(Core::Settings *appSettings, QObject *parent)
 
     // Create a new off-the-record profile.
     m_webProfile = new QWebEngineProfile(this);
+
+    // Setup URL interceptor.
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+    m_webProfile->setUrlRequestInterceptor(new UrlRequestInterceptor(this));
+#else
+    m_webProfile->setRequestInterceptor(new UrlRequestInterceptor(this));
+#endif
 
     // Listen to settings changes.
     connect(m_appSettings, &Core::Settings::updated, this, &Settings::applySettings);
