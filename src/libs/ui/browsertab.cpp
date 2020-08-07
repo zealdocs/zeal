@@ -34,6 +34,7 @@
 #include <registry/searchquery.h>
 
 #include <QApplication>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
 #include <QStyle>
@@ -124,6 +125,28 @@ BrowserTab::BrowserTab(QWidget *parent)
 
         label->setText(title);
     });
+    m_browserActionButton = new QToolButton();
+    m_browserActionButton->setAutoRaise(true);
+    m_browserActionButton->setText(QStringLiteral("⋮"));
+    m_browserActionButton->setArrowType(Qt::NoArrow);
+    m_browserActionButton->setPopupMode(QToolButton::InstantPopup);
+
+    auto browserActionsMenu = new QMenu(m_browserActionButton);
+
+    m_browserZoomInAction = browserActionsMenu->addAction(tr("Zoom In"), [this] () {
+        m_webControl->zoomIn();
+    });
+
+    m_browserZoomOutAction = browserActionsMenu->addAction(tr("Zoom Out"), [this] () {
+        m_webControl->zoomOut();
+    });
+
+    m_browserResetZoomAction = browserActionsMenu->addAction(tr("Reset Zoom"), [this] () {
+        m_webControl->resetZoom();
+    });
+
+    m_browserActionButton->setMenu(browserActionsMenu);
+    browserActionsMenu->installEventFilter(this);
 
     auto toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
@@ -132,6 +155,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     toolBarLayout->addWidget(m_backButton);
     toolBarLayout->addWidget(m_forwardButton);
     toolBarLayout->addWidget(label, 1);
+    toolBarLayout->addWidget(m_browserActionButton);
 
     auto toolBarFrame = new ToolBarFrame();
     toolBarFrame->setLayout(toolBarLayout);
@@ -221,4 +245,29 @@ QIcon BrowserTab::docsetIcon(const QUrl &url) const
 {
     Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
     return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
+}
+
+bool BrowserTab::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_browserActionButton->menu()) {
+        QAction *triggeredAction = nullptr;
+
+        if (event->type() == QEvent::MouseButtonRelease) {
+            triggeredAction = m_browserActionButton->menu()->activeAction();
+        } else if (event->type() == QEvent::KeyPress) {
+            const auto *keyEvent = static_cast<QKeyEvent *>(event);
+
+            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+                triggeredAction = m_browserActionButton->menu()->activeAction();
+            }
+        }
+
+        if (triggeredAction
+            && (triggeredAction == m_browserZoomInAction || triggeredAction == m_browserZoomOutAction)) {
+            triggeredAction->trigger();
+            return true;
+        }
+    }
+
+    return false;
 }

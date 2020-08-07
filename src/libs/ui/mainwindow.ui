@@ -65,7 +65,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>20</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -91,6 +91,9 @@
      <string>&amp;Edit</string>
     </property>
     <addaction name="actionFind"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionResetZoom"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -178,6 +181,21 @@
   <action name="actionDocsets">
    <property name="text">
     <string>&amp;Docsets…</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoon &amp;In</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom &amp;Out</string>
+   </property>
+  </action>
+  <action name="actionResetZoom">
+   <property name="text">
+    <string>&amp;Reset Zoom</string>
    </property>
   </action>
  </widget>
