@@ -1,5 +1,4 @@
 # TODO: This script should be replaced with wixproj and/or CPack.
-# TODO: Add Debug mode to override CompressionLevel with "none".
 
 # Sample command:
 # .\build.ps1 -Arch x64 -Version 0.4.0 -PackagePath "c:\tmp\zeal-0.4.0-windows-x64" -SignMsi
@@ -16,6 +15,7 @@ param(
     [Parameter(Mandatory=$True)]
     [string]$PackagePath,
 
+    [Switch]$DevBuild,
     [Switch]$SignMsi
 )
 
@@ -32,8 +32,12 @@ function CleanUp {
 
 Write-Output "Building $MsiFilename..."
 
+if ($DevBuild) {
+    $compressionLevelArg = '-dCompressionLevel="none"'
+}
+
 Write-Output "Running candle..."
-& candle.exe -nologo -pedantic -wx -arch "$Arch" -dAppVersion="$Version" -dAppPackageDir="$PackagePath" -o "$WixobjFilename" zeal.wxs
+& candle.exe -nologo -pedantic -wx -arch "$Arch" -dAppVersion="$Version" -dAppPackageDir="$PackagePath" $compressionLevelArg -o "$WixobjFilename" zeal.wxs
 if ($LastExitCode -ne 0) {
     CleanUp
     throw "candle failed with exit code $LastExitCode."
