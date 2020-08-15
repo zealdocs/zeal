@@ -27,6 +27,11 @@ build.*/
 appimage-builder-cache/
 squashfs-root/
 
+# WiX Toolset
+*.msi
+*.wixobj
+*.wixpdb
+
 # VS Code
 .vscode/
 
