@@ -159,7 +159,7 @@
         <Property Id="ApplicationFolderName" Value="$(var.AppName)" />
         <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
         <Property Id="ALLUSERS" Value="1" />
-        <WixVariable Id="WixUILicenseRtf" Value="COPYING.rtf" />
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
 
         <CustomAction Id="AlreadyInstalled"
           Error="A different build of $(var.AppName) version $(var.AppVersion) is already installed. Same version upgrades are not supported. Please remove the currently installed version first." />
