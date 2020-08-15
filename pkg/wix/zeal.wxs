@@ -57,7 +57,9 @@
             <ComponentGroupRef Id="Binaries" />
             <ComponentGroupRef Id="Binaries_Imageformats" />
             <ComponentGroupRef Id="Binaries_Platforms" />
+            <ComponentGroupRef Id="Binaries_Resources" />
             <ComponentGroupRef Id="Binaries_Styles" />
+            <ComponentGroupRef Id="Binaries_Translations_QtWE" />
             <ComponentRef Id="ProgramMenuDir" />
         </Feature>
 
@@ -72,7 +74,11 @@
                 <Directory Id="APPLICATIONFOLDER" Name="$(var.AppName)">
                     <Directory Id="APPLICATIONFOLDER_IMAGEFORMATS" Name="imageformats" />
                     <Directory Id="APPLICATIONFOLDER_PLATFORMS" Name="platforms" />
+                    <Directory Id="APPLICATIONFOLDER_RESOURCES" Name="resources" />
                     <Directory Id="APPLICATIONFOLDER_STYLES" Name="styles" />
+                    <Directory Id="APPLICATIONFOLDER_TRANSLATIONS" Name="translations">
+                        <Directory Id="APPLICATIONFOLDER_TRANSLATIONS_QTWE" Name="qtwebengine_locales" />
+                    </Directory>
                 </Directory>
             </Directory>
 
@@ -85,28 +91,46 @@
 
         <!-- Components -->
         <ComponentGroup Id="Binaries" Directory="APPLICATIONFOLDER" Source="$(var.AppPackageDir)">
+
+            <!-- Direct dependencies -->
             <Component><File Name="archive.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="sqlite3.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="zlib1.dll" Checksum="yes" KeyPath="yes" /></Component>
 
-            <!-- ICU -->
-            <Component><File Name="icudt57.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="icuin57.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="icuuc57.dll" Checksum="yes" KeyPath="yes" /></Component>
-
             <!-- OpenSSL -->
-            <Component><File Name="libeay32.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="ssleay32.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <?if $(sys.BUILDARCH)="x86"?>
+                <Component><File Name="libcrypto-1_1.dll" Checksum="yes" KeyPath="yes" /></Component>
+                <Component><File Name="libssl-1_1.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <?elseif $(sys.BUILDARCH)="x64"?>
+                <Component><File Name="libcrypto-1_1-x64.dll" Checksum="yes" KeyPath="yes" /></Component>
+                <Component><File Name="libssl-1_1-x64.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <?endif ?>
 
             <!-- Qt -->
             <Component><File Name="Qt5Concurrent.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="Qt5Core.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="Qt5Gui.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="Qt5Network.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5WebKit.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5WebKitWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Positioning.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5PrintSupport.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Qml.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5QmlModels.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Quick.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5QuickWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5SerialPort.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Svg.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebChannel.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebEngineCore.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebEngineWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="Qt5Widgets.dll" Checksum="yes" KeyPath="yes" /></Component>
 
+            <Component><File Name="d3dcompiler_47.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="libEGL.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="libGLESv2.dll" Checksum="yes" KeyPath="yes" /></Component>
+
+            <Component><File Name="QtWebEngineProcess.exe" Checksum="yes" KeyPath="yes" /></Component>
+
+            <!-- Executable -->
             <Component>
                 <File Name="$(var.AppExeName)" Checksum="yes" KeyPath="yes">
                     <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuDir" Name="$(var.AppName)"
@@ -115,20 +139,34 @@
                         WorkingDirectory="APPLICATIONFOLDER" Icon="$(var.AppExeName)" IconIndex="0" Advertise="yes" />
                 </File>
             </Component>
+            <Component><File Name="$(var.AppExeName).manifest" Checksum="yes" KeyPath="yes" /></Component>
         </ComponentGroup>
 
         <ComponentGroup Id="Binaries_Imageformats" Directory="APPLICATIONFOLDER_IMAGEFORMATS" Source="$(var.AppPackageDir)\imageformats">
             <Component><File Name="qgif.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="qico.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="qjpeg.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qsvg.dll" Checksum="yes" KeyPath="yes" /></Component>
         </ComponentGroup>
 
         <ComponentGroup Id="Binaries_Platforms" Directory="APPLICATIONFOLDER_PLATFORMS" Source="$(var.AppPackageDir)\platforms">
             <Component><File Name="qwindows.dll" Checksum="yes" KeyPath="yes" /></Component>
         </ComponentGroup>
 
+        <ComponentGroup Id="Binaries_Resources" Directory="APPLICATIONFOLDER_RESOURCES" Source="$(var.AppPackageDir)\resources">
+            <Component><File Name="icudtl.dat" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_devtools_resources.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources_100p.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources_200p.pak" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
         <ComponentGroup Id="Binaries_Styles" Directory="APPLICATIONFOLDER_STYLES" Source="$(var.AppPackageDir)\styles">
             <Component><File Name="qwindowsvistastyle.dll" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Translations_QtWE" Directory="APPLICATIONFOLDER_TRANSLATIONS_QTWE" Source="$(var.AppPackageDir)\translations\qtwebengine_locales">
+            <Component><File Name="en-US.pak" Checksum="yes" KeyPath="yes" /></Component>
         </ComponentGroup>
 
         <Component Id="ProgramMenuDir" Directory="ProgramMenuDir">
