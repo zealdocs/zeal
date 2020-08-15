@@ -18,7 +18,7 @@
 *.ui text
 *.yml text
 CMakeLists.txt text
-COPYING
+COPYING text
 
 # Binary files
 *.icns binary
