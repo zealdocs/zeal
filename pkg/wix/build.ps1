@@ -36,16 +36,25 @@ if ($DevBuild) {
     $compressionLevelArg = '-dCompressionLevel="none"'
 }
 
+$VCRedistPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Redist\MSVC\v142\MergeModules'
+$VCRedistFile = "Microsoft_VC142_CRT_$Arch.msm"
+
 Write-Output "Running candle..."
-& candle.exe -nologo -pedantic -wx -arch "$Arch" -dAppVersion="$Version" -dAppPackageDir="$PackagePath" $compressionLevelArg -o "$WixobjFilename" zeal.wxs
+& candle.exe -nologo -pedantic -wx -arch "$Arch" `
+    -dAppVersion="$Version" `
+    -dAppPackageDir="$PackagePath" `
+    -dVCRedistPath="$VCRedistPath" `
+    -dVCRedistFile="$VCRedistFile" `
+    $compressionLevelArg `
+    -o "$WixobjFilename" zeal.wxs
 if ($LastExitCode -ne 0) {
     CleanUp
     throw "candle failed with exit code $LastExitCode."
 }
 
-
 Write-Output "Running light..."
-& light.exe -nologo -pedantic -wx -ext WixUIExtension -o "$MsiFilename" "$WixobjFilename"
+# Supressing LGHT1076, see https://wixtoolset.org/documentation/manual/v3/howtos/redistributables_and_install_checks/install_vcredist.html
+& light.exe -nologo -pedantic -wx -sw1076 -ext WixUIExtension -o "$MsiFilename" "$WixobjFilename"
 if ($LastExitCode -ne 0) {
     CleanUp
     throw "light failed with exit code $LastExitCode."

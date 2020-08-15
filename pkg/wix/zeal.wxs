@@ -12,6 +12,14 @@
     <?define CompressionLevel="high" ?>
 <?endif?>
 
+<?ifndef VCRedistPath ?>
+    <?error VCRedistPath must be set ?>
+<?endif?>
+
+<?ifndef VCRedistFile ?>
+    <?error VCRedistFile must be set ?>
+<?endif?>
+
 <?define AppName="Zeal" ?>
 <?define AppManufacturer="Oleg Shparber" ?>
 <?define AppExeName="zeal.exe" ?>
@@ -32,7 +40,8 @@
       Language="1033" Codepage="1252">
 
         <Package Id="*" Description="$(var.AppName) $(var.AppVersion) Installer"
-          Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+          Languages="1033" Compressed="yes" SummaryCodepage="1252"
+          InstallerVersion="301" />
 
         <MajorUpgrade
           DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
@@ -68,8 +77,14 @@
             <ComponentRef Id="ProtocolHandlers" />
         </Feature>
 
+        <Feature Id="VCRedist" Title="Visual C++ Runtime" AllowAdvertise="no" Display="hidden">
+            <MergeRef Id="VCRedist" />
+        </Feature>
+
         <!-- Directory Structure -->
         <Directory Id="TARGETDIR" Name="SourceDir">
+            <Merge Id="VCRedist" SourceFile="$(var.VCRedistPath)\$(var.VCRedistFile)" DiskId="1" Language="0" />
+
             <Directory Id="$(var.PlatformProgramFilesFolder)">
                 <Directory Id="APPLICATIONFOLDER" Name="$(var.AppName)">
                     <Directory Id="APPLICATIONFOLDER_IMAGEFORMATS" Name="imageformats" />
