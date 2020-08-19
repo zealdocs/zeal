@@ -1,4 +1,4 @@
-add_library(Sidebar
+add_library(Sidebar STATIC
     container.cpp
     proxyview.cpp
     view.cpp
