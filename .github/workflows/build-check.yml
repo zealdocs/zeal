@@ -114,9 +114,9 @@ jobs:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           useVcpkgToolchainFile: true
 
-  appimage:
+  build-appimage:
     name: AppImage
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
@@ -139,14 +139,14 @@ jobs:
             qtwebengine5-dev
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@v2-preview
+        uses: actions/upload-artifact@v2
         with:
           name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
           path: zeal-*.AppImage
 
       # TODO: Enable for releases.
       - name: Upload AppImage.zsync
-        uses: actions/upload-artifact@v2-preview
+        uses: actions/upload-artifact@v2
         if: github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.ref, 'v')
         with:
           name: zeal-dev-x86_64.AppImage.zsync

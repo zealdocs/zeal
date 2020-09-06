@@ -1,9 +1,9 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
 RUN apt-get update -q -y \
    # Install appimage-builder and appimagetool dependencies.
-    && apt-get install -q -y --no-install-recommends \
-       appstream curl desktop-file-utils fakeroot file git gnupg patchelf zsync \
+    && DEBIAN_FRONTEND="noninteractive" apt-get install -q -y --no-install-recommends \
+       appstream curl desktop-file-utils fakeroot file git gnupg patchelf zsync  \
        python3-pip python3-setuptools python3-wheel \
     && \
     # Install appimagetool, it has to be extracted because FUSE doesn't work in containers without extra fiddling.
