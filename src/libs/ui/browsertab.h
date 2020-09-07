@@ -66,7 +66,6 @@ signals:
 private:
     Q_DISABLE_COPY(BrowserTab)
     QIcon docsetIcon(const QUrl &url) const;
-    bool eventFilter(QObject *watched, QEvent *event) override;
 
     // Widgets.
     SearchSidebar *m_searchSidebar = nullptr;

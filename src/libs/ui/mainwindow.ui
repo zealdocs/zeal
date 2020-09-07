@@ -90,10 +90,16 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <widget class="QMenu" name="menu_Zoom">
+     <property name="title">
+      <string>&amp;Zoom</string>
+     </property>
+     <addaction name="actionZoomIn"/>
+     <addaction name="actionZoomOut"/>
+     <addaction name="actionResetZoom"/>
+    </widget>
     <addaction name="actionFind"/>
-    <addaction name="actionZoomIn"/>
-    <addaction name="actionZoomOut"/>
-    <addaction name="actionResetZoom"/>
+    <addaction name="menu_Zoom"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>

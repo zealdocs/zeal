@@ -25,6 +25,7 @@
 #include "searchsidebar.h"
 #include "widgets/layouthelper.h"
 #include "widgets/toolbarframe.h"
+#include "widgets/browserzoomwidget.h"
 
 #include <browser/webcontrol.h>
 #include <core/application.h>
@@ -37,10 +38,12 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
+#include <QPushButton>
 #include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWebEngineHistory>
+#include <QWidgetAction>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -131,22 +134,38 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_browserActionButton->setArrowType(Qt::NoArrow);
     m_browserActionButton->setPopupMode(QToolButton::InstantPopup);
 
-    auto browserActionsMenu = new QMenu(m_browserActionButton);
+    auto zoomActionWidget = new BrowserZoomWidget();
 
-    m_browserZoomInAction = browserActionsMenu->addAction(tr("Zoom In"), [this] () {
+    connect(zoomActionWidget->zoomInButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
         m_webControl->zoomIn();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
     });
 
-    m_browserZoomOutAction = browserActionsMenu->addAction(tr("Zoom Out"), [this] () {
+    connect(zoomActionWidget->zoomOutButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
         m_webControl->zoomOut();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
     });
 
-    m_browserResetZoomAction = browserActionsMenu->addAction(tr("Reset Zoom"), [this] () {
+    connect(zoomActionWidget->resetZoomButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
         m_webControl->resetZoom();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
+    });
+
+    auto zoomWidgetAction = new QWidgetAction(this);
+    zoomWidgetAction->setDefaultWidget(zoomActionWidget);
+
+    auto browserActionsMenu = new QMenu(m_browserActionButton);
+    browserActionsMenu->addAction(zoomWidgetAction);
+
+    connect(browserActionsMenu, &QMenu::aboutToShow, [this, zoomActionWidget] () {
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
     });
 
     m_browserActionButton->setMenu(browserActionsMenu);
-    browserActionsMenu->installEventFilter(this);
 
     auto toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
@@ -245,29 +264,4 @@ QIcon BrowserTab::docsetIcon(const QUrl &url) const
 {
     Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
     return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
-}
-
-bool BrowserTab::eventFilter(QObject *watched, QEvent *event)
-{
-    if (watched == m_browserActionButton->menu()) {
-        QAction *triggeredAction = nullptr;
-
-        if (event->type() == QEvent::MouseButtonRelease) {
-            triggeredAction = m_browserActionButton->menu()->activeAction();
-        } else if (event->type() == QEvent::KeyPress) {
-            const auto *keyEvent = static_cast<QKeyEvent *>(event);
-
-            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
-                triggeredAction = m_browserActionButton->menu()->activeAction();
-            }
-        }
-
-        if (triggeredAction
-            && (triggeredAction == m_browserZoomInAction || triggeredAction == m_browserZoomOutAction)) {
-            triggeredAction->trigger();
-            return true;
-        }
-    }
-
-    return false;
 }
