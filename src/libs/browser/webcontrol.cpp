@@ -73,6 +73,11 @@ int WebControl::zoomLevel() const
     return m_webView->zoomLevel();
 }
 
+int WebControl::zoomLevelPercentage() const
+{
+    return m_webView->availableZoomLevels().at(zoomLevel());
+}
+
 void WebControl::setZoomLevel(int level)
 {
     m_webView->setZoomLevel(level);

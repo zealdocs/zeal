@@ -54,6 +54,7 @@ public:
     QByteArray saveHistory() const;
 
     int zoomLevel() const;
+    int zoomLevelPercentage() const;
     void setZoomLevel(int level);
     void setJavaScriptEnabled(bool enabled);
 
