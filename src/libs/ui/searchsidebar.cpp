@@ -148,9 +148,14 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             setTreeViewModel(m_searchModel, false);
         }
 
+        // Clone current selection. Signals must be disabled to avoid crash in the event handler.
+        m_treeView->selectionModel()->blockSignals(true);
+
         for (const QModelIndex &index : other->m_treeView->selectionModel()->selectedIndexes()) {
             m_treeView->selectionModel()->select(index, QItemSelectionModel::Select);
         }
+
+        m_treeView->selectionModel()->blockSignals(false);
 
         // Cannot update position until layout geomentry is calculated, so set it in showEvent().
         m_pendingVerticalPosition = other->m_treeView->verticalScrollBar()->value();
