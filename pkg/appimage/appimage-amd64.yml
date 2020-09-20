@@ -9,7 +9,7 @@ AppDir:
   path: build.appimage/AppDir
 
   app_info:
-    id: org.zealdocs.Zeal
+    id: org.zealdocs.zeal
     name: zeal
     icon: zeal
     version: 0.6.1 # TODO: Use version from CMake.
