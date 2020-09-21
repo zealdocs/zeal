@@ -26,8 +26,8 @@
   <provides>
     <id>zeal.desktop</id>
   </provides>
-  <releases>
-    <release date="${RELEASE_DATE}" version="${Zeal_VERSION}" />
+  <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
+    <release date="2018-09-28" version="0.6.1" type="stable" />
   </releases>
   <update_contact>zeal@zealdocs.org</update_contact>
   <content_rating type="oars-1.1">

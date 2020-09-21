@@ -10,8 +10,8 @@ if(ZEAL_PORTABLE_BUILD)
     add_definitions(-DPORTABLE_BUILD)
 endif()
 
-## Macro
-add_definitions(-DZEAL_VERSION="${Zeal_VERSION}")
+## Macros.
+add_definitions(-DZEAL_VERSION="${ZEAL_VERSION_FULL}")
 
 # QString options
 add_definitions(-DQT_USE_QSTRINGBUILDER)
