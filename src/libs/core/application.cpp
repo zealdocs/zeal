@@ -162,7 +162,14 @@ QString Application::configLocation()
 
 QVersionNumber Application::version()
 {
-    return QVersionNumber::fromString(QCoreApplication::applicationVersion());
+    static const auto vn = QVersionNumber::fromString(QCoreApplication::applicationVersion());
+    return vn;
+}
+
+QString Application::versionString()
+{
+    static const auto v = QStringLiteral("v%1").arg(QCoreApplication::applicationVersion());
+    return v;
 }
 
 void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)
