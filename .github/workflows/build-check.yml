@@ -50,6 +50,7 @@ jobs:
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
+            --config RelWithDebInfo
             -G Ninja
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
@@ -113,6 +114,7 @@ jobs:
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
+            --config RelWithDebInfo
             -G Ninja
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
