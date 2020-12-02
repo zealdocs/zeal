@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>625</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -465,7 +465,7 @@
           <item>
            <widget class="QRadioButton" name="radioExternalLinkAsk">
             <property name="text">
-             <string>&amp;Ask everytime</string>
+             <string>&amp;Ask every time</string>
             </property>
             <property name="checked">
              <bool>true</bool>

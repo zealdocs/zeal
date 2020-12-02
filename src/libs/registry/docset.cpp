@@ -194,7 +194,7 @@ Docset::Docset(QString path)
         m_indexFilePath = QStringLiteral("index.html");
     }
 
-    // Log if unable to determine the index page.
+    // Log if unable to determine the index page. Otherwise the path will be set in setBaseUrl().
     if (m_indexFilePath.isEmpty()) {
         qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
         m_indexFileUrl.setUrl(NotFoundPageUrl);
@@ -283,7 +283,7 @@ int Docset::symbolCount(const QString &symbolType) const
     return m_symbolCounts.value(symbolType);
 }
 
-const QMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
+const QMultiMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 {
     if (!m_symbols.contains(symbolType))
         loadSymbols(symbolType);
@@ -339,17 +339,12 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
 QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 {
-    QList<SearchResult> results;
+    if (!m_baseUrl.isParentOf(url)) {
+        return {};
+    }
 
-    // Strip docset path and anchor from url
-    const QString dir = documentPath();
-    QString urlPath = url.path();
-    int dirPosition = urlPath.indexOf(dir);
-    QString path = url.path().mid(dirPosition + dir.size() + 1);
-
-    // Get the url without the #anchor.
-    QUrl cleanUrl(path);
-    cleanUrl.setFragment(QString());
+    // Get page path within the docset.
+    const QString path = url.path().mid(m_baseUrl.path().length() + 1);
 
     // Prepare the query to look up all pages with the same url.
     QString sql;
@@ -363,7 +358,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                              "  WHERE path = \"%1\" AND fragment IS NOT NULL");
     }
 
-    m_db->prepare(sql.arg(cleanUrl.toString()));
+    QList<SearchResult> results;
+
+    m_db->prepare(sql.arg(path));
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
@@ -371,8 +368,9 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                         const_cast<Docset *>(this), 0});
     }
 
-    if (results.size() == 1)
-        results.clear();
+    if (results.size() == 1) {
+        return {};
+    }
 
     return results;
 }
@@ -448,7 +446,7 @@ void Docset::countSymbols()
         }
 
         const QString symbolType = parseSymbolType(symbolTypeStr);
-        m_symbolStrings.insertMulti(symbolType, symbolTypeStr);
+        m_symbolStrings.insert(symbolType, symbolTypeStr);
         m_symbolCounts[symbolType] += m_db->value(1).toInt();
     }
 }
@@ -485,11 +483,11 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
         return;
     }
 
-    QMap<QString, QUrl> &symbols = m_symbols[symbolType];
+    QMultiMap<QString, QUrl> &symbols = m_symbols[symbolType];
     while (m_db->next()) {
-        symbols.insertMulti(m_db->value(0).toString(),
-                            createPageUrl(m_db->value(1).toString(),
-                                          m_db->value(2).toString()));
+        symbols.insert(m_db->value(0).toString(),
+                       createPageUrl(m_db->value(1).toString(),
+                                     m_db->value(2).toString()));
     }
 }
 
@@ -567,8 +565,9 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
     realPath.remove(dashEntryRegExp);
     realFragment.remove(dashEntryRegExp);
 
-    // Absolute file path is required here to handle relative path to the docset storage (see #806).
-    QUrl url = QUrl::fromLocalFile(QDir(documentPath()).absoluteFilePath(realPath));
+    QUrl url = m_baseUrl;
+    url.setPath(m_baseUrl.path() + "/" + realPath, QUrl::TolerantMode);
+
     if (!realFragment.isEmpty()) {
         if (realFragment.startsWith(QLatin1String("//apple_ref"))
                 || realFragment.startsWith(QLatin1String("//dash_ref"))) {
@@ -713,6 +712,20 @@ QString Docset::parseSymbolType(const QString &str)
     };
 
     return aliases.value(str, str);
+}
+
+QUrl Docset::baseUrl() const
+{
+    return m_baseUrl;
+}
+
+void Docset::setBaseUrl(const QUrl &baseUrl)
+{
+    m_baseUrl = baseUrl;
+
+    if (!m_indexFilePath.isEmpty()) {
+        m_indexFileUrl = createPageUrl(m_indexFilePath);
+    }
 }
 
 bool Docset::isFuzzySearchEnabled() const

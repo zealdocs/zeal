@@ -1,0 +1,153 @@
+name: Build Check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-ubuntu:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Ubuntu 18.04",
+              os: ubuntu-18.04,
+              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+            }
+          - {
+              name: "Ubuntu 18.04, Portable",
+              os: ubuntu-18.04,
+              options: { ZEAL_PORTABLE_BUILD: "ON" },
+            }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq --no-install-recommends install \
+            cmake \
+            extra-cmake-modules \
+            libarchive-dev \
+            libqt5x11extras5-dev \
+            libsqlite3-dev \
+            libxcb-keysyms1-dev \
+            ninja-build \
+            qt5-default \
+            qtwebengine5-dev
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v2
+        with:
+          buildDirectory: ${{ runner.workspace }}/build/
+          cmakeAppendedArgs: >-
+            -G Ninja
+            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+
+  build-windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Windows Server 2019",
+              os: windows-2019,
+              qt_version: '5.15.0',
+              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+            }
+          - {
+              name: "Windows Server 2019, Portable",
+              os: windows-2019,
+              qt_version: '5.15.0',
+              options: { ZEAL_PORTABLE_BUILD: "ON" },
+            }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prepare vcpkg
+        uses: lukka/run-vcpkg@v2
+        id: runvcpkg
+        with:
+          vcpkgArguments: libarchive[core] openssl sqlite3
+          vcpkgDirectory: ${{ runner.workspace }}/vcpkg/
+          vcpkgGitCommitId: ffa7fd27cfa29f206d1fd2ccfc722cad4aaeef3d
+          vcpkgTriplet: x64-windows
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ${{ runner.workspace }}/Qt/
+          key: ${{ runner.os }}-qt-${{ matrix.config.qt_version }}
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          arch: win64_msvc2019_64
+          modules: qtwebengine
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          extra: --external 7z
+          version: ${{ matrix.config.qt_version }}
+
+      - name: Print Environment
+        run: gci env:* | sort-object name
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v2
+        with:
+          buildDirectory: ${{ runner.workspace }}/build/
+          cmakeAppendedArgs: >-
+            -G Ninja
+            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          useVcpkgToolchainFile: true
+
+  appimage:
+    name: AppImage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build AppImage
+        uses: ./.github/workflows/appimage/
+        with:
+          recipe: pkg/appimage/appimage-amd64.yml
+          apt_dependencies: >-
+            build-essential
+            cmake extra-cmake-modules
+            libappindicator-dev
+            libarchive-dev
+            libqt5x11extras5-dev
+            libsqlite3-dev
+            libxcb-keysyms1-dev
+            ninja-build
+            qtbase5-dev
+            qtwebengine5-dev
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
+          path: zeal-*.AppImage
+
+      # TODO: Enable for releases.
+      - name: Upload AppImage.zsync
+        uses: actions/upload-artifact@v2-preview
+        if: github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.ref, 'v')
+        with:
+          name: zeal-dev-x86_64.AppImage.zsync
+          path: zeal-*.AppImage.zsync

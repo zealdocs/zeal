@@ -28,6 +28,9 @@
 #include "searchquery.h"
 #include "searchresult.h"
 
+#include <core/application.h>
+#include <core/httpserver.h>
+
 #include <QDir>
 #include <QThread>
 
@@ -139,7 +142,19 @@ void DocsetRegistry::loadDocset(const QString &path)
             unloadDocset(name);
         }
 
+        // Setup HTTP mount.
+        QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
+        if (url.isEmpty()) {
+            qWarning("Could not enable docset from '%s'. Reinstall the docset.",
+                     qPrintable(docset->path()));
+            delete docset;
+            return;
+        }
+
+        docset->setBaseUrl(url);
+
         m_docsets[name] = docset;
+
         emit docsetLoaded(name);
     });
 
@@ -151,6 +166,7 @@ void DocsetRegistry::loadDocset(const QString &path)
 void DocsetRegistry::unloadDocset(const QString &name)
 {
     emit docsetAboutToBeUnloaded(name);
+    Core::Application::instance()->httpServer()->unmount(name);
     delete m_docsets.take(name);
     emit docsetUnloaded(name);
 }
@@ -173,6 +189,16 @@ Docset *DocsetRegistry::docset(int index) const
     if (index < 0 || index >= m_docsets.size())
         return nullptr;
     return (m_docsets.cbegin() + index).value();
+}
+
+Docset *DocsetRegistry::docsetForUrl(const QUrl &url)
+{
+    for (Docset *docset : qAsConst(m_docsets)) {
+        if (docset->baseUrl().isParentOf(url))
+            return docset;
+    }
+
+    return nullptr;
 }
 
 QList<Docset *> DocsetRegistry::docsets() const

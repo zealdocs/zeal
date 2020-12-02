@@ -32,6 +32,7 @@
 #include "sidebarviewprovider.h"
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
 
+#include <browser/settings.h>
 #include <browser/webbridge.h>
 #include <browser/webcontrol.h>
 #include <core/application.h>
@@ -41,22 +42,15 @@
 
 #include <QCloseEvent>
 #include <QDesktopServices>
-#include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
 #include <QShortcut>
 #include <QSystemTrayIcon>
 #include <QTabBar>
-#include <QWebSettings>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
-
-namespace {
-constexpr char DarkModeCssUrl[] = ":/browser/assets/css/darkmode.css";
-constexpr char HighlightOnNavigateCssUrl[] = ":/browser/assets/css/highlight.css";
-} // namespace
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     : QMainWindow(parent)
@@ -198,6 +192,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     // Setup splitter.
     ui->splitter->insertWidget(0, sb);
     ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
+
+    // Setup web settings.
+    auto webSettings = new Browser::Settings(m_settings, this);
 
     // Setup web bridge.
     m_webBridge = new Browser::WebBridge(this);
@@ -530,35 +527,6 @@ void MainWindow::applySettings()
         createTrayIcon();
     else
         removeTrayIcon();
-
-    // Content
-    QByteArray ba = QByteArrayLiteral("body { background-color: white; }");
-    if (m_settings->darkModeEnabled) {
-        QScopedPointer<QFile> file(new QFile(DarkModeCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    if (m_settings->highlightOnNavigateEnabled) {
-        QScopedPointer<QFile> file(new QFile(HighlightOnNavigateCssUrl));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    if (QFileInfo::exists(m_settings->customCssFile)) {
-        QScopedPointer<QFile> file(new QFile(m_settings->customCssFile));
-        if (file->open(QIODevice::ReadOnly)) {
-            ba += file->readAll();
-        }
-    }
-
-    const QString cssUrl = QLatin1String("data:text/css;charset=utf-8;base64,") + ba.toBase64();
-    QWebSettings::globalSettings()->setUserStyleSheetUrl(QUrl(cssUrl));
-
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::ScrollAnimatorEnabled,
-                                                 m_settings->isSmoothScrollingEnabled);
 }
 
 void MainWindow::toggleWindow()

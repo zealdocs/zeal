@@ -27,6 +27,9 @@
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QRandomGenerator>
+#endif
 #include <QVariant>
 #include <QXmlStreamReader>
 
@@ -164,7 +167,11 @@ QUrl DocsetMetadata::feedUrl() const
 
 QUrl DocsetMetadata::url() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+    return m_urls.at(QRandomGenerator::global()->bounded(m_urls.size()));
+#else
     return m_urls.at(qrand() % m_urls.size());
+#endif
 }
 
 QList<QUrl> DocsetMetadata::urls() const
@@ -177,7 +184,11 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
     DocsetMetadata metadata;
 
     metadata.m_name = feedUrl.fileName();
-    metadata.m_name.chop(4); // Strip ".xml" extension
+
+    // Strip ".xml" extension if any.
+    if (metadata.m_name.endsWith(QLatin1String(".xml"))) {
+        metadata.m_name.chop(4);
+    }
 
     metadata.m_title = metadata.m_name;
     metadata.m_title.replace(QLatin1Char('_'), QLatin1Char(' '));

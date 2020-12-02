@@ -64,6 +64,7 @@ public:
 
     Docset *docset(const QString &name) const;
     Docset *docset(int index) const;
+    Docset *docsetForUrl(const QUrl &url);
     QList<Docset *> docsets() const;
 
     void search(const QString &query);

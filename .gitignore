@@ -19,9 +19,21 @@
 # CMake
 CMakeLists.txt.user
 build/
+build.*/
+
+# AppImage Builder
+*.AppImage
+*.AppImage.zsync
+appimage-builder-cache/
+squashfs-root/
+
+# WiX Toolset
+*.msi
+*.wixobj
+*.wixpdb
 
 # VS Code
-/.vscode
+.vscode/
 
 # Linux appdata
 /assets/freedesktop/org.zealdocs.Zeal.appdata.xml

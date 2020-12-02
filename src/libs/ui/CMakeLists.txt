@@ -23,5 +23,5 @@ add_library(Ui STATIC
 
 target_link_libraries(Ui Browser Sidebar QxtGlobalShortcut Widgets Registry)
 
-find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED)
-target_link_libraries(Ui Qt5::WebKitWidgets)
+find_package(Qt5 COMPONENTS WebEngineWidgets REQUIRED)
+target_link_libraries(Ui Qt5::WebEngineWidgets)

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="windows-1252"?>
+
+<?ifndef AppVersion ?>
+    <?error AppVersion must be set ?>
+<?endif?>
+
+<?ifndef AppPackageDir ?>
+    <?error AppPackageDir must be set ?>
+<?endif?>
+
+<?ifndef CompressionLevel ?>
+    <?define CompressionLevel="high" ?>
+<?endif?>
+
+<?ifndef VCRedistPath ?>
+    <?error VCRedistPath must be set ?>
+<?endif?>
+
+<?ifndef VCRedistFile ?>
+    <?error VCRedistFile must be set ?>
+<?endif?>
+
+<?define AppName="Zeal" ?>
+<?define AppManufacturer="Oleg Shparber" ?>
+<?define AppExeName="zeal.exe" ?>
+
+<?define UpgradeCode="5C4B6030-A1B4-4EFE-A5AF-28F6FA2E7978" ?>
+
+<?if $(sys.BUILDARCH)="x86"?>
+    <?define PlatformProgramFilesFolder="ProgramFilesFolder" ?>
+<?elseif $(sys.BUILDARCH)="x64"?>
+    <?define PlatformProgramFilesFolder="ProgramFiles64Folder" ?>
+<?else ?>
+    <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH) ?>
+<?endif ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*" Name="$(var.AppName) $(var.AppVersion)" Version="$(var.AppVersion)"
+      Manufacturer="$(var.AppManufacturer)" UpgradeCode="$(var.UpgradeCode)"
+      Language="1033" Codepage="1252">
+
+        <Package Id="*" Description="$(var.AppName) $(var.AppVersion) Installer"
+          Languages="1033" Compressed="yes" SummaryCodepage="1252"
+          InstallerVersion="301" />
+
+        <MajorUpgrade
+          DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+        <Upgrade Id="$(var.UpgradeCode)">
+            <UpgradeVersion Minimum="$(var.AppVersion)" IncludeMinimum="yes"
+              Maximum="$(var.AppVersion)" IncludeMaximum="yes"
+              OnlyDetect="yes" Property="CURRENTVERSIONDETECTED" />
+        </Upgrade>
+
+        <MediaTemplate CompressionLevel="$(var.CompressionLevel)" EmbedCab="yes" />
+
+        <Icon Id="$(var.AppExeName)" SourceFile="$(var.AppPackageDir)\$(var.AppExeName)" />
+        <Property Id="ARPPRODUCTICON" Value="$(var.AppExeName)" />
+        <Property Id="ARPURLINFOABOUT" Value="https://zealdocs.org" />
+        <Property Id="ARPHELPLINK" Value="https://go.zealdocs.org/l/support" />
+        <Property Id="ARPURLUPDATEINFO" Value="https://go.zealdocs.org/r/v$(var.AppVersion)" />
+
+        <!-- Features -->
+        <Feature Id="App" Title="$(var.AppName)" Level="1" Absent="disallow"
+          Description="Provides $(var.AppName) executable.">
+            <ComponentGroupRef Id="Binaries" />
+            <ComponentGroupRef Id="Binaries_Imageformats" />
+            <ComponentGroupRef Id="Binaries_Platforms" />
+            <ComponentGroupRef Id="Binaries_Resources" />
+            <ComponentGroupRef Id="Binaries_Styles" />
+            <ComponentGroupRef Id="Binaries_Translations_QtWE" />
+            <ComponentRef Id="ProgramMenuDir" />
+        </Feature>
+
+        <Feature Id="Protocol" Title="Plugin Support" Level="1"
+          Description="Provides dash:// and dash-plugin:// protocol handlers.">
+            <ComponentRef Id="ProtocolHandlers" />
+        </Feature>
+
+        <Feature Id="VCRedist" Title="Visual C++ Runtime" AllowAdvertise="no" Display="hidden">
+            <MergeRef Id="VCRedist" />
+        </Feature>
+
+        <!-- Directory Structure -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Merge Id="VCRedist" SourceFile="$(var.VCRedistPath)\$(var.VCRedistFile)" DiskId="1" Language="0" />
+
+            <Directory Id="$(var.PlatformProgramFilesFolder)">
+                <Directory Id="APPLICATIONFOLDER" Name="$(var.AppName)">
+                    <Directory Id="APPLICATIONFOLDER_IMAGEFORMATS" Name="imageformats" />
+                    <Directory Id="APPLICATIONFOLDER_PLATFORMS" Name="platforms" />
+                    <Directory Id="APPLICATIONFOLDER_RESOURCES" Name="resources" />
+                    <Directory Id="APPLICATIONFOLDER_STYLES" Name="styles" />
+                    <Directory Id="APPLICATIONFOLDER_TRANSLATIONS" Name="translations">
+                        <Directory Id="APPLICATIONFOLDER_TRANSLATIONS_QTWE" Name="qtwebengine_locales" />
+                    </Directory>
+                </Directory>
+            </Directory>
+
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ProgramMenuDir" Name="$(var.AppName)" />
+            </Directory>
+
+            <Directory Id="DesktopFolder" />
+        </Directory>
+
+        <!-- Components -->
+        <ComponentGroup Id="Binaries" Directory="APPLICATIONFOLDER" Source="$(var.AppPackageDir)">
+
+            <!-- Direct dependencies -->
+            <Component><File Name="archive.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="sqlite3.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="zlib1.dll" Checksum="yes" KeyPath="yes" /></Component>
+
+            <!-- OpenSSL -->
+            <?if $(sys.BUILDARCH)="x86"?>
+                <Component><File Name="libcrypto-1_1.dll" Checksum="yes" KeyPath="yes" /></Component>
+                <Component><File Name="libssl-1_1.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <?elseif $(sys.BUILDARCH)="x64"?>
+                <Component><File Name="libcrypto-1_1-x64.dll" Checksum="yes" KeyPath="yes" /></Component>
+                <Component><File Name="libssl-1_1-x64.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <?endif ?>
+
+            <!-- Qt -->
+            <Component><File Name="Qt5Concurrent.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Core.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Gui.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Network.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Positioning.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5PrintSupport.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Qml.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5QmlModels.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Quick.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5QuickWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5SerialPort.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Svg.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebChannel.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebEngineCore.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5WebEngineWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt5Widgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+
+            <Component><File Name="d3dcompiler_47.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="libEGL.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="libGLESv2.dll" Checksum="yes" KeyPath="yes" /></Component>
+
+            <Component><File Name="QtWebEngineProcess.exe" Checksum="yes" KeyPath="yes" /></Component>
+
+            <!-- Executable -->
+            <Component>
+                <File Name="$(var.AppExeName)" Checksum="yes" KeyPath="yes">
+                    <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuDir" Name="$(var.AppName)"
+                        WorkingDirectory="APPLICATIONFOLDER" Icon="$(var.AppExeName)" IconIndex="0" Advertise="yes" />
+                    <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="$(var.AppName)"
+                        WorkingDirectory="APPLICATIONFOLDER" Icon="$(var.AppExeName)" IconIndex="0" Advertise="yes" />
+                </File>
+            </Component>
+            <Component><File Name="$(var.AppExeName).manifest" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Imageformats" Directory="APPLICATIONFOLDER_IMAGEFORMATS" Source="$(var.AppPackageDir)\imageformats">
+            <Component><File Name="qgif.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qico.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qjpeg.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qsvg.dll" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Platforms" Directory="APPLICATIONFOLDER_PLATFORMS" Source="$(var.AppPackageDir)\platforms">
+            <Component><File Name="qwindows.dll" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Resources" Directory="APPLICATIONFOLDER_RESOURCES" Source="$(var.AppPackageDir)\resources">
+            <Component><File Name="icudtl.dat" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_devtools_resources.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources_100p.pak" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="qtwebengine_resources_200p.pak" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Styles" Directory="APPLICATIONFOLDER_STYLES" Source="$(var.AppPackageDir)\styles">
+            <Component><File Name="qwindowsvistastyle.dll" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Binaries_Translations_QtWE" Directory="APPLICATIONFOLDER_TRANSLATIONS_QTWE" Source="$(var.AppPackageDir)\translations\qtwebengine_locales">
+            <Component><File Name="en-US.pak" Checksum="yes" KeyPath="yes" /></Component>
+        </ComponentGroup>
+
+        <Component Id="ProgramMenuDir" Directory="ProgramMenuDir">
+            <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\Zeal\Zeal" Type="string" Value="" KeyPath="yes" />
+        </Component>
+
+        <SetProperty Id="AppExePath" Value="[APPLICATIONFOLDER]$(var.AppExeName)" After="CostFinalize" />
+        <Component Id="ProtocolHandlers" Directory="TARGETDIR">
+            <?foreach UrlScheme in dash;dash-plugin ?>
+            <RegistryKey Root="HKMU" Key="Software\Classes\$(var.UrlScheme)">
+                <RegistryValue Type="string" Value="URL: Dash Plugin Protocol (Zeal)" />
+                <RegistryValue Name="URL Protocol" Type="string" Value="" />
+
+                <RegistryKey Key="DefaultIcon">
+                    <RegistryValue Type="string" Value="&quot;[AppExePath],1&quot;" />
+                </RegistryKey>
+
+                <RegistryKey Key="shell\open\command">
+                    <RegistryValue Type="string" Value="&quot;[AppExePath]&quot; &quot;%1&quot;" />
+                </RegistryKey>
+            </RegistryKey>
+            <?endforeach ?>
+        </Component>
+
+        <UIRef Id="WixUI_Advanced" />
+
+        <Property Id="ApplicationFolderName" Value="$(var.AppName)" />
+        <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+        <Property Id="ALLUSERS" Value="1" />
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+
+        <CustomAction Id="AlreadyInstalled"
+          Error="A different build of $(var.AppName) version $(var.AppVersion) is already installed. Same version upgrades are not supported. Please remove the currently installed version first." />
+
+        <!-- Fix for https://github.com/wixtoolset/issues/issues/2165 -->
+        <CustomAction Id="Overwrite_WixSetDefaultPerMachineFolder" Property="WixPerMachineFolder"
+          Value="[$(var.PlatformProgramFilesFolder)][ApplicationFolderName]" Execute="immediate" />
+
+        <InstallUISequence>
+            <Custom Action="AlreadyInstalled" After="FindRelatedProducts">CURRENTVERSIONDETECTED</Custom>
+            <Custom Action="Overwrite_WixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
+        </InstallUISequence>
+
+        <InstallExecuteSequence>
+            <Custom Action="Overwrite_WixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />
+        </InstallExecuteSequence>
+
+        <SetProperty Id="ARPINSTALLLOCATION" Value="[APPLICATIONFOLDER]" After="CostFinalize" />
+    </Product>
+</Wix>

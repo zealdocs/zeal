@@ -1,11 +1,10 @@
 /* Dark mode (see #466). */
-/* TODO: Check if we need -webkit-filter for old Qt WebKit. */
+
 html {
-    -webkit-filter: invert() hue-rotate(180deg) contrast(70%);
-    filter: invert() hue-rotate(180deg) contrast(70%);
+    background-color: #262626 !important;
+    filter: invert(1) hue-rotate(180deg) contrast(70%) !important;
 }
 
 html img {
-    -webkit-filter: invert() hue-rotate(180deg) contrast(120%);
-    filter: invert() hue-rotate(180deg) contrast(120%);
+    filter: invert(1) hue-rotate(180deg) contrast(120%) !important;
 }

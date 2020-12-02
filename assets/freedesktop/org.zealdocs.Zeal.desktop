@@ -9,3 +9,4 @@ Terminal=false
 Type=Application
 Categories=Development;
 MimeType=x-scheme-handler/dash;x-scheme-handler/dash-plugin;
+StartupWMClass=Zeal

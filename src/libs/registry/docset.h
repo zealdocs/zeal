@@ -27,6 +27,7 @@
 #include <QIcon>
 #include <QMap>
 #include <QMetaObject>
+#include <QMultiMap>
 #include <QUrl>
 
 namespace Zeal {
@@ -66,7 +67,7 @@ public:
     QMap<QString, int> symbolCounts() const;
     int symbolCount(const QString &symbolType) const;
 
-    const QMap<QString, QUrl> &symbols(const QString &symbolType) const;
+    const QMultiMap<QString, QUrl> &symbols(const QString &symbolType) const;
 
     QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
@@ -76,6 +77,9 @@ public:
 
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
+
+    QUrl baseUrl() const;
+    void setBaseUrl(const QUrl &baseUrl);
 
     bool isFuzzySearchEnabled() const;
     void setFuzzySearchEnabled(bool enabled);
@@ -112,12 +116,14 @@ private:
     QUrl m_indexFileUrl;
     QString m_indexFilePath;
 
-    QMap<QString, QString> m_symbolStrings;
+    QMultiMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
-    mutable QMap<QString, QMap<QString, QUrl>> m_symbols;
+    mutable QMap<QString, QMultiMap<QString, QUrl>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
     bool m_fuzzySearchEnabled = false;
     bool m_javaScriptEnabled = false;
+
+    QUrl m_baseUrl;
 };
 
 } // namespace Registry

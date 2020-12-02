@@ -19,27 +19,26 @@ Get binary builds for Windows and Linux from the [download page](https://zealdoc
 
 ## How to use
 
-After installing Zeal, go to *Tools->Docsets*, select the ones you want, and click the *Download* button.
+After installing Zeal go to `Tools->Docsets`, select the ones you want, and click the `Download` button.
 
 ## How to compile
 
-### Required dependencies
+### Build dependencies
 
 * [CMake](https://cmake.org/).
-* [Qt](https://www.qt.io/) version 5.9.5 or above. Required module: Qt WebKit Widgets.
-* [libarchive](http://libarchive.org/).
+* [Qt](https://www.qt.io/) version 5.9.5 or above. Required module: Qt WebEngine Widgets.
+* [libarchive](https://libarchive.org/).
 * [SQLite](https://sqlite.org/).
 * X11 platforms only: Qt X11 Extras and `xcb-util-keysyms`.
 
-### Building instructions
+### Build instructions
 
 ```sh
-mkdir build && cd build
-cmake ..
-make
+cmake -B build
+cmake --build build
 ```
 
-More detailed instructions are available in the [Wiki](https://github.com/zealdocs/zeal/wiki).
+More detailed instructions are available in the [wiki](https://github.com/zealdocs/zeal/wiki).
 
 ## Query & Filter docsets
 
@@ -57,26 +56,19 @@ If you prefer, you can start Zeal with a query from the command line:
 
 `zeal python:pprint`
 
-## Creating your own docsets
+## Create your own docsets
 
-Follow the [Dash Docset Generation Guide](https://kapeli.com/docsets).
+Follow instructions in the [Dash docset generation guide](https://kapeli.com/docsets).
 
 ## Contact and Support
 
 We want your feedback! Here's a list of different ways to contact developers and request help:
 * Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
-* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal), or IRC channel #zealdocs on [Freenode](https://freenode.net/).
-* Ask any questions in our [Google Group](https://groups.google.com/d/forum/zealdocs). You can simply send an email to zealdocs@googlegroups.com.
+* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal) or IRC channel #zealdocs on [Freenode](https://freenode.net/).
+* Ask any questions in our [Google Group](https://groups.google.com/d/forum/zealdocs). You can send an email to zealdocs@googlegroups.com.
+* Do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
 * Finally, for private communications email us at zeal@zealdocs.org.
-* And do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
-
-If you feel generous and want to show some extra appreciation:
-
-[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
-
-[buymeacoffee]: https://www.buymeacoffee.com/trollixx
-[buymeacoffee-shield]: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
 
 ## License
 
-This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](http://opensource.org/licenses/gpl-3.0.html).
+This software is licensed under the terms of the GNU General Public License version 3 (GPLv3). Full text of the license is available in the [COPYING](https://github.com/zealdocs/zeal/blob/master/COPYING) file and [online](https://www.gnu.org/licenses/gpl-3.0.html).

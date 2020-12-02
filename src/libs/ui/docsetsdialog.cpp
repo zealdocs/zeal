@@ -41,11 +41,14 @@
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLocale>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QTemporaryFile>
 #include <QUrl>
+
+#include <memory>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -81,16 +84,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 
     loadDocsetList();
 
-#ifdef Q_OS_WIN32
-    qt_ntfs_permission_lookup++;
-#endif
-
-    const QFileInfo fi(m_application->settings()->docsetPath);
-    m_isStorageReadOnly = !fi.isWritable();
-
-#ifdef Q_OS_WIN32
-    qt_ntfs_permission_lookup--;
-#endif
+    m_isStorageReadOnly = !isDirWritable(m_application->settings()->docsetPath);
 
 #ifdef Q_OS_MACOS
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -99,6 +93,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 
     ui->statusLabel->clear(); // Clear text shown in the designer mode.
     ui->storageStatusLabel->setVisible(m_isStorageReadOnly);
+
+    const QFileInfo fi(m_application->settings()->docsetPath);
     ui->storageStatusLabel->setText(fi.exists() ? tr("<b>Docset storage is read only.</b>")
                                                 : tr("<b>Docset storage does not exist.</b>"));
 
@@ -637,7 +633,10 @@ void DocsetsDialog::enableControls()
 void DocsetsDialog::disableControls()
 {
     // Dialog buttons.
-    ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
+    if (!m_isStorageReadOnly) {
+        // Always show the close button if storage is read only.
+        ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
+    }
 
     // Installed docsets
     ui->addFeedButton->setEnabled(false);
@@ -844,4 +843,10 @@ int DocsetsDialog::percent(qint64 fraction, qint64 total)
 QString DocsetsDialog::cacheLocation(const QString &fileName)
 {
     return QDir(Core::Application::cacheLocation()).filePath(fileName);
+}
+
+bool DocsetsDialog::isDirWritable(const QString &path)
+{
+    auto file = std::make_unique<QTemporaryFile>(path + QLatin1String("/.zeal_writable_check_XXXXXX.tmp"));
+    return file->open();
 }

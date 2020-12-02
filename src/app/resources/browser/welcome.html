@@ -55,7 +55,7 @@
             <a class="icon" onclick="zAppBridge.openShortUrl('gitter')">
               <i class="fab fa-gitter"></i>
             </a>
-            <a class="icon" onclick="zAppBridge.openShortUrl('twiter')">
+            <a class="icon" onclick="zAppBridge.openShortUrl('twitter')">
               <i class="fab fa-twitter"></i>
             </a>
           </p>
@@ -73,8 +73,12 @@
     </div>
   </section>
 
+  <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
   <script>
-    document.getElementById("version").textContent = zAppBridge.AppVersion;
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+      window.zAppBridge = channel.objects.zAppBridge;
+      document.getElementById("version").textContent = zAppBridge.AppVersion;
+    });
   </script>
 </body>
 
