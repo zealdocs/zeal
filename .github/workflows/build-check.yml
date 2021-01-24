@@ -81,7 +81,7 @@ jobs:
         with:
           vcpkgArguments: libarchive[core] openssl sqlite3
           vcpkgDirectory: ${{ runner.workspace }}/vcpkg/
-          vcpkgGitCommitId: ffa7fd27cfa29f206d1fd2ccfc722cad4aaeef3d
+          vcpkgGitCommitId: 0bf3923f9fab4001c00f0f429682a0853b5749e0
           vcpkgTriplet: x64-windows
 
       - name: Cache Qt
