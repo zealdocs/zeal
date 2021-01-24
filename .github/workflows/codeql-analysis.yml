@@ -57,11 +57,9 @@ jobs:
           qtwebengine5-dev
 
     - name: Configure & Build
-      uses: lukka/run-cmake@v2
+      uses: lukka/run-cmake@v3
       with:
         buildDirectory: ${{ runner.workspace }}/build/
-        cmakeAppendedArgs: >-
-          -G Ninja
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
 
     - name: Perform CodeQL Analysis
