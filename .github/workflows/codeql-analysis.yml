@@ -15,18 +15,13 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v2
       with:
-        # We must fetch at least the immediate parents so that if this is
-        # a pull request then we can checkout the head.
-        fetch-depth: 2
+        fetch-depth: 0
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
-      with:
-        languages: ${{ matrix.language }}
 
     - name: Install Dependencies
       run: |
