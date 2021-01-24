@@ -44,11 +44,10 @@ jobs:
             qtwebengine5-dev
 
       - name: Configure & Build
-        uses: lukka/run-cmake@v2
+        uses: lukka/run-cmake@v3
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
-            -G Ninja
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
 
@@ -77,7 +76,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Prepare vcpkg
-        uses: lukka/run-vcpkg@v2
+        uses: lukka/run-vcpkg@v6
         id: runvcpkg
         with:
           vcpkgArguments: libarchive[core] openssl sqlite3
@@ -87,7 +86,7 @@ jobs:
 
       - name: Cache Qt
         id: cache-qt
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ runner.workspace }}/Qt/
           key: ${{ runner.os }}-qt-${{ matrix.config.qt_version }}
@@ -105,11 +104,10 @@ jobs:
         run: gci env:* | sort-object name
 
       - name: Configure & Build
-        uses: lukka/run-cmake@v2
+        uses: lukka/run-cmake@v3
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
-            -G Ninja
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           useVcpkgToolchainFile: true
