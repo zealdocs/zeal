@@ -41,6 +41,8 @@ AppDir:
       # Other dependencies.
       - libsqlite3-0
       - libarchive13
+      - libfontconfig1
+      - libfreetype6
     exclude:
       - "*dbgsym*"
       - gnupg
