@@ -19,6 +19,7 @@ AppDir:
   runtime:
     env:
       APPDIR_LIBRARY_PATH: $APPDIR/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu
+      QTWEBENGINE_DISABLE_SANDBOX: 1
 
   apt:
     arch: amd64
@@ -41,6 +42,8 @@ AppDir:
       # Other dependencies.
       - libsqlite3-0
       - libarchive13
+      - libfontconfig1
+      - libfreetype6
     exclude:
       - "*dbgsym*"
       - gnupg
