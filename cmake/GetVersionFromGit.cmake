@@ -36,6 +36,11 @@ if(NOT GIT_FOUND)
     return()
 endif()
 
+# Check if .git directory is present.
+if(NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+    return()
+endif()
+
 # Get last tag from git
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
