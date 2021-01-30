@@ -30,16 +30,49 @@
 # ${PROJECT_NAME}_VERSION - Same as ${PROJECT_NAME}_GIT_VERSION_STRING,
 # without the preceding 'v', e.g. "2.0.0" or "1.2.41-beta.1"
 
-# Check if git is found...
-find_package(Git)
-if(NOT GIT_FOUND)
+# Check if .git directory is present.
+if(NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+    message(NOTICE "Cannot find Git metadata, using static version string.")
     return()
 endif()
 
-# Check if .git directory is present.
-if(NOT IS_DIRECTORY "${CMAKE_SOURCE_DIR}/.git")
+# Check if Git executable is present.
+find_package(Git)
+if(NOT GIT_FOUND)
+    message(NOTICE "Cannot find Git executable, using static version string.")
     return()
 endif()
+
+# Check if Git executable version is >= 2.15. Required for --is-shallow-repository argument.
+# See https://stackoverflow.com/a/37533086.
+if(GIT_VERSION_STRING VERSION_LESS "2.15")
+    message(NOTICE "Git executable is too old (< 2.15), using static version string.")
+    return()
+endif()
+
+# Detect shallow clone.
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --is-shallow-repository
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    RESULT_VARIABLE IS_SHALLOW_RESULT
+    OUTPUT_VARIABLE IS_SHALLOW_OUTPUT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+if(IS_SHALLOW_RESULT AND NOT IS_SHALLOW_RESULT EQUAL 0)
+    message(NOTICE "Cannot perform shallow clone detection, using static version string.")
+    unset(IS_SHALLOW_RESULT)
+    unset(IS_SHALLOW_OUTPUT)
+    return()
+endif()
+
+unset(IS_SHALLOW_RESULT)
+
+if(NOT "${IS_SHALLOW_OUTPUT}" STREQUAL "false")
+    message(NOTICE "Shallow clone detected, using static version string.")
+    unset(IS_SHALLOW_OUTPUT)
+    return()
+endif()
+
+unset(IS_SHALLOW_OUTPUT)
 
 # Get last tag from git
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
