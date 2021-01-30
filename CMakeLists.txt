@@ -26,7 +26,7 @@ set(QT_MINIMUM_VERSION 5.9.5)
 
 # Determine version for dev builds.
 if(NOT RELEASE_VERSION)
-    message(STATUS "Building unreleased code. Proceed at your own risk!")
+    message(NOTICE "Building unreleased code. Proceed at your own risk!")
 
     # TODO: Add support for metadata passed from env, e.g. aur, appimage, etc.
     include(GetVersionFromGit)
