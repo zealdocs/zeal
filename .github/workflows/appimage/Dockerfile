@@ -16,7 +16,7 @@ RUN apt-get update -q -y \
     rm appimagetool-x86_64.AppImage && \
     cd - && \
     # Install appimage-builder.
-    pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git@master && \
+    pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git@v0.8.3 && \
     apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
