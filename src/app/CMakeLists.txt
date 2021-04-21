@@ -16,6 +16,11 @@ add_executable(App WIN32
     ${App_RESOURCES}
 )
 
+include(GetTranslation)
+lupdate(App ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/i18n/zeal.ts)
+UPDATE_TRANSLATION(App ${CMAKE_CURRENT_SOURCE_DIR}/i18n/zeal.ts ${CMAKE_CURRENT_SOURCE_DIR}/i18n)
+COMPILE_TS(App ${CMAKE_CURRENT_SOURCE_DIR}/i18n ${CMAKE_BINARY_DIR}/bin/i18n)
+
 target_link_libraries(App Core Util)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
