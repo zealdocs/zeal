@@ -70,7 +70,6 @@ set(CPACK_SOURCE_IGNORE_FILES
     ".vscode/"
     "build/"
     # Files.
-    ".appveyor.yml"
     ".editorconfig"
     ".gitattributes"
     ".gitignore"
