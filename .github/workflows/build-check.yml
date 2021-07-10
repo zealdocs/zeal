@@ -50,8 +50,8 @@ jobs:
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
-            --config RelWithDebInfo
             -G Ninja
+            -D CMAKE_BUILD_TYPE=RelWithDebInfo
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
 
@@ -114,8 +114,8 @@ jobs:
         with:
           buildDirectory: ${{ runner.workspace }}/build/
           cmakeAppendedArgs: >-
-            --config RelWithDebInfo
             -G Ninja
+            -D CMAKE_BUILD_TYPE=RelWithDebInfo
             -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           useVcpkgToolchainFile: true
