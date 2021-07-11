@@ -43,6 +43,8 @@
 #endif
 
 #include <cstdlib>
+#include <QTranslator>
+#include <QDebug>
 
 using namespace Zeal;
 
@@ -66,6 +68,8 @@ QString stripParameterUrl(const QString &url, const QString &scheme)
         ref = ref.left(ref.length() - 1);
     return ref.toString();
 }
+
+
 
 CommandLineParameters parseCommandLine(const QStringList &arguments)
 {
@@ -183,6 +187,18 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
+    // i18n
+    QLocale _locale;
+    QTranslator trans;
+    switch(_locale.country()){
+        case QLocale::China:
+            trans.load("i18n/zeal_zh_CN.qm");
+            break;
+            // forbid case warning
+        default:
+            break;
+    }
+    QApplication::installTranslator(&trans);
 
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 
