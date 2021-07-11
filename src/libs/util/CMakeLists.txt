@@ -4,7 +4,7 @@ set(CMAKE_AUTOMOC OFF)
 add_library(Util STATIC
     plist.cpp
     sqlitedatabase.cpp
-
+    readableinterval.cpp
     # Show headers without .cpp in Qt Creator.
     caseinsensitivemap.h
 )

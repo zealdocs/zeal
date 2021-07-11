@@ -32,6 +32,8 @@
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
+#include <registry/listmodel.h>
+#include <util/readableinterval.h>
 
 #include <QClipboard>
 #include <QDateTime>
@@ -50,6 +52,7 @@
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
+using namespace Zeal::Util;
 
 #ifdef Q_OS_WIN32
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
@@ -292,9 +295,7 @@ void DocsetsDialog::downloadCompleted()
         if (file->open(QIODevice::WriteOnly))
             file->write(data);
 
-        const QString updateTime = QFileInfo(file->fileName())
-                .lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
-        ui->lastUpdatedLabel->setText(updateTime);
+        ui->lastUpdatedLabel->setText(ReadableInterval::toReadableString(QFileInfo(file->fileName()).lastModified()));
 
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
@@ -491,10 +492,7 @@ void DocsetsDialog::loadDocsetList()
         return;
     }
 
-    // TODO: Show more user friendly labels, like "5 hours ago"
-    const QString updateTime
-            = fi.lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
-    ui->lastUpdatedLabel->setText(updateTime);
+    ui->lastUpdatedLabel->setText(ReadableInterval::toReadableString(fi.lastModified()));
     processDocsetList(jsonDoc.array());
 }
 
