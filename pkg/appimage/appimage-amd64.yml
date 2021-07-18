@@ -38,6 +38,7 @@ AppDir:
       - libqt5webenginewidgets5
       - libqt5widgets5
       - libqt5x11extras5
+      - qt5-gtk-platformtheme
       - qtwayland5
       # Other dependencies.
       - libsqlite3-0
