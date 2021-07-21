@@ -393,7 +393,21 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_PageUp:
             QCoreApplication::sendEvent(m_treeView, event);
             break;
+        }
 
+        if (e->modifiers() == Qt::ControlModifier) {
+            switch (e->key()) {
+            case Qt::Key_N: {
+                QKeyEvent newEvent(QKeyEvent::KeyPress, Qt::Key_Down, Qt::NoModifier);
+                QCoreApplication::sendEvent(m_treeView, &newEvent);
+                break;
+            }
+            case Qt::Key_P: {
+                QKeyEvent newEvent(QKeyEvent::KeyPress, Qt::Key_Up, Qt::NoModifier);
+                QCoreApplication::sendEvent(m_treeView, &newEvent);
+                break;
+            }
+            }
         }
     }
 
