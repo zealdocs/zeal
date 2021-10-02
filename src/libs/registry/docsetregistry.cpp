@@ -37,6 +37,7 @@
 #include <QtConcurrent>
 
 #include <functional>
+#include <future>
 
 using namespace Zeal::Registry;
 
@@ -122,45 +123,41 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::loadDocset(const QString &path)
 {
-    auto watcher = new QFutureWatcher<Docset *>();
-    connect(watcher, &QFutureWatcher<Docset *>::finished, this, [this, watcher] {
-        QScopedPointer<QFutureWatcher<Docset *>, QScopedPointerDeleteLater> guard(watcher);
-
-        Docset *docset = watcher->result();
-        // TODO: Emit error
-        if (!docset->isValid()) {
-            qWarning("Could not load docset from '%s'. Reinstall the docset.",
-                     qPrintable(docset->path()));
-            delete docset;
-            return;
-        }
-
-        docset->setFuzzySearchEnabled(m_fuzzySearchEnabled);
-
-        const QString name = docset->name();
-        if (m_docsets.contains(name)) {
-            unloadDocset(name);
-        }
-
-        // Setup HTTP mount.
-        QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
-        if (url.isEmpty()) {
-            qWarning("Could not enable docset from '%s'. Reinstall the docset.",
-                     qPrintable(docset->path()));
-            delete docset;
-            return;
-        }
-
-        docset->setBaseUrl(url);
-
-        m_docsets[name] = docset;
-
-        emit docsetLoaded(name);
+    std::future<Docset *> f = std::async(std::launch::async, [path](){
+        return new Docset(path);
     });
 
-    watcher->setFuture(QtConcurrent::run([path] {
-        return new Docset(path);
-    }));
+    f.wait();
+    Docset *docset = f.get();
+    // TODO: Emit error
+    if (!docset->isValid()) {
+        qWarning("Could not load docset from '%s'. Reinstall the docset.",
+                 qPrintable(docset->path()));
+        delete docset;
+        return;
+    }
+
+    docset->setFuzzySearchEnabled(m_fuzzySearchEnabled);
+
+    const QString name = docset->name();
+    if (m_docsets.contains(name)) {
+        unloadDocset(name);
+    }
+
+    // Setup HTTP mount.
+    QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
+    if (url.isEmpty()) {
+        qWarning("Could not enable docset from '%s'. Reinstall the docset.",
+                 qPrintable(docset->path()));
+        delete docset;
+        return;
+    }
+
+    docset->setBaseUrl(url);
+
+    m_docsets[name] = docset;
+
+    emit docsetLoaded(name);
 }
 
 void DocsetRegistry::unloadDocset(const QString &name)

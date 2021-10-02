@@ -31,7 +31,7 @@
 #include <QFutureWatcher>
 #include <QLoggingCategory>
 
-#include <QtConcurrent>
+#include <future>
 
 using namespace Zeal::Core;
 
@@ -64,20 +64,17 @@ bool FileManager::removeRecursively(const QString &path)
 
     qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
-    auto watcher = new QFutureWatcher<bool>();
-    connect(watcher, &QFutureWatcher<bool>::finished, [=] {
-        if (!watcher->result()) {
-            qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
-        } else {
-            qCDebug(log, "Removed '%s'.", qPrintable(deletePath));
-        }
-
-        watcher->deleteLater();
+    std::future<bool> f = std::async(std::launch::async, [deletePath](){
+        return QDir(deletePath).removeRecursively();
     });
 
-    watcher->setFuture(QtConcurrent::run([deletePath] {
-        return QDir(deletePath).removeRecursively();
-    }));
+    f.wait();
+
+    if (!f.get()) {
+        qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
+    } else {
+        qCDebug(log, "Removed '%s'.", qPrintable(deletePath));
+    }
 
     return true;
 }

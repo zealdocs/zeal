@@ -36,4 +36,4 @@ squashfs-root/
 .vscode/
 
 # Linux appdata
-/assets/freedesktop/org.zealdocs.Zeal.appdata.xml
+/assets/freedesktop/org.zealdocs.zeal.appdata.xml

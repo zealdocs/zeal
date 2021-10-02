@@ -58,7 +58,7 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
                                                    QIODevice *outgoingData)
 {
     QNetworkRequest overrideRequest(request);
-    overrideRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    overrideRequest.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
 
     // Forward all non-local schemaless URLs via HTTPS.
     const QUrl url = request.url();

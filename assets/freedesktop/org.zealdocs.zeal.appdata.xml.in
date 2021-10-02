@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.zealdocs.Zeal.desktop</id>
+  <id>org.zealdocs.zeal</id>
   <name>Zeal</name>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0-only</project_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer_name>Oleg Shparber</developer_name>
   <summary>Documentation browser</summary>
   <description>
-    <p>Zeal is a simple offline documentation browser inspired by Dash.</p>
+    <p>Zeal is a simple offline documentation browser inspired by Dash. It offers access to over 200 docsets covering various libraries and APIs.</p>
   </description>
+  <categories>
+    <category>Development</category>
+  </categories>
   <url type="homepage">https://zealdocs.org/</url>
   <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
   <url type="help">https://zealdocs.org/usage.html</url>
+  <!-- TODO: Reenable after moving AppImage build to Ubuntu 20.04. -->
+  <!--url type="contact">https://go.zealdocs.org/l/contact</url-->
   <screenshots>
     <screenshot type="default">
+      <caption>The main window</caption>
       <image>https://i.imgur.com/qBkZduS.png</image>
     </screenshot>
   </screenshots>
   <provides>
     <id>zeal.desktop</id>
   </provides>
-  <releases>
-    <release date="${RELEASE_DATE}" version="${Zeal_VERSION}" />
+  <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
+    <release date="2018-09-28" version="0.6.1" type="stable" />
   </releases>
   <update_contact>zeal@zealdocs.org</update_contact>
   <content_rating type="oars-1.1">

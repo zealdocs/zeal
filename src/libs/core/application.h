@@ -70,6 +70,7 @@ public:
     static QString cacheLocation();
     static QString configLocation();
     static QVersionNumber version();
+    static QString versionString();
 
 public slots:
     void executeQuery(const Registry::SearchQuery &query, bool preventActivation);

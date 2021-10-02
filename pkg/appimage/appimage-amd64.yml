@@ -1,19 +1,15 @@
 version: 1
 
 script:
-  - mkdir -p build.appimage
-  # TODO: Use cmake -B build.appimage after updating to CMake v3.14, and also:
-  # - cmake --build build.appimage
-  # - cmake --prefix /tmp/AppDir --install build.appimage
-  - cd build.appimage; cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-  - cd build.appimage; ninja
-  - cd build.appimage; DESTDIR=AppDir ninja install
+  - cmake -B build.appimage -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  - cmake --build build.appimage
+  - cmake --install build.appimage --prefix build.appimage/AppDir/usr
 
 AppDir:
   path: build.appimage/AppDir
 
   app_info:
-    id: org.zealdocs.Zeal
+    id: org.zealdocs.zeal
     name: zeal
     icon: zeal
     version: 0.6.1 # TODO: Use version from CMake.
@@ -21,32 +17,34 @@ AppDir:
     exec_args: $@
 
   runtime:
-    generator: wrapper
-    APPDIR_LIBRARY_PATH: "$APPDIR/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu"
+    env:
+      APPDIR_LIBRARY_PATH: $APPDIR/lib/x86_64-linux-gnu:$APPDIR/usr/lib/x86_64-linux-gnu
+      QTWEBENGINE_DISABLE_SANDBOX: 1
 
   apt:
     arch: amd64
-
     sources:
-      - sourceline: "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse"
-      - sourceline: "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse"
-      - sourceline: "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-backports main restricted universe multiverse"
-        key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32"
-
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal-backports main restricted universe multiverse
+        key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32
     include:
       # Required Qt packages.
+      - libqt5concurrent5
       - libqt5gui5
       - libqt5network5
-      - libqt5x11extras5
-      - libqt5concurrent5
       - libqt5webchannel5
       - libqt5webengine5
+      - libqt5webenginewidgets5
       - libqt5widgets5
+      - libqt5x11extras5
+      - qt5-gtk-platformtheme
       - qtwayland5
       # Other dependencies.
       - libsqlite3-0
       - libarchive13
-
+      - libfontconfig1
+      - libfreetype6
     exclude:
       - "*dbgsym*"
       - gnupg
@@ -71,9 +69,9 @@ AppDir:
       - usr/bin/systemd*
       - usr/bin/dpkg*
       - usr/bin/*-linux-gnu-*
-      - usr/share/locale
+      #- usr/share/locale
 
 AppImage:
-  arch: "x86_64"
-  update-information: "gh-releases-zsync|zealdocs|zeal|latest|zeal-*x86_64.AppImage.zsync"
+  arch: x86_64
+  update-information: gh-releases-zsync|zealdocs|zeal|latest|zeal-*x86_64.AppImage.zsync
   sign-key: None

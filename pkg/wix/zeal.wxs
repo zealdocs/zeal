@@ -57,7 +57,7 @@
         <Icon Id="$(var.AppExeName)" SourceFile="$(var.AppPackageDir)\$(var.AppExeName)" />
         <Property Id="ARPPRODUCTICON" Value="$(var.AppExeName)" />
         <Property Id="ARPURLINFOABOUT" Value="https://zealdocs.org" />
-        <Property Id="ARPHELPLINK" Value="https://go.zealdocs.org/l/support" />
+        <Property Id="ARPHELPLINK" Value="https://go.zealdocs.org/l/contact" />
         <Property Id="ARPURLUPDATEINFO" Value="https://go.zealdocs.org/r/v$(var.AppVersion)" />
 
         <!-- Features -->

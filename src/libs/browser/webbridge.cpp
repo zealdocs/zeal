@@ -22,7 +22,8 @@
 
 #include "webbridge.h"
 
-#include <QCoreApplication>
+#include <core/application.h>
+
 #include <QDesktopServices>
 #include <QUrl>
 
@@ -45,5 +46,5 @@ void WebBridge::triggerAction(const QString &action)
 
 QString WebBridge::appVersion() const
 {
-    return QCoreApplication::applicationVersion();
+    return Core::Application::versionString();
 }

@@ -2,11 +2,11 @@
 
 [![Changelog](https://img.shields.io/github/release/zealdocs/zeal.svg?style=flat-square)](https://github.com/zealdocs/zeal/releases)
 [![Gitter](https://img.shields.io/gitter/room/zealdocs/zeal.svg?style=flat-square)](https://gitter.im/zealdocs/zeal)
-[![IRC](https://img.shields.io/badge/chat-on%20irc-blue.svg?style=flat-square)](https://kiwiirc.com/client/irc.freenode.net/#zealdocs)
+[![IRC](https://img.shields.io/badge/chat-on%20irc-blue.svg?style=flat-square)](https://web.libera.chat/#zealdocs)
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
 
-[![AppVeyor](https://img.shields.io/appveyor/ci/zealdocs/zeal/master.svg?style=flat-square)](https://ci.appveyor.com/project/zealdocs/zeal)
+[![Build Check](https://img.shields.io/github/workflow/status/zealdocs/zeal/Build%20Check?style=flat-square)](https://github.com/zealdocs/zeal/actions/workflows/build-check.yml)
 [![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
 
 Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
@@ -63,11 +63,12 @@ Follow instructions in the [Dash docset generation guide](https://kapeli.com/doc
 ## Contact and Support
 
 We want your feedback! Here's a list of different ways to contact developers and request help:
+
 * Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
-* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal) or IRC channel #zealdocs on [Freenode](https://freenode.net/).
-* Ask any questions in our [Google Group](https://groups.google.com/d/forum/zealdocs). You can send an email to zealdocs@googlegroups.com.
+* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal) or `#zealdocs` IRC channel on [Libera Chat](https://libera.chat) ([web client](https://web.libera.chat/#zealdocs)).
+* Ask any questions in our [GitHub Discussions](https://github.com/zealdocs/zeal/discussions).
 * Do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
-* Finally, for private communications email us at zeal@zealdocs.org.
+* Finally, for private communication shoot an email to zeal@zealdocs.org.
 
 ## License
 
