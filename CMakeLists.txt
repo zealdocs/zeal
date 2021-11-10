@@ -10,6 +10,11 @@ project(Zeal VERSION 0.6.2)
 # NOTE: Don't forget to add a new release entry in the AppStream metadata!
 set(RELEASE_VERSION FALSE)
 
+# Set LibArchive_INCLUDE_DIR to unstandard path. Reduce the error rate
+if(APPLE AND NOT LibArchive_INCLUDE_DIR)
+  set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+endif()
+
 # Project information.
 if(APPLE)
     set(PROJECT_OUTPUT_NAME "Zeal")
