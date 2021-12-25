@@ -71,5 +71,9 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
         op = QNetworkAccessManager::GetOperation;
     }
 
+    QSslConfiguration sslConfig = overrideRequest.sslConfiguration();
+    sslConfig.setCaCertificates(QSslConfiguration::systemCaCertificates());
+    overrideRequest.setSslConfiguration(sslConfig);
+
     return QNetworkAccessManager::createRequest(op, overrideRequest, outgoingData);
 }
