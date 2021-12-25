@@ -40,6 +40,7 @@
 #include <QVector>
 #include <QWebEngineContextMenuData>
 #include <QWebEngineProfile>
+#include <QWebEngineSettings>
 #include <QWheelEvent>
 
 using namespace Zeal::Browser;
@@ -49,6 +50,8 @@ WebView::WebView(QWidget *parent)
 {
     setPage(new WebPage(this));
     setZoomLevel(defaultZoomLevel());
+
+    settings()->setAttribute(QWebEngineSettings::FocusOnNavigationEnabled, false);
 
     QApplication::instance()->installEventFilter(this);
 }
