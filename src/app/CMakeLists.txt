@@ -1,9 +1,3 @@
-# TODO: Move zeal.qrc one level up to rely on CMAKE_AUTORCC.
-find_package(Qt5Core REQUIRED)
-qt5_add_resources(App_RESOURCES resources/zeal.qrc)
-# Silence CMP0071.
-set_property(SOURCE qrc_zeal.cpp PROPERTY SKIP_AUTOGEN ON)
-
 if(APPLE)
     list(APPEND App_RESOURCES resources/zeal.icns)
 elseif(WIN32)
@@ -13,6 +7,7 @@ endif()
 
 add_executable(App WIN32
     main.cpp
+    zeal.qrc
     ${App_RESOURCES}
 )
 
