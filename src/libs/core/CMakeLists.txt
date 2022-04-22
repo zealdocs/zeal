@@ -19,9 +19,21 @@ target_link_libraries(Core Registry Ui)
 find_package(Qt5 COMPONENTS Network WebEngine Widgets REQUIRED)
 target_link_libraries(Core Qt5::Network Qt5::WebEngine Qt5::Widgets)
 
-find_package(LibArchive REQUIRED)
-include_directories(${LibArchive_INCLUDE_DIRS})
-target_link_libraries(Core ${LibArchive_LIBRARIES})
+
+if(WIN32)
+    find_package(LibArchive REQUIRED)
+    include_directories(${LibArchive_INCLUDE_DIRS})
+    target_link_libraries(Core ${LibArchive_LIBRARIES})
+else()
+    find_package(PkgConfig)
+    pkg_check_modules(LibArchive REQUIRED libarchive)
+    include_directories(${LibArchive_INCLUDE_DIRS})
+    target_link_libraries(Core ${LibArchive_LIBRARIES})
+endif()
+
+
+
+
 
 # Required by cpp-httplib.
 if(NOT WIN32)
