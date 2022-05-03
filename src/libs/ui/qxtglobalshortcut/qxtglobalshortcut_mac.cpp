@@ -78,7 +78,7 @@ OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event,
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, long *result)
+                                                 void *message, qintptr *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(message)

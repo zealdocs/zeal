@@ -38,7 +38,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVector>
-#include <QWebEngineContextMenuData>
+#include <QWebEngineContextMenuRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QWheelEvent>
@@ -117,9 +117,10 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
     QWebEnginePage *p = page();
-    const QWebEngineContextMenuData& contextData = p->contextMenuData();
+    const QWebEngineContextMenuRequest* contextData = lastContextMenuRequest();
+    Q_ASSERT(contextData);
 
-    if (!contextData.isValid()) {
+    if (!contextData->isContentEditable()) {
         QWebEngineView::contextMenuEvent(event);
         return;
     }
@@ -132,7 +133,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     m_contextMenu = new QMenu(this);
 
-    QUrl linkUrl = contextData.linkUrl();
+    QUrl linkUrl = contextData->linkUrl();
     if (linkUrl.isValid()) {
         const QString scheme = linkUrl.scheme();
 
@@ -153,7 +154,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
-    const QString selectedText = contextData.selectedText();
+    const QString selectedText = contextData->selectedText();
     if (!selectedText.isEmpty()) {
         if (!m_contextMenu->isEmpty()) {
             m_contextMenu->addSeparator();

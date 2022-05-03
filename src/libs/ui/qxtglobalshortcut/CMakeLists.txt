@@ -21,8 +21,8 @@ endif()
 
 add_library(QxtGlobalShortcut STATIC ${QxtGlobalShortcut_SOURCES})
 
-find_package(Qt5Gui REQUIRED)
-target_link_libraries(QxtGlobalShortcut Qt5::Gui)
+find_package(Qt6Gui REQUIRED)
+target_link_libraries(QxtGlobalShortcut Qt6::Gui)
 
 if(APPLE)
     find_library(CARBON_LIBRARY Carbon)
@@ -30,8 +30,8 @@ if(APPLE)
 elseif(UNIX AND X11_FOUND)
     target_link_libraries(QxtGlobalShortcut ${X11_LIBRARIES})
 
-    find_package(Qt5 COMPONENTS X11Extras REQUIRED)
-    target_link_libraries(QxtGlobalShortcut Qt5::X11Extras)
+    find_package(Qt6 COMPONENTS X11Extras REQUIRED)
+    target_link_libraries(QxtGlobalShortcut Qt6::X11Extras)
 
     find_package(ECM REQUIRED NO_MODULE)
     set(CMAKE_MODULE_PATH ${ECM_FIND_MODULE_DIR})

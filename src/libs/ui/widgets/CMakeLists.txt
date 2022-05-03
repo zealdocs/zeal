@@ -5,5 +5,5 @@ add_library(Widgets STATIC
     toolbarframe.cpp
 )
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-target_link_libraries(Widgets Qt5::Widgets)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+target_link_libraries(Widgets Qt6::Widgets)

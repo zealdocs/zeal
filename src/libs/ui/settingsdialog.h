@@ -50,6 +50,8 @@ private:
 
 private:
     Ui::SettingsDialog *ui = nullptr;
+
+    friend class Ui::SettingsDialog;
 };
 
 } // namespace WidgetUi

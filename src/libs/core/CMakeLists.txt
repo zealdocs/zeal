@@ -16,8 +16,8 @@ add_definitions(-DCPPHTTPLIB_USE_POLL)
 
 target_link_libraries(Core Registry Ui)
 
-find_package(Qt5 COMPONENTS Network WebEngine Widgets REQUIRED)
-target_link_libraries(Core Qt5::Network Qt5::WebEngine Qt5::Widgets)
+find_package(Qt6 COMPONENTS Network WebEngineCore Widgets REQUIRED)
+target_link_libraries(Core Qt6::Network Qt6::WebEngineCore Qt6::Widgets)
 
 find_package(LibArchive REQUIRED)
 include_directories(${LibArchive_INCLUDE_DIRS})

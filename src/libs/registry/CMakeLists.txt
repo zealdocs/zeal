@@ -12,5 +12,5 @@ add_library(Registry STATIC
     searchresult.h
 )
 
-find_package(Qt5 COMPONENTS Concurrent Gui Network REQUIRED)
-target_link_libraries(Registry Util Qt5::Concurrent Qt5::Gui Qt5::Network)
+find_package(Qt6 COMPONENTS Concurrent Gui Network REQUIRED)
+target_link_libraries(Registry Util Qt6::Concurrent Qt6::Gui Qt6::Network)

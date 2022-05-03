@@ -772,38 +772,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>customCssFileBrowseButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
-   <slot>chooseCustomCssFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>526</x>
-     <y>232</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>299</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>docsetStorageBrowseButton</sender>
-   <signal>clicked()</signal>
-   <receiver>Zeal::WidgetUi::SettingsDialog</receiver>
-   <slot>chooseDocsetStoragePath()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>526</x>
-     <y>371</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>299</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>manualProxySettings</sender>
    <signal>toggled(bool)</signal>
    <receiver>manualProxySettingsGroup</receiver>

@@ -122,22 +122,22 @@
             <?endif ?>
 
             <!-- Qt -->
-            <Component><File Name="Qt5Concurrent.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Core.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Gui.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Network.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Positioning.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5PrintSupport.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Qml.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5QmlModels.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Quick.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5QuickWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5SerialPort.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Svg.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5WebChannel.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5WebEngineCore.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5WebEngineWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
-            <Component><File Name="Qt5Widgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Concurrent.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Core.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Gui.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Network.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Positioning.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6PrintSupport.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Qml.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6QmlModels.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Quick.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6QuickWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6SerialPort.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Svg.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6WebChannel.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6WebEngineCore.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6WebEngineWidgets.dll" Checksum="yes" KeyPath="yes" /></Component>
+            <Component><File Name="Qt6Widgets.dll" Checksum="yes" KeyPath="yes" /></Component>
 
             <Component><File Name="d3dcompiler_47.dll" Checksum="yes" KeyPath="yes" /></Component>
             <Component><File Name="libEGL.dll" Checksum="yes" KeyPath="yes" /></Component>

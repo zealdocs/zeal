@@ -30,6 +30,8 @@
 #include <QMultiMap>
 #include <QUrl>
 
+#include "searchresult.h"
+
 namespace Zeal {
 
 namespace Util {
@@ -39,8 +41,6 @@ class SQLiteDatabase;
 namespace Registry {
 
 class CancellationToken;
-struct SearchResult;
-
 class Docset final
 {
     Q_DISABLE_COPY(Docset)

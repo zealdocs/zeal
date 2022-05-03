@@ -79,7 +79,7 @@ public:
     bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 
     static bool activateShortcut(quint32 nativeKey, quint32 nativeMods);
 
