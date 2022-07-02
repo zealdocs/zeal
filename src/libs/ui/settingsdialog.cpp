@@ -31,6 +31,7 @@
 
 #include <QDir>
 #include <QFileDialog>
+#include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
 using namespace Zeal;
@@ -80,7 +81,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // Disable global shortcut settings if not supported.
     ui->globalHotKeyGroupBox->setEnabled(QxtGlobalShortcut::isSupported());
 
-    QWebEngineSettings *webSettings = QWebEngineSettings::defaultSettings();
+    QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
 
     // Avoid casting in each connect.
     auto currentIndexChangedSignal

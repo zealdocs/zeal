@@ -173,8 +173,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
         const int ret
                 = QMessageBox::information(this, QStringLiteral("Zeal"),
                                            tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
-                                           QMessageBox::Yes | QMessageBox::Default,
-                                           QMessageBox::No | QMessageBox::Escape);
+                                           QMessageBox::Yes | QMessageBox::No,
+                                           QMessageBox::Yes);
         qApp->setQuitOnLastWindowClosed(true);
 
         if (ret == QMessageBox::Yes) {

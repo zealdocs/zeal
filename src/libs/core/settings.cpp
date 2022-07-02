@@ -31,6 +31,7 @@
 #include <QStandardPaths>
 #include <QUrl>
 #include <QUuid>
+#include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
 namespace {
@@ -50,7 +51,9 @@ using namespace Zeal::Core;
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
+#endif
 
     load();
 }
@@ -87,7 +90,7 @@ void Settings::load()
 
     settings->beginGroup(GroupContent);
     // Fonts
-    QWebEngineSettings *webSettings = QWebEngineSettings::defaultSettings();
+    QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
     serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
                                       webSettings->fontFamily(QWebEngineSettings::SerifFont)).toString();
     sansSerifFontFamily = settings->value(QStringLiteral("sans_serif_font_family"),
@@ -150,7 +153,7 @@ void Settings::load()
         docsetPath = settings->value(QStringLiteral("path")).toString();
     } else {
 #ifndef PORTABLE_BUILD
-        docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+        docsetPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
                 + QLatin1String("/docsets");
 #else
         docsetPath = QStringLiteral("docsets");

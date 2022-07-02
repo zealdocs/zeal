@@ -25,6 +25,7 @@
 #define ZEAL_REGISTRY_DOCSETREGISTRY_H
 
 #include "cancellationtoken.h"
+#include "searchresult.h"
 
 #include <QMap>
 #include <QObject>
@@ -36,7 +37,6 @@ namespace Zeal {
 namespace Registry {
 
 class Docset;
-struct SearchResult;
 
 class DocsetRegistry final : public QObject
 {

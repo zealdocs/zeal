@@ -55,7 +55,12 @@
 #include <QKeySequence>
 #include <QScopedPointer>
 #include <QVector>
+
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
 #include <QX11Info>
+#else
+#include <QtGui/private/qtx11extras_p.h>
+#endif
 
 #include <X11/Xlib.h>
 #include <xcb/xcb.h>
@@ -68,7 +73,7 @@ constexpr quint32 maskModifiers[] = {
 } // namespace
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, long *result)
+                                                 void *message, NativeEventFilterResult *result)
 {
     Q_UNUSED(result)
     if (eventType != "xcb_generic_event_t")

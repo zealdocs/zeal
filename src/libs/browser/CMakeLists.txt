@@ -10,5 +10,5 @@ add_library(Browser STATIC
 
 target_link_libraries(Browser)
 
-find_package(Qt5 COMPONENTS WebEngineWidgets WebChannel REQUIRED)
-target_link_libraries(Browser Qt5::WebEngineWidgets Qt5::WebChannel)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS WebChannel WebEngineWidgets REQUIRED)
+target_link_libraries(Browser Qt${QT_VERSION_MAJOR}::WebChannel Qt${QT_VERSION_MAJOR}::WebEngineWidgets)

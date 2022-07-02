@@ -38,10 +38,15 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVector>
-#include <QWebEngineContextMenuData>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QWheelEvent>
+
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#include <QWebEngineContextMenuData>
+#else
+#include <QWebEngineContextMenuRequest>
+#endif
 
 using namespace Zeal::Browser;
 
@@ -116,13 +121,20 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
-    QWebEnginePage *p = page();
-    const QWebEngineContextMenuData& contextData = p->contextMenuData();
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+    const QWebEngineContextMenuData& contextData = page()->contextMenuData();
 
     if (!contextData.isValid()) {
         QWebEngineView::contextMenuEvent(event);
         return;
     }
+#else
+    QWebEngineContextMenuRequest *contextMenuRequest = lastContextMenuRequest();
+    if (contextMenuRequest == nullptr) {
+        QWebEngineView::contextMenuEvent(event);
+        return;
+    }
+#endif
 
     event->accept();
 
@@ -132,7 +144,12 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     m_contextMenu = new QMenu(this);
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QUrl linkUrl = contextData.linkUrl();
+#else
+    QUrl linkUrl = contextMenuRequest->linkUrl();
+#endif
+
     if (linkUrl.isValid()) {
         const QString scheme = linkUrl.scheme();
 
@@ -153,7 +170,13 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
+
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     const QString selectedText = contextData.selectedText();
+#else
+    const QString selectedText = contextMenuRequest->selectedText();
+#endif
+
     if (!selectedText.isEmpty()) {
         if (!m_contextMenu->isEmpty()) {
             m_contextMenu->addSeparator();
