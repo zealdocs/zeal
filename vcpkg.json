@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "zeal",
+  "version": "0.6.2",
+  "dependencies": [
+    {
+      "name": "libarchive",
+      "default-features": false
+    },
+    "openssl",
+    "sqlite3"
+  ]
+}
