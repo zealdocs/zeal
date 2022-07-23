@@ -94,7 +94,7 @@ jobs:
 
       - name: Cache Qt
         id: cache-qt
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/Qt/
           key: ${{ runner.os }}-qt-${{ matrix.config.qt_version }}
