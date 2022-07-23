@@ -3,6 +3,8 @@ if(APPLE)
 elseif(WIN32)
     configure_file(versioninfo.rc.in ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
     list(APPEND App_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/versioninfo.rc)
+else()
+    set(App_RESOURCES) # Silence CMake warning.
 endif()
 
 add_executable(App WIN32
