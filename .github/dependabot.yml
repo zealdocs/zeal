@@ -6,3 +6,4 @@ updates:
       interval: "daily"
     commit-message:
       prefix: ci(github)
+    labels: []
