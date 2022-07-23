@@ -66,14 +66,19 @@ jobs:
               name: "Windows Server 2019",
               os: windows-2019,
               qt_version: '5.15.0',
-              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+              configurePreset: "ninja-multi-vcpkg",
+              buildPreset: "ninja-multi-vcpkg-release"
             }
           - {
               name: "Windows Server 2019, Portable",
               os: windows-2019,
               qt_version: '5.15.0',
-              options: { ZEAL_PORTABLE_BUILD: "ON" },
+              configurePreset: "ninja-multi-vcpkg-portable",
+              buildPreset: "ninja-multi-vcpkg-portable-release"
             }
+
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows-release
 
     steps:
       - name: Checkout
@@ -82,13 +87,10 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare vcpkg
-        uses: lukka/run-vcpkg@v6
-        id: runvcpkg
+        uses: lukka/run-vcpkg@v10
         with:
-          vcpkgArguments: libarchive[core] openssl sqlite3
-          vcpkgDirectory: ${{ runner.workspace }}/vcpkg/
-          vcpkgGitCommitId: 0bf3923f9fab4001c00f0f429682a0853b5749e0
-          vcpkgTriplet: x64-windows
+          vcpkgDirectory: ${{ runner.workspace }}/vcpkg
+          vcpkgGitCommitId: cef0b3ec767df6e83806899fe9525f6cf8d7bc91 # 2022.06.16.1
 
       - name: Cache Qt
         id: cache-qt
@@ -110,15 +112,10 @@ jobs:
         run: gci env:* | sort-object name
 
       - name: Configure & Build
-        uses: lukka/run-cmake@v3
+        uses: lukka/run-cmake@v10
         with:
-          buildDirectory: ${{ runner.workspace }}/build/
-          cmakeAppendedArgs: >-
-            -G Ninja
-            -D CMAKE_BUILD_TYPE=RelWithDebInfo
-            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          useVcpkgToolchainFile: true
+          configurePreset: ${{ matrix.config.configurePreset }}
+          buildPreset: ${{ matrix.config.buildPreset }}
 
   build-appimage:
     name: AppImage

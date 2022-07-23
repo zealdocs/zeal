@@ -1,0 +1,96 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-multi",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "warnings": {
+        "deprecated": true,
+        "dev": true,
+        "uninitialized": true,
+        "unusedCli": true
+      }
+    },
+    {
+      "name": "ninja-multi-portable",
+      "inherits": [
+        "ninja-multi",
+        "config-portable"
+      ]
+    },
+    {
+      "name": "ninja-multi-vcpkg",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "inherits": [
+        "ninja-multi"
+      ],
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        }
+      }
+    },
+    {
+      "name": "ninja-multi-vcpkg-portable",
+      "inherits": [
+        "ninja-multi-vcpkg",
+        "config-portable"
+      ]
+    },
+    {
+      "name": "config-portable",
+      "hidden": true,
+      "cacheVariables": {
+        "ZEAL_PORTABLE_BUILD": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-multi-vcpkg-debug",
+      "configurePreset": "ninja-multi-vcpkg",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-multi-vcpkg-release",
+      "configurePreset": "ninja-multi-vcpkg",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-multi-vcpkg-portable-debug",
+      "configurePreset": "ninja-multi-vcpkg-portable",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-multi-vcpkg-portable-release",
+      "configurePreset": "ninja-multi-vcpkg-portable",
+      "configuration": "RelWithDebInfo"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "ninja-multi-vcpkg-debug",
+      "configurePreset": "ninja-multi-vcpkg",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-multi-vcpkg-release",
+      "configurePreset": "ninja-multi-vcpkg",
+      "configuration": "RelWithDebInfo"
+    }
+  ]
+}
