@@ -174,13 +174,13 @@ void DocsetsDialog::updateAllDocsets()
 
 void DocsetsDialog::removeSelectedDocsets()
 {
-    QItemSelectionModel *selectonModel = ui->installedDocsetList->selectionModel();
-    if (!selectonModel->hasSelection())
+    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    if (!selectionModel->hasSelection())
         return;
 
     int ret;
 
-    const QModelIndexList selectedIndexes = selectonModel->selectedRows();
+    const QModelIndexList selectedIndexes = selectionModel->selectedRows();
     if (selectedIndexes.size() == 1) {
         const QString docsetTitle = selectedIndexes.first().data().toString();
         ret = QMessageBox::question(this, QStringLiteral("Zeal"),
