@@ -37,7 +37,11 @@ ShortcutEdit::ShortcutEdit(const QString &text, QWidget *parent)
     : QLineEdit(text, parent)
 {
     connect(this, &QLineEdit::textChanged, [this](const QString &text) {
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         m_key = QKeySequence(text, QKeySequence::NativeText)[0];
+#else
+        m_key = QKeySequence(text, QKeySequence::NativeText)[0].toCombined();
+#endif
     });
 }
 
