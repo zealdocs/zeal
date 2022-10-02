@@ -15,13 +15,13 @@ jobs:
       matrix:
         config:
           - {
-              name: "Ubuntu 18.04",
-              os: ubuntu-18.04,
+              name: "Ubuntu 20.04",
+              os: ubuntu-20.04,
               options: { ZEAL_PORTABLE_BUILD: "OFF" },
             }
           - {
-              name: "Ubuntu 18.04, Portable",
-              os: ubuntu-18.04,
+              name: "Ubuntu 20.04 / Portable",
+              os: ubuntu-20.04,
               options: { ZEAL_PORTABLE_BUILD: "ON" },
             }
 
@@ -66,7 +66,7 @@ jobs:
               name: "Windows Server 2019 / Qt 5",
               os: windows-2019,
               qt_modules: "qtwebengine",
-              qt_version: "5.15.0",
+              qt_version: "5.15.2",
               configurePreset: "ninja-multi-vcpkg",
               buildPreset: "ninja-multi-vcpkg-release"
             }
@@ -74,7 +74,7 @@ jobs:
               name: "Windows Server 2019 / Qt 5 / Portable",
               os: windows-2019,
               qt_modules: "qtwebengine",
-              qt_version: "5.15.0",
+              qt_version: "5.15.2",
               configurePreset: ninja-multi-vcpkg-portable,
               buildPreset: ninja-multi-vcpkg-portable-release
             }
@@ -82,7 +82,7 @@ jobs:
               name: "Windows Server 2022 / Qt 6",
               os: windows-2022,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.3.1",
+              qt_version: "6.4.0",
               configurePreset: ninja-multi-vcpkg,
               buildPreset: ninja-multi-vcpkg-release
             }
@@ -90,7 +90,7 @@ jobs:
               name: "Windows Server 2022 / Qt 6 / Portable",
               os: windows-2022,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.3.1",
+              qt_version: "6.4.0",
               configurePreset: ninja-multi-vcpkg-portable,
               buildPreset: ninja-multi-vcpkg-portable-release
             }
