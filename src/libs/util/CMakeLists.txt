@@ -9,8 +9,8 @@ add_library(Util STATIC
     caseinsensitivemap.h
 )
 
-find_package(Qt5Core REQUIRED)
-target_link_libraries(Util Qt5::Core)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+target_link_libraries(Util Qt${QT_VERSION_MAJOR}::Core)
 
 find_package(SQLite REQUIRED)
 include_directories(${SQLite_INCLUDE_DIR})

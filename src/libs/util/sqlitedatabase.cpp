@@ -218,7 +218,7 @@ QVariant SQLiteDatabase::value(int index) const
         ret = sqlite3_column_int64(m_stmt, index);
         break;
     case SQLITE_NULL:
-        ret = QVariant(QVariant::String);
+        ret = QVariant();
         break;
     default:
         ret = QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),

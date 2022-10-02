@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Zeal::WidgetUi::SettingsDialog</class>
- <widget class="QDialog" name="Zeal::WidgetUi::SettingsDialog">
+ <widget class="SettingsDialog" name="Zeal::WidgetUi::SettingsDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -735,6 +735,11 @@
    <class>ShortcutEdit</class>
    <extends>QLineEdit</extends>
    <header>ui/widgets/shortcutedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SettingsDialog</class>
+   <extends>QDialog</extends>
+   <header>ui/settingsdialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

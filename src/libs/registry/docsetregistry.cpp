@@ -185,7 +185,10 @@ Docset *DocsetRegistry::docset(int index) const
 {
     if (index < 0 || index >= m_docsets.size())
         return nullptr;
-    return (m_docsets.cbegin() + index).value();
+
+    auto it = m_docsets.cbegin();
+    std::advance(it, index);
+    return *it;
 }
 
 Docset *DocsetRegistry::docsetForUrl(const QUrl &url)

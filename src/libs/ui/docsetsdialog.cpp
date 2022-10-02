@@ -258,9 +258,7 @@ void DocsetsDialog::downloadCompleted()
             const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
                     .arg(reply->errorString(), reply->request().url().toString());
             const int ret = QMessageBox::warning(this, QStringLiteral("Zeal"), msg,
-                                                 QMessageBox::Retry | QMessageBox::Default,
-                                                 QMessageBox::Cancel | QMessageBox::Escape,
-                                                 QMessageBox::NoButton);
+                                                 QMessageBox::Retry | QMessageBox::Cancel);
 
             if (ret == QMessageBox::Retry) {
                 QNetworkReply *newReply = download(reply->request().url());
@@ -772,7 +770,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     QUrl url;
     if (!m_userFeeds.contains(name)) {
         // No feed present means that this is a Kapeli docset
-        QString urlString = QString(RedirectServerUrl).arg("com.kapeli", name);
+        QString urlString = QString(RedirectServerUrl).arg("com.kapeli").arg(name);
         url = QUrl(urlString);
     } else {
         url = m_userFeeds[name].url();

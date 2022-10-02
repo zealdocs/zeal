@@ -81,7 +81,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         }
         case Level::SymbolLevel: {
             auto groupItem = static_cast<GroupItem *>(index.internalPointer());
-            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin() + index.row();
+            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin();
+            std::advance(it, index.row());
             return it.key();
         }
         default:
@@ -102,7 +103,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return itemInRow(index.row())->docset->indexFileUrl();
         case Level::SymbolLevel: {
             auto groupItem = static_cast<GroupItem *>(index.internalPointer());
-            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin() + index.row();
+            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin();
+            std::advance(it, index.row());
             return it.value();
         }
         default:

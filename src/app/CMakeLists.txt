@@ -15,12 +15,12 @@ add_executable(App WIN32
 
 target_link_libraries(App Core Util)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-if (Qt5Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+if (Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
     message(FATAL_ERROR "Qt version >= ${QT_MINIMUM_VERSION} is required.")
 endif()
 
-target_link_libraries(App Qt5::Widgets)
+target_link_libraries(App Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(App PROPERTIES
     OUTPUT_NAME ${PROJECT_OUTPUT_NAME}
@@ -40,11 +40,8 @@ if(APPLE)
         RESOURCE "resources/zeal.icns"
     )
 elseif(UNIX)
-    find_package(ECM REQUIRED NO_MODULE)
-    set(CMAKE_MODULE_PATH ${ECM_KDE_MODULE_DIR})
-    include(KDEInstallDirs)
-
-    install(TARGETS App DESTINATION ${KDE_INSTALL_BINDIR})
+    include(GNUInstallDirs)
+    install(TARGETS App DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 #

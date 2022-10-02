@@ -63,18 +63,36 @@ jobs:
       matrix:
         config:
           - {
-              name: "Windows Server 2019",
+              name: "Windows Server 2019 / Qt 5",
               os: windows-2019,
-              qt_version: '5.15.0',
+              qt_modules: "qtwebengine",
+              qt_version: "5.15.0",
               configurePreset: "ninja-multi-vcpkg",
               buildPreset: "ninja-multi-vcpkg-release"
             }
           - {
-              name: "Windows Server 2019, Portable",
+              name: "Windows Server 2019 / Qt 5 / Portable",
               os: windows-2019,
-              qt_version: '5.15.0',
-              configurePreset: "ninja-multi-vcpkg-portable",
-              buildPreset: "ninja-multi-vcpkg-portable-release"
+              qt_modules: "qtwebengine",
+              qt_version: "5.15.0",
+              configurePreset: ninja-multi-vcpkg-portable,
+              buildPreset: ninja-multi-vcpkg-portable-release
+            }
+          - {
+              name: "Windows Server 2022 / Qt 6",
+              os: windows-2022,
+              qt_modules: "qtwebengine qtwebchannel qtpositioning",
+              qt_version: "6.3.1",
+              configurePreset: ninja-multi-vcpkg,
+              buildPreset: ninja-multi-vcpkg-release
+            }
+          - {
+              name: "Windows Server 2022 / Qt 6 / Portable",
+              os: windows-2022,
+              qt_modules: "qtwebengine qtwebchannel qtpositioning",
+              qt_version: "6.3.1",
+              configurePreset: ninja-multi-vcpkg-portable,
+              buildPreset: ninja-multi-vcpkg-portable-release
             }
 
     env:
@@ -92,21 +110,14 @@ jobs:
           vcpkgDirectory: ${{ runner.workspace }}/vcpkg
           vcpkgGitCommitId: cef0b3ec767df6e83806899fe9525f6cf8d7bc91 # 2022.06.16.1
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v3
-        with:
-          path: ${{ runner.workspace }}/Qt/
-          key: ${{ runner.os }}-qt-${{ matrix.config.qt_version }}
-
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           arch: win64_msvc2019_64
-          modules: qtwebengine
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-          extra: --external 7z
+          modules: ${{ matrix.config.qt_modules }}
           version: ${{ matrix.config.qt_version }}
+          cache: true
+          extra: --external 7z
 
       - name: Print Environment
         run: gci env:* | sort-object name

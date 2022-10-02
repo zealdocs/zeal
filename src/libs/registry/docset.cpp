@@ -523,7 +523,7 @@ void Docset::createIndex()
         m_db->execute(indexDropQuery.arg(oldIndexName));
     }
 
-    m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
+    m_db->execute(indexCreateQuery.arg(IndexNamePrefix).arg(IndexNameVersion).arg(tableName).arg(columnName));
 }
 
 void Docset::createView()

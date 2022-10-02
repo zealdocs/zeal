@@ -59,12 +59,17 @@ struct CommandLineParameters
 
 QString stripParameterUrl(const QString &url, const QString &scheme)
 {
-    QStringRef ref = url.midRef(scheme.length() + 1);
-    if (ref.startsWith(QLatin1String("//")))
-        ref = ref.mid(2);
-    if (ref.endsWith(QLatin1Char('/')))
-        ref = ref.left(ref.length() - 1);
-    return ref.toString();
+    QString str = url.mid(scheme.length() + 1);
+
+    if (str.startsWith(QLatin1String("//"))) {
+        str = str.mid(2);
+    }
+
+    if (str.endsWith(QLatin1Char('/'))) {
+        str = str.left(str.length() - 1);
+    }
+
+    return str;
 }
 
 CommandLineParameters parseCommandLine(const QStringList &arguments)
@@ -179,8 +184,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
 
