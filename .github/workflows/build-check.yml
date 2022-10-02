@@ -15,15 +15,30 @@ jobs:
       matrix:
         config:
           - {
-              name: "Ubuntu 20.04",
+              name: "Ubuntu 20.04 / Qt 5",
               os: ubuntu-20.04,
+              qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
               options: { ZEAL_PORTABLE_BUILD: "OFF" },
             }
           - {
-              name: "Ubuntu 20.04 / Portable",
+              name: "Ubuntu 20.04 / Qt 5 / Portable",
               os: ubuntu-20.04,
+              qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
               options: { ZEAL_PORTABLE_BUILD: "ON" },
             }
+          - {
+              name: "Ubuntu 22.04 / Qt 6",
+              os: ubuntu-22.04,
+              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
+              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+            }
+          - {
+              name: "Ubuntu 22.04 / Qt 6 / Portable",
+              os: ubuntu-22.04,
+              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
+              options: { ZEAL_PORTABLE_BUILD: "ON" },
+            }
+
 
     steps:
       - name: Checkout
@@ -38,12 +53,10 @@ jobs:
             cmake \
             extra-cmake-modules \
             libarchive-dev \
-            libqt5x11extras5-dev \
             libsqlite3-dev \
             libxcb-keysyms1-dev \
             ninja-build \
-            qt5-default \
-            qtwebengine5-dev
+            ${{ matrix.config.qt_packages }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v3
