@@ -20,6 +20,13 @@ find_package(Qt5 COMPONENTS Network WebEngine Widgets REQUIRED)
 target_link_libraries(Core Qt5::Network Qt5::WebEngine Qt5::Widgets)
 
 find_package(LibArchive REQUIRED)
+
+# Set LibArchive_INCLUDE_DIR on macOS when LibArchive is installed with Homebrew.
+# See https://github.com/Homebrew/legacy-homebrew/issues/21415.
+if(APPLE AND NOT LibArchive_INCLUDE_DIR)
+  set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+endif()
+
 include_directories(${LibArchive_INCLUDE_DIRS})
 target_link_libraries(Core ${LibArchive_LIBRARIES})
 
