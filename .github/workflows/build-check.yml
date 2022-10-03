@@ -18,27 +18,30 @@ jobs:
               name: "Ubuntu 20.04 / Qt 5",
               os: ubuntu-20.04,
               qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
-              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+              configurePreset: "ninja-multi",
+              buildPreset: "ninja-multi-release"
             }
           - {
               name: "Ubuntu 20.04 / Qt 5 / Portable",
               os: ubuntu-20.04,
               qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
-              options: { ZEAL_PORTABLE_BUILD: "ON" },
+              configurePreset: "ninja-multi-portable",
+              buildPreset: "ninja-multi-portable-release"
             }
           - {
               name: "Ubuntu 22.04 / Qt 6",
               os: ubuntu-22.04,
               qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
-              options: { ZEAL_PORTABLE_BUILD: "OFF" },
+              configurePreset: "ninja-multi",
+              buildPreset: "ninja-multi-release"
             }
           - {
               name: "Ubuntu 22.04 / Qt 6 / Portable",
               os: ubuntu-22.04,
               qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
-              options: { ZEAL_PORTABLE_BUILD: "ON" },
+              configurePreset: "ninja-multi-portable",
+              buildPreset: "ninja-multi-portable-release"
             }
-
 
     steps:
       - name: Checkout
@@ -59,14 +62,10 @@ jobs:
             ${{ matrix.config.qt_packages }}
 
       - name: Configure & Build
-        uses: lukka/run-cmake@v3
+        uses: lukka/run-cmake@v10
         with:
-          buildDirectory: ${{ runner.workspace }}/build/
-          cmakeAppendedArgs: >-
-            -G Ninja
-            -D CMAKE_BUILD_TYPE=RelWithDebInfo
-            -DZEAL_PORTABLE_BUILD=${{ matrix.config.options.ZEAL_PORTABLE_BUILD }}
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          configurePreset: ${{ matrix.config.configurePreset }}
+          buildPreset: ${{ matrix.config.buildPreset }}
 
   build-windows:
     name: ${{ matrix.config.name }}
