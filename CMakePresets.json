@@ -61,6 +61,26 @@
   ],
   "buildPresets": [
     {
+      "name": "ninja-multi-debug",
+      "configurePreset": "ninja-multi",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-multi-release",
+      "configurePreset": "ninja-multi",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "ninja-multi-debug-portable",
+      "configurePreset": "ninja-multi-portable",
+      "configuration": "Debug"
+    },
+    {
+      "name": "ninja-multi-portable-release",
+      "configurePreset": "ninja-multi-portable",
+      "configuration": "RelWithDebInfo"
+    },
+    {
       "name": "ninja-multi-vcpkg-debug",
       "configurePreset": "ninja-multi-vcpkg",
       "configuration": "Debug"
