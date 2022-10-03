@@ -77,7 +77,7 @@ QUrl HttpServer::baseUrl() const
 QUrl HttpServer::mount(const QString &prefix, const QString &path)
 {
     const QString pfx = sanitizePrefix(prefix);
-    const bool ok = m_server->set_mount_point(pfx.toUtf8(), path.toUtf8());
+    const bool ok = m_server->set_mount_point(pfx.toStdString(), path.toStdString());
     if (!ok) {
         qCWarning(log, "Failed to mount '%s' to '%s'.", qPrintable(path), qPrintable(pfx));
         return QUrl();
@@ -93,7 +93,7 @@ QUrl HttpServer::mount(const QString &prefix, const QString &path)
 bool HttpServer::unmount(const QString &prefix)
 {
     const QString pfx = sanitizePrefix(prefix);
-    const bool ok = m_server->remove_mount_point(pfx.toUtf8());
+    const bool ok = m_server->remove_mount_point(pfx.toStdString());
     if (!ok) {
         qCWarning(log, "Failed to unmount '%s' to '%s'.", qPrintable(prefix), qPrintable(pfx));
     }
