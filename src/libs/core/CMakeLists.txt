@@ -35,8 +35,7 @@ if(APPLE AND NOT LibArchive_INCLUDE_DIR)
   set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
 endif()
 
-include_directories(${LibArchive_INCLUDE_DIRS})
-target_link_libraries(Core ${LibArchive_LIBRARIES})
+target_link_libraries(Core LibArchive::LibArchive)
 
 # Required by cpp-httplib.
 if(NOT WIN32)
