@@ -94,6 +94,12 @@
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionHideMenu"/>
+   </widget>
    <widget class="QMenu" name="menu_Tools">
     <property name="title">
      <string>&amp;Tools</string>
@@ -102,6 +108,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menu_View"/>
    <addaction name="menu_Tools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -173,6 +180,11 @@
    </property>
    <property name="text">
     <string>&amp;Find</string>
+   </property>
+  </action>
+  <action name="actionHideMenu">
+   <property name="text">
+    <string>&amp;Hide menubar</string>
    </property>
   </action>
   <action name="actionDocsets">

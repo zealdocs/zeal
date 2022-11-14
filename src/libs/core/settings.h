@@ -39,6 +39,9 @@ public:
     // Tabs Behavior
     bool openNewTabAfterActive;
 
+    // Appearance
+    bool hideMenuBar;
+
     // Search
     bool isFuzzySearchEnabled;
 
