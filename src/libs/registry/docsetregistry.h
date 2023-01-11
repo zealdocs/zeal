@@ -54,7 +54,6 @@ public:
     bool isFuzzySearchEnabled() const;
     void setFuzzySearchEnabled(bool enabled);
 
-    int count() const;
     bool contains(const QString &name) const;
     QStringList names() const;
 

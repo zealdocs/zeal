@@ -106,11 +106,6 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
     }
 }
 
-int DocsetRegistry::count() const
-{
-    return m_docsets.count();
-}
-
 bool DocsetRegistry::contains(const QString &name) const
 {
     return m_docsets.contains(name);
