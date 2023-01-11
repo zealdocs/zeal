@@ -68,7 +68,6 @@ public:
     HttpServer *httpServer() const;
 
     static QString cacheLocation();
-    static QString configLocation();
     static QVersionNumber version();
     static QString versionString();
 
