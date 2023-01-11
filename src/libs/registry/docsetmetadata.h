@@ -43,7 +43,6 @@ public:
     QString name() const;
     QString title() const;
     QStringList aliases() const;
-    QStringList versions() const;
     QString latestVersion() const;
     QString revision() const;
     QIcon icon() const;

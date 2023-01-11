@@ -145,11 +145,6 @@ QStringList DocsetMetadata::aliases() const
     return m_aliases;
 }
 
-QStringList DocsetMetadata::versions() const
-{
-    return m_versions;
-}
-
 QString DocsetMetadata::latestVersion() const
 {
     return m_versions.isEmpty() ? QString() : m_versions.first();
