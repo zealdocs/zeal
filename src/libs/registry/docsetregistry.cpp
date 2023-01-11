@@ -111,11 +111,6 @@ bool DocsetRegistry::contains(const QString &name) const
     return m_docsets.contains(name);
 }
 
-QStringList DocsetRegistry::names() const
-{
-    return m_docsets.keys();
-}
-
 void DocsetRegistry::loadDocset(const QString &path)
 {
     std::future<Docset *> f = std::async(std::launch::async, [path](){

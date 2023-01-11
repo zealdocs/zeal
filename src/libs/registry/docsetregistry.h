@@ -55,7 +55,6 @@ public:
     void setFuzzySearchEnabled(bool enabled);
 
     bool contains(const QString &name) const;
-    QStringList names() const;
 
     void loadDocset(const QString &path);
     void unloadDocset(const QString &name);
