@@ -38,7 +38,7 @@ jobs:
           qtwebengine5-dev
 
     - name: Configure & Build
-      uses: lukka/run-cmake@v3
+      uses: lukka/run-cmake@v10
       with:
         buildDirectory: ${{ runner.workspace }}/build/
 
