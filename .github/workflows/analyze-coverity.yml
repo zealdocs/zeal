@@ -1,0 +1,39 @@
+name: Coverity Scan
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  coverity:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get -y -qq update
+        sudo apt-get -y -qq --no-install-recommends install \
+            cmake \
+            extra-cmake-modules \
+            libarchive-dev \
+            libgl1-mesa-dev \
+            libqt6opengl6-dev \
+            libsqlite3-dev \
+            libxcb-keysyms1-dev \
+            ninja-build \
+            qt6-base-private-dev \
+            qt6-webengine-dev \
+            qt6-webengine-dev-tools
+
+    - name: Configure
+      run: cmake -B build -G Ninja
+
+    - name: Coverity Scan
+      uses: vapier/coverity-scan-action@v1
+      with:
+        command: ninja -C build
+        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
