@@ -18,7 +18,7 @@ else()
 endif()
 
 set(PROJECT_COMPANY_NAME "ZealDocs")
-set(PROJECT_COPYRIGHT "© 2013-2020 Oleg Shparber and other contributors")
+set(PROJECT_COPYRIGHT "© 2013-2023 Oleg Shparber and other contributors")
 set(PROJECT_DESCRIPTION "A simple documentation browser.")
 set(PROJECT_URL "https://zealdocs.org")
 
