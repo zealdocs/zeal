@@ -81,7 +81,7 @@ execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # How many commits since the last tag
-execute_process(COMMAND ${GIT_EXECUTABLE} rev-list master ${${PROJECT_NAME}_GIT_VERSION_STRING}^..HEAD --count
+execute_process(COMMAND ${GIT_EXECUTABLE} rev-list ${${PROJECT_NAME}_GIT_VERSION_STRING}^..HEAD --count
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE ${PROJECT_NAME}_GIT_VERSION_AHEAD
     OUTPUT_STRIP_TRAILING_WHITESPACE)
