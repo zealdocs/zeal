@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Should be in .gitignore.
+export APPIMAGE_BUILD_DIR=build.appimage
+
 # Install dependencies
 if [ ! -z ${INPUT_APT_DEPENDENCIES+x} ]; then
     apt-get update -q -y
@@ -7,4 +10,4 @@ if [ ! -z ${INPUT_APT_DEPENDENCIES+x} ]; then
 fi
 
 # Run appimage-builder
-appimage-builder --skip-test --recipe ${INPUT_RECIPE}
+appimage-builder --skip-test --build-dir ${APPIMAGE_BUILD_DIR} --appdir ${APPIMAGE_BUILD_DIR}/AppDir --recipe ${INPUT_RECIPE}

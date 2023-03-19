@@ -1,13 +1,11 @@
 version: 1
 
 script:
-  - cmake -B build.appimage -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
-  - cmake --build build.appimage
-  - cmake --install build.appimage --prefix build.appimage/AppDir/usr
+  - cmake -B $BUILD_DIR/cmake-build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  - cmake --build $BUILD_DIR/cmake-build
+  - cmake --install $BUILD_DIR/cmake-build --prefix $TARGET_APPDIR/usr
 
 AppDir:
-  path: build.appimage/AppDir
-
   app_info:
     id: org.zealdocs.zeal
     name: zeal
@@ -24,10 +22,10 @@ AppDir:
   apt:
     arch: amd64
     sources:
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal-backports main restricted universe multiverse
-        key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+        key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920d1991bc93c
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
     include:
       # Required Qt packages.
       - libqt5concurrent5
@@ -47,7 +45,12 @@ AppDir:
       - libfreetype6
     exclude:
       - "*dbgsym*"
+      - adwaita-icon-theme
+      - dconf-service
+      - gcc-*
       - gnupg
+      - humanity-icon-theme
+      - libsystemd0
       - libwacom*
       - perl
       - perl-*
@@ -57,19 +60,15 @@ AppDir:
 
   files:
     exclude:
-      - usr/include
-      - usr/share/man
-      - usr/share/doc
-      - usr/share/doc/*/README.*
-      - usr/share/doc/*/changelog.*
-      - usr/share/doc/*/NEWS.*
-      - usr/share/doc/*/TODO.*
-      - lib/systemd
       - etc/systemd
-      - usr/bin/systemd*
-      - usr/bin/dpkg*
+      - lib/systemd
       - usr/bin/*-linux-gnu-*
-      #- usr/share/locale
+      - usr/bin/dpkg*
+      - usr/bin/systemd*
+      - usr/include
+      - usr/lib/x86_64-linux-gnu/gconv
+      - usr/share/doc
+      - usr/share/man
 
 AppImage:
   arch: x86_64
