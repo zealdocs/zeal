@@ -15,8 +15,7 @@
   <url type="homepage">https://zealdocs.org/</url>
   <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
   <url type="help">https://zealdocs.org/usage.html</url>
-  <!-- TODO: Reenable after moving AppImage build to Ubuntu 20.04. -->
-  <!--url type="contact">https://go.zealdocs.org/l/contact</url-->
+  <url type="contact">https://go.zealdocs.org/l/contact</url>
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
