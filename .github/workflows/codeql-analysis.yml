@@ -14,11 +14,12 @@ jobs:
     name: Analyze
     runs-on: ubuntu-20.04
 
+    permissions:
+      security-events: write
+
     steps:
-    - name: Checkout
+    - name: Checkout Repository
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
@@ -40,7 +41,8 @@ jobs:
     - name: Configure & Build
       uses: lukka/run-cmake@v10
       with:
-        buildDirectory: ${{ runner.workspace }}/build/
+        configurePreset: ninja-multi
+        buildPreset: ninja-multi-release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
