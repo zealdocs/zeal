@@ -19,6 +19,7 @@ jobs:
         sudo apt-get -y -qq --no-install-recommends install \
             cmake \
             extra-cmake-modules \
+            git \
             libarchive-dev \
             libgl1-mesa-dev \
             libqt6opengl6-dev \
