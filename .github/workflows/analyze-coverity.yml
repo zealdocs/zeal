@@ -5,8 +5,9 @@ on:
     branches: [main]
 
 jobs:
-  coverity:
-    runs-on: ubuntu-latest
+  analyze-coverity:
+    name: Analyze
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout Repository
@@ -31,9 +32,17 @@ jobs:
     - name: Configure
       run: cmake -B build -G Ninja
 
+    - name: Retrieve Zeal Version
+      run: |
+        zeal_version=$(cmake --build build --target zeal_version | grep -oP '^Zeal version: \K.*$')
+        echo "Zeal Version: ${zeal_version}"
+        echo "ZEAL_VERSION=${zeal_version}" >> $GITHUB_ENV
+
+
     - name: Coverity Scan
       uses: vapier/coverity-scan-action@v1
       with:
         command: ninja -C build
+        version: ${{ env.ZEAL_VERSION }}
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
