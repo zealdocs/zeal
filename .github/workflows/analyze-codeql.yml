@@ -12,7 +12,7 @@ on:
 jobs:
   analyze-codeql:
     name: Analyze
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     permissions:
       security-events: write
@@ -31,12 +31,14 @@ jobs:
           cmake \
           extra-cmake-modules \
           libarchive-dev \
-          libqt5x11extras5-dev \
+          libgl1-mesa-dev \
+          libqt6opengl6-dev \
           libsqlite3-dev \
           libxcb-keysyms1-dev \
           ninja-build \
-          qt5-default \
-          qtwebengine5-dev
+          qt6-base-private-dev \
+          qt6-webengine-dev \
+          qt6-webengine-dev-tools
 
     - name: Configure & Build
       uses: lukka/run-cmake@v10
