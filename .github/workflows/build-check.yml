@@ -131,14 +131,16 @@ jobs:
           cache: true
           extra: --external 7z
 
-      - name: Print Environment
-        run: gci env:* | sort-object name
-
       - name: Configure & Build
         uses: lukka/run-cmake@v10
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
+
+      - name: Prevent storing partial vcpkg cache
+        if: ${{ failure() || cancelled() }}
+        run: |
+          "RUNVCPKG_NO_CACHE=1" >> $env:GITHUB_ENV
 
   build-appimage:
     name: AppImage
