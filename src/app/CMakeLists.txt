@@ -5,10 +5,8 @@ endif()
 
 # qt_standard_project_setup and qt_deploy_runtime_dependencies require Qt version >=6.3.0.
 if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.3.0")
-    set(use_qt63_cmake_commands)
-endif()
+    set(use_qt63_cmake_commands TRUE)
 
-if(use_qt63_cmake_commands)
     qt_standard_project_setup()
 endif()
 
