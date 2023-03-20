@@ -51,6 +51,8 @@ endif()
 set(ZEAL_VERSION_FULL "${Zeal_VERSION}${ZEAL_VERSION_SUFFIX}")
 message(NOTICE "Calculated Zeal version: ${ZEAL_VERSION_FULL}")
 
+file(WRITE "${CMAKE_BINARY_DIR}/zeal_version" "${ZEAL_VERSION_FULL}")
+
 # For development builds insert an extra release in the AppStream metadata.
 if(NOT RELEASE_VERSION)
     string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />")
