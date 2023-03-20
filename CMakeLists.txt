@@ -49,6 +49,7 @@ if(NOT RELEASE_VERSION)
 endif()
 
 set(ZEAL_VERSION_FULL "${Zeal_VERSION}${ZEAL_VERSION_SUFFIX}")
+message(NOTICE "Calculated Zeal version: ${ZEAL_VERSION_FULL}")
 
 # For development builds insert an extra release in the AppStream metadata.
 if(NOT RELEASE_VERSION)
