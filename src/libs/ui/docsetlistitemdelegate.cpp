@@ -59,8 +59,9 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     font.setItalic(true);
 
     const QFontMetrics fontMetrics(font);
+    const int margin = 4; // Random small number
 
-    QRect textRect = option.rect;
+    QRect textRect = option.rect.adjusted(-margin, 0, -margin, 0);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     textRect.setLeft(textRect.right() - fontMetrics.horizontalAdvance(text) - 2);
 #else
