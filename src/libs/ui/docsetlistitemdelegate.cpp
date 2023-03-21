@@ -67,6 +67,7 @@ void DocsetListItemDelegate::paint(QPainter *painter,
 #else
     textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
 #endif
+    textRect = QStyle::visualRect(option.direction, option.rect, textRect);
     // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behaviour.
     const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, option.displayAlignment,
