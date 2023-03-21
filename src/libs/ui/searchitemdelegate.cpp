@@ -100,14 +100,18 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
         // All icons are sized after the first one.
         QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
+        // Undo RTL mirroring
+        iconRect = style->visualRect(opt.direction, opt.rect, iconRect);
         const int dx = iconRect.width() + margin;
 
         for (int i = 1; i < roles.size(); ++i) {
             opt.decorationSize.rwidth() += dx;
             iconRect.translate(dx, 0);
+            // Redo RTL mirroring
+            const auto iconVisualRect = style->visualRect(opt.direction, opt.rect, iconRect);
 
             const QIcon icon = index.data(roles[i]).value<QIcon>();
-            icon.paint(painter, iconRect, opt.decorationAlignment, mode, state);
+            icon.paint(painter, iconVisualRect, opt.decorationAlignment, mode, state);
         }
     }
 
