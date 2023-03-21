@@ -335,7 +335,7 @@ void MainWindow::addTab(BrowserTab *tab, int index)
     }
 
     ui->webViewStack->insertWidget(index, tab);
-    m_tabBar->insertTab(index, tr("Loading..."));
+    m_tabBar->insertTab(index, tr("Loading…"));
     m_tabBar->setCurrentIndex(index);
     m_tabBar->setTabData(index, QVariant::fromValue(tab));
 }

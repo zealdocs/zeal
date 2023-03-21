@@ -182,12 +182,12 @@
   </action>
   <action name="actionSubmitFeedback">
    <property name="text">
-    <string>&amp;Submit Feedback...</string>
+    <string>&amp;Submit Feedback…</string>
    </property>
   </action>
   <action name="actionCheckForUpdates">
    <property name="text">
-    <string>&amp;Check for updates...</string>
+    <string>&amp;Check for updates…</string>
    </property>
   </action>
   <action name="actionFind">
@@ -201,7 +201,7 @@
   </action>
   <action name="actionDocsets">
    <property name="text">
-    <string>&amp;Docsets...</string>
+    <string>&amp;Docsets…</string>
    </property>
   </action>
  </widget>
