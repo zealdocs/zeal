@@ -179,10 +179,13 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     else
         painter->setPen(opt.palette.color(cg, QPalette::Text));
 
+    // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behaviour.
-    const QRect alignedRect = QStyle::alignedRect(opt.direction, opt.displayAlignment,
-                                                  QSize(1, fm.height()), textRect);
-    painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
+    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, opt.displayAlignment,
+                                                 QSize(textRect.size().width(), fm.height()), textRect);
+    const auto textPoint = QPoint(alignedRect.x(), alignedRect.y() + fm.ascent());
+    // Force LTR, so that BiDi won't reorder ellipsis to the left.
+    painter->drawText(textPoint, elidedText, Qt::TextFlag::TextForceLeftToRight, 0);
     painter->restore();
 }
 
