@@ -125,7 +125,9 @@ bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            if (keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
+            if (keyEvent->modifiers().testFlag(Qt::ControlModifier)) {
+                m_highlightAllButton->toggle();
+            } else if (keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
                 findPrevious();
             } else {
                 findNext();
