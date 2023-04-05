@@ -221,7 +221,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     addAction(ui->actionCloseTab);
     connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
 
-    // TODO: Use QKeySequence::PreviousChild & NextChild, when QTBUG-112193 is fixed.
+    // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
     ui->actionNextTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_Tab),
                                      QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
     addAction(ui->actionNextTab);
