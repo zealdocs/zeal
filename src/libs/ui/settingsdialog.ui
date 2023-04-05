@@ -139,7 +139,7 @@
             <item>
              <widget class="QPushButton" name="docsetStorageBrowseButton">
               <property name="text">
-               <string>&amp;Browse...</string>
+               <string>&amp;Browse…</string>
               </property>
              </widget>
             </item>
@@ -447,7 +447,7 @@
             <item>
              <widget class="QPushButton" name="customCssFileBrowseButton">
               <property name="text">
-               <string>Bro&amp;wse...</string>
+               <string>Bro&amp;wse…</string>
               </property>
              </widget>
             </item>
