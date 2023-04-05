@@ -229,7 +229,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
         m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
     });
 
-    // TODO: Use QKeySequence::PreviousChild & NextChild, when QTBUG-112193 is fixed.
+    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
     ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
                                          QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
     addAction(ui->actionPreviousTab);
