@@ -100,14 +100,18 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
         // All icons are sized after the first one.
         QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
+        // Undo RTL mirroring
+        iconRect = style->visualRect(opt.direction, opt.rect, iconRect);
         const int dx = iconRect.width() + margin;
 
         for (int i = 1; i < roles.size(); ++i) {
             opt.decorationSize.rwidth() += dx;
             iconRect.translate(dx, 0);
+            // Redo RTL mirroring
+            const auto iconVisualRect = style->visualRect(opt.direction, opt.rect, iconRect);
 
             const QIcon icon = index.data(roles[i]).value<QIcon>();
-            icon.paint(painter, iconRect, opt.decorationAlignment, mode, state);
+            icon.paint(painter, iconVisualRect, opt.decorationAlignment, mode, state);
         }
     }
 
@@ -175,10 +179,13 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     else
         painter->setPen(opt.palette.color(cg, QPalette::Text));
 
+    // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behaviour.
-    const QRect alignedRect = QStyle::alignedRect(opt.direction, opt.displayAlignment,
-                                                  QSize(1, fm.height()), textRect);
-    painter->drawText(QPoint(alignedRect.x(), alignedRect.y() + fm.ascent()), elidedText);
+    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, opt.displayAlignment,
+                                                 QSize(textRect.size().width(), fm.height()), textRect);
+    const auto textPoint = QPoint(alignedRect.x(), alignedRect.y() + fm.ascent());
+    // Force LTR, so that BiDi won't reorder ellipsis to the left.
+    painter->drawText(textPoint, elidedText, Qt::TextFlag::TextForceLeftToRight, 0);
     painter->restore();
 }
 
