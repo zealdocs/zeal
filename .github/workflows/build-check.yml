@@ -121,10 +121,10 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare vcpkg
-        uses: lukka/run-vcpkg@v10
+        uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: ${{ runner.workspace }}/vcpkg
-          vcpkgGitCommitId: cef0b3ec767df6e83806899fe9525f6cf8d7bc91 # 2022.06.16.1
+          vcpkgGitCommitId: 5b1214315250939257ef5d62ecdcbca18cf4fb1c # For vcpkg-tool 2023-03-29.
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -140,11 +140,6 @@ jobs:
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
-
-      - name: Prevent storing partial vcpkg cache
-        if: ${{ failure() || cancelled() }}
-        run: |
-          "RUNVCPKG_NO_CACHE=1" >> $env:GITHUB_ENV
 
   build-appimage:
     name: AppImage
