@@ -35,7 +35,12 @@ if(APPLE AND NOT LibArchive_INCLUDE_DIR)
   set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
 endif()
 
-target_link_libraries(Core LibArchive::LibArchive)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0)
+    target_link_libraries(Core LibArchive::LibArchive)
+else()
+    include_directories(${LibArchive_INCLUDE_DIRS})
+    target_link_libraries(Core ${LibArchive_LIBRARIES})
+endif()
 
 # Required by cpp-httplib.
 if(NOT WIN32)
