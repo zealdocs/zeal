@@ -9,6 +9,10 @@ on:
   schedule:
   - cron: '0 8 * * 6'
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   analyze-codeql:
     name: Analyze
