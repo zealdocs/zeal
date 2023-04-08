@@ -141,6 +141,26 @@ jobs:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
 
+      - name: Retrieve Application Version
+        run: |
+          $zeal_version = Get-Content build/${{ matrix.config.configurePreset }}/zeal_version
+          Write-Output "Zeal Version: $zeal_version"
+          "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
+
+      - name: Install
+        if: matrix.config.os == 'windows-2022'
+        run: cmake --build build/${{ matrix.config.configurePreset }} --config RelWithDebInfo --target install
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        if: matrix.config.os == 'windows-2022'
+        with:
+          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64
+          path: |
+            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo
+            !**/*.idl
+            !**/*.pdb
+
   build-appimage:
     name: AppImage
     runs-on: ubuntu-20.04
