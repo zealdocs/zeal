@@ -3,9 +3,9 @@ if (Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
     message(FATAL_ERROR "Qt version >= ${QT_MINIMUM_VERSION} is required.")
 endif()
 
-# qt_standard_project_setup and qt_deploy_runtime_dependencies require Qt version >=6.3.0.
-if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.3.0")
-    set(use_qt63_cmake_commands TRUE)
+# Only support installing runtime dependencies with Qt >=6.5.0.
+if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0")
+    set(use_qt_cmake_commands TRUE)
 
     qt_standard_project_setup()
 endif()
@@ -41,7 +41,7 @@ set_target_properties(App PROPERTIES
 )
 
 # Install Qt runtime dependencies on Windows.
-if(WIN32 AND use_qt63_cmake_commands)
+if(WIN32 AND use_qt_cmake_commands)
     # The following script will be executed at install time.
     set(qt_deploy_script "${CMAKE_CURRENT_BINARY_DIR}/qt-deploy-$<CONFIG>.cmake")
 
@@ -53,6 +53,7 @@ include(\"${QT_DEPLOY_SUPPORT}\")
 qt_deploy_runtime_dependencies(
     EXECUTABLE \"$<TARGET_FILE:App>\"
     BIN_DIR .
+    NO_TRANSLATIONS
     VERBOSE
 )")
 endif()
@@ -69,12 +70,12 @@ if(APPLE)
         MACOSX_BUNDLE_COPYRIGHT ${PROJECT_COPYRIGHT}
         RESOURCE "resources/zeal.icns"
     )
-elseif(WIN32 AND use_qt63_cmake_commands)
+elseif(WIN32 AND use_qt_cmake_commands)
     # Install Qt runtime dependencies.
     install(SCRIPT ${qt_deploy_script})
 
     unset(qt_deploy_script)
-    unset(use_qt63_cmake_commands)
+    unset(use_qt_cmake_commands)
 elseif(UNIX)
     include(GNUInstallDirs)
     install(TARGETS App DESTINATION ${CMAKE_INSTALL_BINDIR})
