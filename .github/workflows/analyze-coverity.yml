@@ -53,3 +53,10 @@ jobs:
         version: ${{ env.ZEAL_VERSION }}
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+    - name: Upload Build Log
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-log
+        path: cov-int/build-log.txt
+        if-no-files-found: ignore
