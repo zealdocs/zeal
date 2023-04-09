@@ -39,12 +39,11 @@ jobs:
     - name: Configure
       run: cmake -B build -G Ninja
 
-    - name: Retrieve Zeal Version
+    - name: Retrieve Application Version
       run: |
-        zeal_version=$(cmake --build build --target zeal_version | grep -oP '^Zeal version: \K.*$')
+        zeal_version=$(<build/zeal_version)
         echo "Zeal Version: ${zeal_version}"
         echo "ZEAL_VERSION=${zeal_version}" >> $GITHUB_ENV
-
 
     - name: Coverity Scan
       uses: vapier/coverity-scan-action@v1
