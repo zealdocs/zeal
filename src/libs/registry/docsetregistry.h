@@ -85,7 +85,7 @@ private:
     QAbstractItemModel *m_model = nullptr;
 
     QString m_storagePath;
-    bool m_fuzzySearchEnabled = false;
+    bool m_isFuzzySearchEnabled = false;
 
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;

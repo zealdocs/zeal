@@ -168,7 +168,7 @@ Docset::Docset(QString path)
     }
 
     if (plist.contains(InfoPlist::IsJavaScriptEnabled)) {
-        m_javaScriptEnabled = plist[InfoPlist::IsJavaScriptEnabled].toBool();
+        m_isJavaScriptEnabled = plist[InfoPlist::IsJavaScriptEnabled].toBool();
     }
 
     m_keywords.removeDuplicates();
@@ -294,7 +294,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 {
     QString sql;
     if (m_type == Docset::Type::Dash) {
-        if (m_fuzzySearchEnabled) {
+        if (m_isFuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE score > 0");
@@ -304,7 +304,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
                                  "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
         }
     } else {
-        if (m_fuzzySearchEnabled) {
+        if (m_isFuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE score > 0");
@@ -421,7 +421,7 @@ void Docset::loadMetadata()
         }
 
         if (extra.contains(QStringLiteral("isJavaScriptEnabled"))) {
-            m_javaScriptEnabled = extra[QStringLiteral("isJavaScriptEnabled")].toBool();
+            m_isJavaScriptEnabled = extra[QStringLiteral("isJavaScriptEnabled")].toBool();
         }
     }
 }
@@ -730,17 +730,17 @@ void Docset::setBaseUrl(const QUrl &baseUrl)
 
 bool Docset::isFuzzySearchEnabled() const
 {
-    return m_fuzzySearchEnabled;
+    return m_isFuzzySearchEnabled;
 }
 
 void Docset::setFuzzySearchEnabled(bool enabled)
 {
-    m_fuzzySearchEnabled = enabled;
+    m_isFuzzySearchEnabled = enabled;
 }
 
 bool Docset::isJavaScriptEnabled() const
 {
-    return m_javaScriptEnabled;
+    return m_isJavaScriptEnabled;
 }
 
 /**

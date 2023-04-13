@@ -72,11 +72,11 @@ void Settings::applySettings()
     // TODO: Apply to all open pages.
     m_webProfile->scripts()->clear(); // Remove all scripts first.
 
-    if (m_appSettings->darkModeEnabled) {
+    if (m_appSettings->isDarkModeEnabled) {
         setCustomStyleSheet(QStringLiteral("_zeal_darkstylesheet"), DarkModeCssUrl);
     }
 
-    if (m_appSettings->highlightOnNavigateEnabled) {
+    if (m_appSettings->isHighlightOnNavigateEnabled) {
         setCustomStyleSheet(QStringLiteral("_zeal_highlightstylesheet"), HighlightOnNavigateCssUrl);
     }
 

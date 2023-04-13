@@ -85,7 +85,7 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupSearch);
-    fuzzySearchEnabled = settings->value(QStringLiteral("fuzzy_search_enabled"), false).toBool();
+    isFuzzySearchEnabled = settings->value(QStringLiteral("fuzzy_search_enabled"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
@@ -130,8 +130,8 @@ void Settings::load()
     webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, defaultFixedFontSize);
     webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, minimumFontSize);
 
-    darkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
-    highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
+    isDarkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
+    isHighlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
                                          QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
@@ -206,7 +206,7 @@ void Settings::save()
     settings->endGroup();
 
     settings->beginGroup(GroupSearch);
-    settings->setValue(QStringLiteral("fuzzy_search_enabled"), fuzzySearchEnabled);
+    settings->setValue(QStringLiteral("fuzzy_search_enabled"), isFuzzySearchEnabled);
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
@@ -219,8 +219,8 @@ void Settings::save()
     settings->setValue(QStringLiteral("default_fixed_font_size"), defaultFixedFontSize);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
 
-    settings->setValue(QStringLiteral("dark_mode"), darkModeEnabled);
-    settings->setValue(QStringLiteral("highlight_on_navigate"), highlightOnNavigateEnabled);
+    settings->setValue(QStringLiteral("dark_mode"), isDarkModeEnabled);
+    settings->setValue(QStringLiteral("highlight_on_navigate"), isHighlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("smooth_scrolling"), isSmoothScrollingEnabled);

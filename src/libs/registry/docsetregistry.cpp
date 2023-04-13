@@ -90,16 +90,16 @@ void DocsetRegistry::setStoragePath(const QString &path)
 
 bool DocsetRegistry::isFuzzySearchEnabled() const
 {
-    return m_fuzzySearchEnabled;
+    return m_isFuzzySearchEnabled;
 }
 
 void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 {
-    if (enabled == m_fuzzySearchEnabled) {
+    if (enabled == m_isFuzzySearchEnabled) {
         return;
     }
 
-    m_fuzzySearchEnabled = enabled;
+    m_isFuzzySearchEnabled = enabled;
 
     for (Docset *docset : qAsConst(m_docsets)) {
         docset->setFuzzySearchEnabled(enabled);
@@ -137,7 +137,7 @@ void DocsetRegistry::loadDocset(const QString &path)
         return;
     }
 
-    docset->setFuzzySearchEnabled(m_fuzzySearchEnabled);
+    docset->setFuzzySearchEnabled(m_isFuzzySearchEnabled);
 
     const QString name = docset->name();
     if (m_docsets.contains(name)) {

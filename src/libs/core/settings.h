@@ -59,7 +59,7 @@ public:
     bool openNewTabAfterActive;
 
     // Search
-    bool fuzzySearchEnabled;
+    bool isFuzzySearchEnabled;
 
     // Content
     QString defaultFontFamily;
@@ -79,8 +79,8 @@ public:
     Q_ENUM(ExternalLinkPolicy)
     ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
 
-    bool darkModeEnabled;
-    bool highlightOnNavigateEnabled;
+    bool isDarkModeEnabled;
+    bool isHighlightOnNavigateEnabled;
     QString customCssFile;
     bool isSmoothScrollingEnabled;
 

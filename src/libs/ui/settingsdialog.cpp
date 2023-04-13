@@ -186,7 +186,7 @@ void SettingsDialog::loadSettings()
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
 
     // Search Tab
-    ui->fuzzySearchCheckBox->setChecked(settings->fuzzySearchEnabled);
+    ui->fuzzySearchCheckBox->setChecked(settings->isFuzzySearchEnabled);
 
     // Content Tab
     for (int i = 0; i < ui->defaultFontComboBox->count(); ++i) {
@@ -203,8 +203,8 @@ void SettingsDialog::loadSettings()
     ui->fixedFontSizeComboBox->setCurrentText(QString::number(settings->defaultFixedFontSize));
     ui->minFontSizeComboBox->setCurrentText(QString::number(settings->minimumFontSize));
 
-    ui->darkModeCheckBox->setChecked(settings->darkModeEnabled);
-    ui->highlightOnNavigateCheckBox->setChecked(settings->highlightOnNavigateEnabled);
+    ui->darkModeCheckBox->setChecked(settings->isDarkModeEnabled);
+    ui->highlightOnNavigateCheckBox->setChecked(settings->isHighlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
 
     switch (settings->externalLinkPolicy) {
@@ -266,7 +266,7 @@ void SettingsDialog::saveSettings()
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
 
     // Search Tab
-    settings->fuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();
+    settings->isFuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();
 
     // Content Tab
     settings->defaultFontFamily = ui->defaultFontComboBox->currentData().toString();
@@ -278,8 +278,8 @@ void SettingsDialog::saveSettings()
     settings->defaultFixedFontSize = ui->fixedFontSizeComboBox->currentData().toInt();
     settings->minimumFontSize = ui->minFontSizeComboBox->currentData().toInt();
 
-    settings->darkModeEnabled = ui->darkModeCheckBox->isChecked();
-    settings->highlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
+    settings->isDarkModeEnabled = ui->darkModeCheckBox->isChecked();
+    settings->isHighlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
 
     if (ui->radioExternalLinkAsk->isChecked()) {

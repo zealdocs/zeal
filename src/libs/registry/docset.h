@@ -120,8 +120,9 @@ private:
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QMultiMap<QString, QUrl>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
-    bool m_fuzzySearchEnabled = false;
-    bool m_javaScriptEnabled = false;
+
+    bool m_isFuzzySearchEnabled = false;
+    bool m_isJavaScriptEnabled = false;
 
     QUrl m_baseUrl;
 };
