@@ -135,7 +135,7 @@ void Settings::load()
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
                                          QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
-    isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), false).toBool();
+    isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), true).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
