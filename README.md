@@ -65,10 +65,10 @@ Follow instructions in the [Dash docset generation guide](https://kapeli.com/doc
 We want your feedback! Here's a list of different ways to contact developers and request help:
 
 * Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
-* Reach developers and other Zeal users on [Gitter](https://gitter.im/zealdocs/zeal) or `#zealdocs` IRC channel on [Libera Chat](https://libera.chat) ([web client](https://web.libera.chat/#zealdocs)).
-* Ask any questions in our [GitHub Discussions](https://github.com/zealdocs/zeal/discussions).
+* Reach developers and other Zeal users in `#zealdocs` IRC channel on [Libera Chat](https://libera.chat) ([web client](https://web.libera.chat/#zealdocs)).
+* Ask any questions in our [GitHub discussions](https://github.com/zealdocs/zeal/discussions).
 * Do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
-* Finally, for private communication shoot an email to zeal@zealdocs.org.
+* Finally, for private communication shoot an email to support@zealdocs.org.
 
 ## License
 
