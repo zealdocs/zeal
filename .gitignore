@@ -38,3 +38,8 @@ squashfs-root/
 
 # Linux appdata
 /assets/freedesktop/org.zealdocs.zeal.appdata.xml
+
+# Vcpkg
+vcpkg/
+vcpkg_installed/
+
