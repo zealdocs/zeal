@@ -11,6 +11,7 @@ concurrency:
 jobs:
   analyze-coverity:
     name: Analyze
+    if: github.repository == 'zealdocs/zeal'
     runs-on: ubuntu-22.04
 
     steps:
