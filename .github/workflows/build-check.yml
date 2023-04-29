@@ -84,7 +84,8 @@ jobs:
               qt_modules: "qtwebengine",
               qt_version: "5.15.2",
               configurePreset: "ninja-multi-vcpkg",
-              buildPreset: "ninja-multi-vcpkg-release"
+              buildPreset: "ninja-multi-vcpkg-release",
+              publishArtifacts: false
             }
           - {
               name: "Windows Server 2019 / Qt 5 / Portable",
@@ -92,7 +93,8 @@ jobs:
               qt_modules: "qtwebengine",
               qt_version: "5.15.2",
               configurePreset: ninja-multi-vcpkg-portable,
-              buildPreset: ninja-multi-vcpkg-portable-release
+              buildPreset: ninja-multi-vcpkg-portable-release,
+              publishArtifacts: false
             }
           - {
               name: "Windows Server 2022 / Qt 6",
@@ -100,7 +102,8 @@ jobs:
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
               qt_version: "6.5.0",
               configurePreset: ninja-multi-vcpkg,
-              buildPreset: ninja-multi-vcpkg-release
+              buildPreset: ninja-multi-vcpkg-release,
+              publishArtifacts: true
             }
           - {
               name: "Windows Server 2022 / Qt 6 / Portable",
@@ -108,7 +111,8 @@ jobs:
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
               qt_version: "6.5.0",
               configurePreset: ninja-multi-vcpkg-portable,
-              buildPreset: ninja-multi-vcpkg-portable-release
+              buildPreset: ninja-multi-vcpkg-portable-release,
+              publishArtifacts: true
             }
 
     env:
@@ -152,8 +156,8 @@ jobs:
         run: cmake --build build/${{ matrix.config.configurePreset }} --config RelWithDebInfo --target install
 
       - name: Upload Artifacts
+        if: matrix.config.publishArtifacts
         uses: actions/upload-artifact@v3
-        if: matrix.config.os == 'windows-2022'
         with:
           name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64
           path: |
@@ -195,8 +199,8 @@ jobs:
 
       # TODO: Enable for releases.
       - name: Upload AppImage.zsync
-        uses: actions/upload-artifact@v3
         if: github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.ref, 'v')
+        uses: actions/upload-artifact@v3
         with:
           name: zeal-dev-x86_64.AppImage.zsync
           path: zeal-*.AppImage.zsync
