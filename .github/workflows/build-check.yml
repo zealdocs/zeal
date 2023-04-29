@@ -157,13 +157,15 @@ jobs:
 
       - name: Sign Artifacts
         if: matrix.config.publishArtifacts && github.repository == 'zealdocs/zeal' && github.event_name == 'push'
-        uses: dlemstra/code-sign-action@v1
+        uses: trollixx/code-sign-action@fix-temp-dist
         with:
-          certificate: ${{ secrets.CODESIGN_CERTIFICATE }}
-          password: ${{ secrets.CODESIGN_PASSWORD }}
-          folder: build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo
+          certificate: '${{ secrets.CODESIGN_CERTIFICATE }}'
+          password: '${{ secrets.CODESIGN_PASSWORD }}'
           files: |
-            zeal.exe
+            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/zeal.exe
+            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/archive.dll
+            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/sqlite3.dll
+            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/zlib1.dll
 
       - name: Upload Artifacts
         if: matrix.config.publishArtifacts
