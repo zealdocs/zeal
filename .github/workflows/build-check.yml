@@ -175,6 +175,7 @@ jobs:
           path: |
             build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo
             !**/*.idl
+            !**/*.ilk
             !**/*.pdb
 
   build-appimage:
