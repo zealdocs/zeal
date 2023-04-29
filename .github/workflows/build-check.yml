@@ -152,8 +152,18 @@ jobs:
           "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
 
       - name: Install
-        if: matrix.config.os == 'windows-2022'
+        if: matrix.config.publishArtifacts
         run: cmake --build build/${{ matrix.config.configurePreset }} --config RelWithDebInfo --target install
+
+      - name: Sign Artifacts
+        if: matrix.config.publishArtifacts && github.repository == 'zealdocs/zeal' && github.event_name == 'push'
+        uses: dlemstra/code-sign-action@v1
+        with:
+          certificate: ${{ secrets.CODESIGN_CERTIFICATE }}
+          password: ${{ secrets.CODESIGN_PASSWORD }}
+          folder: build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo
+          files: |
+            zeal.exe
 
       - name: Upload Artifacts
         if: matrix.config.publishArtifacts
