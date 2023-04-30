@@ -72,9 +72,17 @@ void Settings::applySettings()
     // TODO: Apply to all open pages.
     m_webProfile->scripts()->clear(); // Remove all scripts first.
 
-    if (m_appSettings->isDarkModeEnabled) {
+    // Qt 5.14+ uses native Chromium dark mode.
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    const bool enableDarkMode
+        = m_appSettings->contentAppearance == Core::Settings::ContentAppearance::Dark
+          || (m_appSettings->contentAppearance == Core::Settings::ContentAppearance::Automatic
+              && m_appSettings->colorScheme() == Core::Settings::ColorScheme::Dark);
+
+    if (enableDarkMode) {
         setCustomStyleSheet(QStringLiteral("_zeal_darkstylesheet"), DarkModeCssUrl);
     }
+#endif
 
     if (m_appSettings->isHighlightOnNavigateEnabled) {
         setCustomStyleSheet(QStringLiteral("_zeal_highlightstylesheet"), HighlightOnNavigateCssUrl);

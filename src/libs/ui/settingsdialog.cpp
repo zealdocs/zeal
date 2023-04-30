@@ -203,7 +203,18 @@ void SettingsDialog::loadSettings()
     ui->fixedFontSizeComboBox->setCurrentText(QString::number(settings->defaultFixedFontSize));
     ui->minFontSizeComboBox->setCurrentText(QString::number(settings->minimumFontSize));
 
-    ui->darkModeCheckBox->setChecked(settings->isDarkModeEnabled);
+    switch (settings->contentAppearance) {
+    case Core::Settings::ContentAppearance::Automatic:
+        ui->appearanceAutoRadioButton->setChecked(true);
+        break;
+    case Core::Settings::ContentAppearance::Light:
+        ui->appearanceLightRadioButton->setChecked(true);
+        break;
+    case Core::Settings::ContentAppearance::Dark:
+        ui->appearanceDarkRadioButton->setChecked(true);
+        break;
+    }
+
     ui->highlightOnNavigateCheckBox->setChecked(settings->isHighlightOnNavigateEnabled);
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(settings->customCssFile));
 
@@ -278,7 +289,14 @@ void SettingsDialog::saveSettings()
     settings->defaultFixedFontSize = ui->fixedFontSizeComboBox->currentData().toInt();
     settings->minimumFontSize = ui->minFontSizeComboBox->currentData().toInt();
 
-    settings->isDarkModeEnabled = ui->darkModeCheckBox->isChecked();
+    if (ui->appearanceAutoRadioButton->isChecked()) {
+        settings->contentAppearance = Core::Settings::ContentAppearance::Automatic;
+    } else if (ui->appearanceLightRadioButton->isChecked()) {
+        settings->contentAppearance = Core::Settings::ContentAppearance::Light;
+    } else if (ui->appearanceDarkRadioButton->isChecked()) {
+        settings->contentAppearance = Core::Settings::ContentAppearance::Dark;
+    }
+
     settings->isHighlightOnNavigateEnabled = ui->highlightOnNavigateCheckBox->isChecked();
     settings->customCssFile = QDir::fromNativeSeparators(ui->customCssFileEdit->text());
 
