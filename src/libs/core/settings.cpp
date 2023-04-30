@@ -24,7 +24,7 @@
 
 #include "application.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
@@ -33,6 +33,12 @@
 #include <QUuid>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QStyleHints>
+#else
+#include <QPalette>
+#endif
 
 namespace {
 // Configuration file groups
@@ -63,6 +69,21 @@ Settings::~Settings()
     save();
 }
 
+Zeal::Core::Settings::ColorScheme Settings::colorScheme()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    return QApplication::styleHints()->colorScheme();
+#else
+    // Pre Qt 6.5 detection from https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
+    const QPalette p;
+    if (p.color(QPalette::WindowText).lightness() > p.color(QPalette::Window).lightness()) {
+        return ColorScheme::Dark;
+    }
+
+    return ColorScheme::Light;
+#endif
+}
+
 void Settings::load()
 {
     QScopedPointer<QSettings> settings(qsettings());
@@ -89,6 +110,21 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
+
+    // Dark mode needs to be applied before Qt WebEngine is initialized.
+    contentAppearance = settings->value(QStringLiteral("appearance"),
+                                        QVariant::fromValue(ContentAppearance::Automatic)).value<ContentAppearance>();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    const bool enableDarkMode
+        = contentAppearance == ContentAppearance::Dark
+          || (contentAppearance == ContentAppearance::Automatic && colorScheme() == ColorScheme::Dark);
+
+    if (enableDarkMode) {
+        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4");
+    }
+#endif
+
     // Fonts
     QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
     serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
@@ -130,7 +166,6 @@ void Settings::load()
     webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, defaultFixedFontSize);
     webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, minimumFontSize);
 
-    isDarkModeEnabled = settings->value(QStringLiteral("dark_mode"), false).toBool();
     isHighlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
@@ -219,7 +254,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("default_fixed_font_size"), defaultFixedFontSize);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
 
-    settings->setValue(QStringLiteral("dark_mode"), isDarkModeEnabled);
+    settings->setValue(QStringLiteral("appearance"), QVariant::fromValue(contentAppearance));
     settings->setValue(QStringLiteral("highlight_on_navigate"), isHighlightOnNavigateEnabled);
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));

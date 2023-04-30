@@ -79,7 +79,14 @@ public:
     Q_ENUM(ExternalLinkPolicy)
     ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
 
-    bool isDarkModeEnabled;
+    enum class ContentAppearance : unsigned int {
+        Automatic = 0,
+        Light,
+        Dark
+    };
+    Q_ENUM(ContentAppearance)
+    ContentAppearance contentAppearance = ContentAppearance::Automatic;
+
     bool isHighlightOnNavigateEnabled;
     QString customCssFile;
     bool isSmoothScrollingEnabled;
@@ -117,6 +124,19 @@ public:
 
     explicit Settings(QObject *parent = nullptr);
     ~Settings() override;
+
+    // Helper functions.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    typedef Qt::ColorScheme ColorScheme;
+#else
+    enum class ColorScheme {
+        Unknown,
+        Light,
+        Dark,
+    };
+#endif
+
+    static ColorScheme colorScheme();
 
 public slots:
     void load();
