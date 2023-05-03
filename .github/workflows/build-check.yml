@@ -157,7 +157,7 @@ jobs:
 
       - name: Sign Artifacts
         if: matrix.config.publishArtifacts && github.repository == 'zealdocs/zeal' && github.event_name == 'push'
-        uses: trollixx/code-sign-action@fix-temp-dist
+        uses: dlemstra/code-sign-action@v1
         with:
           certificate: '${{ secrets.CODESIGN_CERTIFICATE }}'
           password: '${{ secrets.CODESIGN_PASSWORD }}'
