@@ -33,6 +33,7 @@
 #include <QFileDialog>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
+#include <QNetworkAccessManager>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -47,9 +48,10 @@ constexpr QWebEngineSettings::FontFamily BasicFontFamilies[] = {QWebEngineSettin
                                                                 QWebEngineSettings::FixedFont};
 } // namespace
 
-SettingsDialog::SettingsDialog(QWidget *parent)
+SettingsDialog::SettingsDialog(Core::Application *app, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::SettingsDialog())
+    , m_application(app)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -331,6 +333,11 @@ void SettingsDialog::saveSettings()
     settings->proxyAuthenticate = ui->proxyRequiresAuthCheckBox->isChecked();
     settings->proxyUserName = ui->proxyUsernameEdit->text();
     settings->proxyPassword = ui->proxyPasswordEdit->text();
+
+    if (settings->isIgnoreSSLErrorsEnabled != ui->ignoreSSLErrorsCheckBox->isChecked()) {
+        // https://forum.qt.io/topic/125873/how-to-clear-qnetworkreply-ignoresslerrors/2
+        m_application->networkManager()->clearAccessCache();
+    }
 
     settings->isIgnoreSSLErrorsEnabled = ui->ignoreSSLErrorsCheckBox->isChecked();
 
