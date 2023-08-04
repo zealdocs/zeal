@@ -255,6 +255,8 @@ void SettingsDialog::loadSettings()
     ui->proxyRequiresAuthCheckBox->setChecked(settings->proxyAuthenticate);
     ui->proxyUsernameEdit->setText(settings->proxyUserName);
     ui->proxyPasswordEdit->setText(settings->proxyPassword);
+
+    ui->ignoreSSLErrorsCheckBox->setChecked(settings->isIgnoreSSLErrorsEnabled);
 }
 
 void SettingsDialog::saveSettings()
@@ -329,6 +331,8 @@ void SettingsDialog::saveSettings()
     settings->proxyAuthenticate = ui->proxyRequiresAuthCheckBox->isChecked();
     settings->proxyUserName = ui->proxyUsernameEdit->text();
     settings->proxyPassword = ui->proxyPasswordEdit->text();
+
+    settings->isIgnoreSSLErrorsEnabled = ui->ignoreSSLErrorsCheckBox->isChecked();
 
     settings->save();
 }

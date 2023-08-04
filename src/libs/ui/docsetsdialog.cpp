@@ -675,6 +675,15 @@ bool DocsetsDialog::updatesAvailable() const
 QNetworkReply *DocsetsDialog::download(const QUrl &url)
 {
     QNetworkReply *reply = m_application->download(url);
+
+    if (m_application->settings()->isIgnoreSSLErrorsEnabled) {
+        // Connect to the reply's sslErrors signal to handle SSL errors
+        connect(reply, &QNetworkReply::sslErrors, [=](const QList<QSslError>& errors){
+            // Ignore all SSL errors
+            reply->ignoreSslErrors();
+        });
+    }
+
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);

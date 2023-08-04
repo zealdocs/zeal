@@ -99,6 +99,7 @@ public:
         Socks5 = 4
     };
     Q_ENUM(ProxyType)
+    bool isIgnoreSSLErrorsEnabled;
 
     // Internal
     // --------
