@@ -754,7 +754,7 @@
           <item>
            <widget class="QCheckBox" name="ignoreSSLErrorsCheckBox">
             <property name="text">
-             <string>Ignore SSL errors when downloading</string>
+             <string>Ignore SSL errors</string>
             </property>
            </widget>
           </item>
