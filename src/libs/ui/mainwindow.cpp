@@ -114,7 +114,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
             m_globalShortcut->setEnabled(false);
         }
 
-        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(m_application, this));
+        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
 
         if (m_globalShortcut) {
