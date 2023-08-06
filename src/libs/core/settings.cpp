@@ -181,6 +181,7 @@ void Settings::load()
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
     proxyUserName = settings->value(QStringLiteral("username")).toString();
     proxyPassword = settings->value(QStringLiteral("password")).toString();
+    isIgnoreSSLErrorsEnabled = settings->value(QStringLiteral("ignore_ssl_errors"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupDocsets);
@@ -268,6 +269,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("authenticate"), proxyAuthenticate);
     settings->setValue(QStringLiteral("username"), proxyUserName);
     settings->setValue(QStringLiteral("password"), proxyPassword);
+    settings->setValue(QStringLiteral("ignore_ssl_errors"), isIgnoreSSLErrorsEnabled);
     settings->endGroup();
 
     settings->beginGroup(GroupDocsets);

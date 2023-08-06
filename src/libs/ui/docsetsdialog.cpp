@@ -675,6 +675,7 @@ bool DocsetsDialog::updatesAvailable() const
 QNetworkReply *DocsetsDialog::download(const QUrl &url)
 {
     QNetworkReply *reply = m_application->download(url);
+
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);
