@@ -279,11 +279,13 @@ void Application::applySettings()
 
         QNetworkProxy::setApplicationProxy(proxy);
 
-        // Force NM to pick up changes.
-        m_networkManager->clearAccessCache();
         break;
     }
     }
+
+    // Force NM to pick up changes.
+    m_networkManager->clearAccessCache();
+
 }
 
 QString Application::userAgent()
