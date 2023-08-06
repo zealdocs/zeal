@@ -752,7 +752,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_15">
           <item>
-           <widget class="QCheckBox" name="ignoreSSLErrorsCheckBox">
+           <widget class="QCheckBox" name="ignoreSslErrorsCheckBox">
             <property name="text">
              <string>Ignore SSL errors</string>
             </property>

@@ -256,7 +256,7 @@ void SettingsDialog::loadSettings()
     ui->proxyUsernameEdit->setText(settings->proxyUserName);
     ui->proxyPasswordEdit->setText(settings->proxyPassword);
 
-    ui->ignoreSSLErrorsCheckBox->setChecked(settings->isIgnoreSSLErrorsEnabled);
+    ui->ignoreSslErrorsCheckBox->setChecked(settings->isIgnoreSslErrorsEnabled);
 }
 
 void SettingsDialog::saveSettings()
@@ -332,7 +332,7 @@ void SettingsDialog::saveSettings()
     settings->proxyUserName = ui->proxyUsernameEdit->text();
     settings->proxyPassword = ui->proxyPasswordEdit->text();
 
-    settings->isIgnoreSSLErrorsEnabled = ui->ignoreSSLErrorsCheckBox->isChecked();
+    settings->isIgnoreSslErrorsEnabled = ui->ignoreSslErrorsCheckBox->isChecked();
 
     settings->save();
 }

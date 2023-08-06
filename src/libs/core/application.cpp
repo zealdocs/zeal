@@ -66,10 +66,9 @@ Application::Application(QObject *parent)
     m_fileManager = new FileManager(this);
     m_httpServer = new HttpServer(this);
 
-    connect(m_networkManager, &QNetworkAccessManager::sslErrors, this, [this](QNetworkReply *reply, const QList<QSslError> &errors)
-    {
-        if (m_settings->isIgnoreSSLErrorsEnabled) {
-            // Ignore all SSL errors
+    connect(m_networkManager, &QNetworkAccessManager::sslErrors,
+            this, [this](QNetworkReply *reply, const QList<QSslError> &errors) {
+        if (m_settings->isIgnoreSslErrorsEnabled) {
             reply->ignoreSslErrors();
         }
     });
@@ -285,7 +284,6 @@ void Application::applySettings()
 
     // Force NM to pick up changes.
     m_networkManager->clearAccessCache();
-
 }
 
 QString Application::userAgent()

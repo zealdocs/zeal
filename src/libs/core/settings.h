@@ -99,7 +99,6 @@ public:
         Socks5 = 4
     };
     Q_ENUM(ProxyType)
-    bool isIgnoreSSLErrorsEnabled;
 
     // Internal
     // --------
@@ -114,6 +113,7 @@ public:
     bool proxyAuthenticate;
     QString proxyUserName;
     QString proxyPassword;
+    bool isIgnoreSslErrorsEnabled;
 
     // Other
     QString docsetPath;
