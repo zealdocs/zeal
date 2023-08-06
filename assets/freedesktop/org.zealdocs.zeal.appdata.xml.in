@@ -28,7 +28,7 @@
   <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
     <release date="2018-09-28" version="0.6.1" type="stable" />
   </releases>
-  <update_contact>zeal@zealdocs.org</update_contact>
+  <update_contact>support@zealdocs.org</update_contact>
   <content_rating type="oars-1.1">
     <content_attribute id="violence-cartoon">none</content_attribute>
     <content_attribute id="violence-fantasy">none</content_attribute>
