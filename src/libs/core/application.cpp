@@ -66,6 +66,14 @@ Application::Application(QObject *parent)
     m_fileManager = new FileManager(this);
     m_httpServer = new HttpServer(this);
 
+    connect(m_networkManager, &QNetworkAccessManager::sslErrors, this, [this](QNetworkReply *reply, const QList<QSslError> &errors)
+    {
+        if (m_settings->isIgnoreSSLErrorsEnabled) {
+            // Ignore all SSL errors
+            reply->ignoreSslErrors();
+        }
+    });
+
     // Extractor setup
     m_extractorThread = new QThread(this);
     m_extractor = new Extractor();
