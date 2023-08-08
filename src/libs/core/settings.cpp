@@ -59,6 +59,8 @@ Settings::Settings(QObject *parent)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
+#else
+    qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
 #endif
 
     load();
