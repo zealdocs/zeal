@@ -57,7 +57,7 @@ using namespace Zeal::Core;
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
 #else
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");

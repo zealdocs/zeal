@@ -42,7 +42,7 @@
 #include <QWebEngineSettings>
 #include <QWheelEvent>
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QWebEngineContextMenuData>
 #else
 #include <QWebEngineContextMenuRequest>
@@ -121,7 +121,7 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QWebEngineContextMenuData& contextData = page()->contextMenuData();
 
     if (!contextData.isValid()) {
@@ -144,7 +144,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     m_contextMenu = new QMenu(this);
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QUrl linkUrl = contextData.linkUrl();
 #else
     QUrl linkUrl = contextMenuRequest->linkUrl();
@@ -171,7 +171,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     }
 
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QString selectedText = contextData.selectedText();
 #else
     const QString selectedText = contextMenuRequest->selectedText();

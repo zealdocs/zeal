@@ -56,7 +56,7 @@
 #include <QAbstractNativeEventFilter>
 #include <QHash>
 
-#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #define NativeEventFilterResult long
 #else
 #define NativeEventFilterResult qintptr
