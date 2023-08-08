@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     }
 
     // Set application-wide window icon. All message boxes and other windows will use it by default.
-    qapp->setDesktopFileName(QStringLiteral("org.zealdocs.zeal.desktop"));
+    qapp->setDesktopFileName(QStringLiteral("org.zealdocs.zeal"));
     qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
                                          QIcon(QStringLiteral(":/zeal.ico"))));
 
