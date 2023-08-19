@@ -33,6 +33,7 @@ class View;
 class ViewProvider : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(ViewProvider)
 public:
     explicit ViewProvider(QObject *parent = nullptr);
 
@@ -40,9 +41,6 @@ public:
 
 signals:
     void viewChanged();
-
-private:
-    Q_DISABLE_COPY(ViewProvider)
 };
 
 } // namespace Sidebar

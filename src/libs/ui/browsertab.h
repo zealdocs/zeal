@@ -47,6 +47,7 @@ class SearchSidebar;
 class BrowserTab : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(BrowserTab)
 public:
     explicit BrowserTab(QWidget *parent = nullptr);
     BrowserTab *clone(QWidget *parent = nullptr) const;
@@ -64,7 +65,6 @@ signals:
     void titleChanged(const QString &title);
 
 private:
-    Q_DISABLE_COPY(BrowserTab)
     QIcon docsetIcon(const QUrl &url) const;
 
     // Widgets.

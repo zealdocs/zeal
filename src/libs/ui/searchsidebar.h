@@ -48,6 +48,7 @@ class SearchEdit;
 class SearchSidebar final : public Sidebar::View
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SearchSidebar)
 public:
     explicit SearchSidebar(QWidget *parent = nullptr);
     SearchSidebar *clone(QWidget *parent = nullptr) const;
@@ -73,7 +74,6 @@ protected:
     void showEvent(QShowEvent *event) override;
 
 private:
-    Q_DISABLE_COPY(SearchSidebar)
     explicit SearchSidebar(const SearchSidebar *other, QWidget *parent = nullptr);
     void setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated);
 

@@ -33,13 +33,12 @@ class ViewProvider;
 class ProxyView final : public View
 {
     Q_OBJECT
+    Q_DISABLE_COPY(ProxyView)
 public:
     explicit ProxyView(ViewProvider *provider, QString id = QString(), QWidget *parent = nullptr);
     ~ProxyView() override;
 
 private:
-    Q_DISABLE_COPY(ProxyView)
-
     void clearCurrentView();
 
     ViewProvider *m_viewProvider = nullptr;

@@ -31,11 +31,9 @@ namespace Sidebar {
 class View : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(View)
 public:
     explicit View(QWidget *parent = nullptr);
-
-private:
-    Q_DISABLE_COPY(View)
 };
 
 } // namespace Sidebar

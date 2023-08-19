@@ -36,19 +36,14 @@ class View;
 class Container : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY(Container)
 public:
     explicit Container(QWidget *parent = nullptr);
     ~Container() override;
 
     void addView(View *view);
 
-public slots:
-
-signals:
-
 private:
-    Q_DISABLE_COPY(Container)
-
     QSplitter *m_splitter = nullptr;
 
     QList<View *> m_views;

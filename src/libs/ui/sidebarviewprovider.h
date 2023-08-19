@@ -33,14 +33,13 @@ class MainWindow;
 class SidebarViewProvider : public Sidebar::ViewProvider
 {
     Q_OBJECT
+    Q_DISABLE_COPY(SidebarViewProvider)
 public:
     explicit SidebarViewProvider(MainWindow *mainWindow);
 
     Sidebar::View *view(const QString &id = QString()) const override;
 
 private:
-    Q_DISABLE_COPY(SidebarViewProvider)
-
     MainWindow *m_mainWindow = nullptr;
 };
 
