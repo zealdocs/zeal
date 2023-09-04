@@ -151,9 +151,9 @@ jobs:
           Write-Output "Zeal Version: $zeal_version"
           "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
 
-      - name: Install
+      - name: Package
         if: matrix.config.publishArtifacts
-        run: cmake --build build/${{ matrix.config.configurePreset }} --config RelWithDebInfo --target install
+        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
 
       - name: Sign Artifacts
         if: matrix.config.publishArtifacts && github.repository == 'zealdocs/zeal' && github.event_name == 'push'
