@@ -130,14 +130,15 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->webControl()->forward(); });
     addAction(ui->actionForward);
 
-    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
-    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
+
+    ui->actionResetZoom->setShortcut(QKeySequence(QStringLiteral("Ctrl+0")));
+    ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+    ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
+    connect(ui->actionResetZoom, &QAction::triggered, this, [this] { currentTab()->webControl()->resetZoom(); });
+    connect(ui->actionZoomIn, &QAction::triggered, this, [this] { currentTab()->webControl()->zoomIn(); });
+    connect(ui->actionZoomOut, &QAction::triggered, this, [this] { currentTab()->webControl()->zoomOut(); });
 
     // Tools Menu
     connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
