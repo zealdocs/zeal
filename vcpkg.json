@@ -8,6 +8,7 @@
       "default-features": false
     },
     "openssl",
-    "sqlite3"
+    "sqlite3",
+    "vulkan-headers"
   ]
 }
