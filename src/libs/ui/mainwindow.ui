@@ -132,30 +132,6 @@
     <string>About &amp;Zeal</string>
    </property>
   </action>
-  <action name="actionBack">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="go-previous">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Back</string>
-   </property>
-  </action>
-  <action name="actionForward">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="go-next">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Forward</string>
-   </property>
-  </action>
   <action name="actionNewTab">
    <property name="icon">
     <iconset theme="tab-new">

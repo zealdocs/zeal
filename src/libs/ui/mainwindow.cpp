@@ -122,14 +122,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
         }
     });
 
-    ui->actionBack->setShortcut(QKeySequence::Back);
-    connect(ui->actionBack, &QAction::triggered, this, [this]() { currentTab()->webControl()->back(); });
-    addAction(ui->actionBack);
-
-    ui->actionForward->setShortcut(QKeySequence::Forward);
-    connect(ui->actionForward, &QAction::triggered, this, [this]() { currentTab()->webControl()->forward(); });
-    addAction(ui->actionForward);
-
+    shortcut = new QShortcut(QKeySequence::Back, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->back(); });
+    shortcut = new QShortcut(QKeySequence::Forward, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->forward(); });
     shortcut = new QShortcut(QKeySequence::ZoomIn, this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);

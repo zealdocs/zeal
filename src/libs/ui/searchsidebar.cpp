@@ -85,7 +85,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     connect(m_treeView, &QTreeView::clicked, this, &SearchSidebar::navigateToIndex);
 
     // Setup Alt+Up, Alt+Down, etc shortcuts.
-    const auto keyList = {Qt::Key_Up, Qt::Key_Down, Qt::Key_Left, Qt::Key_Right,
+    const auto keyList = {Qt::Key_Up, Qt::Key_Down,
                           Qt::Key_PageUp, Qt::Key_PageDown,
                           Qt::Key_Home, Qt::Key_End};
     for (const auto key : keyList) {
