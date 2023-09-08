@@ -43,5 +43,5 @@ Run `appimage-builder`:
 
 ```shell
 cd /src
-appimage-builder --skip-test --build-dir build.appimage --appdir build.appimage/AppDir --recipe pkg/appimage/appimage-amd64.yml
+appimage-builder --skip-test --build-dir build.appimage --appdir build.appimage/AppDir --recipe pkg/appimage/appimage-amd64.yaml
 ```

@@ -17,6 +17,7 @@
 *.qrc text
 *.ui text
 *.yml text
+*.yaml text
 CMakeLists.txt text
 COPYING text
 

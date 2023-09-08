@@ -6,7 +6,7 @@
 [![Telegram Channel](https://img.shields.io/badge/follow-on%20telegram-179cde.svg?style=flat-square)](https://telegram.me/zealdocs)
 [![Twitter](https://img.shields.io/badge/follow-on%20twitter-1da1f2.svg?style=flat-square)](https://twitter.com/zealdocs)
 
-[![Build Check](https://img.shields.io/github/actions/workflow/status/zealdocs/zeal/build-check.yml?style=flat-square)](https://github.com/zealdocs/zeal/actions/workflows/build-check.yml)
+[![Build Check](https://img.shields.io/github/actions/workflow/status/zealdocs/zeal/build-check.yaml?style=flat-square)](https://github.com/zealdocs/zeal/actions/workflows/build-check.yaml)
 [![Coverity Scan](https://img.shields.io/coverity/scan/4271.svg?style=flat-square)](https://scan.coverity.com/projects/4271)
 
 Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
