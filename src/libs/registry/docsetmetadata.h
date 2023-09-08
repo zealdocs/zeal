@@ -59,7 +59,7 @@ private:
     QString m_title;
     QStringList m_aliases;
     QStringList m_versions;
-    int m_revision;
+    int m_revision = 0;
 
     QByteArray m_rawIcon;
     QByteArray m_rawIcon2x;

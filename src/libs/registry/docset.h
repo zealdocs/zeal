@@ -107,7 +107,7 @@ private:
     QString m_title;
     QStringList m_keywords;
     QString m_version;
-    int m_revision;
+    int m_revision = 0;
     QString m_feedUrl;
     Docset::Type m_type = Type::Invalid;
     QString m_path;
