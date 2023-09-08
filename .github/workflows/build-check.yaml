@@ -191,7 +191,7 @@ jobs:
       - name: Build AppImage
         uses: ./.github/workflows/appimage/
         with:
-          recipe: pkg/appimage/appimage-amd64.yml
+          recipe: pkg/appimage/appimage-amd64.yaml
           apt_dependencies: >-
             build-essential
             cmake extra-cmake-modules
