@@ -92,7 +92,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         switch (indexLevel(index)) {
         case Level::DocsetLevel: {
             const auto docset = itemInRow(index.row())->docset;
-            return tr("Version: %1r%2").arg(docset->version(), docset->revision());
+            return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
         }
         default:
             return QVariant();

@@ -59,7 +59,9 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_versions << vv.toString();
     }
 
-    m_revision = jsonObject[QStringLiteral("revision")].toString();
+    // Unfortunately, API returns revision as a string, so it needs to be converted to integer
+    // for comparison to work properly.
+    m_revision = jsonObject[QStringLiteral("revision")].toString().toInt();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
 
@@ -87,7 +89,7 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     if (!version.isEmpty())
         jsonObject[QStringLiteral("version")] = version;
 
-    if (version == latestVersion() && !m_revision.isEmpty())
+    if (version == latestVersion() && m_revision == 0)
         jsonObject[QStringLiteral("revision")] = m_revision;
 
     if (!m_feedUrl.isEmpty())
@@ -155,7 +157,7 @@ QString DocsetMetadata::latestVersion() const
     return m_versions.isEmpty() ? QString() : m_versions.first();
 }
 
-QString DocsetMetadata::revision() const
+int DocsetMetadata::revision() const
 {
     return m_revision;
 }

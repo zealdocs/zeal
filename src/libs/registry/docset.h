@@ -55,7 +55,7 @@ public:
     QStringList keywords() const;
 
     QString version() const;
-    QString revision() const;
+    int revision() const;
     QString feedUrl() const;
 
     QString path() const;
@@ -107,7 +107,7 @@ private:
     QString m_title;
     QStringList m_keywords;
     QString m_version;
-    QString m_revision;
+    int m_revision;
     QString m_feedUrl;
     Docset::Type m_type = Type::Invalid;
     QString m_path;

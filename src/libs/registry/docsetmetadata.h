@@ -45,7 +45,7 @@ public:
     QStringList aliases() const;
     QStringList versions() const;
     QString latestVersion() const;
-    QString revision() const;
+    int revision() const;
     QIcon icon() const;
 
     QUrl feedUrl() const;
@@ -59,7 +59,7 @@ private:
     QString m_title;
     QStringList m_aliases;
     QStringList m_versions;
-    QString m_revision;
+    int m_revision;
 
     QByteArray m_rawIcon;
     QByteArray m_rawIcon2x;
