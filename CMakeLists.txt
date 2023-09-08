@@ -4,23 +4,20 @@ cmake_minimum_required(VERSION 3.16.3)
 set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-project(Zeal VERSION 0.6.2)
+project(Zeal
+    VERSION 0.6.2
+    DESCRIPTION "A simple documentation browser."
+    HOMEPAGE_URL "https://zealdocs.org"
+    LANGUAGES CXX
+)
 
 # Set to TRUE for a tagged release.
 # NOTE: Don't forget to add a new release entry in the AppStream metadata!
 set(RELEASE_VERSION FALSE)
 
 # Project information.
-if(APPLE)
-    set(PROJECT_OUTPUT_NAME "Zeal")
-else()
-    set(PROJECT_OUTPUT_NAME "zeal")
-endif()
-
-set(PROJECT_COMPANY_NAME "ZealDocs")
+set(PROJECT_COMPANY_NAME "Oleg Shparber")
 set(PROJECT_COPYRIGHT "© 2013-2023 Oleg Shparber and other contributors")
-set(PROJECT_DESCRIPTION "A simple documentation browser.")
-set(PROJECT_URL "https://zealdocs.org")
 
 # Find available major Qt version. It will be stored in QT_VERSION_MAJOR.
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
@@ -59,7 +56,7 @@ if(NOT RELEASE_VERSION)
 endif()
 
 # A custom target to print the full version.
-# Usage: cmake --build build --target zeal_version
+# Usage: cmake --build build --preset ninja-multi-vcpkg-release --target zeal_version
 add_custom_target(zeal_version
     COMMAND ${CMAKE_COMMAND} -E echo "Zeal version: ${ZEAL_VERSION_FULL}"
     VERBATIM

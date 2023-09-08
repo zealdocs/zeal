@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Based on: https://gitlab.kitware.com/cmake/cmake/-/blob/master/Utilities/Release/WiX/WIX.template.in -->
+
+<?include "cpack_variables.wxi"?>
+
+<?define AppExeName="zeal.exe" ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+    xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+    RequiredVersion="3.6.3303.0">
+
+    <Product Id="$(var.CPACK_WIX_PRODUCT_GUID)"
+        Name="$(var.CPACK_PACKAGE_NAME)"
+        Language="1033"
+        Version="$(var.CPACK_PACKAGE_VERSION)"
+        Manufacturer="$(var.CPACK_PACKAGE_VENDOR)"
+        UpgradeCode="$(var.CPACK_WIX_UPGRADE_GUID)">
+
+        <Package InstallScope="perMachine" InstallerVersion="301" Compressed="yes"/>
+
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes"/>
+
+        <MajorUpgrade
+            Schedule="afterInstallInitialize"
+            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>
+
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)"/>
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT"/>
+
+        <?ifdef CPACK_WIX_PRODUCT_ICON?>
+        <Property Id="ARPPRODUCTICON">ProductIcon.ico</Property>
+        <Icon Id="ProductIcon.ico" SourceFile="$(var.CPACK_WIX_PRODUCT_ICON)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_BANNER?>
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.CPACK_WIX_UI_BANNER)"/>
+        <?endif?>
+
+        <?ifdef CPACK_WIX_UI_DIALOG?>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.CPACK_WIX_UI_DIALOG)"/>
+        <?endif?>
+
+        <UI>
+            <UIRef Id="$(var.CPACK_WIX_UI_REF)"/>
+            <Publish Dialog="Zeal_ExitDialog" Control="Finish" Order="1" Event="DoAction" Value="LaunchApplication">LAUNCHAPPONEXIT</Publish>
+        </UI>
+
+        <?include "properties.wxi"?>
+        <?include "product_fragment.wxi"?>
+
+        <!-- Dash protocol handlers. -->
+        <Feature Id="Protocol" Title="Plugin Support" Level="1"
+            Description="Provides dash:// and dash-plugin:// protocol handlers.">
+            <Component Id="ProtocolHandlers" Directory="TARGETDIR">
+                <?foreach UrlScheme in dash;dash-plugin ?>
+                <RegistryKey Root="HKMU" Key="Software\Classes\$(var.UrlScheme)">
+                    <RegistryValue Type="string" Value="URL: Dash Plugin Protocol (Zeal)" />
+                    <RegistryValue Name="URL Protocol" Type="string" Value="" />
+
+                    <RegistryKey Key="DefaultIcon">
+                        <RegistryValue Type="string" Value="&quot;[CM_FP_zeal.exe],1&quot;" />
+                    </RegistryKey>
+
+                    <RegistryKey Key="shell\open\command">
+                        <RegistryValue Type="string" Value="&quot;[CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
+                    </RegistryKey>
+                </RegistryKey>
+                <?endforeach ?>
+            </Component>
+        </Feature>
+
+        <!-- Custom properties to control installation options -->
+        <Property Id="LAUNCHAPPONEXIT" Value="1" Secure="yes"/>
+
+        <!-- Set properties based on existing conditions, prevents changing state on upgrade. -->
+        <SetProperty Id="LicenseAccepted" After="AppSearch" Value="1">WIX_UPGRADE_DETECTED</SetProperty>
+
+        <FeatureRef Id="ProductFeature"/>
+
+        <!-- Action to launch application after installer exits. -->
+        <Property Id="WixShellExecTarget" Value="[#CM_FP_zeal.exe]"/>
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"/>
+
+        <!-- Close running Zeal processes. -->
+        <util:CloseApplication CloseMessage="yes" Target="$(var.AppExeName)" ElevatedCloseMessage="yes" RebootPrompt="no" TerminateProcess="0" />
+
+        <InstallExecuteSequence>
+            <Custom Action="WixCloseApplications" Before="RemoveFiles" />
+        </InstallExecuteSequence>
+    </Product>
+</Wix>
