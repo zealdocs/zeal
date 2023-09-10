@@ -80,10 +80,6 @@ if(APPLE)
 elseif(WIN32)
     install(TARGETS App RUNTIME DESTINATION .)
 
-    # Install shared libraries, when building with Vcpkg.
-    set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
-
-
     if(use_qt_cmake_commands)
         # Install Qt runtime dependencies.
         install(SCRIPT ${qt_deploy_script})

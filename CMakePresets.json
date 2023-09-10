@@ -38,7 +38,8 @@
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        }
+        },
+        "X_VCPKG_APPLOCAL_DEPS_INSTALL": "ON"
       }
     },
     {
