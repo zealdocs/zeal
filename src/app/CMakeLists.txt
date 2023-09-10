@@ -56,6 +56,9 @@ if(WIN32 AND use_qt_cmake_commands)
         TARGET App
         OUTPUT_SCRIPT qt_deploy_script
         CONTENT "
+# Override deployment script's working directory.
+set(QT_DEPLOY_PREFIX \"$<TARGET_FILE_DIR:App>\")
+
 qt_deploy_runtime_dependencies(
     EXECUTABLE \"$<TARGET_FILE:App>\"
     BIN_DIR .
