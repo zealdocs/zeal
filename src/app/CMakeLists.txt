@@ -13,8 +13,8 @@ endif()
 set(PROJECT_EXECUTABLE_NAME "${PROJECT_OUTPUT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
 message(STATUS "Project executable name: ${PROJECT_EXECUTABLE_NAME}")
 
-# Only support installing runtime dependencies with Qt >=6.5.0.
-if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.0")
+# Only support installing runtime dependencies with Qt >=6.5.1 (see QTBUG-111741).
+if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.1")
     set(use_qt_cmake_commands TRUE)
 
     qt_standard_project_setup()
@@ -60,6 +60,7 @@ qt_deploy_runtime_dependencies(
     EXECUTABLE \"$<TARGET_FILE:App>\"
     BIN_DIR .
     NO_TRANSLATIONS
+    NO_COMPILER_RUNTIME
     VERBOSE
 )")
 endif()
