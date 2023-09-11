@@ -105,6 +105,7 @@ set(CPACK_VERBATIM_VARIABLES YES)
 # Usage: cmake --build --preset <preset-name> --target package
 # E.g. cmake --build build --preset ninja-multi-vcpkg-release --target package
 set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
 set(CPACK_PACKAGE_VENDOR "${PROJECT_COMPANY_NAME}")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_FILE_NAME "${PROJECT_OUTPUT_NAME}-${ZEAL_VERSION_FULL}")
