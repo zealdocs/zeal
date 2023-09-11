@@ -1,3 +1,8 @@
+if(CPACK_SOURCE_INSTALLED_DIRECTORIES)
+    message(DEBUG "Skipping package signing for source package generator.")
+    return()
+endif()
+
 # TODO: Automatically generate list.
 set(_file_list
     "zeal.exe"
