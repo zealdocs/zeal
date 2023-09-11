@@ -13,7 +13,7 @@ project(Zeal
 
 # Set to TRUE for a tagged release.
 # NOTE: Don't forget to add a new release entry in the AppStream metadata!
-set(RELEASE_VERSION FALSE)
+set(ZEAL_RELEASE_BUILD FALSE)
 
 # Project information.
 set(PROJECT_COMPANY_NAME "Oleg Shparber")
@@ -28,7 +28,7 @@ else()
 endif()
 
 # Determine version for dev builds.
-if(NOT RELEASE_VERSION)
+if(NOT ZEAL_RELEASE_BUILD)
     message(NOTICE "Building unreleased code. Proceed at your own risk!")
 
     # TODO: Add support for metadata passed from env, e.g. aur, appimage, etc.
@@ -48,10 +48,10 @@ endif()
 set(ZEAL_VERSION_FULL "${Zeal_VERSION}${ZEAL_VERSION_SUFFIX}")
 message(NOTICE "Calculated Zeal version: ${ZEAL_VERSION_FULL}")
 
-file(WRITE "${CMAKE_BINARY_DIR}/zeal_version" "${ZEAL_VERSION_FULL}")
+file(WRITE "${CMAKE_BINARY_DIR}/zeal_version" ${ZEAL_VERSION_FULL})
 
 # For development builds insert an extra release in the AppStream metadata.
-if(NOT RELEASE_VERSION)
+if(NOT ZEAL_RELEASE_BUILD)
     string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />")
 endif()
 
