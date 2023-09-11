@@ -11,7 +11,7 @@ include_guard()
 #          [DESCRIPTION] <description-string>
 #          [URL] <url-string>
 #          [CERTIFICATE_FILE] <filename>
-#          [CERTIFICATE_PASSWORD] <password-string>
+#          [PASSWORD] <password-string>
 #          [TIMESTAMP_URL] <url-string>
 #          [QUIET]
 #          [VERBOSE]
@@ -22,9 +22,9 @@ function(codesign)
     endif()
 
     cmake_parse_arguments(_ARG
-        "QUIET;VERBOSE;DEBUG"                                                 # Options.
-        "DESCRIPTION;URL;CERTIFICATE_FILE;CERTIFICATE_PASSWORD;TIMESTAMP_URL" # Single-value keywords.
-        "FILES"                                                               # Multi-value keywords.
+        "QUIET;VERBOSE;DEBUG"                                     # Options.
+        "DESCRIPTION;URL;CERTIFICATE_FILE;PASSWORD;TIMESTAMP_URL" # Single-value keywords.
+        "FILES"                                                   # Multi-value keywords.
         ${ARGN}
     )
 
@@ -109,16 +109,16 @@ function(codesign)
     list(APPEND _cmd_args "/f" ${_ARG_CERTIFICATE_FILE})
 
     # Set password.
-    if(NOT _ARG_CERTIFICATE_PASSWORD)
-        if(CODESIGN_CERTIFICATE_PASSWORD)
-            set(_ARG_CERTIFICATE_PASSWORD ${CODESIGN_CERTIFICATE_PASSWORD})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_PASSWORD})
-            set(_ARG_CERTIFICATE_PASSWORD $ENV{CODESIGN_CERTIFICATE_PASSWORD})
+    if(NOT _ARG_PASSWORD)
+        if(CODESIGN_PASSWORD)
+            set(_ARG_PASSWORD ${CODESIGN_PASSWORD})
+        elseif(DEFINED ENV{CODESIGN_PASSWORD})
+            set(_ARG_PASSWORD $ENV{CODESIGN_PASSWORD})
         endif()
     endif()
 
-    if(_ARG_CERTIFICATE_PASSWORD)
-        list(APPEND _cmd_args "/p" ${_ARG_CERTIFICATE_PASSWORD})
+    if(_ARG_PASSWORD)
+        list(APPEND _cmd_args "/p" ${_ARG_PASSWORD})
     endif()
 
     # Set description.
