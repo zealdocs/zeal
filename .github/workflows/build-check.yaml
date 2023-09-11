@@ -155,28 +155,23 @@ jobs:
         if: matrix.config.publishArtifacts
         run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
 
-      - name: Sign Artifacts
-        if: matrix.config.publishArtifacts && github.repository == 'zealdocs/zeal' && github.event_name == 'push'
-        uses: dlemstra/code-sign-action@v1
-        with:
-          certificate: '${{ secrets.CODESIGN_CERTIFICATE }}'
-          password: '${{ secrets.CODESIGN_PASSWORD }}'
-          files: |
-            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/zeal.exe
-            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/archive.dll
-            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/sqlite3.dll
-            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo/zlib1.dll
-
-      - name: Upload Artifacts
+      - name: Upload ZIP Artifacts
         if: matrix.config.publishArtifacts
         uses: actions/upload-artifact@v3
         with:
-          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64
+          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64.zip
           path: |
-            build/${{ matrix.config.configurePreset }}/bin/RelWithDebInfo
-            !**/*.idl
-            !**/*.ilk
-            !**/*.pdb
+            build/${{ matrix.config.configurePreset }}/zeal-*.zip
+            build/${{ matrix.config.configurePreset }}/zeal-*.zip.sha256
+
+      - name: Upload MSI Artifacts
+        if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'ninja-multi-vcpkg'
+        uses: actions/upload-artifact@v3
+        with:
+          name: zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi
+          path: |
+            build/${{ matrix.config.configurePreset }}/zeal-*.msi
+            build/${{ matrix.config.configurePreset }}/zeal-*.msi.sha256
 
   build-appimage:
     name: AppImage

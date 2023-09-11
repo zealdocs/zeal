@@ -46,8 +46,8 @@ endif()
 target_link_libraries(App PRIVATE Core Util Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(App PROPERTIES
-    OUTPUT_NAME "${PROJECT_OUTPUT_NAME}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    OUTPUT_NAME ${PROJECT_OUTPUT_NAME}
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
 # Install Qt runtime dependencies on Windows.
@@ -56,15 +56,15 @@ if(WIN32 AND use_qt_cmake_commands)
         TARGET App
         OUTPUT_SCRIPT qt_deploy_script
         CONTENT "
+# TODO: Run windeployqt after build.
 # Override deployment script's working directory.
-set(QT_DEPLOY_PREFIX \"$<TARGET_FILE_DIR:App>\")
+# set(QT_DEPLOY_PREFIX \"$<TARGET_FILE_DIR:App>\")
 
 qt_deploy_runtime_dependencies(
     EXECUTABLE \"$<TARGET_FILE:App>\"
     BIN_DIR .
     NO_TRANSLATIONS
     NO_COMPILER_RUNTIME
-    VERBOSE
 )")
 endif()
 
@@ -98,11 +98,7 @@ endif()
 #
 # CPack configuration.
 #
-if(ZEAL_PORTABLE_BUILD)
-    set(CPACK_GENERATOR "ZIP")
-else()
-    set(CPACK_GENERATOR "ZIP;WIX")
-endif()
+set(CPACK_GENERATOR "ZIP")
 
 set(CPACK_VERBATIM_VARIABLES YES)
 
@@ -125,20 +121,29 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
 set(CPACK_PACKAGE_CHECKSUM SHA256)
 
-# CPack WiX configuration.
-set(CPACK_WIX_UPGRADE_GUID "5C4B6030-A1B4-4EFE-A5AF-28F6FA2E7978")
-set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
-set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/src/app/resources/zeal.ico")
-#set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/pkg/wix/banner.png")
-#set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/pkg/wix/dialog.png")
-set(CPACK_WIX_EXTENSIONS "WixUtilExtension.dll")
-set(CPACK_WIX_UI_REF "Zeal_InstallDir")
-set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/pkg/wix/template.xml")
-set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/pkg/wix/patch.xml")
-set(CPACK_WIX_EXTRA_SOURCES
-    "${CMAKE_SOURCE_DIR}/pkg/wix/ui.wxs"
-    "${CMAKE_SOURCE_DIR}/pkg/wix/exitdialog.wxs"
-)
+if(WIN32)
+    # CPack WiX configuration.
+    set(CPACK_WIX_UPGRADE_GUID "5C4B6030-A1B4-4EFE-A5AF-28F6FA2E7978")
+    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "${CMAKE_PROJECT_HOMEPAGE_URL}")
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/src/app/resources/zeal.ico")
+    #set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/pkg/wix/banner.png")
+    #set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/pkg/wix/dialog.png")
+    set(CPACK_WIX_EXTENSIONS "WixUtilExtension.dll")
+    set(CPACK_WIX_UI_REF "Zeal_InstallDir")
+    set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/pkg/wix/template.xml")
+    set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/pkg/wix/patch.xml")
+    set(CPACK_WIX_EXTRA_SOURCES
+        "${CMAKE_SOURCE_DIR}/pkg/wix/ui.wxs"
+        "${CMAKE_SOURCE_DIR}/pkg/wix/exitdialog.wxs"
+    )
+
+    set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_SOURCE_DIR}/pkg/wix/cpack_pre_build.cmake")
+
+    if(NOT ZEAL_PORTABLE_BUILD)
+        list(APPEND CPACK_GENERATOR "WIX")
+        set(CPACK_POST_BUILD_SCRIPTS "${CMAKE_SOURCE_DIR}/pkg/wix/cpack_post_build.cmake")
+    endif()
+endif()
 
 # Set options for the source package.
 # Usage: cmake --build <build> --target package_source
