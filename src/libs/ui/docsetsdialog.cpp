@@ -813,7 +813,7 @@ void DocsetsDialog::updateStatus()
     }
 
     if (!m_tmpFiles.isEmpty()) {
-        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, m_replies.size());
+        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, m_tmpFiles.size());
     }
 
     ui->statusLabel->setText(text);
