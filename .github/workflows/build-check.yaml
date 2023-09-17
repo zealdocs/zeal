@@ -61,6 +61,7 @@ jobs:
             extra-cmake-modules \
             libarchive-dev \
             libsqlite3-dev \
+            libvulkan-dev \
             libxcb-keysyms1-dev \
             ninja-build \
             ${{ matrix.config.qt_packages }}
