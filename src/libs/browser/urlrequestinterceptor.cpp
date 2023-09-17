@@ -41,6 +41,13 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
     const QUrl requestUrl = info.requestUrl();
     const QUrl firstPartyUrl = info.firstPartyUrl();
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 0)
+    // Workaround for https://github.com/zealdocs/zeal/issues/1376. Fixed in Qt 5.12.0.
+    if (!firstPartyUrl.isValid() && requestUrl.scheme() == QLatin1String("blob")) {
+        return;
+    }
+#endif
+
     // Block invalid requests.
     if (!requestUrl.isValid() || !firstPartyUrl.isValid()) {
         blockRequest(info);
