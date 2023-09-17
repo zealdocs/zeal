@@ -58,8 +58,10 @@ Settings::Settings(QObject *parent)
     : QObject(parent)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    qRegisterMetaTypeStreamOperators<ContentAppearance>("ContentAppearance");
     qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
 #else
+    qRegisterMetaType<ContentAppearance>("ContentAppearance");
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
 #endif
 
@@ -368,6 +370,20 @@ QSettings *Settings::qsettings(QObject *parent)
     return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
                          QSettings::IniFormat, parent);
 #endif
+}
+
+QDataStream &operator<<(QDataStream &out, Settings::ContentAppearance policy)
+{
+    out << static_cast<std::underlying_type<Settings::ContentAppearance>::type>(policy);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Settings::ContentAppearance &policy)
+{
+    std::underlying_type<Settings::ContentAppearance>::type value;
+    in >> value;
+    policy = static_cast<Settings::ContentAppearance>(value);
+    return in;
 }
 
 QDataStream &operator<<(QDataStream &out, Settings::ExternalLinkPolicy policy)

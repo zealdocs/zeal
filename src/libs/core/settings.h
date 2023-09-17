@@ -155,9 +155,13 @@ private:
 } // namespace Core
 } // namespace Zeal
 
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ContentAppearance policy);
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance &policy);
+
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
 
+Q_DECLARE_METATYPE(Zeal::Core::Settings::ContentAppearance)
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)
 
 #endif // ZEAL_CORE_SETTINGS_H
