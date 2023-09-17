@@ -47,13 +47,13 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
         return;
     }
 
-    bool isFirstPartyUrlLocal = Core::NetworkAccessManager::isLocalUrl(firstPartyUrl);
-    bool isRequestUrlLocal = Core::NetworkAccessManager::isLocalUrl(requestUrl);
-
     // Direct links are controlled in the WebPage
     if (info.resourceType() == QWebEngineUrlRequestInfo::ResourceTypeMainFrame) {
         return;
     }
+
+    bool isFirstPartyUrlLocal = Core::NetworkAccessManager::isLocalUrl(firstPartyUrl);
+    bool isRequestUrlLocal = Core::NetworkAccessManager::isLocalUrl(requestUrl);
 
     // Allow local resources on local pages and external resources on external pages.
     if (isFirstPartyUrlLocal == isRequestUrlLocal) {
