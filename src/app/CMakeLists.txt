@@ -124,6 +124,11 @@ if(WIN32)
         set(_package_file_name_suffix "-windows-unknown")
     endif()
 endif()
+
+if(ZEAL_PORTABLE_BUILD)
+    string(PREPEND _package_file_name_suffix "-portable")
+endif()
+
 set(CPACK_PACKAGE_FILE_NAME "${_project_output_name}-${ZEAL_VERSION_FULL}${_package_file_name_suffix}")
 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
