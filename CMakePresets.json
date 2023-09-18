@@ -58,6 +58,16 @@
           "value": "ON"
         }
       }
+    },
+    {
+      "name": "config-release",
+      "hidden": true,
+      "cacheVariables": {
+        "ZEAL_RELEASE_BUILD": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
     }
   ],
   "buildPresets": [

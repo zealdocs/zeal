@@ -21,6 +21,11 @@ if(UNIX AND NOT APPLE)
                       DESTINATION ${KDE_INSTALL_ICONDIR}
     )
 
+# For development builds insert an extra release in the AppStream metadata.
+if(NOT ZEAL_RELEASE_BUILD)
+    string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />")
+endif()
+
     configure_file(
         org.zealdocs.zeal.appdata.xml.in
         org.zealdocs.zeal.appdata.xml

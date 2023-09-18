@@ -13,7 +13,9 @@ project(Zeal
 
 # Set to TRUE for a tagged release.
 # NOTE: Don't forget to add a new release entry in the AppStream metadata!
-set(ZEAL_RELEASE_BUILD FALSE)
+if(NOT ZEAL_RELEASE_BUILD AND DEFINED ENV{ZEAL_RELEASE_BUILD})
+    set(ZEAL_RELEASE_BUILD $ENV{ZEAL_RELEASE_BUILD})
+endif()
 
 # Project information.
 set(PROJECT_COMPANY_NAME "Oleg Shparber")
@@ -36,7 +38,7 @@ if(NOT ZEAL_RELEASE_BUILD)
     if(Zeal_GIT_VERSION_SHA)
         # Extra check in case we forgot to bump version in project() directive.
         if(NOT PROJECT_VERSION_PATCH EQUAL Zeal_GIT_VERSION_PATCH_NEXT)
-            message(FATAL_ERROR "Incorrect patch version! Forgot to bump?")
+            message(WARNING "Incorrect patch version! Forgot to bump?")
         endif()
 
         set(ZEAL_VERSION_SUFFIX "-dev.${Zeal_GIT_VERSION_AHEAD}+${Zeal_GIT_VERSION_SHA}")
@@ -49,11 +51,6 @@ set(ZEAL_VERSION_FULL "${Zeal_VERSION}${ZEAL_VERSION_SUFFIX}")
 message(NOTICE "Calculated Zeal version: ${ZEAL_VERSION_FULL}")
 
 file(WRITE "${CMAKE_BINARY_DIR}/zeal_version" ${ZEAL_VERSION_FULL})
-
-# For development builds insert an extra release in the AppStream metadata.
-if(NOT ZEAL_RELEASE_BUILD)
-    string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />")
-endif()
 
 # A custom target to print the full version.
 # Usage: cmake --build build --preset ninja-multi-vcpkg-release --target zeal_version
