@@ -10,5 +10,12 @@ indent_style = space
 max_line_length = 100
 trim_trailing_whitespace = true
 
-[*.{json,xml,xml.in,yml}]
+[{*.cmake,CMakeLists.txt}]
+# TODO: indent_size = 2
+indent_size = 4
+
+[*.json]
+indent_size = 2
+
+[*.{yaml,yml}]
 indent_size = 2
