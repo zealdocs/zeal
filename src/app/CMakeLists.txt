@@ -98,7 +98,7 @@ endif()
 #
 # CPack configuration.
 #
-set(CPACK_GENERATOR "ZIP")
+set(CPACK_GENERATOR "7Z;ZIP")
 
 set(CPACK_VERBATIM_VARIABLES YES)
 
