@@ -11,7 +11,7 @@
 
 Zeal is a simple offline documentation browser inspired by [Dash](https://kapeli.com/dash).
 
-![Screenshot](https://i.imgur.com/qBkZduS.png)
+![Screenshot](https://github.com/zealdocs/zeal/assets/714940/e8443bb4-ccb9-469b-89d6-b5b3bfc7e239)
 
 ## Download
 
