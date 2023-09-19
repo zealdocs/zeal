@@ -156,7 +156,7 @@ jobs:
         if: matrix.config.publishArtifacts
         run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
         env:
-          CODESIGN_CERTIFICATE: ${{ secrets.CODESIGN_CERTIFICATE }}
+          CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
 
       - name: Upload ZIP Artifacts

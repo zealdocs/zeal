@@ -97,8 +97,48 @@ function(codesign)
                 set(_temp_path $ENV{TEMP})
             endif()
 
-            set(_certificate_file "${_temp_path}/codesign.pem")
+            set(_certificate_file "${_temp_path}/codesign.tmp")
             file(WRITE ${_certificate_file} $ENV{CODESIGN_CERTIFICATE})
+            set(_ARG_CERTIFICATE_FILE ${_certificate_file})
+        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_BASE64})
+            # Read base64-encoded certificate from environment variable,
+            # decode with `certutil.exe`, and store in a temporary file
+            # for signtool to use.
+            #
+            # This is useful for GitHub Actions, which cannot handle unencoded
+            # multiline secrets.
+
+            # Determine temporary file location. Try to keep it local to the build.
+            if(CMAKE_BINARY_DIR)
+                set(_temp_path ${CMAKE_BINARY_DIR})
+            elseif(CPACK_TEMPORARY_DIRECTORY)
+                set(_temp_path ${CPACK_TEMPORARY_DIRECTORY})
+            else()
+                set(_temp_path $ENV{TEMP})
+            endif()
+
+            # Save base64-encoded certificate to file.
+            set(_certificate_file "${_temp_path}/codesign.tmp")
+            set(_certificate_base64_file "${_certificate_file}.base64")
+            file(WRITE ${_certificate_base64_file} $ENV{CODESIGN_CERTIFICATE_BASE64})
+
+            # Decode certificate.
+            set(_cmd_certutil_args "-decode" ${_certificate_base64_file} ${_certificate_file})
+            execute_process(COMMAND "certutil.exe" ${_cmd_certutil_args}
+                RESULT_VARIABLE _rc
+                OUTPUT_VARIABLE _stdout
+                # ERROR_VARIABLE  _stderr
+            )
+
+            # Remove temporary file first.
+            file(REMOVE ${_certificate_base64_file})
+
+            if(NOT _rc EQUAL 0)
+                # For some reason certutil prints errors to stdout.
+                message(NOTICE "Failed to decode certificate: ${_stdout}")
+                return()
+            endif()
+
             set(_ARG_CERTIFICATE_FILE ${_certificate_file})
         else()
             message(NOTICE "Certificate is not provided, no binaries will be signed.")
@@ -170,7 +210,7 @@ function(codesign)
         )
 
         if(NOT _rc EQUAL 0)
-            message(NOTICE "Signing failed: ${_stderr}")
+            message(NOTICE "Failed to sign: ${_stderr}")
         endif()
 
         if(NOT _ARG_QUIET)
