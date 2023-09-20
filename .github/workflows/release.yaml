@@ -1,0 +1,137 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+# Required for creating GitHub release.
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Windows Server 2022 / Qt 6",
+              os: windows-2022,
+              qt_modules: "qtwebengine qtwebchannel qtpositioning",
+              qt_version: "6.5.2",
+              configurePreset: ninja-multi-vcpkg,
+              buildPreset: ninja-multi-vcpkg-release,
+              buildSourcePackage: true
+            }
+          - {
+              name: "Windows Server 2022 / Qt 6 / Portable",
+              os: windows-2022,
+              qt_modules: "qtwebengine qtwebchannel qtpositioning",
+              qt_version: "6.5.2",
+              configurePreset: ninja-multi-vcpkg-portable,
+              buildPreset: ninja-multi-vcpkg-portable-release
+            }
+
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows-release
+      ZEAL_RELEASE_BUILD: ON
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: ${{ runner.workspace }}/vcpkg
+          vcpkgGitCommitId: 5b1214315250939257ef5d62ecdcbca18cf4fb1c # For vcpkg-tool 2023-03-29.
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          arch: win64_msvc2019_64
+          modules: ${{ matrix.config.qt_modules }}
+          version: ${{ matrix.config.qt_version }}
+          cache: true
+          extra: --external 7z
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.config.configurePreset }}
+          buildPreset: ${{ matrix.config.buildPreset }}
+
+      - name: Retrieve Application Version
+        run: |
+          $zeal_version = Get-Content build/${{ matrix.config.configurePreset }}/zeal_version
+          Write-Output "Zeal Version: $zeal_version"
+          "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
+
+      - name: Package
+        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
+        env:
+          CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
+          CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
+
+      - name: Package Source
+        if: matrix.config.buildSourcePackage
+        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
+
+      - name: Update GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          # Only upload the following artifacts:
+          # - Source packages.
+          # - Non-portable MSI package.
+          # - Portable 7-Zip and ZIP packages.
+          files: |
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.*
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi*
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}.*
+
+  build-appimage:
+    name: AppImage
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build AppImage
+        uses: ./.github/workflows/appimage/
+        with:
+          recipe: pkg/appimage/appimage-amd64.yaml
+          apt_dependencies: >-
+            build-essential
+            cmake extra-cmake-modules
+            libappindicator-dev
+            libarchive-dev
+            libqt5x11extras5-dev
+            libsqlite3-dev
+            libxcb-keysyms1-dev
+            ninja-build
+            qtbase5-dev
+            qtwebengine5-dev
+
+      - name: Generate Digest Files
+        run: for file in zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
+
+      - name: Update GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          fail_on_unmatched_files: true
+          files: |
+            zeal-*.AppImage*

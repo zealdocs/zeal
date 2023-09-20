@@ -208,11 +208,3 @@ jobs:
         with:
           name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
           path: zeal-*.AppImage
-
-      # TODO: Enable for releases.
-      - name: Upload AppImage.zsync
-        if: github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.ref, 'v')
-        uses: actions/upload-artifact@v3
-        with:
-          name: zeal-dev-x86_64.AppImage.zsync
-          path: zeal-*.AppImage.zsync
