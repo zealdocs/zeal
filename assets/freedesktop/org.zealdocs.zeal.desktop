@@ -7,6 +7,6 @@ Exec=zeal %u
 Icon=zeal
 Terminal=false
 Type=Application
-Categories=Development;
+Categories=Development;Documentation;
 MimeType=x-scheme-handler/dash;x-scheme-handler/dash-plugin;
 StartupWMClass=Zeal
