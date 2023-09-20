@@ -13,8 +13,11 @@ concurrency:
   group: lock
 
 jobs:
-  action:
+  lock-issues:
+    name: Lock Old Issues
+    if: github.repository == 'zealdocs/zeal'
     runs-on: ubuntu-latest
+
     steps:
       - uses: dessant/lock-threads@v4
         with:
