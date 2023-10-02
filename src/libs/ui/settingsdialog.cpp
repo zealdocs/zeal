@@ -79,7 +79,10 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     setTabOrder(ui->fontSizeComboBox, ui->serifFontComboBox);
 
     // Disable global shortcut settings if not supported.
-    ui->globalHotKeyGroupBox->setEnabled(QxtGlobalShortcut::isSupported());
+    if (!QxtGlobalShortcut::isSupported()) {
+        ui->globalHotKeyGroupBox->setEnabled(false);
+        ui->globalHotKeyGroupBox->setToolTip(tr("Global shortcuts are not supported on the current platform."));
+    }
 
     QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
 
