@@ -10,7 +10,7 @@ AppDir:
     id: org.zealdocs.zeal
     name: zeal
     icon: zeal
-    version: 0.7.0 # TODO: Use version from CMake.
+    version: 0.7.1 # TODO: Use version from CMake.
     exec: usr/bin/zeal
     exec_args: $@
 
