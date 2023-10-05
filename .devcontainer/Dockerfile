@@ -27,5 +27,4 @@ RUN sudo apt install -y cmake \
     libxcb-keysyms1-dev \
     libsqlite3-dev \
     libqt5webchannel5-dev \
-    libqt5webengine5-dev
-
+    qtwebengine5-dev
