@@ -137,7 +137,7 @@ bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Up:
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
-            QCoreApplication::sendEvent(m_webView, event);
+            QCoreApplication::sendEvent(m_webView->focusProxy(), event);
             return true;
         default:
             break;
