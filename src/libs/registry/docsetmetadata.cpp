@@ -89,8 +89,8 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     if (!version.isEmpty())
         jsonObject[QStringLiteral("version")] = version;
 
-    if (version == latestVersion() && m_revision == 0)
-        jsonObject[QStringLiteral("revision")] = m_revision;
+    if (version == latestVersion() && m_revision > 0)
+        jsonObject[QStringLiteral("revision")] = QString::number(m_revision);
 
     if (!m_feedUrl.isEmpty())
         jsonObject[QStringLiteral("feed_url")] = m_feedUrl.toString();
