@@ -458,7 +458,7 @@ void Docset::loadSymbols(const QString &symbolType) const
     // with it.first and it.second respectively pointing to the start and the end
     // of the range of nodes having symbolType as key. It effectively represents a
     // contiguous view over the nodes with a specified key.
-    for (auto it = qAsConst(m_symbolStrings).equal_range(symbolType); it.first != it.second; ++it.first) {
+    for (auto it = std::as_const(m_symbolStrings).equal_range(symbolType); it.first != it.second; ++it.first) {
         loadSymbols(symbolType, it.first.value());
     }
 }
@@ -519,7 +519,7 @@ void Docset::createIndex()
     }
 
     // Drop old indexes
-    for (const QString &oldIndexName : qAsConst(oldIndexes)) {
+    for (const QString &oldIndexName : std::as_const(oldIndexes)) {
         m_db->execute(indexDropQuery.arg(oldIndexName));
     }
 
