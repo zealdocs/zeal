@@ -26,8 +26,12 @@
     <id>zeal.desktop</id>
   </provides>
   <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
-    <release date="2023-09-20" version="0.7.0" type="stable" />
-    <release date="2018-09-28" version="0.6.1" type="stable" />
+    <release date="2023-09-20" version="0.7.0" type="stable">
+      <url>https://github.com/zealdocs/zeal/releases/tag/v0.7.0</url>
+    </release>
+    <release date="2018-09-28" version="0.6.1" type="stable">
+      <url>https://github.com/zealdocs/zeal/releases/tag/v0.6.1</url>
+    </release>
   </releases>
   <update_contact>support@zealdocs.org</update_contact>
   <content_rating type="oars-1.1">
