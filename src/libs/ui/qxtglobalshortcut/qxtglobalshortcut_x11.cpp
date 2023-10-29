@@ -152,7 +152,7 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
     }
 
     bool failed = false;
-    for (xcb_void_cookie_t cookie : qAsConst(xcbCookies)) {
+    for (xcb_void_cookie_t cookie : std::as_const(xcbCookies)) {
         QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(xcbConnection, cookie));
         failed = !error.isNull();
     }

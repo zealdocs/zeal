@@ -101,7 +101,7 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 
     m_isFuzzySearchEnabled = enabled;
 
-    for (Docset *docset : qAsConst(m_docsets)) {
+    for (Docset *docset : std::as_const(m_docsets)) {
         docset->setFuzzySearchEnabled(enabled);
     }
 }
@@ -193,7 +193,7 @@ Docset *DocsetRegistry::docset(int index) const
 
 Docset *DocsetRegistry::docsetForUrl(const QUrl &url)
 {
-    for (Docset *docset : qAsConst(m_docsets)) {
+    for (Docset *docset : std::as_const(m_docsets)) {
         if (docset->baseUrl().isParentOf(url))
             return docset;
     }
@@ -226,7 +226,7 @@ void DocsetRegistry::_runQuery(const QString &query)
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     if (searchQuery.hasKeywords()) {
-        for (Docset *docset : qAsConst(m_docsets)) {
+        for (Docset *docset : std::as_const(m_docsets)) {
             if (searchQuery.hasKeywords(docset->keywords()))
                 enabledDocsets << docset;
         }
