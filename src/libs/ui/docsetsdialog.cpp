@@ -687,7 +687,7 @@ QNetworkReply *DocsetsDialog::download(const QUrl &url)
 
 void DocsetsDialog::cancelDownloads()
 {
-    for (QNetworkReply *reply : qAsConst(m_replies)) {
+    for (QNetworkReply *reply : std::as_const(m_replies)) {
         // Hide progress bar
         QListWidgetItem *listItem
                 = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());

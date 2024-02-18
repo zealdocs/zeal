@@ -97,7 +97,7 @@ void DocsetMetadata::save(const QString &path, const QString &version)
 
     if (!m_urls.isEmpty()) {
         QJsonArray urls;
-        for (const QUrl &url : qAsConst(m_urls)) {
+        for (const QUrl &url : std::as_const(m_urls)) {
             urls.append(url.toString());
         }
 
