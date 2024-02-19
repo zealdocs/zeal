@@ -161,7 +161,7 @@ jobs:
 
       - name: Upload ZIP Artifacts
         if: matrix.config.publishArtifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64.zip
           path: |
@@ -170,7 +170,7 @@ jobs:
 
       - name: Upload MSI Artifacts
         if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'ninja-multi-vcpkg'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi
           path: |
@@ -204,7 +204,7 @@ jobs:
             qtwebengine5-dev
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
           path: zeal-*.AppImage
