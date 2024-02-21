@@ -5,7 +5,9 @@
   <name>Zeal</name>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <developer_name>Oleg Shparber</developer_name>
+  <developer id="org.zealdocs">
+    <name>Oleg Shparber</name>
+  </developer>
   <summary>Documentation browser</summary>
   <description>
     <p>Zeal is a simple offline documentation browser inspired by Dash. It offers access to over 200 docsets covering various libraries and APIs.</p>
