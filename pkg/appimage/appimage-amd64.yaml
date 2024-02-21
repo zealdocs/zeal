@@ -4,7 +4,7 @@ script:
   - cmake -B $BUILD_DIR/cmake-build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
   - cmake --build $BUILD_DIR/cmake-build
   - cmake --install $BUILD_DIR/cmake-build --prefix $TARGET_APPDIR/usr
-  - appstream-util validate-relax $TARGET_APPDIR/usr/share/metainfo/org.zealdocs.zeal.appdata.xml
+  - appstreamcli validate $TARGET_APPDIR/usr/share/metainfo/org.zealdocs.zeal.appdata.xml
 
 AppDir:
   app_info:
