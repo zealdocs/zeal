@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
   <id>org.zealdocs.zeal</id>
+  <launchable type="desktop-id">org.zealdocs.zeal.desktop</launchable>
   <name>Zeal</name>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
