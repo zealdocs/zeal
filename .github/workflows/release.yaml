@@ -87,7 +87,7 @@ jobs:
         run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
 
       - name: Update GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           # Only upload the following artifacts:
@@ -129,7 +129,7 @@ jobs:
         run: for file in zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
 
       - name: Update GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           fail_on_unmatched_files: true
