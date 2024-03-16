@@ -27,15 +27,21 @@ else()
     target_link_libraries(Core Qt5::WebEngine)
 endif()
 
-find_package(LibArchive REQUIRED)
-
-# Set LibArchive_INCLUDE_DIR on macOS when LibArchive is installed with Homebrew.
-# See https://github.com/Homebrew/legacy-homebrew/issues/21415.
-if(APPLE AND NOT LibArchive_INCLUDE_DIR)
-  set(LibArchive_INCLUDE_DIR "/usr/local/opt/libarchive/include")
+find_package(LibArchive QUIET)
+if(NOT LibArchive_FOUND)
+    find_path(LibArchive_INCLUDE_DIRS archive.h
+        PATHS /opt/homebrew/opt/libarchive/include /usr/local/opt/libarchive/include
+        REQUIRED
+    )
+    find_library(LibArchive_LIBRARIES
+        NAMES archive libarchive
+        PATHS /opt/homebrew/opt/libarchive/lib /usr/local/opt/libarchive/lib
+        REQUIRED
+        NO_DEFAULT_PATH
+    )
 endif()
 
-if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0)
+if((CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0) AND (TARGET LibArchive::LibArchive))
     target_link_libraries(Core LibArchive::LibArchive)
 else()
     include_directories(${LibArchive_INCLUDE_DIRS})
