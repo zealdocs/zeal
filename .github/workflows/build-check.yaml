@@ -101,7 +101,7 @@ jobs:
               name: "Windows Server 2022 / Qt 6",
               os: windows-2022,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.5.2",
+              qt_version: "6.6.3",
               configurePreset: ninja-multi-vcpkg,
               buildPreset: ninja-multi-vcpkg-release,
               publishArtifacts: true
@@ -110,7 +110,7 @@ jobs:
               name: "Windows Server 2022 / Qt 6 / Portable",
               os: windows-2022,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.5.2",
+              qt_version: "6.6.3",
               configurePreset: ninja-multi-vcpkg-portable,
               buildPreset: ninja-multi-vcpkg-portable-release,
               publishArtifacts: true
