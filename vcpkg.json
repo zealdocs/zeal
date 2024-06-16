@@ -1,7 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-  "name": "zeal",
-  "version": "0.7.1",
   "dependencies": [
     {
       "name": "libarchive",
