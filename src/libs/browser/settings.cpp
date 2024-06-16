@@ -48,8 +48,13 @@ Settings::Settings(Core::Settings *appSettings, QObject *parent)
 {
     Q_ASSERT(!m_webProfile);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Create a new off-the-record profile.
     m_webProfile = new QWebEngineProfile(this);
+#else
+    // Default profile for Qt 6 is off-the-record.
+    m_webProfile = QWebEngineProfile::defaultProfile();
+#endif
 
     // Setup URL interceptor.
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
