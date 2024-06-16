@@ -54,29 +54,29 @@ private slots:
 private:
     friend class DocsetRegistry;
 
-    enum Level {
-        RootLevel,
-        DocsetLevel,
-        GroupLevel,
-        SymbolLevel
+    enum class IndexLevel {
+        Root,
+        Docset,
+        Group,
+        Symbol
     };
 
     explicit ListModel(DocsetRegistry *docsetRegistry);
 
     inline static QString pluralize(const QString &s);
-    inline static Level indexLevel(const QModelIndex &index);
+    inline static IndexLevel indexLevel(const QModelIndex &index);
 
     DocsetRegistry *m_docsetRegistry = nullptr;
 
     struct DocsetItem;
     struct GroupItem {
-        const Level level = Level::GroupLevel;
+        const IndexLevel level = IndexLevel::Group;
         DocsetItem *docsetItem = nullptr;
         QString symbolType;
     };
 
     struct DocsetItem {
-        const Level level = Level::DocsetLevel;
+        const IndexLevel level = IndexLevel::Docset;
         Docset *docset = nullptr;
         QList<GroupItem *> groups;
     };
