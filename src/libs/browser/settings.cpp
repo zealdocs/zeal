@@ -68,18 +68,19 @@ void Settings::applySettings()
     m_webProfile->settings()->setAttribute(QWebEngineSettings::ScrollAnimatorEnabled,
                                            m_appSettings->isSmoothScrollingEnabled);
 
+    // Qt 6.7+ does not require restart to enable dark mode.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    m_webProfile->settings()->setAttribute(QWebEngineSettings::ForceDarkMode,
+                                           m_appSettings->isDarkModeEnabled());
+#endif
+
     // Apply custom CSS.
     // TODO: Apply to all open pages.
     m_webProfile->scripts()->clear(); // Remove all scripts first.
 
     // Qt 5.14+ uses native Chromium dark mode.
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    const bool enableDarkMode
-        = m_appSettings->contentAppearance == Core::Settings::ContentAppearance::Dark
-          || (m_appSettings->contentAppearance == Core::Settings::ContentAppearance::Automatic
-              && m_appSettings->colorScheme() == Core::Settings::ColorScheme::Dark);
-
-    if (enableDarkMode) {
+    if (m_appSettings->isDarkModeEnabled()) {
         setCustomStyleSheet(QStringLiteral("_zeal_darkstylesheet"), DarkModeCssUrl);
     }
 #endif

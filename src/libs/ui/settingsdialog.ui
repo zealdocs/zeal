@@ -251,7 +251,7 @@
             <item>
              <widget class="QLabel" name="appearanceLabel">
               <property name="text">
-               <string>Appearance (requires restart):</string>
+               <string>Appearance:</string>
               </property>
              </widget>
             </item>

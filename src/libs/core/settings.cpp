@@ -73,6 +73,19 @@ Settings::~Settings()
     save();
 }
 
+bool Settings::isDarkModeEnabled() const
+{
+    if (contentAppearance == ContentAppearance::Dark) {
+        return true;
+    }
+
+    if (contentAppearance == ContentAppearance::Automatic && colorScheme() == ColorScheme::Dark) {
+        return true;
+    }
+
+    return false;
+}
+
 Zeal::Core::Settings::ColorScheme Settings::colorScheme()
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
@@ -115,16 +128,12 @@ void Settings::load()
 
     settings->beginGroup(GroupContent);
 
-    // Dark mode needs to be applied before Qt WebEngine is initialized.
     contentAppearance = settings->value(QStringLiteral("appearance"),
                                         QVariant::fromValue(ContentAppearance::Automatic)).value<ContentAppearance>();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    const bool enableDarkMode
-        = contentAppearance == ContentAppearance::Dark
-          || (contentAppearance == ContentAppearance::Automatic && colorScheme() == ColorScheme::Dark);
-
-    if (enableDarkMode) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+    // Dark mode needs to be applied before Qt WebEngine is initialized.
+    if (isDarkModeEnabled()) {
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4");
     }
 #endif

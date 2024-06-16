@@ -127,6 +127,8 @@ public:
     ~Settings() override;
 
     // Helper functions.
+    bool isDarkModeEnabled() const;
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     typedef Qt::ColorScheme ColorScheme;
 #else
