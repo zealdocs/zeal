@@ -26,6 +26,7 @@
 
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
 
+#include <browser/settings.h>
 #include <core/application.h>
 #include <core/settings.h>
 
@@ -84,7 +85,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         ui->globalHotKeyGroupBox->setToolTip(tr("Global shortcuts are not supported on the current platform."));
     }
 
-    QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
+    QWebEngineSettings *webSettings = Browser::Settings::defaultProfile()->settings();
 
     // Avoid casting in each connect.
     auto currentIndexChangedSignal
