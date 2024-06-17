@@ -47,6 +47,22 @@ ListModel::~ListModel()
     }
 }
 
+QVariant ListModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation != Qt::Horizontal || role != Qt::DisplayRole) {
+        return QAbstractItemModel::headerData(section, orientation, role);
+    }
+
+    switch (section) {
+    case SectionIndex::Name:
+        return tr("Name");
+    case SectionIndex::SearchPrefix:
+        return tr("Search prefix");
+    default:
+        return QLatin1String();
+    }
+}
+
 QVariant ListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
@@ -55,6 +71,10 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DecorationRole:
+        if (index.column() != SectionIndex::Name) {
+            return QVariant();
+        }
+
         switch (indexLevel(index)) {
         case IndexLevel::Docset:
             return itemInRow(index.row())->docset->icon();
@@ -73,7 +93,14 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (indexLevel(index)) {
         case IndexLevel::Docset:
-            return itemInRow(index.row())->docset->title();
+            switch (index.column()) {
+            case SectionIndex::Name:
+                return itemInRow(index.row())->docset->title();
+            case SectionIndex::SearchPrefix:
+                return itemInRow(index.row())->docset->keywords().join(QLatin1String(", "));
+            default:
+                return QVariant();
+            }
         case IndexLevel::Group: {
             auto docsetItem = static_cast<DocsetItem *>(index.internalPointer());
             const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
@@ -90,6 +117,10 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case Qt::ToolTipRole:
+        if (index.column() != SectionIndex::Name) {
+            return QVariant();
+        }
+
         switch (indexLevel(index)) {
         case IndexLevel::Docset: {
             const auto docset = itemInRow(index.row())->docset;
@@ -173,7 +204,10 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
 
 int ListModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
+    if (indexLevel(parent) == IndexLevel::Root) {
+        return 3;
+    }
+
     return 1;
 }
 

@@ -273,6 +273,11 @@ void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecor
     m_treeView->setModel(model);
     m_treeView->setRootIsDecorated(isRootDecorated);
 
+    // Hide all but the first column.
+    for (int i = 1; i < model->columnCount(); ++i) {
+        m_treeView->setColumnHidden(i, true);
+    }
+
     QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
     if (newSelectionModel != oldSelectionModel) {
         // TODO: Remove once QTBUG-49966 is addressed.

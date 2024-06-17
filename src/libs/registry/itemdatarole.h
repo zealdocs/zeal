@@ -13,6 +13,12 @@ enum ItemDataRole {
     UrlRole
 };
 
+enum SectionIndex {
+    Name,
+    SearchPrefix,
+    Actions
+};
+
 } // namespace Registry
 } // namespace Zeal
 

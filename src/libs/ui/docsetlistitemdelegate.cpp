@@ -48,10 +48,16 @@ void DocsetListItemDelegate::paint(QPainter *painter,
         return;
     }
 
+    if (index.column() != Registry::SectionIndex::Actions) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
+    }
+
     QStyledItemDelegate::paint(painter, option, index);
 
-    if (!index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool())
+    if (!index.model()->data(index, Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
         return;
+    }
 
     const QString text = tr("Update available");
 

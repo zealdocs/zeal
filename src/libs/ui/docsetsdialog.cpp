@@ -501,11 +501,19 @@ void DocsetsDialog::setupInstalledDocsetsTab()
     ui->installedDocsetList->setItemDelegate(new DocsetListItemDelegate(this));
     ui->installedDocsetList->setModel(m_docsetRegistry->model());
 
+    ui->installedDocsetList->setItemsExpandable(false);
+    ui->installedDocsetList->setRootIsDecorated(false);
+
+    ui->installedDocsetList->header()->setStretchLastSection(true);
+    ui->installedDocsetList->header()->setSectionsMovable(false);
+    ui->installedDocsetList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->installedDocsetList->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+
     if (m_isStorageReadOnly) {
         return;
     }
 
-    connect(ui->installedDocsetList, &QListView::activated, this, [this](const QModelIndex &index) {
+    connect(ui->installedDocsetList, &QTreeView::activated, this, [this](const QModelIndex &index) {
         if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
             return;
         }
