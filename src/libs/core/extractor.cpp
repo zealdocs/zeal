@@ -65,12 +65,8 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
     // TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry;
     while (archive_read_next_header(info.archiveHandle, &entry) == ARCHIVE_OK) {
-#ifndef Q_OS_WIN32
-        QString pathname = QString::fromUtf8(archive_entry_pathname(entry));
-#else
-        // TODO: Remove once https://github.com/libarchive/libarchive/issues/587 is resolved.
-        QString pathname = QString::fromWCharArray(archive_entry_pathname_w(entry));
-#endif
+        // See https://github.com/libarchive/libarchive/issues/587 for more on UTF-8.
+        QString pathname = QString::fromUtf8(archive_entry_pathname_utf8(entry));
 
         if (!root.isEmpty()) {
             pathname.remove(0, pathname.indexOf(QLatin1String("/")) + 1);
