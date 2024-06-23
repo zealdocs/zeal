@@ -68,7 +68,7 @@ We want your feedback! Here's a list of different ways to contact developers and
 * Reach developers and other Zeal users in `#zealdocs` IRC channel on [Libera Chat](https://libera.chat) ([web client](https://web.libera.chat/#zealdocs)).
 * Ask any questions in our [GitHub discussions](https://github.com/zealdocs/zeal/discussions).
 * Do not forget to follow [@zealdocs](https://twitter.com/zealdocs) on Twitter!
-* Finally, for private communication shoot an email to support@zealdocs.org.
+* Finally, for private communication shoot an email to <support@zealdocs.org>.
 
 ## License
 
