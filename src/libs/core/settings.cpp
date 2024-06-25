@@ -114,6 +114,8 @@ void Settings::load()
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
+    hideMenuBar = settings->value(QStringLiteral("hide_menu_bar"), false).toBool();
+
     settings->beginGroup(GroupGlobalShortcuts);
     showShortcut = settings->value(QStringLiteral("show")).value<QKeySequence>();
     settings->endGroup();
@@ -245,6 +247,8 @@ void Settings::save()
     settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
     settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
     settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
+
+    settings->setValue(QStringLiteral("hide_menu_bar"), hideMenuBar);
 
     settings->beginGroup(GroupGlobalShortcuts);
     settings->setValue(QStringLiteral("show"), showShortcut);
