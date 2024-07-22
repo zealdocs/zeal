@@ -206,16 +206,23 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
     m_contextMenu->popup(event->globalPos());
 }
 
-bool WebView::handleMousePressEvent(QMouseEvent *event)
+bool WebView::handleMouseReleaseEvent(QMouseEvent *event)
 {
     switch (event->button()) {
     case Qt::BackButton:
-        back();
+        // Check if cursor is still inside webview.
+        if (rect().contains(event->pos())) {
+            back();
+        }
+
         event->accept();
         return true;
 
     case Qt::ForwardButton:
-        forward();
+        if (rect().contains(event->pos())) {
+            forward();
+        }
+
         event->accept();
         return true;
 
@@ -251,8 +258,8 @@ bool WebView::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched->parent() == this) {
         switch (event->type()) {
-        case QEvent::MouseButtonPress:
-            if (handleMousePressEvent(static_cast<QMouseEvent *>(event))) {
+        case QEvent::MouseButtonRelease:
+            if (handleMouseReleaseEvent(static_cast<QMouseEvent *>(event))) {
                 return true;
             }
 

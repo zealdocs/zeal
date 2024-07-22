@@ -57,7 +57,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    bool handleMousePressEvent(QMouseEvent *event);
+    bool handleMouseReleaseEvent(QMouseEvent *event);
     bool handleWheelEvent(QWheelEvent *event);
 
     QMenu *m_contextMenu = nullptr;
