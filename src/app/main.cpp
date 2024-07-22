@@ -205,17 +205,18 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_WIN32
     const static QHash<QString, QString> protocols = {
-        {QStringLiteral("dash"), QStringLiteral("Dash Protocol")},
-        {QStringLiteral("dash-plugin"), QStringLiteral("Dash Plugin Protocol")}
+        {QStringLiteral("dash"), QStringLiteral("URL:Dash Protocol (Zeal)")},
+        {QStringLiteral("dash-plugin"), QStringLiteral("URL:Dash Plugin Protocol (Zeal)")}
     };
+
+    if (clParams.registerProtocolHandlers) {
+        registerProtocolHandlers(protocols, clParams.registerProtocolHandlers);
+        return EXIT_SUCCESS;
+    }
 
     if (clParams.unregisterProtocolHandlers) {
         unregisterProtocolHandlers(protocols);
         return EXIT_SUCCESS;
-    } else {
-        registerProtocolHandlers(protocols, clParams.registerProtocolHandlers);
-        if (clParams.registerProtocolHandlers)
-            return EXIT_SUCCESS;
     }
 #endif
 
