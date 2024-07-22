@@ -11,13 +11,15 @@
 *.h text
 *.html text
 *.in text
+*.json text
 *.md text
-*.pri text
-*.pro text
 *.qrc text
 *.ui text
-*.yml text
 *.yaml text
+*.yml text
+
+.editorconfig text
+.gitignore text
 CMakeLists.txt text
 COPYING text
 
@@ -25,6 +27,5 @@ COPYING text
 *.icns binary
 *.ico binary
 *.png binary
-*.rtf binary
 *.woff binary
 *.woff2 binary
