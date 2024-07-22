@@ -50,25 +50,25 @@
         <?include "product_fragment.wxi"?>
 
         <!-- Dash protocol handlers. -->
-        <Feature Id="Protocol" Title="Plugin Support" Level="1"
-            Description="Provides dash:// and dash-plugin:// protocol handlers.">
-            <Component Id="ProtocolHandlers" Directory="TARGETDIR">
-                <?foreach UrlScheme in dash;dash-plugin ?>
-                <RegistryKey Root="HKMU" Key="Software\Classes\$(var.UrlScheme)">
-                    <RegistryValue Type="string" Value="URL: Dash Plugin Protocol (Zeal)" />
-                    <RegistryValue Name="URL Protocol" Type="string" Value="" />
+        <Component Id="ProtocolHandlers" Directory="INSTALL_ROOT">
+            <?foreach UrlScheme in dash;dash-plugin ?>
+            <!-- Remove broken HKCU keys. -->
+            <RemoveRegistryKey Action="removeOnInstall" Root="HKCU" Key="Software\Classes\$(var.UrlScheme)" />
 
-                    <RegistryKey Key="DefaultIcon">
-                        <RegistryValue Type="string" Value="&quot;[CM_FP_zeal.exe],1&quot;" />
-                    </RegistryKey>
+            <RegistryKey Root="HKLM" Key="Software\Classes\$(var.UrlScheme)">
+                <RegistryValue Type="string" Value="URL:Dash Plugin Protocol (Zeal)" />
+                <RegistryValue Name="URL Protocol" Type="string" Value="" />
 
-                    <RegistryKey Key="shell\open\command">
-                        <RegistryValue Type="string" Value="&quot;[CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
-                    </RegistryKey>
+                <RegistryKey Key="DefaultIcon">
+                    <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe],1&quot;" />
                 </RegistryKey>
-                <?endforeach ?>
-            </Component>
-        </Feature>
+
+                <RegistryKey Key="shell\open\command">
+                    <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
+                </RegistryKey>
+            </RegistryKey>
+            <?endforeach ?>
+        </Component>
 
         <!-- Custom properties to control installation options -->
         <Property Id="LAUNCHAPPONEXIT" Value="1" Secure="yes"/>
@@ -76,7 +76,9 @@
         <!-- Set properties based on existing conditions, prevents changing state on upgrade. -->
         <SetProperty Id="LicenseAccepted" After="AppSearch" Value="1">WIX_UPGRADE_DETECTED</SetProperty>
 
-        <FeatureRef Id="ProductFeature"/>
+        <FeatureRef Id="ProductFeature">
+            <ComponentRef Id="ProtocolHandlers" />
+        </FeatureRef>
 
         <!-- Action to launch application after installer exits. -->
         <Property Id="WixShellExecTarget" Value="[#CM_FP_zeal.exe]"/>
