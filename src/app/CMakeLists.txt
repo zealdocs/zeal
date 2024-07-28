@@ -1,6 +1,4 @@
-find_package(Qt${QT_VERSION_MAJOR}
-    COMPONENTS Concurrent Network WebChannel WebEngineWidgets Widgets
-    REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
 if (Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
     message(FATAL_ERROR "Qt version >= ${QT_MINIMUM_VERSION} is required.")
 endif()
