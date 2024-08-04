@@ -27,8 +27,7 @@ jobs:
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
               qt_version: "6.7.2",
               configurePreset: ninja-multi-vcpkg,
-              buildPreset: ninja-multi-vcpkg-release,
-              buildSourcePackage: true
+              buildPreset: ninja-multi-vcpkg-release
             }
           - {
               name: "Windows Server 2022 / Qt 6 / Portable",
@@ -82,22 +81,16 @@ jobs:
           CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
 
-      - name: Package Source
-        if: matrix.config.buildSourcePackage
-        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
-
       - name: Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           # Only upload the following artifacts:
-          # - Source packages.
-          # - Non-portable MSI package.
           # - Portable 7-Zip and ZIP packages.
+          # - Non-portable MSI package.
           files: |
             build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.*
             build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi*
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}.*
 
   build-appimage:
     name: AppImage
@@ -135,3 +128,59 @@ jobs:
           fail_on_unmatched_files: true
           files: |
             zeal-*.AppImage*
+
+  build-ubuntu:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Ubuntu 22.04 / Source",
+              os: ubuntu-22.04,
+              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
+              configurePreset: "ninja-multi",
+              buildPreset: "ninja-multi-release"
+            }
+
+    env:
+      ZEAL_RELEASE_BUILD: ON
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq --no-install-recommends install \
+            cmake \
+            extra-cmake-modules \
+            libarchive-dev \
+            libsqlite3-dev \
+            libvulkan-dev \
+            libxcb-keysyms1-dev \
+            ninja-build \
+            ${{ matrix.config.qt_packages }}
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.config.configurePreset }}
+          buildPreset: ${{ matrix.config.buildPreset }}
+
+      - name: Package Source
+        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
+
+      - name: Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          fail_on_unmatched_files: true
+          # Only upload the following artifacts:
+          # - Source packages.
+          files: |
+            build/${{ matrix.config.configurePreset }}/zeal-*.*
