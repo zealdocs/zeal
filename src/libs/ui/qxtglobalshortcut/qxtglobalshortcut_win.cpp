@@ -52,7 +52,14 @@
 
 #include "qxtglobalshortcut_p.h"
 
+#include <QGuiApplication>
+
 #include <qt_windows.h>
+
+bool QxtGlobalShortcutPrivate::isSupported()
+{
+    return QGuiApplication::platformName() == QLatin1String("windows");
+}
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, NativeEventFilterResult *result)

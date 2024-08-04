@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015-2016 Oleg Shparber
-** Copyright (C) 2013-2014 Jerzy Kozera
+** Copyright (C) 2024 Oleg Shparber
 ** Contact: https://go.zealdocs.org/l/contact
 **
 ** This file is part of Zeal.
@@ -50,54 +49,50 @@
 ** <http://libqxt.org>  <foundation@libqxt.org>
 *****************************************************************************/
 
-#ifndef QXTGLOBALSHORTCUT_P_H
-#define QXTGLOBALSHORTCUT_P_H
+#include "qxtglobalshortcut_p.h"
 
-#include <QAbstractNativeEventFilter>
-#include <QHash>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#define NativeEventFilterResult long
-#else
-#define NativeEventFilterResult qintptr
-#endif
-
-class QKeySequence;
-
-class QxtGlobalShortcut;
-
-class QxtGlobalShortcutPrivate : public QAbstractNativeEventFilter
+bool QxtGlobalShortcutPrivate::isSupported()
 {
-    QxtGlobalShortcut *q_ptr = nullptr;
-    Q_DECLARE_PUBLIC(QxtGlobalShortcut)
-public:
-    QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
-    ~QxtGlobalShortcutPrivate() override;
+    return false;
+}
 
-    bool enabled = true;
-    Qt::Key key = Qt::Key(0);
-    Qt::KeyboardModifiers mods = Qt::NoModifier;
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
+                                                 void *message,
+                                                 NativeEventFilterResult *result)
+{
+    Q_UNUSED(eventType)
+    Q_UNUSED(message)
+    Q_UNUSED(result)
 
-#ifndef Q_OS_MACOS
-    static int ref;
-#endif // Q_OS_MACOS
+    return false;
+}
 
-    bool setShortcut(const QKeySequence &shortcut);
-    bool unsetShortcut();
+quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
+{
+    Q_UNUSED(modifiers)
 
-    bool nativeEventFilter(const QByteArray &eventType, void *message, NativeEventFilterResult *result) override;
+    return 0;
+}
 
-    static bool isSupported();
-    static bool activateShortcut(quint32 nativeKey, quint32 nativeMods);
+quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+{
+    Q_UNUSED(key)
 
-private:
-    static quint32 nativeKeycode(Qt::Key keycode);
-    static quint32 nativeModifiers(Qt::KeyboardModifiers modifiers);
+    return 0;
+}
 
-    static bool registerShortcut(quint32 nativeKey, quint32 nativeMods);
-    static bool unregisterShortcut(quint32 nativeKey, quint32 nativeMods);
+bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
+{
+    Q_UNUSED(nativeKey)
+    Q_UNUSED(nativeMods)
 
-    static QHash<QPair<quint32, quint32>, QxtGlobalShortcut *> shortcuts;
-};
+    return false;
+}
 
-#endif // QXTGLOBALSHORTCUT_P_H
+bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
+{
+    Q_UNUSED(nativeKey)
+    Q_UNUSED(nativeMods)
+
+    return false;
+}

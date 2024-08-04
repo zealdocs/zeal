@@ -12,10 +12,18 @@ elseif(UNIX)
         list(APPEND QxtGlobalShortcut_SOURCES
             qxtglobalshortcut_x11.cpp
         )
+    else()
+        list(APPEND QxtGlobalShortcut_SOURCES
+            qxtglobalshortcut_noop.cpp
+        )
     endif()
 elseif(WIN32)
     list(APPEND QxtGlobalShortcut_SOURCES
         qxtglobalshortcut_win.cpp
+    )
+else()
+    list(APPEND QxtGlobalShortcut_SOURCES
+        qxtglobalshortcut_noop.cpp
     )
 endif()
 

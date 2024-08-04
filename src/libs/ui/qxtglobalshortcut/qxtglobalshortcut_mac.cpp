@@ -52,11 +52,13 @@
 
 #include "qxtglobalshortcut_p.h"
 
+#include <QGuiApplication>
 #include <QHash>
 #include <QMap>
 
 #include <Carbon/Carbon.h>
 
+namespace {
 typedef QPair<uint, uint> Identifier;
 static QMap<quint32, EventHotKeyRef> keyRefs;
 static QHash<Identifier, quint32> keyIDs;
@@ -75,6 +77,12 @@ OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event,
     }
 
     return noErr;
+}
+} // namespace
+
+bool QxtGlobalShortcutPrivate::isSupported()
+{
+    return QGuiApplication::platformName() == QLatin1String("cocoa");
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,

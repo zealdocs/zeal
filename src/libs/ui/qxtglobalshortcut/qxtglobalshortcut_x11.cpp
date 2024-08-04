@@ -52,6 +52,7 @@
 
 #include "qxtglobalshortcut_p.h"
 
+#include <QGuiApplication>
 #include <QKeySequence>
 #include <QScopedPointer>
 #include <QVector>
@@ -71,6 +72,11 @@ constexpr quint32 maskModifiers[] = {
     0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
 };
 } // namespace
+
+bool QxtGlobalShortcutPrivate::isSupported()
+{
+    return QGuiApplication::platformName() == QLatin1String("xcb");
+}
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  void *message, NativeEventFilterResult *result)
