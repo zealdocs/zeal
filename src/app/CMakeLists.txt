@@ -123,6 +123,8 @@ if(WIN32)
     else()
         set(_package_file_name_suffix "-windows-unknown")
     endif()
+else()
+    set(_package_file_name_suffix "")
 endif()
 
 if(ZEAL_PORTABLE_BUILD)
