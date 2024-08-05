@@ -102,8 +102,8 @@ public:
 
     // Internal
     // --------
-    // InstallId is a UUID used to indentify a Zeal installation. Created on first start or after
-    // a settings wipe. It is not attached to user hardware or software, and is sent exclusevely
+    // InstallId is a UUID used to identify a Zeal installation. Created on first start or after
+    // a settings wipe. It is not attached to user hardware or software, and is sent exclusively
     // to *.zealdocs.org hosts.
     QString installId;
 

@@ -213,7 +213,7 @@ QNetworkReply *Application::download(const QUrl &url)
 /*!
   \internal
 
-  Performs a check whether a new Zeal version is available. Setting \a quiet to true supresses
+  Performs a check whether a new Zeal version is available. Setting \a quiet to true suppresses
   error and "you are using the latest version" message boxes.
 */
 void Application::checkForUpdates(bool quiet)

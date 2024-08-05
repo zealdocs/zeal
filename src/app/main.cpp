@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
-// Use Fusion style on Windows 10 & 11. This enables proper darl mode support.
+// Use Fusion style on Windows 10 & 11. This enables proper dark mode support.
 // See https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
 // TODO: Make style configurable, detect -style argument.
 #if defined(Q_OS_WIN) && (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))

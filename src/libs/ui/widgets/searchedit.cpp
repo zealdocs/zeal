@@ -48,7 +48,7 @@ SearchEdit::SearchEdit(QWidget *parent)
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
 }
 
-// Makes the line edit use autocompletions.
+// Makes the line edit use autocompletion.
 void SearchEdit::setCompletions(const QStringList &completions)
 {
     delete m_prefixCompleter;

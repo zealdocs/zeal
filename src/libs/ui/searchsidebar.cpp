@@ -157,7 +157,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
 
         m_treeView->selectionModel()->blockSignals(false);
 
-        // Cannot update position until layout geomentry is calculated, so set it in showEvent().
+        // Cannot update position until layout geometry is calculated, so set it in showEvent().
         m_pendingVerticalPosition = other->m_treeView->verticalScrollBar()->value();
     } else {
         m_searchModel = new Registry::SearchModel(this);
