@@ -2,6 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "dependencies": [
     {
+      "name": "cpp-httplib",
+      "default-features": false
+    },
+    {
       "name": "libarchive",
       "default-features": false
     },
