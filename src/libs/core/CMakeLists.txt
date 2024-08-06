@@ -6,13 +6,7 @@ add_library(Core STATIC
     httpserver.cpp
     networkaccessmanager.cpp
     settings.cpp
-
-    # Show headers without .cpp in Qt Creator.
-    httplib.h
 )
-
-# Configure cpp-httplib.
-add_definitions(-DCPPHTTPLIB_USE_POLL)
 
 target_link_libraries(Core Registry Ui)
 
@@ -46,6 +40,18 @@ if((CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0) AND (TARGET LibArchive::LibArchi
 else()
     include_directories(${LibArchive_INCLUDE_DIRS})
     target_link_libraries(Core ${LibArchive_LIBRARIES})
+endif()
+
+# Configure cpp-httplib.
+add_definitions(-DCPPHTTPLIB_USE_POLL)
+
+find_package(httplib CONFIG QUIET)
+if(httplib_FOUND)
+    target_link_libraries(Core httplib::httplib)
+else()
+    # Use bundled version of cpp-httplib if not found.
+    # TODO: Replace with QHttpServer once Qt 5 is dropped.
+    include_directories("${CMAKE_SOURCE_DIR}/src/contrib/cpp-httplib")
 endif()
 
 # Required by cpp-httplib.
