@@ -23,7 +23,8 @@
 #include "httpserver.h"
 
 #include "application.h"
-#include "httplib.h"
+
+#include <httplib.h>
 
 #include <QLoggingCategory>
 #include <QRegularExpression>
