@@ -80,6 +80,19 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
 
+    // Hide/show sidebar.
+    // TODO: Move to the View menu.
+    shortcut = new QShortcut(QStringLiteral("Ctrl+B"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        auto sb = ui->splitter->widget(0);
+        if (sb == nullptr) {
+            // This should not really happen.
+            return;
+        }
+
+        sb->setVisible(!sb->isVisible());
+    });
+
     restoreGeometry(m_settings->windowGeometry);
 
     // Menu
