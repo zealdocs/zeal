@@ -1,0 +1,99 @@
+# git-cliff ~ configuration file
+# https://git-cliff.org/docs/configuration
+
+# Set via GITHUB_REPO and GITHUB_TOKEN environment variables.
+#[remote.github]
+#owner = "zealdocs"
+#repo = "zeal"
+#token = ""
+
+[changelog]
+# Template docs: https://keats.github.io/tera/docs/.
+body = """\
+<!-- TODO: Update milestone link, review commits. -->
+{% if version and previous.version %}
+  [Full Changelog]({{ self::diff_url() }}) | [Resolved Issues]({{ self::remote_url() }}/milestone/TBD?closed=1)
+{% endif %}\
+
+{% for group, commits in commits | group_by(attribute="group") %}
+  ### {{ group | striptags | trim }}
+  {% for commit in commits %}
+    {% if commit.github.pr_title -%}
+      {%- set commit_message = commit.github.pr_title -%}
+    {%- else -%}
+      {%- set commit_message = commit.message -%}
+    {%- endif -%}
+    - {% if commit.scope %}**{{ commit.scope }}:** {% endif %}\
+        {{ commit.message | split(pat="\n") | first | trim }} \
+        ({{ self::commit_link(id=commit.id) }})\
+  {% endfor %}
+{% endfor %}
+---
+
+{%- if github -%}\
+{% if github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
+  {% raw %}\n{% endraw -%}
+  #### New Contributors
+{%- endif %}
+{% for contributor in github.contributors | filter(attribute="is_first_time", value=true) %}
+  - @{{ contributor.username }} made their first contribution
+    {%- if contributor.pr_number %} in \
+      {{ self::pr_link(pr_number=contributor.pr_number) }}\
+    {%- endif %}
+{%- endfor -%}
+{%- endif -%}
+
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+
+{%- macro diff_url() -%}
+  {{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}
+{%- endmacro -%}
+
+{%- macro pr_link(pr_number) -%}
+  [#{{ pr_number }}]({{ self::remote_url() }}/pull/{{ pr_number }})
+{%- endmacro -%}
+
+{%- macro commit_link(id) -%}
+  [`{{ id | truncate(length=7, end="") }}`]({{ self::remote_url() }}/commit/{{ id }})
+{%- endmacro -%}
+"""
+# Remove the leading and trailing whitespace from the template.
+trim = true
+# Template for the changelog footer.
+footer = """
+"""
+# Postprocessors.
+postprocessors = []
+
+[git]
+# Parse the commits based on https://www.conventionalcommits.org.
+conventional_commits = true
+# Filter out the commits that are not conventional.
+filter_unconventional = true
+# Process each line of a commit as an individual commit.
+split_commits = false
+# Regex for preprocessing the commit messages.
+commit_preprocessors = [
+  # Remove issue numbers from commits.
+  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+]
+# Regex for parsing and grouping commits.
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Features" },
+  { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
+  { message = "^perf", group = "<!-- 2 -->Performance" },
+  { message = "^doc", group = "<!-- 3 -->Documentation" },
+  { message = "^build", group = "<!-- 4 -->Build System" },
+  { message = "^ci", group = "<!-- 5 -->CI/CD" },
+  # Skipped groups:
+  { message = "^chore", skip = true },
+  { message = "^refactor", skip = true },
+]
+# Filter out the commits that are not matched by commit parsers.
+filter_commits = false
+# Sort the tags topologically.
+topo_order = false
+# Sort the commits inside sections by oldest/newest order.
+sort_commits = "oldest"

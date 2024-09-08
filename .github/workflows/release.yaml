@@ -175,11 +175,21 @@ jobs:
       - name: Package Source
         run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
 
+      - name: Generate Changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          args: --latest
+          config: .github/workflows/release/cliff.toml
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+
       - name: Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           fail_on_unmatched_files: true
+          body: ${{ steps.git-cliff.outputs.content }}
           # Only upload the following artifacts:
           # - Source packages.
           files: |
