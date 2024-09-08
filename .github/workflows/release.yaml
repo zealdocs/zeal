@@ -166,14 +166,12 @@ jobs:
             ninja-build \
             ${{ matrix.config.qt_packages }}
 
-      - name: Configure & Build
+      - name: Configure & Package Source
         uses: lukka/run-cmake@v10
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
-
-      - name: Package Source
-        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package_source
+          buildPresetAdditionalArgs: "['--target package_source']"
 
       - name: Generate Changelog
         uses: orhun/git-cliff-action@v4
