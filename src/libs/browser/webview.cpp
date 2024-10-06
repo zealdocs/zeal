@@ -37,6 +37,9 @@ WebView::WebView(QWidget *parent)
     setPage(new WebPage(this));
     setZoomLevel(defaultZoomLevel());
 
+    // Enable plugins for PDF support.
+    settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
+
     settings()->setAttribute(QWebEngineSettings::FocusOnNavigationEnabled, false);
 
     QApplication::instance()->installEventFilter(this);
