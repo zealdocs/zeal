@@ -1,14 +1,6 @@
-/****************************************************************************
-**
-** Copyright (C) Oleg Shparber, et al.
-** Copyright (C) 2015 Artur Spychaj
-** Contact: https://go.zealdocs.org/l/contact
-**
-** This file is part of Zeal.
-**
-** SPDX-License-Identifier: GPL-3.0-or-later
-**
-****************************************************************************/
+// Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
+// Copyright (C) 2015 Artur Spychaj
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #ifndef ZEAL_REGISTRY_CANCELLATIONTOKEN_H
 #define ZEAL_REGISTRY_CANCELLATIONTOKEN_H

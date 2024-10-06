@@ -1,15 +1,7 @@
+// Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
+// SPDX-License-Identifier: GPL-3.0-or-later
 /****************************************************************************
-**
-** Copyright (C) Oleg Shparber, et al.
-** Contact: https://go.zealdocs.org/l/contact
-**
-** This file is part of Zeal.
-**
-** SPDX-License-Identifier: GPL-3.0-or-later
-**
-****************************************************************************/
-/****************************************************************************
-** Copyright (c) 2006 - 2011, the LibQxt project.
+// Copyright (C) 2006 - 2011, the LibQxt project.
 ** See the Qxt AUTHORS file for a list of authors and copyright holders.
 ** All rights reserved.
 **
