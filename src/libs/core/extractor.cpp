@@ -77,11 +77,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
         std::int64_t offset;
         for (;;) {
             int rc = archive_read_data_block(info.archiveHandle, &buffer, &size, &offset);
-            if (rc != ARCHIVE_OK) {
-                if (rc == ARCHIVE_EOF) {
-                    break;
-                }
-
+            if (rc != ARCHIVE_OK && rc != ARCHIVE_EOF) {
                 qWarning("Cannot read from archive: %s", archive_error_string(info.archiveHandle));
                 emit error(sourceFile,
                            QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
