@@ -107,10 +107,15 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
     return false;
 }
 
-void WebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceId)
+void WebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,
+                                       const QString &message,
+                                       int lineNumber,
+                                       const QString &sourceId)
 {
-    Q_UNUSED(level)
-    Q_UNUSED(message)
-    Q_UNUSED(lineNumber)
-    Q_UNUSED(sourceId)
+    qCDebug(log,
+            "%s [%s:%d] %s",
+            qPrintable(QVariant::fromValue(level).toString()),
+            qPrintable(sourceId),
+            lineNumber,
+            qPrintable(message));
 }
