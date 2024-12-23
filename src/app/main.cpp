@@ -17,7 +17,7 @@
 #include <QTimer>
 #include <QUrlQuery>
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
 #include <QSettings>
 
 #include <Windows.h>
@@ -32,7 +32,7 @@ struct CommandLineParameters
     bool force;
     bool preventActivation;
     Registry::SearchQuery query;
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
 #endif
@@ -63,7 +63,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addOption({{QStringLiteral("f"), QStringLiteral("force")},
                       QObject::tr("Force the application run.")});
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     parser.addOption(QCommandLineOption({QStringLiteral("register")},
                                         QObject::tr("Register protocol handlers")));
     parser.addOption(QCommandLineOption({QStringLiteral("unregister")},
@@ -76,7 +76,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     clParams.force = parser.isSet(QStringLiteral("force"));
     clParams.preventActivation = false;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
     clParams.unregisterProtocolHandlers = parser.isSet(QStringLiteral("unregister"));
 
@@ -111,7 +111,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     return clParams;
 }
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
 void registerProtocolHandler(const QString &scheme, const QString &description)
 {
     const QString appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 // Use Fusion style on Windows 10 & 11. This enables proper dark mode support.
 // See https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
 // TODO: Make style configurable, detect -style argument.
-#if defined(Q_OS_WIN) && (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+#if defined(Q_OS_WINDOWS) && (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
     const auto osName = QSysInfo::prettyProductName();
     if (osName.startsWith("Windows 10") || osName.startsWith("Windows 11")) {
         QApplication::setStyle("fusion");
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     const static QHash<QString, QString> protocols = {
         {QStringLiteral("dash"), QStringLiteral("URL:Dash Protocol (Zeal)")},
         {QStringLiteral("dash-plugin"), QStringLiteral("URL:Dash Plugin Protocol (Zeal)")}
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
     QScopedPointer<Core::ApplicationSingleton> appSingleton(new Core::ApplicationSingleton());
     if (appSingleton->isSecondary()) {
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
         ::AllowSetForegroundWindow(appSingleton->primaryPid());
 #endif
         QByteArray ba;

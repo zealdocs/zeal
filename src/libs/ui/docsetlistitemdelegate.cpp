@@ -64,7 +64,7 @@ void DocsetListItemDelegate::paint(QPainter *painter,
 
     QPalette palette = option.palette;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
     // QWindowsVistaStyle overrides highlight colour.
     if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
         palette.setColor(QPalette::All, QPalette::HighlightedText,
