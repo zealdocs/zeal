@@ -113,9 +113,10 @@ jobs:
         with:
           recipe: pkg/appimage/appimage-amd64.yaml
           apt_dependencies: >-
+            appstream
             build-essential
             cmake extra-cmake-modules
-            libappindicator-dev
+            libayatana-appindicator3-dev
             libarchive-dev
             libqt5x11extras5-dev
             libsqlite3-dev
