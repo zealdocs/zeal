@@ -1,24 +1,23 @@
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 RUN apt-get update -q -y \
-   # Install appimage-builder and appimagetool dependencies.
+    # Install appimage-builder and appimagetool dependencies.
     && DEBIAN_FRONTEND="noninteractive" apt-get install -q -y --no-install-recommends \
-       appstream curl desktop-file-utils fakeroot file git gnupg patchelf squashfs-tools zsync  \
-       python3-pip python3-setuptools python3-wheel \
-    && \
+       appstream curl desktop-file-utils fakeroot file git gnupg patchelf pipx squashfs-tools zsync \
+    && pipx ensurepath \
     # Install appimagetool, it has to be extracted because FUSE doesn't work in containers without extra fiddling.
-    cd /tmp && \
-    curl -sLO https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage && \
-    chmod +x appimagetool-x86_64.AppImage && \
-    ./appimagetool-x86_64.AppImage --appimage-extract && \
-    mv squashfs-root/ /opt/appimagetool.AppDir && \
-    ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool && \
-    rm appimagetool-x86_64.AppImage && \
-    cd - && \
+    && cd /tmp \
+    && curl -sLO https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage \
+    && chmod +x appimagetool-x86_64.AppImage \
+    && ./appimagetool-x86_64.AppImage --appimage-extract \
+    && mv squashfs-root/ /opt/appimagetool.AppDir \
+    && ln -s /opt/appimagetool.AppDir/AppRun /usr/local/bin/appimagetool \
+    && rm appimagetool-x86_64.AppImage \
+    && cd - \
     # Install appimage-builder.
-    pip3 install git+https://github.com/AppImageCrafters/appimage-builder.git@669213cb730e007d5b316ed19b39691fbdcd41c4 && \
-    apt-get clean && \
-        rm -rf /var/lib/apt/lists/*
+    && pipx install git+https://github.com/AppImageCrafters/appimage-builder.git@bf6123ee43715e52d2a73639f9acb1251e8af640 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set entrypoint.
 COPY entrypoint.sh /entrypoint.sh

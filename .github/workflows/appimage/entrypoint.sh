@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pipx ensurepath
+
 # Should be in .gitignore.
 export APPIMAGE_BUILD_DIR=build.appimage
 
