@@ -19,16 +19,16 @@ jobs:
       matrix:
         config:
           - {
-              name: "Ubuntu 20.04 / Qt 5",
-              os: ubuntu-20.04,
-              qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
+              name: "Ubuntu 22.04 / Qt 5",
+              os: ubuntu-22.04,
+              qt_packages: "libqt5x11extras5-dev qtwebengine5-dev",
               configurePreset: "ninja-multi",
               buildPreset: "ninja-multi-release"
             }
           - {
-              name: "Ubuntu 20.04 / Qt 5 / Portable",
-              os: ubuntu-20.04,
-              qt_packages: "libqt5x11extras5-dev qt5-default qtwebengine5-dev",
+              name: "Ubuntu 22.04 / Qt 5 / Portable",
+              os: ubuntu-22.04,
+              qt_packages: "libqt5x11extras5-dev qtwebengine5-dev",
               configurePreset: "ninja-multi-portable",
               buildPreset: "ninja-multi-portable-release"
             }
@@ -179,7 +179,7 @@ jobs:
 
   build-appimage:
     name: AppImage
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
