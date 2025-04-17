@@ -135,6 +135,19 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
         dialog->exec();
     });
 
+    // View Menu
+    ui->actionHideMenu->setShortcut(QStringLiteral("Ctrl+m"));
+    connect(ui->actionHideMenu, &QAction::triggered, this, [this]() {
+        if (ui->menuBar->isVisible()) {
+            m_settings->hideMenuBar = true;
+        }
+        else {
+            m_settings->hideMenuBar = false;
+        }
+        applySettings();
+    });
+    addAction(ui->actionHideMenu);
+
     // Help Menu
     connect(ui->actionSubmitFeedback, &QAction::triggered, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
@@ -512,6 +525,13 @@ void MainWindow::applySettings()
 {
     if (m_globalShortcut) {
         m_globalShortcut->setShortcut(m_settings->showShortcut);
+    }
+
+    if (m_settings->hideMenuBar){
+        ui->menuBar->hide();
+    }
+    else {
+        ui->menuBar->show();
     }
 
     if (m_settings->showSystrayIcon)
