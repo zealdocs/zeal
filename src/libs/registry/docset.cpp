@@ -64,9 +64,10 @@ Docset::Docset(QString path)
             break;
     }
 
-    // TODO: Report errors here and below
-    if (!dir.cd(QStringLiteral("Contents")))
+    if (!dir.cd(QStringLiteral("Contents"))) {
+        qWarning("Cannot change directory into 'Contents' for docset at '%s'", qPrintable(m_path));
         return;
+    }
 
     // TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
     // https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig
@@ -76,11 +77,15 @@ Docset::Docset(QString path)
         plist.read(dir.filePath(QStringLiteral("Info.plist")));
     else if (dir.exists(QStringLiteral("info.plist")))
         plist.read(dir.filePath(QStringLiteral("info.plist")));
-    else
+    else {
+        qWarning("Cannot access file 'Info.plist' or 'info.plist' for docset at '%s'", qPrintable(m_path));
         return;
+    }
 
-    if (plist.hasError())
+    if (plist.hasError()) {
+        qWarning("Error parsing 'Info.plist' for docset at '%s'", qPrintable(m_path));
         return;
+    }
 
     if (m_name.isEmpty()) {
         // Fallback if meta.json is absent
@@ -104,8 +109,15 @@ Docset::Docset(QString path)
         m_name = m_name + QLatin1String("cheats");
     }
 
-    if (!dir.cd(QStringLiteral("Resources")) || !dir.exists(QStringLiteral("docSet.dsidx")))
+    if (!dir.cd(QStringLiteral("Resources"))) {
+        qWarning("Cannot change directory into 'Resources' for docset %s", qPrintable(m_name));
         return;
+    }
+
+    if (!dir.exists(QStringLiteral("docSet.dsidx"))) {
+        qWarning("Cannot access file 'docSet.dsidx' for docset %s", qPrintable(m_name));
+        return;
+    }
 
     m_db = new Util::SQLiteDatabase(dir.filePath(QStringLiteral("docSet.dsidx")));
 
@@ -127,6 +139,7 @@ Docset::Docset(QString path)
     }
 
     if (!dir.cd(QStringLiteral("Documents"))) {
+        qWarning("Cannot change directory into 'Documents' for docset %s", qPrintable(m_name));
         m_type = Type::Invalid;
         return;
     }
