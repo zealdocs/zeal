@@ -6,6 +6,7 @@
 #define ZEAL_WIDGETUI_MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
 
 class QxtGlobalShortcut;
 
@@ -23,10 +24,6 @@ class Application;
 class Settings;
 } // namespace Core
 
-namespace Registry {
-class SearchQuery;
-} //namespace Registry
-
 namespace WidgetUi {
 
 namespace Ui {
@@ -43,7 +40,7 @@ public:
     explicit MainWindow(Core::Application *app, QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    void search(const Registry::SearchQuery &query);
+    void search(const QString &query);
     void bringToFront();
     BrowserTab *createTab();
 
