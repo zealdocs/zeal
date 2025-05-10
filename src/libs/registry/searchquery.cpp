@@ -22,15 +22,19 @@ SearchQuery::SearchQuery(QString query, const QStringList &keywords)
 SearchQuery SearchQuery::fromString(const QString &str)
 {
     const int sepAt = str.indexOf(prefixSeparator);
-    const int next = sepAt + 1;
 
     QString query;
     QStringList keywords;
-    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
-        query = str.mid(next).trimmed();
-
+    if (sepAt > 0) {
         const QString keywordStr = str.left(sepAt).trimmed();
-        keywords = keywordStr.split(keywordSeparator);
+        if (keywordStr.isEmpty()) {
+            query = str.trimmed();
+        } else {
+            if (sepAt < str.size()) {
+                query = str.mid(sepAt + 1).trimmed();
+            }
+            keywords = keywordStr.split(keywordSeparator);
+        }
     } else {
         query = str.trimmed();
     }
