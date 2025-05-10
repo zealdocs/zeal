@@ -10,7 +10,6 @@
 #include "settings.h"
 
 #include <registry/docsetregistry.h>
-#include <registry/searchquery.h>
 #include <ui/mainwindow.h>
 
 #include <QCoreApplication>
@@ -22,6 +21,7 @@
 #include <QNetworkReply>
 #include <QScopedPointer>
 #include <QStandardPaths>
+#include <QString>
 #include <QSysInfo>
 #include <QThread>
 
@@ -160,7 +160,7 @@ QString Application::versionString()
     return v;
 }
 
-void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)
+void Application::executeQuery(const QString &query, bool preventActivation)
 {
     m_mainWindow->search(query);
 

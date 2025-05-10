@@ -7,6 +7,7 @@
 #include <registry/searchmodel.h>
 
 #include <QModelIndexList>
+#include <QString>
 #include <QWidget>
 
 class QToolButton;
@@ -16,10 +17,6 @@ namespace Zeal {
 namespace Browser {
 class WebControl;
 } // namespace Browser
-
-namespace Registry {
-class SearchQuery;
-} //namespace Registry
 
 namespace WidgetUi {
 
@@ -39,7 +36,7 @@ public:
 
 public slots:
     void navigateToStartPage();
-    void search(const Registry::SearchQuery &query);
+    void search(const QString &query);
 
 signals:
     void iconChanged(const QIcon &icon);
