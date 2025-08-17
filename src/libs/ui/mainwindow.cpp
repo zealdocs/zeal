@@ -27,6 +27,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QShortcut>
+#include <QString>
 #include <QSystemTrayIcon>
 #include <QTabBar>
 
@@ -242,7 +243,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::search(const Registry::SearchQuery &query)
+void MainWindow::search(const QString &query)
 {
     currentTab()->search(query);
 }

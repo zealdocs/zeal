@@ -12,11 +12,11 @@
 #include <core/settings.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
-#include <registry/searchquery.h>
 
 #include <QApplication>
 #include <QLabel>
 #include <QMenu>
+#include <QString>
 #include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -190,7 +190,7 @@ void BrowserTab::navigateToStartPage()
     m_webControl->load(QUrl(WelcomePageUrl));
 }
 
-void BrowserTab::search(const Registry::SearchQuery &query)
+void BrowserTab::search(const QString &query)
 {
     if (query.isEmpty())
         return;

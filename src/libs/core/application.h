@@ -5,6 +5,7 @@
 #define ZEAL_CORE_APPLICATION_H
 
 #include <QObject>
+#include <QString>
 #include <QVersionNumber>
 
 class QNetworkAccessManager;
@@ -15,7 +16,6 @@ namespace Zeal {
 
 namespace Registry {
 class DocsetRegistry;
-class SearchQuery;
 } // namespace Registry
 
 namespace WidgetUi {
@@ -54,7 +54,7 @@ public:
     static QString versionString();
 
 public slots:
-    void executeQuery(const Registry::SearchQuery &query, bool preventActivation);
+    void executeQuery(const QString &query, bool preventActivation);
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
     void checkForUpdates(bool quiet = false);
