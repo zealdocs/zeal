@@ -6,6 +6,7 @@
 #include "searchsidebar.h"
 #include "widgets/layouthelper.h"
 #include "widgets/toolbarframe.h"
+#include "widgets/browserzoomwidget.h"
 
 #include <browser/webcontrol.h>
 #include <core/application.h>
@@ -15,12 +16,15 @@
 #include <registry/searchquery.h>
 
 #include <QApplication>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
+#include <QPushButton>
 #include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWebEngineHistory>
+#include <QWidgetAction>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -105,6 +109,44 @@ BrowserTab::BrowserTab(QWidget *parent)
 
         label->setText(title);
     });
+    m_browserActionButton = new QToolButton();
+    m_browserActionButton->setAutoRaise(true);
+    m_browserActionButton->setText(QStringLiteral("⋮"));
+    m_browserActionButton->setArrowType(Qt::NoArrow);
+    m_browserActionButton->setPopupMode(QToolButton::InstantPopup);
+
+    auto zoomActionWidget = new BrowserZoomWidget();
+
+    connect(zoomActionWidget->zoomInButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
+        m_webControl->zoomIn();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
+    });
+
+    connect(zoomActionWidget->zoomOutButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
+        m_webControl->zoomOut();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
+    });
+
+    connect(zoomActionWidget->resetZoomButton(), &QPushButton::clicked, [this, zoomActionWidget]() {
+        m_webControl->resetZoom();
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
+    });
+
+    auto zoomWidgetAction = new QWidgetAction(this);
+    zoomWidgetAction->setDefaultWidget(zoomActionWidget);
+
+    auto browserActionsMenu = new QMenu(m_browserActionButton);
+    browserActionsMenu->addAction(zoomWidgetAction);
+
+    connect(browserActionsMenu, &QMenu::aboutToShow, [this, zoomActionWidget] () {
+        const auto zoomLevel = QString("%1%").arg(m_webControl->zoomLevelPercentage());
+        zoomActionWidget->zoomLevelLabel()->setText(zoomLevel);
+    });
+
+    m_browserActionButton->setMenu(browserActionsMenu);
 
     auto toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
@@ -113,6 +155,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     toolBarLayout->addWidget(m_backButton);
     toolBarLayout->addWidget(m_forwardButton);
     toolBarLayout->addWidget(label, 1);
+    toolBarLayout->addWidget(m_browserActionButton);
 
     auto toolBarFrame = new ToolBarFrame();
     toolBarFrame->setLayout(toolBarLayout);
