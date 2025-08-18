@@ -166,6 +166,7 @@ void SettingsDialog::loadSettings()
     ui->toolButton->setKeySequence(settings->showShortcut);
 
     ui->docsetStorageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
+    ui->docsetStorageGlobalCheckBox->setChecked(settings->useGlobalDocsets);
 
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
@@ -259,6 +260,7 @@ void SettingsDialog::saveSettings()
     settings->showShortcut = ui->toolButton->keySequence();
 
     settings->docsetPath = QDir::fromNativeSeparators(ui->docsetStorageEdit->text());
+    settings->useGlobalDocsets = ui->docsetStorageGlobalCheckBox->isChecked();
 
     // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
