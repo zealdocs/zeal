@@ -82,6 +82,7 @@ jobs:
           - {
               name: "Windows Server 2022 / Qt 5",
               os: windows-2022,
+              arch: win64_msvc2019_64,
               qt_modules: "qtwebengine",
               qt_version: "5.15.2",
               configurePreset: "ninja-multi-vcpkg",
@@ -91,6 +92,7 @@ jobs:
           - {
               name: "Windows Server 2022 / Qt 5 / Portable",
               os: windows-2022,
+              arch: win64_msvc2019_64,
               qt_modules: "qtwebengine",
               qt_version: "5.15.2",
               configurePreset: ninja-multi-vcpkg-portable,
@@ -100,8 +102,9 @@ jobs:
           - {
               name: "Windows Server 2022 / Qt 6",
               os: windows-2022,
-              qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.7.3",
+              arch: win64_msvc2022_64,
+              qt_modules: "qtwebchannel qtwebengine qtpositioning",
+              qt_version: "6.9.2",
               configurePreset: ninja-multi-vcpkg,
               buildPreset: ninja-multi-vcpkg-release,
               publishArtifacts: true
@@ -109,8 +112,9 @@ jobs:
           - {
               name: "Windows Server 2022 / Qt 6 / Portable",
               os: windows-2022,
-              qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.7.3",
+              arch: win64_msvc2022_64,
+              qt_modules: "qtwebchannel qtwebengine qtpositioning",
+              qt_version: "6.9.2",
               configurePreset: ninja-multi-vcpkg-portable,
               buildPreset: ninja-multi-vcpkg-portable-release,
               publishArtifacts: true
@@ -134,7 +138,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          arch: win64_msvc2019_64
+          arch: ${{ matrix.config.arch }}
           modules: ${{ matrix.config.qt_modules }}
           version: ${{ matrix.config.qt_version }}
           cache: true
