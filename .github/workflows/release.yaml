@@ -24,16 +24,18 @@ jobs:
           - {
               name: "Windows Server 2022 / Qt 6",
               os: windows-2022,
+              arch: win64_msvc2022_64,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.7.3",
+              qt_version: "6.9.2",
               configurePreset: ninja-multi-vcpkg,
               buildPreset: ninja-multi-vcpkg-release
             }
           - {
               name: "Windows Server 2022 / Qt 6 / Portable",
               os: windows-2022,
+              arch: win64_msvc2022_64,
               qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.7.3",
+              qt_version: "6.9.2",
               configurePreset: ninja-multi-vcpkg-portable,
               buildPreset: ninja-multi-vcpkg-portable-release
             }
@@ -57,7 +59,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          arch: win64_msvc2019_64
+          arch: ${{ matrix.config.arch }}
           modules: ${{ matrix.config.qt_modules }}
           version: ${{ matrix.config.qt_version }}
           cache: true
