@@ -92,5 +92,6 @@ void Settings::setCustomStyleSheet(const QString &name, const QString &cssUrl)
     script.setSourceCode(cssInjectCode.arg(cssUrl));
     script.setInjectionPoint(QWebEngineScript::DocumentReady);
     script.setRunsOnSubFrames(true);
+    script.setWorldId(QWebEngineScript::ApplicationWorld);
     m_webProfile->scripts()->insert(script);
 }
