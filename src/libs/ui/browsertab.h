@@ -51,8 +51,12 @@ private:
     // Widgets.
     SearchSidebar *m_searchSidebar = nullptr;
     Browser::WebControl *m_webControl = nullptr;
+    QAction *m_browserZoomInAction = nullptr;
+    QAction *m_browserZoomOutAction = nullptr;
+    QAction *m_browserResetZoomAction = nullptr;
     QToolButton *m_backButton = nullptr;
     QToolButton *m_forwardButton = nullptr;
+    QToolButton *m_browserActionButton = nullptr;
 };
 
 } // namespace WidgetUi
