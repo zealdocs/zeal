@@ -21,24 +21,26 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: "Windows Server 2022 / Qt 6",
-              os: windows-2022,
-              arch: win64_msvc2022_64,
-              qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.9.2",
-              configurePreset: ninja-multi-vcpkg,
-              buildPreset: ninja-multi-vcpkg-release
-            }
-          - {
-              name: "Windows Server 2022 / Qt 6 / Portable",
-              os: windows-2022,
-              arch: win64_msvc2022_64,
-              qt_modules: "qtwebengine qtwebchannel qtpositioning",
-              qt_version: "6.9.2",
-              configurePreset: ninja-multi-vcpkg-portable,
-              buildPreset: ninja-multi-vcpkg-portable-release
-            }
+          - name: Windows Server 2022 / Qt 6
+            os: windows-2022
+            arch: win64_msvc2022_64
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.9.2"
+            configurePreset: ninja-multi-vcpkg
+            buildPreset: ninja-multi-vcpkg-release
+          - name: Windows Server 2022 / Qt 6 / Portable
+            os: windows-2022
+            arch: win64_msvc2022_64
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.9.2"
+            configurePreset: ninja-multi-vcpkg-portable
+            buildPreset: ninja-multi-vcpkg-portable-release
 
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows-release
@@ -138,13 +140,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: "Ubuntu 22.04 / Source",
-              os: ubuntu-22.04,
-              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
-              configurePreset: "ninja-multi",
-              buildPreset: "ninja-multi-release"
-            }
+          - name: Ubuntu 22.04 / Source
+            os: ubuntu-22.04
+            qt_packages: >-
+              libgl1-mesa-dev
+              libqt6opengl6-dev
+              qt6-base-private-dev
+              qt6-webengine-dev
+              qt6-webengine-dev-tools
+            configurePreset: ninja-multi
+            buildPreset: ninja-multi-release
 
     env:
       ZEAL_RELEASE_BUILD: ON
