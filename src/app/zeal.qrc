@@ -3,7 +3,6 @@
         <file alias="zeal.ico">resources/zeal.ico</file>
     </qresource>
     <qresource prefix="/browser">
-        <file alias="assets/css/darkmode.css">resources/browser/assets/css/darkmode.css</file>
         <file alias="assets/css/fa-brands.min.css">resources/browser/assets/css/fa-brands.min.css</file>
         <file alias="assets/css/fa-solid.min.css">resources/browser/assets/css/fa-solid.min.css</file>
         <file alias="assets/css/fontawesome.min.css">resources/browser/assets/css/fontawesome.min.css</file>

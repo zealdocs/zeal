@@ -8,9 +8,7 @@
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
 #include <QRandomGenerator>
-#endif
 #include <QVariant>
 #include <QXmlStreamReader>
 
@@ -150,11 +148,7 @@ QUrl DocsetMetadata::feedUrl() const
 
 QUrl DocsetMetadata::url() const
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     return m_urls.at(QRandomGenerator::global()->bounded(m_urls.size()));
-#else
-    return m_urls.at(qrand() % m_urls.size());
-#endif
 }
 
 QList<QUrl> DocsetMetadata::urls() const

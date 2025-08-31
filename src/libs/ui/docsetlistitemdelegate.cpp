@@ -49,11 +49,7 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     const int margin = 4; // Random small number
 
     QRect textRect = option.rect.adjusted(-margin, 0, -margin, 0);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
     textRect.setLeft(textRect.right() - fontMetrics.horizontalAdvance(text) - 2);
-#else
-    textRect.setLeft(textRect.right() - fontMetrics.width(text) - 2);
-#endif
     textRect = QStyle::visualRect(option.direction, option.rect, textRect);
     // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behaviour.

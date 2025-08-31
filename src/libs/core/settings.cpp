@@ -112,7 +112,7 @@ void Settings::load()
     contentAppearance = settings->value(QStringLiteral("appearance"),
                                         QVariant::fromValue(ContentAppearance::Automatic)).value<ContentAppearance>();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
     // Dark mode needs to be applied before Qt WebEngine is initialized.
     if (isDarkModeEnabled()) {
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4");

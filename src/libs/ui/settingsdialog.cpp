@@ -267,7 +267,7 @@ void SettingsDialog::saveSettings()
     settings->isFuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();
 
     // Content Tab
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
     // Applying dark mode requires restart.
     ui->appearanceLabel->setText(tr("Appearance (requires restart):"));
 #endif

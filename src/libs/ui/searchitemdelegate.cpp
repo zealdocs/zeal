@@ -122,13 +122,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
                 break;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
             QRect highlightRect = textRect.adjusted(fm.horizontalAdvance(elidedText.left(matchIndex)), 2, 0, -2);
             highlightRect.setWidth(fm.horizontalAdvance(elidedText.mid(matchIndex, m_highlight.length())));
-#else
-            QRect highlightRect = textRect.adjusted(fm.width(elidedText.left(matchIndex)), 2, 0, -2);
-            highlightRect.setWidth(fm.width(elidedText.mid(matchIndex, m_highlight.length())));
-#endif
 
             QPainterPath path;
             path.addRoundedRect(highlightRect, 2, 2);
@@ -195,11 +190,9 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         const int decorationWidth = std::min(opt.decorationSize.width(), actualSize.width());
         size.rwidth() = (decorationWidth + margin) * roles.size() + margin;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+
     size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + margin * 2;
-#else
-    size.rwidth() += opt.fontMetrics.width(index.data().toString()) + margin * 2;
-#endif
+
     return size;
 }
 

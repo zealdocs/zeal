@@ -14,7 +14,6 @@
 #include <QWebEngineScriptCollection>
 
 namespace {
-constexpr char DarkModeCssUrl[] = "qrc:///browser/assets/css/darkmode.css";
 constexpr char HighlightOnNavigateCssUrl[] = "qrc:///browser/assets/css/highlight.css";
 }
 
@@ -38,11 +37,7 @@ Settings::Settings(Core::Settings *appSettings, QObject *parent)
 #endif
 
     // Setup URL interceptor.
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     m_webProfile->setUrlRequestInterceptor(new UrlRequestInterceptor(this));
-#else
-    m_webProfile->setRequestInterceptor(new UrlRequestInterceptor(this));
-#endif
 
     // Listen to settings changes.
     connect(m_appSettings, &Core::Settings::updated, this, &Settings::applySettings);
@@ -63,13 +58,6 @@ void Settings::applySettings()
     // Apply custom CSS.
     // TODO: Apply to all open pages.
     m_webProfile->scripts()->clear(); // Remove all scripts first.
-
-    // Qt 5.14+ uses native Chromium dark mode.
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    if (m_appSettings->isDarkModeEnabled()) {
-        setCustomStyleSheet(QStringLiteral("_zeal_darkstylesheet"), DarkModeCssUrl);
-    }
-#endif
 
     if (m_appSettings->isHighlightOnNavigateEnabled) {
         setCustomStyleSheet(QStringLiteral("_zeal_highlightstylesheet"), HighlightOnNavigateCssUrl);

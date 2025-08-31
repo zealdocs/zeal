@@ -29,7 +29,7 @@ endif()
 
 if(NOT QT_FOUND)
     find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
-    set(QT_MINIMUM_VERSION 5.9.5)
+    set(QT_MINIMUM_VERSION 5.15.2)
 endif()
 
 message(NOTICE "Detected Qt version: ${QT_VERSION}")
