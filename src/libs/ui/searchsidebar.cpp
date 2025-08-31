@@ -24,6 +24,7 @@
 #include <QScrollBar>
 #include <QShortcut>
 #include <QSplitter>
+#include <QString>
 #include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -296,10 +297,9 @@ void SearchSidebar::focusSearchEdit(bool clear)
     }
 }
 
-void SearchSidebar::search(const Registry::SearchQuery &query)
+void SearchSidebar::search(const QString &query)
 {
-    // TODO: Pass Registry::SearchQuery, converting to QString is dumb at this point.
-    m_searchEdit->setText(query.toString());
+    m_searchEdit->setText(query);
 }
 
 void SearchSidebar::navigateToIndex(const QModelIndex &index)
