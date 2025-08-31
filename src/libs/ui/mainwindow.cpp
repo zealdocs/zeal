@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include "aboutdialog.h"
 #include "browsertab.h"
@@ -21,130 +20,61 @@
 #include <sidebar/container.h>
 #include <sidebar/proxyview.h>
 
+#include <QAction>
+#include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QIcon>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QMenuBar>
 #include <QMessageBox>
+#include <QMouseEvent>
+#include <QScopedPointer>
 #include <QShortcut>
+#include <QSplitter>
+#include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include <QTabBar>
+#include <QVBoxLayout>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
     , m_application(app)
     , m_settings(app->settings())
 {
-    ui->setupUi(this);
+#ifndef PORTABLE_BUILD
+    setWindowTitle(tr("Zeal"));
+#else
+    setWindowTitle(tr("Zeal Portable"));
+#endif
+    resize(900, 600); // Default size. May be overridden by restoreGeometry.
 
-    // Initialize the global shortcut handler if supported.
-    if (QxtGlobalShortcut::isSupported()) {
-        m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
-        connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
-    }
-
+    setupMainMenu();
+    setupShortcuts();
     setupTabBar();
 
-    // Setup application wide shortcuts.
-    // Focus search bar.
-    auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+    // Setup central widget.
+    auto centralWidget = new QWidget(this);
+    auto centralWidgetLayout = new QVBoxLayout(centralWidget);
+    centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
+    centralWidgetLayout->setSpacing(0);
+    centralWidgetLayout->addWidget(m_tabBar);
 
-    shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+    m_splitter = new QSplitter(Qt::Horizontal, centralWidget);
+    m_splitter->setChildrenCollapsible(false);
+    centralWidgetLayout->addWidget(m_splitter);
 
-    // Duplicate current tab.
-    shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
+    m_webViewStack = new QStackedWidget(m_splitter);
+    m_webViewStack->setMinimumWidth(400);
+    m_splitter->addWidget(m_webViewStack);
 
-    // Hide/show sidebar.
-    // TODO: Move to the View menu.
-    shortcut = new QShortcut(QStringLiteral("Ctrl+B"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        auto sb = ui->splitter->widget(0);
-        if (sb == nullptr) {
-            // This should not really happen.
-            return;
-        }
-
-        sb->setVisible(!sb->isVisible());
-    });
+    setCentralWidget(centralWidget);
 
     restoreGeometry(m_settings->windowGeometry);
-
-    // Menu
-    // File
-    // Some platform plugins do not define QKeySequence::Quit.
-    if (QKeySequence(QKeySequence::Quit).isEmpty())
-        ui->actionQuit->setShortcut(QStringLiteral("Ctrl+Q"));
-    else
-        ui->actionQuit->setShortcut(QKeySequence::Quit);
-
-    // Follow Windows HIG.
-#ifdef Q_OS_WINDOWS
-    ui->actionQuit->setText(tr("E&xit"));
-#endif
-
-    connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
-
-    // Edit
-    ui->actionFind->setShortcut(QKeySequence::Find);
-    connect(ui->actionFind, &QAction::triggered, this, [this]() {
-        currentTab()->webControl()->activateSearchBar();
-    });
-
-    if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
-        ui->actionPreferences->setShortcut(QStringLiteral("Ctrl+,"));
-    } else {
-        ui->actionPreferences->setShortcut(QKeySequence::Preferences);
-    }
-
-    connect(ui->actionPreferences, &QAction::triggered, this, [this]() {
-        if (m_globalShortcut) {
-            m_globalShortcut->setEnabled(false);
-        }
-
-        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
-        dialog->exec();
-
-        if (m_globalShortcut) {
-            m_globalShortcut->setEnabled(true);
-        }
-    });
-
-    shortcut = new QShortcut(QKeySequence::Back, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->back(); });
-    shortcut = new QShortcut(QKeySequence::Forward, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->forward(); });
-    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
-    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
-
-    // Tools Menu
-    connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
-        QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
-        dialog->exec();
-    });
-
-    // Help Menu
-    connect(ui->actionSubmitFeedback, &QAction::triggered, []() {
-        QDesktopServices::openUrl(QUrl(QStringLiteral("https://github.com/zealdocs/zeal/issues")));
-    });
-    connect(ui->actionCheckForUpdates, &QAction::triggered,
-            m_application, &Core::Application::checkForUpdates);
-    connect(ui->actionAboutZeal, &QAction::triggered, this, [this]() {
-        QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
-        dialog->exec();
-    });
 
     // Update check
     connect(m_application, &Core::Application::updateCheckError, this, [this](const QString &message) {
@@ -180,8 +110,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     sb->addView(sbView);
 
     // Setup splitter.
-    ui->splitter->insertWidget(0, sb);
-    ui->splitter->restoreState(m_settings->verticalSplitterGeometry);
+    m_splitter->insertWidget(0, sb);
+    m_splitter->restoreState(m_settings->verticalSplitterGeometry);
 
     // Setup web settings.
     auto webSettings = new Browser::Settings(m_settings, this);
@@ -191,55 +121,26 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     connect(m_webBridge, &Browser::WebBridge::actionTriggered, this, [this](const QString &action) {
         // TODO: In the future connect directly to the ActionManager.
         if (action == "openDocsetManager") {
-            ui->actionDocsets->trigger();
+            m_showDocsetManagerAction->trigger();
         } else if (action == "openPreferences") {
-            ui->actionPreferences->trigger();
+            m_showPreferencesAction->trigger();
         }
     });
 
     createTab();
 
-    ui->actionNewTab->setShortcut(QKeySequence::AddTab);
-    connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
-    addAction(ui->actionNewTab);
-    connect(m_tabBar, &QTabBar::tabBarDoubleClicked, this, [this](int index) {
-        if (index == -1)
-            createTab();
-    });
-
-    ui->actionCloseTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_W)});
-    addAction(ui->actionCloseTab);
-    connect(ui->actionCloseTab, &QAction::triggered, this, [this]() { closeTab(); });
-
-    // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
-    ui->actionNextTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_Tab),
-                                     QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
-    addAction(ui->actionNextTab);
-    connect(ui->actionNextTab, &QAction::triggered, this, [this]() {
-        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
-    });
-
-    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
-    ui->actionPreviousTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
-                                         QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
-    addAction(ui->actionPreviousTab);
-    connect(ui->actionPreviousTab, &QAction::triggered, this, [this]() {
-        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
-    });
-
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
     applySettings();
 
-    if (m_settings->checkForUpdate)
+    if (m_settings->checkForUpdate) {
         m_application->checkForUpdates(true);
+    }
 }
 
 MainWindow::~MainWindow()
 {
-    m_settings->verticalSplitterGeometry = ui->splitter->saveState();
+    m_settings->verticalSplitterGeometry = m_splitter->saveState();
     m_settings->windowGeometry = saveGeometry();
-
-    delete ui;
 }
 
 void MainWindow::search(const Registry::SearchQuery &query)
@@ -253,27 +154,28 @@ void MainWindow::closeTab(int index)
         index = m_tabBar->currentIndex();
     }
 
-    if (index == -1)
+    if (index == -1) {
         return;
+    }
 
     BrowserTab *tab = tabAt(index);
-    ui->webViewStack->removeWidget(tab);
+    m_webViewStack->removeWidget(tab);
     tab->deleteLater();
 
     // Handle the tab bar last to avoid currentChanged signal coming too early.
     m_tabBar->removeTab(index);
 
-    if (ui->webViewStack->count() == 0) {
+    if (m_webViewStack->count() == 0) {
         createTab();
     }
 }
 
 void MainWindow::moveTab(int from, int to)
 {
-    const QSignalBlocker blocker(ui->webViewStack);
-    QWidget *w = ui->webViewStack->widget(from);
-    ui->webViewStack->removeWidget(w);
-    ui->webViewStack->insertWidget(to, w);
+    const QSignalBlocker blocker(m_webViewStack);
+    QWidget *w = m_webViewStack->widget(from);
+    m_webViewStack->removeWidget(w);
+    m_webViewStack->insertWidget(to, w);
 }
 
 BrowserTab *MainWindow::createTab()
@@ -297,7 +199,7 @@ void MainWindow::duplicateTab(int index)
 void MainWindow::addTab(BrowserTab *tab, int index)
 {
     connect(tab, &BrowserTab::iconChanged, this, [this, tab](const QIcon &icon) {
-        const int index = ui->webViewStack->indexOf(tab);
+        const int index = m_webViewStack->indexOf(tab);
         Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
         m_tabBar->setTabIcon(index, icon);
     });
@@ -310,7 +212,7 @@ void MainWindow::addTab(BrowserTab *tab, int index)
 #else
         setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
 #endif
-        const int index = ui->webViewStack->indexOf(tab);
+        const int index = m_webViewStack->indexOf(tab);
         Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
         m_tabBar->setTabText(index, title);
         m_tabBar->setTabToolTip(index, title);
@@ -322,10 +224,10 @@ void MainWindow::addTab(BrowserTab *tab, int index)
     if (index == -1) {
         index = m_settings->openNewTabAfterActive
                 ? m_tabBar->currentIndex() + 1
-                : ui->webViewStack->count();
+                : m_webViewStack->count();
     }
 
-    ui->webViewStack->insertWidget(index, tab);
+    m_webViewStack->insertWidget(index, tab);
     m_tabBar->insertTab(index, tr("Loading…"));
     m_tabBar->setCurrentIndex(index);
     m_tabBar->setTabData(index, QVariant::fromValue(tab));
@@ -338,7 +240,208 @@ BrowserTab *MainWindow::currentTab() const
 
 BrowserTab *MainWindow::tabAt(int index) const
 {
-    return qobject_cast<BrowserTab *>(ui->webViewStack->widget(index));
+    return qobject_cast<BrowserTab *>(m_webViewStack->widget(index));
+}
+
+void MainWindow::setupMainMenu()
+{
+    m_menuBar = new QMenuBar(this);
+
+    // TODO: [Qt 6.3] Refactor using addAction(text, shortcut, receiver, member).
+    // TODO: [Qt 6.7] Use QIcon::ThemeIcon.
+
+    // File Menu.
+    auto menu = m_menuBar->addMenu(tr("&File"));
+
+    // -> New Tab Action.
+    // Not a standard icon, but it is often provided by GTK themes.
+    auto action = menu->addAction(
+        QIcon::fromTheme(QStringLiteral("tab-new")),
+        tr("New &Tab")
+    );
+    addAction(action);
+    action->setShortcut(QKeySequence::AddTab);
+    connect(action, &QAction::triggered, this, &MainWindow::createTab);
+
+    // -> Close Tab Action.
+    action = menu->addAction(tr("&Close Tab"));
+    addAction(action);
+    action->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_W));
+    connect(action, &QAction::triggered, this, [this]() { closeTab(); });
+
+    menu->addSeparator();
+
+    // -> Quit Action.
+    action = m_quitAction = menu->addAction(
+        QIcon::fromTheme(QStringLiteral("application-exit")),
+        // Follow Windows HIG.
+#ifdef Q_OS_WINDOWS
+        tr("E&xit"),
+#else
+        tr("&Quit"),
+#endif
+        qApp, &QApplication::quit
+    );
+    addAction(action);
+    action->setMenuRole(QAction::QuitRole);
+
+    // Some platform plugins do not define QKeySequence::Quit.
+    if (QKeySequence(QKeySequence::Quit).isEmpty()) {
+        action->setShortcut(QStringLiteral("Ctrl+Q"));
+    } else {
+        action->setShortcut(QKeySequence::Quit);
+    }
+
+    // Edit Menu.
+    menu = m_menuBar->addMenu(tr("&Edit"));
+
+    // -> Find in Page Action.
+    action = menu->addAction(
+        QIcon::fromTheme(QStringLiteral("edit-find")),
+        tr("&Find in Page")
+    );
+    addAction(action);
+    action->setShortcut(QKeySequence::Find);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->activateSearchBar();
+        }
+    });
+
+    menu->addSeparator();
+
+    // -> Preferences Action.
+    action = m_showPreferencesAction = menu->addAction(tr("Prefere&nces"));
+    addAction(action);
+    action->setMenuRole(QAction::PreferencesRole);
+
+    if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
+        action->setShortcut(QStringLiteral("Ctrl+,"));
+    } else {
+        action->setShortcut(QKeySequence::Preferences);
+    }
+
+    connect(action, &QAction::triggered, this, [this]() {
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(false);
+        }
+
+        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
+        dialog->exec();
+
+        if (m_globalShortcut) {
+            m_globalShortcut->setEnabled(true);
+        }
+    });
+
+    // Tools Menu.
+    menu = m_menuBar->addMenu(tr("&Tools"));
+
+    // -> Docsets Action.
+    m_showDocsetManagerAction = menu->addAction(
+        tr("&Docsets…"),
+        this, [this]() {
+            QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
+            dialog->exec();
+        }
+    );
+
+    // Help Menu.
+    menu = m_menuBar->addMenu(tr("&Help"));
+
+    // -> Submit Feedback Action.
+    menu->addAction(
+        tr("&Submit Feedback…"),
+        this, [this]() {
+            QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/report-bug")));
+        }
+    );
+
+    // -> Check for Updates Action.
+    menu->addAction(tr("&Check for Updates…"), this, [this]() {
+        m_application->checkForUpdates(true);
+    });
+
+    menu->addSeparator();
+
+    // -> About Action.
+    action = menu->addAction(
+        QIcon::fromTheme(QStringLiteral("help-about")),
+        tr("&About Zeal"),
+        this, [this]() {
+            QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
+            dialog->exec();
+        }
+    );
+    addAction(action);
+    action->setMenuRole(QAction::AboutRole);
+
+    setMenuBar(m_menuBar);
+}
+
+void MainWindow::setupShortcuts()
+{
+    // Initialize the global shortcut handler if supported.
+    if (QxtGlobalShortcut::isSupported()) {
+        m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
+        connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
+    }
+
+    // Focus search bar.
+    auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+
+    shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+
+    // Duplicate current tab.
+    shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
+
+    // Hide/show sidebar.
+    // TODO: Move to the View menu.
+    shortcut = new QShortcut(QStringLiteral("Ctrl+B"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        auto sb = m_splitter->widget(0);
+        if (sb == nullptr) {
+            // This should not really happen.
+            return;
+        }
+
+        sb->setVisible(!sb->isVisible());
+    });
+
+    // Browser Shortcuts.
+    shortcut = new QShortcut(QKeySequence::Back, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->back(); });
+    shortcut = new QShortcut(QKeySequence::Forward, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->forward(); });
+    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
+
+    // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
+    QAction *action = new QAction(this);
+    addAction(action);
+    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_Tab),
+                          QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
+    connect(action, &QAction::triggered, this, [this]() {
+        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
+    });
+
+    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
+    action = new QAction(this);
+    addAction(action);
+    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
+                          QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
+    connect(action, &QAction::triggered, this, [this]() {
+        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
+    });
 }
 
 void MainWindow::setupTabBar()
@@ -357,8 +460,9 @@ void MainWindow::setupTabBar()
     m_tabBar->setMovable(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
-        if (index == -1)
+        if (index == -1) {
             return;
+        }
 
         BrowserTab *tab = tabAt(index);
 #ifndef PORTABLE_BUILD
@@ -367,7 +471,7 @@ void MainWindow::setupTabBar()
         setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(tab->webControl()->title()));
 #endif
 
-        ui->webViewStack->setCurrentIndex(index);
+        m_webViewStack->setCurrentIndex(index);
         emit currentTabChanged();
     });
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &MainWindow::closeTab);
@@ -393,7 +497,11 @@ void MainWindow::setupTabBar()
         addAction(action);
     }
 
-    ui->centralWidgetLayout->insertWidget(0, m_tabBar);
+    connect(m_tabBar, &QTabBar::tabBarDoubleClicked, this, [this](int index) {
+        if (index == -1) {
+            createTab();
+        }
+    });
 }
 
 void MainWindow::createTrayIcon()
@@ -421,7 +529,7 @@ void MainWindow::createTrayIcon()
     });
 
     trayIconMenu->addSeparator();
-    trayIconMenu->addAction(ui->actionQuit);
+    trayIconMenu->addAction(m_quitAction);
     m_trayIcon->setContextMenu(trayIconMenu);
 
     m_trayIcon->show();

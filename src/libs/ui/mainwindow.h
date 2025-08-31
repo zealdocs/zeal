@@ -9,6 +9,10 @@
 
 class QxtGlobalShortcut;
 
+class QAction;
+class QMenuBar;
+class QSplitter;
+class QStackedWidget;
 class QSystemTrayIcon;
 class QTabBar;
 
@@ -28,10 +32,6 @@ class SearchQuery;
 } //namespace Registry
 
 namespace WidgetUi {
-
-namespace Ui {
-class MainWindow;
-} // namespace Ui
 
 class BrowserTab;
 class SidebarViewProvider;
@@ -66,6 +66,8 @@ private slots:
     void duplicateTab(int index);
 
 private:
+    void setupMainMenu();
+    void setupShortcuts();
     void setupTabBar();
 
     void addTab(BrowserTab *tab, int index = -1);
@@ -77,18 +79,23 @@ private:
 
     void syncTabState(BrowserTab *tab);
 
-    Ui::MainWindow *ui = nullptr;
     Core::Application *m_application = nullptr;
     Core::Settings *m_settings = nullptr;
 
     Browser::WebBridge *m_webBridge = nullptr;
 
-    QMenu *m_backMenu = nullptr;
-    QMenu *m_forwardMenu = nullptr;
-
     QxtGlobalShortcut *m_globalShortcut = nullptr;
 
+    QMenuBar *m_menuBar = nullptr;
     QTabBar *m_tabBar = nullptr;
+
+    QSplitter *m_splitter = nullptr;
+    QStackedWidget *m_webViewStack = nullptr;
+
+    // TODO: Replace with proper action manager.
+    QAction *m_quitAction = nullptr;
+    QAction *m_showDocsetManagerAction = nullptr;
+    QAction *m_showPreferencesAction = nullptr;
 
     friend class SidebarViewProvider;
     SidebarViewProvider *m_sbViewProvider = nullptr;

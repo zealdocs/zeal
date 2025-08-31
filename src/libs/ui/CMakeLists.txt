@@ -4,7 +4,6 @@ add_subdirectory(widgets)
 set(Ui_FORMS
     aboutdialog.ui
     docsetsdialog.ui
-    mainwindow.ui
     settingsdialog.ui
 )
 
