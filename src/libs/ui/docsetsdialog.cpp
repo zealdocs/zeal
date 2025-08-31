@@ -32,7 +32,7 @@
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WINDOWS
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
