@@ -43,7 +43,6 @@ jobs:
             buildPreset: ninja-multi-vcpkg-portable-release
 
     env:
-      VCPKG_DEFAULT_TRIPLET: x64-windows-release
       ZEAL_RELEASE_BUILD: ON
 
     steps:
@@ -54,9 +53,12 @@ jobs:
 
       - name: Prepare vcpkg
         uses: lukka/run-vcpkg@v11
+        env:
+          VCPKG_BUILD_TYPE: release
+          VCPKG_DEFAULT_TRIPLET: x64-windows-release
         with:
-          vcpkgDirectory: ${{ runner.workspace }}/vcpkg
-          vcpkgGitCommitId: 01f602195983451bc83e72f4214af2cbc495aa94 # 2024.05.24
+          vcpkgDirectory: ${{ github.workspace }}/vcpkg
+          vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b # 2025.08.27
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
