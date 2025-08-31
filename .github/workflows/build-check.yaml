@@ -18,34 +18,40 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: "Ubuntu 22.04 / Qt 5",
-              os: ubuntu-22.04,
-              qt_packages: "libqt5x11extras5-dev qtwebengine5-dev",
-              configurePreset: "ninja-multi",
-              buildPreset: "ninja-multi-release"
-            }
-          - {
-              name: "Ubuntu 22.04 / Qt 5 / Portable",
-              os: ubuntu-22.04,
-              qt_packages: "libqt5x11extras5-dev qtwebengine5-dev",
-              configurePreset: "ninja-multi-portable",
-              buildPreset: "ninja-multi-portable-release"
-            }
-          - {
-              name: "Ubuntu 22.04 / Qt 6",
-              os: ubuntu-22.04,
-              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
-              configurePreset: "ninja-multi",
-              buildPreset: "ninja-multi-release"
-            }
-          - {
-              name: "Ubuntu 22.04 / Qt 6 / Portable",
-              os: ubuntu-22.04,
-              qt_packages: "libgl1-mesa-dev libqt6opengl6-dev qt6-base-private-dev qt6-webengine-dev qt6-webengine-dev-tools",
-              configurePreset: "ninja-multi-portable",
-              buildPreset: "ninja-multi-portable-release"
-            }
+          - name: Ubuntu 22.04 / Qt 5
+            os: ubuntu-22.04
+            qt_packages: >-
+              libqt5x11extras5-dev
+              qtwebengine5-dev
+            configurePreset: ninja-multi
+            buildPreset: ninja-multi-release
+          - name: Ubuntu 22.04 / Qt 5 / Portable
+            os: ubuntu-22.04
+            qt_packages: >-
+              libqt5x11extras5-dev
+              qtwebengine5-dev
+            configurePreset: ninja-multi-portable
+            buildPreset: ninja-multi-portable-release
+          - name: Ubuntu 22.04 / Qt 6
+            os: ubuntu-22.04
+            qt_packages: >-
+              libgl1-mesa-dev
+              libqt6opengl6-dev
+              qt6-base-private-dev
+              qt6-webengine-dev
+              qt6-webengine-dev-tools
+            configurePreset: ninja-multi
+            buildPreset: ninja-multi-release
+          - name: Ubuntu 22.04 / Qt 6 / Portable
+            os: ubuntu-22.04
+            qt_packages: >-
+              libgl1-mesa-dev
+              libqt6opengl6-dev
+              qt6-base-private-dev
+              qt6-webengine-dev
+              qt6-webengine-dev-tools
+            configurePreset: ninja-multi-portable
+            buildPreset: ninja-multi-portable-release
 
     steps:
       - name: Checkout
@@ -79,46 +85,46 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: "Windows Server 2022 / Qt 5",
-              os: windows-2022,
-              arch: win64_msvc2019_64,
-              qt_modules: "qtwebengine",
-              qt_version: "5.15.2",
-              configurePreset: "ninja-multi-vcpkg",
-              buildPreset: "ninja-multi-vcpkg-release",
-              publishArtifacts: false
-            }
-          - {
-              name: "Windows Server 2022 / Qt 5 / Portable",
-              os: windows-2022,
-              arch: win64_msvc2019_64,
-              qt_modules: "qtwebengine",
-              qt_version: "5.15.2",
-              configurePreset: ninja-multi-vcpkg-portable,
-              buildPreset: ninja-multi-vcpkg-portable-release,
-              publishArtifacts: false
-            }
-          - {
-              name: "Windows Server 2022 / Qt 6",
-              os: windows-2022,
-              arch: win64_msvc2022_64,
-              qt_modules: "qtwebchannel qtwebengine qtpositioning",
-              qt_version: "6.9.2",
-              configurePreset: ninja-multi-vcpkg,
-              buildPreset: ninja-multi-vcpkg-release,
-              publishArtifacts: true
-            }
-          - {
-              name: "Windows Server 2022 / Qt 6 / Portable",
-              os: windows-2022,
-              arch: win64_msvc2022_64,
-              qt_modules: "qtwebchannel qtwebengine qtpositioning",
-              qt_version: "6.9.2",
-              configurePreset: ninja-multi-vcpkg-portable,
-              buildPreset: ninja-multi-vcpkg-portable-release,
-              publishArtifacts: true
-            }
+          - name: Windows Server 2022 / Qt 5
+            os: windows-2022
+            arch: win64_msvc2019_64
+            qt_modules: >-
+              qtwebengine
+            qt_version: "5.15.2"
+            configurePreset: ninja-multi-vcpkg
+            buildPreset: ninja-multi-vcpkg-release
+            publishArtifacts: false
+          - name: Windows Server 2022 / Qt 5 / Portable
+            os: windows-2022
+            arch: win64_msvc2019_64
+            qt_modules: >-
+              qtwebengine
+            qt_version: "5.15.2"
+            configurePreset: ninja-multi-vcpkg-portable
+            buildPreset: ninja-multi-vcpkg-portable-release
+            publishArtifacts: false
+          - name: Windows Server 2022 / Qt 6
+            os: windows-2022
+            arch: win64_msvc2022_64
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.9.2"
+            configurePreset: ninja-multi-vcpkg
+            buildPreset: ninja-multi-vcpkg-release
+            publishArtifacts: true
+          - name: Windows Server 2022 / Qt 6 / Portable
+            os: windows-2022
+            arch: win64_msvc2022_64
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.9.2"
+            configurePreset: ninja-multi-vcpkg-portable
+            buildPreset: ninja-multi-vcpkg-portable-release
+            publishArtifacts: true
 
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows-release
