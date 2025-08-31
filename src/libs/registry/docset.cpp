@@ -68,7 +68,7 @@ Docset::Docset(QString path)
     if (!dir.cd(QStringLiteral("Contents")))
         return;
 
-    // TODO: 'info.plist' is invalid according to Apple, and must alsways be 'Info.plist'
+    // TODO: 'info.plist' is invalid according to Apple, and must always be 'Info.plist'
     // https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig
     // /Articles/ConfigFiles.html
     Util::Plist plist;
