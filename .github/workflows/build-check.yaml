@@ -127,7 +127,10 @@ jobs:
             publishArtifacts: true
 
     env:
-      VCPKG_DEFAULT_TRIPLET: x64-windows-release
+      _vcpkg_binary_cache: ${{ github.workspace }}/.vcpkg-cache
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
+      VCPKG_BUILD_TYPE: release
+      VCPKG_DEFAULT_TRIPLET: x64-windows
 
     steps:
       - name: Checkout
@@ -135,10 +138,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
+      - name: Restore vcpkg Cache
+        id: vcpkg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env._vcpkg_binary_cache }}
+          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-
+
       - name: Prepare vcpkg
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgDirectory: ${{ github.workspace }}/vcpkg
+          vcpkgDirectory: ${{ github.workspace }}/.vcpkg
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -154,6 +166,13 @@ jobs:
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
+
+      - name: Save vcpkg Cache
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env._vcpkg_binary_cache }}
+          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Retrieve Application Version
         run: |
