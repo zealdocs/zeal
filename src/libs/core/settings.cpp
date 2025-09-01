@@ -23,6 +23,7 @@
 
 namespace {
 // Configuration file groups
+constexpr char GroupUI[] = "ui";
 constexpr char GroupContent[] = "content";
 constexpr char GroupDocsets[] = "docsets";
 constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
@@ -94,6 +95,10 @@ void Settings::load()
     showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
+
+    settings->beginGroup(GroupUI);
+    hideMenuBar = settings->value(QStringLiteral("hide_menu_bar"), false).toBool();
+    settings->endGroup();
 
     settings->beginGroup(GroupGlobalShortcuts);
     showShortcut = settings->value(QStringLiteral("show")).value<QKeySequence>();
@@ -226,6 +231,10 @@ void Settings::save()
     settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
     settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
     settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
+
+    settings->beginGroup(GroupUI);
+    settings->setValue(QStringLiteral("hide_menu_bar"), hideMenuBar);
+    settings->endGroup();
 
     settings->beginGroup(GroupGlobalShortcuts);
     settings->setValue(QStringLiteral("show"), showShortcut);

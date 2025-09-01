@@ -25,6 +25,7 @@ public:
     // Startup
     bool startMinimized;
     bool checkForUpdate;
+    bool hideMenuBar;
     // TODO: bool restoreLastState;
 
     // System Tray

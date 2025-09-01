@@ -96,6 +96,9 @@ private:
     QAction *m_quitAction = nullptr;
     QAction *m_showDocsetManagerAction = nullptr;
     QAction *m_showPreferencesAction = nullptr;
+#ifndef Q_OS_MACOS
+    QAction *m_showMenuBarAction = nullptr;
+#endif
 
     friend class SidebarViewProvider;
 
