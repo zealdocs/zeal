@@ -98,7 +98,6 @@ private:
     QAction *m_showPreferencesAction = nullptr;
 
     friend class SidebarViewProvider;
-    SidebarViewProvider *m_sbViewProvider = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
 };

@@ -103,8 +103,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     });
 
     // Setup sidebar.
-    auto m_sbViewProvider = new SidebarViewProvider(this);
-    auto sbView = new Sidebar::ProxyView(m_sbViewProvider, QStringLiteral("index"));
+    auto sbViewProvider = new SidebarViewProvider(this);
+    auto sbView = new Sidebar::ProxyView(sbViewProvider, QStringLiteral("index"));
 
     auto sb = new Sidebar::Container();
     sb->addView(sbView);
