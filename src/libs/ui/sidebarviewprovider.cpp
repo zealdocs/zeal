@@ -19,8 +19,13 @@ SidebarViewProvider::SidebarViewProvider(MainWindow *mainWindow)
 
 Sidebar::View *SidebarViewProvider::view(const QString &id) const
 {
-    if (id == QLatin1String("index"))
-        return m_mainWindow->currentTab()->searchSidebar();
+    if (id != QLatin1String("index")) {
+        return nullptr;
+    }
+
+    if (auto tab = m_mainWindow->currentTab()) {
+        return tab->searchSidebar();
+    }
 
     return nullptr;
 }

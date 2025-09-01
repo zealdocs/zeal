@@ -145,7 +145,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::search(const Registry::SearchQuery &query)
 {
-    currentTab()->search(query);
+    if (auto tab = currentTab()) {
+        tab->search(query);
+    }
 }
 
 void MainWindow::closeTab(int index)
@@ -389,10 +391,18 @@ void MainWindow::setupShortcuts()
 
     // Focus search bar.
     auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    });
 
     shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    });
 
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
@@ -413,17 +423,41 @@ void MainWindow::setupShortcuts()
 
     // Browser Shortcuts.
     shortcut = new QShortcut(QKeySequence::Back, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->back(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->back();
+        }
+    });
     shortcut = new QShortcut(QKeySequence::Forward, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->forward(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->forward();
+        }
+    });
     shortcut = new QShortcut(QKeySequence::ZoomIn, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->zoomIn();
+        }
+    });
     shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomIn(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->zoomIn();
+        }
+    });
     shortcut = new QShortcut(QKeySequence::ZoomOut, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->zoomOut();
+        }
+    });
     shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->resetZoom();
+        }
+    });
 
     // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
     QAction *action = new QAction(this);
@@ -431,7 +465,10 @@ void MainWindow::setupShortcuts()
     action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_Tab),
                           QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
     connect(action, &QAction::triggered, this, [this]() {
-        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % m_tabBar->count());
+        const int count = m_tabBar->count();
+        if (count > 0) {
+            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % count);
+        }
     });
 
     // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
@@ -440,7 +477,10 @@ void MainWindow::setupShortcuts()
     action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
                           QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
     connect(action, &QAction::triggered, this, [this]() {
-        m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + m_tabBar->count()) % m_tabBar->count());
+        const int count = m_tabBar->count();
+        if (count > 0) {
+            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + count) % count);
+        }
     });
 }
 
@@ -553,7 +593,9 @@ void MainWindow::bringToFront()
     raise();
     activateWindow();
 
-    currentTab()->searchSidebar()->focusSearchEdit();
+    if (auto tab = currentTab()) {
+        tab->searchSidebar()->focusSearchEdit();
+    }
 }
 
 void MainWindow::changeEvent(QEvent *event)
@@ -605,10 +647,14 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 {
     switch (keyEvent->key()) {
     case Qt::Key_Escape:
-        currentTab()->searchSidebar()->focusSearchEdit(true);
+        if (auto tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit(true);
+        }
         break;
     case Qt::Key_Question:
-        currentTab()->searchSidebar()->focusSearchEdit();
+        if (auto tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
         break;
     default:
         QMainWindow::keyPressEvent(keyEvent);
