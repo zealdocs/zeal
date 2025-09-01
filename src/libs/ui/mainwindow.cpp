@@ -24,6 +24,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopServices>
+#include <QFocusEvent>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QMenu>
@@ -248,6 +249,7 @@ BrowserTab *MainWindow::tabAt(int index) const
 void MainWindow::setupMainMenu()
 {
     m_menuBar = new QMenuBar(this);
+    m_menuBar->installEventFilter(this);
 
     // TODO: [Qt 6.3] Refactor using addAction(text, shortcut, receiver, member).
     // TODO: [Qt 6.7] Use QIcon::ThemeIcon.
@@ -335,6 +337,41 @@ void MainWindow::setupMainMenu()
             m_globalShortcut->setEnabled(true);
         }
     });
+
+    // Menu bar is global on MacOS, so it should always be visible.
+#ifndef Q_OS_MACOS
+    // View Menu.
+    menu = m_menuBar->addMenu(tr("&View"));
+
+    // -> Toolbars Submenu.
+    auto subMenu = menu->addMenu(tr("&Toolbars"));
+
+    // -> Toggle Toolbar Action.
+    action = m_showMenuBarAction = subMenu->addAction(tr("&Menu Bar"));
+    addAction(action);
+    action->setCheckable(true);
+    action->setChecked(!m_settings->hideMenuBar);
+    action->setShortcut(QKeySequence(QStringLiteral("Ctrl+M")));
+    connect(action, &QAction::toggled, this, [this](bool checked) {
+        m_menuBar->setVisible(checked);
+        m_settings->hideMenuBar = !checked;
+        m_settings->save();
+    });
+
+    // Set menu bar visibility.
+    m_menuBar->setVisible(m_showMenuBarAction->isChecked());
+
+    // Show and focus menu bar on F10.
+    auto focusMenu = new QShortcut(Qt::Key_F10, this);
+    connect(focusMenu, &QShortcut::activated, this, [this]() {
+        m_menuBar->setVisible(true);
+
+        m_menuBar->setFocus();
+        if (!m_menuBar->actions().isEmpty()) {
+            m_menuBar->setActiveAction(m_menuBar->actions().first());
+        }
+    });
+#endif
 
     // Tools Menu.
     menu = m_menuBar->addMenu(tr("&Tools"));
@@ -638,6 +675,37 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
             break;
         }
     }
+
+#ifndef Q_OS_MACOS
+    if (object == m_menuBar
+        && m_menuBar->isVisible()
+        && m_showMenuBarAction != nullptr
+        && !m_showMenuBarAction->isChecked()) {
+        switch (event->type()) {
+        // Hide menu bar when it loses focus.
+        case QEvent::FocusOut: {
+            auto e = static_cast<QFocusEvent *>(event);
+            if (e->reason() != Qt::PopupFocusReason) {
+                m_menuBar->hide();
+            }
+
+            break;
+        }
+        // Hide menu bar on Escape key press.
+        case QEvent::KeyPress: {
+            auto e = static_cast<QKeyEvent *>(event);
+            if (e->key() == Qt::Key_Escape) {
+                m_menuBar->hide();
+            }
+
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+#endif
 
     return QMainWindow::eventFilter(object, event);
 }
