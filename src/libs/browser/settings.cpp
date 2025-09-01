@@ -8,17 +8,20 @@
 #include <core/settings.h>
 
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QWebEngineScript>
 #include <QWebEngineScriptCollection>
 
 namespace {
-constexpr char HighlightOnNavigateCssUrl[] = "qrc:///browser/assets/css/highlight.css";
+constexpr char HighlightOnNavigateCssPath[] = ":/browser/assets/css/highlight.css";
 }
 
 using namespace Zeal;
 using namespace Zeal::Browser;
+
+static Q_LOGGING_CATEGORY(log, "zeal.browser.settings")
 
 QWebEngineProfile *Settings::m_webProfile = nullptr;
 
@@ -60,7 +63,7 @@ void Settings::applySettings()
     m_webProfile->scripts()->clear(); // Remove all scripts first.
 
     if (m_appSettings->isHighlightOnNavigateEnabled) {
-        setCustomStyleSheet(QStringLiteral("_zeal_highlightstylesheet"), HighlightOnNavigateCssUrl);
+        setCustomStyleSheet(QStringLiteral("_zeal_highlightstylesheet"), HighlightOnNavigateCssPath);
     }
 
     if (QFileInfo::exists(m_appSettings->customCssFile)) {
@@ -74,22 +77,36 @@ QWebEngineProfile *Settings::defaultProfile()
     return m_webProfile;
 }
 
-void Settings::setCustomStyleSheet(const QString &name, const QString &cssUrl)
+void Settings::setCustomStyleSheet(const QString &name, const QString &path)
 {
-    QString cssInjectCode = QLatin1String("(function() {"
-                "let head = document.getElementsByTagName('head')[0];"
-                "if (!head) { console.error('Cannot set custom stylesheet.'); return; }"
-                "let link = document.createElement('link');"
-                "link.rel = 'stylesheet';"
-                "link.type = 'text/css';"
-                "link.href = '%1';"
-                "link.media = 'all';"
-                "head.appendChild(link);"
-                "})()");
+    // Read the stylesheet file content.
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qCWarning(log, "Failed to read stylesheet file '%s'.", qPrintable(path));
+        return;
+    }
+
+    QString stylesheet = QString::fromUtf8(file.readAll());
+    file.close();
+
+    // Escape single quotes and newlines for JavaScript string literal.
+    stylesheet.replace(QLatin1String("'"), QLatin1String("\\'"));
+    stylesheet.replace(QLatin1String("\n"), QLatin1String("\\n"));
+
+    QString cssInjectCode = QLatin1String(
+        "(() => {"
+            "const head = document.getElementsByTagName('head')[0];"
+            "if (!head) { console.error('Cannot set custom stylesheet.'); return; }"
+            "const stylesheet = document.createElement('style');"
+            "stylesheet.setAttribute('type', 'text/css');"
+            "stylesheet.textContent = '%1';"
+            "head.appendChild(stylesheet);"
+        "})()"
+    );
 
     QWebEngineScript script;
     script.setName(name);
-    script.setSourceCode(cssInjectCode.arg(cssUrl));
+    script.setSourceCode(cssInjectCode.arg(stylesheet));
     script.setInjectionPoint(QWebEngineScript::DocumentReady);
     script.setRunsOnSubFrames(true);
     script.setWorldId(QWebEngineScript::ApplicationWorld);
