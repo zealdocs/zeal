@@ -139,7 +139,6 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: ${{ github.workspace }}/vcpkg
-          vcpkgGitCommitId: 120deac3062162151622ca4860575a33844ba10b # 2025.08.27
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
