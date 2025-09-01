@@ -202,17 +202,17 @@ jobs:
         with:
           recipe: pkg/appimage/appimage-amd64.yaml
           apt_dependencies: >-
+            appstream
             build-essential
             cmake extra-cmake-modules
-            libappindicator-dev
             libarchive-dev
+            libayatana-appindicator3-dev
             libqt5x11extras5-dev
             libsqlite3-dev
             libxcb-keysyms1-dev
             ninja-build
             qtbase5-dev
             qtwebengine5-dev
-            appstream
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v4

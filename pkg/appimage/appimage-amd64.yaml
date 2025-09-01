@@ -23,10 +23,11 @@ AppDir:
   apt:
     arch: amd64
     sources:
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ noble main restricted universe multiverse
         key_url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920d1991bc93c
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ noble-updates main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://security.ubuntu.com/ubuntu/ noble-security main restricted universe multiverse
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ noble-backports main restricted universe multiverse
     include:
       # Required Qt packages.
       - libqt5concurrent5
@@ -73,5 +74,6 @@ AppDir:
 
 AppImage:
   arch: x86_64
-  update-information: gh-releases-zsync|zealdocs|zeal|latest|zeal-*x86_64.AppImage.zsync
+  comp: xz
   sign-key: None
+  update-information: gh-releases-zsync|zealdocs|zeal|latest|zeal-*x86_64.AppImage.zsync
