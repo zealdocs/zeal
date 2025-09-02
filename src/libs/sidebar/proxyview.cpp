@@ -50,10 +50,12 @@ void ProxyView::clearCurrentView()
 {
     // Unparent the view, because we don't own it.
     QLayout *l = layout();
-    if (l->isEmpty())
+    if (l->isEmpty() || m_view == nullptr) {
         return;
+    }
 
     m_view->hide();
     l->removeWidget(m_view);
     m_view->setParent(nullptr);
+    m_view = nullptr;
 }
