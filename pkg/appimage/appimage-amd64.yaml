@@ -74,6 +74,6 @@ AppDir:
 
 AppImage:
   arch: x86_64
-  comp: xz
+  comp: zstd
   sign-key: None
   update-information: gh-releases-zsync|zealdocs|zeal|latest|zeal-*x86_64.AppImage.zsync
