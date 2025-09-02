@@ -32,7 +32,7 @@ class Settings;
 class Application final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Application)
+    Q_DISABLE_COPY_MOVE(Application)
 public:
     explicit Application(QObject *parent = nullptr);
     ~Application() override;

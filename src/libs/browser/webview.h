@@ -13,7 +13,7 @@ namespace Browser {
 class WebView final : public QWebEngineView
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WebView)
+    Q_DISABLE_COPY_MOVE(WebView)
 public:
     explicit WebView(QWidget *parent = nullptr);
 

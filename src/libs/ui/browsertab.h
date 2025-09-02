@@ -28,7 +28,7 @@ class SearchSidebar;
 class BrowserTab : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BrowserTab)
+    Q_DISABLE_COPY_MOVE(BrowserTab)
 public:
     explicit BrowserTab(QWidget *parent = nullptr);
     BrowserTab *clone(QWidget *parent = nullptr) const;

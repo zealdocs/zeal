@@ -19,7 +19,7 @@ namespace Browser {
 class Settings final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Settings)
+    Q_DISABLE_COPY_MOVE(Settings)
 public:
     explicit Settings(Core::Settings *appSettings, QObject *parent = nullptr);
 

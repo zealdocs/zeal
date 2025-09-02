@@ -12,7 +12,7 @@ namespace Browser {
 class WebBridge final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WebBridge)
+    Q_DISABLE_COPY_MOVE(WebBridge)
     Q_PROPERTY(QString AppVersion READ appVersion CONSTANT)
 public:
     explicit WebBridge(QObject *parent = nullptr);

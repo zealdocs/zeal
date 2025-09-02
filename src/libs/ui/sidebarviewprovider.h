@@ -14,7 +14,7 @@ class MainWindow;
 class SidebarViewProvider : public Sidebar::ViewProvider
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SidebarViewProvider)
+    Q_DISABLE_COPY_MOVE(SidebarViewProvider)
 public:
     explicit SidebarViewProvider(MainWindow *mainWindow);
 

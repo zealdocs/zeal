@@ -20,7 +20,7 @@ namespace Core {
 class HttpServer : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(HttpServer)
+    Q_DISABLE_COPY_MOVE(HttpServer)
 public:
     explicit HttpServer(QObject *parent = nullptr);
     ~HttpServer() override;

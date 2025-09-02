@@ -29,7 +29,7 @@ class SearchEdit;
 class SearchSidebar final : public Sidebar::View
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SearchSidebar)
+    Q_DISABLE_COPY_MOVE(SearchSidebar)
 public:
     explicit SearchSidebar(QWidget *parent = nullptr);
     SearchSidebar *clone(QWidget *parent = nullptr) const;

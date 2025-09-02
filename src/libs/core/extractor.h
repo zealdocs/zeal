@@ -14,7 +14,7 @@ namespace Core {
 class Extractor final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Extractor)
+    Q_DISABLE_COPY_MOVE(Extractor)
 public:
     explicit Extractor(QObject *parent = nullptr);
 

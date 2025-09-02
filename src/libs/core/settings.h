@@ -16,7 +16,7 @@ namespace Core {
 class Settings final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Settings)
+    Q_DISABLE_COPY_MOVE(Settings)
 public:
     /* This public members are here just for simplification and should go away
      * once a more advanced settings management come in place.

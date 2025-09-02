@@ -13,7 +13,7 @@ namespace Browser {
 class WebPage final : public QWebEnginePage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WebPage)
+    Q_DISABLE_COPY_MOVE(WebPage)
 public:
     explicit WebPage(QObject *parent = nullptr);
 

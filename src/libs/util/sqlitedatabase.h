@@ -16,7 +16,7 @@ namespace Util {
 
 class SQLiteDatabase
 {
-    Q_DISABLE_COPY(SQLiteDatabase)
+    Q_DISABLE_COPY_MOVE(SQLiteDatabase)
 public:
     explicit SQLiteDatabase(const QString &path);
     virtual ~SQLiteDatabase();

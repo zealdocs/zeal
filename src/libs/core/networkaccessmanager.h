@@ -12,7 +12,7 @@ namespace Core {
 class NetworkAccessManager final : public QNetworkAccessManager
 {
     Q_OBJECT
-    Q_DISABLE_COPY(NetworkAccessManager)
+    Q_DISABLE_COPY_MOVE(NetworkAccessManager)
 public:
     NetworkAccessManager(QObject *parent = nullptr);
 

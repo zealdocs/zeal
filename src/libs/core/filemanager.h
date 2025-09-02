@@ -12,7 +12,7 @@ namespace Core {
 class FileManager final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FileManager)
+    Q_DISABLE_COPY_MOVE(FileManager)
 public:
     explicit FileManager(QObject *parent = nullptr);
 

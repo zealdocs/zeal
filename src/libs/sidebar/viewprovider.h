@@ -14,7 +14,7 @@ class View;
 class ViewProvider : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ViewProvider)
+    Q_DISABLE_COPY_MOVE(ViewProvider)
 public:
     explicit ViewProvider(QObject *parent = nullptr);
 

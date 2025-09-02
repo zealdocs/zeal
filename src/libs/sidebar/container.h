@@ -17,7 +17,7 @@ class View;
 class Container : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Container)
+    Q_DISABLE_COPY_MOVE(Container)
 public:
     explicit Container(QWidget *parent = nullptr);
     ~Container() override;

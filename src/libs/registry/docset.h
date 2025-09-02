@@ -24,7 +24,7 @@ struct SearchResult;
 
 class Docset final
 {
-    Q_DISABLE_COPY(Docset)
+    Q_DISABLE_COPY_MOVE(Docset)
 public:
     explicit Docset(QString path);
     virtual ~Docset();

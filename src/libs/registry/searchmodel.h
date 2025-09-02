@@ -15,7 +15,7 @@ namespace Registry {
 class SearchModel final : public QAbstractListModel
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SearchModel)
+    Q_DISABLE_COPY_MOVE(SearchModel)
 public:
     explicit SearchModel(QObject *parent = nullptr);
     SearchModel *clone(QObject *parent = nullptr);

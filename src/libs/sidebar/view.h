@@ -12,7 +12,7 @@ namespace Sidebar {
 class View : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(View)
+    Q_DISABLE_COPY_MOVE(View)
 public:
     explicit View(QWidget *parent = nullptr);
 };

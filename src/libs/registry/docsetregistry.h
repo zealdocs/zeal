@@ -22,7 +22,7 @@ class Docset;
 class DocsetRegistry final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DocsetRegistry)
+    Q_DISABLE_COPY_MOVE(DocsetRegistry)
 public:
     explicit DocsetRegistry(QObject *parent = nullptr);
     ~DocsetRegistry() override;

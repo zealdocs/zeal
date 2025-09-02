@@ -18,7 +18,7 @@ class WebView;
 class WebControl final : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WebControl)
+    Q_DISABLE_COPY_MOVE(WebControl)
 public:
     explicit WebControl(QWidget *parent = nullptr);
 

@@ -13,7 +13,7 @@ namespace Browser {
 class UrlRequestInterceptor final : public QWebEngineUrlRequestInterceptor
 {
     Q_OBJECT
-    Q_DISABLE_COPY(UrlRequestInterceptor)
+    Q_DISABLE_COPY_MOVE(UrlRequestInterceptor)
 public:
     UrlRequestInterceptor(QObject *parent = nullptr);
     void interceptRequest(QWebEngineUrlRequestInfo &info) override;

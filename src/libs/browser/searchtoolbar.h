@@ -16,7 +16,7 @@ namespace Browser {
 class SearchToolBar final : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SearchToolBar)
+    Q_DISABLE_COPY_MOVE(SearchToolBar)
 public:
     explicit SearchToolBar(QWebEngineView *webView, QWidget *parent = nullptr);
 

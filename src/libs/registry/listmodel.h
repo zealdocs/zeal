@@ -18,7 +18,7 @@ class DocsetRegistry;
 class ListModel final : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ListModel)
+    Q_DISABLE_COPY_MOVE(ListModel)
 public:
     ~ListModel() override;
 

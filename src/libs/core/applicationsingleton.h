@@ -15,7 +15,7 @@ namespace Core {
 class ApplicationSingleton final : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ApplicationSingleton)
+    Q_DISABLE_COPY_MOVE(ApplicationSingleton)
 public:
     explicit ApplicationSingleton(QObject *parent = nullptr);
 
