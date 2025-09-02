@@ -15,9 +15,10 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QVarLengthArray>
 #include <QVariant>
+#include <QVarLengthArray>
 
 #include <sqlite3.h>
 
@@ -25,6 +26,8 @@
 #include <utility>
 
 using namespace Zeal::Registry;
+
+static Q_LOGGING_CATEGORY(log, "zeal.registry.docset")
 
 namespace {
 constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
@@ -65,7 +68,7 @@ Docset::Docset(QString path)
     }
 
     if (!dir.cd(QStringLiteral("Contents"))) {
-        qWarning("Cannot change directory into 'Contents' for docset at '%s'", qPrintable(m_path));
+        qCWarning(log, "[%s] Cannot change directory into 'Contents' at '%s'.", qPrintable(m_name), qPrintable(m_path));
         return;
     }
 
@@ -78,12 +81,12 @@ Docset::Docset(QString path)
     else if (dir.exists(QStringLiteral("info.plist")))
         plist.read(dir.filePath(QStringLiteral("info.plist")));
     else {
-        qWarning("Cannot access file 'Info.plist' or 'info.plist' for docset at '%s'", qPrintable(m_path));
+        qCWarning(log, "Cannot find file 'Info.plist' or 'info.plist' for docset at '%s'.", qPrintable(m_path));
         return;
     }
 
     if (plist.hasError()) {
-        qWarning("Error parsing 'Info.plist' for docset at '%s'", qPrintable(m_path));
+        qCWarning(log, "Failed to parse 'Info.plist' for docset at '%s'.", qPrintable(m_path));
         return;
     }
 
@@ -110,19 +113,19 @@ Docset::Docset(QString path)
     }
 
     if (!dir.cd(QStringLiteral("Resources"))) {
-        qWarning("Cannot change directory into 'Resources' for docset %s", qPrintable(m_name));
+        qCWarning(log, "[%s] Cannot change directory into 'Resources' at '%s'.", qPrintable(m_name), qPrintable(m_path));
         return;
     }
 
     if (!dir.exists(QStringLiteral("docSet.dsidx"))) {
-        qWarning("Cannot access file 'docSet.dsidx' for docset %s", qPrintable(m_name));
+        qCWarning(log, "[%s] Cannot access 'docSet.dsidx' at '%s'.", qPrintable(m_name), qPrintable(m_path));
         return;
     }
 
     m_db = new Util::SQLiteDatabase(dir.filePath(QStringLiteral("docSet.dsidx")));
 
     if (!m_db->isOpen()) {
-        qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
+        qCWarning(log, "[%s] Cannot open database: %s.", qPrintable(m_name), qPrintable(m_db->lastError()));
         return;
     }
 
@@ -139,7 +142,7 @@ Docset::Docset(QString path)
     }
 
     if (!dir.cd(QStringLiteral("Documents"))) {
-        qWarning("Cannot change directory into 'Documents' for docset %s", qPrintable(m_name));
+        qCWarning(log, "[%s] Cannot change directory into 'Documents' at '%s'.", qPrintable(m_name), qPrintable(m_path));
         m_type = Type::Invalid;
         return;
     }
@@ -190,7 +193,7 @@ Docset::Docset(QString path)
 
     // Log if unable to determine the index page. Otherwise the path will be set in setBaseUrl().
     if (m_indexFilePath.isEmpty()) {
-        qWarning("Cannot determine index file for docset %s", qPrintable(m_name));
+        qCInfo(log, "[%s] Cannot determine index file.", qPrintable(m_name));
         m_indexFileUrl.setUrl(NotFoundPageUrl);
     } else {
         m_indexFileUrl = createPageUrl(m_indexFilePath);
@@ -426,7 +429,8 @@ void Docset::countSymbols()
                                               "  FROM searchIndex"
                                               "  GROUP BY type");
     if (!m_db->prepare(sql)) {
-        qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
+        qCWarning(log, "[%s] Cannot prepare statement to count symbols: %s.",
+                  qPrintable(m_name), qPrintable(m_db->lastError()));
         return;
     }
 
@@ -435,7 +439,7 @@ void Docset::countSymbols()
 
         // A workaround for https://github.com/zealdocs/zeal/issues/980.
         if (symbolTypeStr.isEmpty()) {
-            qWarning("Empty symbol type in the '%s' docset, skipping...", qPrintable(m_name));
+            qCDebug(log, "[%s] Found empty symbol type, skipping...", qPrintable(m_name));
             continue;
         }
 
@@ -473,7 +477,8 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     }
 
     if (!m_db->prepare(sql.arg(symbolString))) {
-        qWarning("SQL Error: %s", qPrintable(m_db->lastError()));
+        qCWarning(log, "[%s] Cannot prepare statement to load symbols for type '%s': %s.",
+                  qPrintable(m_name), qPrintable(symbolString), qPrintable(m_db->lastError()));
         return;
     }
 

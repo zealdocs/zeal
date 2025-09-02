@@ -25,7 +25,11 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
     : QObject(parent)
 {
     if (QCoreApplication::instance() == nullptr) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        qCFatal(log, "QCoreApplication (or derived type) must be created before ApplicationSingleton.");
+#else
         qFatal("QCoreApplication (or derived type) must be created before ApplicationSingleton.");
+#endif
     }
 
     m_id = computeId();

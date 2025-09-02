@@ -13,6 +13,7 @@
 #include <core/httpserver.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QThread>
 
 #include <QtConcurrent>
@@ -21,6 +22,8 @@
 #include <future>
 
 using namespace Zeal::Registry;
+
+static Q_LOGGING_CATEGORY(log, "zeal.registry.docsetregistry")
 
 void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
 {
@@ -112,8 +115,8 @@ void DocsetRegistry::loadDocset(const QString &path)
     Docset *docset = f.get();
     // TODO: Emit error
     if (!docset->isValid()) {
-        qWarning("Could not load docset from '%s'. Reinstall the docset.",
-                 qPrintable(docset->path()));
+        qCWarning(log, "Could not load docset '%s' from '%s'. Reinstall the docset.",
+                  qPrintable(docset->name()), qPrintable(docset->path()));
         delete docset;
         return;
     }
@@ -128,8 +131,8 @@ void DocsetRegistry::loadDocset(const QString &path)
     // Setup HTTP mount.
     QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
     if (url.isEmpty()) {
-        qWarning("Could not enable docset from '%s'. Reinstall the docset.",
-                 qPrintable(docset->path()));
+        qCWarning(log, "Could not enable docset '%s' from '%s'. Reinstall the docset.",
+                  qPrintable(docset->name()), qPrintable(docset->path()));
         delete docset;
         return;
     }

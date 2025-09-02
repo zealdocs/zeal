@@ -34,6 +34,9 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QAbstractEventDispatcher>
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(log, "zeal.ui.qxtglobalshortcut")
 
 #ifndef Q_OS_MACOS
 int QxtGlobalShortcutPrivate::ref = 0;
@@ -79,32 +82,40 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
     const quint32 nativeKey = nativeKeycode(key);
     const quint32 nativeMods = nativeModifiers(mods);
     const bool res = registerShortcut(nativeKey, nativeMods);
-    if (res)
-        shortcuts.insert({nativeKey, nativeMods}, q);
-    else
-        qWarning("QxtGlobalShortcut failed to register: %s", qPrintable(QKeySequence(key | mods).toString()));
+    if (!res) {
+        qCWarning(log, "Failed to register '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        return false;
+    }
 
-    return res;
+    shortcuts.insert({nativeKey, nativeMods}, q);
+
+    return true;
 }
 
 bool QxtGlobalShortcutPrivate::unsetShortcut()
 {
     Q_Q(QxtGlobalShortcut);
 
-    bool res = false;
     const quint32 nativeKey = nativeKeycode(key);
     const quint32 nativeMods = nativeModifiers(mods);
-    if (shortcuts.value({nativeKey, nativeMods}) == q)
-        res = unregisterShortcut(nativeKey, nativeMods);
 
-    if (res)
-        shortcuts.remove({nativeKey, nativeMods});
-    else
-        qWarning("QxtGlobalShortcut failed to unregister: %s", qPrintable(QKeySequence(key | mods).toString()));
+    if (shortcuts.value({nativeKey, nativeMods}) != q) {
+        qCWarning(log, "Tried to unregister unowned '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        return false;
+    }
+
+    const bool res = unregisterShortcut(nativeKey, nativeMods);
+    if (!res) {
+        qCWarning(log, "Failed to unregister '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        return false;
+    }
+
+    shortcuts.remove({nativeKey, nativeMods});
 
     key = Qt::Key(0);
     mods = Qt::KeyboardModifiers(Qt::NoModifier);
-    return res;
+
+    return true;
 }
 
 bool QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativeMods)

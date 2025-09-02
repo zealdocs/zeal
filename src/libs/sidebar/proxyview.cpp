@@ -7,12 +7,15 @@
 
 #include <ui/widgets/layouthelper.h>
 
+#include <QLoggingCategory>
 #include <QVBoxLayout>
 
 #include <utility>
 
 using namespace Zeal;
 using namespace Zeal::Sidebar;
+
+static Q_LOGGING_CATEGORY(log, "zeal.sidebar.proxyview")
 
 ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
     : View(parent)
@@ -24,7 +27,7 @@ ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
     connect(m_viewProvider, &ViewProvider::viewChanged, this, [this]() {
         auto view = m_viewProvider->view(m_viewId);
         if (view == nullptr) {
-            qWarning("ViewProvider returned invalid view!");
+            qCWarning(log, "ViewProvider returned invalid view for id '%s'.", qPrintable(m_viewId));
             return;
         }
 
