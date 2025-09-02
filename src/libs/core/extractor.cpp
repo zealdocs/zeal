@@ -35,6 +35,8 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
     int r = archive_read_open_filename(info.archiveHandle, qPrintable(sourceFile), 10240);
     if (r) {
         emit error(sourceFile, QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
+        archive_read_free(info.archiveHandle);
+
         return;
     }
 
@@ -86,8 +88,10 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
                 }
 
                 qCWarning(log, "Cannot read from archive: %s.", archive_error_string(info.archiveHandle));
-                emit error(sourceFile,
-                           QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
+                emit error(sourceFile, QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
+
+                archive_read_free(info.archiveHandle);
+
                 return;
             }
 
