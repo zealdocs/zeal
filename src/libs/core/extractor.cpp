@@ -4,6 +4,7 @@
 #include "extractor.h"
 
 #include <QDir>
+#include <QLoggingCategory>
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -11,6 +12,8 @@
 #include <sys/stat.h>
 
 using namespace Zeal::Core;
+
+static Q_LOGGING_CATEGORY(log, "zeal.core.extractor")
 
 Extractor::Extractor(QObject *parent)
     : QObject(parent)
@@ -62,13 +65,13 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
         }
 
         if (filetype != S_IFREG) {
-            qWarning("Unsupported filetype %d for %s!", filetype, qPrintable(pathname));
+            qCWarning(log, "Unsupported filetype %d at '%s'.", filetype, qPrintable(pathname));
             continue;
         }
 
         QScopedPointer<QFile> file(new QFile(filePath));
         if (!file->open(QIODevice::WriteOnly)) {
-            qWarning("Cannot open file for writing: %s", qPrintable(pathname));
+            qCWarning(log, "Cannot open file for writing at '%s'.", qPrintable(pathname));
             continue;
         }
 
@@ -82,7 +85,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
                     break;
                 }
 
-                qWarning("Cannot read from archive: %s", archive_error_string(info.archiveHandle));
+                qCWarning(log, "Cannot read from archive: %s.", archive_error_string(info.archiveHandle));
                 emit error(sourceFile,
                            QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
                 return;
