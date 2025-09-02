@@ -59,6 +59,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: WIP
+        env:
+          CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
+        run: |
+          echo $CODESIGN_CERTIFICATE_BASE64 | head -c 10
+
+
       - name: Install Dependencies
         run: |
           sudo apt-get -y -qq update
