@@ -13,6 +13,7 @@
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
+#include <util/humanizer.h>
 
 #include <QClipboard>
 #include <QDateTime>
@@ -268,12 +269,12 @@ void DocsetsDialog::downloadCompleted()
         const QByteArray data = reply->readAll();
 
         QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
-        if (file->open(QIODevice::WriteOnly))
+        if (file->open(QIODevice::WriteOnly)) {
             file->write(data);
+            file->close(); // Flush to ensure timestamp update on all systems.
+        }
 
-        const QString updateTime = QFileInfo(file->fileName())
-                .lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
-        ui->lastUpdatedLabel->setText(updateTime);
+        updateDocsetListDownloadTimeLabel(QFileInfo(file->fileName()).lastModified());
 
         QJsonParseError jsonError;
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
@@ -470,10 +471,7 @@ void DocsetsDialog::loadDocsetList()
         return;
     }
 
-    // TODO: Show more user friendly labels, like "5 hours ago"
-    const QString updateTime
-            = fi.lastModified().toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
-    ui->lastUpdatedLabel->setText(updateTime);
+    updateDocsetListDownloadTimeLabel(fi.lastModified());
     processDocsetList(jsonDoc.array());
 }
 
@@ -747,6 +745,20 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     }
 
     ui->installedDocsetList->reset();
+}
+
+void DocsetsDialog::updateDocsetListDownloadTimeLabel(const QDateTime &modifiedTime)
+{
+    if (!modifiedTime.isValid()) {
+        ui->lastUpdatedLabel->clear();
+        ui->lastUpdatedLabel->setToolTip(QString());
+        return;
+    }
+
+    ui->lastUpdatedLabel->setText(tr("Last updated %1.").arg(Util::Humanizer::fromNow(modifiedTime)));
+
+    const QString updateTime = modifiedTime.toString(QLocale::system().dateTimeFormat(QLocale::ShortFormat));
+    ui->lastUpdatedLabel->setToolTip(updateTime);
 }
 
 void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
