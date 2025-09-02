@@ -1,8 +1,8 @@
 #
-# CodeSign.cmake
+# CodeSign.cmake - CMake helper for signing Windows executables
 #
-# Copyright (c) 2023 Oleg Shparber and contributors. All rights reserved.
-# Licensed under the MIT License.
+# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
+# SPDX-License-Identifier: MIT
 #
 
 include_guard()
@@ -135,7 +135,7 @@ function(codesign)
 
             if(NOT _rc EQUAL 0)
                 # For some reason certutil prints errors to stdout.
-                message(NOTICE "Failed to decode certificate: ${_stdout}")
+                message(WARNING "Failed to decode certificate: ${_stdout}")
                 return()
             endif()
 
@@ -210,11 +210,11 @@ function(codesign)
         )
 
         if(NOT _rc EQUAL 0)
-            message(NOTICE "Failed to sign: ${_stderr}")
+            message(WARNING "Failed to sign: ${_stderr}")
         endif()
 
         if(NOT _ARG_QUIET)
-            message(NOTICE ${_stdout})
+            message(VERBOSE ${_stdout})
         endif()
     endforeach()
 
