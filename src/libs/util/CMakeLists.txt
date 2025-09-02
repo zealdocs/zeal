@@ -2,6 +2,7 @@
 set(CMAKE_AUTOMOC OFF)
 
 add_library(Util STATIC
+    humanizer.cpp
     plist.cpp
     sqlitedatabase.cpp
 

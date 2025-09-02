@@ -12,6 +12,7 @@
 #include <QHash>
 #include <QMap>
 
+class QDateTime;
 class QListWidgetItem;
 class QNetworkReply;
 class QTemporaryFile;
@@ -94,6 +95,7 @@ private:
     void loadUserFeedList();
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
+    void updateDocsetListDownloadTimeLabel(const QDateTime &modifiedTime);
 
     void downloadDashDocset(const QModelIndex &index);
     void removeDocset(const QString &name);
