@@ -8,17 +8,17 @@ add_library(Core STATIC
     settings.cpp
 )
 
-target_link_libraries(Core Registry Ui)
+target_link_libraries(Core PRIVATE Registry Ui)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network WebEngineCore Widgets REQUIRED)
-target_link_libraries(Core Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::WebEngineCore Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(Core PRIVATE Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::WebEngineCore Qt${QT_VERSION_MAJOR}::Widgets)
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    find_package(Qt6 COMPONENTS WebEngineCore Widgets REQUIRED)
-    target_link_libraries(Core Qt6::WebEngineCore)
+    find_package(Qt6 COMPONENTS WebEngineCore REQUIRED)
+    target_link_libraries(Core PRIVATE Qt6::WebEngineCore)
 else()
-    find_package(Qt5 COMPONENTS WebEngine Widgets REQUIRED)
-    target_link_libraries(Core Qt5::WebEngine)
+    find_package(Qt5 COMPONENTS WebEngineWidgets REQUIRED)
+    target_link_libraries(Core PRIVATE Qt5::WebEngineWidgets)
 endif()
 
 find_package(LibArchive QUIET)
@@ -36,10 +36,10 @@ if(NOT LibArchive_FOUND)
 endif()
 
 if((CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0) AND (TARGET LibArchive::LibArchive))
-    target_link_libraries(Core LibArchive::LibArchive)
+    target_link_libraries(Core PRIVATE LibArchive::LibArchive)
 else()
     include_directories(${LibArchive_INCLUDE_DIRS})
-    target_link_libraries(Core ${LibArchive_LIBRARIES})
+    target_link_libraries(Core PRIVATE ${LibArchive_LIBRARIES})
 endif()
 
 # Configure cpp-httplib.
@@ -47,7 +47,7 @@ add_definitions(-DCPPHTTPLIB_USE_POLL)
 
 find_package(httplib CONFIG QUIET)
 if(httplib_FOUND)
-    target_link_libraries(Core httplib::httplib)
+    target_link_libraries(Core PRIVATE httplib::httplib)
 else()
     # Use bundled version of cpp-httplib if not found.
     # TODO: Replace with QHttpServer once Qt 5 is dropped.
@@ -58,5 +58,5 @@ endif()
 if(NOT WIN32)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
-    target_link_libraries(Core Threads::Threads)
+    target_link_libraries(Core PRIVATE Threads::Threads)
 endif()

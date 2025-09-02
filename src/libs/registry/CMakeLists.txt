@@ -13,4 +13,4 @@ add_library(Registry STATIC
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent Gui Network REQUIRED)
-target_link_libraries(Registry Util Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(Registry PRIVATE Util Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Network)

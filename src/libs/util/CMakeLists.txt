@@ -11,10 +11,10 @@ add_library(Util STATIC
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-target_link_libraries(Util Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(Util PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 find_package(SQLite3 REQUIRED)
-target_link_libraries(Util SQLite::SQLite3)
+target_link_libraries(Util PRIVATE SQLite::SQLite3)
 
 # TODO: Do not export SQLite headers.
 target_include_directories(Util PUBLIC ${SQLite3_INCLUDE_DIRS})

@@ -6,4 +6,4 @@ add_library(Widgets STATIC
 )
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
-target_link_libraries(Widgets Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(Widgets PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

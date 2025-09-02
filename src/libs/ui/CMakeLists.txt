@@ -20,7 +20,7 @@ add_library(Ui STATIC
     ${Ui_FORMS} # For Qt Creator.
 )
 
-target_link_libraries(Ui Browser Sidebar QxtGlobalShortcut Widgets Registry Util)
+target_link_libraries(Ui PRIVATE Browser Sidebar QxtGlobalShortcut Widgets Registry Util)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS WebEngineWidgets REQUIRED)
-target_link_libraries(Ui Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
+target_link_libraries(Ui PRIVATE Qt${QT_VERSION_MAJOR}::WebEngineWidgets)
