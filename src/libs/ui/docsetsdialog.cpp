@@ -44,7 +44,7 @@ constexpr char RedirectServerUrl[] = "https://go.zealdocs.org/d/%1/%2/latest";
 constexpr char DocsetListCacheFileName[] = "com.kapeli.json";
 
 // TODO: Make the timeout period configurable
-constexpr int CacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in microseconds
+constexpr int CacheTimeout = 24 * 60 * 60; // 24 hours in seconds
 
 // QNetworkReply properties
 constexpr char DocsetNameProperty[] = "docsetName";
@@ -452,7 +452,13 @@ void DocsetsDialog::loadDocsetList()
     loadUserFeedList();
 
     const QFileInfo fi(cacheLocation(DocsetListCacheFileName));
-    if (!fi.exists() || fi.lastModified().msecsTo(QDateTime::currentDateTime()) > CacheTimeout) {
+    if (!fi.exists()) {
+        downloadDocsetList();
+        return;
+    }
+
+    const auto age = fi.lastModified().secsTo(QDateTime::currentDateTime());
+    if (age < 0 || age >= CacheTimeout) {
         downloadDocsetList();
         return;
     }
