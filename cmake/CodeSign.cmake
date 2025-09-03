@@ -17,6 +17,30 @@ include_guard()
 #          [VERBOSE]
 #          [DEBUG])
 function(codesign)
+    # Cleans up temporary files created during signing.
+    macro(_cleanup)
+        if(DEFINED _certificate_file)
+            file(REMOVE ${_certificate_file})
+        endif()
+    endmacro()
+
+    # Sets '_certificate_file' variable to a temporary file path.
+    macro(_set_temporary_certificate_file)
+        # Determine temporary file location. Try to keep it local to the build.
+        if(CMAKE_BINARY_DIR)
+            set(_temp_path ${CMAKE_BINARY_DIR})
+        elseif(CPACK_TEMPORARY_DIRECTORY)
+            set(_temp_path ${CPACK_TEMPORARY_DIRECTORY})
+        else()
+            set(_temp_path $ENV{TEMP})
+        endif()
+
+        set(_certificate_file "${_temp_path}/codesign.tmp")
+
+        # Remove file if left from previous run.
+        _cleanup()
+    endmacro()
+
     if(NOT WIN32)
         message(FATAL_ERROR "Code signing is only supported on Windows.")
     endif()
@@ -79,26 +103,40 @@ function(codesign)
     # Set certificate file.
     if(NOT _ARG_CERTIFICATE_FILE)
         if(CODESIGN_CERTIFICATE_FILE)
-            set(_ARG_CERTIFICATE_FILE ${CODESIGN_CERTIFICATE_FILE})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_FILE})
-            set(_ARG_CERTIFICATE_FILE $ENV{CODESIGN_CERTIFICATE_FILE})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE})
-            # Read the whole certificate from environment variable and store it
-            # in a temporary file for signtool to use.
-
-            # Determine temporary file location. Try to keep it local to the build.
-            if(CMAKE_BINARY_DIR)
-                set(_temp_path ${CMAKE_BINARY_DIR})
-            elseif(CPACK_TEMPORARY_DIRECTORY)
-                set(_temp_path ${CPACK_TEMPORARY_DIRECTORY})
-            else()
-                set(_temp_path $ENV{TEMP})
+            if(NOT EXISTS ${CODESIGN_CERTIFICATE_FILE})
+                message(NOTICE "Certificate file '${CODESIGN_CERTIFICATE_FILE}' does not exist.")
+                return()
             endif()
 
-            set(_certificate_file "${_temp_path}/codesign.tmp")
+            set(_ARG_CERTIFICATE_FILE ${CODESIGN_CERTIFICATE_FILE})
+        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_FILE})
+            if("$ENV{CODESIGN_CERTIFICATE_FILE}" STREQUAL "")
+                message(NOTICE "CODESIGN_CERTIFICATE_FILE is set to an empty string.")
+                return()
+            endif()
+
+            if(NOT EXISTS $ENV{CODESIGN_CERTIFICATE_FILE})
+                message(NOTICE "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' (set in CODESIGN_CERTIFICATE_FILE) does not exist.")
+                return()
+            endif()
+
+            set(_ARG_CERTIFICATE_FILE $ENV{CODESIGN_CERTIFICATE_FILE})
+        elseif(DEFINED ENV{CODESIGN_CERTIFICATE})
+            if("$ENV{CODESIGN_CERTIFICATE}" STREQUAL "")
+                message(NOTICE "CODESIGN_CERTIFICATE is set to an empty string.")
+                return()
+            endif()
+
+            # Store certificate value in a temporary file for signtool to use.
+            _set_temporary_certificate_file()
             file(WRITE ${_certificate_file} $ENV{CODESIGN_CERTIFICATE})
             set(_ARG_CERTIFICATE_FILE ${_certificate_file})
         elseif(DEFINED ENV{CODESIGN_CERTIFICATE_BASE64})
+            if("$ENV{CODESIGN_CERTIFICATE_BASE64}" STREQUAL "")
+                message(NOTICE "CODESIGN_CERTIFICATE_BASE64 is set to an empty string.")
+                return()
+            endif()
+
             # Read base64-encoded certificate from environment variable,
             # decode with `certutil.exe`, and store in a temporary file
             # for signtool to use.
@@ -106,17 +144,9 @@ function(codesign)
             # This is useful for GitHub Actions, which cannot handle unencoded
             # multiline secrets.
 
-            # Determine temporary file location. Try to keep it local to the build.
-            if(CMAKE_BINARY_DIR)
-                set(_temp_path ${CMAKE_BINARY_DIR})
-            elseif(CPACK_TEMPORARY_DIRECTORY)
-                set(_temp_path ${CPACK_TEMPORARY_DIRECTORY})
-            else()
-                set(_temp_path $ENV{TEMP})
-            endif()
+            _set_temporary_certificate_file()
 
             # Save base64-encoded certificate to file.
-            set(_certificate_file "${_temp_path}/codesign.tmp")
             set(_certificate_base64_file "${_certificate_file}.base64")
             file(WRITE ${_certificate_base64_file} $ENV{CODESIGN_CERTIFICATE_BASE64})
 
@@ -134,6 +164,7 @@ function(codesign)
             if(NOT _rc EQUAL 0)
                 # For some reason certutil prints errors to stdout.
                 message(WARNING "Failed to decode certificate: ${_stdout}")
+                _cleanup()
                 return()
             endif()
 
@@ -151,6 +182,12 @@ function(codesign)
         if(CODESIGN_PASSWORD)
             set(_ARG_PASSWORD ${CODESIGN_PASSWORD})
         elseif(DEFINED ENV{CODESIGN_PASSWORD})
+            if("$ENV{CODESIGN_PASSWORD}" STREQUAL "")
+                message(NOTICE "CODESIGN_PASSWORD is set to an empty string. Unset if not used.")
+                _cleanup()
+                return()
+            endif()
+
             set(_ARG_PASSWORD $ENV{CODESIGN_PASSWORD})
         endif()
     endif()
@@ -200,24 +237,21 @@ function(codesign)
     endif()
 
     foreach(_file ${_ARG_FILES})
-        message(STATUS "Signing ${_file}...")
-        execute_process(COMMAND ${_cmd} ${_cmd_args} ${_file}
-            RESULT_VARIABLE _rc
-            OUTPUT_VARIABLE _stdout
-            ERROR_VARIABLE  _stderr
-        )
-
-        if(NOT _rc EQUAL 0)
-            message(WARNING "Failed to sign: ${_stderr}")
+        if(NOT EXISTS ${_file})
+            message(NOTICE "Cannot find file to sign: ${_file}")
+            continue()
         endif()
 
-        if(NOT _ARG_QUIET)
-            message(VERBOSE ${_stdout})
+        if(_rc EQUAL 0)
+            message(STATUS "Successfully signed: ${_file}")
+        else()
+            message(NOTICE "Failed to sign: ${_stderr}")
+
+            if(NOT _ARG_QUIET)
+                message(VERBOSE ${_stdout})
+            endif()
         endif()
     endforeach()
 
-    # Cleanup
-    if(_certificate_file)
-        file(REMOVE ${_certificate_file})
-    endif()
+    _cleanup()
 endfunction()
