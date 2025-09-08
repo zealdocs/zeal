@@ -266,18 +266,18 @@ void DocsetsDialog::downloadCompleted()
 
     switch (reply->property(DownloadTypeProperty).toUInt()) {
     case DownloadDocsetList: {
-        const QByteArray data = reply->readAll();
+        const QByteArray replyData = reply->readAll();
 
         QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
         if (file->open(QIODevice::WriteOnly)) {
-            file->write(data);
+            file->write(replyData);
             file->close(); // Flush to ensure timestamp update on all systems.
         }
 
         updateDocsetListDownloadTimeLabel(QFileInfo(file->fileName()).lastModified());
 
         QJsonParseError jsonError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(replyData, &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
             // TODO: Log QJsonParseError.
@@ -311,9 +311,9 @@ void DocsetsDialog::downloadCompleted()
         if (docset == nullptr) {
             // Fetch docset only on first feed download,
             // since further downloads are only update checks
-            QNetworkReply *reply = download(metadata.url());
-            reply->setProperty(DocsetNameProperty, metadata.name());
-            reply->setProperty(DownloadTypeProperty, DownloadDocset);
+            QNetworkReply *mdReply = download(metadata.url());
+            mdReply->setProperty(DocsetNameProperty, metadata.name());
+            mdReply->setProperty(DownloadTypeProperty, DownloadDocset);
         } else {
             // Check for feed update
             if (metadata.latestVersion() != docset->version()

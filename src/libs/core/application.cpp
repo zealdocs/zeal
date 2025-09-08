@@ -49,6 +49,7 @@ Application::Application(QObject *parent)
 
     connect(m_networkManager, &QNetworkAccessManager::sslErrors,
             this, [this](QNetworkReply *reply, const QList<QSslError> &errors) {
+        Q_UNUSED(errors);
         if (m_settings->isIgnoreSslErrorsEnabled) {
             reply->ignoreSslErrors();
         }
