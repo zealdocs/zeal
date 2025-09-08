@@ -216,11 +216,11 @@ function(codesign)
 
     # Set timestamp server.
     if(NOT _ARG_TIMESTAMP_URL)
-        set(_ARG_TIMESTAMP_URL "http://timestamp.digicert.com")
+        set(_ARG_TIMESTAMP_URL "https://timestamp.digicert.com")
     endif()
 
     if(_ARG_TIMESTAMP_URL)
-        list(APPEND _cmd_args "/t" ${_ARG_TIMESTAMP_URL})
+        list(APPEND _cmd_args "/tr" ${_ARG_TIMESTAMP_URL} "/td" "sha256")
     endif()
 
     # Set quiet, verbose, or debug options.
