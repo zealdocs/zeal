@@ -52,6 +52,26 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: ninja-multi-portable
             buildPreset: ninja-multi-portable-release
+          - name: Ubuntu 24.04 ARM64 / Qt 6
+            os: ubuntu-24.04-arm
+            qt_packages: >-
+              libgl1-mesa-dev
+              libqt6opengl6-dev
+              qt6-base-private-dev
+              qt6-webengine-dev
+              qt6-webengine-dev-tools
+            configurePreset: ninja-multi
+            buildPreset: ninja-multi-release
+          - name: Ubuntu 24.04 ARM64 / Qt 6 / Portable
+            os: ubuntu-24.04-arm
+            qt_packages: >-
+              libgl1-mesa-dev
+              libqt6opengl6-dev
+              qt6-base-private-dev
+              qt6-webengine-dev
+              qt6-webengine-dev-tools
+            configurePreset: ninja-multi-portable
+            buildPreset: ninja-multi-portable-release
 
     steps:
       - name: Checkout
