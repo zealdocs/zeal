@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>. -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
 <CPackWiXPatch>
     <CPackWiXFragment Id="#PRODUCT">
         <Condition Message="This package can only be installed on 64-bit versions of Windows."><![CDATA[VersionNT64]]></Condition>

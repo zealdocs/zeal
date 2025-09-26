@@ -1,3 +1,6 @@
+// Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include <winver.h>
 
 #pragma code_page(65001)

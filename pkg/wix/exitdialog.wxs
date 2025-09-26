@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
-
+<!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>. -->
+<!-- SPDX-FileCopyrightText: .NET Foundation and contributors. All rights reserved. -->
+<!-- SPDX-License-Identifier: MS-RL -->
 <!-- Upstream: https://github.com/wixtoolset/wix3/blob/develop/src/ext/UIExtension/wixlib/ExitDialog.wxs -->
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">

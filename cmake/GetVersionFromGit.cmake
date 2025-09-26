@@ -1,3 +1,9 @@
+#
+# GetVersionFromGit.cmake - CMake helper for getting version information from Git
+#
+# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
+# SPDX-License-Identifier: MIT
+#
 # Based on https://github.com/fakenmc/cmake-git-semver by Nuno Fachada.
 # This module is public domain, use it as it fits you best.
 #

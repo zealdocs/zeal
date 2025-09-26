@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>. -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- Based on: https://gitlab.kitware.com/cmake/cmake/-/blob/master/Utilities/Release/WiX/WIX.template.in -->
 
 <?include "cpack_variables.wxi"?>
