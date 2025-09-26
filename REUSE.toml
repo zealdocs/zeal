@@ -1,0 +1,47 @@
+version = 1
+
+# GPL-3.0-or-later for the main source code and assets.
+[[annotations]]
+path = [
+    "assets/**/*",
+    "cmake/*",
+    "pkg/**/*",
+    "README.md",
+    "src/**/*.ui",
+    "src/app/resources/browser/*.html",
+    "src/app/resources/browser/assets/css/highlight.css",
+    "src/app/resources/icons/**/*",
+    "src/app/resources/zeal.*",
+    "src/app/zeal.qrc",
+
+    # Windows CMake files.
+    # CMake and vcpkg files.
+    "**/*.cmake",
+    "**/CMakeLists.txt",
+    "CMakePresets.json",
+    "vcpkg.json",
+]
+SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+# MIT for auxiliary files.
+[[annotations]]
+path = [
+    ".editorconfig",
+    ".gitattributes",
+    ".github/**/*",
+    ".gitignore",
+    "CHANGELOG.md",
+]
+SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "src/contrib/cpp-httplib/httplib.h"
+SPDX-FileCopyrightText = "Copyright (c) 2023 Yuji Hirose. All rights reserved."
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "src/app/resources/icons/type/*.png"
+SPDX-FileCopyrightText = "Bogdan Popescu, et al. <https://github.com/Kapeli/Dash-X-Platform-Resources>"
+SPDX-License-Identifier = "LicenseRef-Kapeli"

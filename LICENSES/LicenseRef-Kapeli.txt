@@ -1,0 +1,3 @@
+These files are used under permission from Bogdan Popescu (https://github.com/Kapeli).
+
+See https://github.com/Kapeli/Dash-X-Platform-Resources for more details.
