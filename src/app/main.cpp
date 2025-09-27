@@ -29,7 +29,6 @@ using namespace Zeal;
 
 struct CommandLineParameters
 {
-    bool force;
     bool preventActivation;
 #ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers;
@@ -61,10 +60,6 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addOptions({
-        {{QStringLiteral("f"), QStringLiteral("force")}, QObject::tr("Force the application run.")}
-    });
-
 #ifdef Q_OS_WINDOWS
     parser.addOptions({
         {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
@@ -76,7 +71,6 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.process(arguments);
 
     CommandLineParameters clParams;
-    clParams.force = parser.isSet(QStringLiteral("force"));
     clParams.preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
