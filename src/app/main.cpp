@@ -31,11 +31,12 @@ struct CommandLineParameters
 {
     bool force;
     bool preventActivation;
-    Registry::SearchQuery query;
 #ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
 #endif
+
+    Registry::SearchQuery query;
 };
 
 QString stripParameterUrl(const QString &url, const QString &scheme)
@@ -60,15 +61,17 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addOption({{QStringLiteral("f"), QStringLiteral("force")},
-                      QObject::tr("Force the application run.")});
+    parser.addOptions({
+        {{QStringLiteral("f"), QStringLiteral("force")}, QObject::tr("Force the application run.")}
+    });
 
 #ifdef Q_OS_WINDOWS
-    parser.addOption(QCommandLineOption({QStringLiteral("register")},
-                                        QObject::tr("Register protocol handlers")));
-    parser.addOption(QCommandLineOption({QStringLiteral("unregister")},
-                                        QObject::tr("Unregister protocol handlers")));
+    parser.addOptions({
+        {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
+        {QStringLiteral("unregister"), QObject::tr("Unregister protocol handlers.")}
+    });
 #endif
+
     parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
     parser.process(arguments);
 
