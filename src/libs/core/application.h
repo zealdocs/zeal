@@ -40,6 +40,7 @@ public:
     static Application *instance();
 
     WidgetUi::MainWindow *mainWindow() const;
+    void showMainWindow(bool forceMinimized = false);
 
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;

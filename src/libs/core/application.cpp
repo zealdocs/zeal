@@ -70,15 +70,6 @@ Application::Application(QObject *parent)
     applySettings();
 
     m_mainWindow = new WidgetUi::MainWindow(this);
-
-    if (m_settings->startMinimized) {
-        if (m_settings->showSystrayIcon && m_settings->minimizeToSystray)
-            return;
-
-        m_mainWindow->showMinimized();
-    } else {
-        m_mainWindow->show();
-    }
 }
 
 Application::~Application()
@@ -103,6 +94,23 @@ Application *Application::instance()
 WidgetUi::MainWindow *Application::mainWindow() const
 {
     return m_mainWindow;
+}
+
+void Application::showMainWindow(bool forceMinimized)
+{
+    if (m_mainWindow->isVisible()) {
+        return;
+    }
+
+    if (forceMinimized || m_settings->startMinimized) {
+        if (m_settings->showSystrayIcon && m_settings->minimizeToSystray) {
+            return;
+        }
+
+        m_mainWindow->showMinimized();
+    } else {
+        m_mainWindow->show();
+    }
 }
 
 QNetworkAccessManager *Application::networkManager() const

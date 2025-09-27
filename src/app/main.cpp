@@ -30,6 +30,8 @@ using namespace Zeal;
 struct CommandLineParameters
 {
     bool preventActivation;
+    bool forceMinimized;
+
 #ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
@@ -60,6 +62,10 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
+    parser.addOptions({
+        {QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")}
+    });
+
 #ifdef Q_OS_WINDOWS
     parser.addOptions({
         {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
@@ -71,6 +77,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.process(arguments);
 
     CommandLineParameters clParams;
+    clParams.forceMinimized = parser.isSet(QStringLiteral("minimized"));
     clParams.preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
@@ -230,6 +237,8 @@ int main(int argc, char *argv[])
 
         app->executeQuery(query, preventActivation);
     });
+
+    app->showMainWindow(clParams.forceMinimized);
 
     if (!clParams.query.isEmpty()) {
         QTimer::singleShot(0, app.data(), [&app, clParams] {
