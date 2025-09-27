@@ -21,6 +21,8 @@
 #include <QSettings>
 
 #include <Windows.h>
+
+#include <utility> // for std::ignore
 #endif
 
 #include <cstdlib>
@@ -29,11 +31,11 @@ using namespace Zeal;
 
 struct CommandLineParameters
 {
-    bool attachConsole;
     bool forceMinimized;
     bool preventActivation;
 
 #ifdef Q_OS_WINDOWS
+    bool attachConsole;
     bool registerProtocolHandlers;
     bool unregisterProtocolHandlers;
 #endif
@@ -83,6 +85,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     clParams.preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
+    clParams.attachConsole = parser.isSet(QStringLiteral("attach-console"));
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
     clParams.unregisterProtocolHandlers = parser.isSet(QStringLiteral("unregister"));
 
@@ -210,9 +213,9 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WINDOWS
     if (clParams.attachConsole && AttachConsole(ATTACH_PARENT_PROCESS)) {
         FILE *fp = nullptr;
-        freopen_s(&fp, "CONOUT$", "w", stdout);
-        freopen_s(&fp, "CONOUT$", "w", stderr);
-        freopen_s(&fp, "CONIN$", "r", stdin);
+        std::ignore = freopen_s(&fp, "CONOUT$", "w", stdout);
+        std::ignore = freopen_s(&fp, "CONOUT$", "w", stderr);
+        std::ignore = freopen_s(&fp, "CONIN$", "r", stdin);
     }
 #endif // Q_OS_WINDOWS
 
