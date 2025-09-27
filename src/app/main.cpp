@@ -29,8 +29,9 @@ using namespace Zeal;
 
 struct CommandLineParameters
 {
-    bool preventActivation;
+    bool attachConsole;
     bool forceMinimized;
+    bool preventActivation;
 
 #ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers;
@@ -68,6 +69,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
 
 #ifdef Q_OS_WINDOWS
     parser.addOptions({
+        {QStringLiteral("attach-console"), QObject::tr("Attach console for logging.")},
         {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
         {QStringLiteral("unregister"), QObject::tr("Unregister protocol handlers.")}
     });
@@ -204,6 +206,15 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
 #endif
+
+#ifdef Q_OS_WINDOWS
+    if (clParams.attachConsole && AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FILE *fp = nullptr;
+        freopen_s(&fp, "CONOUT$", "w", stdout);
+        freopen_s(&fp, "CONOUT$", "w", stderr);
+        freopen_s(&fp, "CONIN$", "r", stdin);
+    }
+#endif // Q_OS_WINDOWS
 
     QScopedPointer<Core::ApplicationSingleton> appSingleton(new Core::ApplicationSingleton());
     if (appSingleton->isSecondary()) {
