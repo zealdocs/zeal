@@ -694,7 +694,7 @@ QString Docset::parseSymbolType(const QString &str)
         {QStringLiteral("_Struct"), QStringLiteral("Structure")},
         {QStringLiteral("_Structs"), QStringLiteral("Structure")},
         {QStringLiteral("struct"), QStringLiteral("Structure")},
-        {QStringLiteral("Сontrol Structure"), QStringLiteral("Structure")},
+        {QStringLiteral("Control Structure"), QStringLiteral("Structure")},
         {QStringLiteral("Data Structures"), QStringLiteral("Structure")},
         {QStringLiteral("Struct"), QStringLiteral("Structure")},
         // Type

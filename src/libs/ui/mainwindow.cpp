@@ -315,6 +315,7 @@ void MainWindow::setupMainMenu()
     menu->addSeparator();
 
     // -> Preferences Action.
+    // cspell:disable-next-line - cSpell does not like the ampersand.
     action = m_showPreferencesAction = menu->addAction(tr("Prefere&nces"));
     addAction(action);
     action->setMenuRole(QAction::PreferencesRole);
@@ -524,9 +525,7 @@ void MainWindow::setupShortcuts()
 void MainWindow::setupTabBar()
 {
     m_tabBar = new QTabBar(this);
-
     m_tabBar->installEventFilter(this);
-
     m_tabBar->setTabsClosable(true);
     m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     m_tabBar->setExpanding(false);

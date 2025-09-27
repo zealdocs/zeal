@@ -52,7 +52,7 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     textRect.setLeft(textRect.right() - fontMetrics.horizontalAdvance(text) - 2);
     textRect = QStyle::visualRect(option.direction, option.rect, textRect);
     // Constant LeftToRight because we don't need to flip it any further.
-    // Vertically align the text in the middle to match QCommonStyle behaviour.
+    // Vertically align the text in the middle to match QCommonStyle behavior.
     const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, option.displayAlignment,
                                                  QSize(textRect.size().width(), fontMetrics.height()), textRect);
 
@@ -61,7 +61,7 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     QPalette palette = option.palette;
 
 #ifdef Q_OS_WINDOWS
-    // QWindowsVistaStyle overrides highlight colour.
+    // QWindowsVistaStyle overrides highlight color.
     if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
         palette.setColor(QPalette::All, QPalette::HighlightedText,
                          palette.color(QPalette::Active, QPalette::Text));

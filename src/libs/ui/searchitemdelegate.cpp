@@ -100,7 +100,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     if (index.data().isNull())
         return;
 
-    // Match QCommonStyle behaviour.
+    // Match QCommonStyle behavior.
     opt.features |= QStyleOptionViewItem::HasDisplay;
     opt.text = index.data().toString();
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
@@ -140,7 +140,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->save();
 
 #ifdef Q_OS_WINDOWS
-    // QWindowsVistaStyle overrides highlight colour.
+    // QWindowsVistaStyle overrides highlight color.
     if (style->objectName() == QLatin1String("windowsvista")) {
         opt.palette.setColor(QPalette::All, QPalette::HighlightedText,
                              opt.palette.color(QPalette::Active, QPalette::Text));

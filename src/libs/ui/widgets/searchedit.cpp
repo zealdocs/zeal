@@ -111,7 +111,7 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
 
-    // Do not change the default behaviour when focused with mouse.
+    // Do not change the default behavior when focused with mouse.
     if (event->reason() == Qt::MouseFocusReason)
         return;
 
