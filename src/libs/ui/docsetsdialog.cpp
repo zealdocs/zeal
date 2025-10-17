@@ -342,7 +342,8 @@ void DocsetsDialog::downloadCompleted()
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
         if (!tmpFile) {
             tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp").arg(Core::Application::cacheLocation(), docsetName), this);
-            tmpFile->open();
+            if (!tmpFile->open())
+                return;
             m_tmpFiles.insert(docsetName, tmpFile);
         }
 
@@ -385,7 +386,8 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
         if (!tmpFile) {
             tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp").arg(Core::Application::cacheLocation(), docsetName), this);
-            tmpFile->open();
+            if (!tmpFile->open())
+                return;
             m_tmpFiles.insert(docsetName, tmpFile);
         }
 
