@@ -130,7 +130,7 @@ jobs:
               qtpositioning
               qtwebchannel
               qtwebengine
-            qt_version: "6.9.2"
+            qt_version: "6.9.3"
             configurePreset: ninja-multi-vcpkg
             buildPreset: ninja-multi-vcpkg-release
             publishArtifacts: true
@@ -141,7 +141,7 @@ jobs:
               qtpositioning
               qtwebchannel
               qtwebengine
-            qt_version: "6.9.2"
+            qt_version: "6.9.3"
             configurePreset: ninja-multi-vcpkg-portable
             buildPreset: ninja-multi-vcpkg-portable-release
             publishArtifacts: true
@@ -179,7 +179,6 @@ jobs:
           modules: ${{ matrix.config.qt_modules }}
           version: ${{ matrix.config.qt_version }}
           cache: true
-          extra: --external 7z
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
