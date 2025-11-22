@@ -16,6 +16,7 @@
 #include <registry/listmodel.h>
 #include <registry/searchmodel.h>
 #include <registry/searchquery.h>
+#include <ui/mainwindow.h>
 
 #include <QCoreApplication>
 #include <QEvent>
@@ -27,6 +28,7 @@
 #include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <QMenu>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -245,6 +247,13 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     connect(registry, &DocsetRegistry::docsetLoaded, this, [this](const QString &) {
         setupSearchBoxCompletions();
     });
+
+    // Set Context Menu on Docset
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(setContextMenu(const QPoint&)));
+
 }
 
 void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated)
@@ -399,4 +408,27 @@ void SearchSidebar::showEvent(QShowEvent *event)
         m_searchEdit->setFocus();
         m_pendingSearchEditFocus = false;
     }
+}
+
+void SearchSidebar::setContextMenu(const QPoint &pos)
+{
+    if (m_contextMenu) {
+        m_contextMenu->deleteLater();
+    }
+
+    m_contextMenu = new QMenu(this);
+
+    QModelIndex index = m_treeView->indexAt(pos);
+    if (index.isValid())
+    {
+        m_contextMenu->addAction("Open in New Tab", this, [this](){
+            Core::Application::instance()->mainWindow()->createTab();
+        });
+    }
+
+    if (m_contextMenu->isEmpty()) {
+        return;
+    }
+
+    m_contextMenu->exec(mapToGlobal(pos));
 }
