@@ -161,7 +161,7 @@ jobs:
       # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
       - name: Restore vcpkg Cache
         id: vcpkg-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ env._vcpkg_binary_cache }}
           key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
@@ -188,7 +188,7 @@ jobs:
 
       - name: Save vcpkg Cache
         if: steps.vcpkg-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ${{ env._vcpkg_binary_cache }}
           key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
@@ -208,7 +208,7 @@ jobs:
 
       - name: Upload ZIP Artifacts
         if: matrix.config.publishArtifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64.zip
           path: |
@@ -217,7 +217,7 @@ jobs:
 
       - name: Upload MSI Artifacts
         if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'ninja-multi-vcpkg'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi
           path: |
@@ -252,7 +252,7 @@ jobs:
             qtwebengine5-dev
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: zeal-dev-x86_64.AppImage # TODO: Provide real version.
           path: zeal-*.AppImage
