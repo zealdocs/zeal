@@ -66,10 +66,12 @@ void DocsetRegistry::setStoragePath(const QString &path)
         return;
     }
 
-    m_storagePath = path;
-
+   QString newPath = path;
+   QMetaObject::invokeMethod(this, [this, newPath](){
     unloadAllDocsets();
-    addDocsetsFromFolder(path);
+    addDocsetsFromFolder(newPath);
+    m_storagePath = newPath;
+   });
 }
 
 bool DocsetRegistry::isFuzzySearchEnabled() const
