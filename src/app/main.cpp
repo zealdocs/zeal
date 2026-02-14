@@ -227,8 +227,10 @@ int main(int argc, char *argv[])
         QByteArray ba;
         QDataStream out(&ba, QIODevice::WriteOnly);
         out << clParams.query << clParams.preventActivation;
-        // TODO: Check for a possible error.
-        appSingleton->sendMessage(ba);
+        if (!appSingleton->sendMessage(ba)) {
+            QTextStream(stderr) << "Failed to send query to the primary instance." << '\n';
+            return EXIT_FAILURE;
+        }
         return EXIT_SUCCESS;
     }
 

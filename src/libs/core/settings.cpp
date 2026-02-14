@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QUrl>
@@ -35,6 +36,8 @@ constexpr char GroupProxy[] = "proxy";
 } // namespace
 
 using namespace Zeal::Core;
+
+static Q_LOGGING_CATEGORY(log, "zeal.core.settings")
 
 Settings::Settings(QObject *parent)
     : QObject(parent)
@@ -199,11 +202,11 @@ void Settings::load()
     // Create the docset storage directory if it doesn't exist.
     const QFileInfo fi(docsetPath);
     if (!fi.exists()) {
-        // TODO: Report QDir::mkpath() errors.
-        if (fi.isRelative()) {
-            QDir().mkpath(QCoreApplication::applicationDirPath() + "/" + docsetPath);
-        } else {
-            QDir().mkpath(docsetPath);
+        const QString path = fi.isRelative()
+                ? QCoreApplication::applicationDirPath() + QLatin1String("/") + docsetPath
+                : docsetPath;
+        if (!QDir().mkpath(path)) {
+            qCWarning(log, "Failed to create docset storage directory '%s'.", qPrintable(path));
         }
     }
 

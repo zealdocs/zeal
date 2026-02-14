@@ -21,6 +21,7 @@
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLoggingCategory>
 #include <QLocale>
 #include <QMessageBox>
 #include <QNetworkReply>
@@ -32,6 +33,8 @@
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
+
+static Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
 
 #ifdef Q_OS_WINDOWS
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
@@ -280,7 +283,8 @@ void DocsetsDialog::downloadCompleted()
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(replyData, &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            // TODO: Log QJsonParseError.
+            qCWarning(log, "Failed to parse docset list JSON at offset %lld: %s.",
+                      static_cast<long long>(jsonError.offset), qPrintable(jsonError.errorString()));
             const QMessageBox::StandardButton rc
                     = QMessageBox::warning(this, QStringLiteral("Zeal"),
                                            tr("Server returned a corrupted docset list."),
