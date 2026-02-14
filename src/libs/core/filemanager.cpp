@@ -22,8 +22,9 @@ FileManager::FileManager(QObject *parent)
     : QObject(parent)
 {
     // Ensure that cache location exists.
-    // TODO: Check for errors.
-    QDir().mkpath(Application::cacheLocation());
+    if (!QDir().mkpath(Application::cacheLocation())) {
+        qCWarning(log, "Failed to create cache directory '%s'.", qPrintable(Application::cacheLocation()));
+    }
 }
 
 bool FileManager::removeRecursively(const QString &path)

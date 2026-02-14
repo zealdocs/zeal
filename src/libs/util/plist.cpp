@@ -4,15 +4,18 @@
 #include "plist.h"
 
 #include <QFile>
+#include <QLoggingCategory>
 #include <QXmlStreamReader>
 
 using namespace Zeal::Util;
+
+static Q_LOGGING_CATEGORY(log, "zeal.util.plist")
 
 bool Plist::read(const QString &fileName)
 {
     QScopedPointer<QFile> file(new QFile(fileName));
     if (!file->open(QIODevice::ReadOnly)) {
-        // TODO: Report/log error
+        qCWarning(log, "Cannot open plist file '%s'.", qPrintable(fileName));
         m_hasError = true;
         return false;
     }
