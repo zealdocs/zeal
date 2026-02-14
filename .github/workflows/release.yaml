@@ -31,6 +31,7 @@ jobs:
             qt_version: "6.9.3"
             configurePreset: ninja-multi-vcpkg
             buildPreset: ninja-multi-vcpkg-release
+            defaultTriplet: x64-windows
           - name: Windows Server 2022 / Qt 6 / Portable
             os: windows-2022
             arch: win64_msvc2022_64
@@ -41,12 +42,24 @@ jobs:
             qt_version: "6.9.3"
             configurePreset: ninja-multi-vcpkg-portable
             buildPreset: ninja-multi-vcpkg-portable-release
+            defaultTriplet: x64-windows
+          - name: Windows 11 ARM64 / Qt 6 / Portable
+            os: windows-11-arm
+            arch: win64_msvc2022_arm64
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.10.1"
+            configurePreset: ninja-multi-vcpkg-portable
+            buildPreset: ninja-multi-vcpkg-portable-release
+            defaultTriplet: arm64-windows
 
     env:
       _vcpkg_binary_cache: ${{ github.workspace }}/.vcpkg-cache
       VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
       VCPKG_BUILD_TYPE: release
-      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.config.defaultTriplet }}
       ZEAL_RELEASE_BUILD: ON
 
     steps:
@@ -110,8 +123,8 @@ jobs:
           # - Portable 7-Zip and ZIP packages.
           # - Non-portable MSI package.
           files: |
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.*
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi*
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-*.*
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-*.msi*
 
   build-appimage:
     name: AppImage
