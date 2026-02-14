@@ -194,6 +194,7 @@ void Settings::load()
         docsetPath = QStringLiteral("docsets");
 #endif
     }
+    useGlobalDocsets = settings->value(QStringLiteral("use_global"), true).toBool();
     settings->endGroup();
 
     // Create the docset storage directory if it doesn't exist.
@@ -277,6 +278,7 @@ void Settings::save()
 
     settings->beginGroup(GroupDocsets);
     settings->setValue(QStringLiteral("path"), docsetPath);
+    settings->setValue(QStringLiteral("use_global"), useGlobalDocsets);
     settings->endGroup();
 
     settings->beginGroup(GroupState);
