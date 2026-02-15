@@ -22,7 +22,10 @@
 
 #include <sqlite3.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstring>
+#include <limits>
 #include <utility>
 
 using namespace Zeal::Registry;
@@ -742,113 +745,103 @@ bool Docset::isJavaScriptEnabled() const
     return m_isJavaScriptEnabled;
 }
 
-/**
- * \brief Returns score based on a substring position in a string.
- * \param str Original string.
- * \param index Index of the substring within \a str.
- * \param length Substring length.
- * \return Score value between 1 and 100.
- */
-static int scoreFuzzy(const char *str, int index, int length)
-{
-    // Score between 66..99, if the match follows a dot, or starts the string.
-    if (index == 0 || str[index - 1] == '.') {
-        return qMax(66, 100 - length);
-    }
-
-    // Score between 33..66, if the match is at the end of the string.
-    if (str[index + length] == 0) {
-        return qMax(33, 67 - length);
-    }
-
-    // Score between 1..33 otherwise (match in the middle of the string).
-    return qMax(1, 34 - length);
+// fzy fuzzy matching algorithm - https://github.com/jhawthorn/fzy
+// MIT License - Copyright (c) 2014 John Hawthorn
+namespace {
+    constexpr double SCORE_GAP_LEADING = -0.005;
+    constexpr double SCORE_GAP_TRAILING = -0.005;
+    constexpr double SCORE_GAP_INNER = -0.01;
+    constexpr double SCORE_MATCH_CONSECUTIVE = 1.0;
+    constexpr double SCORE_MATCH_SLASH = 0.9;
+    constexpr double SCORE_MATCH_WORD = 0.8;
+    constexpr double SCORE_MATCH_CAPITAL = 0.7;
+    constexpr double SCORE_MATCH_DOT = 0.6;
+    constexpr int FZY_MAX_LEN = 1024;
 }
 
-// Based on https://github.com/bevacqua/fuzzysearch
-static void matchFuzzy(const char *needle, int needleLength,
-                       const char *haystack, int haystackLength,
-                       int *start, int *length)
+static inline bool isLower(char c) { return c >= 'a' && c <= 'z'; }
+static inline bool isUpper(char c) { return c >= 'A' && c <= 'Z'; }
+
+static void precomputeBonus(const char *haystack, int length, double *matchBonus)
 {
-    static const int MaxDistance = 8;
-    static const int MaxGroupCount = 3;
+    char lastCh = '/';
+    for (int i = 0; i < length; ++i) {
+        const char ch = haystack[i];
 
-    *start = -1;
-
-    int groupCount = 0;
-    int bestRecursiveScore = -1;
-    int bestRecursiveStart = -1;
-    int bestRecursiveLength = -1;
-
-    for (int i = 0, j = 0; i < needleLength; ++i) {
-        bool found = false;
-        bool first = true;
-        int distance = 0;
-
-        while (j < haystackLength) {
-            if (needle[i] == haystack[j++]) {
-                if (*start == -1) {
-                    *start = j; // first matched char
-
-                    // try starting the search later in case the first character occurs again later
-                    int recursiveStart;
-                    int recursiveLength;
-                    matchFuzzy(needle, needleLength, haystack + j,
-                               haystackLength - j,
-                               &recursiveStart, &recursiveLength);
-                    if (recursiveStart != -1) {
-                        int recursiveScore = scoreFuzzy(haystack,
-                                                        recursiveStart,
-                                                        recursiveLength);
-                        if (recursiveScore > bestRecursiveScore) {
-                            bestRecursiveScore = recursiveScore;
-                            bestRecursiveStart = recursiveStart;
-                            bestRecursiveLength = recursiveLength;
-                        }
-                    }
-                }
-
-                *length = j - *start + 1;
-                found = true;
-                break;
-            }
-
-            // Optimizations to reduce returned number of results
-            // (search was returning too many irrelevant results with large docsets)
-            // Optimization #1: too many mismatches.
-            if (first) {
-                if (++groupCount >= MaxGroupCount) {
-                    break;
-                }
-
-                first = false;
-            }
-
-            // Optimization #2: too large distance between found chars.
-            if (i != 0 && ++distance >= MaxDistance) {
-                break;
-            }
+        if (lastCh == '/') {
+            matchBonus[i] = SCORE_MATCH_SLASH;
+        } else if (lastCh == '-' || lastCh == '_' || lastCh == ' ') {
+            matchBonus[i] = SCORE_MATCH_WORD;
+        } else if (lastCh == '.') {
+            matchBonus[i] = SCORE_MATCH_DOT;
+        } else if (isLower(lastCh) && isUpper(ch)) {
+            matchBonus[i] = SCORE_MATCH_CAPITAL;
+        } else {
+            matchBonus[i] = 0.0;
         }
 
-        if (!found) {
-            // End of haystack, char not found.
-            if (bestRecursiveScore != -1) {
-                // Can still match with the same constraints if matching started later
-                // (smaller distance from first char to 2nd char)
-                *start = bestRecursiveStart;
-                *length = bestRecursiveLength;
+        lastCh = ch;
+    }
+}
+
+static double scoreFzy(const char *needle, int needleLen, const char *haystack, int haystackLen)
+{
+    if (needleLen == 0 || haystackLen == 0 || needleLen > haystackLen) {
+        return -std::numeric_limits<double>::infinity();
+    }
+
+    if (needleLen == haystackLen) {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    if (haystackLen > FZY_MAX_LEN || needleLen > FZY_MAX_LEN) {
+        return -std::numeric_limits<double>::infinity();
+    }
+
+    double D[FZY_MAX_LEN];
+    double M[FZY_MAX_LEN];
+    double matchBonus[FZY_MAX_LEN];
+
+    precomputeBonus(haystack, haystackLen, matchBonus);
+
+    for (int i = 0; i < needleLen; ++i) {
+        double prevScore = -std::numeric_limits<double>::infinity();
+        const double gapScore = (i == needleLen - 1) ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
+
+        double prevD = -std::numeric_limits<double>::infinity();
+        double prevM = -std::numeric_limits<double>::infinity();
+
+        for (int j = 0; j < haystackLen; ++j) {
+            if (needle[i] == haystack[j]) {
+                double score = -std::numeric_limits<double>::infinity();
+
+                if (i == 0) {
+                    score = (j * SCORE_GAP_LEADING) + matchBonus[j];
+                } else if (j > 0) {
+                    score = std::max(prevM + matchBonus[j],
+                                prevD + SCORE_MATCH_CONSECUTIVE);
+                }
+
+                if (i > 0) {
+                    prevD = D[j];
+                    prevM = M[j];
+                }
+
+                D[j] = score;
+                M[j] = prevScore = std::max(score, prevScore + gapScore);
             } else {
-                *start = -1;
+                if (i > 0) {
+                    prevD = D[j];
+                    prevM = M[j];
+                }
+
+                D[j] = -std::numeric_limits<double>::infinity();
+                M[j] = prevScore = prevScore + gapScore;
             }
-            return;
         }
     }
 
-    int score = scoreFuzzy(haystack, *start, *length);
-    if (bestRecursiveScore > score) {
-        *start = bestRecursiveStart;
-        *length = bestRecursiveLength;
-    }
+    return M[haystackLen - 1];
 }
 
 // Ported from DevDocs (https://github.com/Thibaut/devdocs), see app/searcher.coffee.
@@ -900,7 +893,7 @@ static int scoreExact(int matchIndex, int matchLen, const char *value, int value
             score -= 5;
     }
 
-    return qMax(1, score);
+    return std::max(1, score);
 }
 
 static inline int scoreFunction(const char *needleOrig, const char *haystackOrig)
@@ -935,53 +928,27 @@ static inline int scoreFunction(const char *needleOrig, const char *haystackOrig
         }
     }
 
-    int score = 0;
-    int matchIndex = -1;
-    int matchLength = 0;
-    int exactIndex = -1;
+    // Fast path: exact substring match
     const char *exactMatch = std::strstr(haystack.data(), needle.data());
-
     if (exactMatch != nullptr) {
-        exactIndex = exactMatch - haystack.data();
+        const int exactIndex = exactMatch - haystack.data();
+        // +200 to ensure exact matches always rank highest
+        return scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 200;
     }
 
-    if (exactIndex == -1) {
-        matchFuzzy(needle.data(), needleLength,
-                   haystack.data(), haystackLength,
-                   &matchIndex, &matchLength);
-    }
+    // fzy fuzzy matching
+    const double fzyScore = scoreFzy(needle.data(), needleLength, haystack.data(), haystackLength);
 
-    if (matchIndex == -1 && exactIndex == -1) {
-        // no match
+    // No match found
+    if (std::isinf(fzyScore) && fzyScore < 0) {
         return 0;
     }
 
-    if (exactIndex != -1) {
-        // +100 to make sure exact matches are always on top.
-        score = scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 100;
-    } else {
-        score = scoreFuzzy(haystack.data(), matchIndex, matchLength);
+    // Scale fzy score (typically -1 to 2) to integer range (1-100)
+    // Perfect consecutive matches get ~100, typical fuzzy matches get 50-80
+    const int scaledScore = std::clamp(static_cast<int>((fzyScore + 1.0) * 33.0), 1, 100);
 
-        int indexOfLastDot;
-        for (indexOfLastDot = haystackLength - 1; indexOfLastDot >= 0; --indexOfLastDot) {
-            if (haystack[indexOfLastDot] == '.')
-                break;
-        }
-
-        if (indexOfLastDot != -1) {
-            matchIndex = -1;
-            matchFuzzy(needle.data(), needleLength,
-                       haystack.data() + indexOfLastDot + 1, haystackLength - (indexOfLastDot + 1),
-                       &matchIndex, &matchLength);
-
-            if (matchIndex != -1) {
-                score = qMax(score, scoreFuzzy(haystack.data() + indexOfLastDot + 1,
-                                               matchIndex, matchLength));
-            }
-        }
-    }
-
-    return score;
+    return scaledScore;
 }
 
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
