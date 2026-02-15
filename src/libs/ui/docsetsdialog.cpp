@@ -757,6 +757,9 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     }
 
     ui->installedDocsetList->reset();
+
+    // Reapply the filter after repopulating the list.
+    updateDocsetFilter(ui->docsetFilterInput->text());
 }
 
 void DocsetsDialog::updateDocsetListDownloadTimeLabel(const QDateTime &modifiedTime)
