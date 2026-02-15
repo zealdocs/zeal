@@ -11,7 +11,82 @@
 #include <QPainterPath>
 #include <QToolTip>
 
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <limits>
+
 using namespace Zeal::WidgetUi;
+
+namespace {
+    constexpr double SCORE_GAP_LEADING = -0.005;
+    constexpr double SCORE_GAP_TRAILING = -0.005;
+    constexpr double SCORE_GAP_INNER = -0.01;
+    constexpr double SCORE_MATCH_CONSECUTIVE = 1.0;
+    constexpr double SCORE_MATCH_SLASH = 0.9;
+    constexpr double SCORE_MATCH_WORD = 0.8;
+    constexpr double SCORE_MATCH_CAPITAL = 0.7;
+    constexpr double SCORE_MATCH_DOT = 0.6;
+    constexpr int FZY_MAX_LEN = 1024;
+
+    inline bool isLower(char c) { return c >= 'a' && c <= 'z'; }
+    inline bool isUpper(char c) { return c >= 'A' && c <= 'Z'; }
+
+    void precomputeBonus(const char *haystack, int length, double *matchBonus)
+    {
+        char lastCh = '/';
+        for (int i = 0; i < length; ++i) {
+            const char ch = haystack[i];
+
+            if (lastCh == '/') {
+                matchBonus[i] = SCORE_MATCH_SLASH;
+            } else if (lastCh == '-' || lastCh == '_' || lastCh == ' ') {
+                matchBonus[i] = SCORE_MATCH_WORD;
+            } else if (lastCh == '.') {
+                matchBonus[i] = SCORE_MATCH_DOT;
+            } else if (isLower(lastCh) && isUpper(ch)) {
+                matchBonus[i] = SCORE_MATCH_CAPITAL;
+            } else {
+                matchBonus[i] = 0.0;
+            }
+
+            lastCh = ch;
+        }
+    }
+
+    // Compute fuzzy match positions using a simpler greedy approach.
+    // Returns true if a match is found, and fills matchPositions with the haystack indices.
+    bool matchPositionsFzy(const char *needle, int needleLen, const char *haystack, int haystackLen, int *matchPositions)
+    {
+        if (needleLen == 0 || haystackLen == 0 || needleLen > haystackLen) {
+            return false;
+        }
+
+        if (haystackLen > FZY_MAX_LEN || needleLen > FZY_MAX_LEN) {
+            return false;
+        }
+
+        // Simple greedy matching: find each needle character in order
+        int haystackPos = 0;
+        for (int i = 0; i < needleLen; ++i) {
+            bool found = false;
+            for (int j = haystackPos; j < haystackLen; ++j) {
+                if (needle[i] == haystack[j]) {
+                    matchPositions[i] = j;
+                    haystackPos = j + 1;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
 
 SearchItemDelegate::SearchItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -117,21 +192,102 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 = (opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
                 ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
-        for (int i = 0;;) {
-            const int matchIndex = opt.text.indexOf(m_highlight, i, Qt::CaseInsensitive);
-            if (matchIndex == -1 || matchIndex >= elidedText.length() - 1)
-                break;
+        // Normalize needle and haystack the same way as in docset.cpp
+        const QByteArray needleBytes = m_highlight.toUtf8();
+        const QByteArray haystackBytes = opt.text.toUtf8();
+        const int needleLength = needleBytes.length();
+        const int haystackLength = haystackBytes.length();
 
-            QRect highlightRect = textRect.adjusted(fm.horizontalAdvance(elidedText.left(matchIndex)), 2, 0, -2);
-            highlightRect.setWidth(fm.horizontalAdvance(elidedText.mid(matchIndex, m_highlight.length())));
+        if (needleLength > 0 && haystackLength > 0 && needleLength <= FZY_MAX_LEN && haystackLength <= FZY_MAX_LEN) {
+            char needle[FZY_MAX_LEN];
+            char haystack[FZY_MAX_LEN];
 
-            QPainterPath path;
-            path.addRoundedRect(highlightRect, 2, 2);
+            // Normalize needle
+            for (int i = 0; i < needleLength; ++i) {
+                const char c = needleBytes[i];
+                if ((i > 0 && needleBytes[i - 1] == ':' && c == ':') // C++ (::)
+                        || c == '/' || c == '_' || c == ' ') {
+                    needle[i] = '.';
+                } else if (c >= 'A' && c <= 'Z') {
+                    needle[i] = c + 32;
+                } else {
+                    needle[i] = c;
+                }
+            }
 
-            painter->fillPath(path, highlightColor);
-            painter->drawPath(path);
+            // Normalize haystack
+            for (int i = 0; i < haystackLength; ++i) {
+                const char c = haystackBytes[i];
+                if ((i > 0 && haystackBytes[i - 1] == ':' && c == ':') // C++ (::)
+                        || c == '/' || c == '_' || c == ' ') {
+                    haystack[i] = '.';
+                } else if (c >= 'A' && c <= 'Z') {
+                    haystack[i] = c + 32;
+                } else {
+                    haystack[i] = c;
+                }
+            }
 
-            i = matchIndex + m_highlight.length();
+            // Try exact substring match first
+            int exactMatchIndex = -1;
+            for (int i = 0; i <= haystackLength - needleLength; ++i) {
+                if (std::memcmp(haystack + i, needle, needleLength) == 0) {
+                    exactMatchIndex = i;
+                    break;
+                }
+            }
+
+            if (exactMatchIndex != -1) {
+                // Exact match: highlight the contiguous substring
+                const int elidedLen = static_cast<int>(elidedText.length());
+                if (exactMatchIndex < elidedLen - 1) {
+                    QRect highlightRect = textRect.adjusted(fm.horizontalAdvance(elidedText.left(exactMatchIndex)), 2, 0, -2);
+                    const int highlightLen = std::min(needleLength, elidedLen - exactMatchIndex);
+                    highlightRect.setWidth(fm.horizontalAdvance(elidedText.mid(exactMatchIndex, highlightLen)));
+
+                    QPainterPath path;
+                    path.addRoundedRect(highlightRect, 2, 2);
+                    painter->fillPath(path, highlightColor);
+                    painter->drawPath(path);
+                }
+            } else {
+                // Fuzzy match: highlight individual character positions
+                int matchPositions[FZY_MAX_LEN];
+                if (matchPositionsFzy(needle, needleLength, haystack, haystackLength, matchPositions)) {
+                    // Group consecutive positions to reduce number of highlight rectangles
+                    const int elidedLen = static_cast<int>(elidedText.length());
+                    int startPos = matchPositions[0];
+                    int endPos = matchPositions[0];
+
+                    for (int i = 1; i <= needleLength; ++i) {
+                        const bool isLast = (i == needleLength);
+                        const bool isConsecutive = !isLast && (matchPositions[i] == endPos + 1);
+
+                        if (isConsecutive) {
+                            endPos = matchPositions[i];
+                        } else {
+                            // Draw highlight for [startPos, endPos]
+                            if (startPos < elidedLen) {
+                                const int highlightStart = startPos;
+                                const int highlightLen = std::min(endPos - startPos + 1, elidedLen - startPos);
+
+                                QRect highlightRect = textRect.adjusted(fm.horizontalAdvance(elidedText.left(highlightStart)), 2, 0, -2);
+                                highlightRect.setWidth(fm.horizontalAdvance(elidedText.mid(highlightStart, highlightLen)));
+
+                                QPainterPath path;
+                                path.addRoundedRect(highlightRect, 2, 2);
+                                painter->fillPath(path, highlightColor);
+                                painter->drawPath(path);
+                            }
+
+                            if (!isLast) {
+                                startPos = matchPositions[i];
+                                endPos = matchPositions[i];
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         painter->restore();
