@@ -23,7 +23,7 @@ struct SearchResult
 
     Docset *docset;
 
-    int score;
+    double score;
 
     inline bool operator<(const SearchResult &other) const
     {

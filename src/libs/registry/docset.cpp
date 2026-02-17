@@ -7,6 +7,7 @@
 #include "cancellationtoken.h"
 #include "searchresult.h"
 
+#include <util/fuzzy.h>
 #include <util/plist.h>
 #include <util/sqlitedatabase.h>
 
@@ -25,7 +26,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <limits>
 #include <utility>
 
 using namespace Zeal::Registry;
@@ -297,21 +297,25 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
         if (m_isFuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE score > 0");
+                                 "  WHERE score > 0"
+                                 "  ORDER BY score DESC");
         } else {
             sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  ORDER BY score DESC");
         }
     } else {
         if (m_isFuzzySearchEnabled) {
             sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE score > 0");
+                                 "  WHERE score > 0"
+                                 "  ORDER BY score DESC");
         } else {
             sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')");
+                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  ORDER BY score DESC");
         }
     }
 
@@ -331,7 +335,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
                         m_db->value(2).toString(), m_db->value(3).toString(),
-                        const_cast<Docset *>(this), m_db->value(4).toInt()});
+                        const_cast<Docset *>(this), m_db->value(4).toDouble()});
     }
 
     return results;
@@ -745,212 +749,6 @@ bool Docset::isJavaScriptEnabled() const
     return m_isJavaScriptEnabled;
 }
 
-// fzy fuzzy matching algorithm - https://github.com/jhawthorn/fzy
-// MIT License - Copyright (c) 2014 John Hawthorn
-namespace {
-    constexpr double SCORE_GAP_LEADING = -0.005;
-    constexpr double SCORE_GAP_TRAILING = -0.005;
-    constexpr double SCORE_GAP_INNER = -0.01;
-    constexpr double SCORE_MATCH_CONSECUTIVE = 1.0;
-    constexpr double SCORE_MATCH_SLASH = 0.9;
-    constexpr double SCORE_MATCH_WORD = 0.8;
-    constexpr double SCORE_MATCH_CAPITAL = 0.7;
-    constexpr double SCORE_MATCH_DOT = 0.6;
-    constexpr int FZY_MAX_LEN = 1024;
-}
-
-static inline bool isLower(char c) { return c >= 'a' && c <= 'z'; }
-static inline bool isUpper(char c) { return c >= 'A' && c <= 'Z'; }
-
-static void precomputeBonus(const char *haystack, int length, double *matchBonus)
-{
-    char lastCh = '/';
-    for (int i = 0; i < length; ++i) {
-        const char ch = haystack[i];
-
-        if (lastCh == '/') {
-            matchBonus[i] = SCORE_MATCH_SLASH;
-        } else if (lastCh == '-' || lastCh == '_' || lastCh == ' ') {
-            matchBonus[i] = SCORE_MATCH_WORD;
-        } else if (lastCh == '.') {
-            matchBonus[i] = SCORE_MATCH_DOT;
-        } else if (isLower(lastCh) && isUpper(ch)) {
-            matchBonus[i] = SCORE_MATCH_CAPITAL;
-        } else {
-            matchBonus[i] = 0.0;
-        }
-
-        lastCh = ch;
-    }
-}
-
-static double scoreFzy(const char *needle, int needleLen, const char *haystack, int haystackLen)
-{
-    if (needleLen == 0 || haystackLen == 0 || needleLen > haystackLen) {
-        return -std::numeric_limits<double>::infinity();
-    }
-
-    if (needleLen == haystackLen) {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    if (haystackLen > FZY_MAX_LEN || needleLen > FZY_MAX_LEN) {
-        return -std::numeric_limits<double>::infinity();
-    }
-
-    double D[FZY_MAX_LEN];
-    double M[FZY_MAX_LEN];
-    double matchBonus[FZY_MAX_LEN];
-
-    precomputeBonus(haystack, haystackLen, matchBonus);
-
-    for (int i = 0; i < needleLen; ++i) {
-        double prevScore = -std::numeric_limits<double>::infinity();
-        const double gapScore = (i == needleLen - 1) ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
-
-        double prevD = -std::numeric_limits<double>::infinity();
-        double prevM = -std::numeric_limits<double>::infinity();
-
-        for (int j = 0; j < haystackLen; ++j) {
-            if (needle[i] == haystack[j]) {
-                double score = -std::numeric_limits<double>::infinity();
-
-                if (i == 0) {
-                    score = (j * SCORE_GAP_LEADING) + matchBonus[j];
-                } else if (j > 0) {
-                    score = std::max(prevM + matchBonus[j],
-                                prevD + SCORE_MATCH_CONSECUTIVE);
-                }
-
-                if (i > 0) {
-                    prevD = D[j];
-                    prevM = M[j];
-                }
-
-                D[j] = score;
-                M[j] = prevScore = std::max(score, prevScore + gapScore);
-            } else {
-                if (i > 0) {
-                    prevD = D[j];
-                    prevM = M[j];
-                }
-
-                D[j] = -std::numeric_limits<double>::infinity();
-                M[j] = prevScore = prevScore + gapScore;
-            }
-        }
-    }
-
-    return M[haystackLen - 1];
-}
-
-// Ported from DevDocs (https://github.com/Thibaut/devdocs), see app/searcher.coffee.
-static int scoreExact(int matchIndex, int matchLen, const char *value, int valueLen)
-{
-    static const char DOT = '.';
-
-    int score = 100;
-
-    // Remove one point for each unmatched character.
-    score -= (valueLen - matchLen);
-
-    if (matchIndex > 0) {
-        if (value[matchIndex - 1] == DOT) {
-            // If the character preceding the query is a dot, assign the same
-            // score as if the query was found at the beginning of the string,
-            // minus one.
-            score += matchIndex - 1;
-        } else if (matchLen == 1) {
-            // Don't match a single-character query unless it's found at the
-            // beginning of the string or is preceded by a dot.
-            return 0;
-        } else {
-            // (1) Remove one point for each unmatched character up to
-            //     the nearest preceding dot or the beginning of the
-            //     string.
-            // (2) Remove one point for each unmatched character
-            //     following the query.
-            int i = matchIndex - 2;
-            while (i >= 0 && value[i] != DOT) {
-                --i;
-            }
-
-            score -= (matchIndex - i)                     // (1)
-                    + (valueLen - matchLen - matchIndex); // (2)
-        }
-
-        // Remove one point for each dot preceding the query, except for the
-        // one immediately before the query.
-        for (int i = matchIndex - 2; i >= 0; --i) {
-            if (value[i] == DOT)
-                --score;
-        }
-    }
-
-    // Remove five points for each dot following the query.
-    for (int i = valueLen - matchLen - matchIndex - 1; i >= 0; --i) {
-        if (value[matchIndex + matchLen + i] == DOT)
-            score -= 5;
-    }
-
-    return std::max(1, score);
-}
-
-static inline int scoreFunction(const char *needleOrig, const char *haystackOrig)
-{
-    const int needleLength = static_cast<int>(qstrlen(needleOrig));
-    const int haystackLength = static_cast<int>(qstrlen(haystackOrig));
-
-    QVarLengthArray<char, 1024> needle(needleLength + 1);
-    QVarLengthArray<char, 1024> haystack(haystackLength + 1);
-
-    for (int i = 0, j = 0; i <= needleLength; ++i, ++j) {
-        const char c = needleOrig[i];
-        if ((i > 0 && needleOrig[i - 1] == ':' && c == ':') // C++ (::)
-                || c == '/' || c == '_' || c == ' ') { // Go, some Guides
-            needle[j] = '.';
-        } else if (c >= 'A' && c <= 'Z') {
-            needle[j] = c + 32;
-        } else {
-            needle[j] = c;
-        }
-    }
-
-    for (int i = 0, j = 0; i <= haystackLength; ++i, ++j) {
-        const char c = haystackOrig[i];
-        if ((i > 0 && haystackOrig[i - 1] == ':' && c == ':') // C++ (::)
-                || c == '/' || c == '_' || c == ' ') { // Go, some Guides
-            haystack[j] = '.';
-        } else if (c >= 'A' && c <= 'Z') {
-            haystack[j] = c + 32;
-        } else {
-            haystack[j] = c;
-        }
-    }
-
-    // Fast path: exact substring match
-    const char *exactMatch = std::strstr(haystack.data(), needle.data());
-    if (exactMatch != nullptr) {
-        const int exactIndex = exactMatch - haystack.data();
-        // +200 to ensure exact matches always rank highest
-        return scoreExact(exactIndex, needleLength, haystack.data(), haystackLength) + 200;
-    }
-
-    // fzy fuzzy matching
-    const double fzyScore = scoreFzy(needle.data(), needleLength, haystack.data(), haystackLength);
-
-    // No match found
-    if (std::isinf(fzyScore) && fzyScore < 0) {
-        return 0;
-    }
-
-    // Scale fzy score (typically -1 to 2) to integer range (1-100)
-    // Perfect consecutive matches get ~100, typical fuzzy matches get 50-80
-    const int scaledScore = std::clamp(static_cast<int>((fzyScore + 1.0) * 33.0), 1, 100);
-
-    return scaledScore;
-}
-
 static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
 {
     Q_UNUSED(argc)
@@ -958,5 +756,5 @@ static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_valu
     auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
     auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
 
-    sqlite3_result_int(context, scoreFunction(needle, haystack));
+    sqlite3_result_double(context, Zeal::Util::Fuzzy::scoreFunction(needle, haystack));
 }

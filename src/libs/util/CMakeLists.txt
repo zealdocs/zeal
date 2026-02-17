@@ -1,7 +1,5 @@
-# Nothing to moc here, so avoid empty build units.
-set(CMAKE_AUTOMOC OFF)
-
 add_library(Util STATIC
+    fuzzy.cpp
     humanizer.cpp
     plist.cpp
     sqlitedatabase.cpp
@@ -18,3 +16,8 @@ target_link_libraries(Util PRIVATE SQLite::SQLite3)
 
 # TODO: Do not export SQLite headers.
 target_include_directories(Util PUBLIC ${SQLite3_INCLUDE_DIRS})
+
+# Tests
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

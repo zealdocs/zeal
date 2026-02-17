@@ -68,6 +68,23 @@
           "value": "ON"
         }
       }
+    },
+    {
+      "name": "config-testing",
+      "hidden": true,
+      "cacheVariables": {
+        "BUILD_TESTING": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    },
+    {
+      "name": "ninja-multi-vcpkg-test",
+      "inherits": [
+        "ninja-multi-vcpkg",
+        "config-testing"
+      ]
     }
   ],
   "buildPresets": [
@@ -114,14 +131,12 @@
   ],
   "testPresets": [
     {
-      "name": "ninja-multi-vcpkg-debug",
-      "configurePreset": "ninja-multi-vcpkg",
-      "configuration": "Debug"
-    },
-    {
-      "name": "ninja-multi-vcpkg-release",
-      "configurePreset": "ninja-multi-vcpkg",
-      "configuration": "RelWithDebInfo"
+      "name": "ninja-multi-vcpkg-test-debug",
+      "configurePreset": "ninja-multi-vcpkg-test",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }
