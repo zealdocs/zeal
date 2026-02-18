@@ -225,8 +225,12 @@ void SQLiteDatabase::close()
 
 void SQLiteDatabase::finalize()
 {
+    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
+
     sqlite3_finalize(m_stmt);
     m_stmt = nullptr;
+
+    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
 }
 
 void SQLiteDatabase::updateLastError()
