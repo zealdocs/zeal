@@ -51,7 +51,7 @@ bool Plist::read(const QString &fileName)
         insert(key, value);
     }
 
-    return m_hasError;
+    return !m_hasError;
 }
 
 bool Plist::hasError() const
