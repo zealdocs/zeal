@@ -130,7 +130,7 @@ jobs:
               qtpositioning
               qtwebchannel
               qtwebengine
-            qt_version: "6.9.3"
+            qt_version: "6.10.2"
             configurePreset: ninja-multi-vcpkg
             buildPreset: ninja-multi-vcpkg-release
             publishArtifacts: true
@@ -141,7 +141,7 @@ jobs:
               qtpositioning
               qtwebchannel
               qtwebengine
-            qt_version: "6.9.3"
+            qt_version: "6.10.2"
             configurePreset: ninja-multi-vcpkg-portable
             buildPreset: ninja-multi-vcpkg-portable-release
             publishArtifacts: true
