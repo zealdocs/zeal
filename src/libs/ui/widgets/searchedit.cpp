@@ -22,9 +22,9 @@ SearchEdit::SearchEdit(QWidget *parent)
     setPlaceholderText(tr("Search"));
 
     m_completionLabel = new QLabel(this);
+    m_completionLabel->setFont(font());
     m_completionLabel->setObjectName(QStringLiteral("completer"));
     m_completionLabel->setStyleSheet(QStringLiteral("QLabel#completer { color: gray; }"));
-    m_completionLabel->setFont(font());
 
     connect(this, &SearchEdit::textChanged, this, &SearchEdit::showCompletions);
 }
@@ -35,8 +35,8 @@ void SearchEdit::setCompletions(const QStringList &completions)
     delete m_prefixCompleter;
 
     m_prefixCompleter = new QCompleter(completions, this);
-    m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
     m_prefixCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+    m_prefixCompleter->setCompletionMode(QCompleter::InlineCompletion);
     m_prefixCompleter->setWidget(this);
 }
 

@@ -526,14 +526,14 @@ void MainWindow::setupTabBar()
 {
     m_tabBar = new QTabBar(this);
     m_tabBar->installEventFilter(this);
-    m_tabBar->setTabsClosable(true);
-    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
-    m_tabBar->setExpanding(false);
-    m_tabBar->setUsesScrollButtons(true);
     m_tabBar->setDocumentMode(true);
     m_tabBar->setElideMode(Qt::ElideRight);
-    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+    m_tabBar->setExpanding(false);
     m_tabBar->setMovable(true);
+    m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
+    m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
+    m_tabBar->setTabsClosable(true);
+    m_tabBar->setUsesScrollButtons(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
         if (index == -1) {

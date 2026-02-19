@@ -25,8 +25,8 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     m_lineEdit = new QLineEdit();
     m_lineEdit->installEventFilter(this);
-    m_lineEdit->setPlaceholderText(tr("Find in page"));
     m_lineEdit->setMaximumWidth(200);
+    m_lineEdit->setPlaceholderText(tr("Find in page"));
     connect(m_lineEdit, &QLineEdit::textChanged, this, &SearchToolBar::findNext);
     connect(m_lineEdit, &QLineEdit::textChanged, this, &SearchToolBar::updateHighlight);
     layout->addWidget(m_lineEdit);
