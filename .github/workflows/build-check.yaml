@@ -159,9 +159,8 @@ jobs:
           fetch-depth: 0
 
       # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
-      - name: Restore vcpkg Cache
-        id: vcpkg-cache
-        uses: actions/cache/restore@v5
+      - name: Prepare vcpkg binary cache
+        uses: actions/cache@v5
         with:
           path: ${{ env._vcpkg_binary_cache }}
           key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
@@ -185,13 +184,7 @@ jobs:
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
-
-      - name: Save vcpkg Cache
-        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: ${{ env._vcpkg_binary_cache }}
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
+          configurePresetAdditionalArgs: "['-DVCPKG_INSTALL_OPTIONS=\"--debug\"']"
 
       - name: Retrieve Application Version
         run: |
