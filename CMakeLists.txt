@@ -21,7 +21,7 @@ endif()
 
 # Project information.
 set(PROJECT_COMPANY_NAME "Oleg Shparber")
-set(PROJECT_COPYRIGHT "© 2013-2025 Oleg Shparber and other contributors")
+set(PROJECT_COPYRIGHT "© 2013-2026 Oleg Shparber and other contributors")
 
 # Find available major Qt version. It will be stored in QT_VERSION_MAJOR.
 if(NOT ZEAL_USE_QT5)
