@@ -59,15 +59,16 @@ bool QxtGlobalShortcutPrivate::isSupported()
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+    void *message, [[maybe_unused]] NativeEventFilterResult *result)
 {
-    Q_UNUSED(result)
-    if (eventType != "xcb_generic_event_t")
+    if (eventType != "xcb_generic_event_t") {
         return false;
+    }
 
     auto event = static_cast<xcb_generic_event_t *>(message);
-    if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
+    if ((event->response_type & ~0x80) != XCB_KEY_PRESS) {
         return false;
+    }
 
     auto keyPressEvent = static_cast<xcb_key_press_event_t *>(message);
 

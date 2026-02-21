@@ -45,10 +45,11 @@ static QHash<Identifier, quint32> keyIDs;
 static quint32 hotKeySerial = 0;
 static bool qxt_mac_handler_installed = false;
 
-OSStatus qxt_mac_handle_hot_key(EventHandlerCallRef nextHandler, EventRef event, void *data)
+OSStatus qxt_mac_handle_hot_key(
+    [[maybe_unused]] EventHandlerCallRef nextHandler,
+    EventRef event,
+    [[maybe_unused]] void *data)
 {
-    Q_UNUSED(nextHandler)
-    Q_UNUSED(data)
     if (GetEventClass(event) == kEventClassKeyboard && GetEventKind(event) == kEventHotKeyPressed) {
         EventHotKeyID keyID;
         GetEventParameter(event, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(keyID), NULL, &keyID);
@@ -65,12 +66,11 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return QGuiApplication::platformName() == QLatin1String("cocoa");
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(
+    [[maybe_unused]] const QByteArray &eventType,
+    [[maybe_unused]] void *message,
+    [[maybe_unused]] NativeEventFilterResult *result)
 {
-    Q_UNUSED(eventType)
-    Q_UNUSED(message)
-    Q_UNUSED(result)
     return false;
 }
 
