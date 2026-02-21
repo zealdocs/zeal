@@ -376,7 +376,7 @@ QSettings *Settings::qsettings(QObject *parent)
 
 QDataStream &operator<<(QDataStream &out, Settings::ContentAppearance policy)
 {
-    out << static_cast<std::underlying_type<Settings::ContentAppearance>::type>(policy);
+    out << static_cast<std::underlying_type_t<Settings::ContentAppearance>>(policy);
     return out;
 }
 
