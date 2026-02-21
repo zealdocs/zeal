@@ -8,43 +8,34 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return false;
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message,
-                                                 NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(
+    [[maybe_unused]] const QByteArray &eventType,
+    [[maybe_unused]] void *message,
+    [[maybe_unused]] NativeEventFilterResult *result)
 {
-    Q_UNUSED(eventType)
-    Q_UNUSED(message)
-    Q_UNUSED(result)
-
     return false;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
+quint32 QxtGlobalShortcutPrivate::nativeModifiers([[maybe_unused]] Qt::KeyboardModifiers modifiers)
 {
-    Q_UNUSED(modifiers)
-
     return 0;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+quint32 QxtGlobalShortcutPrivate::nativeKeycode([[maybe_unused]] Qt::Key key)
 {
-    Q_UNUSED(key)
-
     return 0;
 }
 
-bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
+bool QxtGlobalShortcutPrivate::registerShortcut(
+    [[maybe_unused]] quint32 nativeKey,
+    [[maybe_unused]] quint32 nativeMods)
 {
-    Q_UNUSED(nativeKey)
-    Q_UNUSED(nativeMods)
-
     return false;
 }
 
-bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
+bool QxtGlobalShortcutPrivate::unregisterShortcut(
+    [[maybe_unused]] quint32 nativeKey,
+    [[maybe_unused]] quint32 nativeMods)
 {
-    Q_UNUSED(nativeKey)
-    Q_UNUSED(nativeMods)
-
     return false;
 }

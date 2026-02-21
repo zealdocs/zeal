@@ -26,10 +26,9 @@ WebPage::WebPage(QObject *parent)
 {
 }
 
-bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::NavigationType type, bool isMainFrame)
+bool WebPage::acceptNavigationRequest(const QUrl &requestUrl,
+    [[maybe_unused]] QWebEnginePage::NavigationType type, bool isMainFrame)
 {
-    Q_UNUSED(type)
-
     // Local elements are always allowed.
     if (Core::NetworkAccessManager::isLocalUrl(requestUrl)) {
         return true;

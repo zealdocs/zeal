@@ -386,10 +386,8 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     return Sidebar::View::eventFilter(object, event);
 }
 
-void SearchSidebar::showEvent(QShowEvent *event)
+void SearchSidebar::showEvent([[maybe_unused]] QShowEvent *event)
 {
-    Q_UNUSED(event)
-
     if (m_pendingVerticalPosition > 0) {
         m_treeView->verticalScrollBar()->setValue(m_pendingVerticalPosition);
         m_pendingVerticalPosition = 0;

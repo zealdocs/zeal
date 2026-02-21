@@ -376,13 +376,13 @@ QSettings *Settings::qsettings(QObject *parent)
 
 QDataStream &operator<<(QDataStream &out, Settings::ContentAppearance policy)
 {
-    out << static_cast<std::underlying_type<Settings::ContentAppearance>::type>(policy);
+    out << static_cast<std::underlying_type_t<Settings::ContentAppearance>>(policy);
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, Settings::ContentAppearance &policy)
 {
-    std::underlying_type<Settings::ContentAppearance>::type value;
+    std::underlying_type_t<Settings::ContentAppearance> value;
     in >> value;
     policy = static_cast<Settings::ContentAppearance>(value);
     return in;
@@ -390,13 +390,13 @@ QDataStream &operator>>(QDataStream &in, Settings::ContentAppearance &policy)
 
 QDataStream &operator<<(QDataStream &out, Settings::ExternalLinkPolicy policy)
 {
-    out << static_cast<std::underlying_type<Settings::ExternalLinkPolicy>::type>(policy);
+    out << static_cast<std::underlying_type_t<Settings::ExternalLinkPolicy>>(policy);
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, Settings::ExternalLinkPolicy &policy)
 {
-    std::underlying_type<Settings::ExternalLinkPolicy>::type value;
+    std::underlying_type_t<Settings::ExternalLinkPolicy> value;
     in >> value;
     policy = static_cast<Settings::ExternalLinkPolicy>(value);
     return in;

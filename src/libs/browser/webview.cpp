@@ -100,9 +100,8 @@ void WebView::resetZoom()
     setZoomLevel(defaultZoomLevel());
 }
 
-QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
+QWebEngineView *WebView::createWindow([[maybe_unused]] QWebEnginePage::WebWindowType type)
 {
-    Q_UNUSED(type)
     return Core::Application::instance()->mainWindow()->createTab()->webControl()->m_webView;
 }
 

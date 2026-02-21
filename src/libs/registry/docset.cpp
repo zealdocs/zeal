@@ -749,10 +749,10 @@ bool Docset::isJavaScriptEnabled() const
     return m_isJavaScriptEnabled;
 }
 
-static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+static void sqliteScoreFunction(sqlite3_context *context,
+                                [[maybe_unused]] int argc,
+                                sqlite3_value **argv)
 {
-    Q_UNUSED(argc)
-
     auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
     auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
 
