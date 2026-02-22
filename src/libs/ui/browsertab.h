@@ -53,6 +53,9 @@ private:
     Browser::WebControl *m_webControl = nullptr;
     QToolButton *m_backButton = nullptr;
     QToolButton *m_forwardButton = nullptr;
+
+    // State.
+    QUrl m_baseUrl;
 };
 
 } // namespace WidgetUi

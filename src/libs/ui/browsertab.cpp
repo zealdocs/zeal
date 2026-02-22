@@ -36,17 +36,22 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_webControl = new Browser::WebControl(this);
     connect(m_webControl, &Browser::WebControl::titleChanged, this, &BrowserTab::titleChanged);
     connect(m_webControl, &Browser::WebControl::urlChanged, this, [this](const QUrl &url) {
-        // TODO: Check if changed.
         emit iconChanged(docsetIcon(url));
 
-        Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
-        if (docset) {
-            searchSidebar()->pageTocModel()->setResults(docset->relatedLinks(url));
-            m_webControl->setJavaScriptEnabled(docset->isJavaScriptEnabled());
-        } else {
-            searchSidebar()->pageTocModel()->setResults();
-            // Always enable JS outside of docsets.
-            m_webControl->setJavaScriptEnabled(true);
+        // Only update TOC if the base URL changed.
+        const QUrl baseUrl = url.adjusted(QUrl::RemoveFragment);
+        if (baseUrl != m_baseUrl) {
+            m_baseUrl = baseUrl;
+
+            Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
+            if (docset) {
+                searchSidebar()->pageTocModel()->setResults(docset->relatedLinks(url));
+                m_webControl->setJavaScriptEnabled(docset->isJavaScriptEnabled());
+            } else {
+                searchSidebar()->pageTocModel()->setResults();
+                // Always enable JS outside of docsets.
+                m_webControl->setJavaScriptEnabled(true);
+            }
         }
 
         m_backButton->setEnabled(m_webControl->canGoBack());
