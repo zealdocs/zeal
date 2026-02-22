@@ -43,7 +43,6 @@ jobs:
             buildPreset: ninja-multi-vcpkg-portable-release
 
     env:
-      _vcpkg_binary_cache: ${{ github.workspace }}/.vcpkg-cache
       VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
       VCPKG_BUILD_TYPE: release
       VCPKG_DEFAULT_TRIPLET: x64-windows
@@ -56,12 +55,11 @@ jobs:
           fetch-depth: 0
 
       # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
-      - name: Restore vcpkg Cache
-        id: vcpkg-cache
-        uses: actions/cache/restore@v5
+      - name: Prepare vcpkg binary cache
+        uses: actions/cache@v5
         with:
-          path: ${{ env._vcpkg_binary_cache }}
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
+          path: ${{ github.workspace }}/.vcpkg-cache
+          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles(format('build/{0}/vcpkg_installed/vcpkg/status', matrix.config.configurePreset)) }}
           restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-
 
       - name: Prepare vcpkg
@@ -82,13 +80,7 @@ jobs:
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
-
-      - name: Save vcpkg Cache
-        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: ${{ env._vcpkg_binary_cache }}
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
+          configurePresetAdditionalArgs: "['-DVCPKG_DISABLE_COMPILER_TRACKING=ON']"
 
       - name: Retrieve Application Version
         run: |
