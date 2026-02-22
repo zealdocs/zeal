@@ -4,8 +4,6 @@
 
 #include "searchitemdelegate.h"
 
-#include <util/fuzzy.h>
-
 #include <QAbstractItemView>
 #include <QFontMetrics>
 #include <QHelpEvent>
@@ -30,6 +28,16 @@ QList<int> SearchItemDelegate::decorationRoles() const
 void SearchItemDelegate::setDecorationRoles(const QList<int> &roles)
 {
     m_decorationRoles = roles;
+}
+
+int SearchItemDelegate::textHighlightRole() const
+{
+    return m_textHighlightRole;
+}
+
+void SearchItemDelegate::setTextHighlightRole(int role)
+{
+    m_textHighlightRole = role;
 }
 
 bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
@@ -113,7 +121,9 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QFontMetrics &fm = opt.fontMetrics;
     const QString elidedText = fm.elidedText(opt.text, opt.textElideMode, textRect.width());
 
-    if (!m_highlight.isEmpty()) {
+    // Get pre-computed match positions from model for highlighting.
+    const QVector<int> matchPositions = index.data(m_textHighlightRole).value<QVector<int>>();
+    if (!matchPositions.isEmpty()) {
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
         painter->setPen(QColor::fromRgb(255, 253, 0));
@@ -122,12 +132,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 = (opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
                 ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
 
-        // Find match positions using high-level fuzzy API
-        QVector<int> matchPositions;
-        const double matchScore = Util::Fuzzy::score(m_highlight, opt.text, &matchPositions);
-
-        // Only highlight if we have a valid match with positions
-        if (matchScore > 0 && !matchPositions.isEmpty()) {
+        {
             // Group consecutive positions to reduce number of highlight rectangles
             const int matchCount = matchPositions.size();
 
@@ -231,9 +236,4 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + margin * 2;
 
     return size;
-}
-
-void SearchItemDelegate::setHighlight(const QString &text)
-{
-    m_highlight = text;
 }

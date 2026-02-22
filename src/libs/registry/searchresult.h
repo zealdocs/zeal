@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QUrl>
+#include <QVector>
 
 namespace Zeal {
 namespace Registry {
@@ -24,6 +25,7 @@ struct SearchResult
     Docset *docset;
 
     double score;
+    QVector<int> matchPositions;
 
     inline bool operator<(const SearchResult &other) const
     {

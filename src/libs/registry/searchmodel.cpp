@@ -43,6 +43,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     case ItemDataRole::DocsetIconRole:
         return item->docset->icon();
 
+    case ItemDataRole::MatchPositionsRole:
+        return QVariant::fromValue(item->matchPositions);
+
     case ItemDataRole::UrlRole:
         return item->docset->searchResultUrl(*item);
 

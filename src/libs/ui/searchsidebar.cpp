@@ -60,6 +60,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
 
     auto delegate = new SearchItemDelegate(m_treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
+    delegate->setTextHighlightRole(Registry::ItemDataRole::MatchPositionsRole);
     m_treeView->setItemDelegate(delegate);
 
     connect(m_treeView, &QTreeView::activated, this, &SearchSidebar::navigateToIndexAndActivate);
@@ -107,11 +108,6 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_searchEdit = new SearchEdit();
     m_searchEdit->installEventFilter(this);
     setupSearchBoxCompletions();
-
-    // Connect delegate first to make cloning work.
-    connect(m_searchEdit, &QLineEdit::textChanged, this, [delegate](const QString &text) {
-        delegate->setHighlight(Registry::SearchQuery::fromString(text).query());
-    });
 
     // Clone state if `other` is provided.
     if (other) {

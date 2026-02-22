@@ -19,18 +19,18 @@ public:
     QList<int> decorationRoles() const;
     void setDecorationRoles(const QList<int> &roles);
 
+    int textHighlightRole() const;
+    void setTextHighlightRole(int role);
+
     bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option,
                    const QModelIndex &index) override;
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
-public slots:
-    void setHighlight(const QString &text);
-
 private:
     QList<int> m_decorationRoles = {Qt::DecorationRole};
-    QString m_highlight;
+    int m_textHighlightRole = -1;
 };
 
 } // namespace WidgetUi

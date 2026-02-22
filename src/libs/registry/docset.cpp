@@ -332,10 +332,29 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
 
     QList<SearchResult> results;
     while (m_db->next() && !token.isCanceled()) {
-        results.append({m_db->value(0).toString(),
-                        parseSymbolType(m_db->value(1).toString()),
-                        m_db->value(2).toString(), m_db->value(3).toString(),
-                        const_cast<Docset *>(this), m_db->value(4).toDouble()});
+        SearchResult result;
+        result.name = m_db->value(0).toString();
+        result.type = parseSymbolType(m_db->value(1).toString());
+        result.urlPath = m_db->value(2).toString();
+        result.urlFragment = m_db->value(3).toString();
+        result.docset = const_cast<Docset *>(this);
+        result.score = m_db->value(4).toDouble();
+
+        // Compute match positions for highlighting.
+        if (m_isFuzzySearchEnabled) {
+            // Fuzzy search: use fuzzy matching algorithm.
+            Util::Fuzzy::score(query, result.name, &result.matchPositions);
+        } else {
+            // Non-fuzzy search: highlight only first occurrence.
+            const int pos = result.name.indexOf(query, 0, Qt::CaseInsensitive);
+            if (pos != -1) {
+                for (int i = 0; i < query.length(); ++i) {
+                    result.matchPositions.append(pos + i);
+                }
+            }
+        }
+
+        results.append(std::move(result));
     }
 
     return results;
