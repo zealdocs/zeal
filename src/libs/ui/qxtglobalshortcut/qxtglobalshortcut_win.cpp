@@ -41,12 +41,11 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return QGuiApplication::platformName() == QLatin1String("windows");
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(
+    [[maybe_unused]] const QByteArray &eventType,
+    void *message,
+    [[maybe_unused]] NativeEventFilterResult *result)
 {
-    Q_UNUSED(eventType)
-    Q_UNUSED(result)
-
     MSG *msg = static_cast<MSG *>(message);
     if (msg->message == WM_HOTKEY) {
         const quint32 keycode = HIWORD(msg->lParam);
