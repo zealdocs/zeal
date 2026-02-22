@@ -66,9 +66,10 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         opt.features |= QStyleOptionViewItem::HasDecoration;
         opt.icon = index.data(roles.first()).value<QIcon>();
 
-        const QSize actualSize = opt.icon.actualSize(opt.decorationSize);
-        opt.decorationSize = {std::min(opt.decorationSize.width(), actualSize.width()),
-                              std::min(opt.decorationSize.height(), actualSize.height())};
+        // Constrain decoration size to the style's small icon size to ensure consistent icon sizing.
+        const int maxSize = style->pixelMetric(QStyle::PM_SmallIconSize, &opt, opt.widget);
+        opt.decorationSize = {std::min(opt.decorationSize.width(), maxSize),
+                              std::min(opt.decorationSize.height(), maxSize)};
     }
 
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
@@ -206,6 +207,11 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QStyle *style = opt.widget->style();
 
+    // Constrain decoration size to the style's small icon size to ensure consistent icon sizing.
+    const int maxSize = style->pixelMetric(QStyle::PM_SmallIconSize, &opt, opt.widget);
+    opt.decorationSize = {std::min(opt.decorationSize.width(), maxSize),
+                          std::min(opt.decorationSize.height(), maxSize)};
+
     QSize size = QStyledItemDelegate::sizeHint(opt, index);
     size.setWidth(0);
 
@@ -219,10 +225,7 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     }
 
     if (!roles.isEmpty()) {
-        const QIcon icon = index.data(roles.first()).value<QIcon>();
-        const QSize actualSize = icon.actualSize(opt.decorationSize);
-        const int decorationWidth = std::min(opt.decorationSize.width(), actualSize.width());
-        size.rwidth() = (decorationWidth + margin) * roles.size() + margin;
+        size.rwidth() = (opt.decorationSize.width() + margin) * roles.size() + margin;
     }
 
     size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + margin * 2;
