@@ -1,0 +1,158 @@
+/* Custom styles for Zeal's built-in browser pages. Depends on oat.min.css. */
+
+body {
+	user-select: none;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.page {
+	flex: 1;
+	display: grid;
+	grid-template-columns: 1fr 1.5fr;
+	align-content: center;
+	gap: 1.5rem 3rem;
+	max-width: 720px;
+	width: 100%;
+	padding: 2rem;
+}
+
+.brand {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.25rem;
+}
+
+.brand h1 {
+	font-size: 2rem;
+	line-height: 1.1;
+}
+
+.brand .version {
+	font-weight: 300;
+	opacity: 0.5;
+	margin-left: 0.3rem;
+	font-size: 1rem;
+}
+
+.brand > p {
+	opacity: 0.6;
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.actions > h2 {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	opacity: 0.45;
+	margin-top: 0.5rem;
+	margin-bottom: 0;
+}
+
+.command-block {
+	cursor: pointer;
+	padding: 0.625rem 0.875rem;
+	border-radius: 6px;
+	border: 1px solid #e2e8f0;
+	transition:
+		border-color 0.15s,
+		background 0.15s;
+}
+
+.command-block:hover {
+	border-color: #94a3b8;
+	background: #f8fafc;
+}
+
+.command-block h3 {
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin-bottom: 0.125rem;
+}
+
+.command-block p {
+	font-size: 0.775rem;
+	opacity: 0.55;
+	margin: 0;
+}
+
+.footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	max-width: 720px;
+	padding: 1rem 2rem;
+	border-top: 1px solid #e2e8f0;
+}
+
+.icon-links {
+	display: flex;
+	gap: 1.25rem;
+	align-items: center;
+}
+
+.icon-link {
+	cursor: pointer;
+	display: inline-flex;
+	color: inherit;
+	text-decoration: none;
+	opacity: 0.45;
+	transition: opacity 0.15s;
+}
+
+.icon-link:hover {
+	opacity: 0.85;
+	text-decoration: none;
+}
+
+.icon-link svg {
+	width: 1.2rem;
+	height: 1.2rem;
+}
+
+.report-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	opacity: 0.4;
+	transition: opacity 0.15s;
+	text-decoration: none;
+	color: inherit;
+}
+
+.report-link:hover {
+	opacity: 0.7;
+	text-decoration: none;
+}
+
+.report-link svg {
+	width: 0.85rem;
+	height: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	.command-block {
+		border-color: #334155;
+	}
+
+	.command-block:hover {
+		border-color: #475569;
+		background: #1e293b;
+	}
+
+	.footer {
+		border-color: #334155;
+	}
+}

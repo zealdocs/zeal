@@ -3,14 +3,10 @@
         <file alias="zeal.ico">resources/zeal.ico</file>
     </qresource>
     <qresource prefix="/browser">
-        <file alias="assets/css/fa-brands.min.css">resources/browser/assets/css/fa-brands.min.css</file>
-        <file alias="assets/css/fa-solid.min.css">resources/browser/assets/css/fa-solid.min.css</file>
-        <file alias="assets/css/fontawesome.min.css">resources/browser/assets/css/fontawesome.min.css</file>
-        <file alias="assets/css/highlight.css">resources/browser/assets/css/highlight.css</file>
-        <file alias="assets/css/welcome.min.css">resources/browser/assets/css/welcome.min.css</file>
-        <file alias="assets/webfonts/fa-brands-400.woff2">resources/browser/assets/webfonts/fa-brands-400.woff2</file>
-        <file alias="assets/webfonts/fa-solid-900.woff2">resources/browser/assets/webfonts/fa-solid-900.woff2</file>
         <file alias="404.html">resources/browser/404.html</file>
+        <file alias="assets/css/highlight.css">resources/browser/assets/css/highlight.css</file>
+        <file alias="assets/css/oat.min.css">resources/browser/assets/css/oat.min.css</file>
+        <file alias="assets/css/welcome.css">resources/browser/assets/css/welcome.css</file>
         <file alias="welcome.html">resources/browser/welcome.html</file>
     </qresource>
     <qresource prefix="/icons/type">

@@ -14,6 +14,9 @@ trim_trailing_whitespace = true
 # TODO: indent_size = 2
 indent_size = 4
 
+[*.css]
+indent_size = 2
+
 [*.json]
 indent_size = 2
 

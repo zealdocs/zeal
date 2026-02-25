@@ -10,6 +10,7 @@ path = [
     "src/**/*.ui",
     "src/app/resources/browser/*.html",
     "src/app/resources/browser/assets/css/highlight.css",
+    "src/app/resources/browser/assets/css/welcome.css",
     "src/app/resources/icons/**/*",
     "src/app/resources/zeal.*",
     "src/app/zeal.qrc",
@@ -34,6 +35,11 @@ path = [
     "CHANGELOG.md",
 ]
 SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "src/app/resources/browser/assets/css/oat.min.css"
+SPDX-FileCopyrightText = "Copyright (c) Kailash Nadh <https://github.com/knadh/oat>"
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
