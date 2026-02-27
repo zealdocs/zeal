@@ -7,7 +7,7 @@ set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 project(Zeal
-    VERSION 0.7.3
+    VERSION 0.8.0
     DESCRIPTION "A simple documentation browser."
     HOMEPAGE_URL "https://zealdocs.org"
     LANGUAGES CXX
