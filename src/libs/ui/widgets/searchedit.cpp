@@ -21,6 +21,9 @@ SearchEdit::SearchEdit(QWidget *parent)
     setClearButtonEnabled(true);
     setPlaceholderText(tr("Search"));
 
+    // Force QStyleSheetStyle wrapping so dynamic color scheme changes apply.
+    setStyleSheet(QStringLiteral("QLineEdit {}"));
+
     m_completionLabel = new QLabel(this);
     m_completionLabel->setFont(font());
     m_completionLabel->setObjectName(QStringLiteral("completer"));

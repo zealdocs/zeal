@@ -17,6 +17,8 @@
 #include <QWebEngineSettings>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QStyle>
+#include <QStyleFactory>
 #include <QStyleHints>
 #else
 #include <QPalette>
@@ -50,6 +52,16 @@ Settings::Settings(QObject *parent)
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    // When the OS color scheme changes, reapply the color scheme.
+    connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged,
+            this, [this]() {
+        if (contentAppearance == ContentAppearance::Automatic) {
+            applyColorScheme();
+        }
+    });
+#endif
+
     load();
 }
 
@@ -71,7 +83,37 @@ bool Settings::isDarkModeEnabled() const
     return false;
 }
 
-Zeal::Core::Settings::ColorScheme Settings::colorScheme()
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+void Settings::applyColorScheme()
+{
+    Qt::ColorScheme scheme = Qt::ColorScheme::Unknown;
+    switch (contentAppearance) {
+    case ContentAppearance::Light:
+        scheme = Qt::ColorScheme::Light;
+        break;
+    case ContentAppearance::Dark:
+        scheme = Qt::ColorScheme::Dark;
+        break;
+    default:
+        break;
+    }
+
+    qApp->styleHints()->setColorScheme(scheme);
+    // setColorScheme() alone doesn't reliably update existing widgets:
+    //  - Widgets with stylesheets (QStyleSheetStyle) only update on polish().
+    //  - Direct palette consumers (QTreeView, QLineEdit) only update when the
+    //    application palette changes.
+    // Re-instantiating the style triggers the full unpolish-polish cycle for
+    // QStyleSheetStyle widgets and also updates the application palette via
+    // the new style's standardPalette().
+    QStyle *newStyle = QStyleFactory::create(qApp->style()->name());
+    if (newStyle != nullptr) {
+        qApp->setStyle(newStyle);
+    }
+}
+#endif
+
+Settings::ColorScheme Settings::colorScheme()
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     return QApplication::styleHints()->colorScheme();
@@ -125,6 +167,10 @@ void Settings::load()
     if (isDarkModeEnabled()) {
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4");
     }
+#endif
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    applyColorScheme();
 #endif
 
     // Fonts
@@ -295,6 +341,10 @@ void Settings::save()
     settings->endGroup();
 
     settings->sync();
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    applyColorScheme();
+#endif
 
     emit updated();
 }

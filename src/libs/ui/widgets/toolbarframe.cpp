@@ -12,6 +12,9 @@ ToolBarFrame::ToolBarFrame(QWidget *parent)
 {
     setMaximumHeight(40);
     setMinimumHeight(40);
+
+    // Force QStyleSheetStyle wrapping so dynamic color scheme changes apply.
+    setStyleSheet(QStringLiteral("ToolBarFrame {}"));
 }
 
 void ToolBarFrame::paintEvent(QPaintEvent *event)
