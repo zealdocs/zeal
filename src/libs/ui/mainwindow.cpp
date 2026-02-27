@@ -399,7 +399,7 @@ void MainWindow::setupMainMenu()
 
     // -> Check for Updates Action.
     menu->addAction(tr("&Check for Updates…"), this, [this]() {
-        m_application->checkForUpdates(true);
+        m_application->checkForUpdates();
     });
 
     menu->addSeparator();
