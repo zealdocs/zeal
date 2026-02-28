@@ -155,6 +155,7 @@ function(codesign)
             execute_process(COMMAND "certutil.exe" ${_cmd_certutil_args}
                 RESULT_VARIABLE _rc
                 OUTPUT_VARIABLE _stdout
+                # For some reason certutil prints errors to stdout.
                 # ERROR_VARIABLE  _stderr
             )
 
@@ -162,11 +163,13 @@ function(codesign)
             file(REMOVE ${_certificate_base64_file})
 
             if(NOT _rc EQUAL 0)
-                # For some reason certutil prints errors to stdout.
                 message(WARNING "Failed to decode certificate: ${_stdout}")
                 _cleanup()
                 return()
             endif()
+
+            unset(_rc)
+            unset(_stdout)
 
             set(_ARG_CERTIFICATE_FILE ${_certificate_file})
         else()
@@ -216,7 +219,7 @@ function(codesign)
 
     # Set timestamp server.
     if(NOT _ARG_TIMESTAMP_URL)
-        set(_ARG_TIMESTAMP_URL "https://timestamp.digicert.com")
+        set(_ARG_TIMESTAMP_URL "http://timestamp.digicert.com")
     endif()
 
     if(_ARG_TIMESTAMP_URL)
@@ -241,6 +244,14 @@ function(codesign)
             message(NOTICE "Cannot find file to sign: ${_file}")
             continue()
         endif()
+
+        message(STATUS "Signing ${_file}...")
+        execute_process(
+            COMMAND "${_cmd}" ${_cmd_args} "${_file}"
+            RESULT_VARIABLE _rc
+            OUTPUT_VARIABLE _stdout
+            ERROR_VARIABLE  _stderr
+        )
 
         if(_rc EQUAL 0)
             message(STATUS "Successfully signed: ${_file}")
