@@ -99,6 +99,7 @@ public:
 
     // Other
     QString docsetPath;
+    bool useGlobalDocsets;
 
     // State
     QByteArray windowGeometry;
