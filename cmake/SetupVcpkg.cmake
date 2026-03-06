@@ -48,19 +48,28 @@ function(setup_vcpkg)
         set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/build/vcpkg_installed" CACHE STRING "")
     endif()
 
-    # On Windows, default to a release-only triplet to speed up builds. Switch to the
-    # default (debug+release) triplet only for true Debug builds — RelWithDebInfo and
-    # MinSizeRel still link against release-built deps. Multi-config generators (Visual
-    # Studio, Ninja Multi-Config, Xcode) leave CMAKE_BUILD_TYPE empty at configure time,
-    # so default to the full triplet to cover every config the user may build.
+    # Match the triplet architecture to the host so native Windows-on-ARM builds link
+    # against arm64 deps instead of vcpkg's x64 default. PROCESSOR_ARCHITEW6432 covers an
+    # x86/x64 process running under emulation on an arm64 host.
     if(WIN32 AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-        get_cmake_property(_vcpkg_is_multi_config GENERATOR_IS_MULTI_CONFIG)
-        if(_vcpkg_is_multi_config OR CMAKE_BUILD_TYPE STREQUAL "Debug")
-            set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+        if("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64" OR
+           "$ENV{PROCESSOR_ARCHITEW6432}" STREQUAL "ARM64")
+            # vcpkg ships no arm64-windows-release triplet, so use the full one.
+            set(VCPKG_TARGET_TRIPLET "arm64-windows" CACHE STRING "")
         else()
-            set(VCPKG_TARGET_TRIPLET "x64-windows-release" CACHE STRING "")
+            # On x64, default to a release-only triplet to speed up builds. Switch to the
+            # default (debug+release) triplet only for true Debug builds — RelWithDebInfo and
+            # MinSizeRel still link against release-built deps. Multi-config generators (Visual
+            # Studio, Ninja Multi-Config, Xcode) leave CMAKE_BUILD_TYPE empty at configure time,
+            # so default to the full triplet to cover every config the user may build.
+            get_cmake_property(_vcpkg_is_multi_config GENERATOR_IS_MULTI_CONFIG)
+            if(_vcpkg_is_multi_config OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+                set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+            else()
+                set(VCPKG_TARGET_TRIPLET "x64-windows-release" CACHE STRING "")
+            endif()
+            unset(_vcpkg_is_multi_config)
         endif()
-        unset(_vcpkg_is_multi_config)
     endif()
 
     # Deploy vcpkg dependencies alongside the build output.
