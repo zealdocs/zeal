@@ -103,6 +103,9 @@ private:
     friend class SidebarViewProvider;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
+#ifdef Q_OS_WINDOWS
+    QByteArray m_savedGeometry;
+#endif
 };
 
 } // namespace WidgetUi

@@ -37,6 +37,7 @@
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include <QTabBar>
+#include <QTimer>
 #include <QVBoxLayout>
 
 using namespace Zeal;
@@ -629,10 +630,33 @@ void MainWindow::removeTrayIcon()
 
 void MainWindow::bringToFront()
 {
+#ifdef Q_OS_WINDOWS
+    // On Windows, show() + setWindowState() causes the shell to fire resize
+    // events that reset the window geometry to its pre-snap size, discarding
+    // any snapped or manually positioned state. To work around this, we save
+    // the geometry before hiding and restore it after the shell has finished
+    // its resize pass (deferred via a zero-delay timer). The window is kept
+    // transparent during the transition to avoid a visible flicker.
+    // See: https://github.com/zealdocs/zeal/issues/699
+    // See: https://bugreports.qt.io/browse/QTBUG-59668
+    if (!m_savedGeometry.isEmpty()) {
+        setWindowOpacity(0.0);
+    }
+#endif
     show();
-    setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
-    raise();
+    setWindowState(windowState() & ~Qt::WindowMinimized);
+#ifdef Q_OS_WINDOWS
+    if (!m_savedGeometry.isEmpty()) {
+        const QByteArray geom = m_savedGeometry;
+        m_savedGeometry.clear();
+        QTimer::singleShot(0, this, [this, geom]() {
+            restoreGeometry(geom);
+            setWindowOpacity(1.0);
+        });
+    }
+#endif
     activateWindow();
+    raise();
 
     if (auto tab = currentTab()) {
         tab->searchSidebar()->focusSearchEdit();
@@ -754,6 +778,9 @@ void MainWindow::toggleWindow()
         bringToFront();
     } else {
         if (m_trayIcon) {
+#ifdef Q_OS_WINDOWS
+            m_savedGeometry = saveGeometry(); // See bringToFront().
+#endif
             hide();
         } else {
             showMinimized();
