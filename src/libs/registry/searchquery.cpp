@@ -26,7 +26,8 @@ SearchQuery SearchQuery::fromString(const QString &str)
 
     QString query;
     QStringList keywords;
-    if (sepAt > 0 && (next >= str.size() || str.at(next) != prefixSeparator)) {
+    const QStringView rest = QStringView{str}.mid(next);
+    if (sepAt > 0 && (!rest.startsWith(u':') || rest.startsWith(u"::"))) {
         query = str.mid(next).trimmed();
 
         const QString keywordStr = str.left(sepAt).trimmed();
