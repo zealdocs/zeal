@@ -289,12 +289,17 @@ void MainWindow::setupMainMenu()
     addAction(action);
     action->setMenuRole(QAction::QuitRole);
 
+    // QKeySequence::Quit is not defined on Windows (maps to Qt::Key_Exit).
+#ifdef Q_OS_WINDOWS
+    action->setShortcut(QStringLiteral("Ctrl+Q"));
+#else
     // Some platform plugins do not define QKeySequence::Quit.
     if (QKeySequence(QKeySequence::Quit).isEmpty()) {
         action->setShortcut(QStringLiteral("Ctrl+Q"));
     } else {
         action->setShortcut(QKeySequence::Quit);
     }
+#endif
 
     // Edit Menu.
     menu = m_menuBar->addMenu(tr("&Edit"));
