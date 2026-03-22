@@ -5,6 +5,7 @@
 #ifndef ZEAL_UTIL_SQLITEDATABASE_H
 #define ZEAL_UTIL_SQLITEDATABASE_H
 
+#include <QMutex>
 #include <QStringList>
 #include <QVariant>
 
@@ -42,8 +43,11 @@ private:
     void finalize();
     void updateLastError();
 
+    mutable QMutex m_mutex;
+
     sqlite3 *m_db = nullptr;
     sqlite3_stmt *m_stmt = nullptr;
+
     QString m_lastError;
 };
 

@@ -4,6 +4,8 @@
 
 #include "sqlitedatabase.h"
 
+#include <QMutexLocker>
+
 #include <sqlite3.h>
 
 using namespace Zeal::Util;
@@ -54,6 +56,7 @@ bool SQLiteDatabase::isOpen() const
 
 QStringList SQLiteDatabase::tables()
 {
+    QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return {};
     }
@@ -76,6 +79,7 @@ QStringList SQLiteDatabase::tables()
 
 QStringList SQLiteDatabase::views()
 {
+    QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return {};
     }
@@ -98,6 +102,7 @@ QStringList SQLiteDatabase::views()
 
 bool SQLiteDatabase::prepare(const QString &sql)
 {
+    QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return false;
     }
@@ -108,14 +113,12 @@ bool SQLiteDatabase::prepare(const QString &sql)
 
     m_lastError.clear();
 
-    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
     const void *pzTail = nullptr;
     const int res = sqlite3_prepare16_v2(m_db,
                                          sql.constData(),
                                          (sql.size() + 1) * 2, // 2 = sizeof(QChar)
                                          &m_stmt,
                                          &pzTail);
-    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
 
     if (res != SQLITE_OK) {
         // "Unable to execute statement"
@@ -136,13 +139,12 @@ bool SQLiteDatabase::prepare(const QString &sql)
 
 bool SQLiteDatabase::next()
 {
+    QMutexLocker locker(&m_mutex);
     if (m_stmt == nullptr) {
         return false;
     }
 
-    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
     const int res = sqlite3_step(m_stmt);
-    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
 
     switch (res) {
     case SQLITE_ROW:
@@ -161,6 +163,7 @@ bool SQLiteDatabase::next()
 
 bool SQLiteDatabase::execute(const QString &sql)
 {
+    QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return false;
     }
@@ -183,6 +186,7 @@ bool SQLiteDatabase::execute(const QString &sql)
 
 QVariant SQLiteDatabase::value(int index) const
 {
+    QMutexLocker locker(&m_mutex);
     Q_ASSERT(index >= 0);
 
     // sqlite3_data_count() returns 0 if m_stmt is nullptr.
@@ -190,30 +194,23 @@ QVariant SQLiteDatabase::value(int index) const
         return QVariant();
     }
 
-    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
     const int type = sqlite3_column_type(m_stmt, index);
-
-    QVariant ret;
 
     switch (type) {
     case SQLITE_INTEGER:
-        ret = sqlite3_column_int64(m_stmt, index);
-        break;
+        return sqlite3_column_int64(m_stmt, index);
     case SQLITE_NULL:
-        ret = QVariant();
-        break;
+        return QVariant();
     default:
-        ret = QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
-                      sqlite3_column_bytes16(m_stmt, index) / 2); // 2 = sizeof(QChar)
-        break;
+        return QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
+                       sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
     }
-
-    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
-    return ret;
 }
 
 QString SQLiteDatabase::lastError() const
 {
+    // QString is not thread-safe for concurrent read+write.
+    QMutexLocker locker(&m_mutex);
     return m_lastError;
 }
 
@@ -225,12 +222,8 @@ void SQLiteDatabase::close()
 
 void SQLiteDatabase::finalize()
 {
-    sqlite3_mutex_enter(sqlite3_db_mutex(m_db));
-
     sqlite3_finalize(m_stmt);
     m_stmt = nullptr;
-
-    sqlite3_mutex_leave(sqlite3_db_mutex(m_db));
 }
 
 void SQLiteDatabase::updateLastError()
