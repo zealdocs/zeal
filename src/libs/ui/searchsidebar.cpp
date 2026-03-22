@@ -230,6 +230,8 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     });
 
     connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this](const QString &name) {
+        m_delayedNavigationTimer->stop();
+
         if (isVisible()) {
             // Disable updates because removeSearchResultWithName can
             // call {begin,end}RemoveRows multiple times, and cause
