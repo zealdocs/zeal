@@ -87,7 +87,7 @@ bool HttpServer::unmount(const QString &prefix)
 
 QString HttpServer::sanitizePrefix(const QString &prefix)
 {
-    QString pfx = (prefix.startsWith(QLatin1String("/")) ? prefix.right(1) : prefix).toLower();
+    QString pfx = (prefix.startsWith(QLatin1String("/")) ? prefix.mid(1) : prefix).toLower();
     pfx.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9-_]")), QStringLiteral("_"));
     pfx.prepend(QLatin1Char('/'));
 
