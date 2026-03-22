@@ -801,12 +801,12 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 
 void DocsetsDialog::removeDocset(const QString &name)
 {
-    if (m_docsetRegistry->contains(name)) {
-        m_docsetRegistry->unloadDocset(name);
+    if (!m_docsetRegistry->contains(name)) {
+        return;
     }
 
-    const QString docsetPath
-            = QDir(m_application->settings()->docsetPath).filePath(name + QLatin1String(".docset"));
+    const QString docsetPath = m_docsetRegistry->docset(name)->path();
+    m_docsetRegistry->unloadDocset(name);
     if (!m_application->fileManager()->removeRecursively(docsetPath)) {
         const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
                                  " by another process.").arg(docsetPath);
