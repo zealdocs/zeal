@@ -179,8 +179,15 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
         if (token != QXmlStreamReader::StartElement)
             continue;
 
-        // Try to pull out the relevant data
-        if (xml.name() == QLatin1String("version")) {
+        if (xml.name() == QLatin1String("name")) {
+            if (xml.readNext() != QXmlStreamReader::Characters) {
+                continue;
+            }
+
+            metadata.m_name = xml.text().toString();
+            metadata.m_title = metadata.m_name;
+            metadata.m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
+        } else if (xml.name() == QLatin1String("version")) {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
             metadata.m_versions << xml.text().toString();
