@@ -13,6 +13,25 @@ project(Zeal
     LANGUAGES CXX
 )
 
+option(ZEAL_USE_COMPILER_CACHE "Enable compiler cache (sccache/ccache)" OFF)
+if(ZEAL_USE_COMPILER_CACHE)
+    find_program(CCACHE_PROGRAM sccache ccache)
+    if(CCACHE_PROGRAM)
+        message(STATUS "Using compiler cache: ${CCACHE_PROGRAM}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+
+        # sccache/ccache don't support MSVC's /Zi (shared PDB). Use /Z7 (embedded debug info) instead.
+        # See: https://github.com/mozilla/sccache?tab=readme-ov-file#usage
+        if(MSVC)
+            foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+                string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}")
+            endforeach()
+        endif()
+    else()
+        message(WARNING "ZEAL_USE_COMPILER_CACHE is enabled but no sccache or ccache found.")
+    endif()
+endif()
+
 # Set to TRUE for a tagged release.
 # NOTE: Don't forget to add a new release entry in the AppStream metadata!
 if(NOT ZEAL_RELEASE_BUILD AND DEFINED ENV{ZEAL_RELEASE_BUILD})
