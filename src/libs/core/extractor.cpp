@@ -62,7 +62,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
 
         const auto filetype = archive_entry_filetype(entry);
         if (filetype == S_IFDIR) {
-            QDir().mkpath(QFileInfo(filePath).absolutePath());
+            QDir().mkpath(filePath);
             continue;
         }
 
@@ -70,6 +70,10 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
             qCWarning(log, "Unsupported filetype %d at '%s'.", filetype, qPrintable(pathname));
             continue;
         }
+
+        // Create parent directories in case they are listed after their children (e.g. erl_tar).
+        // See: https://github.com/zealdocs/zeal/issues/1393
+        QDir().mkpath(QFileInfo(filePath).absolutePath());
 
         QScopedPointer<QFile> file(new QFile(filePath));
         if (!file->open(QIODevice::WriteOnly)) {
