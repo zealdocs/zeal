@@ -165,7 +165,13 @@ void Settings::load()
 #if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
     // Dark mode needs to be applied before Qt WebEngine is initialized.
     if (isDarkModeEnabled()) {
-        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4");
+        QByteArray chromiumFlags = qgetenv("QTWEBENGINE_CHROMIUM_FLAGS");
+        if (!chromiumFlags.isEmpty()) {
+            chromiumFlags += ' ';
+        }
+
+        chromiumFlags += "--blink-settings=forceDarkModeEnabled=true,darkModeInversionAlgorithm=4";
+        qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags);
     }
 #endif
 
