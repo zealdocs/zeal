@@ -61,13 +61,15 @@ if(NOT ZEAL_RELEASE_BUILD)
 
     # TODO: Add support for metadata passed from env, e.g. aur, appimage, etc.
     include(GetVersionFromGit)
-    if(Zeal_GIT_VERSION_SHA)
+    if(Zeal_GIT_VERSION_SHA AND Zeal_GIT_VERSION_AHEAD)
         # Extra check in case we forgot to bump version in project() directive.
         if(NOT PROJECT_VERSION_PATCH EQUAL Zeal_GIT_VERSION_PATCH_NEXT)
             message(WARNING "Incorrect patch version! Forgot to bump?")
         endif()
 
         set(ZEAL_VERSION_SUFFIX "-dev.${Zeal_GIT_VERSION_AHEAD}+${Zeal_GIT_VERSION_SHA}")
+    elseif(Zeal_GIT_VERSION_SHA)
+        set(ZEAL_VERSION_SUFFIX "-dev+${Zeal_GIT_VERSION_SHA}")
     else()
         set(ZEAL_VERSION_SUFFIX "-dev")
     endif()
