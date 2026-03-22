@@ -109,11 +109,6 @@ Docset::Docset(QString path)
         m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
     }
 
-    // TODO: Verify if this is needed
-    if (plist.contains(InfoPlist::DashDocSetFamily)
-            && plist[InfoPlist::DashDocSetFamily].toString() == QLatin1String("cheatsheet")) {
-        m_name = m_name + QLatin1String("cheats");
-    }
 
     if (!dir.cd(QStringLiteral("Resources"))) {
         qCWarning(log, "[%s] Cannot change directory into 'Resources' at '%s'.", qPrintable(m_name), qPrintable(m_path));
