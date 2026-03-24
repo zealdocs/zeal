@@ -19,6 +19,7 @@
   <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
   <url type="help">https://zealdocs.org/usage.html</url>
   <url type="contact">https://go.zealdocs.org/l/contact</url>
+  <url type="vcs-browser">https://github.com/zealdocs/zeal</url>
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
