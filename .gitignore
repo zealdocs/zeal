@@ -15,11 +15,9 @@ build/
 CMakeLists.txt.user
 CMakeUserPresets.json
 
-# AppImage Builder
+# AppImage
 *.AppImage
 *.AppImage.zsync
-appimage-builder-cache/
-squashfs-root/
 
 # WiX Toolset
 *.msi
