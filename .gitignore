@@ -30,5 +30,8 @@ CMakeUserPresets.json
 # VS Code
 .vscode/
 
+# Chocolatey
+*.nupkg
+
 # Linux appdata
 /assets/freedesktop/org.zealdocs.zeal.appdata.xml

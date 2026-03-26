@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org> -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Do not remove this test for UTF-8: if "Ω" doesn't appear as greek
+     uppercase omega letter enclosed in quotation marks, you should use an
+     editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>zeal.install</id>
+    <version>0.8.0</version>
+    <title>Zeal (Install)</title>
+    <authors>Oleg Shparber</authors>
+    <owners>trollixx</owners>
+    <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
+    <projectUrl>https://zealdocs.org/</projectUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.8.0/src/app/resources/icons/logo/128x128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description><![CDATA[Zeal is an offline documentation browser inspired by [Dash](https://kapeli.com/dash/).
+
+![Zeal Screenshot](https://i.imgur.com/lWso18u.png)
+
+## Features
+
+- Over 200 docsets available for immediate download.
+- Downloaded docsets do not require Internet connection.
+- Global shortcut support for quick access.
+- Fast search across installed docsets.
+- Search prefixes to limit scope to select docsets.
+- [IDE integration](https://zealdocs.org/usage.html#plugins): VS Code, IDEA, Sublime Text, and many others.
+]]></description>
+    <summary>A simple offline documentation browser inspired by Dash.</summary>
+    <releaseNotes>https://github.com/zealdocs/zeal/releases/tag/v0.8.0</releaseNotes>
+    <copyright>Copyright © 2015-2026 Oleg Shparber</copyright>
+    <tags>zeal admin api dash dev developer docs docset documentation help tools</tags>
+    <projectSourceUrl>https://github.com/zealdocs/zeal</projectSourceUrl>
+    <packageSourceUrl>https://github.com/zealdocs/zeal/tree/main/pkg/chocolatey</packageSourceUrl>
+    <bugTrackerUrl>https://github.com/zealdocs/zeal/issues</bugTrackerUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

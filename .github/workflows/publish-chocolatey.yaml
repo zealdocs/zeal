@@ -1,0 +1,75 @@
+name: Publish Chocolatey Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version (without 'v' prefix)"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: pkg/chocolatey
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Extract Version
+        id: version
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ inputs.version }}"
+          } else {
+            $version = "${{ github.event.release.tag_name }}".TrimStart('v')
+          }
+          Write-Output "Chocolatey package version: $version"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Update Package Files
+        run: ./update.ps1 -Version ${{ steps.version.outputs.version }}
+
+      - name: Pack zeal.install
+        run: choco pack zeal.install/zeal.install.nuspec
+
+      - name: Pack zeal.portable
+        run: choco pack zeal.portable/zeal.portable.nuspec
+
+      - name: Pack zeal
+        run: choco pack zeal/zeal.nuspec
+
+      - name: Push zeal.install
+        run: choco push zeal.install.${{ steps.version.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+
+      - name: Push zeal.portable
+        run: choco push zeal.portable.${{ steps.version.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+
+      - name: Push zeal
+        run: choco push zeal.${{ steps.version.outputs.version }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+
+      - name: Commit Updated Files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A pkg/chocolatey/
+          git diff --staged --quiet && echo "No changes to commit." && exit 0
+          git commit -m "chore(chocolatey): update packages to v${{ steps.version.outputs.version }}"
+          git pull --rebase origin main
+          git push
+        working-directory: ${{ github.workspace }}
