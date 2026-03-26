@@ -43,7 +43,6 @@ jobs:
             buildPreset: ninja-multi-vcpkg-portable-release
 
     env:
-      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
       VCPKG_BUILD_TYPE: release
       VCPKG_DEFAULT_TRIPLET: x64-windows
       ZEAL_RELEASE_BUILD: ON
@@ -53,14 +52,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
-      - name: Prepare vcpkg binary cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/.vcpkg-cache
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles(format('build/{0}/vcpkg_installed/vcpkg/status', matrix.config.configurePreset)) }}
-          restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-
 
       - name: Prepare vcpkg
         uses: lukka/run-vcpkg@v11

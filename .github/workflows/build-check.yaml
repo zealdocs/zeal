@@ -157,12 +157,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Workaround for https://github.com/lukka/run-vcpkg/issues/251.
-      - name: Prepare vcpkg binary cache
+      # TODO: Find a way to include compiler version in the cache key so that
+      # runner image updates don't require manual cache deletion.
+      - name: Restore vcpkg binary cache
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/.vcpkg-cache
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles(format('build/{0}/vcpkg_installed/vcpkg/status', matrix.config.configurePreset)) }}
+          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-
 
       - name: Prepare vcpkg
