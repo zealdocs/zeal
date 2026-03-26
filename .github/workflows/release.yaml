@@ -115,25 +115,66 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq --no-install-recommends install \
+            appstream \
+            cmake \
+            extra-cmake-modules \
+            libarchive-dev \
+            libfuse2t64 \
+            libgl1-mesa-dev \
+            libqt6opengl6-dev \
+            libsqlite3-dev \
+            libvulkan-dev \
+            libxcb-keysyms1-dev \
+            ninja-build \
+            qt6-base-private-dev \
+            qt6-webengine-dev \
+            qt6-webengine-dev-tools
+
+      - name: Install linuxdeploy
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-appimage-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy*.AppImage
+
+      - name: Configure & Build
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DZEAL_RELEASE_BUILD=ON
+          cmake --build build
+
+      - name: Retrieve Application Version
+        run: |
+          zeal_version=$(<build/zeal_version)
+          echo "Zeal Version: ${zeal_version}"
+          echo "ZEAL_VERSION=${zeal_version}" >> $GITHUB_ENV
+
+      - name: Prepare AppDir
+        run: DESTDIR=${{ github.workspace }}/AppDir cmake --install build
+
+      - name: Validate AppStream Metadata
+        run: appstreamcli validate AppDir/usr/share/metainfo/org.zealdocs.zeal.appdata.xml
+
+      - name: Set Up AppRun Hooks
+        run: |
+          mkdir -p AppDir/apprun-hooks
+          echo 'export QTWEBENGINE_DISABLE_SANDBOX=1' > AppDir/apprun-hooks/qtwebengine.sh
+
       - name: Build AppImage
-        uses: ./.github/workflows/appimage/
-        with:
-          recipe: pkg/appimage/appimage-amd64.yaml
-          apt_dependencies: >-
-            appstream
-            build-essential
-            cmake extra-cmake-modules
-            libayatana-appindicator3-dev
-            libarchive-dev
-            libqt5x11extras5-dev
-            libsqlite3-dev
-            libxcb-keysyms1-dev
-            ninja-build
-            qtbase5-dev
-            qtwebengine5-dev
+        run: |
+          export QMAKE=$(which qmake6)
+          export OUTPUT=Zeal-${{ env.ZEAL_VERSION }}-x86_64.AppImage
+          export LDAI_UPDATE_INFORMATION="gh-releases-zsync|zealdocs|zeal|latest|Zeal-*x86_64.AppImage.zsync"
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --plugin qt \
+            --output appimage
 
       - name: Generate Digest Files
-        run: for file in zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
+        run: for file in Zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
 
       - name: Update GitHub Release
         uses: softprops/action-gh-release@v2
@@ -141,7 +182,7 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            zeal-*.AppImage*
+            Zeal-*.AppImage*
 
   build-ubuntu:
     name: ${{ matrix.config.name }}
