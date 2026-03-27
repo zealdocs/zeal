@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org> -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- This manifest is merged with the linker-generated one at build time.
      See: https://cmake.org/cmake/help/latest/release/3.4.html
      See: https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests -->

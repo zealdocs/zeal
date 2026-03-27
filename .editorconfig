@@ -23,5 +23,8 @@ indent_size = 2
 [*.{yaml,yml}]
 indent_size = 2
 
+[*.manifest]
+indent_size = 2
+
 [*.nuspec]
 indent_size = 2
