@@ -91,7 +91,7 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 endif()
 
-option(BUILD_TESTING "Build the testing suite" ON)
+option(BUILD_TESTING "Build the testing suite" OFF)
 if(BUILD_TESTING)
     enable_testing()
 endif()
