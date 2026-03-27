@@ -76,16 +76,16 @@ if ($Version) {
 
     $path = Join-Path $root 'zeal.install\tools\chocolateyinstall.ps1'
     $content = Get-Content $path -Raw
-    $newContent = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $msiChecksum
-    if ($newContent -eq $content) { throw "Failed to update MSI checksum in $path" }
-    Set-Content $path $newContent -NoNewline
+    if ($content -notmatch '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}') { throw "Checksum pattern not found in $path" }
+    $content = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $msiChecksum
+    Set-Content $path $content -NoNewline
     Write-Information "Updated MSI checksum"
 
     $path = Join-Path $root 'zeal.portable\tools\chocolateyinstall.ps1'
     $content = Get-Content $path -Raw
-    $newContent = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $portableChecksum
-    if ($newContent -eq $content) { throw "Failed to update portable checksum in $path" }
-    Set-Content $path $newContent -NoNewline
+    if ($content -notmatch '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}') { throw "Checksum pattern not found in $path" }
+    $content = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $portableChecksum
+    Set-Content $path $content -NoNewline
     Write-Information "Updated portable checksum"
 
     Write-Information "`nDone. Updated to v$Version."
