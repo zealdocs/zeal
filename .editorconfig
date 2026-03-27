@@ -22,3 +22,10 @@ indent_size = 2
 
 [*.{yaml,yml}]
 indent_size = 2
+
+[*.nuspec]
+indent_size = 2
+
+[*.ps1]
+# https://docs.chocolatey.org/en-us/create/create-packages#character-encoding
+charset = utf-8-bom
