@@ -1,4 +1,4 @@
-﻿# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
+# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
 # SPDX-License-Identifier: MIT
 
 $ErrorActionPreference = 'Stop'

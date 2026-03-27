@@ -1,4 +1,4 @@
-﻿# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
+# SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org>
 # SPDX-License-Identifier: MIT
 
 param(
@@ -67,11 +67,10 @@ if ($Version) {
 
     foreach ($file in $files) {
         $path = Join-Path $root $file
-        $encoding = if ($path -like '*.ps1') { 'utf8BOM' } else { 'utf8NoBOM' }
         $content = Get-Content $path -Raw
         $content = $content -replace '\d+\.\d+\.\d+', $Version
         $content = $content -replace $copyrightPattern, $copyrightReplace
-        Set-Content $path $content -NoNewline -Encoding $encoding
+        Set-Content $path $content -NoNewline
         Write-Information "Updated $file"
     }
 
@@ -79,14 +78,14 @@ if ($Version) {
     $content = Get-Content $path -Raw
     if ($content -notmatch '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}') { throw "Checksum pattern not found in $path" }
     $content = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $msiChecksum
-    Set-Content $path $content -NoNewline -Encoding utf8BOM
+    Set-Content $path $content -NoNewline
     Write-Information "Updated MSI checksum"
 
     $path = Join-Path $root 'zeal.portable\tools\chocolateyinstall.ps1'
     $content = Get-Content $path -Raw
     if ($content -notmatch '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}') { throw "Checksum pattern not found in $path" }
     $content = $content -replace '(?<=Checksum64\s+=\s+'')[a-f0-9]{64}', $portableChecksum
-    Set-Content $path $content -NoNewline -Encoding utf8BOM
+    Set-Content $path $content -NoNewline
     Write-Information "Updated portable checksum"
 
     Write-Information "`nDone. Updated to v$Version."
