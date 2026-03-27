@@ -7,8 +7,11 @@
 
 #include <httplib.h>
 
+#include <QDir>
 #include <QLoggingCategory>
+#include <QReadLocker>
 #include <QRegularExpression>
+#include <QWriteLocker>
 
 using namespace Zeal::Core;
 
@@ -29,7 +32,29 @@ HttpServer::HttpServer(QObject *parent)
     m_baseUrl.setHost(LocalHttpServerHost);
     m_baseUrl.setPort(port);
 
-    m_server->set_error_handler([](const auto& req, auto& res) {
+    m_server->set_error_handler([this](const auto& req, auto& res) {
+        // On 404, try case-insensitive path resolution.
+        // Docsets generated on macOS (case-insensitive) may have links with mismatched case.
+        // See: https://github.com/zealdocs/zeal/issues/1009
+        if (res.status == 404) {
+            const QString reqPath = QString::fromStdString(req.path);
+            QReadLocker locker(&m_mountPointsLock);
+            for (auto it = m_mountPoints.constBegin(); it != m_mountPoints.constEnd(); ++it) {
+                const QString prefix = it.key() + QLatin1Char('/');
+                if (!reqPath.startsWith(prefix)) {
+                    continue;
+                }
+
+                const QString relPath = reqPath.mid(prefix.length());
+                const QString resolved = resolvePathCaseInsensitive(it.value(), relPath);
+                if (!resolved.isEmpty()) {
+                    const std::string redirect = QString(it.key() + resolved).toStdString();
+                    res.set_redirect(redirect, 301);
+                    return;
+                }
+            }
+        }
+
         const QString html = QStringLiteral("<b>ERROR %1</b><br><pre>Request path: %2</pre>")
                 .arg(res.status)
                 .arg(QString::fromStdString(req.path));
@@ -65,6 +90,11 @@ QUrl HttpServer::mount(const QString &prefix, const QString &path)
         return QUrl();
     }
 
+    {
+        QWriteLocker locker(&m_mountPointsLock);
+        m_mountPoints[pfx] = path;
+    }
+
     qCDebug(log, "Mounted '%s' to '%s'.", qPrintable(path), qPrintable(pfx));
 
     QUrl mountUrl = m_baseUrl;
@@ -80,9 +110,48 @@ bool HttpServer::unmount(const QString &prefix)
         qCWarning(log, "Failed to unmount '%s' to '%s'.", qPrintable(prefix), qPrintable(pfx));
     }
 
+    {
+        QWriteLocker locker(&m_mountPointsLock);
+        m_mountPoints.remove(pfx);
+    }
+
     qCDebug(log, "Unmounted prefix '%s' ('%s').", qPrintable(prefix), qPrintable(pfx));
 
     return ok;
+}
+
+// Walks the directory tree matching each path component case-insensitively.
+// Returns the corrected relative path, or empty string if no match is found.
+QString HttpServer::resolvePathCaseInsensitive(const QString &root, const QString &path)
+{
+    const QStringList components = path.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+    if (components.isEmpty()) {
+        return {};
+    }
+
+    QDir dir(root);
+    QString resolved;
+
+    for (const QString &component : components) {
+        const QStringList entries = dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        QString match;
+        for (const QString &entry : entries) {
+            if (entry.compare(component, Qt::CaseInsensitive) == 0) {
+                match = entry;
+                break;
+            }
+        }
+
+        if (match.isEmpty()) {
+            return {};
+        }
+
+        resolved += QLatin1Char('/') + match;
+        dir.cd(match);
+    }
+
+    return resolved;
 }
 
 QString HttpServer::sanitizePrefix(const QString &prefix)

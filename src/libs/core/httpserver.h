@@ -4,7 +4,9 @@
 #ifndef ZEAL_CORE_HTTPSERVER_H
 #define ZEAL_CORE_HTTPSERVER_H
 
+#include <QHash>
 #include <QObject>
+#include <QReadWriteLock>
 #include <QUrl>
 
 #include <future>
@@ -32,11 +34,17 @@ public:
 
 private:
     static QString sanitizePrefix(const QString &prefix);
+    static QString resolvePathCaseInsensitive(const QString &root, const QString &path);
 
     std::unique_ptr<httplib::Server> m_server;
-    std::future<bool> m_future;
 
     QUrl m_baseUrl;
+    QReadWriteLock m_mountPointsLock;
+    QHash<QString, QString> m_mountPoints;
+
+    // Must be last - its destructor blocks until the async thread completes,
+    // ensuring the members above are still valid during shutdown.
+    std::future<bool> m_future;
 };
 
 } // namespace Core
