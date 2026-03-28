@@ -39,6 +39,7 @@
 #include <QTabBar>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QWindow>
 
 using namespace Zeal;
 using namespace Zeal::WidgetUi;
@@ -657,6 +658,11 @@ void MainWindow::bringToFront()
 #endif
     activateWindow();
     raise();
+
+    // Use _NET_ACTIVE_WINDOW on X11 to bypass focus-stealing prevention.
+    if (QWindow *w = windowHandle()) {
+        w->requestActivate();
+    }
 
     if (auto tab = currentTab()) {
         tab->searchSidebar()->focusSearchEdit();
