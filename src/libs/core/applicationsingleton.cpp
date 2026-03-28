@@ -6,11 +6,17 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFile>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
 #include <QScopedPointer>
 #include <QSharedMemory>
+
+#ifdef Q_OS_UNIX
+#include <errno.h>
+#include <signal.h>
+#endif
 
 using namespace Zeal::Core;
 
@@ -44,17 +50,60 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
     }
 
 #ifdef Q_OS_UNIX
-    // Verify it's not a segment that survived an application crash.
-    m_sharedMemory->attach();
-    m_sharedMemory->detach();
+    // Check if the shared memory segment belongs to a running instance.
+    // NOTE: There is a small race window where the primary could exit between
+    // the kill() check and the subsequent sendMessage() call in the secondary
+    // path. This is unlikely in practice and not currently handled.
+    if (m_sharedMemory->attach(QSharedMemory::ReadOnly)) {
+        qint64 stalePid = 0;
+        if (m_sharedMemory->lock()) {
+            auto sd = static_cast<const SharedData *>(m_sharedMemory->constData());
+            stalePid = sd ? sd->primaryPid : 0;
+            m_sharedMemory->unlock();
+        } else {
+            qCWarning(log) << "Cannot lock shared memory for PID probe:"
+                           << m_sharedMemory->errorString();
+        }
 
-    m_isPrimary = m_sharedMemory->create(sizeof(SharedData));
-    if (m_isPrimary) {
-        setupPrimary();
-        return;
+        // kill() with EPERM means the process exists but we lack permission to signal it.
+        errno = 0;
+        const bool isAlive = (stalePid > 0
+            && (kill(static_cast<pid_t>(stalePid), 0) == 0 || errno == EPERM));
+
+        if (isAlive) {
+            setupSecondary();
+            return;
+        }
+
+        m_sharedMemory->detach();
+
+        qCInfo(log, "Detected stale shared memory from PID %lld, reclaiming.", stalePid);
+
+        // On some platforms (e.g., Termux) Qt's POSIX shared memory backend
+        // does not remove the backing file on detach. Remove it explicitly.
+        // The native key is a POSIX shm name (e.g., /qipc_sharedmemory_...).
+        // On Termux, the backing file is in QDir::tempPath() + nativeKey.
+        const QString nativeKey = m_sharedMemory->nativeKey();
+        if (!nativeKey.isEmpty()) {
+            // Check existence first to avoid a spurious warning on platforms
+            // where the backing file is in /dev/shm (not tempPath).
+            const QString shmFile = QDir::tempPath() + nativeKey;
+            if (QFile::exists(shmFile)) {
+                if (!QFile::remove(shmFile)) {
+                    qCWarning(log) << "Cannot remove stale shared memory file:" << shmFile;
+                }
+            }
+        }
+
+        m_isPrimary = m_sharedMemory->create(sizeof(SharedData));
+        if (m_isPrimary) {
+            setupPrimary();
+            return;
+        }
     }
 #endif
 
+    // Fall back to secondary if we couldn't reclaim the segment.
     if (!m_sharedMemory->attach(QSharedMemory::ReadOnly)) {
         qCWarning(log) << "Cannot attach to the shared memory segment:"
                        << m_sharedMemory->errorString();
