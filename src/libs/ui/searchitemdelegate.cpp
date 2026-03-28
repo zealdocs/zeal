@@ -8,7 +8,7 @@
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QPainter>
-#include <QPainterPath>
+#include <QSet>
 #include <QToolTip>
 
 #include <algorithm>
@@ -119,63 +119,11 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
             .adjusted(margin, 0, -margin, 0);
     const QFontMetrics &fm = opt.fontMetrics;
-    const QString elidedText = fm.elidedText(opt.text, opt.textElideMode, textRect.width());
+    // Force ElideRight so match position indices map 1:1 to the visible text.
+    const QString elidedText = fm.elidedText(opt.text, Qt::ElideRight, textRect.width());
 
     // Get pre-computed match positions from model for highlighting.
     const QVector<int> matchPositions = index.data(m_textHighlightRole).value<QVector<int>>();
-    if (!matchPositions.isEmpty()) {
-        painter->save();
-        painter->setRenderHint(QPainter::Antialiasing);
-        painter->setPen(QColor::fromRgb(255, 253, 0));
-
-        const QColor highlightColor
-                = (opt.state & (QStyle::State_Selected | QStyle::State_HasFocus))
-                ? QColor::fromRgb(255, 255, 100, 20) : QColor::fromRgb(255, 255, 100, 120);
-
-        {
-            // Group consecutive positions to reduce number of highlight rectangles
-            const int matchCount = matchPositions.size();
-
-            int startPos = matchPositions[0];
-            int endPos = matchPositions[0];
-
-            for (int i = 1; i <= matchCount; ++i) {
-                const bool isLast = (i == matchCount);
-                const bool isConsecutive = !isLast && (matchPositions[i] == endPos + 1);
-
-                if (isConsecutive) {
-                    endPos = matchPositions[i];
-                    continue;
-                }
-
-                // Draw highlight for [startPos, endPos]
-                // Use FULL text (opt.text) for position calculation, not elided text
-                const int highlightStart = startPos;
-                const int highlightLen = endPos - startPos + 1;
-
-                QRect highlightRect = textRect.adjusted(fm.horizontalAdvance(opt.text.left(highlightStart)), 2, 0, -2);
-                highlightRect.setWidth(fm.horizontalAdvance(opt.text.mid(highlightStart, highlightLen)));
-
-                // Clip highlight to visible text area (handles elided text correctly)
-                highlightRect = highlightRect.intersected(textRect.adjusted(0, 2, 0, -2));
-
-                // Only draw if rectangle is valid after clipping
-                if (highlightRect.isValid() && !highlightRect.isEmpty()) {
-                    QPainterPath path;
-                    path.addRoundedRect(highlightRect, 2, 2);
-                    painter->fillPath(path, highlightColor);
-                    painter->drawPath(path);
-                }
-
-                if (!isLast) {
-                    startPos = matchPositions[i];
-                    endPos = matchPositions[i];
-                }
-            }
-        }
-
-        painter->restore();
-    }
 
     painter->save();
 
@@ -195,13 +143,61 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     else
         painter->setPen(opt.palette.color(cg, QPalette::Text));
 
-    // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behaviour.
     const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, opt.displayAlignment,
                                                  QSize(textRect.size().width(), fm.height()), textRect);
-    const auto textPoint = QPoint(alignedRect.x(), alignedRect.y() + fm.ascent());
-    // Force LTR, so that BiDi won't reorder ellipsis to the left.
-    painter->drawText(textPoint, elidedText, Qt::TextFlag::TextForceLeftToRight, 0);
+
+    if (matchPositions.isEmpty()) {
+        const auto textPoint = QPoint(alignedRect.x(), alignedRect.y() + fm.ascent());
+        painter->drawText(textPoint, elidedText, Qt::TextFlag::TextForceLeftToRight, 0);
+    } else {
+        // Draw text segments, bolding matched characters.
+        QFont normalFont = painter->font();
+        QFont boldFont = normalFont;
+        boldFont.setBold(true);
+        const QFontMetrics normalFm(normalFont);
+        const QFontMetrics boldFm(boldFont);
+
+        const QColor matchColor = (opt.state & QStyle::State_Selected)
+                ? opt.palette.color(cg, QPalette::HighlightedText)
+                : opt.palette.color(QPalette::Active, QPalette::Highlight);
+        const QColor textColor = painter->pen().color();
+
+        QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
+
+        // Match positions are indices into the original text. When elided,
+        // stop highlighting before the ellipsis to avoid mismatched indices.
+        const bool isElided = (elidedText != opt.text);
+        const int highlightLen = isElided ? elidedText.length() - 1 : elidedText.length();
+
+        int x = alignedRect.x();
+        const int y = alignedRect.y() + fm.ascent();
+
+        // Draw highlighted portion of text.
+        int i = 0;
+        while (i < highlightLen) {
+            const bool matched = matchSet.contains(i);
+            int runEnd = i + 1;
+            while (runEnd < highlightLen && matchSet.contains(runEnd) == matched) {
+                ++runEnd;
+            }
+
+            const QString segment = elidedText.mid(i, runEnd - i);
+            painter->setFont(matched ? boldFont : normalFont);
+            painter->setPen(matched ? matchColor : textColor);
+            painter->drawText(QPoint(x, y), segment, Qt::TextFlag::TextForceLeftToRight, 0);
+            x += (matched ? boldFm : normalFm).horizontalAdvance(segment);
+            i = runEnd;
+        }
+
+        // Draw the ellipsis (if any) in normal style.
+        if (isElided) {
+            painter->setFont(normalFont);
+            painter->setPen(textColor);
+            painter->drawText(QPoint(x, y), elidedText.right(1), Qt::TextFlag::TextForceLeftToRight, 0);
+        }
+    }
+
     painter->restore();
 }
 
