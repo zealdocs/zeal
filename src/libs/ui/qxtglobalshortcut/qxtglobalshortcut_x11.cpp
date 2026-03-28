@@ -105,21 +105,35 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
     return native;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativeMods)
 {
+    extraNativeMods = 0;
     quint32 native = 0;
 
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
     if (keysym == XCB_NO_SYMBOL)
         keysym = static_cast<ushort>(key);
 
-    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(QX11Info::connection());
+    xcb_connection_t *conn = QX11Info::connection();
+    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(conn);
 
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
                 xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
 
-    if (!keycodes.isNull())
+    if (!keycodes.isNull()) {
         native = keycodes.data()[0]; // Use the first keycode
+
+        // Check if Shift is needed to produce this keysym.
+        // If the keysym at group 0, level 0 (no modifiers) differs from
+        // our target, but group 0, level 1 (Shift) matches, then Shift
+        // is an implicit modifier.
+        KeySym unshifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 0);
+        if (unshifted != keysym) {
+            KeySym shifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 1);
+            if (shifted == keysym)
+                extraNativeMods |= XCB_MOD_MASK_SHIFT;
+        }
+    }
 
     xcb_key_symbols_free(xcbKeySymbols);
 
