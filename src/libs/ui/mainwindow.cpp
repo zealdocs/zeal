@@ -327,11 +327,16 @@ void MainWindow::setupMainMenu()
     addAction(action);
     action->setMenuRole(QAction::PreferencesRole);
 
+    // QKeySequence::Preferences is not defined on Windows.
+#ifdef Q_OS_WINDOWS
+    action->setShortcut(QStringLiteral("Ctrl+,"));
+#else
     if (QKeySequence(QKeySequence::Preferences).isEmpty()) {
         action->setShortcut(QStringLiteral("Ctrl+,"));
     } else {
         action->setShortcut(QKeySequence::Preferences);
     }
+#endif
 
     connect(action, &QAction::triggered, this, [this]() {
         if (m_globalShortcut) {
