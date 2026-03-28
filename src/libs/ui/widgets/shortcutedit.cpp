@@ -64,19 +64,21 @@ void ShortcutEdit::setKeySequence(const QKeySequence &keySequence)
     setText(keySequence.toString(QKeySequence::NativeText));
 }
 
-// Inspired by QKeySequenceEditPrivate::translateModifiers()
 int ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString &text)
 {
-    int modifiers = 0;
-    // The shift modifier only counts when it is not used to type a symbol
-    // that is only reachable using the shift key
-    if ((state & Qt::ShiftModifier)
-            && (text.isEmpty() || !text.at(0).isPrint()
-                || text.at(0).isLetterOrNumber() || text.at(0).isSpace())) {
-        modifiers |= Qt::ShiftModifier;
+    int modifiers = state & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
+
+    // Strip Shift when it was used to produce a printable symbol (e.g., Shift+/ = ?),
+    // so the shortcut displays as Ctrl+? rather than Ctrl+Shift+?.
+    // The actual Shift modifier is recovered during native hotkey registration.
+    if (state & Qt::ShiftModifier) {
+        const bool isShiftedSymbol = !text.isEmpty()
+            && text.at(0).isPrint()
+            && !text.at(0).isLetterOrNumber()
+            && !text.at(0).isSpace();
+        if (!isShiftedSymbol)
+            modifiers |= Qt::ShiftModifier;
     }
-    modifiers |= state & Qt::ControlModifier;
-    modifiers |= state & Qt::MetaModifier;
-    modifiers |= state & Qt::AltModifier;
+
     return modifiers;
 }

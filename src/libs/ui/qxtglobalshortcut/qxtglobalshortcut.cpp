@@ -79,8 +79,9 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 
     key = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key(combination & ~Qt::KeyboardModifierMask);
     mods = shortcut.isEmpty() ? Qt::NoModifier : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
-    const quint32 nativeKey = nativeKeycode(key);
-    const quint32 nativeMods = nativeModifiers(mods);
+    quint32 extraNativeMods = 0;
+    const quint32 nativeKey = nativeKeycode(key, extraNativeMods);
+    const quint32 nativeMods = nativeModifiers(mods) | extraNativeMods;
     const bool res = registerShortcut(nativeKey, nativeMods);
     if (!res) {
         qCWarning(log, "Failed to register '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
@@ -96,8 +97,9 @@ bool QxtGlobalShortcutPrivate::unsetShortcut()
 {
     Q_Q(QxtGlobalShortcut);
 
-    const quint32 nativeKey = nativeKeycode(key);
-    const quint32 nativeMods = nativeModifiers(mods);
+    quint32 extraNativeMods = 0;
+    const quint32 nativeKey = nativeKeycode(key, extraNativeMods);
+    const quint32 nativeMods = nativeModifiers(mods) | extraNativeMods;
 
     if (shortcuts.value({nativeKey, nativeMods}) != q) {
         qCWarning(log, "Tried to unregister unowned '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));

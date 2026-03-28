@@ -26,9 +26,10 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
     return 0;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativeMods)
 {
     Q_UNUSED(key)
+    extraNativeMods = 0;
 
     return 0;
 }

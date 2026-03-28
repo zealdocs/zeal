@@ -90,8 +90,9 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
     return native;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativeMods)
 {
+    extraNativeMods = 0;
     UTF16Char ch;
     // Constants found in NSEvent.h from AppKit.framework
     switch (key) {
@@ -224,15 +225,21 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
         for (quint32 j = 0; j < charTable->keyToCharTableCount; ++j) {
             UCKeyOutput *keyToChar = reinterpret_cast<UCKeyOutput *>(data + charTable->keyToCharTableOffsets[j]);
             for (quint32 k = 0; k < charTable->keyToCharTableSize; ++k) {
+                bool found = false;
                 if (keyToChar[k] & kUCKeyOutputTestForIndexMask) {
                     long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
                     if (stateRec && idx < stateRec->keyStateRecordCount) {
                         UCKeyStateRecord *rec = reinterpret_cast<UCKeyStateRecord *>(data + stateRec->keyStateRecordOffsets[idx]);
-                        if (rec->stateZeroCharData == ch) return k;
+                        if (rec->stateZeroCharData == ch) found = true;
                     }
                 } else if (!(keyToChar[k] & kUCKeyOutputSequenceIndexMask) && keyToChar[k] < 0xFFFE) {
-                    if (keyToChar[k] == ch)
-                        return k;
+                    if (keyToChar[k] == ch) found = true;
+                }
+                if (found) {
+                    // Table index 0 = no modifiers, 1 = Shift.
+                    if (j == 1)
+                        extraNativeMods |= shiftKey;
+                    return k;
                 }
             } // for k
         } // for j

@@ -75,8 +75,9 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
     return native;
 }
 
-quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
+quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativeMods)
 {
+    extraNativeMods = 0;
     switch (key) {
     case Qt::Key_Escape:
         return VK_ESCAPE;
@@ -235,6 +236,20 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key)
         return key;
 
     default:
+        // For keys not in the switch (shifted symbols like ?, !, etc.),
+        // ask Windows to resolve the character to a virtual key + shift state.
+        if (key <= 0xFFFF) {
+            const SHORT vk = VkKeyScanW(static_cast<WCHAR>(key));
+            if (vk != -1) {
+                if (HIBYTE(vk) & 1)
+                    extraNativeMods |= MOD_SHIFT;
+                if (HIBYTE(vk) & 2)
+                    extraNativeMods |= MOD_CONTROL;
+                if (HIBYTE(vk) & 4)
+                    extraNativeMods |= MOD_ALT;
+                return LOBYTE(vk);
+            }
+        }
         return 0;
     }
 }
