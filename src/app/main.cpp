@@ -18,7 +18,10 @@
 #include <QUrlQuery>
 
 #ifdef Q_OS_WINDOWS
+#include <QAbstractNativeEventFilter>
+#include <QPalette>
 #include <QSettings>
+#include <QStyleHints>
 
 #include <Windows.h>
 
@@ -28,6 +31,39 @@
 #include <cstdlib>
 
 using namespace Zeal;
+
+#if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+// Windows fills new window client areas with COLOR_WINDOW (always white, even in dark mode)
+// via WM_ERASEBKGND before Qt gets to paint. This filter intercepts the message and fills
+// with the current palette color instead, preventing a white flash on window creation.
+// See QTBUG-106583 and https://codereview.qt-project.org/c/qt/qtbase/+/440060 (reverted).
+class DarkModeEraseFilter : public QAbstractNativeEventFilter
+{
+public:
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override
+    {
+        Q_UNUSED(eventType)
+        auto *msg = static_cast<MSG *>(message);
+        if (msg->message == WM_ERASEBKGND) {
+            const QColor bg = QApplication::palette().color(QPalette::Window);
+            auto hdc = reinterpret_cast<HDC>(msg->wParam);
+            RECT rc;
+            GetClientRect(msg->hwnd, &rc);
+            HBRUSH brush = CreateSolidBrush(RGB(bg.red(), bg.green(), bg.blue()));
+            FillRect(hdc, &rc, brush);
+            DeleteObject(brush);
+            *result = 1;
+
+            // Remove ourselves after the first paint — only needed for startup.
+            QApplication::instance()->removeNativeEventFilter(this);
+
+            return true;
+        }
+
+        return false;
+    }
+};
+#endif
 
 struct CommandLineParameters
 {
@@ -190,6 +226,13 @@ int main(int argc, char *argv[])
 #endif
 
     QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
+
+#if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    DarkModeEraseFilter darkModeEraseFilter;
+    if (qapp->styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+        qapp->installNativeEventFilter(&darkModeEraseFilter);
+    }
+#endif
 
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 
