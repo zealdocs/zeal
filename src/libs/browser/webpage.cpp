@@ -10,11 +10,13 @@
 #include <core/networkaccessmanager.h>
 #include <core/settings.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QPalette>
 #include <QPushButton>
 
 using namespace Zeal::Browser;
@@ -24,6 +26,16 @@ static Q_LOGGING_CATEGORY(log, "zeal.browser.webpage")
 WebPage::WebPage(QObject *parent)
     : QWebEnginePage(Settings::defaultProfile(), parent)
 {
+    // Set the page backdrop to match the theme, preventing a white flash during navigation.
+    // TODO: Use a dedicated content appearance signal instead of the catch-all updated().
+    applyBackgroundColor();
+    connect(Core::Application::instance()->settings(), &Core::Settings::updated,
+            this, &WebPage::applyBackgroundColor);
+}
+
+void WebPage::applyBackgroundColor()
+{
+    setBackgroundColor(QApplication::palette().color(QPalette::Window));
 }
 
 bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::NavigationType type, bool isMainFrame)
