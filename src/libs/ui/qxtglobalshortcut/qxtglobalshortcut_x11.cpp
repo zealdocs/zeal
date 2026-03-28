@@ -33,6 +33,7 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QGuiApplication>
+#include <QKeyEvent>
 #include <QKeySequence>
 #include <QScopedPointer>
 #include <QVector>
@@ -41,9 +42,13 @@
 #include <QX11Info>
 #else
 #include <QtGui/private/qtx11extras_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
+// X11 headers define KeyPress/KeyRelease as macros that conflict with Qt enums.
 #include <X11/Xlib.h>
+#undef KeyPress
+#undef KeyRelease
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 
@@ -110,7 +115,14 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     extraNativeMods = 0;
     quint32 native = 0;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Use Qt's complete internal keysym table (covers media, launch, and all special keys).
+    QKeyEvent dummy(QEvent::KeyPress, key, Qt::NoModifier);
+    const auto keysyms = QXkbCommon::toKeysym(&dummy);
+    KeySym keysym = keysyms.isEmpty() ? XCB_NO_SYMBOL : keysyms.first();
+#else
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
+#endif
     if (keysym == XCB_NO_SYMBOL)
         keysym = static_cast<ushort>(key);
 
@@ -120,6 +132,7 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
                 xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
 
+    // Silently returns 0 on failure; registration will fail downstream.
     if (!keycodes.isNull()) {
         native = keycodes.data()[0]; // Use the first keycode
 
