@@ -215,6 +215,18 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
+    // Handle --version before creating QApplication to avoid
+    // initializing the platform/graphics stack just to print a version string.
+    {
+        QCoreApplication coreApp(argc, argv);
+        QCommandLineParser parser;
+        parser.addVersionOption();
+        parser.parse(coreApp.arguments());
+        if (parser.isSet(QStringLiteral("version"))) {
+            parser.showVersion();
+        }
+    }
+
 // Use Fusion style on Windows 10 & 11. This enables proper dark mode support.
 // See https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
 // TODO: Make style configurable, detect -style argument.
