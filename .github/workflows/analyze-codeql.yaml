@@ -9,6 +9,10 @@ on:
   schedule:
   - cron: '0 8 * * 6'
 
+permissions:
+  contents: read
+  security-events: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,9 +21,6 @@ jobs:
   analyze-codeql:
     name: Analyze
     runs-on: ubuntu-24.04
-
-    permissions:
-      security-events: write
 
     steps:
     - name: Checkout Repository
