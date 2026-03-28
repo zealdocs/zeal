@@ -65,6 +65,9 @@ public:
     bool setShortcut(const QKeySequence &shortcut);
     bool unsetShortcut();
 
+    bool nativeRegister();
+    bool nativeUnregister();
+
     bool nativeEventFilter(const QByteArray &eventType, void *message, NativeEventFilterResult *result) override;
 
     static bool isSupported();
