@@ -36,12 +36,10 @@ private:
     void findPrevious();
 
     void hideHighlight();
-    void updateHighlight();
 
     QLineEdit *m_lineEdit = nullptr;
     QToolButton *m_findNextButton = nullptr;
     QToolButton *m_findPreviousButton = nullptr;
-    QToolButton *m_highlightAllButton = nullptr;
     QToolButton *m_matchCaseButton = nullptr;
 
     QWebEngineView *m_webView = nullptr;

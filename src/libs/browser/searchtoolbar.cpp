@@ -28,7 +28,6 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     m_lineEdit->setMaximumWidth(200);
     m_lineEdit->setPlaceholderText(tr("Find in page"));
     connect(m_lineEdit, &QLineEdit::textChanged, this, &SearchToolBar::findNext);
-    connect(m_lineEdit, &QLineEdit::textChanged, this, &SearchToolBar::updateHighlight);
     layout->addWidget(m_lineEdit);
 
     m_findPreviousButton = new QToolButton();
@@ -56,18 +55,11 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     connect(action, &QAction::triggered, this, [this]() { m_findNextButton->animateClick(); });
     addAction(action);
 
-    m_highlightAllButton = new QToolButton();
-    m_highlightAllButton->setAutoRaise(true);
-    m_highlightAllButton->setCheckable(true);
-    m_highlightAllButton->setText(tr("High&light All"));
-    connect(m_highlightAllButton, &QToolButton::toggled, this, &SearchToolBar::updateHighlight);
-    layout->addWidget(m_highlightAllButton);
-
     m_matchCaseButton = new QToolButton();
     m_matchCaseButton->setAutoRaise(true);
     m_matchCaseButton->setCheckable(true);
     m_matchCaseButton->setText(tr("Mat&ch Case"));
-    connect(m_matchCaseButton, &QToolButton::toggled, this, &SearchToolBar::updateHighlight);
+    connect(m_matchCaseButton, &QToolButton::toggled, this, &SearchToolBar::findNext);
     layout->addWidget(m_matchCaseButton);
 
     layout->addStretch();
@@ -106,9 +98,7 @@ bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            if (keyEvent->modifiers().testFlag(Qt::ControlModifier)) {
-                m_highlightAllButton->toggle();
-            } else if (keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
+            if (keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
                 findPrevious();
             } else {
                 findNext();
@@ -177,13 +167,3 @@ void SearchToolBar::hideHighlight()
     m_webView->findText(QString());
 }
 
-void SearchToolBar::updateHighlight()
-{
-    hideHighlight();
-
-    if (m_highlightAllButton->isChecked()) {
-        QWebEnginePage::FindFlags ff;
-        ff.setFlag(QWebEnginePage::FindCaseSensitively, m_matchCaseButton->isChecked());
-        m_webView->findText(m_lineEdit->text(), ff);
-    }
-}
