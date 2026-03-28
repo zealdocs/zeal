@@ -37,6 +37,10 @@ bool ShortcutEdit::event(QEvent *event)
         case Qt::Key_Meta:
         case Qt::Key_Shift:
             return true;
+        case Qt::Key_Escape:
+            setKeySequence(QKeySequence(m_originalKey));
+            clearFocus();
+            return true;
         default:
             m_key = keyEvent->key();
             m_key |= translateModifiers(keyEvent->modifiers(), keyEvent->text());
@@ -45,6 +49,9 @@ bool ShortcutEdit::event(QEvent *event)
 
         return true;
     }
+    case QEvent::FocusIn:
+        m_originalKey = m_key;
+        return QLineEdit::event(event);
     case QEvent::ShortcutOverride:
     case QEvent::KeyRelease:
     case QEvent::Shortcut:

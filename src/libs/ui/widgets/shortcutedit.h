@@ -26,6 +26,7 @@ private:
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
 
     int m_key = 0;
+    int m_originalKey = 0;
 };
 
 } // namespace WidgetUi
