@@ -67,18 +67,10 @@ QxtGlobalShortcutPrivate::~QxtGlobalShortcutPrivate()
 #endif // Q_OS_MACOS
 }
 
-bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
+bool QxtGlobalShortcutPrivate::nativeRegister()
 {
     Q_Q(QxtGlobalShortcut);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const int combination = shortcut[0];
-#else
-    const int combination = shortcut[0].toCombined();
-#endif
-
-    key = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key(combination & ~Qt::KeyboardModifierMask);
-    mods = shortcut.isEmpty() ? Qt::NoModifier : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
     quint32 extraNativeMods = 0;
     const quint32 nativeKey = nativeKeycode(key, extraNativeMods);
     const quint32 nativeMods = nativeModifiers(mods) | extraNativeMods;
@@ -89,11 +81,10 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
     }
 
     shortcuts.insert({nativeKey, nativeMods}, q);
-
     return true;
 }
 
-bool QxtGlobalShortcutPrivate::unsetShortcut()
+bool QxtGlobalShortcutPrivate::nativeUnregister()
 {
     Q_Q(QxtGlobalShortcut);
 
@@ -113,10 +104,39 @@ bool QxtGlobalShortcutPrivate::unsetShortcut()
     }
 
     shortcuts.remove({nativeKey, nativeMods});
+    return true;
+}
+
+bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    const int combination = shortcut[0];
+#else
+    const int combination = shortcut[0].toCombined();
+#endif
+
+    const auto newKey = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key(combination & ~Qt::KeyboardModifierMask);
+    const auto newMods = shortcut.isEmpty() ? Qt::NoModifier : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
+
+    key = newKey;
+    mods = newMods;
+
+    if (enabled && !nativeRegister()) {
+        key = Qt::Key(0);
+        mods = Qt::NoModifier;
+        return false;
+    }
+
+    return true;
+}
+
+bool QxtGlobalShortcutPrivate::unsetShortcut()
+{
+    if (enabled && !nativeUnregister())
+        return false;
 
     key = Qt::Key(0);
     mods = Qt::KeyboardModifiers(Qt::NoModifier);
-
     return true;
 }
 
@@ -192,9 +212,7 @@ QxtGlobalShortcut::~QxtGlobalShortcut()
     \property QxtGlobalShortcut::shortcut
     \brief the shortcut key sequence
 
-    \bold {Note:} Notice that corresponding key press and release events are not
-    delivered for registered global shortcuts even if they are disabled.
-    Also, comma separated key sequences are not supported.
+    \bold {Note:} Comma separated key sequences are not supported.
     Only the first part is used:
 
     \code
@@ -245,5 +263,16 @@ bool QxtGlobalShortcut::isSupported()
 void QxtGlobalShortcut::setEnabled(bool enabled)
 {
     Q_D(QxtGlobalShortcut);
+    if (d->enabled == enabled)
+        return;
+
     d->enabled = enabled;
+
+    if (d->key == Qt::Key(0))
+        return;
+
+    if (enabled)
+        d->nativeRegister();
+    else
+        d->nativeUnregister();
 }
