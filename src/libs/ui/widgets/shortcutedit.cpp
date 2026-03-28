@@ -41,6 +41,9 @@ bool ShortcutEdit::event(QEvent *event)
             setKeySequence(QKeySequence(m_originalKey));
             clearFocus();
             return true;
+        case Qt::Key_Tab:
+        case Qt::Key_Backtab:
+            return QLineEdit::event(event);
         default:
             m_key = keyEvent->key();
             m_key |= translateModifiers(keyEvent->modifiers(), keyEvent->text());
