@@ -25,6 +25,7 @@ if(UNIX AND NOT APPLE)
 if(NOT ZEAL_RELEASE_BUILD)
     string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE
         "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />"
+        UTC
     )
 endif()
 
