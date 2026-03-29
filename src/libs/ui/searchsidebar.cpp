@@ -43,11 +43,12 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_treeView = new QTreeView();
     m_treeView->setFrameShape(QFrame::NoFrame);
     m_treeView->setHeaderHidden(true);
+    m_treeView->setMouseTracking(true);
     m_treeView->setUniformRowHeights(true);
 
     // A stylesheet (even an empty one) wraps the widget in QStyleSheetStyle,
     // which properly re-polishes on dynamic color scheme changes.
-    m_treeView->setStyleSheet(QStringLiteral("QTreeView {}"));
+    m_treeView->setStyleSheet(QStringLiteral("QTreeView::item:hover:!selected { background: palette(midlight); }"));
 
 #ifdef Q_OS_MACOS
     m_treeView->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -89,7 +90,8 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_pageTocView->setFrameShape(QFrame::NoFrame);
     m_pageTocView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_pageTocView->setItemDelegate(new SearchItemDelegate(m_pageTocView));
-    m_pageTocView->setStyleSheet(QStringLiteral("QListView {}"));
+    m_pageTocView->setMouseTracking(true);
+    m_pageTocView->setStyleSheet(QStringLiteral("QListView::item:hover:!selected { background: palette(midlight); }"));
     m_pageTocView->setUniformItemSizes(true);
     m_pageTocView->setVisible(false);
 #ifdef Q_OS_MACOS
