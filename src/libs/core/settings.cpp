@@ -131,6 +131,7 @@ Settings::ColorScheme Settings::colorScheme()
 void Settings::load()
 {
     QScopedPointer<QSettings> settings(qsettings());
+    qCDebug(log, "Using settings file: %s", qPrintable(settings->fileName()));
     migrate(settings.data());
 
     // TODO: Put everything in groups
