@@ -94,9 +94,7 @@ bool ApplicationSingleton::sendMessage(QByteArray &data, int timeout)
         return false;
     }
 
-    socket->write(data);
-    socket->flush(); // Required for Linux.
-    return socket->waitForBytesWritten(timeout);
+    return socket->write(data) == data.size() && socket->flush();
 }
 
 void ApplicationSingleton::setupPrimary()
