@@ -35,3 +35,6 @@ CMakeUserPresets.json
 
 # Linux appdata
 /assets/freedesktop/org.zealdocs.zeal.appdata.xml
+
+# Claude Code
+.claude/settings.local.json
