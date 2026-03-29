@@ -116,7 +116,10 @@ function(codesign)
             endif()
 
             if(NOT EXISTS $ENV{CODESIGN_CERTIFICATE_FILE})
-                message(NOTICE "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' (set in CODESIGN_CERTIFICATE_FILE) does not exist.")
+                message(NOTICE
+                    "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' "
+                    "(set in CODESIGN_CERTIFICATE_FILE) does not exist."
+                )
                 return()
             endif()
 

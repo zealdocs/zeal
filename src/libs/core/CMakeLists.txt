@@ -11,7 +11,11 @@ add_library(Core STATIC
 target_link_libraries(Core PRIVATE Registry Ui)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network WebEngineCore Widgets REQUIRED)
-target_link_libraries(Core PRIVATE Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::WebEngineCore Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(Core PRIVATE
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::WebEngineCore
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     find_package(Qt6 COMPONENTS WebEngineCore REQUIRED)
