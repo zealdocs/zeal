@@ -51,22 +51,30 @@ set_target_properties(App PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
-# Install Qt runtime dependencies on Windows.
+# Deploy Qt runtime dependencies on Windows.
 if(WIN32 AND _use_qt_cmake_commands)
     qt_generate_deploy_script(
         TARGET App
         OUTPUT_SCRIPT _qt_deploy_script
         CONTENT "
-# TODO: Run windeployqt after build.
-# Override deployment script's working directory.
-# set(QT_DEPLOY_PREFIX \"$<TARGET_FILE_DIR:App>\")
-
 qt_deploy_runtime_dependencies(
     EXECUTABLE \"$<TARGET_FILE:App>\"
     BIN_DIR .
     NO_TRANSLATIONS
     NO_COMPILER_RUNTIME
 )")
+
+    # Optionally deploy to the build directory after each build.
+    # Useful for local development when Qt is not in PATH.
+    option(ZEAL_DEPLOY_QT_ON_BUILD "Copy Qt runtime dependencies to build directory" OFF)
+
+    if(ZEAL_DEPLOY_QT_ON_BUILD)
+        add_custom_command(TARGET App POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -P ${_qt_deploy_script}
+            WORKING_DIRECTORY $<TARGET_FILE_DIR:App>
+            COMMENT "Deploying Qt runtime dependencies..."
+        )
+    endif()
 endif()
 
 if(APPLE)
