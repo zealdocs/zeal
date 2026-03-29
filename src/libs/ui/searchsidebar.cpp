@@ -21,6 +21,7 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QListView>
+#include <QMouseEvent>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QSplitter>
@@ -41,6 +42,8 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
 {
     // Setup search result view.
     m_treeView = new QTreeView();
+    m_treeView->installEventFilter(this);
+    m_treeView->viewport()->installEventFilter(this);
     m_treeView->setFrameShape(QFrame::NoFrame);
     m_treeView->setHeaderHidden(true);
     m_treeView->setMouseTracking(true);
@@ -365,11 +368,69 @@ void SearchSidebar::setupSearchBoxCompletions()
 
 bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
 {
+    if (object == m_treeView->viewport() && event->type() == QEvent::MouseButtonPress) {
+        auto e = static_cast<QMouseEvent *>(event);
+        const bool isMiddleClick = (e->button() == Qt::MiddleButton);
+        const bool isCtrlClick = (e->button() == Qt::LeftButton
+                                  && e->modifiers().testFlag(Qt::ControlModifier));
+
+        if (isMiddleClick || isCtrlClick) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            const QModelIndex index = m_treeView->indexAt(e->position().toPoint());
+#else
+            const QModelIndex index = m_treeView->indexAt(e->pos());
+#endif
+            if (!index.isValid()) {
+                return false;
+            }
+
+            const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
+            if (url.isNull()) {
+                return false;
+            }
+
+            const bool activate = e->modifiers().testFlag(Qt::ShiftModifier);
+            m_delayedNavigationTimer->stop();
+            emit openInNewTabRequested(url.toUrl(), activate);
+            return true;
+        }
+    }
+
+    if (object == m_treeView && event->type() == QEvent::KeyPress) {
+        auto e = static_cast<QKeyEvent *>(event);
+        if ((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
+                && e->modifiers().testFlag(Qt::ControlModifier)) {
+            if (e->isAutoRepeat())
+                return true;
+            const QModelIndex index = m_treeView->currentIndex();
+            const QVariant url = index.isValid() ? index.data(Registry::ItemDataRole::UrlRole) : QVariant();
+            if (!url.isNull()) {
+                const bool activate = e->modifiers().testFlag(Qt::ShiftModifier);
+                m_delayedNavigationTimer->stop();
+                emit openInNewTabRequested(url.toUrl(), activate);
+                return true;
+            }
+        }
+    }
+
     if (object == m_searchEdit && event->type() == QEvent::KeyPress) {
         auto e = static_cast<QKeyEvent *>(event);
         switch (e->key()) {
         case Qt::Key_Return:
-            emit activated();
+        case Qt::Key_Enter:
+            if (e->isAutoRepeat())
+                break;
+            if (e->modifiers().testFlag(Qt::ControlModifier)) {
+                const QModelIndex index = m_treeView->currentIndex();
+                const QVariant url = index.isValid() ? index.data(Registry::ItemDataRole::UrlRole) : QVariant();
+                if (!url.isNull()) {
+                    const bool activate = e->modifiers().testFlag(Qt::ShiftModifier);
+                    m_delayedNavigationTimer->stop();
+                    emit openInNewTabRequested(url.toUrl(), activate);
+                }
+            } else {
+                emit activated();
+            }
             break;
         case Qt::Key_Home:
         case Qt::Key_End:

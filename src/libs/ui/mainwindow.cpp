@@ -183,11 +183,32 @@ void MainWindow::moveTab(int from, int to)
     m_webViewStack->insertWidget(to, w);
 }
 
-BrowserTab *MainWindow::createTab()
+BrowserTab *MainWindow::createTab(const QUrl &url, bool activate)
 {
-    auto tab = new BrowserTab();
-    tab->navigateToStartPage();
-    addTab(tab);
+    BrowserTab *tab;
+    if (url.isEmpty()) {
+        tab = new BrowserTab();
+    } else {
+        auto source = currentTab();
+        // Clone the current tab to preserve sidebar state.
+        tab = source ? source->clone(false) : new BrowserTab();
+    }
+
+    // Add the tab before navigating so signal handlers are connected.
+    addTab(tab, -1, activate);
+
+    if (url.isEmpty()) {
+        tab->navigateToStartPage();
+        if (activate) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    } else {
+        tab->webControl()->load(url);
+        if (activate) {
+            tab->webControl()->focus();
+        }
+    }
+
     return tab;
 }
 
@@ -201,7 +222,7 @@ void MainWindow::duplicateTab(int index)
     addTab(tab->clone(), index + 1);
 }
 
-void MainWindow::addTab(BrowserTab *tab, int index)
+void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
 {
     connect(tab, &BrowserTab::iconChanged, this, [this, tab](const QIcon &icon) {
         const int index = m_webViewStack->indexOf(tab);
@@ -212,19 +233,25 @@ void MainWindow::addTab(BrowserTab *tab, int index)
         if (title.isEmpty())
             return;
 
-#ifndef PORTABLE_BUILD
-        setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
-#else
-        setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
-#endif
         const int index = m_webViewStack->indexOf(tab);
         Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
         m_tabBar->setTabText(index, title);
         m_tabBar->setTabToolTip(index, title);
+
+        // Only update window title for the active tab.
+        if (tab == currentTab()) {
+#ifndef PORTABLE_BUILD
+            setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
+#else
+            setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
+#endif
+        }
     });
 
     tab->webControl()->setWebBridgeObject("zAppBridge", m_webBridge);
-    tab->searchSidebar()->focusSearchEdit();
+
+    connect(tab->searchSidebar(), &SearchSidebar::openInNewTabRequested,
+            this, [this](const QUrl &url, bool activate) { createTab(url, activate); });
 
     if (index == -1) {
         index = m_settings->openNewTabAfterActive
@@ -234,8 +261,11 @@ void MainWindow::addTab(BrowserTab *tab, int index)
 
     m_webViewStack->insertWidget(index, tab);
     m_tabBar->insertTab(index, tr("Loading…"));
-    m_tabBar->setCurrentIndex(index);
     m_tabBar->setTabData(index, QVariant::fromValue(tab));
+
+    if (activate) {
+        m_tabBar->setCurrentIndex(index);
+    }
 }
 
 BrowserTab *MainWindow::currentTab() const
@@ -267,7 +297,7 @@ void MainWindow::setupMainMenu()
     );
     addAction(action);
     action->setShortcut(QKeySequence::AddTab);
-    connect(action, &QAction::triggered, this, &MainWindow::createTab);
+    connect(action, &QAction::triggered, this, [this]() { createTab(); });
 
     // -> Close Tab Action.
     action = menu->addAction(tr("&Close Tab"));

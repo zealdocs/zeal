@@ -145,9 +145,9 @@ BrowserTab::BrowserTab(QWidget *parent)
     });
 }
 
-BrowserTab *BrowserTab::clone(QWidget *parent) const
+BrowserTab *BrowserTab::clone(bool preserveHistory) const
 {
-    auto tab = new BrowserTab(parent);
+    auto tab = new BrowserTab();
 
     if (m_searchSidebar) {
         tab->m_searchSidebar = m_searchSidebar->clone();
@@ -157,7 +157,9 @@ BrowserTab *BrowserTab::clone(QWidget *parent) const
                 tab->m_webControl, &Browser::WebControl::load);
     }
 
-    tab->m_webControl->restoreHistory(m_webControl->saveHistory());
+    if (preserveHistory) {
+        tab->m_webControl->restoreHistory(m_webControl->saveHistory());
+    }
     tab->m_webControl->setZoomLevel(m_webControl->zoomLevel());
 
     return tab;

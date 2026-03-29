@@ -31,7 +31,7 @@ class BrowserTab : public QWidget
     Q_DISABLE_COPY_MOVE(BrowserTab)
 public:
     explicit BrowserTab(QWidget *parent = nullptr);
-    BrowserTab *clone(QWidget *parent = nullptr) const;
+    BrowserTab *clone(bool preserveHistory = true) const;
     ~BrowserTab() override;
 
     Browser::WebControl *webControl() const;

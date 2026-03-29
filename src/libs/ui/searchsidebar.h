@@ -39,6 +39,7 @@ public:
 signals:
     void activated();
     void navigationRequested(const QUrl &url);
+    void openInNewTabRequested(const QUrl &url, bool activate = false);
 
 public slots:
     void focusSearchEdit(bool clear = false);
