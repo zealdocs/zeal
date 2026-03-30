@@ -6,6 +6,7 @@
 #define ZEAL_WIDGETUI_MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QUrl>
 
 class QxtGlobalShortcut;
 
@@ -45,7 +46,7 @@ public:
 
     void search(const Registry::SearchQuery &query);
     void bringToFront();
-    BrowserTab *createTab();
+    BrowserTab *createTab(const QUrl &url = QUrl(), bool activate = true);
 
 public slots:
     void toggleWindow();
@@ -70,7 +71,7 @@ private:
     void setupShortcuts();
     void setupTabBar();
 
-    void addTab(BrowserTab *tab, int index = -1);
+    void addTab(BrowserTab *tab, int index = -1, bool activate = true);
     BrowserTab *currentTab() const;
     BrowserTab *tabAt(int index) const;
 
