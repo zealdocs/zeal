@@ -19,6 +19,10 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     : QWidget(parent)
     , m_webView(webView)
 {
+    // An empty stylesheet wraps the widget in QStyleSheetStyle, which properly
+    // re-polishes on dynamic color scheme changes.
+    setStyleSheet(QStringLiteral("SearchToolBar {}"));
+
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(4, 4, 4, 4);
     layout->setSpacing(4);
