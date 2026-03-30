@@ -102,8 +102,8 @@ void WebView::resetZoom()
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
-    Q_UNUSED(type)
-    return Core::Application::instance()->mainWindow()->createTab()->webControl()->m_webView;
+    const bool activate = (type != QWebEnginePage::WebBrowserBackgroundTab);
+    return Core::Application::instance()->mainWindow()->createTab(QUrl(QStringLiteral("about:blank")), activate)->webControl()->m_webView;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
