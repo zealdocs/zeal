@@ -14,6 +14,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  clang-format:
+    name: Clang Format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run clang-format
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: '22'
+          style: file
+          tidy-checks: '-*'
+          format-review: true
+          files-changed-only: false
+          ignore-format: 'src/contrib'
+
   reuse:
     name: REUSE Compliance
     runs-on: ubuntu-latest
