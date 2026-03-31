@@ -31,8 +31,9 @@ ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
             return;
         }
 
-        if (m_view == view)
+        if (m_view == view) {
             return;
+        }
 
         clearCurrentView();
         layout()->addWidget(view);

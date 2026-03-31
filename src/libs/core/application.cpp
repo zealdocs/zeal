@@ -175,8 +175,9 @@ void Application::executeQuery(const Registry::SearchQuery &query, bool preventA
 {
     m_mainWindow->search(query);
 
-    if (preventActivation)
+    if (preventActivation) {
         return;
+    }
 
     m_mainWindow->bringToFront();
 }
@@ -199,8 +200,9 @@ QNetworkReply *Application::download(const QUrl &url)
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::UserAgentHeader, ua);
 
-    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive)))
+    if (url.host().endsWith(QLatin1String(".zealdocs.org", Qt::CaseInsensitive))) {
         request.setRawHeader("X-Zeal-User-Agent", uaJson);
+    }
 
     return m_networkManager->get(request);
 }
@@ -218,8 +220,9 @@ void Application::checkForUpdates(bool quiet)
         QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
-            if (!quiet)
+            if (!quiet) {
                 emit updateCheckError(reply->errorString());
+            }
             return;
         }
 
@@ -227,8 +230,9 @@ void Application::checkForUpdates(bool quiet)
         const QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll(), &jsonError);
 
         if (jsonError.error != QJsonParseError::NoError) {
-            if (!quiet)
+            if (!quiet) {
                 emit updateCheckError(jsonError.errorString());
+            }
             return;
         }
 

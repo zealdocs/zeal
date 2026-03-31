@@ -214,8 +214,9 @@ BrowserTab *MainWindow::createTab(const QUrl &url, bool activate)
 void MainWindow::duplicateTab(int index)
 {
     BrowserTab *tab = tabAt(index);
-    if (tab == nullptr)
+    if (tab == nullptr) {
         return;
+    }
 
     // Add a duplicate next to the `index`.
     addTab(tab->clone(), index + 1);
@@ -229,8 +230,9 @@ void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
         m_tabBar->setTabIcon(index, icon);
     });
     connect(tab, &BrowserTab::titleChanged, this, [this, tab](const QString &title) {
-        if (title.isEmpty())
+        if (title.isEmpty()) {
             return;
+        }
 
         const int index = m_webViewStack->indexOf(tab);
         Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
@@ -590,16 +592,18 @@ void MainWindow::setupTabBar()
 
 void MainWindow::createTrayIcon()
 {
-    if (m_trayIcon)
+    if (m_trayIcon) {
         return;
+    }
 
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), windowIcon()));
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
     connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
-        if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick)
+        if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick) {
             return;
+        }
 
         toggleWindow();
     });
@@ -620,8 +624,9 @@ void MainWindow::createTrayIcon()
 
 void MainWindow::removeTrayIcon()
 {
-    if (!m_trayIcon)
+    if (!m_trayIcon) {
         return;
+    }
 
     QMenu *trayIconMenu = m_trayIcon->contextMenu();
     delete m_trayIcon;
@@ -768,10 +773,11 @@ void MainWindow::applySettings()
         m_globalShortcut->setShortcut(m_settings->showShortcut);
     }
 
-    if (m_settings->showSystrayIcon)
+    if (m_settings->showSystrayIcon) {
         createTrayIcon();
-    else
+    } else {
         removeTrayIcon();
+    }
 }
 
 void MainWindow::toggleWindow()

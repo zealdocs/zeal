@@ -29,8 +29,9 @@ struct SearchResult
 
     inline bool operator<(const SearchResult &other) const
     {
-        if (score == other.score)
+        if (score == other.score) {
             return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
+        }
         return score > other.score;
     }
 };

@@ -48,8 +48,9 @@ QxtGlobalShortcutPrivate::QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq)
     : q_ptr(qq)
 {
 #ifndef Q_OS_MACOS
-    if (ref == 0)
+    if (ref == 0) {
         QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
+    }
     ++ref;
 #endif // Q_OS_MACOS
 }
@@ -133,8 +134,9 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 
 bool QxtGlobalShortcutPrivate::unsetShortcut()
 {
-    if (enabled && !nativeUnregister())
+    if (enabled && !nativeUnregister()) {
         return false;
+    }
 
     key = Qt::Key(0);
     mods = Qt::KeyboardModifiers(Qt::NoModifier);
@@ -144,8 +146,9 @@ bool QxtGlobalShortcutPrivate::unsetShortcut()
 bool QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativeMods)
 {
     QxtGlobalShortcut *shortcut = shortcuts.value({nativeKey, nativeMods});
-    if (!shortcut || !shortcut->isEnabled())
+    if (!shortcut || !shortcut->isEnabled()) {
         return false;
+    }
 
     emit shortcut->activated();
     return true;
@@ -204,8 +207,9 @@ QxtGlobalShortcut::QxtGlobalShortcut(const QKeySequence &shortcut, QObject *pare
 QxtGlobalShortcut::~QxtGlobalShortcut()
 {
     Q_D(QxtGlobalShortcut);
-    if (d->key != 0)
+    if (d->key != 0) {
         d->unsetShortcut();
+    }
     delete d;
 }
 
@@ -230,10 +234,12 @@ QKeySequence QxtGlobalShortcut::shortcut() const
 bool QxtGlobalShortcut::setShortcut(const QKeySequence &shortcut)
 {
     Q_D(QxtGlobalShortcut);
-    if (d->key != 0 && !d->unsetShortcut())
+    if (d->key != 0 && !d->unsetShortcut()) {
         return false;
-    if (shortcut.isEmpty())
+    }
+    if (shortcut.isEmpty()) {
         return true;
+    }
     return d->setShortcut(shortcut);
 }
 
@@ -264,16 +270,19 @@ bool QxtGlobalShortcut::isSupported()
 void QxtGlobalShortcut::setEnabled(bool enabled)
 {
     Q_D(QxtGlobalShortcut);
-    if (d->enabled == enabled)
+    if (d->enabled == enabled) {
         return;
+    }
 
     d->enabled = enabled;
 
-    if (d->key == Qt::Key(0))
+    if (d->key == Qt::Key(0)) {
         return;
+    }
 
-    if (enabled)
+    if (enabled) {
         d->nativeRegister();
-    else
+    } else {
         d->nativeUnregister();
+    }
 }

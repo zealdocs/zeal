@@ -57,8 +57,9 @@ Docset::Docset(QString path)
     : m_path(std::move(path))
 {
     QDir dir(m_path);
-    if (!dir.exists())
+    if (!dir.exists()) {
         return;
+    }
 
     loadMetadata();
 
@@ -66,8 +67,9 @@ Docset::Docset(QString path)
     const auto iconFiles = dir.entryList({QStringLiteral("icon.*")}, QDir::Files);
     for (const QString &iconFile : iconFiles) {
         m_icon = QIcon(dir.filePath(iconFile));
-        if (!m_icon.availableSizes().isEmpty())
+        if (!m_icon.availableSizes().isEmpty()) {
             break;
+        }
     }
 
     if (!dir.cd(QStringLiteral("Contents"))) {
@@ -79,11 +81,11 @@ Docset::Docset(QString path)
     // https://developer.apple.com/library/mac/documentation/MacOSX/Conceptual/BPRuntimeConfig
     // /Articles/ConfigFiles.html
     Util::Plist plist;
-    if (dir.exists(QStringLiteral("Info.plist")))
+    if (dir.exists(QStringLiteral("Info.plist"))) {
         plist.read(dir.filePath(QStringLiteral("Info.plist")));
-    else if (dir.exists(QStringLiteral("info.plist")))
+    } else if (dir.exists(QStringLiteral("info.plist"))) {
         plist.read(dir.filePath(QStringLiteral("info.plist")));
-    else {
+    } else {
         qCWarning(log, "Cannot find file 'Info.plist' or 'info.plist' for docset at '%s'.", qPrintable(m_path));
         return;
     }
@@ -156,14 +158,17 @@ Docset::Docset(QString path)
     }
 
     // Setup keywords
-    if (plist.contains(InfoPlist::DocSetPlatformFamily))
+    if (plist.contains(InfoPlist::DocSetPlatformFamily)) {
         m_keywords << plist[InfoPlist::DocSetPlatformFamily].toString();
+    }
 
-    if (plist.contains(InfoPlist::DashDocSetPluginKeyword))
+    if (plist.contains(InfoPlist::DashDocSetPluginKeyword)) {
         m_keywords << plist[InfoPlist::DashDocSetPluginKeyword].toString();
+    }
 
-    if (plist.contains(InfoPlist::DashDocSetKeyword))
+    if (plist.contains(InfoPlist::DashDocSetKeyword)) {
         m_keywords << plist[InfoPlist::DashDocSetKeyword].toString();
+    }
 
     if (plist.contains(InfoPlist::DashDocSetFamily)) {
         const QString kw = plist[InfoPlist::DashDocSetFamily].toString();
@@ -290,8 +295,9 @@ int Docset::symbolCount(const QString &symbolType) const
 
 const QMultiMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 {
-    if (!m_symbols.contains(symbolType))
+    if (!m_symbols.contains(symbolType)) {
         loadSymbols(symbolType);
+    }
     return m_symbols[symbolType];
 }
 
@@ -415,18 +421,21 @@ void Docset::loadMetadata()
     const QDir dir(m_path);
 
     // Fallback if meta.json is absent
-    if (!dir.exists(QStringLiteral("meta.json")))
+    if (!dir.exists(QStringLiteral("meta.json"))) {
         return;
+    }
 
     QScopedPointer<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
-    if (!file->open(QIODevice::ReadOnly))
+    if (!file->open(QIODevice::ReadOnly)) {
         return;
+    }
 
     QJsonParseError jsonError;
     const QJsonObject jsonObject = QJsonDocument::fromJson(file->readAll(), &jsonError).object();
 
-    if (jsonError.error != QJsonParseError::NoError)
+    if (jsonError.error != QJsonParseError::NoError) {
         return;
+    }
 
     m_name = jsonObject[QStringLiteral("name")].toString();
     m_title = jsonObject[QStringLiteral("title")].toString();
@@ -542,11 +551,13 @@ void Docset::createIndex()
 
     while (m_db->next()) {
         const QString indexName = m_db->value(1).toString();
-        if (!indexName.startsWith(IndexNamePrefix))
+        if (!indexName.startsWith(IndexNamePrefix)) {
             continue;
+        }
 
-        if (indexName.endsWith(IndexNameVersion))
+        if (indexName.endsWith(IndexNameVersion)) {
             return;
+        }
 
         oldIndexes << indexName;
     }
@@ -586,8 +597,9 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
     if (fragment.isEmpty()) {
         const QStringList urlParts = path.split(QLatin1Char('#'));
         realPath = urlParts[0];
-        if (urlParts.size() > 1)
+        if (urlParts.size() > 1) {
             realFragment = urlParts[1];
+        }
     } else {
         realPath = path;
         realFragment = fragment;

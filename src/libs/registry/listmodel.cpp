@@ -124,12 +124,14 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case ItemDataRole::DocsetNameRole:
-        if (index.parent().isValid())
+        if (index.parent().isValid()) {
             return QVariant();
+        }
         return itemInRow(index.row())->docset->name();
     case ItemDataRole::UpdateAvailableRole:
-        if (index.parent().isValid())
+        if (index.parent().isValid()) {
             return QVariant();
+        }
         return itemInRow(index.row())->docset->hasUpdate;
     default:
         return QVariant();

@@ -78,16 +78,21 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier)
+    if (modifiers & Qt::ShiftModifier) {
         native |= shiftKey;
-    if (modifiers & Qt::ControlModifier)
+    }
+    if (modifiers & Qt::ControlModifier) {
         native |= cmdKey;
-    if (modifiers & Qt::AltModifier)
+    }
+    if (modifiers & Qt::AltModifier) {
         native |= optionKey;
-    if (modifiers & Qt::MetaModifier)
+    }
+    if (modifiers & Qt::MetaModifier) {
         native |= controlKey;
-    if (modifiers & Qt::KeypadModifier)
+    }
+    if (modifiers & Qt::KeypadModifier) {
         native |= kEventKeyModifierNumLockMask;
+    }
     return native;
 }
 
@@ -185,27 +190,30 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         break;
     }
 
-    if (key == Qt::Key_Escape)
+    if (key == Qt::Key_Escape) {
         ch = 27;
-    else if (key == Qt::Key_Return)
+    } else if (key == Qt::Key_Return) {
         ch = 13;
-    else if (key == Qt::Key_Enter)
+    } else if (key == Qt::Key_Enter) {
         ch = 3;
-    else if (key == Qt::Key_Tab)
+    } else if (key == Qt::Key_Tab) {
         ch = 9;
-    else
+    } else {
         ch = key;
+    }
 
     CFDataRef currentLayoutData;
     TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
 
-    if (currentKeyboard == NULL)
+    if (currentKeyboard == NULL) {
         return 0;
+    }
 
     currentLayoutData = (CFDataRef)TISGetInputSourceProperty(currentKeyboard, kTISPropertyUnicodeKeyLayoutData);
     CFRelease(currentKeyboard);
-    if (currentLayoutData == NULL)
+    if (currentLayoutData == NULL) {
         return 0;
+    }
 
     UCKeyboardLayout *header = (UCKeyboardLayout *)CFDataGetBytePtr(currentLayoutData);
     UCKeyboardTypeHeader *table = header->keyboardTypeList;
@@ -216,14 +224,16 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         UCKeyStateRecordsIndex *stateRec = 0;
         if (table[i].keyStateRecordsIndexOffset != 0) {
             stateRec = reinterpret_cast<UCKeyStateRecordsIndex *>(data + table[i].keyStateRecordsIndexOffset);
-            if (stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat)
+            if (stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat) {
                 stateRec = 0;
+            }
         }
 
         UCKeyToCharTableIndex *charTable = reinterpret_cast<UCKeyToCharTableIndex *>(
             data + table[i].keyToCharTableIndexOffset);
-        if (charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat)
+        if (charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat) {
             continue;
+        }
 
         for (quint32 j = 0; j < charTable->keyToCharTableCount; ++j) {
             UCKeyOutput *keyToChar = reinterpret_cast<UCKeyOutput *>(data + charTable->keyToCharTableOffsets[j]);
@@ -234,17 +244,20 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
                     if (stateRec && idx < stateRec->keyStateRecordCount) {
                         UCKeyStateRecord *rec = reinterpret_cast<UCKeyStateRecord *>(
                             data + stateRec->keyStateRecordOffsets[idx]);
-                        if (rec->stateZeroCharData == ch)
+                        if (rec->stateZeroCharData == ch) {
                             found = true;
+                        }
                     }
                 } else if (!(keyToChar[k] & kUCKeyOutputSequenceIndexMask) && keyToChar[k] < 0xFFFE) {
-                    if (keyToChar[k] == ch)
+                    if (keyToChar[k] == ch) {
                         found = true;
+                    }
                 }
                 if (found) {
                     // Table index 0 = no modifiers, 1 = Shift.
-                    if (j == 1)
+                    if (j == 1) {
                         extraNativeMods |= shiftKey;
+                    }
                     return k;
                 }
             } // for k
@@ -278,8 +291,9 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
 bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
 {
     Identifier id(nativeMods, nativeKey);
-    if (!keyIDs.contains(id))
+    if (!keyIDs.contains(id)) {
         return false;
+    }
 
     EventHotKeyRef ref = keyRefs.take(keyIDs[id]);
     keyIDs.remove(id);

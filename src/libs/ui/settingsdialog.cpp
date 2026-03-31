@@ -39,8 +39,9 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::loadSettings);
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
-        if (button == ui->buttonBox->button(QDialogButtonBox::Apply))
+        if (button == ui->buttonBox->button(QDialogButtonBox::Apply)) {
             saveSettings();
+        }
     });
 
     // Fonts
@@ -129,8 +130,9 @@ void SettingsDialog::chooseCustomCssFile()
                                                       tr("Choose CSS File"),
                                                       ui->customCssFileEdit->text(),
                                                       tr("CSS Files (*.css);;All Files (*.*)"));
-    if (file.isEmpty())
+    if (file.isEmpty()) {
         return;
+    }
 
     ui->customCssFileEdit->setText(QDir::toNativeSeparators(file));
 }

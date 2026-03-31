@@ -37,8 +37,9 @@ Container::~Container() = default;
 
 void Container::addView(View *view)
 {
-    if (m_views.contains(view))
+    if (m_views.contains(view)) {
         return;
+    }
 
     m_views.append(view);
     m_splitter->addWidget(view);

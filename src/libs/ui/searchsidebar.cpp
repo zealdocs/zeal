@@ -354,14 +354,16 @@ void SearchSidebar::setupSearchBoxCompletions()
     const auto docsets = Core::Application::instance()->docsetRegistry()->docsets();
     for (const Registry::Docset *docset : docsets) {
         const QStringList keywords = docset->keywords();
-        if (keywords.isEmpty())
+        if (keywords.isEmpty()) {
             continue;
+        }
 
         completions << keywords.constFirst() + QLatin1Char(':');
     }
 
-    if (completions.isEmpty())
+    if (completions.isEmpty()) {
         return;
+    }
 
     m_searchEdit->setCompletions(completions);
 }
@@ -398,8 +400,9 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     if (object == m_treeView && event->type() == QEvent::KeyPress) {
         auto e = static_cast<QKeyEvent *>(event);
         if ((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) && e->modifiers().testFlag(Qt::ControlModifier)) {
-            if (e->isAutoRepeat())
+            if (e->isAutoRepeat()) {
                 return true;
+            }
             const QModelIndex index = m_treeView->currentIndex();
             const QVariant url = index.isValid() ? index.data(Registry::ItemDataRole::UrlRole) : QVariant();
             if (!url.isNull()) {
@@ -416,8 +419,9 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         switch (e->key()) {
         case Qt::Key_Return:
         case Qt::Key_Enter:
-            if (e->isAutoRepeat())
+            if (e->isAutoRepeat()) {
                 break;
+            }
             if (e->modifiers().testFlag(Qt::ControlModifier)) {
                 const QModelIndex index = m_treeView->currentIndex();
                 const QVariant url = index.isValid() ? index.data(Registry::ItemDataRole::UrlRole) : QVariant();

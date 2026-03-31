@@ -36,9 +36,7 @@ BraceWrapping:
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
-
-# TODO: Enable InsertBraces when ready.
-#InsertBraces: true
+InsertBraces: true
 
 # Pointer/reference alignment
 PointerAlignment: Right
