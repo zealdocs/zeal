@@ -109,8 +109,9 @@ BrowserTab::BrowserTab(QWidget *parent)
     auto label = new QLabel();
     label->setAlignment(Qt::AlignCenter);
     connect(m_webControl, &Browser::WebControl::titleChanged, this, [label](const QString &title) {
-        if (title.isEmpty())
+        if (title.isEmpty()) {
             return;
+        }
 
         label->setText(title);
     });
@@ -200,8 +201,9 @@ void BrowserTab::navigateToStartPage()
 
 void BrowserTab::search(const Registry::SearchQuery &query)
 {
-    if (query.isEmpty())
+    if (query.isEmpty()) {
         return;
+    }
 
     m_searchSidebar->search(query);
 }

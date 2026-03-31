@@ -28,8 +28,9 @@ bool SearchModel::isEmpty() const
 
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return QVariant();
+    }
 
     auto item = static_cast<SearchResult *>(index.internalPointer());
 
@@ -56,8 +57,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (parent.isValid() || m_dataList.count() <= row || column > 1)
+    if (parent.isValid() || m_dataList.count() <= row || column > 1) {
         return {};
+    }
 
     // FIXME: const_cast
     auto item = const_cast<SearchResult *>(&m_dataList.at(row));
@@ -66,8 +68,9 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
 
 int SearchModel::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (!parent.isValid()) {
         return m_dataList.count();
+    }
     return 0;
 }
 

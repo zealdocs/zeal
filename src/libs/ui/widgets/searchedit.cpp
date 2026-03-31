@@ -51,8 +51,9 @@ void SearchEdit::clearQuery()
 
 void SearchEdit::selectQuery()
 {
-    if (text().isEmpty())
+    if (text().isEmpty()) {
         return;
+    }
 
     const int pos = hasSelectedText() ? selectionStart() : cursorPosition();
     const int queryPos = queryStart();
@@ -112,22 +113,25 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
     QLineEdit::focusInEvent(event);
 
     // Do not change the default behavior when focused with mouse.
-    if (event->reason() == Qt::MouseFocusReason)
+    if (event->reason() == Qt::MouseFocusReason) {
         return;
+    }
 
     selectQuery();
 }
 
 void SearchEdit::showCompletions(const QString &newValue)
 {
-    if (!isVisible())
+    if (!isVisible()) {
         return;
+    }
 
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     const int textWidth = fontMetrics().horizontalAdvance(newValue);
 
-    if (m_prefixCompleter)
+    if (m_prefixCompleter) {
         m_prefixCompleter->setCompletionPrefix(text());
+    }
 
     const QString completed = currentCompletion(newValue).mid(newValue.size());
     const QSize labelSize(fontMetrics().horizontalAdvance(completed), size().height());
@@ -140,8 +144,9 @@ void SearchEdit::showCompletions(const QString &newValue)
 
 QString SearchEdit::currentCompletion(const QString &text) const
 {
-    if (text.isEmpty() || !m_prefixCompleter)
+    if (text.isEmpty() || !m_prefixCompleter) {
         return QString();
+    }
 
     return m_prefixCompleter->currentCompletion();
 }

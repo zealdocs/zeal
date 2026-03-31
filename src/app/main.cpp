@@ -136,8 +136,9 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
         const QUrlQuery urlQuery(stripParameterUrl(arg, QStringLiteral("dash-plugin")));
 
         const QString keys = urlQuery.queryItemValue(QStringLiteral("keys"));
-        if (!keys.isEmpty())
+        if (!keys.isEmpty()) {
             clParams.query.setKeywords(keys.split(QLatin1Char(',')));
+        }
 
         clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
 
@@ -178,8 +179,9 @@ void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool for
 
     const QStringList groups = reg->childGroups();
     for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
-        if (force || !groups.contains(it.key()))
+        if (force || !groups.contains(it.key())) {
             registerProtocolHandler(it.key(), it.value());
+        }
     }
 }
 

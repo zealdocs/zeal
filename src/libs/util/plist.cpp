@@ -24,11 +24,13 @@ bool Plist::read(const QString &fileName)
 
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();
-        if (token != QXmlStreamReader::StartElement)
+        if (token != QXmlStreamReader::StartElement) {
             continue;
+        }
 
-        if (xml.name() != QLatin1String("key"))
+        if (xml.name() != QLatin1String("key")) {
             continue; // TODO: Should it fail here?
+        }
 
         const QString key = xml.readElementText();
 
@@ -36,18 +38,20 @@ bool Plist::read(const QString &fileName)
         while (xml.readNext() == QXmlStreamReader::Characters)
             ;
 
-        if (xml.tokenType() != QXmlStreamReader::StartElement)
+        if (xml.tokenType() != QXmlStreamReader::StartElement) {
             continue;
+        }
 
         QVariant value;
-        if (xml.name() == QLatin1String("string"))
+        if (xml.name() == QLatin1String("string")) {
             value = xml.readElementText();
-        else if (xml.name() == QLatin1String("true"))
+        } else if (xml.name() == QLatin1String("true")) {
             value = true;
-        else if (xml.name() == QLatin1String("false"))
+        } else if (xml.name() == QLatin1String("false")) {
             value = false;
-        else
+        } else {
             continue; // Skip unknown types
+        }
 
         insert(key, value);
     }

@@ -172,8 +172,9 @@ Docset *DocsetRegistry::docset(const QString &name) const
 
 Docset *DocsetRegistry::docset(int index) const
 {
-    if (index < 0 || index >= m_docsets.size())
+    if (index < 0 || index >= m_docsets.size()) {
         return nullptr;
+    }
 
     auto it = m_docsets.cbegin();
     std::advance(it, index);
@@ -183,8 +184,9 @@ Docset *DocsetRegistry::docset(int index) const
 Docset *DocsetRegistry::docsetForUrl(const QUrl &url)
 {
     for (Docset *docset : std::as_const(m_docsets)) {
-        if (docset->baseUrl().isParentOf(url))
+        if (docset->baseUrl().isParentOf(url)) {
             return docset;
+        }
     }
 
     return nullptr;
@@ -216,8 +218,9 @@ void DocsetRegistry::_runQuery(const QString &query)
     const SearchQuery searchQuery = SearchQuery::fromString(query);
     if (searchQuery.hasKeywords()) {
         for (Docset *docset : std::as_const(m_docsets)) {
-            if (searchQuery.hasKeywords(docset->keywords()))
+            if (searchQuery.hasKeywords(docset->keywords())) {
                 enabledDocsets << docset;
+            }
         }
     } else {
         enabledDocsets = docsets();
@@ -232,13 +235,15 @@ void DocsetRegistry::_runQuery(const QString &query)
                                                                                   &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
 
-    if (m_cancellationToken.isCanceled())
+    if (m_cancellationToken.isCanceled()) {
         return;
+    }
 
     std::sort(results.begin(), results.end());
 
-    if (m_cancellationToken.isCanceled())
+    if (m_cancellationToken.isCanceled()) {
         return;
+    }
 
     emit searchCompleted(results);
 }
@@ -249,9 +254,10 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
     const QDir dir(path);
     const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
     for (const QFileInfo &subdir : subDirectories) {
-        if (subdir.suffix() == QLatin1String("docset"))
+        if (subdir.suffix() == QLatin1String("docset")) {
             loadDocset(subdir.filePath());
-        else
+        } else {
             addDocsetsFromFolder(subdir.filePath());
+        }
     }
 }

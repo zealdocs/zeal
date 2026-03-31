@@ -84,8 +84,9 @@ int ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString 
     if (state & Qt::ShiftModifier) {
         const bool isShiftedSymbol = !text.isEmpty() && text.at(0).isPrint() && !text.at(0).isLetterOrNumber()
                                   && !text.at(0).isSpace();
-        if (!isShiftedSymbol)
+        if (!isShiftedSymbol) {
             modifiers |= Qt::ShiftModifier;
+        }
     }
 
     return modifiers;

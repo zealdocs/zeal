@@ -66,12 +66,14 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
                                                  NativeEventFilterResult *result)
 {
     Q_UNUSED(result)
-    if (eventType != "xcb_generic_event_t")
+    if (eventType != "xcb_generic_event_t") {
         return false;
+    }
 
     auto event = static_cast<xcb_generic_event_t *>(message);
-    if ((event->response_type & ~0x80) != XCB_KEY_PRESS)
+    if ((event->response_type & ~0x80) != XCB_KEY_PRESS) {
         return false;
+    }
 
     auto keyPressEvent = static_cast<xcb_key_press_event_t *>(message);
 
@@ -82,14 +84,18 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
 
     unsigned int keycode = keyPressEvent->detail;
     unsigned int keystate = 0;
-    if (keyPressEvent->state & XCB_MOD_MASK_1)
+    if (keyPressEvent->state & XCB_MOD_MASK_1) {
         keystate |= XCB_MOD_MASK_1;
-    if (keyPressEvent->state & XCB_MOD_MASK_CONTROL)
+    }
+    if (keyPressEvent->state & XCB_MOD_MASK_CONTROL) {
         keystate |= XCB_MOD_MASK_CONTROL;
-    if (keyPressEvent->state & XCB_MOD_MASK_4)
+    }
+    if (keyPressEvent->state & XCB_MOD_MASK_4) {
         keystate |= XCB_MOD_MASK_4;
-    if (keyPressEvent->state & XCB_MOD_MASK_SHIFT)
+    }
+    if (keyPressEvent->state & XCB_MOD_MASK_SHIFT) {
         keystate |= XCB_MOD_MASK_SHIFT;
+    }
 
     return activateShortcut(keycode, keystate);
 }
@@ -97,14 +103,18 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier)
+    if (modifiers & Qt::ShiftModifier) {
         native |= XCB_MOD_MASK_SHIFT;
-    if (modifiers & Qt::ControlModifier)
+    }
+    if (modifiers & Qt::ControlModifier) {
         native |= XCB_MOD_MASK_CONTROL;
-    if (modifiers & Qt::AltModifier)
+    }
+    if (modifiers & Qt::AltModifier) {
         native |= XCB_MOD_MASK_1;
-    if (modifiers & Qt::MetaModifier)
+    }
+    if (modifiers & Qt::MetaModifier) {
         native |= XCB_MOD_MASK_4;
+    }
 
     return native;
 }
@@ -122,8 +132,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
 #else
     KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
 #endif
-    if (keysym == XCB_NO_SYMBOL)
+    if (keysym == XCB_NO_SYMBOL) {
         keysym = static_cast<ushort>(key);
+    }
 
     xcb_connection_t *conn = QX11Info::connection();
     xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(conn);
@@ -142,8 +153,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         KeySym unshifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 0);
         if (unshifted != keysym) {
             KeySym shifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 1);
-            if (shifted == keysym)
+            if (shifted == keysym) {
                 extraNativeMods |= XCB_MOD_MASK_SHIFT;
+            }
         }
     }
 
@@ -154,8 +166,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    if (nativeKey == 0)
+    if (nativeKey == 0) {
         return false;
+    }
 
     xcb_connection_t *xcbConnection = QX11Info::connection();
 
@@ -176,16 +189,18 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
         failed = !error.isNull();
     }
 
-    if (failed)
+    if (failed) {
         unregisterShortcut(nativeKey, nativeMods);
+    }
 
     return !failed;
 }
 
 bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    if (nativeKey == 0)
+    if (nativeKey == 0) {
         return false;
+    }
 
     xcb_connection_t *xcbConnection = QX11Info::connection();
 

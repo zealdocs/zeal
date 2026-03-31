@@ -56,22 +56,26 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 void DocsetMetadata::save(const QString &path, const QString &version)
 {
     QScopedPointer<QFile> file(new QFile(path + QLatin1String("/meta.json")));
-    if (!file->open(QIODevice::WriteOnly))
+    if (!file->open(QIODevice::WriteOnly)) {
         return;
+    }
 
     QJsonObject jsonObject;
 
     jsonObject[QStringLiteral("name")] = m_name;
     jsonObject[QStringLiteral("title")] = m_title;
 
-    if (!version.isEmpty())
+    if (!version.isEmpty()) {
         jsonObject[QStringLiteral("version")] = version;
+    }
 
-    if (version == latestVersion() && m_revision > 0)
+    if (version == latestVersion() && m_revision > 0) {
         jsonObject[QStringLiteral("revision")] = QString::number(m_revision);
+    }
 
-    if (!m_feedUrl.isEmpty())
+    if (!m_feedUrl.isEmpty()) {
         jsonObject[QStringLiteral("feed_url")] = m_feedUrl.toString();
+    }
 
     if (!m_urls.isEmpty()) {
         QJsonArray urls;
@@ -82,26 +86,31 @@ void DocsetMetadata::save(const QString &path, const QString &version)
         jsonObject[QStringLiteral("urls")] = urls;
     }
 
-    if (!m_extra.isEmpty())
+    if (!m_extra.isEmpty()) {
         jsonObject[QStringLiteral("extra")] = m_extra;
+    }
 
     file->write(QJsonDocument(jsonObject).toJson());
     file->close();
 
-    if (m_rawIcon.isEmpty())
+    if (m_rawIcon.isEmpty()) {
         return;
+    }
 
     file->setFileName(path + QLatin1String("/icon.png"));
-    if (file->open(QIODevice::WriteOnly))
+    if (file->open(QIODevice::WriteOnly)) {
         file->write(m_rawIcon);
+    }
     file->close();
 
-    if (m_rawIcon2x.isEmpty())
+    if (m_rawIcon2x.isEmpty()) {
         return;
+    }
 
     file->setFileName(path + QLatin1String("/icon@2x.png"));
-    if (file->open(QIODevice::WriteOnly))
+    if (file->open(QIODevice::WriteOnly)) {
         file->write(m_rawIcon2x);
+    }
     file->close();
 }
 
@@ -175,8 +184,9 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
 
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();
-        if (token != QXmlStreamReader::StartElement)
+        if (token != QXmlStreamReader::StartElement) {
             continue;
+        }
 
         if (xml.name() == QLatin1String("name")) {
             if (xml.readNext() != QXmlStreamReader::Characters) {
@@ -187,12 +197,14 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
             metadata.m_title = metadata.m_name;
             metadata.m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
         } else if (xml.name() == QLatin1String("version")) {
-            if (xml.readNext() != QXmlStreamReader::Characters)
+            if (xml.readNext() != QXmlStreamReader::Characters) {
                 continue;
+            }
             metadata.m_versions << xml.text().toString();
         } else if (xml.name() == QLatin1String("url")) {
-            if (xml.readNext() != QXmlStreamReader::Characters)
+            if (xml.readNext() != QXmlStreamReader::Characters) {
                 continue;
+            }
             metadata.m_urls.append(QUrl(xml.text().toString()));
         }
     }

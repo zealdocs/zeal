@@ -45,8 +45,9 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event,
                                    const QStyleOptionViewItem &option,
                                    const QModelIndex &index)
 {
-    if (event->type() != QEvent::ToolTip)
+    if (event->type() != QEvent::ToolTip) {
         return QStyledItemDelegate::helpEvent(event, view, option, index);
+    }
 
     if (sizeHint(option, index).width() < view->visualRect(index).width()) {
         QToolTip::hideText();
@@ -66,8 +67,9 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     // Find decoration roles with data present.
     QList<int> roles;
     for (int role : m_decorationRoles) {
-        if (!index.data(role).isNull())
+        if (!index.data(role).isNull()) {
             roles.append(role);
+        }
     }
 
     // TODO: Implemented via initStyleOption() overload
@@ -87,10 +89,11 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (!roles.isEmpty()) {
         QIcon::Mode mode = QIcon::Normal;
-        if (!(opt.state & QStyle::State_Enabled))
+        if (!(opt.state & QStyle::State_Enabled)) {
             mode = QIcon::Disabled;
-        else if (opt.state & QStyle::State_Selected)
+        } else if (opt.state & QStyle::State_Selected) {
             mode = QIcon::Selected;
+        }
         const QIcon::State state = (opt.state & QStyle::State_Open) ? QIcon::On : QIcon::Off;
 
         // All icons are sized after the first one.
@@ -111,8 +114,9 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     // This should not happen unless a docset is corrupted.
-    if (index.data().isNull())
+    if (index.data().isNull()) {
         return;
+    }
 
     // Match QCommonStyle behavior.
     opt.features |= QStyleOptionViewItem::HasDisplay;
@@ -139,10 +143,11 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     const QPalette::ColorGroup cg = (opt.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
 
-    if (opt.state & QStyle::State_Selected)
+    if (opt.state & QStyle::State_Selected) {
         painter->setPen(opt.palette.color(cg, QPalette::HighlightedText));
-    else
+    } else {
         painter->setPen(opt.palette.color(cg, QPalette::Text));
+    }
 
     // Vertically align the text in the middle to match QCommonStyle behaviour.
     const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight,
@@ -223,8 +228,9 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     // Find decoration roles with data present.
     QList<int> roles;
     for (int role : m_decorationRoles) {
-        if (!index.data(role).isNull())
+        if (!index.data(role).isNull()) {
             roles.append(role);
+        }
     }
 
     if (!roles.isEmpty()) {

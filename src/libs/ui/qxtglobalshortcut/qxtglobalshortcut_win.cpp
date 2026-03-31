@@ -62,14 +62,18 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
 {
     // MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier)
+    if (modifiers & Qt::ShiftModifier) {
         native |= MOD_SHIFT;
-    if (modifiers & Qt::ControlModifier)
+    }
+    if (modifiers & Qt::ControlModifier) {
         native |= MOD_CONTROL;
-    if (modifiers & Qt::AltModifier)
+    }
+    if (modifiers & Qt::AltModifier) {
         native |= MOD_ALT;
-    if (modifiers & Qt::MetaModifier)
+    }
+    if (modifiers & Qt::MetaModifier) {
         native |= MOD_WIN;
+    }
     // TODO: resolve these?
     // if (modifiers & Qt::KeypadModifier)
     // if (modifiers & Qt::GroupSwitchModifier)
@@ -242,12 +246,15 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         if (key <= 0xFFFF) {
             const SHORT vk = VkKeyScanW(static_cast<WCHAR>(key));
             if (vk != -1) {
-                if (HIBYTE(vk) & 1)
+                if (HIBYTE(vk) & 1) {
                     extraNativeMods |= MOD_SHIFT;
-                if (HIBYTE(vk) & 2)
+                }
+                if (HIBYTE(vk) & 2) {
                     extraNativeMods |= MOD_CONTROL;
-                if (HIBYTE(vk) & 4)
+                }
+                if (HIBYTE(vk) & 4) {
                     extraNativeMods |= MOD_ALT;
+                }
                 return LOBYTE(vk);
             }
         }
