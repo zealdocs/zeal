@@ -33,7 +33,6 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QGuiApplication>
-
 #include <qt_windows.h>
 
 bool QxtGlobalShortcutPrivate::isSupported()

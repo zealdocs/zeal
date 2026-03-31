@@ -10,13 +10,13 @@
 #include "searchsidebar.h"
 #include "settingsdialog.h"
 #include "sidebarviewprovider.h"
-#include <qxtglobalshortcut/qxtglobalshortcut.h>
 
 #include <browser/settings.h>
 #include <browser/webbridge.h>
 #include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
 #include <sidebar/container.h>
 #include <sidebar/proxyview.h>
 

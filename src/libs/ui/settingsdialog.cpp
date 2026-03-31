@@ -5,11 +5,10 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
-#include <qxtglobalshortcut/qxtglobalshortcut.h>
-
 #include <browser/settings.h>
 #include <core/application.h>
 #include <core/settings.h>
+#include <qxtglobalshortcut/qxtglobalshortcut.h>
 
 #include <QDir>
 #include <QFileDialog>

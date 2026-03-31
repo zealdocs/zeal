@@ -5,13 +5,13 @@
 
 #include "application.h"
 
-#include <httplib.h>
-
 #include <QDir>
 #include <QLoggingCategory>
 #include <QReadLocker>
 #include <QRegularExpression>
 #include <QWriteLocker>
+
+#include <httplib.h>
 
 using namespace Zeal::Core;
 
