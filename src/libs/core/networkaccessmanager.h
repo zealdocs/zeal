@@ -20,7 +20,8 @@ public:
     static bool isLocalUrl(const QUrl &url);
 
 protected:
-    QNetworkReply *createRequest(Operation op, const QNetworkRequest &request,
+    QNetworkReply *createRequest(Operation op,
+                                 const QNetworkRequest &request,
                                  QIODevice *outgoingData = nullptr) override;
 };
 

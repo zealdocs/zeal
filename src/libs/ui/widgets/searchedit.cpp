@@ -88,10 +88,7 @@ bool SearchEdit::event(QEvent *event)
     }
     case QEvent::ShortcutOverride: {
         // TODO: Should be obtained from the ActionManager.
-        static const QStringList focusShortcuts = {
-            QStringLiteral("Ctrl+K"),
-            QStringLiteral("Ctrl+L")
-        };
+        static const QStringList focusShortcuts = {QStringLiteral("Ctrl+K"), QStringLiteral("Ctrl+L")};
 
         auto keyEvent = static_cast<QKeyEvent *>(event);
         const int keyCode = keyEvent->key() | static_cast<int>(keyEvent->modifiers());

@@ -44,7 +44,9 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     // A workaround for QAbstractButton lacking support for multiple shortcuts.
     auto action = new QAction(m_findPreviousButton);
     action->setShortcuts(QKeySequence::FindPrevious);
-    connect(action, &QAction::triggered, this, [this]() { m_findPreviousButton->animateClick(); });
+    connect(action, &QAction::triggered, this, [this]() {
+        m_findPreviousButton->animateClick();
+    });
     addAction(action);
 
     m_findNextButton = new QToolButton();
@@ -56,7 +58,9 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     action = new QAction(m_findNextButton);
     action->setShortcuts(QKeySequence::FindNext);
-    connect(action, &QAction::triggered, this, [this]() { m_findNextButton->animateClick(); });
+    connect(action, &QAction::triggered, this, [this]() {
+        m_findNextButton->animateClick();
+    });
     addAction(action);
 
     m_matchCaseButton = new QToolButton();
@@ -170,4 +174,3 @@ void SearchToolBar::hideHighlight()
 {
     m_webView->findText(QString());
 }
-

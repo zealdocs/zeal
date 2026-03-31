@@ -56,10 +56,10 @@ QString humanizeDuration(double seconds)
 }
 } // namespace
 
-QString Humanizer::fromNow(const QDateTime& dt)
+QString Humanizer::fromNow(const QDateTime &dt)
 {
     const double seconds = QDateTime::currentDateTime().secsTo(dt);
     const QString humanizedDuration = humanizeDuration(std::abs(seconds));
 
-    return  (seconds > 0 ? tr("%1 from now") : tr("%1 ago")).arg(humanizedDuration);
+    return (seconds > 0 ? tr("%1 from now") : tr("%1 ago")).arg(humanizedDuration);
 }

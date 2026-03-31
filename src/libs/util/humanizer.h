@@ -18,8 +18,9 @@ class Humanizer
     Q_DISABLE_COPY_MOVE(Humanizer)
     Humanizer() = delete;
     ~Humanizer() = delete;
+
 public:
-    static QString fromNow(const QDateTime& dt);
+    static QString fromNow(const QDateTime &dt);
 };
 
 } // namespace Util

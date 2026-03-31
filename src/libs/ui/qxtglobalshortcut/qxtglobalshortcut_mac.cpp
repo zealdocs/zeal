@@ -66,7 +66,8 @@ bool QxtGlobalShortcutPrivate::isSupported()
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+                                                 void *message,
+                                                 NativeEventFilterResult *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(message)
@@ -181,7 +182,7 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     case Qt::Key_Up:
         return kVK_UpArrow;
     default:
-        ;
+        break;
     }
 
     if (key == Qt::Key_Escape)
@@ -215,10 +216,12 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         UCKeyStateRecordsIndex *stateRec = 0;
         if (table[i].keyStateRecordsIndexOffset != 0) {
             stateRec = reinterpret_cast<UCKeyStateRecordsIndex *>(data + table[i].keyStateRecordsIndexOffset);
-            if (stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat) stateRec = 0;
+            if (stateRec->keyStateRecordsIndexFormat != kUCKeyStateRecordsIndexFormat)
+                stateRec = 0;
         }
 
-        UCKeyToCharTableIndex *charTable = reinterpret_cast<UCKeyToCharTableIndex *>(data + table[i].keyToCharTableIndexOffset);
+        UCKeyToCharTableIndex *charTable = reinterpret_cast<UCKeyToCharTableIndex *>(
+            data + table[i].keyToCharTableIndexOffset);
         if (charTable->keyToCharTableIndexFormat != kUCKeyToCharTableIndexFormat)
             continue;
 
@@ -229,11 +232,14 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
                 if (keyToChar[k] & kUCKeyOutputTestForIndexMask) {
                     long idx = keyToChar[k] & kUCKeyOutputGetIndexMask;
                     if (stateRec && idx < stateRec->keyStateRecordCount) {
-                        UCKeyStateRecord *rec = reinterpret_cast<UCKeyStateRecord *>(data + stateRec->keyStateRecordOffsets[idx]);
-                        if (rec->stateZeroCharData == ch) found = true;
+                        UCKeyStateRecord *rec = reinterpret_cast<UCKeyStateRecord *>(
+                            data + stateRec->keyStateRecordOffsets[idx]);
+                        if (rec->stateZeroCharData == ch)
+                            found = true;
                     }
                 } else if (!(keyToChar[k] & kUCKeyOutputSequenceIndexMask) && keyToChar[k] < 0xFFFE) {
-                    if (keyToChar[k] == ch) found = true;
+                    if (keyToChar[k] == ch)
+                        found = true;
                 }
                 if (found) {
                     // Table index 0 = no modifiers, 1 = Shift.

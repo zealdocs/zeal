@@ -53,9 +53,7 @@
 #include <xcb/xcb_keysyms.h>
 
 namespace {
-constexpr quint32 maskModifiers[] = {
-    0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)
-};
+constexpr quint32 maskModifiers[] = {0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)};
 } // namespace
 
 bool QxtGlobalShortcutPrivate::isSupported()
@@ -64,7 +62,8 @@ bool QxtGlobalShortcutPrivate::isSupported()
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+                                                 void *message,
+                                                 NativeEventFilterResult *result)
 {
     Q_UNUSED(result)
     if (eventType != "xcb_generic_event_t")
@@ -130,7 +129,7 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(conn);
 
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
-                xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
+        xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
 
     // Silently returns 0 on failure; registration will fail downstream.
     if (!keycodes.isNull()) {
@@ -162,9 +161,13 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
 
     QList<xcb_void_cookie_t> xcbCookies;
     for (quint32 maskMods : maskModifiers) {
-        xcbCookies << xcb_grab_key_checked(xcbConnection, 1, QX11Info::appRootWindow(),
-                                           nativeMods | maskMods, nativeKey,
-                                           XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+        xcbCookies << xcb_grab_key_checked(xcbConnection,
+                                           1,
+                                           QX11Info::appRootWindow(),
+                                           nativeMods | maskMods,
+                                           nativeKey,
+                                           XCB_GRAB_MODE_ASYNC,
+                                           XCB_GRAB_MODE_ASYNC);
     }
 
     bool failed = false;

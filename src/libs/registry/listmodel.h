@@ -52,13 +52,16 @@ private:
     DocsetRegistry *m_docsetRegistry = nullptr;
 
     struct DocsetItem;
-    struct GroupItem {
+
+    struct GroupItem
+    {
         const IndexLevel level = IndexLevel::Group;
         DocsetItem *docsetItem = nullptr;
         QString symbolType;
     };
 
-    struct DocsetItem {
+    struct DocsetItem
+    {
         const IndexLevel level = IndexLevel::Docset;
         Docset *docset = nullptr;
         QList<GroupItem *> groups;

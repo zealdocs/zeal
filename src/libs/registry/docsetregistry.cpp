@@ -66,7 +66,7 @@ void DocsetRegistry::setStoragePath(const QString &path)
         return;
     }
 
-    QMetaObject::invokeMethod(this, [this, path](){
+    QMetaObject::invokeMethod(this, [this, path]() {
         unloadAllDocsets();
         addDocsetsFromFolder(path);
         m_storagePath = path;
@@ -108,7 +108,7 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::loadDocset(const QString &path)
 {
-    std::future<Docset *> f = std::async(std::launch::async, [path](){
+    std::future<Docset *> f = std::async(std::launch::async, [path]() {
         return new Docset(path);
     });
 
@@ -116,8 +116,10 @@ void DocsetRegistry::loadDocset(const QString &path)
     Docset *docset = f.get();
     // TODO: Emit error
     if (!docset->isValid()) {
-        qCWarning(log, "Could not load docset '%s' from '%s'. Reinstall the docset.",
-                  qPrintable(docset->name()), qPrintable(docset->path()));
+        qCWarning(log,
+                  "Could not load docset '%s' from '%s'. Reinstall the docset.",
+                  qPrintable(docset->name()),
+                  qPrintable(docset->path()));
         delete docset;
         return;
     }
@@ -132,8 +134,10 @@ void DocsetRegistry::loadDocset(const QString &path)
     // Setup HTTP mount.
     QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
     if (url.isEmpty()) {
-        qCWarning(log, "Could not enable docset '%s' from '%s'. Reinstall the docset.",
-                  qPrintable(docset->name()), qPrintable(docset->path()));
+        qCWarning(log,
+                  "Could not enable docset '%s' from '%s'. Reinstall the docset.",
+                  qPrintable(docset->name()),
+                  qPrintable(docset->path()));
         delete docset;
         return;
     }
@@ -219,13 +223,13 @@ void DocsetRegistry::_runQuery(const QString &query)
         enabledDocsets = docsets();
     }
 
-    QFuture<QList<SearchResult>> queryResultsFuture
-            = QtConcurrent::mappedReduced(enabledDocsets,
-                                          std::bind(&Docset::search,
-                                                    std::placeholders::_1,
-                                                    searchQuery.query(),
-                                                    std::ref(m_cancellationToken)),
-                                          &MergeQueryResults);
+    QFuture<QList<SearchResult>> queryResultsFuture = QtConcurrent::mappedReduced(enabledDocsets,
+                                                                                  std::bind(&Docset::search,
+                                                                                            std::placeholders::_1,
+                                                                                            searchQuery.query(),
+                                                                                            std::ref(
+                                                                                                m_cancellationToken)),
+                                                                                  &MergeQueryResults);
     QList<SearchResult> results = queryResultsFuture.result();
 
     if (m_cancellationToken.isCanceled())

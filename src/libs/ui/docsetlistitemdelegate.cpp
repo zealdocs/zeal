@@ -21,8 +21,8 @@ DocsetListItemDelegate::DocsetListItemDelegate(QObject *parent)
 }
 
 void DocsetListItemDelegate::paint(QPainter *painter,
-                                 const QStyleOptionViewItem &option,
-                                 const QModelIndex &index) const
+                                   const QStyleOptionViewItem &option,
+                                   const QModelIndex &index) const
 {
     if (index.model()->data(index, ShowProgressRole).toBool()) {
         paintProgressBar(painter, option, index);
@@ -53,8 +53,10 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     textRect = QStyle::visualRect(option.direction, option.rect, textRect);
     // Constant LeftToRight because we don't need to flip it any further.
     // Vertically align the text in the middle to match QCommonStyle behavior.
-    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, option.displayAlignment,
-                                                 QSize(textRect.size().width(), fontMetrics.height()), textRect);
+    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight,
+                                                 option.displayAlignment,
+                                                 QSize(textRect.size().width(), fontMetrics.height()),
+                                                 textRect);
 
     painter->save();
 
@@ -63,13 +65,11 @@ void DocsetListItemDelegate::paint(QPainter *painter,
 #ifdef Q_OS_WINDOWS
     // QWindowsVistaStyle overrides highlight color.
     if (option.widget->style()->objectName() == QLatin1String("windowsvista")) {
-        palette.setColor(QPalette::All, QPalette::HighlightedText,
-                         palette.color(QPalette::Active, QPalette::Text));
+        palette.setColor(QPalette::All, QPalette::HighlightedText, palette.color(QPalette::Active, QPalette::Text));
     }
 #endif
 
-    const QPalette::ColorGroup cg = (option.state & QStyle::State_Active)
-            ? QPalette::Normal : QPalette::Inactive;
+    const QPalette::ColorGroup cg = (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
 
     if (option.state & QStyle::State_Selected) {
         painter->setPen(palette.color(cg, QPalette::HighlightedText));
@@ -84,8 +84,8 @@ void DocsetListItemDelegate::paint(QPainter *painter,
 }
 
 void DocsetListItemDelegate::paintProgressBar(QPainter *painter,
-                                            const QStyleOptionViewItem &option,
-                                            const QModelIndex &index) const
+                                              const QStyleOptionViewItem &option,
+                                              const QModelIndex &index) const
 {
     bool ok;
     const int value = index.model()->data(index, ValueRole).toInt(&ok);

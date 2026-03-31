@@ -10,9 +10,9 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QWebEngineProfile>
-#include <QWebEngineSettings>
 #include <QWebEngineScript>
 #include <QWebEngineScriptCollection>
+#include <QWebEngineSettings>
 
 namespace {
 constexpr char HighlightOnNavigateCssPath[] = ":/browser/assets/css/highlight.css";
@@ -54,8 +54,7 @@ void Settings::applySettings()
 
     // Qt 6.7+ does not require restart to enable dark mode.
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    m_webProfile->settings()->setAttribute(QWebEngineSettings::ForceDarkMode,
-                                           m_appSettings->isDarkModeEnabled());
+    m_webProfile->settings()->setAttribute(QWebEngineSettings::ForceDarkMode, m_appSettings->isDarkModeEnabled());
 #endif
 
     // Apply custom CSS.
@@ -93,6 +92,7 @@ void Settings::setCustomStyleSheet(const QString &name, const QString &path)
     stylesheet.replace(QLatin1String("'"), QLatin1String("\\'"));
     stylesheet.replace(QLatin1String("\n"), QLatin1String("\\n"));
 
+    // clang-format off
     QString cssInjectCode = QLatin1String(
         "(() => {"
             "const head = document.getElementsByTagName('head')[0];"
@@ -103,6 +103,7 @@ void Settings::setCustomStyleSheet(const QString &name, const QString &path)
             "head.appendChild(stylesheet);"
         "})()"
     );
+    // clang-format on
 
     QWebEngineScript script;
     script.setName(name);

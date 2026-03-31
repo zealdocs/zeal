@@ -22,14 +22,10 @@ public:
 
     explicit DocsetListItemDelegate(QObject *parent = nullptr);
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
-    void paintProgressBar(QPainter *painter,
-                          const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const;
+    void paintProgressBar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 } // namespace WidgetUi

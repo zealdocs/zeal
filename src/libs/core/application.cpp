@@ -47,8 +47,10 @@ Application::Application(QObject *parent)
     m_fileManager = new FileManager(this);
     m_httpServer = new HttpServer(this);
 
-    connect(m_networkManager, &QNetworkAccessManager::sslErrors,
-            this, [this](QNetworkReply *reply, const QList<QSslError> &errors) {
+    connect(m_networkManager,
+            &QNetworkAccessManager::sslErrors,
+            this,
+            [this](QNetworkReply *reply, const QList<QSslError> &errors) {
         Q_UNUSED(errors);
         if (m_settings->isIgnoreSslErrorsEnabled) {
             reply->ignoreSslErrors();
@@ -181,8 +183,11 @@ void Application::executeQuery(const Registry::SearchQuery &query, bool preventA
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)
 {
-    QMetaObject::invokeMethod(m_extractor, "extract", Qt::QueuedConnection,
-                              Q_ARG(QString, filePath), Q_ARG(QString, destination),
+    QMetaObject::invokeMethod(m_extractor,
+                              "extract",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, filePath),
+                              Q_ARG(QString, destination),
                               Q_ARG(QString, root));
 }
 
@@ -210,8 +215,7 @@ void Application::checkForUpdates(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
     connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
-        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(
-                    qobject_cast<QNetworkReply *>(sender()));
+        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
             if (!quiet)
@@ -229,8 +233,7 @@ void Application::checkForUpdates(bool quiet)
         }
 
         const QJsonObject versionInfo = jsonDoc.array().first().toObject(); // Latest is the first.
-        const auto latestVersion
-                = QVersionNumber::fromString(versionInfo[QLatin1String("version")].toString());
+        const auto latestVersion = QVersionNumber::fromString(versionInfo[QLatin1String("version")].toString());
         if (latestVersion > version()) {
             emit updateCheckDone(latestVersion.toString());
         } else if (!quiet) {
@@ -257,8 +260,8 @@ void Application::applySettings()
     case Settings::ProxyType::Http:
     case Settings::ProxyType::Socks5: {
         const QNetworkProxy::ProxyType type = m_settings->proxyType == Settings::ProxyType::Socks5
-                ? QNetworkProxy::Socks5Proxy
-                : QNetworkProxy::HttpProxy;
+                                                ? QNetworkProxy::Socks5Proxy
+                                                : QNetworkProxy::HttpProxy;
 
         QNetworkProxy proxy(type, m_settings->proxyHost, m_settings->proxyPort);
         if (m_settings->proxyAuthenticate) {
@@ -283,26 +286,19 @@ QString Application::userAgent()
 
 QString Application::userAgentJson() const
 {
-    QJsonObject app = {
-        {QStringLiteral("version"), QCoreApplication::applicationVersion()},
-        {QStringLiteral("qt_version"), qVersion()},
-        {QStringLiteral("install_id"), m_settings->installId}
-    };
+    QJsonObject app = {{QStringLiteral("version"), QCoreApplication::applicationVersion()},
+                       {QStringLiteral("qt_version"), qVersion()},
+                       {QStringLiteral("install_id"), m_settings->installId}};
 
-    QJsonObject os = {
-        {QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
-        {QStringLiteral("name"), QSysInfo::prettyProductName()},
-        {QStringLiteral("product_type"), QSysInfo::productType()},
-        {QStringLiteral("product_version"), QSysInfo::productVersion()},
-        {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
-        {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
-        {QStringLiteral("locale"), QLocale::system().name()}
-    };
+    QJsonObject os = {{QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
+                      {QStringLiteral("name"), QSysInfo::prettyProductName()},
+                      {QStringLiteral("product_type"), QSysInfo::productType()},
+                      {QStringLiteral("product_version"), QSysInfo::productVersion()},
+                      {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
+                      {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
+                      {QStringLiteral("locale"), QLocale::system().name()}};
 
-    QJsonObject ua = {
-        {QStringLiteral("app"), app},
-        {QStringLiteral("os"), os}
-    };
+    QJsonObject ua = {{QStringLiteral("app"), app}, {QStringLiteral("os"), os}};
 
     return QString::fromUtf8(QJsonDocument(ua).toJson(QJsonDocument::Compact));
 }

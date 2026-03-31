@@ -40,8 +40,10 @@ void SearchItemDelegate::setTextHighlightRole(int role)
     m_textHighlightRole = role;
 }
 
-bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
-                                   const QStyleOptionViewItem &option, const QModelIndex &index)
+bool SearchItemDelegate::helpEvent(QHelpEvent *event,
+                                   QAbstractItemView *view,
+                                   const QStyleOptionViewItem &option,
+                                   const QModelIndex &index)
 {
     if (event->type() != QEvent::ToolTip)
         return QStyledItemDelegate::helpEvent(event, view, option, index);
@@ -55,8 +57,7 @@ bool SearchItemDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view,
     return true;
 }
 
-void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                               const QModelIndex &index) const
+void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt(option);
 
@@ -117,7 +118,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     opt.features |= QStyleOptionViewItem::HasDisplay;
     opt.text = index.data().toString();
     const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &opt, opt.widget)
-            .adjusted(margin, 0, -margin, 0);
+                               .adjusted(margin, 0, -margin, 0);
     const QFontMetrics &fm = opt.fontMetrics;
     // Force ElideRight so match position indices map 1:1 to the visible text.
     const QString elidedText = fm.elidedText(opt.text, Qt::ElideRight, textRect.width());
@@ -130,13 +131,13 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 #ifdef Q_OS_WINDOWS
     // QWindowsVistaStyle overrides highlight color.
     if (style->objectName() == QLatin1String("windowsvista")) {
-        opt.palette.setColor(QPalette::All, QPalette::HighlightedText,
+        opt.palette.setColor(QPalette::All,
+                             QPalette::HighlightedText,
                              opt.palette.color(QPalette::Active, QPalette::Text));
     }
 #endif
 
-    const QPalette::ColorGroup cg = (opt.state & QStyle::State_Active)
-            ? QPalette::Normal : QPalette::Inactive;
+    const QPalette::ColorGroup cg = (opt.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
 
     if (opt.state & QStyle::State_Selected)
         painter->setPen(opt.palette.color(cg, QPalette::HighlightedText));
@@ -144,8 +145,10 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->setPen(opt.palette.color(cg, QPalette::Text));
 
     // Vertically align the text in the middle to match QCommonStyle behaviour.
-    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight, opt.displayAlignment,
-                                                 QSize(textRect.size().width(), fm.height()), textRect);
+    const auto alignedRect = QStyle::alignedRect(Qt::LeftToRight,
+                                                 opt.displayAlignment,
+                                                 QSize(textRect.size().width(), fm.height()),
+                                                 textRect);
 
     if (matchPositions.isEmpty()) {
         const auto textPoint = QPoint(alignedRect.x(), alignedRect.y() + fm.ascent());
@@ -159,8 +162,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         const QFontMetrics boldFm(boldFont);
 
         const QColor matchColor = (opt.state & QStyle::State_Selected)
-                ? opt.palette.color(cg, QPalette::HighlightedText)
-                : opt.palette.color(QPalette::Active, QPalette::Highlight);
+                                    ? opt.palette.color(cg, QPalette::HighlightedText)
+                                    : opt.palette.color(QPalette::Active, QPalette::Highlight);
         const QColor textColor = painter->pen().color();
 
         QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
@@ -201,8 +204,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->restore();
 }
 
-QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                   const QModelIndex &index) const
+QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem opt(option);
 

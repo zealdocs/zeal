@@ -37,7 +37,7 @@ bool FileManager::removeRecursively(const QString &path)
     }
 
     const QString deletePath = QStringLiteral("%1.%2.deleteme")
-            .arg(path, QString::number(QDateTime::currentMSecsSinceEpoch()));
+                                   .arg(path, QString::number(QDateTime::currentMSecsSinceEpoch()));
 
     if (!QDir().rename(path, deletePath)) {
         qCWarning(log, "Failed to rename '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
@@ -46,7 +46,7 @@ bool FileManager::removeRecursively(const QString &path)
 
     qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
-    std::future<bool> f = std::async(std::launch::async, [deletePath](){
+    std::future<bool> f = std::async(std::launch::async, [deletePath]() {
         return QDir(deletePath).removeRecursively();
     });
 

@@ -21,9 +21,8 @@ using namespace Zeal::WidgetUi;
 
 namespace {
 // QFontDatabase::standardSizes() lacks some sizes, like 13, which QtWK uses by default.
-constexpr int AvailableFontSizes[] = {9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-                                      20, 22, 24, 26, 28, 30, 32, 34, 36,
-                                      40, 44, 48, 56, 64, 72};
+constexpr int AvailableFontSizes[] = {9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24,
+                                      26, 28, 30, 32, 34, 36, 40, 44, 48, 56, 64, 72};
 constexpr QWebEngineSettings::FontFamily BasicFontFamilies[] = {QWebEngineSettings::SerifFont,
                                                                 QWebEngineSettings::SansSerifFont,
                                                                 QWebEngineSettings::FixedFont};
@@ -69,35 +68,38 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     QWebEngineSettings *webSettings = Browser::Settings::defaultProfile()->settings();
 
     // Avoid casting in each connect.
-    auto currentIndexChangedSignal
-            = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    auto currentIndexChangedSignal = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
 
-    auto syncStandardFont = [this, webSettings](QWebEngineSettings::FontFamily fontFamily,
-            const QFont &font) {
+    auto syncStandardFont = [this, webSettings](QWebEngineSettings::FontFamily fontFamily, const QFont &font) {
         const int index = ui->defaultFontComboBox->currentIndex();
         if (BasicFontFamilies[index] == fontFamily) {
             webSettings->setFontFamily(QWebEngineSettings::StandardFont, font.family());
         }
     };
 
-    connect(ui->defaultFontComboBox, currentIndexChangedSignal,
-            this, [webSettings](int index) {
+    connect(ui->defaultFontComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
         const QString fontFamily = webSettings->fontFamily(BasicFontFamilies[index]);
         webSettings->setFontFamily(QWebEngineSettings::StandardFont, fontFamily);
     });
 
-    connect(ui->serifFontComboBox, &QFontComboBox::currentFontChanged,
-            this, [webSettings, syncStandardFont](const QFont &font) {
+    connect(ui->serifFontComboBox,
+            &QFontComboBox::currentFontChanged,
+            this,
+            [webSettings, syncStandardFont](const QFont &font) {
         webSettings->setFontFamily(QWebEngineSettings::SerifFont, font.family());
         syncStandardFont(QWebEngineSettings::SerifFont, font);
     });
-    connect(ui->sansSerifFontComboBox, &QFontComboBox::currentFontChanged,
-            this, [webSettings, syncStandardFont](const QFont &font) {
+    connect(ui->sansSerifFontComboBox,
+            &QFontComboBox::currentFontChanged,
+            this,
+            [webSettings, syncStandardFont](const QFont &font) {
         webSettings->setFontFamily(QWebEngineSettings::SansSerifFont, font.family());
         syncStandardFont(QWebEngineSettings::SansSerifFont, font);
     });
-    connect(ui->fixedFontComboBox, &QFontComboBox::currentFontChanged,
-            this, [webSettings, syncStandardFont](const QFont &font) {
+    connect(ui->fixedFontComboBox,
+            &QFontComboBox::currentFontChanged,
+            this,
+            [webSettings, syncStandardFont](const QFont &font) {
         webSettings->setFontFamily(QWebEngineSettings::FixedFont, font.family());
         syncStandardFont(QWebEngineSettings::FixedFont, font);
     });
@@ -109,7 +111,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, AvailableFontSizes[index]);
     });
     connect(ui->minFontSizeComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
-        const int fontSize = index == 0 ? 0 : AvailableFontSizes[index-1];
+        const int fontSize = index == 0 ? 0 : AvailableFontSizes[index - 1];
         webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, fontSize);
     });
 
@@ -123,7 +125,8 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::chooseCustomCssFile()
 {
-    const QString file = QFileDialog::getOpenFileName(this, tr("Choose CSS File"),
+    const QString file = QFileDialog::getOpenFileName(this,
+                                                      tr("Choose CSS File"),
                                                       ui->customCssFileEdit->text(),
                                                       tr("CSS Files (*.css);;All Files (*.*)"));
     if (file.isEmpty())
@@ -134,8 +137,7 @@ void SettingsDialog::chooseCustomCssFile()
 
 void SettingsDialog::chooseDocsetStoragePath()
 {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                     ui->docsetStorageEdit->text());
+    QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"), ui->docsetStorageEdit->text());
     if (path.isEmpty()) {
         return;
     }
@@ -153,7 +155,7 @@ void SettingsDialog::chooseDocsetStoragePath()
 
 void SettingsDialog::loadSettings()
 {
-    const Core::Settings * const settings = Core::Application::instance()->settings();
+    const Core::Settings *const settings = Core::Application::instance()->settings();
 
     // General Tab
     ui->startMinimizedCheckBox->setChecked(settings->startMinimized);
@@ -246,7 +248,7 @@ void SettingsDialog::loadSettings()
 
 void SettingsDialog::saveSettings()
 {
-    Core::Settings * const settings = Core::Application::instance()->settings();
+    Core::Settings *const settings = Core::Application::instance()->settings();
 
     // General Tab
     settings->startMinimized = ui->startMinimizedCheckBox->isChecked();

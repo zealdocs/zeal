@@ -32,7 +32,7 @@ HttpServer::HttpServer(QObject *parent)
     m_baseUrl.setHost(LocalHttpServerHost);
     m_baseUrl.setPort(port);
 
-    m_server->set_error_handler([this](const auto& req, auto& res) {
+    m_server->set_error_handler([this](const auto &req, auto &res) {
         // On 404, try case-insensitive path resolution.
         // Docsets generated on macOS (case-insensitive) may have links with mismatched case.
         // See: https://github.com/zealdocs/zeal/issues/1009
@@ -56,8 +56,8 @@ HttpServer::HttpServer(QObject *parent)
         }
 
         const QString html = QStringLiteral("<b>ERROR %1</b><br><pre>Request path: %2</pre>")
-                .arg(res.status)
-                .arg(QString::fromStdString(req.path));
+                                 .arg(res.status)
+                                 .arg(QString::fromStdString(req.path));
         res.set_content(html.toUtf8().data(), "text/html");
     });
 

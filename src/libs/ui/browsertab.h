@@ -19,7 +19,7 @@ class WebControl;
 
 namespace Registry {
 class SearchQuery;
-} //namespace Registry
+} // namespace Registry
 
 namespace WidgetUi {
 

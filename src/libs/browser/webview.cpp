@@ -73,9 +73,12 @@ void WebView::setZoomLevel(int level)
 
 const QVector<int> &WebView::availableZoomLevels()
 {
+    // clang-format off
     static const QVector<int> zoomLevels = {30, 40, 50, 67, 80, 90, 100,
                                             110, 120, 133, 150, 170, 200,
                                             220, 233, 250, 270, 285, 300};
+    // clang-format on
+
     return zoomLevels;
 }
 
@@ -103,13 +106,17 @@ void WebView::resetZoom()
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
     const bool activate = (type != QWebEnginePage::WebBrowserBackgroundTab);
-    return Core::Application::instance()->mainWindow()->createTab(QUrl(QStringLiteral("about:blank")), activate)->webControl()->m_webView;
+    return Core::Application::instance()
+        ->mainWindow()
+        ->createTab(QUrl(QStringLiteral("about:blank")), activate)
+        ->webControl()
+        ->m_webView;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QWebEngineContextMenuData& contextData = page()->contextMenuData();
+    const QWebEngineContextMenuData &contextData = page()->contextMenuData();
 
     if (!contextData.isValid()) {
         QWebEngineView::contextMenuEvent(event);
@@ -156,7 +163,6 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
             m_contextMenu->addAction(pageAction(QWebEnginePage::CopyLinkToClipboard));
         }
     }
-
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QString selectedText = contextData.selectedText();
