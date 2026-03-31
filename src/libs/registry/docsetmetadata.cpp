@@ -22,8 +22,7 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     m_rawIcon = QByteArray::fromBase64(jsonObject[QStringLiteral("icon")].toString().toLocal8Bit());
     m_icon.addPixmap(QPixmap::fromImage(QImage::fromData(m_rawIcon)));
 
-    m_rawIcon2x = QByteArray::fromBase64(jsonObject[QStringLiteral("icon2x")].toString()
-            .toLocal8Bit());
+    m_rawIcon2x = QByteArray::fromBase64(jsonObject[QStringLiteral("icon2x")].toString().toLocal8Bit());
     if (qApp->devicePixelRatio() > 1.0) {
         QPixmap pixmap = QPixmap::fromImage(QImage::fromData(m_rawIcon2x));
         pixmap.setDevicePixelRatio(2.0);

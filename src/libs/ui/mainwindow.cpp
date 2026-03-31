@@ -86,18 +86,17 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     connect(m_application, &Core::Application::updateCheckDone, this, [this](const QString &version) {
         if (version.isEmpty()) {
-            QMessageBox::information(this, QStringLiteral("Zeal"),
-                                     tr("You are using the latest version."));
+            QMessageBox::information(this, QStringLiteral("Zeal"), tr("You are using the latest version."));
             return;
         }
 
         // TODO: Remove this ugly workaround for #637.
         qApp->setQuitOnLastWindowClosed(false);
-        const int ret
-                = QMessageBox::information(this, QStringLiteral("Zeal"),
-                                           tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
-                                           QMessageBox::Yes | QMessageBox::No,
-                                           QMessageBox::Yes);
+        const int ret = QMessageBox::information(this,
+                                                 QStringLiteral("Zeal"),
+                                                 tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
+                                                 QMessageBox::Yes | QMessageBox::No,
+                                                 QMessageBox::Yes);
         qApp->setQuitOnLastWindowClosed(true);
 
         if (ret == QMessageBox::Yes) {
@@ -250,13 +249,12 @@ void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
 
     tab->webControl()->setWebBridgeObject("zAppBridge", m_webBridge);
 
-    connect(tab->searchSidebar(), &SearchSidebar::openInNewTabRequested,
-            this, [this](const QUrl &url, bool activate) { createTab(url, activate); });
+    connect(tab->searchSidebar(), &SearchSidebar::openInNewTabRequested, this, [this](const QUrl &url, bool activate) {
+        createTab(url, activate);
+    });
 
     if (index == -1) {
-        index = m_settings->openNewTabAfterActive
-                ? m_tabBar->currentIndex() + 1
-                : m_webViewStack->count();
+        index = m_settings->openNewTabAfterActive ? m_tabBar->currentIndex() + 1 : m_webViewStack->count();
     }
 
     m_webViewStack->insertWidget(index, tab);
@@ -291,33 +289,33 @@ void MainWindow::setupMainMenu()
 
     // -> New Tab Action.
     // Not a standard icon, but it is often provided by GTK themes.
-    auto action = menu->addAction(
-        QIcon::fromTheme(QStringLiteral("tab-new")),
-        tr("New &Tab")
-    );
+    auto action = menu->addAction(QIcon::fromTheme(QStringLiteral("tab-new")), tr("New &Tab"));
     addAction(action);
     action->setShortcut(QKeySequence::AddTab);
-    connect(action, &QAction::triggered, this, [this]() { createTab(); });
+    connect(action, &QAction::triggered, this, [this]() {
+        createTab();
+    });
 
     // -> Close Tab Action.
     action = menu->addAction(tr("&Close Tab"));
     addAction(action);
     action->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_W));
-    connect(action, &QAction::triggered, this, [this]() { closeTab(); });
+    connect(action, &QAction::triggered, this, [this]() {
+        closeTab();
+    });
 
     menu->addSeparator();
 
     // -> Quit Action.
-    action = m_quitAction = menu->addAction(
-        QIcon::fromTheme(QStringLiteral("application-exit")),
-        // Follow Windows HIG.
+    // Follow Windows HIG naming.
+    action = m_quitAction = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")),
 #ifdef Q_OS_WINDOWS
-        tr("E&xit"),
+                                            tr("E&xit"),
 #else
-        tr("&Quit"),
+                                            tr("&Quit"),
 #endif
-        qApp, &QApplication::quit
-    );
+                                            qApp,
+                                            &QApplication::quit);
     addAction(action);
     action->setMenuRole(QAction::QuitRole);
     action->setShortcut(QStringLiteral("Ctrl+Q"));
@@ -326,10 +324,7 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Edit"));
 
     // -> Find in Page Action.
-    action = menu->addAction(
-        QIcon::fromTheme(QStringLiteral("edit-find")),
-        tr("&Find in Page")
-    );
+    action = menu->addAction(QIcon::fromTheme(QStringLiteral("edit-find")), tr("&Find in Page"));
     addAction(action);
     action->setShortcut(QKeySequence::Find);
     connect(action, &QAction::triggered, this, [this]() {
@@ -399,24 +394,18 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Tools"));
 
     // -> Docsets Action.
-    m_showDocsetManagerAction = menu->addAction(
-        tr("&Docsets…"),
-        this, [this]() {
-            QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
-            dialog->exec();
-        }
-    );
+    m_showDocsetManagerAction = menu->addAction(tr("&Docsets…"), this, [this]() {
+        QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
+        dialog->exec();
+    });
 
     // Help Menu.
     menu = m_menuBar->addMenu(tr("&Help"));
 
     // -> Submit Feedback Action.
-    menu->addAction(
-        tr("&Submit Feedback…"),
-        this, [this]() {
-            QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/report-bug")));
-        }
-    );
+    menu->addAction(tr("&Submit Feedback…"), this, [this]() {
+        QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/report-bug")));
+    });
 
     // -> Check for Updates Action.
     menu->addAction(tr("&Check for Updates…"), this, [this]() {
@@ -426,14 +415,10 @@ void MainWindow::setupMainMenu()
     menu->addSeparator();
 
     // -> About Action.
-    action = menu->addAction(
-        QIcon::fromTheme(QStringLiteral("help-about")),
-        tr("&About Zeal"),
-        this, [this]() {
-            QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
-            dialog->exec();
-        }
-    );
+    action = menu->addAction(QIcon::fromTheme(QStringLiteral("help-about")), tr("&About Zeal"), this, [this]() {
+        QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
+        dialog->exec();
+    });
     addAction(action);
     action->setMenuRole(QAction::AboutRole);
 
@@ -465,7 +450,9 @@ void MainWindow::setupShortcuts()
 
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        duplicateTab(m_tabBar->currentIndex());
+    });
 
     // Hide/show sidebar.
     // TODO: Move to the View menu.
@@ -521,8 +508,8 @@ void MainWindow::setupShortcuts()
     // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
     QAction *action = new QAction(this);
     addAction(action);
-    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_Tab),
-                          QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
+    action->setShortcuts(
+        {QKeySequence(Qt::ControlModifier | Qt::Key_Tab), QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
     connect(action, &QAction::triggered, this, [this]() {
         const int count = m_tabBar->count();
         if (count > 0) {
@@ -618,8 +605,7 @@ void MainWindow::createTrayIcon()
     });
 
     auto trayIconMenu = new QMenu(this);
-    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"),
-                                                    this, &MainWindow::toggleWindow);
+    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"), this, &MainWindow::toggleWindow);
 
     connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
         toggleAction->setText(isVisible() ? tr("Minimize to Tray") : tr("Show Zeal"));
@@ -685,8 +671,8 @@ void MainWindow::bringToFront()
 
 void MainWindow::changeEvent(QEvent *event)
 {
-    if (m_settings->showSystrayIcon && m_settings->minimizeToSystray
-            && event->type() == QEvent::WindowStateChange && isMinimized()) {
+    if (m_settings->showSystrayIcon && m_settings->minimizeToSystray && event->type() == QEvent::WindowStateChange
+        && isMinimized()) {
         hide();
     }
 
@@ -725,9 +711,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     }
 
 #ifndef Q_OS_MACOS
-    if (object == m_menuBar
-        && m_menuBar->isVisible()
-        && m_showMenuBarAction != nullptr
+    if (object == m_menuBar && m_menuBar->isVisible() && m_showMenuBarAction != nullptr
         && !m_showMenuBarAction->isChecked()) {
         switch (event->type()) {
         // Hide menu bar when it loses focus.

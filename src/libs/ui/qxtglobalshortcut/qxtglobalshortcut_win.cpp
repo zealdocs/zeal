@@ -42,7 +42,8 @@ bool QxtGlobalShortcutPrivate::isSupported()
 }
 
 bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message, NativeEventFilterResult *result)
+                                                 void *message,
+                                                 NativeEventFilterResult *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(result)
@@ -70,8 +71,8 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
     if (modifiers & Qt::MetaModifier)
         native |= MOD_WIN;
     // TODO: resolve these?
-    //if (modifiers & Qt::KeypadModifier)
-    //if (modifiers & Qt::GroupSwitchModifier)
+    // if (modifiers & Qt::KeypadModifier)
+    // if (modifiers & Qt::GroupSwitchModifier)
     return native;
 }
 
@@ -184,8 +185,8 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     case Qt::Key_MediaStop:
         return VK_MEDIA_STOP;
         // couldn't find those in VK_*
-        //case Qt::Key_MediaLast:
-        //case Qt::Key_MediaRecord:
+        // case Qt::Key_MediaLast:
+        // case Qt::Key_MediaRecord:
     case Qt::Key_VolumeDown:
         return VK_VOLUME_DOWN;
     case Qt::Key_VolumeUp:

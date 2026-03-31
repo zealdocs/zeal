@@ -375,9 +375,8 @@ void FuzzyTest::testManyGapsNegativeScore()
     // The first haystack character always receives SCORE_MATCH_SLASH (0.9) because
     // precomputeBonus initialises lastCh to '/'. Each inner gap costs -0.01, so
     // 90+ gap characters are needed before the total score goes negative.
-    const QString haystack = QStringLiteral("a") + QString(50, 'x')
-                             + QStringLiteral("b") + QString(50, 'x')
-                             + QStringLiteral("c");
+    const QString haystack = QStringLiteral("a") + QString(50, 'x') + QStringLiteral("b") + QString(50, 'x')
+                           + QStringLiteral("c");
     double manyGaps = score(QStringLiteral("abc"), haystack);
 
     // Should still match but with negative score
@@ -425,12 +424,9 @@ void FuzzyTest::testPositionsForInfinityScore()
 void FuzzyTest::testInfinityForEqualLengthMatch()
 {
     // Exact case-insensitive match of equal length strings should return infinity
-    QCOMPARE(score(QStringLiteral("test"), QStringLiteral("test")),
-             std::numeric_limits<double>::infinity());
-    QCOMPARE(score(QStringLiteral("TeSt"), QStringLiteral("test")),
-             std::numeric_limits<double>::infinity());
-    QCOMPARE(score(QStringLiteral("TEST"), QStringLiteral("test")),
-             std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("test"), QStringLiteral("test")), std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("TeSt"), QStringLiteral("test")), std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("TEST"), QStringLiteral("test")), std::numeric_limits<double>::infinity());
 }
 
 void FuzzyTest::testNegativeInfinityScenarios()
@@ -438,31 +434,24 @@ void FuzzyTest::testNegativeInfinityScenarios()
     // All scenarios that should return -infinity
 
     // Empty strings
-    QCOMPARE(score(QString(), QStringLiteral("test")),
-             -std::numeric_limits<double>::infinity());
-    QCOMPARE(score(QStringLiteral("test"), QString()),
-             -std::numeric_limits<double>::infinity());
-    QCOMPARE(score(QString(), QString()),
-             -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QString(), QStringLiteral("test")), -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("test"), QString()), -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QString(), QString()), -std::numeric_limits<double>::infinity());
 
     // No match
-    QCOMPARE(score(QStringLiteral("xyz"), QStringLiteral("abc")),
-             -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("xyz"), QStringLiteral("abc")), -std::numeric_limits<double>::infinity());
 
     // Needle longer than haystack
-    QCOMPARE(score(QStringLiteral("longer"), QStringLiteral("ab")),
-             -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("longer"), QStringLiteral("ab")), -std::numeric_limits<double>::infinity());
 
     // Equal length non-matching
-    QCOMPARE(score(QStringLiteral("abcd"), QStringLiteral("efgh")),
-             -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(QStringLiteral("abcd"), QStringLiteral("efgh")), -std::numeric_limits<double>::infinity());
 
     // Strings too long (> FZY_MAX_LEN = 1024) — use unequal lengths to reach
     // the DP length guard (equal-length match shortcuts to +infinity)
     QString tooLong(1025, 'a');
     QString tooLongHaystack(1026, 'a');
-    QCOMPARE(score(tooLong, tooLongHaystack),
-             -std::numeric_limits<double>::infinity());
+    QCOMPARE(score(tooLong, tooLongHaystack), -std::numeric_limits<double>::infinity());
 }
 
 // ============================================================================
@@ -494,7 +483,7 @@ void FuzzyTest::testSpaceHandling()
     double afterSpace = score(QStringLiteral("b"), QStringLiteral("a b"));
     double noBonus = score(QStringLiteral("b"), QStringLiteral("ab"));
     QVERIFY(afterSpace > -std::numeric_limits<double>::infinity());
-    QVERIFY(noBonus   > -std::numeric_limits<double>::infinity());
+    QVERIFY(noBonus > -std::numeric_limits<double>::infinity());
     QVERIFY(afterSpace > noBonus); // Space gives bonus
 
     // Fuzzy match with space - space must be present

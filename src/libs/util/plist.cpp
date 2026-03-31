@@ -33,7 +33,8 @@ bool Plist::read(const QString &fileName)
         const QString key = xml.readElementText();
 
         // Skip whitespaces between tags
-        while (xml.readNext() == QXmlStreamReader::Characters);
+        while (xml.readNext() == QXmlStreamReader::Characters)
+            ;
 
         if (xml.tokenType() != QXmlStreamReader::StartElement)
             continue;

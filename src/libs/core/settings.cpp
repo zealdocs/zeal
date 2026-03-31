@@ -54,8 +54,7 @@ Settings::Settings(QObject *parent)
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     // When the OS color scheme changes, reapply the color scheme.
-    connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged,
-            this, [this]() {
+    connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this]() {
         if (contentAppearance == ContentAppearance::Automatic) {
             applyColorScheme();
         }
@@ -160,8 +159,8 @@ void Settings::load()
 
     settings->beginGroup(GroupContent);
 
-    contentAppearance = settings->value(QStringLiteral("appearance"),
-                                        QVariant::fromValue(ContentAppearance::Automatic)).value<ContentAppearance>();
+    contentAppearance = settings->value(QStringLiteral("appearance"), QVariant::fromValue(ContentAppearance::Automatic))
+                            .value<ContentAppearance>();
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
     // Dark mode needs to be applied before Qt WebEngine is initialized.
@@ -182,21 +181,25 @@ void Settings::load()
 
     // Fonts
     QWebEngineSettings *webSettings = QWebEngineProfile::defaultProfile()->settings();
-    serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
-                                      webSettings->fontFamily(QWebEngineSettings::SerifFont)).toString();
-    sansSerifFontFamily = settings->value(QStringLiteral("sans_serif_font_family"),
-                                          webSettings->fontFamily(QWebEngineSettings::SansSerifFont)).toString();
-    fixedFontFamily = settings->value(QStringLiteral("fixed_font_family"),
-                                      webSettings->fontFamily(QWebEngineSettings::FixedFont)).toString();
+    serifFontFamily = settings
+                          ->value(QStringLiteral("serif_font_family"),
+                                  webSettings->fontFamily(QWebEngineSettings::SerifFont))
+                          .toString();
+    sansSerifFontFamily = settings
+                              ->value(QStringLiteral("sans_serif_font_family"),
+                                      webSettings->fontFamily(QWebEngineSettings::SansSerifFont))
+                              .toString();
+    fixedFontFamily = settings
+                          ->value(QStringLiteral("fixed_font_family"),
+                                  webSettings->fontFamily(QWebEngineSettings::FixedFont))
+                          .toString();
 
-    static const QMap<QString, QWebEngineSettings::FontFamily> fontFamilies = {
-        {QStringLiteral("sans-serif"), QWebEngineSettings::SansSerifFont},
-        {QStringLiteral("serif"), QWebEngineSettings::SerifFont},
-        {QStringLiteral("monospace"), QWebEngineSettings::FixedFont}
-    };
+    static const QMap<QString, QWebEngineSettings::FontFamily> fontFamilies =
+        {{QStringLiteral("sans-serif"), QWebEngineSettings::SansSerifFont},
+         {QStringLiteral("serif"), QWebEngineSettings::SerifFont},
+         {QStringLiteral("monospace"), QWebEngineSettings::FixedFont}};
 
-    defaultFontFamily = settings->value(QStringLiteral("default_font_family"),
-                                        QStringLiteral("serif")).toString();
+    defaultFontFamily = settings->value(QStringLiteral("default_font_family"), QStringLiteral("serif")).toString();
 
     // Fallback to the serif font family.
     if (!fontFamilies.contains(defaultFontFamily)) {
@@ -210,12 +213,18 @@ void Settings::load()
     const QString defaultFontFamilyResolved = webSettings->fontFamily(fontFamilies.value(defaultFontFamily));
     webSettings->setFontFamily(QWebEngineSettings::StandardFont, defaultFontFamilyResolved);
 
-    defaultFontSize = settings->value(QStringLiteral("default_font_size"),
-                                      webSettings->fontSize(QWebEngineSettings::DefaultFontSize)).toInt();
-    defaultFixedFontSize = settings->value(QStringLiteral("default_fixed_font_size"),
-                                           webSettings->fontSize(QWebEngineSettings::DefaultFixedFontSize)).toInt();
-    minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
-                                      webSettings->fontSize(QWebEngineSettings::MinimumFontSize)).toInt();
+    defaultFontSize = settings
+                          ->value(QStringLiteral("default_font_size"),
+                                  webSettings->fontSize(QWebEngineSettings::DefaultFontSize))
+                          .toInt();
+    defaultFixedFontSize = settings
+                               ->value(QStringLiteral("default_fixed_font_size"),
+                                       webSettings->fontSize(QWebEngineSettings::DefaultFixedFontSize))
+                               .toInt();
+    minimumFontSize = settings
+                          ->value(QStringLiteral("minimum_font_size"),
+                                  webSettings->fontSize(QWebEngineSettings::MinimumFontSize))
+                          .toInt();
 
     webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, defaultFontSize);
     webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, defaultFixedFontSize);
@@ -223,14 +232,15 @@ void Settings::load()
 
     isHighlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
-    externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
-                                         QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
+    externalLinkPolicy = settings
+                             ->value(QStringLiteral("external_link_policy"),
+                                     QVariant::fromValue(ExternalLinkPolicy::Ask))
+                             .value<ExternalLinkPolicy>();
     isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), true).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
-    proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
-                                                       ProxyType::System).toUInt());
+    proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"), ProxyType::System).toUInt());
     proxyHost = settings->value(QStringLiteral("host")).toString();
     proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
@@ -244,8 +254,7 @@ void Settings::load()
         docsetPath = settings->value(QStringLiteral("path")).toString();
     } else {
 #ifndef PORTABLE_BUILD
-        docsetPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-                + QLatin1String("/docsets");
+        docsetPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QLatin1String("/docsets");
 #else
         docsetPath = QStringLiteral("docsets");
 #endif
@@ -255,9 +264,8 @@ void Settings::load()
     // Create the docset storage directory if it doesn't exist.
     const QFileInfo fi(docsetPath);
     if (!fi.exists()) {
-        const QString path = fi.isRelative()
-                ? QCoreApplication::applicationDirPath() + QLatin1String("/") + docsetPath
-                : docsetPath;
+        const QString path = fi.isRelative() ? QCoreApplication::applicationDirPath() + QLatin1String("/") + docsetPath
+                                             : docsetPath;
         if (!QDir().mkpath(path)) {
             qCWarning(log, "Failed to create docset storage directory '%s'.", qPrintable(path));
         }
@@ -270,9 +278,11 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupInternal);
-    installId = settings->value(QStringLiteral("install_id"),
-                                // Avoid curly braces (QTBUG-885)
-                                QUuid::createUuid().toString().mid(1, 36)).toString();
+    installId = settings
+                    ->value(QStringLiteral("install_id"),
+                            // Avoid curly braces (QTBUG-885)
+                            QUuid::createUuid().toString().mid(1, 36))
+                    .toString();
     settings->endGroup();
 }
 
@@ -427,7 +437,8 @@ QSettings *Settings::qsettings(QObject *parent)
     return new QSettings(parent);
 #else
     return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
-                         QSettings::IniFormat, parent);
+                         QSettings::IniFormat,
+                         parent);
 #endif
 }
 

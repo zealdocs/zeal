@@ -61,14 +61,12 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
             stalePid = sd ? sd->primaryPid : 0;
             m_sharedMemory->unlock();
         } else {
-            qCWarning(log) << "Cannot lock shared memory for PID probe:"
-                           << m_sharedMemory->errorString();
+            qCWarning(log) << "Cannot lock shared memory for PID probe:" << m_sharedMemory->errorString();
         }
 
         // kill() with EPERM means the process exists but we lack permission to signal it.
         errno = 0;
-        const bool isAlive = (stalePid > 0
-            && (kill(static_cast<pid_t>(stalePid), 0) == 0 || errno == EPERM));
+        const bool isAlive = (stalePid > 0 && (kill(static_cast<pid_t>(stalePid), 0) == 0 || errno == EPERM));
 
         if (isAlive) {
             setupSecondary();
@@ -105,8 +103,7 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
 
     // Fall back to secondary if we couldn't reclaim the segment.
     if (!m_sharedMemory->attach(QSharedMemory::ReadOnly)) {
-        qCWarning(log) << "Cannot attach to the shared memory segment:"
-                       << m_sharedMemory->errorString();
+        qCWarning(log) << "Cannot attach to the shared memory segment:" << m_sharedMemory->errorString();
         return;
     }
 
@@ -138,8 +135,7 @@ bool ApplicationSingleton::sendMessage(QByteArray &data, int timeout)
     QScopedPointer<QLocalSocket, QScopedPointerDeleteLater> socket(new QLocalSocket);
     socket->connectToServer(m_id);
     if (!socket->waitForConnected(timeout)) {
-        qCWarning(log) << "Cannot connect to the local service:"
-                       << socket->errorString();
+        qCWarning(log) << "Cannot connect to the local service:" << socket->errorString();
         return false;
     }
 
@@ -172,8 +168,7 @@ void ApplicationSingleton::setupPrimary()
     });
 
     if (!m_localServer->listen(m_id)) {
-        qCWarning(log) << "Cannot start the local service:"
-                       << m_localServer->errorString();
+        qCWarning(log) << "Cannot start the local service:" << m_localServer->errorString();
         return;
     }
 }
@@ -191,8 +186,8 @@ void ApplicationSingleton::setupSecondary()
 QString ApplicationSingleton::computeId()
 {
     // Make sure the result can be used as a name for the local socket.
-    static const QByteArray::Base64Options base64Options
-            = QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals;
+    static const QByteArray::Base64Options base64Options = QByteArray::Base64UrlEncoding
+                                                         | QByteArray::OmitTrailingEquals;
 
     QCryptographicHash hash(QCryptographicHash::Sha256);
     hash.addData(QCoreApplication::applicationName().toUtf8());

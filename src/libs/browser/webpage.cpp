@@ -29,8 +29,7 @@ WebPage::WebPage(QObject *parent)
     // Set the page backdrop to match the theme, preventing a white flash during navigation.
     // TODO: Use a dedicated content appearance signal instead of the catch-all updated().
     applyBackgroundColor();
-    connect(Core::Application::instance()->settings(), &Core::Settings::updated,
-            this, &WebPage::applyBackgroundColor);
+    connect(Core::Application::instance()->settings(), &Core::Settings::updated, this, &WebPage::applyBackgroundColor);
 }
 
 void WebPage::applyBackgroundColor()
@@ -70,8 +69,7 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
     case ExternalLinkPolicy::Ask: {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Question);
-        mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>")
-                   .arg(requestUrl.toString()));
+        mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>").arg(requestUrl.toString()));
 
         QCheckBox *checkBox = new QCheckBox("Do &not ask again");
         mb.setCheckBox(checkBox);

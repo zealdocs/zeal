@@ -22,10 +22,11 @@ public:
     int textHighlightRole() const;
     void setTextHighlightRole(int role);
 
-    bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option,
+    bool helpEvent(QHelpEvent *event,
+                   QAbstractItemView *view,
+                   const QStyleOptionViewItem &option,
                    const QModelIndex &index) override;
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:

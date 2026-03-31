@@ -82,10 +82,8 @@ int ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString 
     // so the shortcut displays as Ctrl+? rather than Ctrl+Shift+?.
     // The actual Shift modifier is recovered during native hotkey registration.
     if (state & Qt::ShiftModifier) {
-        const bool isShiftedSymbol = !text.isEmpty()
-            && text.at(0).isPrint()
-            && !text.at(0).isLetterOrNumber()
-            && !text.at(0).isSpace();
+        const bool isShiftedSymbol = !text.isEmpty() && text.at(0).isPrint() && !text.at(0).isLetterOrNumber()
+                                  && !text.at(0).isSpace();
         if (!isShiftedSymbol)
             modifiers |= Qt::ShiftModifier;
     }

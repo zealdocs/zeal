@@ -76,9 +76,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     connect(m_treeView, &QTreeView::clicked, this, &SearchSidebar::navigateToIndex);
 
     // Setup Alt+Up, Alt+Down, etc shortcuts.
-    const auto keyList = {Qt::Key_Up, Qt::Key_Down,
-                          Qt::Key_PageUp, Qt::Key_PageDown,
-                          Qt::Key_Home, Qt::Key_End};
+    const auto keyList = {Qt::Key_Up, Qt::Key_Down, Qt::Key_PageUp, Qt::Key_PageDown, Qt::Key_Home, Qt::Key_End};
     for (const auto key : keyList) {
         auto shortcut = new QShortcut(key | Qt::AltModifier, this);
         connect(shortcut, &QShortcut::activated, this, [this, key]() {
@@ -169,8 +167,10 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             }
 
             // Connect to the new selection model.
-            connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                    this, &SearchSidebar::navigateToSelectionWithDelay);
+            connect(m_treeView->selectionModel(),
+                    &QItemSelectionModel::selectionChanged,
+                    this,
+                    &SearchSidebar::navigateToSelectionWithDelay);
         }
 
         m_treeView->reset();
@@ -218,8 +218,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     // Setup Docset Registry.
     auto registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
-    connect(registry, &DocsetRegistry::searchCompleted,
-            this, [this](const QList<Registry::SearchResult> &results) {
+    connect(registry, &DocsetRegistry::searchCompleted, this, [this](const QList<Registry::SearchResult> &results) {
         if (!isVisible()) {
             return;
         }
@@ -276,8 +275,10 @@ void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecor
         }
 
         // Connect to the new selection model.
-        connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
-                this, &SearchSidebar::navigateToSelectionWithDelay);
+        connect(m_treeView->selectionModel(),
+                &QItemSelectionModel::selectionChanged,
+                this,
+                &SearchSidebar::navigateToSelectionWithDelay);
     }
 }
 
@@ -314,8 +315,7 @@ void SearchSidebar::search(const Registry::SearchQuery &query)
 void SearchSidebar::navigateToIndex(const QModelIndex &index)
 {
     // When triggered by click, cancel delayed navigation request caused by the selection change.
-    if (m_delayedNavigationTimer->isActive()
-            && m_delayedNavigationTimer->property("index").toModelIndex() == index) {
+    if (m_delayedNavigationTimer->isActive() && m_delayedNavigationTimer->property("index").toModelIndex() == index) {
         m_delayedNavigationTimer->stop();
     }
 
@@ -371,8 +371,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     if (object == m_treeView->viewport() && event->type() == QEvent::MouseButtonPress) {
         auto e = static_cast<QMouseEvent *>(event);
         const bool isMiddleClick = (e->button() == Qt::MiddleButton);
-        const bool isCtrlClick = (e->button() == Qt::LeftButton
-                                  && e->modifiers().testFlag(Qt::ControlModifier));
+        const bool isCtrlClick = (e->button() == Qt::LeftButton && e->modifiers().testFlag(Qt::ControlModifier));
 
         if (isMiddleClick || isCtrlClick) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -398,8 +397,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
 
     if (object == m_treeView && event->type() == QEvent::KeyPress) {
         auto e = static_cast<QKeyEvent *>(event);
-        if ((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
-                && e->modifiers().testFlag(Qt::ControlModifier)) {
+        if ((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) && e->modifiers().testFlag(Qt::ControlModifier)) {
             if (e->isAutoRepeat())
                 return true;
             const QModelIndex index = m_treeView->currentIndex();
@@ -446,7 +444,6 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_PageUp:
             QCoreApplication::sendEvent(m_treeView, event);
             break;
-
         }
     }
 

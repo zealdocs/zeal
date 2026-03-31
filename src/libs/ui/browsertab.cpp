@@ -74,7 +74,9 @@ BrowserTab::BrowserTab(QWidget *parent)
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
             const QIcon icon = docsetIcon(it->url());
             const QWebEngineHistoryItem item = *it;
-            backMenu->addAction(icon, it->title(), this, [=](bool) { history->goToItem(item); });
+            backMenu->addAction(icon, it->title(), this, [=](bool) {
+                history->goToItem(item);
+            });
         }
     });
     m_backButton->setMenu(backMenu);
@@ -95,7 +97,9 @@ BrowserTab::BrowserTab(QWidget *parent)
         const auto forwardItems = history->forwardItems(10);
         for (const QWebEngineHistoryItem &item : forwardItems) {
             const QIcon icon = docsetIcon(item.url());
-            forwardMenu->addAction(icon, item.title(), this, [=](bool) { history->goToItem(item); });
+            forwardMenu->addAction(icon, item.title(), this, [=](bool) {
+                history->goToItem(item);
+            });
         }
     });
     m_forwardButton->setMenu(forwardMenu);
@@ -130,13 +134,11 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     auto registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
-    connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded,
-            this, [this, registry](const QString &name) {
+    connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this, registry](const QString &name) {
         Registry::Docset *docset = registry->docsetForUrl(m_webControl->url());
-        if (docset == nullptr ||  docset->name() != name) {
+        if (docset == nullptr || docset->name() != name) {
             return;
         }
-
 
         // TODO: Add custom 'Page has been removed' page.
         navigateToStartPage();
@@ -151,10 +153,11 @@ BrowserTab *BrowserTab::clone(bool preserveHistory) const
 
     if (m_searchSidebar) {
         tab->m_searchSidebar = m_searchSidebar->clone();
-        connect(tab->m_searchSidebar, &SearchSidebar::activated,
-                tab->m_webControl, &Browser::WebControl::focus);
-        connect(tab->m_searchSidebar, &SearchSidebar::navigationRequested,
-                tab->m_webControl, &Browser::WebControl::load);
+        connect(tab->m_searchSidebar, &SearchSidebar::activated, tab->m_webControl, &Browser::WebControl::focus);
+        connect(tab->m_searchSidebar,
+                &SearchSidebar::navigationRequested,
+                tab->m_webControl,
+                &Browser::WebControl::load);
     }
 
     if (preserveHistory) {
@@ -183,10 +186,8 @@ SearchSidebar *BrowserTab::searchSidebar()
     if (m_searchSidebar == nullptr) {
         // Create SearchSidebar managed by this tab.
         m_searchSidebar = new SearchSidebar();
-        connect(m_searchSidebar, &SearchSidebar::activated,
-                m_webControl, &Browser::WebControl::focus);
-        connect(m_searchSidebar, &SearchSidebar::navigationRequested,
-                m_webControl, &Browser::WebControl::load);
+        connect(m_searchSidebar, &SearchSidebar::activated, m_webControl, &Browser::WebControl::focus);
+        connect(m_searchSidebar, &SearchSidebar::navigationRequested, m_webControl, &Browser::WebControl::load);
     }
 
     return m_searchSidebar;

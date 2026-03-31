@@ -18,8 +18,8 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QVariant>
 #include <QVarLengthArray>
+#include <QVariant>
 
 #include <sqlite3.h>
 
@@ -40,13 +40,13 @@ constexpr char NotFoundPageUrl[] = "qrc:///browser/404.html";
 
 namespace InfoPlist {
 constexpr char CFBundleName[] = "CFBundleName";
-//const char CFBundleIdentifier[] = "CFBundleIdentifier";
+// const char CFBundleIdentifier[] = "CFBundleIdentifier";
 constexpr char DashDocSetFamily[] = "DashDocSetFamily";
 constexpr char DashDocSetKeyword[] = "DashDocSetKeyword";
 constexpr char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
 constexpr char DashIndexFilePath[] = "dashIndexFilePath";
 constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
-//const char IsDashDocset[] = "isDashDocset";
+// const char IsDashDocset[] = "isDashDocset";
 constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 } // namespace InfoPlist
 } // namespace
@@ -109,9 +109,11 @@ Docset::Docset(QString path)
         m_title.replace(QLatin1Char('_'), QLatin1Char(' '));
     }
 
-
     if (!dir.cd(QStringLiteral("Resources"))) {
-        qCWarning(log, "[%s] Cannot change directory into 'Resources' at '%s'.", qPrintable(m_name), qPrintable(m_path));
+        qCWarning(log,
+                  "[%s] Cannot change directory into 'Resources' at '%s'.",
+                  qPrintable(m_name),
+                  qPrintable(m_path));
         return;
     }
 
@@ -127,11 +129,16 @@ Docset::Docset(QString path)
         return;
     }
 
-    sqlite3_create_function(m_db->handle(), "zealScore", 2, SQLITE_UTF8, nullptr,
-                            sqliteScoreFunction, nullptr, nullptr);
+    sqlite3_create_function(m_db->handle(),
+                            "zealScore",
+                            2,
+                            SQLITE_UTF8,
+                            nullptr,
+                            sqliteScoreFunction,
+                            nullptr,
+                            nullptr);
 
-    m_type = m_db->tables().contains(QStringLiteral("searchIndex"), Qt::CaseInsensitive)
-            ? Type::Dash : Type::ZDash;
+    m_type = m_db->tables().contains(QStringLiteral("searchIndex"), Qt::CaseInsensitive) ? Type::Dash : Type::ZDash;
 
     createIndex();
 
@@ -140,7 +147,10 @@ Docset::Docset(QString path)
     }
 
     if (!dir.cd(QStringLiteral("Documents"))) {
-        qCWarning(log, "[%s] Cannot change directory into 'Documents' at '%s'.", qPrintable(m_name), qPrintable(m_path));
+        qCWarning(log,
+                  "[%s] Cannot change directory into 'Documents' at '%s'.",
+                  qPrintable(m_name),
+                  qPrintable(m_path));
         m_type = Type::Invalid;
         return;
     }
@@ -382,8 +392,10 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     while (m_db->next()) {
         results.append({m_db->value(0).toString(),
                         parseSymbolType(m_db->value(1).toString()),
-                        m_db->value(2).toString(), m_db->value(3).toString(),
-                        const_cast<Docset *>(this), 0});
+                        m_db->value(2).toString(),
+                        m_db->value(3).toString(),
+                        const_cast<Docset *>(this),
+                        0});
     }
 
     if (results.size() == 1) {
@@ -450,8 +462,10 @@ void Docset::countSymbols()
                                               "  FROM searchIndex"
                                               "  GROUP BY type");
     if (!m_db->prepare(sql)) {
-        qCWarning(log, "[%s] Cannot prepare statement to count symbols: %s.",
-                  qPrintable(m_name), qPrintable(m_db->lastError()));
+        qCWarning(log,
+                  "[%s] Cannot prepare statement to count symbols: %s.",
+                  qPrintable(m_name),
+                  qPrintable(m_db->lastError()));
         return;
     }
 
@@ -498,16 +512,17 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     }
 
     if (!m_db->prepare(sql.arg(symbolString))) {
-        qCWarning(log, "[%s] Cannot prepare statement to load symbols for type '%s': %s.",
-                  qPrintable(m_name), qPrintable(symbolString), qPrintable(m_db->lastError()));
+        qCWarning(log,
+                  "[%s] Cannot prepare statement to load symbols for type '%s': %s.",
+                  qPrintable(m_name),
+                  qPrintable(symbolString),
+                  qPrintable(m_db->lastError()));
         return;
     }
 
     QMultiMap<QString, QUrl> &symbols = m_symbols[symbolType];
     while (m_db->next()) {
-        symbols.insert(m_db->value(0).toString(),
-                       createPageUrl(m_db->value(1).toString(),
-                                     m_db->value(2).toString()));
+        symbols.insert(m_db->value(0).toString(), createPageUrl(m_db->value(1).toString(), m_db->value(2).toString()));
     }
 }
 
@@ -518,10 +533,8 @@ void Docset::createIndex()
     static const QString indexCreateQuery = QStringLiteral("CREATE INDEX IF NOT EXISTS %1%2"
                                                            " ON %3 (%4 COLLATE NOCASE)");
 
-    const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex")
-                                                   : QStringLiteral("ztoken");
-    const QString columnName = m_type == Type::Dash ? QStringLiteral("name")
-                                                    : QStringLiteral("ztokenname");
+    const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex") : QStringLiteral("ztoken");
+    const QString columnName = m_type == Type::Dash ? QStringLiteral("name") : QStringLiteral("ztokenname");
 
     m_db->prepare(indexListQuery.arg(tableName));
 
@@ -548,20 +561,19 @@ void Docset::createIndex()
 
 void Docset::createView()
 {
-    static const QString viewCreateQuery
-            = QStringLiteral("CREATE VIEW IF NOT EXISTS searchIndex AS"
-                             "  SELECT"
-                             "    ztokenname AS name,"
-                             "    ztypename AS type,"
-                             "    zpath AS path,"
-                             "    zanchor AS fragment"
-                             "  FROM ztoken"
-                             "  INNER JOIN ztokenmetainformation"
-                             "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk"
-                             "  INNER JOIN zfilepath"
-                             "    ON ztokenmetainformation.zfile = zfilepath.z_pk"
-                             "  INNER JOIN ztokentype"
-                             "    ON ztoken.ztokentype = ztokentype.z_pk");
+    static const QString viewCreateQuery = QStringLiteral("CREATE VIEW IF NOT EXISTS searchIndex AS"
+                                                          "  SELECT"
+                                                          "    ztokenname AS name,"
+                                                          "    ztypename AS type,"
+                                                          "    zpath AS path,"
+                                                          "    zanchor AS fragment"
+                                                          "  FROM ztoken"
+                                                          "  INNER JOIN ztokenmetainformation"
+                                                          "    ON ztoken.zmetainformation = ztokenmetainformation.z_pk"
+                                                          "  INNER JOIN zfilepath"
+                                                          "    ON ztokenmetainformation.zfile = zfilepath.z_pk"
+                                                          "  INNER JOIN ztokentype"
+                                                          "    ON ztoken.ztokentype = ztokentype.z_pk");
 
     m_db->execute(viewCreateQuery);
 }
@@ -590,7 +602,7 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
 
     if (!realFragment.isEmpty()) {
         if (realFragment.startsWith(QLatin1String("//apple_ref"))
-                || realFragment.startsWith(QLatin1String("//dash_ref"))) {
+            || realFragment.startsWith(QLatin1String("//dash_ref"))) {
             url.setFragment(realFragment, QUrl::DecodedMode);
         } else {
             url.setFragment(realFragment);
@@ -603,6 +615,7 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
 QString Docset::parseSymbolType(const QString &str)
 {
     // Dash symbol aliases
+    // clang-format off
     const static QHash<QString, QString> aliases = {
         // Attribute
         {QStringLiteral("Package Attributes"), QStringLiteral("Attribute")},
@@ -730,6 +743,7 @@ QString Docset::parseSymbolType(const QString &str)
         // Variable
         {QStringLiteral("var"), QStringLiteral("Variable")}
     };
+    // clang-format on
 
     return aliases.value(str, str);
 }

@@ -147,14 +147,14 @@ double computeScore(const QString &needle, const QString &haystack, QVector<int>
         return -std::numeric_limits<double>::infinity();
     }
 
-    double matchBonus[FZY_MAX_LEN] = {};  // Zero-initialize to satisfy static analyzer
+    double matchBonus[FZY_MAX_LEN] = {}; // Zero-initialize to satisfy static analyzer
     precomputeBonus(haystack, matchBonus);
 
     const double SCORE_MIN = -std::numeric_limits<double>::infinity();
 
     // Always allocate 2D tables on heap (simpler, memory overhead negligible for typical searches)
-    double **D = new double*[needleLen];
-    double **M = new double*[needleLen];
+    double **D = new double *[needleLen];
+    double **M = new double *[needleLen];
     for (int i = 0; i < needleLen; ++i) {
         D[i] = new double[haystackLen];
         M[i] = new double[haystackLen];
@@ -176,8 +176,7 @@ double computeScore(const QString &needle, const QString &haystack, QVector<int>
                 } else if (j > 0) {
                     const double prevM = M[i - 1][j - 1];
                     const double prevD = D[i - 1][j - 1];
-                    score = std::max(prevM + matchBonus[j],
-                                prevD + SCORE_MATCH_CONSECUTIVE);
+                    score = std::max(prevM + matchBonus[j], prevD + SCORE_MATCH_CONSECUTIVE);
                 }
 
                 D[i][j] = score;
@@ -204,8 +203,7 @@ double computeScore(const QString &needle, const QString &haystack, QVector<int>
                     // Check if we used consecutive match bonus to get here.
                     // Use D[i][j] (score at this specific position), not M[i][j]
                     // (global prefix optimum), which may reflect a different path entirely.
-                    matchRequired = (i > 0 && j > 0 &&
-                                   D[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
+                    matchRequired = (i > 0 && j > 0 && D[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
                     (*positions)[i] = j;
                     --j;
                     break;

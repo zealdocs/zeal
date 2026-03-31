@@ -116,7 +116,8 @@ bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 #endif
 
     const auto newKey = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key(combination & ~Qt::KeyboardModifierMask);
-    const auto newMods = shortcut.isEmpty() ? Qt::NoModifier : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
+    const auto newMods = shortcut.isEmpty() ? Qt::NoModifier
+                                            : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
 
     key = newKey;
     mods = newMods;

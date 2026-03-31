@@ -18,6 +18,7 @@ public:
     inline bool isCanceled() const { return m_canceled; }
 
     inline void cancel() { m_canceled = true; }
+
     inline void reset() { m_canceled = false; }
 
 private:

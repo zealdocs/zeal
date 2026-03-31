@@ -46,10 +46,12 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 
 void UrlRequestInterceptor::blockRequest(QWebEngineUrlRequestInfo &info)
 {
-    qCDebug(log, "Blocked request: %s '%s' (resource_type=%d, navigation_type=%d).",
+    qCDebug(log,
+            "Blocked request: %s '%s' (resource_type=%d, navigation_type=%d).",
             info.requestMethod().data(),
             qPrintable(info.requestUrl().toString()),
-            info.resourceType(), info.navigationType());
+            info.resourceType(),
+            info.navigationType());
 
     info.block(true);
 }

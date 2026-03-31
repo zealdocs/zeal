@@ -19,9 +19,7 @@ public:
     explicit Extractor(QObject *parent = nullptr);
 
 public slots:
-    void extract(const QString &sourceFile,
-                 const QString &destination,
-                 const QString &root = QString());
+    void extract(const QString &sourceFile, const QString &destination, const QString &root = QString());
 
 signals:
     void error(const QString &filePath, const QString &message);
@@ -29,7 +27,8 @@ signals:
     void progress(const QString &filePath, qint64 extracted, qint64 total);
 
 private:
-    struct ExtractInfo {
+    struct ExtractInfo
+    {
         archive *archiveHandle;
         QString filePath;
         qint64 totalBytes;

@@ -14,7 +14,11 @@ SidebarViewProvider::SidebarViewProvider(MainWindow *mainWindow)
     : Sidebar::ViewProvider(mainWindow)
     , m_mainWindow(mainWindow)
 {
-    connect(m_mainWindow, &MainWindow::currentTabChanged, this, &SidebarViewProvider::viewChanged, Qt::QueuedConnection);
+    connect(m_mainWindow,
+            &MainWindow::currentTabChanged,
+            this,
+            &SidebarViewProvider::viewChanged,
+            Qt::QueuedConnection);
 }
 
 Sidebar::View *SidebarViewProvider::view(const QString &id) const

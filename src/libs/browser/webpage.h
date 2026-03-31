@@ -19,7 +19,10 @@ public:
 
 protected:
     bool acceptNavigationRequest(const QUrl &requestUrl, NavigationType type, bool isMainFrame) override;
-    void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceId) override;
+    void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,
+                                  const QString &message,
+                                  int lineNumber,
+                                  const QString &sourceId) override;
 
 private:
     void applyBackgroundColor();

@@ -30,7 +30,7 @@ class Settings;
 
 namespace Registry {
 class SearchQuery;
-} //namespace Registry
+} // namespace Registry
 
 namespace WidgetUi {
 

@@ -101,16 +101,12 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addOptions({
-        {QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")}
-    });
+    parser.addOptions({{QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")}});
 
 #ifdef Q_OS_WINDOWS
-    parser.addOptions({
-        {QStringLiteral("attach-console"), QObject::tr("Attach console for logging.")},
-        {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
-        {QStringLiteral("unregister"), QObject::tr("Unregister protocol handlers.")}
-    });
+    parser.addOptions({{QStringLiteral("attach-console"), QObject::tr("Attach console for logging.")},
+                       {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
+                       {QStringLiteral("unregister"), QObject::tr("Unregister protocol handlers.")}});
 #endif
 
     parser.addPositionalArgument(QStringLiteral("url"), QObject::tr("dash[-plugin]:// URL"));
@@ -132,8 +128,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
 #endif
 
     // TODO: Support dash-feed:// protocol
-    const QString arg
-            = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
+    const QString arg = QUrl::fromPercentEncoding(parser.positionalArguments().value(0).toUtf8());
 
     if (arg.startsWith(QLatin1String("dash:"))) {
         clParams.query.setQuery(stripParameterUrl(arg, QStringLiteral("dash")));
@@ -146,8 +141,7 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
 
         clParams.query.setQuery(urlQuery.queryItemValue(QStringLiteral("query")));
 
-        const QString preventActivation
-                = urlQuery.queryItemValue(QStringLiteral("prevent_activation"));
+        const QString preventActivation = urlQuery.queryItemValue(QStringLiteral("prevent_activation"));
         clParams.preventActivation = preventActivation == QLatin1String("true");
     } else {
         clParams.query.setQuery(arg);
@@ -249,10 +243,10 @@ int main(int argc, char *argv[])
     const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
 
 #ifdef Q_OS_WINDOWS
-    const static QHash<QString, QString> protocols = {
-        {QStringLiteral("dash"), QStringLiteral("URL:Dash Protocol (Zeal)")},
-        {QStringLiteral("dash-plugin"), QStringLiteral("URL:Dash Plugin Protocol (Zeal)")}
-    };
+    const static QHash<QString, QString> protocols = {{QStringLiteral("dash"),
+                                                       QStringLiteral("URL:Dash Protocol (Zeal)")},
+                                                      {QStringLiteral("dash-plugin"),
+                                                       QStringLiteral("URL:Dash Plugin Protocol (Zeal)")}};
 
     if (clParams.registerProtocolHandlers) {
         registerProtocolHandlers(protocols, clParams.registerProtocolHandlers);
@@ -291,15 +285,13 @@ int main(int argc, char *argv[])
 
     // Set application-wide window icon. All message boxes and other windows will use it by default.
     qapp->setDesktopFileName(QStringLiteral("org.zealdocs.zeal"));
-    qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"),
-                                         QIcon(QStringLiteral(":/zeal.ico"))));
+    qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.ico"))));
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     QScopedPointer<Core::Application> app(new Core::Application());
 
-    QObject::connect(appSingleton.data(), &Core::ApplicationSingleton::messageReceived,
-                     [&app](const QByteArray &data) {
+    QObject::connect(appSingleton.data(), &Core::ApplicationSingleton::messageReceived, [&app](const QByteArray &data) {
         Registry::SearchQuery query;
         bool preventActivation;
 
