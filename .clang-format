@@ -100,8 +100,26 @@ SeparateDefinitionBlocks: Always
 
 # Includes
 SortIncludes: CaseSensitive
-# TODO: Switch to Regroup with IncludeCategories.
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Generated UI headers and private headers (keep next to main header).
+  - Regex: '^"(ui_|.*_p\.h)'
+    Priority: 0
+  # Local "quoted" headers.
+  - Regex: '^"'
+    Priority: 1
+  # Project library headers.
+  - Regex: '<(browser|core|registry|sidebar|ui|util|qxtglobalshortcut)/'
+    Priority: 2
+  # Qt headers.
+  - Regex: '<Q'
+    Priority: 3
+  # C-style headers (.h).
+  - Regex: '<.*\.h>'
+    Priority: 4
+  # C++ STL headers.
+  - Regex: '<'
+    Priority: 5
 
 # Alignment
 AlignConsecutiveAssignments: None

@@ -8,7 +8,6 @@
 
 #include <archive.h>
 #include <archive_entry.h>
-
 #include <sys/stat.h>
 
 using namespace Zeal::Core;

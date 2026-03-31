@@ -15,7 +15,6 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QThread>
-
 #include <QtConcurrent>
 
 #include <functional>
