@@ -57,7 +57,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
 QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (parent.isValid() || m_dataList.count() <= row || column > 1) {
+    if (parent.isValid() || row < 0 || row >= m_dataList.count() || column != 0) {
         return {};
     }
 
