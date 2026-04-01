@@ -60,11 +60,12 @@ QStringList SearchQuery::keywords() const
 
 void SearchQuery::setKeywords(const QStringList &list)
 {
+    m_keywords = list;
     if (list.isEmpty()) {
+        m_keywordPrefix.clear();
         return;
     }
 
-    m_keywords = list;
     m_keywordPrefix = list.join(keywordSeparator) + prefixSeparator;
 }
 
