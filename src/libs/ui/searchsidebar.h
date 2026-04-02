@@ -50,6 +50,7 @@ private slots:
     void navigateToIndexAndActivate(const QModelIndex &index);
     void navigateToSelectionWithDelay(const QItemSelection &selection);
     void setupSearchBoxCompletions();
+    void setContextMenu(const QPoint &pos);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
@@ -74,6 +75,7 @@ private:
 
     QSplitter *m_splitter = nullptr;
     QTimer *m_delayedNavigationTimer = nullptr;
+    QMenu *m_contextMenu = nullptr;
 };
 
 } // namespace WidgetUi
