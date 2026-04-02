@@ -7,13 +7,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>zeal.portable</id>
-    <version>0.8.0</version>
+    <version>0.0.0</version>
     <title>Zeal (Portable)</title>
     <authors>Oleg Shparber</authors>
     <owners>trollixx</owners>
     <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
     <projectUrl>https://zealdocs.org/</projectUrl>
-    <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.8.0/src/app/resources/icons/logo/128x128.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.0.0/src/app/resources/icons/logo/128x128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description><![CDATA[Zeal is an offline documentation browser inspired by [Dash](https://kapeli.com/dash/).
 
@@ -29,7 +29,7 @@
 - [IDE integration](https://zealdocs.org/usage.html#plugins): VS Code, IDEA, Sublime Text, and many others.
 ]]></description>
     <summary>A simple offline documentation browser inspired by Dash.</summary>
-    <releaseNotes>https://github.com/zealdocs/zeal/releases/tag/v0.8.0</releaseNotes>
+    <releaseNotes>https://github.com/zealdocs/zeal/releases/tag/v0.0.0</releaseNotes>
     <copyright>Copyright © 2015-2026 Oleg Shparber</copyright>
     <tags>zeal api dash dev developer docs docset documentation help tools</tags>
     <projectSourceUrl>https://github.com/zealdocs/zeal</projectSourceUrl>
