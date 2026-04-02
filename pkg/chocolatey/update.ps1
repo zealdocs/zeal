@@ -15,6 +15,18 @@ if (-not $Version -and -not $Pack) {
 }
 
 if ($Version) {
+    if ($Version -notmatch '^\d+\.\d+\.\d+$') {
+        throw "Invalid version format: '$Version'. Expected format: X.Y.Z"
+    }
+
+    # Verify the release exists.
+    try {
+        Invoke-RestMethod -Uri "https://api.github.com/repos/zealdocs/zeal/releases/tags/v$Version" | Out-Null
+    }
+    catch {
+        throw "Release v$Version not found on GitHub."
+    }
+
     $baseUrl = "https://github.com/zealdocs/zeal/releases/download/v$Version"
     $msiUrl = "$baseUrl/zeal-$Version-windows-x64.msi"
     $portableUrl = "$baseUrl/zeal-$Version-portable-windows-x64.7z"
