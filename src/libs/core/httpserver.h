@@ -16,8 +16,7 @@ namespace httplib {
 class Server;
 } // namespace httplib
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class HttpServer : public QObject
 {
@@ -47,7 +46,6 @@ private:
     std::future<bool> m_future;
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 #endif // ZEAL_CORE_HTTPSERVER_H

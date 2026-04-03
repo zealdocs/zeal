@@ -6,8 +6,7 @@
 
 #include <sidebar/viewprovider.h>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class MainWindow;
 
@@ -24,7 +23,6 @@ private:
     MainWindow *m_mainWindow = nullptr;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_SIDEBARVIEWPROVIDER_H

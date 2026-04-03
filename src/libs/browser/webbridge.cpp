@@ -8,7 +8,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
 WebBridge::WebBridge(QObject *parent)
     : QObject(parent)
@@ -29,3 +29,5 @@ QString WebBridge::appVersion() const
 {
     return Core::Application::versionString();
 }
+
+} // namespace Zeal::Browser

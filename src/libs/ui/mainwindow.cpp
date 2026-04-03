@@ -41,8 +41,7 @@
 #include <QVBoxLayout>
 #include <QWindow>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     : QMainWindow(parent)
@@ -797,3 +796,5 @@ void MainWindow::toggleWindow()
         }
     }
 }
+
+} // namespace Zeal::WidgetUi

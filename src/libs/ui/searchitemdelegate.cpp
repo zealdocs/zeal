@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 SearchItemDelegate::SearchItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -241,3 +241,5 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
     return size;
 }
+
+} // namespace Zeal::WidgetUi

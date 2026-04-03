@@ -26,7 +26,7 @@ class DocsetRegistry;
 
 namespace Core {
 class Application;
-}
+} // namespace Core
 
 namespace WidgetUi {
 

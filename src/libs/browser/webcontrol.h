@@ -9,8 +9,7 @@
 
 class QWebEngineHistory;
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class SearchToolBar;
 class WebView;
@@ -63,7 +62,6 @@ private:
     SearchToolBar *m_searchToolBar = nullptr;
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_WEBCONTROL_H

@@ -12,10 +12,11 @@
 
 #include <utility>
 
-using namespace Zeal;
-using namespace Zeal::Sidebar;
+namespace Zeal::Sidebar {
 
-static Q_LOGGING_CATEGORY(log, "zeal.sidebar.proxyview")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.sidebar.proxyview")
+} // namespace
 
 ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
     : View(parent)
@@ -60,3 +61,5 @@ void ProxyView::clearCurrentView()
     m_view->setParent(nullptr);
     m_view = nullptr;
 }
+
+} // namespace Zeal::Sidebar

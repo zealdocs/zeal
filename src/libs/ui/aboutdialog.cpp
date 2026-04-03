@@ -6,7 +6,7 @@
 
 #include <core/application.h>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 AboutDialog::AboutDialog(QWidget *parent)
     : QDialog(parent)
@@ -23,3 +23,5 @@ AboutDialog::~AboutDialog()
 {
     delete ui;
 }
+
+} // namespace Zeal::WidgetUi

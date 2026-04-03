@@ -31,16 +31,15 @@
 
 #include <memory>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
-
-static Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
-
 #ifdef Q_OS_WINDOWS
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
+namespace Zeal::WidgetUi {
+
 namespace {
+Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
+
 constexpr char ApiServerUrl[] = "https://api.zealdocs.org/v1";
 constexpr char RedirectServerUrl[] = "https://go.zealdocs.org/d/%1/%2/latest";
 // TODO: Each source plugin should have its own cache
@@ -884,3 +883,5 @@ bool DocsetsDialog::isDirWritable(const QString &path)
     auto file = std::make_unique<QTemporaryFile>(path + QLatin1String("/.zeal_writable_check_XXXXXX.tmp"));
     return file->open();
 }
+
+} // namespace Zeal::WidgetUi

@@ -5,7 +5,7 @@
 
 #include <QPainter>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 ToolBarFrame::ToolBarFrame(QWidget *parent)
     : QWidget(parent)
@@ -26,3 +26,5 @@ void ToolBarFrame::paintEvent(QPaintEvent *event)
     painter.setPen(palette().mid().color());
     painter.drawLine(0, height() - 1, width() - 1, height() - 1);
 }
+
+} // namespace Zeal::WidgetUi

@@ -10,8 +10,7 @@ class QLineEdit;
 class QToolButton;
 class QWebEngineView;
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class SearchToolBar final : public QWidget
 {
@@ -45,7 +44,6 @@ private:
     QWebEngineView *m_webView = nullptr;
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_SEARCHTOOLBAR_H

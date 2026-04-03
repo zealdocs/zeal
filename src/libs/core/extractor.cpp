@@ -10,9 +10,11 @@
 #include <archive_entry.h>
 #include <sys/stat.h>
 
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
-static Q_LOGGING_CATEGORY(log, "zeal.core.extractor")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.core.extractor")
+} // namespace
 
 Extractor::Extractor(QObject *parent)
     : QObject(parent)
@@ -119,3 +121,5 @@ void Extractor::emitProgress(ExtractInfo &info)
 
     emit progress(info.filePath, extractedBytes, info.totalBytes);
 }
+
+} // namespace Zeal::Core

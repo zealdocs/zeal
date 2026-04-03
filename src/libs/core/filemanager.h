@@ -6,8 +6,7 @@
 
 #include <QObject>
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class FileManager final : public QObject
 {
@@ -19,7 +18,6 @@ public:
     bool removeRecursively(const QString &path);
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 #endif // ZEAL_CORE_FILEMANAGER_H

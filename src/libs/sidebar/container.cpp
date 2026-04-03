@@ -12,8 +12,7 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-using namespace Zeal;
-using namespace Zeal::Sidebar;
+namespace Zeal::Sidebar {
 
 Container::Container(QWidget *parent)
     : QWidget(parent)
@@ -44,3 +43,5 @@ void Container::addView(View *view)
     m_views.append(view);
     m_splitter->addWidget(view);
 }
+
+} // namespace Zeal::Sidebar

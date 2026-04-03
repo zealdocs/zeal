@@ -9,7 +9,7 @@
 #include <QPainter>
 #include <QProgressBar>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 namespace {
 constexpr int ProgressBarWidth = 150;
@@ -120,3 +120,5 @@ void DocsetListItemDelegate::paintProgressBar(QPainter *painter,
 
     QStyledItemDelegate::paint(painter, styleOption, index);
 }
+
+} // namespace Zeal::WidgetUi

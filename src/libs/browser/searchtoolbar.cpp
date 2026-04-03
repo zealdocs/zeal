@@ -13,7 +13,7 @@
 #include <QWebEnginePage>
 #include <QWebEngineView>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
 SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     : QWidget(parent)
@@ -174,3 +174,5 @@ void SearchToolBar::hideHighlight()
 {
     m_webView->findText(QString());
 }
+
+} // namespace Zeal::Browser

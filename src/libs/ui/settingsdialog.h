@@ -7,8 +7,7 @@
 
 #include <QDialog>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 namespace Ui {
 class SettingsDialog;
@@ -35,7 +34,6 @@ private:
     friend class Ui::SettingsDialog;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_SETTINGSDIALOG_H

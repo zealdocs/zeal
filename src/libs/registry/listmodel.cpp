@@ -10,7 +10,7 @@
 
 #include <iterator>
 
-using namespace Zeal::Registry;
+namespace Zeal::Registry {
 
 ListModel::ListModel(DocsetRegistry *docsetRegistry)
     : QAbstractItemModel(docsetRegistry)
@@ -285,3 +285,5 @@ ListModel::DocsetItem *ListModel::itemInRow(int row) const
     std::advance(it, row);
     return it->second;
 }
+
+} // namespace Zeal::Registry

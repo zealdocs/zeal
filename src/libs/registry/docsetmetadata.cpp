@@ -12,7 +12,7 @@
 #include <QVariant>
 #include <QXmlStreamReader>
 
-using namespace Zeal::Registry;
+namespace Zeal::Registry {
 
 DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 {
@@ -211,3 +211,5 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
 
     return metadata;
 }
+
+} // namespace Zeal::Registry

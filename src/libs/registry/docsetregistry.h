@@ -14,8 +14,7 @@
 class QAbstractItemModel;
 class QThread;
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 class Docset;
 
@@ -74,7 +73,6 @@ private:
     CancellationToken m_cancellationToken;
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_DOCSETREGISTRY_H

@@ -13,13 +13,13 @@
 
 #include <httplib.h>
 
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
 namespace {
+Q_LOGGING_CATEGORY(log, "zeal.core.httpserver")
+
 constexpr char LocalHttpServerHost[] = "127.0.0.1"; // macOS only routes 127.0.0.1 by default.
 } // namespace
-
-static Q_LOGGING_CATEGORY(log, "zeal.core.httpserver")
 
 HttpServer::HttpServer(QObject *parent)
     : QObject(parent)
@@ -162,3 +162,5 @@ QString HttpServer::sanitizePrefix(const QString &prefix)
 
     return pfx;
 }
+
+} // namespace Zeal::Core

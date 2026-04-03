@@ -25,8 +25,7 @@
 #include <QSysInfo>
 #include <QThread>
 
-using namespace Zeal;
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
 namespace {
 constexpr char ReleasesApiUrl[] = "https://api.zealdocs.org/v1/releases";
@@ -306,3 +305,5 @@ QString Application::userAgentJson() const
 
     return QString::fromUtf8(QJsonDocument(ua).toJson(QJsonDocument::Compact));
 }
+
+} // namespace Zeal::Core

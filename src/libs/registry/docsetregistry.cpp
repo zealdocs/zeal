@@ -20,14 +20,16 @@
 #include <functional>
 #include <future>
 
-using namespace Zeal::Registry;
+namespace Zeal::Registry {
 
-static Q_LOGGING_CATEGORY(log, "zeal.registry.docsetregistry")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.registry.docsetregistry")
 
 void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResult> &partial)
 {
     finalResult << partial;
 }
+} // namespace
 
 DocsetRegistry::DocsetRegistry(QObject *parent)
     : QObject(parent)
@@ -260,3 +262,5 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
         }
     }
 }
+
+} // namespace Zeal::Registry

@@ -6,8 +6,7 @@
 
 #include <QNetworkAccessManager>
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class NetworkAccessManager final : public QNetworkAccessManager
 {
@@ -25,7 +24,6 @@ protected:
                                  QIODevice *outgoingData = nullptr) override;
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 #endif // ZEAL_CORE_NETWORKACCESSMANAGER_H

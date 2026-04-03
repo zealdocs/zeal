@@ -141,7 +141,7 @@ BreakStringLiterals: true
 # Namespaces
 CompactNamespaces: false
 FixNamespaceComments: true
-ShortNamespaceLines: 1
+ShortNamespaceLines: 0
 
 # Macros
 StatementMacros:

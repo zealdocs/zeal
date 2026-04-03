@@ -15,8 +15,7 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 namespace {
 // QFontDatabase::standardSizes() lacks some sizes, like 13, which QtWK uses by default.
@@ -329,3 +328,5 @@ void SettingsDialog::saveSettings()
 
     settings->save();
 }
+
+} // namespace Zeal::WidgetUi

@@ -9,8 +9,7 @@
 class QLocalServer;
 class QSharedMemory;
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class ApplicationSingleton final : public QObject
 {
@@ -43,7 +42,6 @@ private:
     QLocalServer *m_localServer = nullptr;
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 #endif // ZEAL_CORE_APPLICATIONSINGLETON_H

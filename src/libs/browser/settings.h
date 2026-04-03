@@ -12,7 +12,7 @@ namespace Zeal {
 
 namespace Core {
 class Settings;
-}
+} // namespace Core
 
 namespace Browser {
 

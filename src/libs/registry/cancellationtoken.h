@@ -7,8 +7,7 @@
 
 #include <atomic>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 /// Token that stores whether cancel was called on it.
 /// In async code can be used to check if another thread called cancel.
@@ -25,7 +24,6 @@ private:
     std::atomic_bool m_canceled{false};
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_CANCELLATIONTOKEN_H

@@ -7,9 +7,7 @@
 #include <cmath>
 #include <limits>
 
-namespace Zeal {
-namespace Util {
-namespace Fuzzy {
+namespace Zeal::Util::Fuzzy {
 
 namespace {
 constexpr double SCORE_GAP_LEADING = -0.005;
@@ -235,6 +233,4 @@ double scoreFunction(const char *needle, const char *haystack)
     return scoreFunction(QString::fromUtf8(needle), QString::fromUtf8(haystack));
 }
 
-} // namespace Fuzzy
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util::Fuzzy

@@ -7,8 +7,7 @@
 
 #include <QWebEngineUrlRequestInterceptor>
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class UrlRequestInterceptor final : public QWebEngineUrlRequestInterceptor
 {
@@ -22,7 +21,6 @@ private:
     void blockRequest(QWebEngineUrlRequestInfo &info);
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_URLREQUESTINTERCEPTOR_H

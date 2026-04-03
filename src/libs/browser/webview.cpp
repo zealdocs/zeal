@@ -31,7 +31,7 @@
 
 #include <algorithm>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
 WebView::WebView(QWidget *parent)
     : QWebEngineView(parent)
@@ -272,3 +272,5 @@ bool WebView::eventFilter(QObject *watched, QEvent *event)
 
     return QWebEngineView::eventFilter(watched, event);
 }
+
+} // namespace Zeal::Browser

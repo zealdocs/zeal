@@ -7,8 +7,7 @@
 
 #include <QWebEnginePage>
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class WebPage final : public QWebEnginePage
 {
@@ -28,7 +27,6 @@ private:
     void applyBackgroundColor();
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_WEBPAGE_H

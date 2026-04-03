@@ -22,8 +22,7 @@
 #include <QVBoxLayout>
 #include <QWebEngineHistory>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 namespace {
 constexpr char WelcomePageUrl[] = "qrc:///browser/welcome.html";
@@ -213,3 +212,5 @@ QIcon BrowserTab::docsetIcon(const QUrl &url) const
     Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
     return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
 }
+
+} // namespace Zeal::WidgetUi

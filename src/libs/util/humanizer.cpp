@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-using namespace Zeal::Util;
+namespace Zeal::Util {
 
 namespace {
 // Time thresholds in seconds.
@@ -63,3 +63,5 @@ QString Humanizer::fromNow(const QDateTime &dt)
 
     return (seconds > 0 ? tr("%1 from now") : tr("%1 ago")).arg(humanizedDuration);
 }
+
+} // namespace Zeal::Util

@@ -8,9 +8,11 @@
 
 #include <QLoggingCategory>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
-static Q_LOGGING_CATEGORY(log, "zeal.browser.urlrequestinterceptor")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.browser.urlrequestinterceptor")
+} // namespace
 
 UrlRequestInterceptor::UrlRequestInterceptor(QObject *parent)
     : QWebEngineUrlRequestInterceptor(parent)
@@ -55,3 +57,5 @@ void UrlRequestInterceptor::blockRequest(QWebEngineUrlRequestInfo &info)
 
     info.block(true);
 }
+
+} // namespace Zeal::Browser

@@ -15,7 +15,7 @@ namespace Zeal {
 
 namespace Util {
 class SQLiteDatabase;
-}
+} // namespace Util
 
 namespace Registry {
 

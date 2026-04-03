@@ -8,7 +8,7 @@
 
 #include <QNetworkRequest>
 
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
     : QNetworkAccessManager(parent)
@@ -58,3 +58,5 @@ QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operat
 
     return QNetworkAccessManager::createRequest(op, overrideRequest, outgoingData);
 }
+
+} // namespace Zeal::Core

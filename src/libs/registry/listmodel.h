@@ -9,8 +9,7 @@
 
 #include <QAbstractItemModel>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 class Docset;
 class DocsetRegistry;
@@ -72,7 +71,6 @@ private:
     Util::CaseInsensitiveMap<DocsetItem *> m_docsetItems;
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_LISTMODEL_H

@@ -7,7 +7,7 @@
 #include "docset.h"
 #include "itemdatarole.h"
 
-using namespace Zeal::Registry;
+namespace Zeal::Registry {
 
 SearchModel::SearchModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -111,3 +111,5 @@ void SearchModel::setResults(const QList<SearchResult> &results)
     endResetModel();
     emit updated();
 }
+
+} // namespace Zeal::Registry

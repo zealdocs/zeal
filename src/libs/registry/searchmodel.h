@@ -9,8 +9,7 @@
 
 #include <QAbstractListModel>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 class SearchModel final : public QAbstractListModel
 {
@@ -38,7 +37,6 @@ private:
     QList<SearchResult> m_dataList;
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_SEARCHMODEL_H

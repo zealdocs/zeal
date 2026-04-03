@@ -12,8 +12,7 @@
 #include <QStyle>
 #include <QTimer>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 SearchEdit::SearchEdit(QWidget *parent)
     : QLineEdit(parent)
@@ -157,3 +156,5 @@ int SearchEdit::queryStart() const
     // Keep the filter for the first Escape press
     return currentQuery.query().isEmpty() ? 0 : currentQuery.keywordPrefixSize();
 }
+
+} // namespace Zeal::WidgetUi

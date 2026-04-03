@@ -8,8 +8,7 @@
 
 #include <map>
 
-namespace Zeal {
-namespace Util {
+namespace Zeal::Util {
 
 struct CaseInsensitiveStringComparator
 {
@@ -22,7 +21,6 @@ struct CaseInsensitiveStringComparator
 template<typename T>
 using CaseInsensitiveMap = std::map<QString, T, CaseInsensitiveStringComparator>;
 
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util
 
 #endif // ZEAL_UTIL_CASEINSENSITIVEMAP_H
