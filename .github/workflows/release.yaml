@@ -29,8 +29,8 @@ jobs:
               qtwebchannel
               qtwebengine
             qt_version: "6.10.2"
-            configurePreset: ninja-multi-vcpkg
-            buildPreset: ninja-multi-vcpkg-release
+            configurePreset: release
+            buildPreset: release
           - name: Windows Server 2022 / Qt 6 / Portable
             os: windows-2022
             arch: win64_msvc2022_64
@@ -39,12 +39,10 @@ jobs:
               qtwebchannel
               qtwebengine
             qt_version: "6.10.2"
-            configurePreset: ninja-multi-vcpkg-portable
-            buildPreset: ninja-multi-vcpkg-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
 
     env:
-      VCPKG_BUILD_TYPE: release
-      VCPKG_DEFAULT_TRIPLET: x64-windows
       ZEAL_RELEASE_BUILD: ON
 
     steps:
@@ -80,7 +78,7 @@ jobs:
           "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
 
       - name: Package
-        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
+        run: cmake --build --preset ${{ matrix.config.buildPreset }} --target package
         env:
           CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
@@ -190,8 +188,8 @@ jobs:
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
-            configurePreset: ninja-multi
-            buildPreset: ninja-multi-release
+            configurePreset: release
+            buildPreset: release
 
     env:
       ZEAL_RELEASE_BUILD: ON

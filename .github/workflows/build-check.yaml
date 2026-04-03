@@ -26,15 +26,15 @@ jobs:
             qt_packages: >-
               libqt5x11extras5-dev
               qtwebengine5-dev
-            configurePreset: ninja-multi
-            buildPreset: ninja-multi-release
+            configurePreset: release
+            buildPreset: release
           - name: Ubuntu 24.04 / Qt 5 / Portable
             os: ubuntu-24.04
             qt_packages: >-
               libqt5x11extras5-dev
               qtwebengine5-dev
-            configurePreset: ninja-multi-portable
-            buildPreset: ninja-multi-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
           - name: Ubuntu 24.04 / Qt 6
             os: ubuntu-24.04
             qt_packages: >-
@@ -43,8 +43,8 @@ jobs:
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
-            configurePreset: ninja-multi
-            buildPreset: ninja-multi-release
+            configurePreset: release
+            buildPreset: release
           - name: Ubuntu 24.04 / Qt 6 / Portable
             os: ubuntu-24.04
             qt_packages: >-
@@ -53,8 +53,8 @@ jobs:
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
-            configurePreset: ninja-multi-portable
-            buildPreset: ninja-multi-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
           - name: Ubuntu 24.04 ARM64 / Qt 6
             os: ubuntu-24.04-arm
             qt_packages: >-
@@ -63,8 +63,8 @@ jobs:
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
-            configurePreset: ninja-multi
-            buildPreset: ninja-multi-release
+            configurePreset: release
+            buildPreset: release
           - name: Ubuntu 24.04 ARM64 / Qt 6 / Portable
             os: ubuntu-24.04-arm
             qt_packages: >-
@@ -73,8 +73,8 @@ jobs:
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
-            configurePreset: ninja-multi-portable
-            buildPreset: ninja-multi-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
 
     steps:
       - name: Checkout
@@ -114,8 +114,8 @@ jobs:
             qt_modules: >-
               qtwebengine
             qt_version: "5.15.2"
-            configurePreset: ninja-multi-vcpkg
-            buildPreset: ninja-multi-vcpkg-release
+            configurePreset: release
+            buildPreset: release
             publishArtifacts: false
           - name: Windows Server 2022 / Qt 5 / Portable
             os: windows-2022
@@ -123,8 +123,8 @@ jobs:
             qt_modules: >-
               qtwebengine
             qt_version: "5.15.2"
-            configurePreset: ninja-multi-vcpkg-portable
-            buildPreset: ninja-multi-vcpkg-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
             publishArtifacts: false
           - name: Windows Server 2022 / Qt 6
             os: windows-2022
@@ -134,8 +134,8 @@ jobs:
               qtwebchannel
               qtwebengine
             qt_version: "6.10.2"
-            configurePreset: ninja-multi-vcpkg
-            buildPreset: ninja-multi-vcpkg-release
+            configurePreset: release
+            buildPreset: release
             publishArtifacts: true
           - name: Windows Server 2022 / Qt 6 / Portable
             os: windows-2022
@@ -145,14 +145,12 @@ jobs:
               qtwebchannel
               qtwebengine
             qt_version: "6.10.2"
-            configurePreset: ninja-multi-vcpkg-portable
-            buildPreset: ninja-multi-vcpkg-portable-release
+            configurePreset: release-portable
+            buildPreset: release-portable
             publishArtifacts: true
 
     env:
       VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
-      VCPKG_BUILD_TYPE: release
-      VCPKG_DEFAULT_TRIPLET: x64-windows
 
     steps:
       - name: Checkout
@@ -197,7 +195,7 @@ jobs:
 
       - name: Package
         if: matrix.config.publishArtifacts
-        run: cmake --build build --preset ${{ matrix.config.buildPreset }} --target package
+        run: cmake --build --preset ${{ matrix.config.buildPreset }} --target package
         env:
           CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
@@ -206,13 +204,13 @@ jobs:
         if: matrix.config.publishArtifacts
         uses: actions/upload-artifact@v7
         with:
-          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'ninja-multi-vcpkg-portable' &&  '-portable' || '' }}-windows-x64.zip
+          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'release-portable' &&  '-portable' || '' }}-windows-x64.zip
           path: |
             build/${{ matrix.config.configurePreset }}/zeal-*.zip
             build/${{ matrix.config.configurePreset }}/zeal-*.zip.sha256
 
       - name: Upload MSI Artifacts
-        if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'ninja-multi-vcpkg'
+        if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'release'
         uses: actions/upload-artifact@v7
         with:
           name: zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi

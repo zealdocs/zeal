@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.16.3)
 
+include(cmake/SetupVcpkg.cmake)
+setup_vcpkg()
+
 # CMake options.
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
@@ -81,7 +84,7 @@ message(NOTICE "Calculated Zeal version: ${ZEAL_VERSION_FULL}")
 file(WRITE "${CMAKE_BINARY_DIR}/zeal_version" ${ZEAL_VERSION_FULL})
 
 # A custom target to print the full version.
-# Usage: cmake --build build --preset ninja-multi-vcpkg-release --target zeal_version
+# Usage: cmake --build --preset release --target zeal_version
 add_custom_target(zeal_version
     COMMAND ${CMAKE_COMMAND} -E echo "Zeal version: ${ZEAL_VERSION_FULL}"
     VERBATIM

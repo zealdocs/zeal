@@ -49,8 +49,8 @@ jobs:
     - name: Configure & Build
       uses: lukka/run-cmake@v10
       with:
-        configurePreset: ninja-multi
-        buildPreset: ninja-multi-release
+        configurePreset: release
+        buildPreset: release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
