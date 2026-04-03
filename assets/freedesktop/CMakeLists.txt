@@ -22,7 +22,7 @@ if(UNIX AND NOT APPLE)
     )
 
 # For development builds insert an extra release in the AppStream metadata.
-if(NOT ZEAL_RELEASE_BUILD)
+if(ZEAL_VERSION_SUFFIX)
     string(TIMESTAMP ZEAL_APPSTREAM_DEV_RELEASE
         "\n    <release date=\"%Y-%m-%d\" version=\"${ZEAL_VERSION_FULL}\" type=\"development\" />"
         UTC

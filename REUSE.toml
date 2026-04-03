@@ -36,7 +36,9 @@ path = [
     ".gitattributes",
     ".github/**/*",
     ".gitignore",
+    ".release-please-manifest.json",
     "CHANGELOG.md",
+    "release-please-config.json",
 ]
 SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
 SPDX-License-Identifier = "MIT"

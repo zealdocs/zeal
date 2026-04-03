@@ -63,13 +63,6 @@
       }
     },
     {
-      "name": "config-release",
-      "hidden": true,
-      "cacheVariables": {
-        "ZEAL_RELEASE_BUILD": "ON"
-      }
-    },
-    {
       "name": "config-testing",
       "hidden": true,
       "cacheVariables": {
