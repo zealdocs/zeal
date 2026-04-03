@@ -112,7 +112,7 @@ set(CPACK_GENERATOR "7Z;ZIP")
 set(CPACK_VERBATIM_VARIABLES YES)
 
 # Usage: cmake --build --preset <preset-name> --target package
-# E.g. cmake --build build --preset ninja-multi-vcpkg-release --target package
+# E.g. cmake --build --preset release --target package
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 set(CPACK_PACKAGE_DESCRIPTION ${CMAKE_PROJECT_DESCRIPTION})
 set(CPACK_PACKAGE_VENDOR ${PROJECT_COMPANY_NAME})
@@ -176,7 +176,7 @@ if(WIN32)
 endif()
 
 # Set options for the source package.
-# Usage: cmake --build <build> --target package_source
+# Usage: cmake --build --target package_source
 set(CPACK_SOURCE_GENERATOR "TGZ;TXZ;ZIP")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${_project_output_name}-${ZEAL_VERSION_FULL}")
 set(CPACK_SOURCE_IGNORE_FILES

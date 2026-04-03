@@ -7,133 +7,113 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-multi",
-      "generator": "Ninja Multi-Config",
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "warnings": {
         "deprecated": true,
-        "dev": true,
-        "uninitialized": true,
         "unusedCli": true
       }
     },
     {
-      "name": "ninja-multi-portable",
-      "inherits": [
-        "ninja-multi",
-        "config-portable"
-      ]
-    },
-    {
-      "name": "ninja-multi-vcpkg",
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      },
-      "inherits": [
-        "ninja-multi"
-      ],
+      "name": "debug",
+      "inherits": ["ninja"],
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        },
-        "X_VCPKG_APPLOCAL_DEPS_INSTALL": "ON"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "ninja-multi-vcpkg-portable",
-      "inherits": [
-        "ninja-multi-vcpkg",
-        "config-portable"
-      ]
+      "name": "release",
+      "inherits": ["ninja"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "debug-portable",
+      "inherits": ["debug", "config-portable"]
+    },
+    {
+      "name": "release-portable",
+      "inherits": ["release", "config-portable"]
+    },
+    {
+      "name": "dev",
+      "inherits": ["release"],
+      "cacheVariables": {
+        "ZEAL_DEPLOY_QT_ON_BUILD": "ON",
+        "ZEAL_USE_COMPILER_CACHE": "ON"
+      },
+      "warnings": {
+        "dev": true,
+        "uninitialized": true
+      }
+    },
+    {
+      "name": "dev-portable",
+      "inherits": ["dev", "config-portable"]
     },
     {
       "name": "config-portable",
       "hidden": true,
       "cacheVariables": {
-        "ZEAL_PORTABLE_BUILD": {
-          "type": "BOOL",
-          "value": "ON"
-        }
+        "ZEAL_PORTABLE_BUILD": "ON"
       }
     },
     {
       "name": "config-release",
       "hidden": true,
       "cacheVariables": {
-        "ZEAL_RELEASE_BUILD": {
-          "type": "BOOL",
-          "value": "ON"
-        }
+        "ZEAL_RELEASE_BUILD": "ON"
       }
     },
     {
       "name": "config-testing",
       "hidden": true,
       "cacheVariables": {
-        "BUILD_TESTING": {
-          "type": "BOOL",
-          "value": "ON"
-        }
+        "BUILD_TESTING": "ON"
       }
     },
     {
-      "name": "ninja-multi-vcpkg-test",
-      "inherits": [
-        "ninja-multi-vcpkg",
-        "config-testing"
-      ]
+      "name": "testing",
+      "inherits": ["debug", "config-testing"]
     }
   ],
   "buildPresets": [
     {
-      "name": "ninja-multi-debug",
-      "configurePreset": "ninja-multi",
-      "configuration": "Debug"
+      "name": "debug",
+      "configurePreset": "debug"
     },
     {
-      "name": "ninja-multi-release",
-      "configurePreset": "ninja-multi",
-      "configuration": "RelWithDebInfo"
+      "name": "release",
+      "configurePreset": "release"
     },
     {
-      "name": "ninja-multi-debug-portable",
-      "configurePreset": "ninja-multi-portable",
-      "configuration": "Debug"
+      "name": "debug-portable",
+      "configurePreset": "debug-portable"
     },
     {
-      "name": "ninja-multi-portable-release",
-      "configurePreset": "ninja-multi-portable",
-      "configuration": "RelWithDebInfo"
+      "name": "release-portable",
+      "configurePreset": "release-portable"
     },
     {
-      "name": "ninja-multi-vcpkg-debug",
-      "configurePreset": "ninja-multi-vcpkg",
-      "configuration": "Debug"
+      "name": "dev",
+      "configurePreset": "dev"
     },
     {
-      "name": "ninja-multi-vcpkg-release",
-      "configurePreset": "ninja-multi-vcpkg",
-      "configuration": "RelWithDebInfo"
+      "name": "dev-portable",
+      "configurePreset": "dev-portable"
     },
     {
-      "name": "ninja-multi-vcpkg-portable-debug",
-      "configurePreset": "ninja-multi-vcpkg-portable",
-      "configuration": "Debug"
-    },
-    {
-      "name": "ninja-multi-vcpkg-portable-release",
-      "configurePreset": "ninja-multi-vcpkg-portable",
-      "configuration": "RelWithDebInfo"
+      "name": "testing",
+      "configurePreset": "testing"
     }
   ],
   "testPresets": [
     {
-      "name": "ninja-multi-vcpkg-test-debug",
-      "configurePreset": "ninja-multi-vcpkg-test",
-      "configuration": "Debug",
+      "name": "testing",
+      "configurePreset": "testing",
       "output": {
         "outputOnFailure": true
       }
