@@ -20,6 +20,8 @@ jobs:
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
 
       - uses: googleapis/release-please-action@v4
         with:

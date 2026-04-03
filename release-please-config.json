@@ -3,7 +3,7 @@
   "release-type": "go",
   "skip-changelog": true,
   "bump-minor-pre-major": true,
-  "bump-patch-for-minor-pre-major": false,
+  "bump-patch-for-minor-pre-major": true,
   "draft": true,
   "force-tag-creation": true,
   "include-v-in-tag": true,
