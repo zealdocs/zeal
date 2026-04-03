@@ -42,6 +42,7 @@
       "name": "dev",
       "inherits": ["release"],
       "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "ZEAL_DEPLOY_QT_ON_BUILD": "ON",
         "ZEAL_USE_COMPILER_CACHE": "ON"
       },

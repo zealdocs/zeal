@@ -16,6 +16,17 @@ project(Zeal
     LANGUAGES CXX
 )
 
+option(ZEAL_USE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
+if(ZEAL_USE_CLANG_TIDY)
+    find_program(CLANG_TIDY_PROGRAM clang-tidy)
+    if(CLANG_TIDY_PROGRAM)
+        message(STATUS "Using clang-tidy: ${CLANG_TIDY_PROGRAM}")
+        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
+    else()
+        message(FATAL_ERROR "ZEAL_USE_CLANG_TIDY is enabled but clang-tidy was not found.")
+    endif()
+endif()
+
 option(ZEAL_USE_COMPILER_CACHE "Enable compiler cache (sccache/ccache)" OFF)
 if(ZEAL_USE_COMPILER_CACHE)
     find_program(CCACHE_PROGRAM sccache ccache)
