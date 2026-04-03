@@ -22,7 +22,7 @@ public:
     inline void reset() { m_canceled = false; }
 
 private:
-    std::atomic_bool m_canceled;
+    std::atomic_bool m_canceled{false};
 };
 
 } // namespace Registry
