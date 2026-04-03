@@ -28,8 +28,10 @@ SPDX-License-Identifier = "GPL-3.0-or-later"
 # MIT for auxiliary files.
 [[annotations]]
 path = [
-    ".clang-format",
     ".clang-format-ignore",
+    ".clang-format",
+    ".clang-tidy",
+    ".clangd",
     ".editorconfig",
     ".gitattributes",
     ".github/**/*",

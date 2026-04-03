@@ -1,0 +1,21 @@
+---
+HeaderFilterRegex: 'src/.*'
+Checks: >
+  *,
+  -abseil-*,
+  -altera-*,
+  -android-*,
+  -fuchsia-*,
+  -google-*,
+  google-build-using-namespace,
+  -linuxkernel-*,
+  -llvmlibc-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-owning-memory,
+  -bugprone-easily-swappable-parameters,
+  -concurrency-mt-unsafe,
+  -cppcoreguidelines-prefer-member-initializer,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-magic-numbers,
