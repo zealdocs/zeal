@@ -9,12 +9,17 @@ set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# VERSION is the next development version, bumped automatically after each release.
+# ZEAL_RELEASE_VERSION is the last released version, updated by release-please.
+# When both match, the build is treated as a release; otherwise it's a dev build.
 project(Zeal
-    VERSION 0.8.1
+    VERSION 0.8.1 # x-release-please-version
     DESCRIPTION "A simple documentation browser."
     HOMEPAGE_URL "https://zealdocs.org"
     LANGUAGES CXX
 )
+
+set(ZEAL_RELEASE_VERSION "0.8.0") # x-release-please-version
 
 option(ZEAL_USE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 if(ZEAL_USE_CLANG_TIDY)
@@ -46,12 +51,6 @@ if(ZEAL_USE_COMPILER_CACHE)
     endif()
 endif()
 
-# Set to TRUE for a tagged release.
-# NOTE: Don't forget to add a new release entry in the AppStream metadata!
-if(NOT ZEAL_RELEASE_BUILD AND DEFINED ENV{ZEAL_RELEASE_BUILD})
-    set(ZEAL_RELEASE_BUILD $ENV{ZEAL_RELEASE_BUILD})
-endif()
-
 # Project information.
 set(PROJECT_COMPANY_NAME "Oleg Shparber")
 set(PROJECT_COPYRIGHT "© 2013-2026 Oleg Shparber and other contributors")
@@ -69,24 +68,19 @@ endif()
 
 message(NOTICE "Detected Qt version: ${QT_VERSION}")
 
-# Determine version for dev builds.
-if(NOT ZEAL_RELEASE_BUILD)
-    message(NOTICE "Building unreleased code. Proceed at your own risk!")
-
-    # TODO: Add support for metadata passed from env, e.g. aur, appimage, etc.
-    include(GetVersionFromGit)
-    if(Zeal_GIT_VERSION_SHA AND Zeal_GIT_VERSION_AHEAD)
-        # Extra check in case we forgot to bump version in project() directive.
-        if(NOT PROJECT_VERSION_PATCH EQUAL Zeal_GIT_VERSION_PATCH_NEXT)
-            message(WARNING "Incorrect patch version! Forgot to bump?")
-        endif()
-
-        set(ZEAL_VERSION_SUFFIX "-dev.${Zeal_GIT_VERSION_AHEAD}+${Zeal_GIT_VERSION_SHA}")
-    elseif(Zeal_GIT_VERSION_SHA)
-        set(ZEAL_VERSION_SUFFIX "-dev+${Zeal_GIT_VERSION_SHA}")
+# Determine version suffix for non-release builds.
+if(PROJECT_VERSION STREQUAL ZEAL_RELEASE_VERSION)
+    message(NOTICE "Release build: ${PROJECT_VERSION}")
+else()
+    include(GitVersionInfo)
+    if(Zeal_GIT_AT_TAG)
+        message(FATAL_ERROR "Tagged commit but PROJECT_VERSION (${PROJECT_VERSION}) != ZEAL_RELEASE_VERSION (${ZEAL_RELEASE_VERSION}).")
+    elseif(Zeal_GIT_VERSION_AHEAD)
+        set(ZEAL_VERSION_SUFFIX "-dev.${Zeal_GIT_VERSION_AHEAD}")
     else()
         set(ZEAL_VERSION_SUFFIX "-dev")
     endif()
+    message(NOTICE "Dev build: ${PROJECT_VERSION}${ZEAL_VERSION_SUFFIX}")
 endif()
 
 set(ZEAL_VERSION_FULL "${Zeal_VERSION}${ZEAL_VERSION_SUFFIX}")

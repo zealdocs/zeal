@@ -16,6 +16,7 @@ concurrency:
 jobs:
   publish:
     name: Publish
+    if: github.repository == 'zealdocs/zeal'
     runs-on: windows-latest
 
     defaults:

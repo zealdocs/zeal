@@ -1,0 +1,50 @@
+name: Post-Release Version Bump
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  bump-version:
+    name: Bump Version
+    if: github.repository == 'zealdocs/zeal'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Bump Version
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"
+
+          # Increment patch version.
+          IFS='.' read -r major minor patch <<< "$version"
+          next_patch=$((patch + 1))
+          next_version="${major}.${minor}.${next_patch}"
+
+          sed -i "/^project(/,/^)/ s/${version}/${next_version}/" CMakeLists.txt
+          echo "NEXT_VERSION=${next_version}" >> $GITHUB_ENV
+
+      - name: Commit & Push
+        run: |
+          git config user.name "zealdocs-ci[bot]"
+          git config user.email "273095467+zealdocs-ci[bot]@users.noreply.github.com"
+          git add CMakeLists.txt
+          git diff --staged --quiet && echo "::error::Version bump failed, no changes detected." && exit 1
+          git commit -m "chore: bump version to ${{ env.NEXT_VERSION }}"
+          git push

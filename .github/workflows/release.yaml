@@ -5,17 +5,17 @@ on:
     tags:
       - "v*.*.*"
 
-# Required for creating GitHub release.
 permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   build-windows:
     name: ${{ matrix.config.name }}
+    if: github.repository == 'zealdocs/zeal'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -41,9 +41,6 @@ jobs:
             qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
-
-    env:
-      ZEAL_RELEASE_BUILD: ON
 
     steps:
       - name: Checkout
@@ -83,19 +80,17 @@ jobs:
           CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
 
-      - name: Update GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          # Only upload the following artifacts:
-          # - Portable 7-Zip and ZIP packages.
-          # - Non-portable MSI package.
-          files: |
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.*
+      - name: Upload Release Assets
+        run: |
+          gh release upload ${{ github.ref_name }} --clobber `
+            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.* `
             build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi*
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   build-appimage:
     name: AppImage
+    if: github.repository == 'zealdocs/zeal'
     runs-on: ubuntu-24.04
 
     steps:
@@ -132,7 +127,7 @@ jobs:
 
       - name: Configure & Build
         run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr -DZEAL_RELEASE_BUILD=ON
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
           cmake --build build
 
       - name: Retrieve Application Version
@@ -165,16 +160,14 @@ jobs:
       - name: Generate Digest Files
         run: for file in Zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
 
-      - name: Update GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          fail_on_unmatched_files: true
-          files: |
-            Zeal-*.AppImage*
+      - name: Upload Release Assets
+        run: gh release upload ${{ github.ref_name }} --clobber Zeal-*.AppImage*
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   build-ubuntu:
     name: ${{ matrix.config.name }}
+    if: github.repository == 'zealdocs/zeal'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -190,9 +183,6 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
-
-    env:
-      ZEAL_RELEASE_BUILD: ON
 
     steps:
       - name: Checkout
@@ -220,22 +210,27 @@ jobs:
           buildPreset: ${{ matrix.config.buildPreset }}
           buildPresetAdditionalArgs: "['--target package_source']"
 
-      - name: Generate Changelog
-        uses: orhun/git-cliff-action@v4
-        id: git-cliff
-        with:
-          args: --latest
-          config: .github/workflows/release/cliff.toml
+      - name: Upload Release Assets
+        run: gh release upload ${{ github.ref_name }} --clobber build/${{ matrix.config.configurePreset }}/zeal-*.*
         env:
-          GITHUB_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
 
-      - name: Update GitHub Release
-        uses: softprops/action-gh-release@v2
+  publish:
+    name: Publish Release
+    if: github.repository == 'zealdocs/zeal'
+    needs: [build-windows, build-appimage, build-ubuntu]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
         with:
-          draft: true
-          fail_on_unmatched_files: true
-          body: ${{ steps.git-cliff.outputs.content }}
-          # Only upload the following artifacts:
-          # - Source packages.
-          files: |
-            build/${{ matrix.config.configurePreset }}/zeal-*.*
+          app-id: ${{ secrets.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Publish Release
+        run: gh release edit ${{ github.ref_name }} --draft=false --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
