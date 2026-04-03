@@ -11,8 +11,7 @@ class QCompleter;
 class QEvent;
 class QLabel;
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class SearchEdit : public QLineEdit
 {
@@ -39,7 +38,6 @@ private:
     QLabel *m_completionLabel = nullptr;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_SEARCHEDIT_H

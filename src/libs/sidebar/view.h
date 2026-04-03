@@ -6,8 +6,7 @@
 
 #include <QWidget>
 
-namespace Zeal {
-namespace Sidebar {
+namespace Zeal::Sidebar {
 
 class View : public QWidget
 {
@@ -17,7 +16,6 @@ public:
     explicit View(QWidget *parent = nullptr);
 };
 
-} // namespace Sidebar
-} // namespace Zeal
+} // namespace Zeal::Sidebar
 
 #endif // ZEAL_SIDEBAR_VIEW_H

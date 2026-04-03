@@ -19,9 +19,11 @@
 #include <QPalette>
 #include <QPushButton>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
-static Q_LOGGING_CATEGORY(log, "zeal.browser.webpage")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.browser.webpage")
+} // namespace
 
 WebPage::WebPage(QObject *parent)
     : QWebEnginePage(Settings::defaultProfile(), parent)
@@ -129,3 +131,5 @@ void WebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageL
             lineNumber,
             qPrintable(message));
 }
+
+} // namespace Zeal::Browser

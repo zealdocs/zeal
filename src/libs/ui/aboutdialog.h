@@ -6,8 +6,7 @@
 
 #include <QDialog>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 namespace Ui {
 class AboutDialog;
@@ -24,7 +23,6 @@ private:
     Ui::AboutDialog *ui;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_ABOUTDIALOG_H

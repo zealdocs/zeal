@@ -28,11 +28,11 @@
 #include <cstring>
 #include <utility>
 
-using namespace Zeal::Registry;
-
-static Q_LOGGING_CATEGORY(log, "zeal.registry.docset")
+namespace Zeal::Registry {
 
 namespace {
+Q_LOGGING_CATEGORY(log, "zeal.registry.docset")
+
 constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
 constexpr char IndexNameVersion[] = "0001";     // Current index version
 
@@ -49,9 +49,17 @@ constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
 // const char IsDashDocset[] = "isDashDocset";
 constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
 } // namespace InfoPlist
-} // namespace
 
-static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv);
+void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+{
+    Q_UNUSED(argc)
+
+    const auto *needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    const auto *haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+
+    sqlite3_result_double(context, Zeal::Util::Fuzzy::scoreFunction(needle, haystack));
+}
+} // namespace
 
 Docset::Docset(QString path)
     : m_path(std::move(path))
@@ -789,12 +797,4 @@ bool Docset::isJavaScriptEnabled() const
     return m_isJavaScriptEnabled;
 }
 
-static void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
-{
-    Q_UNUSED(argc)
-
-    auto needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
-    auto haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
-
-    sqlite3_result_double(context, Zeal::Util::Fuzzy::scoreFunction(needle, haystack));
-}
+} // namespace Zeal::Registry

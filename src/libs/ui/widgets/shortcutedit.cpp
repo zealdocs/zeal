@@ -7,7 +7,7 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 ShortcutEdit::ShortcutEdit(QWidget *parent)
     : ShortcutEdit(QString(), parent)
@@ -91,3 +91,5 @@ int ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString 
 
     return modifiers;
 }
+
+} // namespace Zeal::WidgetUi

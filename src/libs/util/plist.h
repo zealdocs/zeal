@@ -7,8 +7,7 @@
 #include <QHash>
 #include <QVariant>
 
-namespace Zeal {
-namespace Util {
+namespace Zeal::Util {
 
 class Plist : public QHash<QString, QVariant>
 {
@@ -22,7 +21,6 @@ private:
     bool m_hasError = false;
 };
 
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util
 
 #endif // ZEAL_UTIL_PLIST_H

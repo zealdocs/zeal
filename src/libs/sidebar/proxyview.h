@@ -6,8 +6,7 @@
 
 #include "view.h"
 
-namespace Zeal {
-namespace Sidebar {
+namespace Zeal::Sidebar {
 
 class ViewProvider;
 
@@ -28,7 +27,6 @@ private:
     View *m_view = nullptr;
 };
 
-} // namespace Sidebar
-} // namespace Zeal
+} // namespace Zeal::Sidebar
 
 #endif // ZEAL_SIDEBAR_PROXYVIEW_H

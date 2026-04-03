@@ -6,8 +6,7 @@
 
 #include <QWidget>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class ToolBarFrame : public QWidget
 {
@@ -19,7 +18,6 @@ private:
     void paintEvent(QPaintEvent *event) override;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_TOOLBARFRAME_H

@@ -7,8 +7,7 @@
 
 #include <QLineEdit>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class ShortcutEdit : public QLineEdit
 {
@@ -29,7 +28,6 @@ private:
     int m_originalKey = 0;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_SHORTCUTEDIT_H

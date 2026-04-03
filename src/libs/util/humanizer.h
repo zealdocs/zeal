@@ -9,8 +9,7 @@
 
 class QDateTime;
 
-namespace Zeal {
-namespace Util {
+namespace Zeal::Util {
 
 class Humanizer
 {
@@ -23,7 +22,6 @@ public:
     static QString fromNow(const QDateTime &dt);
 };
 
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util
 
 #endif // ZEAL_UTIL_HUMANIZER_H

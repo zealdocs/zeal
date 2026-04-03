@@ -30,7 +30,7 @@
 
 #include <cstdlib>
 
-using namespace Zeal;
+namespace {
 
 #if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 // Windows fills new window client areas with COLOR_WINDOW (always white, even in dark mode)
@@ -76,7 +76,7 @@ struct CommandLineParameters
     bool unregisterProtocolHandlers;
 #endif
 
-    Registry::SearchQuery query;
+    Zeal::Registry::SearchQuery query;
 };
 
 QString stripParameterUrl(const QString &url, const QString &scheme)
@@ -196,6 +196,8 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
 }
 #endif
 
+} // namespace
+
 int main(int argc, char *argv[])
 {
     // Do not allow Qt version lower than the app was compiled with.
@@ -270,7 +272,8 @@ int main(int argc, char *argv[])
     }
 #endif // Q_OS_WINDOWS
 
-    QScopedPointer<Core::ApplicationSingleton> appSingleton(new Core::ApplicationSingleton());
+    using Zeal::Core::ApplicationSingleton;
+    QScopedPointer<ApplicationSingleton> appSingleton(new ApplicationSingleton());
     if (appSingleton->isSecondary()) {
 #ifdef Q_OS_WINDOWS
         ::AllowSetForegroundWindow(appSingleton->primaryPid());
@@ -291,11 +294,12 @@ int main(int argc, char *argv[])
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
-    QScopedPointer<Core::Application> app(new Core::Application());
+    using Zeal::Core::Application;
+    QScopedPointer<Application> app(new Application());
 
-    QObject::connect(appSingleton.data(), &Core::ApplicationSingleton::messageReceived, [&app](const QByteArray &data) {
-        Registry::SearchQuery query;
-        bool preventActivation;
+    QObject::connect(appSingleton.data(), &ApplicationSingleton::messageReceived, [&app](const QByteArray &data) {
+        Zeal::Registry::SearchQuery query;
+        bool preventActivation = false;
 
         QDataStream in(data);
         in >> query >> preventActivation;

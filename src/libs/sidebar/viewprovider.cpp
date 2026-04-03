@@ -3,9 +3,11 @@
 
 #include "viewprovider.h"
 
-using namespace Zeal::Sidebar;
+namespace Zeal::Sidebar {
 
 ViewProvider::ViewProvider(QObject *parent)
     : QObject(parent)
 {
 }
+
+} // namespace Zeal::Sidebar

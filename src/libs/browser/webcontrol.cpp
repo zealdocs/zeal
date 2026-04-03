@@ -17,7 +17,7 @@
 #include <QWebEnginePage>
 #include <QWebEngineSettings>
 
-using namespace Zeal::Browser;
+namespace Zeal::Browser {
 
 WebControl::WebControl(QWidget *parent)
     : QWidget(parent)
@@ -171,3 +171,5 @@ void WebControl::keyPressEvent(QKeyEvent *event)
         break;
     }
 }
+
+} // namespace Zeal::Browser

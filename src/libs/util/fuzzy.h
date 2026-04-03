@@ -7,9 +7,7 @@
 #include <QString>
 #include <QVector> // TODO: [Qt 6] Use QList.
 
-namespace Zeal {
-namespace Util {
-namespace Fuzzy {
+namespace Zeal::Util::Fuzzy {
 
 // Fuzzy matching is based on https://github.com/jhawthorn/fzy by John Hawthorn, MIT License.
 
@@ -78,8 +76,6 @@ double scoreFunction(const QString &needle, const QString &haystack);
  */
 double scoreFunction(const char *needle, const char *haystack);
 
-} // namespace Fuzzy
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util::Fuzzy
 
 #endif // ZEAL_UTIL_FUZZY_H

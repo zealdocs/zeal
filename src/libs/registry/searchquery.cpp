@@ -6,7 +6,7 @@
 
 #include <utility>
 
-using namespace Zeal::Registry;
+namespace Zeal::Registry {
 
 namespace {
 const char prefixSeparator = ':';
@@ -100,6 +100,8 @@ void SearchQuery::setQuery(const QString &str)
     m_query = str;
 }
 
+} // namespace Zeal::Registry
+
 QDataStream &operator<<(QDataStream &out, const Zeal::Registry::SearchQuery &query)
 {
     out << query.toString();
@@ -110,6 +112,6 @@ QDataStream &operator>>(QDataStream &in, Zeal::Registry::SearchQuery &query)
 {
     QString str;
     in >> str;
-    query = SearchQuery::fromString(str);
+    query = Zeal::Registry::SearchQuery::fromString(str);
     return in;
 }

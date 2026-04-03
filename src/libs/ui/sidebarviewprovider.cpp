@@ -7,8 +7,7 @@
 #include "mainwindow.h"
 #include "searchsidebar.h"
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 SidebarViewProvider::SidebarViewProvider(MainWindow *mainWindow)
     : Sidebar::ViewProvider(mainWindow)
@@ -33,3 +32,5 @@ Sidebar::View *SidebarViewProvider::view(const QString &id) const
 
     return nullptr;
 }
+
+} // namespace Zeal::WidgetUi

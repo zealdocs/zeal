@@ -8,8 +8,7 @@
 
 struct archive;
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class Extractor final : public QObject
 {
@@ -38,7 +37,6 @@ private:
     void emitProgress(ExtractInfo &info);
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 #endif // ZEAL_CORE_EXTRACTOR_H

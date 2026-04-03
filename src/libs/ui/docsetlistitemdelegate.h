@@ -7,8 +7,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class DocsetListItemDelegate : public QStyledItemDelegate
 {
@@ -28,7 +27,6 @@ private:
     void paintProgressBar(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_DOCSETLISTITEMDELEGATE_H

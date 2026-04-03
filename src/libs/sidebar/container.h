@@ -8,8 +8,7 @@
 
 class QSplitter;
 
-namespace Zeal {
-namespace Sidebar {
+namespace Zeal::Sidebar {
 
 class View;
 
@@ -30,7 +29,6 @@ private:
     QList<View *> m_views;
 };
 
-} // namespace Sidebar
-} // namespace Zeal
+} // namespace Zeal::Sidebar
 
 #endif // ZEAL_SIDEBAR_CONTAINER_H

@@ -8,7 +8,7 @@
 
 #include <sqlite3.h>
 
-using namespace Zeal::Util;
+namespace Zeal::Util {
 
 namespace {
 constexpr char ListTablesSql[] = "SELECT name"
@@ -239,3 +239,5 @@ sqlite3 *SQLiteDatabase::handle() const
 {
     return m_db;
 }
+
+} // namespace Zeal::Util

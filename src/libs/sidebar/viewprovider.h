@@ -6,8 +6,7 @@
 
 #include <QObject>
 
-namespace Zeal {
-namespace Sidebar {
+namespace Zeal::Sidebar {
 
 class View;
 
@@ -24,7 +23,6 @@ signals:
     void viewChanged();
 };
 
-} // namespace Sidebar
-} // namespace Zeal
+} // namespace Zeal::Sidebar
 
 #endif // ZEAL_SIDEBAR_VIEWPROVIDER_H

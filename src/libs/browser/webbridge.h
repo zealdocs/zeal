@@ -6,8 +6,7 @@
 
 #include <QObject>
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class WebBridge final : public QObject
 {
@@ -28,7 +27,6 @@ private:
     QString appVersion() const;
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_WEBBRIDGE_H

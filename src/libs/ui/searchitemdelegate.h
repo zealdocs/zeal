@@ -7,8 +7,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Zeal {
-namespace WidgetUi {
+namespace Zeal::WidgetUi {
 
 class SearchItemDelegate : public QStyledItemDelegate
 {
@@ -34,7 +33,6 @@ private:
     int m_textHighlightRole = -1;
 };
 
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi
 
 #endif // ZEAL_WIDGETUI_SEARCHITEMDELEGATE_H

@@ -14,14 +14,13 @@
 #include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
 
+namespace Zeal::Browser {
+
 namespace {
+Q_LOGGING_CATEGORY(log, "zeal.browser.settings")
+
 constexpr char HighlightOnNavigateCssPath[] = ":/browser/assets/css/highlight.css";
-}
-
-using namespace Zeal;
-using namespace Zeal::Browser;
-
-static Q_LOGGING_CATEGORY(log, "zeal.browser.settings")
+} // namespace
 
 QWebEngineProfile *Settings::m_webProfile = nullptr;
 
@@ -113,3 +112,5 @@ void Settings::setCustomStyleSheet(const QString &name, const QString &path)
     script.setWorldId(QWebEngineScript::ApplicationWorld);
     m_webProfile->scripts()->insert(script);
 }
+
+} // namespace Zeal::Browser

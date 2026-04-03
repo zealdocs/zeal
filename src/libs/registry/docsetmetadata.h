@@ -10,8 +10,7 @@
 #include <QStringList>
 #include <QUrl>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 class DocsetMetadata
 {
@@ -52,7 +51,6 @@ private:
     QList<QUrl> m_urls;
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_DOCSETMETADATA_H

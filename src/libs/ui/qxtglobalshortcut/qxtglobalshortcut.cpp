@@ -36,7 +36,9 @@
 #include <QAbstractEventDispatcher>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(log, "zeal.ui.qxtglobalshortcut")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.ui.qxtglobalshortcut")
+} // namespace
 
 #ifndef Q_OS_MACOS
 int QxtGlobalShortcutPrivate::ref = 0;

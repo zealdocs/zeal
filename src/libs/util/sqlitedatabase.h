@@ -12,8 +12,7 @@
 struct sqlite3;
 struct sqlite3_stmt;
 
-namespace Zeal {
-namespace Util {
+namespace Zeal::Util {
 
 class SQLiteDatabase
 {
@@ -51,7 +50,6 @@ private:
     QString m_lastError;
 };
 
-} // namespace Util
-} // namespace Zeal
+} // namespace Zeal::Util
 
 #endif // ZEAL_UTIL_SQLITEDATABASE_H

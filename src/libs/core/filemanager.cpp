@@ -14,9 +14,11 @@
 
 #include <future>
 
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
-static Q_LOGGING_CATEGORY(log, "zeal.core.filemanager")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.core.filemanager")
+} // namespace
 
 FileManager::FileManager(QObject *parent)
     : QObject(parent)
@@ -60,3 +62,5 @@ bool FileManager::removeRecursively(const QString &path)
 
     return true;
 }
+
+} // namespace Zeal::Core

@@ -10,8 +10,7 @@
 
 class QSettings;
 
-namespace Zeal {
-namespace Core {
+namespace Zeal::Core {
 
 class Settings final : public QObject
 {
@@ -139,8 +138,7 @@ private:
     static QSettings *qsettings(QObject *parent = nullptr);
 };
 
-} // namespace Core
-} // namespace Zeal
+} // namespace Zeal::Core
 
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ContentAppearance policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance &policy);

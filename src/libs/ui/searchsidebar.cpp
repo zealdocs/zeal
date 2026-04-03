@@ -29,8 +29,7 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-using namespace Zeal;
-using namespace Zeal::WidgetUi;
+namespace Zeal::WidgetUi {
 
 SearchSidebar::SearchSidebar(QWidget *parent)
     : SearchSidebar(nullptr, parent)
@@ -468,3 +467,5 @@ void SearchSidebar::showEvent(QShowEvent *event)
         m_pendingSearchEditFocus = false;
     }
 }
+
+} // namespace Zeal::WidgetUi

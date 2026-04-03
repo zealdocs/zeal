@@ -9,8 +9,7 @@
 #include <QUrl>
 #include <QVector>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 class Docset;
 
@@ -36,7 +35,6 @@ struct SearchResult
     }
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_SEARCHRESULT_H

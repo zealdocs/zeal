@@ -6,8 +6,7 @@
 
 #include <Qt>
 
-namespace Zeal {
-namespace Registry {
+namespace Zeal::Registry {
 
 enum ItemDataRole {
     DocsetIconRole = Qt::UserRole,
@@ -23,7 +22,6 @@ enum SectionIndex {
     Actions
 };
 
-} // namespace Registry
-} // namespace Zeal
+} // namespace Zeal::Registry
 
 #endif // ZEAL_REGISTRY_ITEMDATAROLE_H

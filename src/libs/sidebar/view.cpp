@@ -3,9 +3,11 @@
 
 #include "view.h"
 
-using namespace Zeal::Sidebar;
+namespace Zeal::Sidebar {
 
 View::View(QWidget *parent)
     : QWidget(parent)
 {
 }
+
+} // namespace Zeal::Sidebar

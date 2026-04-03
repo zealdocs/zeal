@@ -6,10 +6,7 @@
 
 #include <QLayout>
 
-namespace Zeal {
-namespace WidgetUi {
-
-namespace LayoutHelper {
+namespace Zeal::WidgetUi::LayoutHelper {
 
 template<class Layout>
 Layout *createBorderlessLayout()
@@ -21,9 +18,6 @@ Layout *createBorderlessLayout()
     return layout;
 }
 
-} // namespace LayoutHelper
-
-} // namespace WidgetUi
-} // namespace Zeal
+} // namespace Zeal::WidgetUi::LayoutHelper
 
 #endif // ZEAL_WIDGETUI_LAYOUTHELPER_H

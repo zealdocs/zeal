@@ -18,14 +18,16 @@
 #include <signal.h>
 #endif
 
-using namespace Zeal::Core;
+namespace Zeal::Core {
 
-static Q_LOGGING_CATEGORY(log, "zeal.core.applicationsingleton")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.core.applicationsingleton")
 
 struct SharedData
 {
     qint64 primaryPid;
 };
+} // namespace
 
 ApplicationSingleton::ApplicationSingleton(QObject *parent)
     : QObject(parent)
@@ -198,3 +200,5 @@ QString ApplicationSingleton::computeId()
 
     return QString::fromLatin1(hash.result().toBase64(base64Options));
 }
+
+} // namespace Zeal::Core

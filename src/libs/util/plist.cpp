@@ -7,9 +7,11 @@
 #include <QLoggingCategory>
 #include <QXmlStreamReader>
 
-using namespace Zeal::Util;
+namespace Zeal::Util {
 
-static Q_LOGGING_CATEGORY(log, "zeal.util.plist")
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.util.plist")
+} // namespace
 
 bool Plist::read(const QString &fileName)
 {
@@ -63,3 +65,5 @@ bool Plist::hasError() const
 {
     return m_hasError;
 }
+
+} // namespace Zeal::Util

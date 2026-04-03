@@ -24,7 +24,11 @@
 #include <QPalette>
 #endif
 
+namespace Zeal::Core {
+
 namespace {
+Q_LOGGING_CATEGORY(log, "zeal.core.settings")
+
 // Configuration file groups
 constexpr char GroupUI[] = "ui";
 constexpr char GroupContent[] = "content";
@@ -36,10 +40,6 @@ constexpr char GroupInternal[] = "internal";
 constexpr char GroupState[] = "state";
 constexpr char GroupProxy[] = "proxy";
 } // namespace
-
-using namespace Zeal::Core;
-
-static Q_LOGGING_CATEGORY(log, "zeal.core.settings")
 
 Settings::Settings(QObject *parent)
     : QObject(parent)
@@ -442,30 +442,32 @@ QSettings *Settings::qsettings(QObject *parent)
 #endif
 }
 
-QDataStream &operator<<(QDataStream &out, Settings::ContentAppearance policy)
+} // namespace Zeal::Core
+
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ContentAppearance policy)
 {
-    out << static_cast<std::underlying_type_t<Settings::ContentAppearance>>(policy);
+    out << static_cast<std::underlying_type_t<Zeal::Core::Settings::ContentAppearance>>(policy);
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, Settings::ContentAppearance &policy)
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance &policy)
 {
-    std::underlying_type_t<Settings::ContentAppearance> value;
+    std::underlying_type_t<Zeal::Core::Settings::ContentAppearance> value;
     in >> value;
-    policy = static_cast<Settings::ContentAppearance>(value);
+    policy = static_cast<Zeal::Core::Settings::ContentAppearance>(value);
     return in;
 }
 
-QDataStream &operator<<(QDataStream &out, Settings::ExternalLinkPolicy policy)
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy)
 {
-    out << static_cast<std::underlying_type_t<Settings::ExternalLinkPolicy>>(policy);
+    out << static_cast<std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy>>(policy);
     return out;
 }
 
-QDataStream &operator>>(QDataStream &in, Settings::ExternalLinkPolicy &policy)
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy)
 {
-    std::underlying_type_t<Settings::ExternalLinkPolicy> value;
+    std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy> value;
     in >> value;
-    policy = static_cast<Settings::ExternalLinkPolicy>(value);
+    policy = static_cast<Zeal::Core::Settings::ExternalLinkPolicy>(value);
     return in;
 }

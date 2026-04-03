@@ -7,8 +7,7 @@
 
 #include <QWebEngineView>
 
-namespace Zeal {
-namespace Browser {
+namespace Zeal::Browser {
 
 class WebView final : public QWebEngineView
 {
@@ -46,7 +45,6 @@ private:
     int m_zoomLevel = 0;
 };
 
-} // namespace Browser
-} // namespace Zeal
+} // namespace Zeal::Browser
 
 #endif // ZEAL_BROWSER_WEBVIEW_H
