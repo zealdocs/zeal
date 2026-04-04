@@ -9,6 +9,8 @@ on:
         description: "Package version (without 'v' prefix)"
         required: true
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
