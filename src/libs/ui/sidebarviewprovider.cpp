@@ -26,7 +26,7 @@ Sidebar::View *SidebarViewProvider::view(const QString &id) const
         return nullptr;
     }
 
-    if (auto tab = m_mainWindow->currentTab()) {
+    if (auto *tab = m_mainWindow->currentTab()) {
         return tab->searchSidebar();
     }
 

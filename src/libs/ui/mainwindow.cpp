@@ -60,8 +60,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     setupTabBar();
 
     // Setup central widget.
-    auto centralWidget = new QWidget(this);
-    auto centralWidgetLayout = new QVBoxLayout(centralWidget);
+    auto *centralWidget = new QWidget(this);
+    auto *centralWidgetLayout = new QVBoxLayout(centralWidget);
     centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
     centralWidgetLayout->setSpacing(0);
     centralWidgetLayout->addWidget(m_tabBar);
@@ -104,10 +104,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     });
 
     // Setup sidebar.
-    auto sbViewProvider = new SidebarViewProvider(this);
-    auto sbView = new Sidebar::ProxyView(sbViewProvider, QStringLiteral("index"));
+    auto *sbViewProvider = new SidebarViewProvider(this);
+    auto *sbView = new Sidebar::ProxyView(sbViewProvider, QStringLiteral("index"));
 
-    auto sb = new Sidebar::Container();
+    auto *sb = new Sidebar::Container();
     sb->addView(sbView);
 
     // Setup splitter.
@@ -146,7 +146,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::search(const Registry::SearchQuery &query)
 {
-    if (auto tab = currentTab()) {
+    if (auto *tab = currentTab()) {
         tab->search(query);
     }
 }
@@ -187,7 +187,7 @@ BrowserTab *MainWindow::createTab(const QUrl &url, bool activate)
     if (url.isEmpty()) {
         tab = new BrowserTab();
     } else {
-        auto source = currentTab();
+        auto *source = currentTab();
         // Clone the current tab to preserve sidebar state.
         tab = source ? source->clone(false) : new BrowserTab();
     }
@@ -286,11 +286,11 @@ void MainWindow::setupMainMenu()
     // TODO: [Qt 6.7] Use QIcon::ThemeIcon.
 
     // File Menu.
-    auto menu = m_menuBar->addMenu(tr("&File"));
+    auto *menu = m_menuBar->addMenu(tr("&File"));
 
     // -> New Tab Action.
     // Not a standard icon, but it is often provided by GTK themes.
-    auto action = menu->addAction(QIcon::fromTheme(QStringLiteral("tab-new")), tr("New &Tab"));
+    auto *action = menu->addAction(QIcon::fromTheme(QStringLiteral("tab-new")), tr("New &Tab"));
     addAction(action);
     action->setShortcut(QKeySequence::AddTab);
     connect(action, &QAction::triggered, this, [this]() {
@@ -329,7 +329,7 @@ void MainWindow::setupMainMenu()
     addAction(action);
     action->setShortcut(QKeySequence::Find);
     connect(action, &QAction::triggered, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->activateSearchBar();
         }
     });
@@ -362,7 +362,7 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&View"));
 
     // -> Toolbars Submenu.
-    auto subMenu = menu->addMenu(tr("&Toolbars"));
+    auto *subMenu = menu->addMenu(tr("&Toolbars"));
 
     // -> Toggle Toolbar Action.
     action = m_showMenuBarAction = subMenu->addAction(tr("&Menu Bar"));
@@ -380,7 +380,7 @@ void MainWindow::setupMainMenu()
     m_menuBar->setVisible(m_showMenuBarAction->isChecked());
 
     // Show and focus menu bar on F10.
-    auto focusMenu = new QShortcut(Qt::Key_F10, this);
+    auto *focusMenu = new QShortcut(Qt::Key_F10, this);
     connect(focusMenu, &QShortcut::activated, this, [this]() {
         m_menuBar->setVisible(true);
 
@@ -435,16 +435,16 @@ void MainWindow::setupShortcuts()
     }
 
     // Focus search bar.
-    auto shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
+    auto *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->searchSidebar()->focusSearchEdit();
         }
     });
 
     shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->searchSidebar()->focusSearchEdit();
         }
     });
@@ -459,7 +459,7 @@ void MainWindow::setupShortcuts()
     // TODO: Move to the View menu.
     shortcut = new QShortcut(QStringLiteral("Ctrl+B"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        auto sb = m_splitter->widget(0);
+        auto *sb = m_splitter->widget(0);
         if (sb == nullptr) {
             // This should not really happen.
             return;
@@ -471,37 +471,37 @@ void MainWindow::setupShortcuts()
     // Browser Shortcuts.
     shortcut = new QShortcut(QKeySequence::Back, this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->back();
         }
     });
     shortcut = new QShortcut(QKeySequence::Forward, this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->forward();
         }
     });
     shortcut = new QShortcut(QKeySequence::ZoomIn, this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->zoomIn();
         }
     });
     shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->zoomIn();
         }
     });
     shortcut = new QShortcut(QKeySequence::ZoomOut, this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->zoomOut();
         }
     });
     shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->webControl()->resetZoom();
         }
     });
@@ -563,7 +563,7 @@ void MainWindow::setupTabBar()
     connect(m_tabBar, &QTabBar::tabMoved, this, &MainWindow::moveTab);
 
     for (int i = 1; i < 10; i++) {
-        auto action = new QAction(m_tabBar);
+        auto *action = new QAction(m_tabBar);
 #ifdef Q_OS_LINUX
         action->setShortcut(QStringLiteral("Alt+%1").arg(i));
 #else
@@ -607,7 +607,7 @@ void MainWindow::createTrayIcon()
         toggleWindow();
     });
 
-    auto trayIconMenu = new QMenu(this);
+    auto *trayIconMenu = new QMenu(this);
     QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"), this, &MainWindow::toggleWindow);
 
     connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
@@ -668,7 +668,7 @@ void MainWindow::bringToFront()
         w->requestActivate();
     }
 
-    if (auto tab = currentTab()) {
+    if (auto *tab = currentTab()) {
         tab->searchSidebar()->focusSearchEdit();
     }
 }
@@ -696,7 +696,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     if (object == m_tabBar) {
         switch (event->type()) {
         case QEvent::MouseButtonRelease: {
-            auto e = static_cast<QMouseEvent *>(event);
+            auto *e = static_cast<QMouseEvent *>(event);
             if (e->button() == Qt::MiddleButton) {
                 const int index = m_tabBar->tabAt(e->pos());
                 if (index != -1) {
@@ -720,7 +720,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
         switch (event->type()) {
         // Hide menu bar when it loses focus.
         case QEvent::FocusOut: {
-            auto e = static_cast<QFocusEvent *>(event);
+            auto *e = static_cast<QFocusEvent *>(event);
             if (e->reason() != Qt::PopupFocusReason) {
                 m_menuBar->hide();
             }
@@ -729,7 +729,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
         }
         // Hide menu bar on Escape key press.
         case QEvent::KeyPress: {
-            auto e = static_cast<QKeyEvent *>(event);
+            auto *e = static_cast<QKeyEvent *>(event);
             if (e->key() == Qt::Key_Escape) {
                 m_menuBar->hide();
             }
@@ -751,12 +751,12 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 {
     switch (keyEvent->key()) {
     case Qt::Key_Escape:
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->searchSidebar()->focusSearchEdit(true);
         }
         break;
     case Qt::Key_Question:
-        if (auto tab = currentTab()) {
+        if (auto *tab = currentTab()) {
             tab->searchSidebar()->focusSearchEdit();
         }
         break;

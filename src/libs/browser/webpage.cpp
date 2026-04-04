@@ -60,7 +60,7 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
         return false;
     }
 
-    auto appSettings = Core::Application::instance()->settings();
+    auto *appSettings = Core::Application::instance()->settings();
 
     // TODO: [C++20] using enum Core::Settings::ExternalLinkPolicy;
     typedef Core::Settings::ExternalLinkPolicy ExternalLinkPolicy;

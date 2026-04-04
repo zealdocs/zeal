@@ -390,7 +390,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
         return;
     }
 
-    auto reply = qobject_cast<QNetworkReply *>(sender());
+    auto *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply || !reply->isOpen()) {
         return;
     }
@@ -751,7 +751,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
     for (const auto &kv : m_availableDocsets) {
         const auto &metadata = kv.second;
 
-        auto listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
+        auto *listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
 
         if (!m_docsetRegistry->contains(metadata.name())) {

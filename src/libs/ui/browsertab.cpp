@@ -65,7 +65,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_backButton->setText(QStringLiteral("←"));
     m_backButton->setToolTip(tr("Go back one page"));
 
-    auto backMenu = new QMenu(m_backButton);
+    auto *backMenu = new QMenu(m_backButton);
     connect(backMenu, &QMenu::aboutToShow, this, [this, backMenu]() {
         backMenu->clear();
         QWebEngineHistory *history = m_webControl->history();
@@ -89,7 +89,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     m_forwardButton->setText(QStringLiteral("→"));
     m_forwardButton->setToolTip(tr("Go forward one page"));
 
-    auto forwardMenu = new QMenu(m_forwardButton);
+    auto *forwardMenu = new QMenu(m_forwardButton);
     connect(forwardMenu, &QMenu::aboutToShow, this, [this, forwardMenu]() {
         forwardMenu->clear();
         QWebEngineHistory *history = m_webControl->history();
@@ -105,7 +105,7 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     connect(m_forwardButton, &QToolButton::clicked, m_webControl, &Browser::WebControl::forward);
 
-    auto label = new QLabel();
+    auto *label = new QLabel();
     label->setAlignment(Qt::AlignCenter);
     connect(m_webControl, &Browser::WebControl::titleChanged, this, [label](const QString &title) {
         if (title.isEmpty()) {
@@ -115,7 +115,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         label->setText(title);
     });
 
-    auto toolBarLayout = new QHBoxLayout();
+    auto *toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
     toolBarLayout->setSpacing(4);
 
@@ -123,16 +123,16 @@ BrowserTab::BrowserTab(QWidget *parent)
     toolBarLayout->addWidget(m_forwardButton);
     toolBarLayout->addWidget(label, 1);
 
-    auto toolBarFrame = new ToolBarFrame();
+    auto *toolBarFrame = new ToolBarFrame();
     toolBarFrame->setLayout(toolBarLayout);
 
     // Setup main layout.
-    auto layout = LayoutHelper::createBorderlessLayout<QVBoxLayout>();
+    auto *layout = LayoutHelper::createBorderlessLayout<QVBoxLayout>();
     layout->addWidget(toolBarFrame);
     layout->addWidget(m_webControl);
     setLayout(layout);
 
-    auto registry = Core::Application::instance()->docsetRegistry();
+    auto *registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
     connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this, registry](const QString &name) {
         Registry::Docset *docset = registry->docsetForUrl(m_webControl->url());
@@ -149,7 +149,7 @@ BrowserTab::BrowserTab(QWidget *parent)
 
 BrowserTab *BrowserTab::clone(bool preserveHistory) const
 {
-    auto tab = new BrowserTab();
+    auto *tab = new BrowserTab();
 
     if (m_searchSidebar) {
         tab->m_searchSidebar = m_searchSidebar->clone();

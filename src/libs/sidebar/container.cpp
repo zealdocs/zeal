@@ -27,7 +27,7 @@ Container::Container(QWidget *parent)
     });
 
     // Setup main layout.
-    auto layout = WidgetUi::LayoutHelper::createBorderlessLayout<QVBoxLayout>();
+    auto *layout = WidgetUi::LayoutHelper::createBorderlessLayout<QVBoxLayout>();
     layout->addWidget(m_splitter);
     setLayout(layout);
 }

@@ -66,7 +66,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         m_expandedIndexList.removeOne(index);
     });
 
-    auto delegate = new SearchItemDelegate(m_treeView);
+    auto *delegate = new SearchItemDelegate(m_treeView);
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     delegate->setTextHighlightRole(Registry::ItemDataRole::MatchPositionsRole);
     m_treeView->setItemDelegate(delegate);
@@ -77,7 +77,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     // Setup Alt+Up, Alt+Down, etc shortcuts.
     const auto keyList = {Qt::Key_Up, Qt::Key_Down, Qt::Key_PageUp, Qt::Key_PageDown, Qt::Key_Home, Qt::Key_End};
     for (const auto key : keyList) {
-        auto shortcut = new QShortcut(key | Qt::AltModifier, this);
+        auto *shortcut = new QShortcut(key | Qt::AltModifier, this);
         connect(shortcut, &QShortcut::activated, this, [this, key]() {
             QKeyEvent event(QKeyEvent::KeyPress, key, Qt::NoModifier);
             QCoreApplication::sendEvent(m_treeView, &event);
@@ -177,13 +177,13 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         Core::Application::instance()->docsetRegistry()->search(text);
     });
 
-    auto toolBarLayout = new QVBoxLayout();
+    auto *toolBarLayout = new QVBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
     toolBarLayout->setSpacing(4);
 
     toolBarLayout->addWidget(m_searchEdit);
 
-    auto toolBarFrame = new ToolBarFrame();
+    auto *toolBarFrame = new ToolBarFrame();
     toolBarFrame->setLayout(toolBarLayout);
 
     // Setup splitter.
@@ -196,7 +196,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     });
 
     // Setup main layout.
-    auto layout = LayoutHelper::createBorderlessLayout<QVBoxLayout>();
+    auto *layout = LayoutHelper::createBorderlessLayout<QVBoxLayout>();
     layout->addWidget(toolBarFrame);
     layout->addWidget(m_splitter);
     setLayout(layout);
@@ -215,7 +215,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     });
 
     // Setup Docset Registry.
-    auto registry = Core::Application::instance()->docsetRegistry();
+    auto *registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
     connect(registry, &DocsetRegistry::searchCompleted, this, [this](const QList<Registry::SearchResult> &results) {
         if (!isVisible()) {
@@ -370,7 +370,7 @@ void SearchSidebar::setupSearchBoxCompletions()
 bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_treeView->viewport() && event->type() == QEvent::MouseButtonPress) {
-        auto e = static_cast<QMouseEvent *>(event);
+        auto *e = static_cast<QMouseEvent *>(event);
         const bool isMiddleClick = (e->button() == Qt::MiddleButton);
         const bool isCtrlClick = (e->button() == Qt::LeftButton && e->modifiers().testFlag(Qt::ControlModifier));
 
@@ -397,7 +397,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     }
 
     if (object == m_treeView && event->type() == QEvent::KeyPress) {
-        auto e = static_cast<QKeyEvent *>(event);
+        auto *e = static_cast<QKeyEvent *>(event);
         if ((e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) && e->modifiers().testFlag(Qt::ControlModifier)) {
             if (e->isAutoRepeat()) {
                 return true;
@@ -414,7 +414,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
     }
 
     if (object == m_searchEdit && event->type() == QEvent::KeyPress) {
-        auto e = static_cast<QKeyEvent *>(event);
+        auto *e = static_cast<QKeyEvent *>(event);
         switch (e->key()) {
         case Qt::Key_Return:
         case Qt::Key_Enter:

@@ -26,7 +26,7 @@ ProxyView::ProxyView(ViewProvider *provider, QString id, QWidget *parent)
     setLayout(WidgetUi::LayoutHelper::createBorderlessLayout<QVBoxLayout>());
 
     connect(m_viewProvider, &ViewProvider::viewChanged, this, [this]() {
-        auto view = m_viewProvider->view(m_viewId);
+        auto *view = m_viewProvider->view(m_viewId);
         if (view == nullptr) {
             qCWarning(log, "ViewProvider returned invalid view for id '%s'.", qPrintable(m_viewId));
             return;

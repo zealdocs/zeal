@@ -16,7 +16,7 @@ SearchModel::SearchModel(QObject *parent)
 
 SearchModel *SearchModel::clone(QObject *parent)
 {
-    auto model = new SearchModel(parent);
+    auto *model = new SearchModel(parent);
     model->m_dataList = m_dataList;
     return model;
 }
@@ -32,7 +32,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    auto item = static_cast<SearchResult *>(index.internalPointer());
+    auto *item = static_cast<SearchResult *>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -62,7 +62,7 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
     }
 
     // FIXME: const_cast
-    auto item = const_cast<SearchResult *>(&m_dataList.at(row));
+    auto *item = const_cast<SearchResult *>(&m_dataList.at(row));
     return createIndex(row, column, item);
 }
 

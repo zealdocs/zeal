@@ -46,7 +46,7 @@ public:
         auto *msg = static_cast<MSG *>(message);
         if (msg->message == WM_ERASEBKGND) {
             const QColor bg = QApplication::palette().color(QPalette::Window);
-            auto hdc = reinterpret_cast<HDC>(msg->wParam);
+            auto *hdc = reinterpret_cast<HDC>(msg->wParam);
             RECT rc;
             GetClientRect(msg->hwnd, &rc);
             HBRUSH brush = CreateSolidBrush(RGB(bg.red(), bg.green(), bg.blue()));

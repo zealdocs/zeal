@@ -22,7 +22,7 @@ namespace Zeal::Browser {
 WebControl::WebControl(QWidget *parent)
     : QWidget(parent)
 {
-    auto layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 

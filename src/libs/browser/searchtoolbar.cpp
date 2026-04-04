@@ -23,7 +23,7 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     // re-polishes on dynamic color scheme changes.
     setStyleSheet(QStringLiteral("SearchToolBar {}"));
 
-    auto layout = new QHBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(4, 4, 4, 4);
     layout->setSpacing(4);
 
@@ -42,7 +42,7 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
     layout->addWidget(m_findPreviousButton);
 
     // A workaround for QAbstractButton lacking support for multiple shortcuts.
-    auto action = new QAction(m_findPreviousButton);
+    auto *action = new QAction(m_findPreviousButton);
     action->setShortcuts(QKeySequence::FindPrevious);
     connect(action, &QAction::triggered, this, [this]() {
         m_findPreviousButton->animateClick();
@@ -72,7 +72,7 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     layout->addStretch();
 
-    auto closeButton = new QToolButton();
+    auto *closeButton = new QToolButton();
     closeButton->setAutoRaise(true);
     closeButton->setIcon(qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     closeButton->setToolTip(tr("Close find bar"));
@@ -101,7 +101,7 @@ void SearchToolBar::activate()
 bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_lineEdit && event->type() == QEvent::KeyPress) {
-        auto keyEvent = static_cast<QKeyEvent *>(event);
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
 
         switch (keyEvent->key()) {
         case Qt::Key_Enter:
