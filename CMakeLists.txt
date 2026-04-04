@@ -13,13 +13,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # ZEAL_RELEASE_VERSION is the last released version, updated by release-please.
 # When both match, the build is treated as a release; otherwise it's a dev build.
 project(Zeal
-    VERSION 0.8.1 # x-release-please-version
+    VERSION 0.8.2 # x-release-please-version
     DESCRIPTION "A simple documentation browser."
     HOMEPAGE_URL "https://zealdocs.org"
     LANGUAGES CXX
 )
 
-set(ZEAL_RELEASE_VERSION "0.8.1") # x-release-please-version
+set(ZEAL_RELEASE_VERSION "0.8.2") # x-release-please-version
 
 option(ZEAL_USE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 if(ZEAL_USE_CLANG_TIDY)
