@@ -12,8 +12,13 @@ contact: https://go.zealdocs.org/l/contact
 issues: https://github.com/zealdocs/zeal/issues
 source-code: https://github.com/zealdocs/zeal
 website: https://zealdocs.org
+icon: assets/freedesktop/128-apps-zeal.png
 grade: stable
 confinement: strict
+
+platforms:
+  amd64:
+  arm64:
 
 lint:
   ignore:

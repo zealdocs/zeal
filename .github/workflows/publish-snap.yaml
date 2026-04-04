@@ -1,4 +1,4 @@
-name: Publish Snap Package
+name: Publish Snap Packages
 
 on:
   release:
