@@ -39,10 +39,10 @@ if ($Check) {
     if ($Check -match '^clang-diagnostic-(.+)$') {
         # clang-diagnostic-* checks can't be enabled via Checks; use a no-op check
         # as a placeholder and enable the compiler warning via -extra-arg.
-        $tidyArgs += "--config={Checks: '-*,android-cloexec-accept', HeaderFilterRegex: 'src/.*'}"
+        $tidyArgs += "--config={Checks: '-*,android-cloexec-accept', HeaderFilterRegex: 'src.*'}"
         $tidyArgs += "-extra-arg=-W$($Matches[1])"
     } else {
-        $tidyArgs += "--config={Checks: '-*,$Check', HeaderFilterRegex: 'src/.*'}"
+        $tidyArgs += "--config={Checks: '-*,$Check', HeaderFilterRegex: 'src.*'}"
     }
 }
 if ($Fix) {
@@ -75,7 +75,7 @@ if (-not $files) {
 
 foreach ($file in $files) {
     Write-Verbose "Processing $file"
-    & clang-tidy @tidyArgs $file
+    & clang-tidy @tidyArgs --quiet $file
     if ($LASTEXITCODE -ne 0) {
         exit 1
     }
