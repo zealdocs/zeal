@@ -186,6 +186,10 @@ Docset::Docset(QString path)
         m_isJavaScriptEnabled = plist[InfoPlist::IsJavaScriptEnabled].toBool();
     }
 
+    for (auto &kw : m_keywords) {
+        kw = kw.toLower();
+    }
+
     m_keywords.removeDuplicates();
 
     // Determine index page. This is ridiculous.
