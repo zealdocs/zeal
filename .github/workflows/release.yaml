@@ -15,7 +15,6 @@ concurrency:
 jobs:
   build-windows:
     name: ${{ matrix.config.name }}
-    if: github.repository == 'zealdocs/zeal'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -31,6 +30,7 @@ jobs:
             qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
+            uploadPattern: "zeal-*-windows-x64.msi*"
           - name: Windows Server 2022 / Qt 6 / Portable
             os: windows-2022
             arch: win64_msvc2022_64
@@ -41,6 +41,7 @@ jobs:
             qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
+            uploadPattern: "zeal-*-portable-windows-x64.*"
 
     steps:
       - name: Checkout
@@ -83,14 +84,12 @@ jobs:
       - name: Upload Release Assets
         run: |
           gh release upload ${{ github.ref_name }} --clobber `
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-portable-windows-x64.* `
-            build/${{ matrix.config.configurePreset }}/zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi*
+            build/${{ matrix.config.configurePreset }}/${{ matrix.config.uploadPattern }}
         env:
           GH_TOKEN: ${{ github.token }}
 
   build-appimage:
     name: AppImage
-    if: github.repository == 'zealdocs/zeal'
     runs-on: ubuntu-24.04
 
     steps:
@@ -167,7 +166,6 @@ jobs:
 
   build-ubuntu:
     name: ${{ matrix.config.name }}
-    if: github.repository == 'zealdocs/zeal'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -217,13 +215,13 @@ jobs:
 
   publish:
     name: Publish Release
-    if: github.repository == 'zealdocs/zeal'
     needs: [build-windows, build-appimage, build-ubuntu]
     runs-on: ubuntu-latest
 
     steps:
       - name: Generate App Token
         id: app-token
+        if: github.repository == 'zealdocs/zeal'
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.CI_APP_ID }}
@@ -233,4 +231,4 @@ jobs:
       - name: Publish Release
         run: gh release edit ${{ github.ref_name }} --draft=false --repo ${{ github.repository }}
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
