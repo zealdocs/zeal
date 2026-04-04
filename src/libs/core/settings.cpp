@@ -135,7 +135,11 @@ void Settings::load()
 
     // TODO: Put everything in groups
     startMinimized = settings->value(QStringLiteral("start_minimized"), false).toBool();
+#ifdef ZEAL_FEATURE_UPDATE_CHECK
     checkForUpdate = settings->value(QStringLiteral("check_for_update"), true).toBool();
+#else
+    checkForUpdate = settings->value(QStringLiteral("check_for_update"), false).toBool();
+#endif
 
     showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();

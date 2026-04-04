@@ -99,6 +99,11 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 endif()
 
+option(ZEAL_FEATURE_UPDATE_CHECK "Automatic update check on startup" ON)
+if(ZEAL_FEATURE_UPDATE_CHECK)
+    add_compile_definitions(ZEAL_FEATURE_UPDATE_CHECK)
+endif()
+
 option(BUILD_TESTING "Build the testing suite" OFF)
 if(BUILD_TESTING)
     enable_testing()
