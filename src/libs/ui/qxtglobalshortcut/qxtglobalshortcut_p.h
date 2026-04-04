@@ -52,7 +52,7 @@ class QxtGlobalShortcutPrivate : public QAbstractNativeEventFilter
 
     QxtGlobalShortcut *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(QxtGlobalShortcut)
-public:
+protected:
     explicit QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
     ~QxtGlobalShortcutPrivate() override;
 
