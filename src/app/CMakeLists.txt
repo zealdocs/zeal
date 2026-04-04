@@ -51,6 +51,10 @@ set_target_properties(App PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+# Optionally deploy to the build directory after each build.
+# Useful for local development on Windows when Qt is not in PATH.
+option(ZEAL_DEPLOY_QT_ON_BUILD "Copy Qt runtime dependencies to build directory (Windows only)" OFF)
+
 # Deploy Qt runtime dependencies on Windows.
 if(WIN32 AND _use_qt_cmake_commands)
     qt_generate_deploy_script(
@@ -63,10 +67,6 @@ qt_deploy_runtime_dependencies(
     NO_TRANSLATIONS
     NO_COMPILER_RUNTIME
 )")
-
-    # Optionally deploy to the build directory after each build.
-    # Useful for local development when Qt is not in PATH.
-    option(ZEAL_DEPLOY_QT_ON_BUILD "Copy Qt runtime dependencies to build directory" OFF)
 
     if(ZEAL_DEPLOY_QT_ON_BUILD)
         add_custom_command(TARGET App POST_BUILD
