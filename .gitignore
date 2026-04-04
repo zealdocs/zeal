@@ -33,6 +33,9 @@ CMakeUserPresets.json
 # Chocolatey
 *.nupkg
 
+# Snap
+*.snap
+
 # Linux appdata
 /assets/freedesktop/org.zealdocs.zeal.appdata.xml
 

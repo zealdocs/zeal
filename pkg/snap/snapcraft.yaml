@@ -1,0 +1,58 @@
+# https://snapcraft.io/docs
+name: zeal
+base: core24
+adopt-info: zeal
+summary: Offline documentation browser
+description: |
+  Zeal is a simple offline documentation browser inspired by Dash.
+  It offers access to over 200 docsets covering various APIs and libraries.
+title: Zeal
+license: GPL-3.0-or-later
+contact: https://go.zealdocs.org/l/contact
+issues: https://github.com/zealdocs/zeal/issues
+source-code: https://github.com/zealdocs/zeal
+website: https://zealdocs.org
+grade: stable
+confinement: strict
+
+lint:
+  ignore:
+    - library:
+        - usr/lib/**/libicuio.so.*
+        - usr/lib/**/libicutest.so.*
+        - usr/lib/**/libicutu.so.*
+
+apps:
+  zeal:
+    command: usr/bin/zeal
+    extensions: [kde-neon-6]
+    plugs:
+      - home
+      - network
+      - opengl
+      - browser-support
+    environment:
+      # Chromium's sandbox conflicts with snap's confinement.
+      QTWEBENGINE_DISABLE_SANDBOX: "1"
+
+parts:
+  zeal:
+    plugin: cmake
+    source: .
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_BUILD_TYPE=Release
+    build-packages:
+      - extra-cmake-modules
+      - libarchive-dev
+      - libgl1-mesa-dev
+      - libsqlite3-dev
+      - libvulkan-dev
+      - libxcb-keysyms1-dev
+    stage-packages:
+      - libarchive13t64
+      - libsqlite3-0
+      - libxcb-keysyms1
+    override-build: |
+      craftctl default
+      craftctl set version=$(cat ${CRAFT_PART_BUILD}/zeal_version)
