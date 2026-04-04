@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QStyle>
+#include <QStyleOptionFrame>
 #include <QTimer>
 
 namespace Zeal::WidgetUi {
@@ -125,19 +126,24 @@ void SearchEdit::showCompletions(const QString &newValue)
         return;
     }
 
-    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    const int textWidth = fontMetrics().horizontalAdvance(newValue);
-
     if (m_prefixCompleter) {
         m_prefixCompleter->setCompletionPrefix(text());
     }
 
+    QStyleOptionFrame option;
+    initStyleOption(&option);
+    const QRect contentsRect = style()->subElementRect(QStyle::SE_LineEditContents, &option, this);
+
+    const int textWidth = fontMetrics().horizontalAdvance(newValue);
     const QString completed = currentCompletion(newValue).mid(newValue.size());
-    const QSize labelSize(fontMetrics().horizontalAdvance(completed), size().height());
-    const int shiftX = static_cast<int>(window()->devicePixelRatioF() * (frameWidth + 2)) + textWidth;
+    const QSize labelSize(fontMetrics().horizontalAdvance(completed), contentsRect.height());
+    // QLineEditPrivate::horizontalMargin, an internal padding applied before rendering text.
+    // See qtbase/src/widgets/widgets/qlineedit_p.cpp for the definition.
+    const int horizontalMargin = 2;
+    const int shiftX = contentsRect.x() + horizontalMargin + textWidth;
 
     m_completionLabel->setMinimumSize(labelSize);
-    m_completionLabel->move(shiftX, 0);
+    m_completionLabel->move(shiftX, contentsRect.y());
     m_completionLabel->setText(completed);
 }
 
