@@ -274,7 +274,12 @@ int main(int argc, char *argv[])
 
     using Zeal::Core::ApplicationSingleton;
     QScopedPointer<ApplicationSingleton> appSingleton(new ApplicationSingleton());
-    if (appSingleton->isSecondary()) {
+    if (appSingleton->state() == ApplicationSingleton::State::Failed) {
+        QTextStream(stderr) << "Failed to initialize application singleton." << '\n';
+        return EXIT_FAILURE;
+    }
+
+    if (appSingleton->state() == ApplicationSingleton::State::Secondary) {
 #ifdef Q_OS_WINDOWS
         ::AllowSetForegroundWindow(appSingleton->primaryPid());
 #endif

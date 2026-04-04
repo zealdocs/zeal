@@ -45,8 +45,7 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
 
     m_sharedMemory = new QSharedMemory(m_id, this);
 
-    m_isPrimary = m_sharedMemory->create(sizeof(SharedData));
-    if (m_isPrimary) {
+    if (m_sharedMemory->create(sizeof(SharedData))) {
         setupPrimary();
         return;
     }
@@ -95,31 +94,34 @@ ApplicationSingleton::ApplicationSingleton(QObject *parent)
             }
         }
 
-        m_isPrimary = m_sharedMemory->create(sizeof(SharedData));
-        if (m_isPrimary) {
+        if (m_sharedMemory->create(sizeof(SharedData))) {
             setupPrimary();
             return;
         }
     }
 #endif
 
-    // Fall back to secondary if we couldn't reclaim the segment.
+    // If both create() and attach() failed, the shared memory segment is in
+    // a broken state (e.g., stale backing file after a crash). Clean up and
+    // try to become primary one last time.
     if (!m_sharedMemory->attach(QSharedMemory::ReadOnly)) {
         qCWarning(log) << "Cannot attach to the shared memory segment:" << m_sharedMemory->errorString();
+
+        if (m_sharedMemory->create(sizeof(SharedData))) {
+            setupPrimary();
+            return;
+        }
+
+        qCWarning(log) << "Cannot create shared memory segment:" << m_sharedMemory->errorString();
         return;
     }
 
     setupSecondary();
 }
 
-bool ApplicationSingleton::isPrimary() const
+ApplicationSingleton::State ApplicationSingleton::state() const
 {
-    return m_isPrimary;
-}
-
-bool ApplicationSingleton::isSecondary() const
-{
-    return !m_isPrimary;
+    return m_state;
 }
 
 qint64 ApplicationSingleton::primaryPid() const
@@ -130,7 +132,7 @@ qint64 ApplicationSingleton::primaryPid() const
 bool ApplicationSingleton::sendMessage(QByteArray &data, int timeout)
 {
     // No support for primary to secondary communication.
-    if (m_isPrimary) {
+    if (m_state != State::Secondary) {
         return false;
     }
 
@@ -146,6 +148,7 @@ bool ApplicationSingleton::sendMessage(QByteArray &data, int timeout)
 
 void ApplicationSingleton::setupPrimary()
 {
+    m_state = State::Primary;
     m_primaryPid = QCoreApplication::applicationPid();
 
     qCInfo(log, "Starting as a primary instance. (PID: %lld)", m_primaryPid);
@@ -177,6 +180,8 @@ void ApplicationSingleton::setupPrimary()
 
 void ApplicationSingleton::setupSecondary()
 {
+    m_state = State::Secondary;
+
     m_sharedMemory->lock();
     auto sd = static_cast<SharedData *>(m_sharedMemory->data());
     m_primaryPid = sd->primaryPid;

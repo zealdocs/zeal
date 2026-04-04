@@ -16,10 +16,15 @@ class ApplicationSingleton final : public QObject
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(ApplicationSingleton)
 public:
+    enum class State {
+        Primary,
+        Secondary,
+        Failed,
+    };
+
     explicit ApplicationSingleton(QObject *parent = nullptr);
 
-    bool isPrimary() const;
-    bool isSecondary() const;
+    State state() const;
     qint64 primaryPid() const;
 
     bool sendMessage(QByteArray &data, int timeout = 500);
@@ -35,7 +40,7 @@ private:
 
     QString m_id;
 
-    bool m_isPrimary = false;
+    State m_state = State::Failed;
     qint64 m_primaryPid = 0;
 
     QSharedMemory *m_sharedMemory = nullptr;
