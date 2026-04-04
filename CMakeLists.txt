@@ -19,7 +19,7 @@ project(Zeal
     LANGUAGES CXX
 )
 
-set(ZEAL_RELEASE_VERSION "0.8.0") # x-release-please-version
+set(ZEAL_RELEASE_VERSION "0.8.1") # x-release-please-version
 
 option(ZEAL_USE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 if(ZEAL_USE_CLANG_TIDY)
