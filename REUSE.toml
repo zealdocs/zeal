@@ -5,7 +5,6 @@ version = 1
 path = [
     "assets/**/*",
     "cmake/*",
-    "pkg/**/*",
     "README.md",
     "src/**/*.ui",
     "src/app/resources/browser/*.html",
@@ -14,13 +13,6 @@ path = [
     "src/app/resources/icons/**/*",
     "src/app/resources/zeal.*",
     "src/app/zeal.qrc",
-
-    # Windows CMake files.
-    # CMake and vcpkg files.
-    "**/*.cmake",
-    "**/CMakeLists.txt",
-    "CMakePresets.json",
-    "vcpkg.json",
 ]
 SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
 SPDX-License-Identifier = "GPL-3.0-or-later"
@@ -28,6 +20,14 @@ SPDX-License-Identifier = "GPL-3.0-or-later"
 # MIT for auxiliary files.
 [[annotations]]
 path = [
+    # Build system and packaging files.
+    "**/*.cmake",
+    "**/CMakeLists.txt",
+    "CMakePresets.json",
+    "pkg/**/*",
+    "vcpkg.json",
+
+    # Repository management and editor configuration files.
     ".clang-format-ignore",
     ".clang-format",
     ".clang-tidy",
