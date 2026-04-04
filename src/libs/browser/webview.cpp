@@ -8,7 +8,6 @@
 #include "webpage.h"
 
 #include <core/application.h>
-#include <core/settings.h>
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
 

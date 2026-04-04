@@ -23,9 +23,6 @@
 
 #include <sqlite3.h>
 
-#include <algorithm>
-#include <cmath>
-#include <cstring>
 #include <utility>
 
 namespace Zeal::Registry {
