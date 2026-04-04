@@ -15,9 +15,8 @@ on:
           - candidate
           - beta
           - edge
-  # TODO: Add schedule trigger for edge channel.
-  # schedule:
-  #   - cron: '0 0 * * 1'
+  schedule:
+    - cron: '0 0 * * 2'
 
 permissions: {}
 
@@ -55,4 +54,4 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
         with:
           snap: ${{ steps.build.outputs.snap }}
-          release: ${{ inputs.channel || 'stable' }}
+          release: ${{ inputs.channel || (github.event_name == 'schedule' && 'edge') || 'stable' }}
