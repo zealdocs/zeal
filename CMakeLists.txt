@@ -95,6 +95,13 @@ add_custom_target(zeal_version
     VERBATIM
 )
 
+# Enable all compiler warnings and treat them as errors.
+if(MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24.0")
     set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 endif()
