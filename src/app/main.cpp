@@ -22,8 +22,7 @@
 #include <QPalette>
 #include <QSettings>
 #include <QStyleHints>
-
-#include <Windows.h>
+#include <qt_windows.h>
 
 #include <utility> // for std::ignore
 #endif

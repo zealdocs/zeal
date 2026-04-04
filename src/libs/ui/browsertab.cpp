@@ -9,7 +9,6 @@
 
 #include <browser/webcontrol.h>
 #include <core/application.h>
-#include <core/settings.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/searchquery.h>

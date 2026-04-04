@@ -4,7 +4,6 @@
 #include "fuzzy.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
 
 namespace Zeal::Util::Fuzzy {
