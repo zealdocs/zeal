@@ -18,6 +18,7 @@ class SearchToolBar final : public QWidget
     Q_DISABLE_COPY_MOVE(SearchToolBar)
 public:
     explicit SearchToolBar(QWebEngineView *webView, QWidget *parent = nullptr);
+    ~SearchToolBar() override = default;
 
     void setText(const QString &text);
     void activate();

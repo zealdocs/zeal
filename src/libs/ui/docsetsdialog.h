@@ -37,6 +37,7 @@ class DocsetsDialog;
 class DocsetsDialog : public QDialog
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(DocsetsDialog)
 public:
     explicit DocsetsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~DocsetsDialog() override;

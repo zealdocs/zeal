@@ -14,6 +14,7 @@ class FileManager final : public QObject
     Q_DISABLE_COPY_MOVE(FileManager)
 public:
     explicit FileManager(QObject *parent = nullptr);
+    ~FileManager() override = default;
 
     bool removeRecursively(const QString &path);
 };

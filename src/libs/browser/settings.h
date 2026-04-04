@@ -22,6 +22,7 @@ class Settings final : public QObject
     Q_DISABLE_COPY_MOVE(Settings)
 public:
     explicit Settings(Core::Settings *appSettings, QObject *parent = nullptr);
+    ~Settings() override = default;
 
     static QWebEngineProfile *defaultProfile();
 

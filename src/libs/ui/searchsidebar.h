@@ -32,6 +32,8 @@ class SearchSidebar final : public Sidebar::View
     Q_DISABLE_COPY_MOVE(SearchSidebar)
 public:
     explicit SearchSidebar(QWidget *parent = nullptr);
+    ~SearchSidebar() override = default;
+
     SearchSidebar *clone(QWidget *parent = nullptr) const;
 
     Registry::SearchModel *pageTocModel() const;

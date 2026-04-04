@@ -14,6 +14,7 @@ class View : public QWidget
     Q_DISABLE_COPY_MOVE(View)
 public:
     explicit View(QWidget *parent = nullptr);
+    ~View() override = default;
 };
 
 } // namespace Zeal::Sidebar

@@ -13,7 +13,8 @@ class NetworkAccessManager final : public QNetworkAccessManager
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(NetworkAccessManager)
 public:
-    NetworkAccessManager(QObject *parent = nullptr);
+    explicit NetworkAccessManager(QObject *parent = nullptr);
+    ~NetworkAccessManager() override = default;
 
     static bool isLocalFile(const QUrl &url);
     static bool isLocalUrl(const QUrl &url);

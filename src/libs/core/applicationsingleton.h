@@ -23,6 +23,7 @@ public:
     };
 
     explicit ApplicationSingleton(QObject *parent = nullptr);
+    ~ApplicationSingleton() override = default;
 
     State state() const;
     qint64 primaryPid() const;

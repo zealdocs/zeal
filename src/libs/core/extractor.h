@@ -16,6 +16,7 @@ class Extractor final : public QObject
     Q_DISABLE_COPY_MOVE(Extractor)
 public:
     explicit Extractor(QObject *parent = nullptr);
+    ~Extractor() override = default;
 
 public slots:
     void extract(const QString &sourceFile, const QString &destination, const QString &root = QString());

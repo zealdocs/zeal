@@ -48,10 +48,12 @@ class QxtGlobalShortcut;
 
 class QxtGlobalShortcutPrivate : public QAbstractNativeEventFilter
 {
+    Q_DISABLE_COPY_MOVE(QxtGlobalShortcutPrivate)
+
     QxtGlobalShortcut *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(QxtGlobalShortcut)
 public:
-    QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
+    explicit QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
     ~QxtGlobalShortcutPrivate() override;
 
     bool enabled = true;

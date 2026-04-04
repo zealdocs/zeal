@@ -15,6 +15,7 @@ class WebPage final : public QWebEnginePage
     Q_DISABLE_COPY_MOVE(WebPage)
 public:
     explicit WebPage(QObject *parent = nullptr);
+    ~WebPage() override = default;
 
 protected:
     bool acceptNavigationRequest(const QUrl &requestUrl, NavigationType type, bool isMainFrame) override;

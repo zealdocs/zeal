@@ -15,6 +15,7 @@ class WebBridge final : public QObject
     Q_PROPERTY(QString AppVersion READ appVersion CONSTANT)
 public:
     explicit WebBridge(QObject *parent = nullptr);
+    ~WebBridge() override = default;
 
 signals:
     void actionTriggered(const QString &action);

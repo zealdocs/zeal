@@ -14,7 +14,9 @@ class UrlRequestInterceptor final : public QWebEngineUrlRequestInterceptor
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(UrlRequestInterceptor)
 public:
-    UrlRequestInterceptor(QObject *parent = nullptr);
+    explicit UrlRequestInterceptor(QObject *parent = nullptr);
+    ~UrlRequestInterceptor() override = default;
+
     void interceptRequest(QWebEngineUrlRequestInfo &info) override;
 
 private:

@@ -17,6 +17,7 @@ class SearchModel final : public QAbstractListModel
     Q_DISABLE_COPY_MOVE(SearchModel)
 public:
     explicit SearchModel(QObject *parent = nullptr);
+    ~SearchModel() override = default;
     SearchModel *clone(QObject *parent = nullptr);
 
     bool isEmpty() const;

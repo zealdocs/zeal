@@ -40,6 +40,7 @@ class SidebarViewProvider;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(MainWindow)
 public:
     explicit MainWindow(Core::Application *app, QWidget *parent = nullptr);
     ~MainWindow() override;

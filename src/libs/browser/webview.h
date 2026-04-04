@@ -15,6 +15,7 @@ class WebView final : public QWebEngineView
     Q_DISABLE_COPY_MOVE(WebView)
 public:
     explicit WebView(QWidget *parent = nullptr);
+    ~WebView() override = default;
 
     int zoomLevel() const;
     void setZoomLevel(int level);

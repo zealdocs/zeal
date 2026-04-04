@@ -16,6 +16,7 @@ class ViewProvider : public QObject
     Q_DISABLE_COPY_MOVE(ViewProvider)
 public:
     explicit ViewProvider(QObject *parent = nullptr);
+    ~ViewProvider() override = default;
 
     virtual View *view(const QString &id = QString()) const = 0;
 

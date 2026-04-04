@@ -16,6 +16,7 @@ class SidebarViewProvider : public Sidebar::ViewProvider
     Q_DISABLE_COPY_MOVE(SidebarViewProvider)
 public:
     explicit SidebarViewProvider(MainWindow *mainWindow);
+    ~SidebarViewProvider() override = default;
 
     Sidebar::View *view(const QString &id = QString()) const override;
 

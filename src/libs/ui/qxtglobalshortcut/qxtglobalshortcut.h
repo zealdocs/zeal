@@ -41,6 +41,7 @@ class QxtGlobalShortcutPrivate;
 class QxtGlobalShortcut : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(QxtGlobalShortcut)
 
     QxtGlobalShortcutPrivate *d_ptr = nullptr;
     Q_DECLARE_PRIVATE(QxtGlobalShortcut)

@@ -20,6 +20,7 @@ class WebControl final : public QWidget
     Q_DISABLE_COPY_MOVE(WebControl)
 public:
     explicit WebControl(QWidget *parent = nullptr);
+    ~WebControl() override = default;
 
     void focus();
     void load(const QUrl &url);
