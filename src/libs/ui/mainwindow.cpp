@@ -115,7 +115,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     m_splitter->restoreState(m_settings->verticalSplitterGeometry);
 
     // Setup web settings.
-    auto webSettings = new Browser::Settings(m_settings, this);
+    new Browser::Settings(m_settings, this);
 
     // Setup web bridge.
     m_webBridge = new Browser::WebBridge(this);
@@ -404,7 +404,7 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Help"));
 
     // -> Submit Feedback Action.
-    menu->addAction(tr("&Submit Feedback…"), this, [this]() {
+    menu->addAction(tr("&Submit Feedback…"), this, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/report-bug")));
     });
 

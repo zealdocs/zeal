@@ -409,7 +409,8 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
                         m_db->value(2).toString(),
                         m_db->value(3).toString(),
                         const_cast<Docset *>(this),
-                        0});
+                        0,
+                        {}});
     }
 
     if (results.size() == 1) {
