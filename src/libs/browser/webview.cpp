@@ -28,8 +28,6 @@
 #include <QWebEngineContextMenuRequest>
 #endif
 
-#include <algorithm>
-
 namespace Zeal::Browser {
 
 WebView::WebView(QWidget *parent)
@@ -53,20 +51,22 @@ int WebView::zoomLevel() const
 
 void WebView::setZoomLevel(int level)
 {
+    level = qBound(0, level, static_cast<int>(availableZoomLevels().size()) - 1);
+
     if (level == m_zoomLevel) {
         return;
     }
 
-    level = qMax(0, level);
-    level = qMin(level, availableZoomLevels().size() - 1);
-
     m_zoomLevel = level;
 
-    // Scale the webview relative to the DPI of the screen.
-    // Only scale up for HiDPI displays (>96 DPI), never scale down.
-    const double dpiZoomFactor = std::max(1.0, logicalDpiY() / 96.0);
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    // Qt 5: setZoomFactor operates on physical pixels, so scale up for font DPI.
+    // See https://github.com/zealdocs/zeal/pull/1080.
+    const double dpiZoomFactor = qMax(1.0, logicalDpiY() / 96.0);
     setZoomFactor(availableZoomLevels().at(level) / 100.0 * dpiZoomFactor);
+#else
+    setZoomFactor(availableZoomLevels().at(level) / 100.0);
+#endif
     emit zoomLevelChanged();
 }
 
