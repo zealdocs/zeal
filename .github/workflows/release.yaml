@@ -229,6 +229,6 @@ jobs:
           permission-contents: write
 
       - name: Publish Release
-        run: gh release edit ${{ github.ref_name }} --draft=false --repo ${{ github.repository }}
+        run: gh release edit ${{ github.ref_name }} --draft=false --discussion-category Announcements --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
