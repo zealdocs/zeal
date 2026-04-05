@@ -8,8 +8,6 @@
   "force-tag-creation": true,
   "include-v-in-tag": true,
   "pull-request-title-pattern": "chore: release v${version}",
-  "labels": ["release: pending"],
-  "release-labels": ["release: tagged"],
   "changelog-sections": [
     {"type": "feat", "section": "Features"},
     {"type": "fix", "section": "Bug Fixes"},
