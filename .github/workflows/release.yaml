@@ -222,7 +222,7 @@ jobs:
       - name: Generate App Token
         id: app-token
         if: github.repository == 'zealdocs/zeal'
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
