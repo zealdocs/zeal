@@ -18,15 +18,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVector>
+#include <QWebEngineContextMenuRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QWheelEvent>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QWebEngineContextMenuData>
-#else
-#include <QWebEngineContextMenuRequest>
-#endif
 
 namespace Zeal::Browser {
 
@@ -58,15 +53,8 @@ void WebView::setZoomLevel(int level)
     }
 
     m_zoomLevel = level;
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Qt 5: setZoomFactor operates on physical pixels, so scale up for font DPI.
-    // See https://github.com/zealdocs/zeal/pull/1080.
-    const double dpiZoomFactor = qMax(1.0, logicalDpiY() / 96.0);
-    setZoomFactor(availableZoomLevels().at(level) / 100.0 * dpiZoomFactor);
-#else
     setZoomFactor(availableZoomLevels().at(level) / 100.0);
-#endif
+
     emit zoomLevelChanged();
 }
 
@@ -114,20 +102,11 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QWebEngineContextMenuData &contextData = page()->contextMenuData();
-
-    if (!contextData.isValid()) {
-        QWebEngineView::contextMenuEvent(event);
-        return;
-    }
-#else
     QWebEngineContextMenuRequest *contextMenuRequest = lastContextMenuRequest();
     if (contextMenuRequest == nullptr) {
         QWebEngineView::contextMenuEvent(event);
         return;
     }
-#endif
 
     event->accept();
 
@@ -137,12 +116,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     m_contextMenu = new QMenu(this);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QUrl linkUrl = contextData.linkUrl();
-#else
-    QUrl linkUrl = contextMenuRequest->linkUrl();
-#endif
-
+    const QUrl linkUrl = contextMenuRequest->linkUrl();
     if (linkUrl.isValid()) {
         const QString scheme = linkUrl.scheme();
 
@@ -163,12 +137,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QString selectedText = contextData.selectedText();
-#else
     const QString selectedText = contextMenuRequest->selectedText();
-#endif
-
     if (!selectedText.isEmpty()) {
         if (!m_contextMenu->isEmpty()) {
             m_contextMenu->addSeparator();

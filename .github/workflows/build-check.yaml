@@ -21,21 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: Ubuntu 24.04 / Qt 5
-            os: ubuntu-24.04
-            qt_packages: >-
-              libqt5x11extras5-dev
-              qtwebengine5-dev
-            configurePreset: release
-            buildPreset: release
-          - name: Ubuntu 24.04 / Qt 5 / Portable
-            os: ubuntu-24.04
-            qt_packages: >-
-              libqt5x11extras5-dev
-              qtwebengine5-dev
-            configurePreset: release-portable
-            buildPreset: release-portable
-          - name: Ubuntu 24.04 / Qt 6
+          - name: Ubuntu 24.04
             os: ubuntu-24.04
             qt_packages: >-
               libgl1-mesa-dev
@@ -45,7 +31,7 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
-          - name: Ubuntu 24.04 / Qt 6 / Portable
+          - name: Ubuntu 24.04 / Portable
             os: ubuntu-24.04
             qt_packages: >-
               libgl1-mesa-dev
@@ -55,7 +41,7 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release-portable
             buildPreset: release-portable
-          - name: Ubuntu 24.04 ARM64 / Qt 6
+          - name: Ubuntu 24.04 ARM64
             os: ubuntu-24.04-arm
             qt_packages: >-
               libgl1-mesa-dev
@@ -65,7 +51,7 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
-          - name: Ubuntu 24.04 ARM64 / Qt 6 / Portable
+          - name: Ubuntu 24.04 ARM64 / Portable
             os: ubuntu-24.04-arm
             qt_packages: >-
               libgl1-mesa-dev
@@ -108,25 +94,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: Windows Server 2022 / Qt 5
-            os: windows-2022
-            arch: win64_msvc2019_64
-            qt_modules: >-
-              qtwebengine
-            qt_version: "5.15.2"
-            configurePreset: release
-            buildPreset: release
-            publishArtifacts: false
-          - name: Windows Server 2022 / Qt 5 / Portable
-            os: windows-2022
-            arch: win64_msvc2019_64
-            qt_modules: >-
-              qtwebengine
-            qt_version: "5.15.2"
-            configurePreset: release-portable
-            buildPreset: release-portable
-            publishArtifacts: false
-          - name: Windows Server 2022 / Qt 6
+          - name: Windows Server 2022
             os: windows-2022
             arch: win64_msvc2022_64
             qt_modules: >-
@@ -137,7 +105,7 @@ jobs:
             configurePreset: release
             buildPreset: release
             publishArtifacts: true
-          - name: Windows Server 2022 / Qt 6 / Portable
+          - name: Windows Server 2022 Portable
             os: windows-2022
             arch: win64_msvc2022_64
             qt_modules: >-

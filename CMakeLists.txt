@@ -55,19 +55,6 @@ endif()
 set(PROJECT_COMPANY_NAME "Oleg Shparber")
 set(PROJECT_COPYRIGHT "© 2013-2026 Oleg Shparber and other contributors")
 
-# Find available major Qt version. It will be stored in QT_VERSION_MAJOR.
-if(NOT ZEAL_USE_QT5)
-    find_package(QT NAMES Qt6 COMPONENTS Core)
-    set(QT_MINIMUM_VERSION 6.2.0)
-endif()
-
-if(NOT QT_FOUND)
-    find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
-    set(QT_MINIMUM_VERSION 5.15.2)
-endif()
-
-message(NOTICE "Detected Qt version: ${QT_VERSION}")
-
 # Determine version suffix for non-release builds.
 if(PROJECT_VERSION STREQUAL ZEAL_RELEASE_VERSION)
     message(NOTICE "Release build: ${PROJECT_VERSION}")

@@ -40,9 +40,7 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return QGuiApplication::platformName() == QLatin1String("windows");
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message,
-                                                 NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(result)

@@ -375,11 +375,7 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         const bool isCtrlClick = (e->button() == Qt::LeftButton && e->modifiers().testFlag(Qt::ControlModifier));
 
         if (isMiddleClick || isCtrlClick) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             const QModelIndex index = m_treeView->indexAt(e->position().toPoint());
-#else
-            const QModelIndex index = m_treeView->indexAt(e->pos());
-#endif
             if (!index.isValid()) {
                 return false;
             }

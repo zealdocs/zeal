@@ -1,7 +1,4 @@
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
-if (Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_LESS QT_MINIMUM_VERSION)
-    message(FATAL_ERROR "Qt version >= ${QT_MINIMUM_VERSION} is required.")
-endif()
+find_package(Qt6 6.2.0 COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
 
 # Define output binary name.
 if(APPLE)
@@ -14,7 +11,7 @@ set(PROJECT_EXECUTABLE_NAME "${_project_output_name}${CMAKE_EXECUTABLE_SUFFIX}")
 message(STATUS "Project executable name: ${PROJECT_EXECUTABLE_NAME}")
 
 # Only support installing runtime dependencies with Qt >=6.5.1 (see QTBUG-111741).
-if(Qt${QT_VERSION_MAJOR}Widgets_VERSION VERSION_GREATER_EQUAL "6.5.1")
+if(Qt6Widgets_VERSION VERSION_GREATER_EQUAL "6.5.1")
     set(_use_qt_cmake_commands TRUE)
 
     qt_standard_project_setup()
@@ -30,21 +27,13 @@ else()
     set(App_RESOURCES) # Silence CMake warning.
 endif()
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_add_executable(App WIN32
-        main.cpp
-        zeal.qrc
-        ${App_RESOURCES}
-    )
-else()
-    add_executable(App WIN32
-        main.cpp
-        zeal.qrc
-        ${App_RESOURCES}
-    )
-endif()
+qt_add_executable(App WIN32
+    main.cpp
+    zeal.qrc
+    ${App_RESOURCES}
+)
 
-target_link_libraries(App PRIVATE Core Util Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(App PRIVATE Core Util Qt6::Widgets)
 
 set_target_properties(App PROPERTIES
     OUTPUT_NAME ${_project_output_name}
