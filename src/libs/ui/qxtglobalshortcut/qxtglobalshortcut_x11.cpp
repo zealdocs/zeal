@@ -37,13 +37,8 @@
 #include <QKeySequence>
 #include <QScopedPointer>
 #include <QVector>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QX11Info>
-#else
 #include <QtGui/private/qtx11extras_p.h>
 #include <QtGui/private/qxkbcommon_p.h>
-#endif
 
 // X11 headers define KeyPress/KeyRelease as macros that conflict with Qt enums.
 #include <X11/Xlib.h>
@@ -61,9 +56,7 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return QGuiApplication::platformName() == QLatin1String("xcb");
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message,
-                                                 NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
     Q_UNUSED(result)
     if (eventType != "xcb_generic_event_t") {
@@ -124,14 +117,11 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     extraNativeMods = 0;
     quint32 native = 0;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     // Use Qt's complete internal keysym table (covers media, launch, and all special keys).
     QKeyEvent dummy(QEvent::KeyPress, key, Qt::NoModifier);
     const auto keysyms = QXkbCommon::toKeysym(&dummy);
+
     KeySym keysym = keysyms.isEmpty() ? XCB_NO_SYMBOL : keysyms.first();
-#else
-    KeySym keysym = XStringToKeysym(QKeySequence(key).toString().toLatin1().data());
-#endif
     if (keysym == XCB_NO_SYMBOL) {
         keysym = static_cast<ushort>(key);
     }

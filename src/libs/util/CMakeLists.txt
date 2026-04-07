@@ -8,8 +8,8 @@ add_library(Util STATIC
     caseinsensitivemap.h
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-target_link_libraries(Util PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+find_package(Qt6 COMPONENTS Core REQUIRED)
+target_link_libraries(Util PRIVATE Qt6::Core)
 
 find_package(SQLite3 REQUIRED)
 if(NOT TARGET SQLite3::SQLite3)

@@ -112,12 +112,7 @@ bool QxtGlobalShortcutPrivate::nativeUnregister()
 
 bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const int combination = shortcut[0];
-#else
     const int combination = shortcut[0].toCombined();
-#endif
-
     const auto newKey = shortcut.isEmpty() ? Qt::Key(0) : Qt::Key(combination & ~Qt::KeyboardModifierMask);
     const auto newMods = shortcut.isEmpty() ? Qt::NoModifier
                                             : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);

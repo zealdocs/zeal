@@ -5,5 +5,5 @@ add_library(Sidebar STATIC
     viewprovider.cpp
 )
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
-target_link_libraries(Sidebar PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+target_link_libraries(Sidebar PRIVATE Qt6::Widgets)

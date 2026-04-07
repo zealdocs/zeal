@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: Windows Server 2022 / Qt 6
+          - name: Windows Server 2022
             os: windows-2022
             arch: win64_msvc2022_64
             qt_modules: >-
@@ -31,7 +31,7 @@ jobs:
             configurePreset: release
             buildPreset: release
             uploadPattern: "zeal-*-windows-x64.msi*"
-          - name: Windows Server 2022 / Qt 6 / Portable
+          - name: Windows Server 2022 / Portable
             os: windows-2022
             arch: win64_msvc2022_64
             qt_modules: >-

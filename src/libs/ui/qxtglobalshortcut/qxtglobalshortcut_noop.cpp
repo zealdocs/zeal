@@ -8,9 +8,7 @@ bool QxtGlobalShortcutPrivate::isSupported()
     return false;
 }
 
-bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType,
-                                                 void *message,
-                                                 NativeEventFilterResult *result)
+bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
 {
     Q_UNUSED(eventType)
     Q_UNUSED(message)

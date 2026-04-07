@@ -44,13 +44,8 @@ constexpr char GroupProxy[] = "proxy";
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    qRegisterMetaTypeStreamOperators<ContentAppearance>("ContentAppearance");
-    qRegisterMetaTypeStreamOperators<ExternalLinkPolicy>("ExternalLinkPolicy");
-#else
     qRegisterMetaType<ContentAppearance>("ContentAppearance");
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
-#endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     // When the OS color scheme changes, reapply the color scheme.
