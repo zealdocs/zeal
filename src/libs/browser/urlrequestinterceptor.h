@@ -20,7 +20,7 @@ public:
     void interceptRequest(QWebEngineUrlRequestInfo &info) override;
 
 private:
-    void blockRequest(QWebEngineUrlRequestInfo &info);
+    static void blockRequest(QWebEngineUrlRequestInfo &info);
 };
 
 } // namespace Zeal::Browser

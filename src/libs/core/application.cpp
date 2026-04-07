@@ -124,7 +124,7 @@ Settings *Application::settings() const
     return m_settings;
 }
 
-Registry::DocsetRegistry *Application::docsetRegistry()
+Registry::DocsetRegistry *Application::docsetRegistry() const
 {
     return m_docsetRegistry;
 }

@@ -111,7 +111,7 @@ public:
     bool isDarkModeEnabled() const;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    typedef Qt::ColorScheme ColorScheme;
+    using ColorScheme = Qt::ColorScheme;
 #else
     enum class ColorScheme {
         Unknown,

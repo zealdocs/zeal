@@ -66,13 +66,13 @@ public:
 
 struct CommandLineParameters
 {
-    bool forceMinimized;
-    bool preventActivation;
+    bool forceMinimized = false;
+    bool preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
-    bool attachConsole;
-    bool registerProtocolHandlers;
-    bool unregisterProtocolHandlers;
+    bool attachConsole = false;
+    bool registerProtocolHandlers = false;
+    bool unregisterProtocolHandlers = false;
 #endif
 
     Zeal::Registry::SearchQuery query;
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef Q_OS_WINDOWS
-    if (clParams.attachConsole && AttachConsole(ATTACH_PARENT_PROCESS)) {
+    if (clParams.attachConsole && (AttachConsole(ATTACH_PARENT_PROCESS) != 0)) {
         FILE *fp = nullptr;
         std::ignore = freopen_s(&fp, "CONOUT$", "w", stdout);
         std::ignore = freopen_s(&fp, "CONOUT$", "w", stderr);

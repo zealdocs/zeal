@@ -45,7 +45,7 @@ public:
     QNetworkAccessManager *networkManager() const;
     Settings *settings() const;
 
-    Registry::DocsetRegistry *docsetRegistry();
+    Registry::DocsetRegistry *docsetRegistry() const;
     FileManager *fileManager() const;
     HttpServer *httpServer() const;
 
