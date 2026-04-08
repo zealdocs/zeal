@@ -17,7 +17,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QVector>
 #include <QWebEngineContextMenuRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -58,12 +57,12 @@ void WebView::setZoomLevel(int level)
     emit zoomLevelChanged();
 }
 
-const QVector<int> &WebView::availableZoomLevels()
+const QList<int> &WebView::availableZoomLevels()
 {
     // clang-format off
-    static const QVector<int> zoomLevels = {30, 40, 50, 67, 80, 90, 100,
-                                            110, 120, 133, 150, 170, 200,
-                                            220, 233, 250, 270, 285, 300};
+    static const QList<int> zoomLevels = {30, 40, 50, 67, 80, 90, 100,
+                                          110, 120, 133, 150, 170, 200,
+                                          220, 233, 250, 270, 285, 300};
     // clang-format on
 
     return zoomLevels;

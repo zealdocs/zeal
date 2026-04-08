@@ -128,7 +128,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const QString elidedText = fm.elidedText(opt.text, Qt::ElideRight, textRect.width());
 
     // Get pre-computed match positions from model for highlighting.
-    const QVector<int> matchPositions = index.data(m_textHighlightRole).value<QVector<int>>();
+    const auto matchPositions = index.data(m_textHighlightRole).value<QList<int>>();
 
     painter->save();
 

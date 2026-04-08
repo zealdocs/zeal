@@ -35,8 +35,8 @@
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QList>
 #include <QScopedPointer>
-#include <QVector>
 #include <QtGui/private/qtx11extras_p.h>
 #include <QtGui/private/qxkbcommon_p.h>
 

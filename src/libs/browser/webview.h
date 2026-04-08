@@ -5,6 +5,7 @@
 #ifndef ZEAL_BROWSER_WEBVIEW_H
 #define ZEAL_BROWSER_WEBVIEW_H
 
+#include <QList>
 #include <QWebEngineView>
 
 namespace Zeal::Browser {
@@ -22,7 +23,7 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-    static const QVector<int> &availableZoomLevels();
+    static const QList<int> &availableZoomLevels();
     static int defaultZoomLevel();
 
 public slots:
