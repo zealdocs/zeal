@@ -31,16 +31,6 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
-          - name: Ubuntu 24.04 / Portable
-            os: ubuntu-24.04
-            qt_packages: >-
-              libgl1-mesa-dev
-              libqt6opengl6-dev
-              qt6-base-private-dev
-              qt6-webengine-dev
-              qt6-webengine-dev-tools
-            configurePreset: release-portable
-            buildPreset: release-portable
           - name: Ubuntu 24.04 ARM64
             os: ubuntu-24.04-arm
             qt_packages: >-
@@ -51,16 +41,6 @@ jobs:
               qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
-          - name: Ubuntu 24.04 ARM64 / Portable
-            os: ubuntu-24.04-arm
-            qt_packages: >-
-              libgl1-mesa-dev
-              libqt6opengl6-dev
-              qt6-base-private-dev
-              qt6-webengine-dev
-              qt6-webengine-dev-tools
-            configurePreset: release-portable
-            buildPreset: release-portable
 
     steps:
       - name: Checkout
