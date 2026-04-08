@@ -507,7 +507,7 @@ void MainWindow::setupShortcuts()
     });
 
     // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
-    QAction *action = new QAction(this);
+    auto *action = new QAction(this);
     addAction(action);
     action->setShortcuts(
         {QKeySequence(Qt::ControlModifier | Qt::Key_Tab), QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});

@@ -73,7 +73,7 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
         mb.setIcon(QMessageBox::Question);
         mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>").arg(requestUrl.toString()));
 
-        QCheckBox *checkBox = new QCheckBox("Do &not ask again");
+        auto *checkBox = new QCheckBox("Do &not ask again");
         mb.setCheckBox(checkBox);
 
         QPushButton *openInBrowserButton = mb.addButton(tr("Open in &Desktop Browser"), QMessageBox::ActionRole);

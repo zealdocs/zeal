@@ -83,7 +83,7 @@ void WebControl::setWebBridgeObject(const QString &name, QObject *object)
 {
     QWebEnginePage *page = m_webView->page();
 
-    QWebChannel *channel = new QWebChannel(page);
+    auto *channel = new QWebChannel(page);
     channel->registerObject(name, object);
 
     page->setWebChannel(channel);

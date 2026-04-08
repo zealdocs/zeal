@@ -108,7 +108,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
             // Redo RTL mirroring
             const auto iconVisualRect = style->visualRect(opt.direction, opt.rect, iconRect);
 
-            const QIcon icon = index.data(roles[i]).value<QIcon>();
+            const auto icon = index.data(roles[i]).value<QIcon>();
             icon.paint(painter, iconVisualRect, opt.decorationAlignment, mode, state);
         }
     }

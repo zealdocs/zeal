@@ -150,8 +150,8 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     const double SCORE_MIN = -std::numeric_limits<double>::infinity();
 
     // Always allocate 2D tables on heap (simpler, memory overhead negligible for typical searches)
-    double **D = new double *[needleLen];
-    double **M = new double *[needleLen];
+    auto **D = new double *[needleLen];
+    auto **M = new double *[needleLen];
     for (int i = 0; i < needleLen; ++i) {
         D[i] = new double[haystackLen];
         M[i] = new double[haystackLen];
