@@ -81,7 +81,7 @@ bool hasMatch(const QString &needle, const QString &haystack)
 // High-level Qt convenience API implementation
 // ============================================================================
 
-double score(const QString &needle, const QString &haystack, QVector<int> *positions)
+double score(const QString &needle, const QString &haystack, QList<int> *positions)
 {
     // Pre-filter: check if all needle characters exist in haystack (performance optimization)
     // This avoids expensive DP computation on unmatchable strings
@@ -101,7 +101,7 @@ double score(const QString &needle, const QString &haystack, QVector<int> *posit
 // Low-level API implementation
 // ============================================================================
 
-double computeScore(const QString &needle, const QString &haystack, QVector<int> *positions)
+double computeScore(const QString &needle, const QString &haystack, QList<int> *positions)
 {
     const int needleLen = needle.length();
     const int haystackLen = haystack.length();

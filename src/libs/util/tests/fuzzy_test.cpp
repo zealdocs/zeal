@@ -110,7 +110,7 @@ void FuzzyTest::testFuzzyMatch()
 
 void FuzzyTest::testPositionsFuzzy()
 {
-    QVector<int> positions;
+    QList<int> positions;
     double fuzzyScore = score(QStringLiteral("abc"), QStringLiteral("aXbXc"), &positions);
 
     QVERIFY(fuzzyScore > 0);
@@ -122,7 +122,7 @@ void FuzzyTest::testPositionsFuzzy()
 
 void FuzzyTest::testPositionsExact()
 {
-    QVector<int> positions;
+    QList<int> positions;
     double exactScore = score(QStringLiteral("test"), QStringLiteral("prefix_test"), &positions);
 
     QVERIFY(exactScore > 0);
@@ -136,7 +136,7 @@ void FuzzyTest::testPositionsExact()
 void FuzzyTest::testCamelCase()
 {
     // Should detect camelCase word boundaries
-    QVector<int> positions;
+    QList<int> positions;
     double camelScore = score(QStringLiteral("path"), QStringLiteral("HasPermissionForPath"), &positions);
 
     QVERIFY(camelScore > 0);
@@ -162,7 +162,7 @@ void FuzzyTest::testUnicode()
 void FuzzyTest::testPubTrimIssue()
 {
     // Regression test: "pubtrim" should highlight Publisher + toTrim, not prototype
-    QVector<int> positions;
+    QList<int> positions;
     score(QStringLiteral("pubtrim"), QStringLiteral("Publisher.prototype.toTrim"), &positions);
 
     QCOMPARE(positions.size(), 7);
@@ -177,7 +177,7 @@ void FuzzyTest::testPubTrimIssue()
 void FuzzyTest::testPubProtIssue()
 {
     // Regression test: "pubprot" should highlight Publisher + prototype
-    QVector<int> positions;
+    QList<int> positions;
     score(QStringLiteral("pubprot"), QStringLiteral("Publisher.prototype.fieldsToTrim"), &positions);
 
     QCOMPARE(positions.size(), 7);
@@ -252,7 +252,7 @@ void FuzzyTest::testEqualLengthNonMatching()
 void FuzzyTest::testSpecialCharacters()
 {
     // Should handle special characters
-    QVector<int> positions;
+    QList<int> positions;
     double s = score(QStringLiteral("a-b"), QStringLiteral("foo-a-bar-b"), &positions);
     QVERIFY(s > 0);
     QCOMPARE(positions.size(), 3);
@@ -390,7 +390,7 @@ void FuzzyTest::testManyGapsNegativeScore()
 
 void FuzzyTest::testPositionsClearedOnNoMatch()
 {
-    QVector<int> positions;
+    QList<int> positions;
     positions.append(1);
     positions.append(2);
     positions.append(3);
@@ -404,7 +404,7 @@ void FuzzyTest::testPositionsClearedOnNoMatch()
 
 void FuzzyTest::testPositionsForInfinityScore()
 {
-    QVector<int> positions;
+    QList<int> positions;
 
     // Equal length exact match should return infinity and fill positions sequentially
     double s = score(QStringLiteral("test"), QStringLiteral("test"), &positions);
@@ -463,7 +463,7 @@ void FuzzyTest::testSpaceHandling()
     // Spaces are treated as literal characters in fzy algorithm
     // They must match exactly and give word boundary bonus to the next character
 
-    QVector<int> positions;
+    QList<int> positions;
 
     // Space in needle matches space in haystack
     double spaceMatch = score(QStringLiteral("a b"), QStringLiteral("a b"), &positions);
@@ -515,7 +515,7 @@ void FuzzyTest::testBacktrackingPrefixConflict()
     // matchRequired. M[i][j] reflects the global prefix optimum (s,t,r at 0,1,2
     // decaying via gaps), not the path being backtracked, so matchRequired
     // incorrectly dropped to false and the algorithm fell back to j=0,1.
-    QVector<int> positions;
+    QList<int> positions;
     score(QStringLiteral("string"), QStringLiteral("str::to_string"), &positions);
 
     QCOMPARE(positions.size(), 6);
@@ -536,7 +536,7 @@ void FuzzyTest::testBacktrackingWordBoundaryWins()
     // The 'S' at position 0 (slash bonus 0.9) builds up an M score that is
     // higher than D at position 7 (word boundary bonus 0.8), causing the same
     // matchRequired bug to drop false and fall back to j=0 for the first char.
-    QVector<int> positions;
+    QList<int> positions;
     score(QStringLiteral("string"), QStringLiteral("Static String"), &positions);
 
     QCOMPARE(positions.size(), 6);

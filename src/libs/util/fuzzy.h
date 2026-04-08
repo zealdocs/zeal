@@ -4,8 +4,8 @@
 #ifndef ZEAL_UTIL_FUZZY_H
 #define ZEAL_UTIL_FUZZY_H
 
+#include <QList>
 #include <QString>
-#include <QVector> // TODO: [Qt 6] Use QList.
 
 namespace Zeal::Util::Fuzzy {
 
@@ -28,7 +28,7 @@ namespace Zeal::Util::Fuzzy {
  * @param positions Optional output list of matched haystack indices for highlighting
  * @return Match score (higher is better, -infinity for no match)
  */
-double score(const QString &needle, const QString &haystack, QVector<int> *positions = nullptr);
+double score(const QString &needle, const QString &haystack, QList<int> *positions = nullptr);
 
 /**
  * @brief Computes fuzzy match score, optionally returning match positions
@@ -44,7 +44,7 @@ double score(const QString &needle, const QString &haystack, QVector<int> *posit
  * @return Fuzzy match score (-infinity if no match possible, infinity if needle == haystack,
  *         otherwise unbounded: ~0.9 + (n-1) for a perfect length-n consecutive match)
  */
-double computeScore(const QString &needle, const QString &haystack, QVector<int> *positions = nullptr);
+double computeScore(const QString &needle, const QString &haystack, QList<int> *positions = nullptr);
 
 /**
  * @brief Main scoring function for use in SQLite callbacks
