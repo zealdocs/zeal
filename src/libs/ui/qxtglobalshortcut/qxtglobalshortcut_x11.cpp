@@ -176,7 +176,7 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
     bool failed = false;
     for (xcb_void_cookie_t cookie : std::as_const(xcbCookies)) {
         QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(xcbConnection, cookie));
-        failed = !error.isNull();
+        failed |= !error.isNull();
     }
 
     if (failed) {
@@ -196,13 +196,13 @@ bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nat
 
     QList<xcb_void_cookie_t> xcbCookies;
     for (quint32 maskMods : maskModifiers) {
-        xcb_ungrab_key(xcbConnection, nativeKey, QX11Info::appRootWindow(), nativeMods | maskMods);
+        xcbCookies << xcb_ungrab_key_checked(xcbConnection, nativeKey, QX11Info::appRootWindow(), nativeMods | maskMods);
     }
 
     bool failed = false;
-    for (xcb_void_cookie_t cookie : xcbCookies) {
+    for (xcb_void_cookie_t cookie : std::as_const(xcbCookies)) {
         QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(xcbConnection, cookie));
-        failed = !error.isNull();
+        failed |= !error.isNull();
     }
 
     return !failed;
