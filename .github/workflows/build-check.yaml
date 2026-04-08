@@ -166,6 +166,45 @@ jobs:
             build/${{ matrix.config.configurePreset }}/zeal-*.msi
             build/${{ matrix.config.configurePreset }}/zeal-*.msi.sha256
 
+  build-macos:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: macOS 15 ARM64
+            os: macos-15
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.10.2"
+            configurePreset: release
+            buildPreset: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: brew install libarchive ninja
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          modules: ${{ matrix.config.qt_modules }}
+          version: ${{ matrix.config.qt_version }}
+          cache: true
+
+      - name: Configure & Build
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: ${{ matrix.config.configurePreset }}
+          buildPreset: ${{ matrix.config.buildPreset }}
+
   build-appimage:
     name: AppImage
     runs-on: ubuntu-24.04
