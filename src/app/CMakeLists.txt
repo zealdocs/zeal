@@ -1,4 +1,4 @@
-find_package(Qt6 6.2.0 COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
+find_package(Qt6 6.4.2 COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
 
 # Define output binary name.
 if(APPLE)
