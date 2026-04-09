@@ -46,7 +46,6 @@ if(httplib_FOUND)
     target_link_libraries(Core PRIVATE httplib::httplib)
 else()
     # Use bundled version of cpp-httplib if not found.
-    # TODO: Replace with QHttpServer once Qt 5 is dropped.
     include_directories("${CMAKE_SOURCE_DIR}/src/contrib/cpp-httplib")
 endif()
 
