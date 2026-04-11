@@ -136,7 +136,8 @@ try {
         $errors += "file count"
     }
 } catch {
-    Write-Output "  FAIL File table query failed ($($_.Exception.InnerException.Message))"
+    $msg = if ($_.Exception.InnerException) { $_.Exception.InnerException.Message } else { $_.Exception.Message }
+    Write-Output "  FAIL File table query failed ($msg)"
     $errors += "File table"
 }
 
@@ -174,7 +175,8 @@ foreach ($scheme in @("dash", "dash-plugin")) {
             $errors += "$scheme handler"
         }
     } catch {
-        Write-Output "  FAIL $scheme protocol handler: Registry table query failed ($($_.Exception.InnerException.Message))"
+        $msg = if ($_.Exception.InnerException) { $_.Exception.InnerException.Message } else { $_.Exception.Message }
+        Write-Output "  FAIL $scheme protocol handler: Registry table query failed ($msg)"
         $errors += "$scheme handler"
     }
 }
