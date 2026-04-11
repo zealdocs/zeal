@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!-- Based on: https://gitlab.kitware.com/cmake/cmake/-/blob/master/Utilities/Release/WiX/WIX.template.in -->
@@ -7,89 +6,57 @@
 
 <?define AppExeName="zeal.exe" ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-    xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
-    RequiredVersion="3.6.3303.0">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-    <Product Id="$(var.CPACK_WIX_PRODUCT_GUID)"
-        Name="$(var.CPACK_PACKAGE_NAME)"
-        Language="1033"
-        Version="$(var.CPACK_PACKAGE_VERSION)"
-        Manufacturer="$(var.CPACK_PACKAGE_VENDOR)"
-        UpgradeCode="$(var.CPACK_WIX_UPGRADE_GUID)">
+    <Package Name="$(var.CPACK_PACKAGE_NAME)" Language="1033" Version="$(var.CPACK_PACKAGE_VERSION)" Manufacturer="$(var.CPACK_PACKAGE_VENDOR)" UpgradeCode="$(var.CPACK_WIX_UPGRADE_GUID)" InstallerVersion="500" ProductCode="$(var.CPACK_WIX_PRODUCT_GUID)">
+        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
-        <Package InstallScope="perMachine" InstallerVersion="301" Compressed="yes"/>
+        <MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 
-        <Media Id="1" Cabinet="media1.cab" EmbedCab="yes"/>
+        <Launch Condition="VersionNT64" Message="This package can only be installed on 64-bit versions of Windows." />
 
-        <MajorUpgrade
-            Schedule="afterInstallInitialize"
-            DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."/>
-
-        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)"/>
-        <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT"/>
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)" />
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT" />
 
         <?ifdef CPACK_WIX_PRODUCT_ICON?>
-        <Property Id="ARPPRODUCTICON">ProductIcon.ico</Property>
-        <Icon Id="ProductIcon.ico" SourceFile="$(var.CPACK_WIX_PRODUCT_ICON)"/>
+        <Property Id="ARPPRODUCTICON" Value="ProductIcon.ico" />
+        <Icon Id="ProductIcon.ico" SourceFile="$(var.CPACK_WIX_PRODUCT_ICON)" />
         <?endif?>
 
         <?ifdef CPACK_WIX_UI_BANNER?>
-        <WixVariable Id="WixUIBannerBmp" Value="$(var.CPACK_WIX_UI_BANNER)"/>
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.CPACK_WIX_UI_BANNER)" />
         <?endif?>
 
         <?ifdef CPACK_WIX_UI_DIALOG?>
-        <WixVariable Id="WixUIDialogBmp" Value="$(var.CPACK_WIX_UI_DIALOG)"/>
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.CPACK_WIX_UI_DIALOG)" />
         <?endif?>
 
         <UI>
-            <UIRef Id="$(var.CPACK_WIX_UI_REF)"/>
-            <Publish Dialog="Zeal_ExitDialog" Control="Finish" Order="1" Event="DoAction" Value="LaunchApplication">LAUNCHAPPONEXIT</Publish>
+            <UIRef Id="$(var.CPACK_WIX_UI_REF)" />
+            <Publish Dialog="Zeal_ExitDialog" Control="Finish" Order="1" Event="DoAction" Value="LaunchApplication" Condition="LAUNCHAPPONEXIT AND (NOT Installed OR WIX_UPGRADE_DETECTED)" />
         </UI>
 
         <?include "properties.wxi"?>
         <?include "product_fragment.wxi"?>
 
-        <!-- Dash protocol handlers. -->
-        <Component Id="ProtocolHandlers" Directory="INSTALL_ROOT">
-            <?foreach UrlScheme in dash;dash-plugin ?>
-            <!-- Remove broken HKCU keys. -->
-            <RemoveRegistryKey Action="removeOnInstall" Root="HKCU" Key="Software\Classes\$(var.UrlScheme)" />
-
-            <RegistryKey Root="HKLM" Key="Software\Classes\$(var.UrlScheme)">
-                <RegistryValue Type="string" Value="URL:Dash Plugin Protocol (Zeal)" />
-                <RegistryValue Name="URL Protocol" Type="string" Value="" />
-
-                <RegistryKey Key="DefaultIcon">
-                    <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe],1&quot;" />
-                </RegistryKey>
-
-                <RegistryKey Key="shell\open\command">
-                    <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
-                </RegistryKey>
-            </RegistryKey>
-            <?endforeach ?>
-        </Component>
-
         <!-- Custom properties to control installation options -->
-        <Property Id="LAUNCHAPPONEXIT" Value="1" Secure="yes"/>
+        <Property Id="LAUNCHAPPONEXIT" Value="1" Secure="yes" />
 
         <!-- Set properties based on existing conditions, prevents changing state on upgrade. -->
-        <SetProperty Id="LicenseAccepted" After="AppSearch" Value="1">WIX_UPGRADE_DETECTED</SetProperty>
+        <SetProperty Id="LicenseAccepted" After="AppSearch" Value="1" Condition="WIX_UPGRADE_DETECTED" />
 
-        <FeatureRef Id="ProductFeature">
-            <ComponentRef Id="ProtocolHandlers" />
-        </FeatureRef>
+        <!-- Pull in the auto-generated feature/component fragments. -->
+        <FeatureRef Id="ProductFeature" />
 
         <!-- Action to launch application after installer exits. -->
-        <Property Id="WixShellExecTarget" Value="[#CM_FP_zeal.exe]"/>
-        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"/>
+        <Property Id="WixShellExecTarget" Value="[#CM_FP_zeal.exe]" />
+        <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
 
         <!-- Close running Zeal processes. -->
         <util:CloseApplication CloseMessage="yes" Target="$(var.AppExeName)" ElevatedCloseMessage="yes" RebootPrompt="no" TerminateProcess="0" />
 
         <InstallExecuteSequence>
-            <Custom Action="WixCloseApplications" Before="RemoveFiles" />
+            <Custom Action="override Wix4CloseApplications_$(sys.BUILDARCHSHORT)" Before="RemoveFiles" />
         </InstallExecuteSequence>
-    </Product>
+    </Package>
 </Wix>

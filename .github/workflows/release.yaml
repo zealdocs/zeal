@@ -75,6 +75,13 @@ jobs:
           Write-Output "Zeal Version: $zeal_version"
           "ZEAL_VERSION=$zeal_version" >> $env:GITHUB_ENV
 
+      - name: Install WiX
+        if: matrix.config.configurePreset == 'release'
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          wix extension add --global WixToolset.UI.wixext/5.0.2
+          wix extension add --global WixToolset.Util.wixext/5.0.2
+
       - name: Package
         run: cmake --build --preset ${{ matrix.config.buildPreset }} --target package
         env:

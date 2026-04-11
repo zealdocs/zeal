@@ -1,9 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- SPDX-FileCopyrightText: Oleg Shparber, et al. <https://zealdocs.org> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 
 <CPackWiXPatch>
-    <CPackWiXFragment Id="#PRODUCT">
-        <Condition Message="This package can only be installed on 64-bit versions of Windows."><![CDATA[VersionNT64]]></Condition>
+    <!-- Register dash:// and dash-plugin:// protocol handlers on the zeal.exe component
+         so their lifecycle (install/uninstall) is tied to the executable itself. -->
+    <CPackWiXFragment Id="CM_CP_zeal.exe">
+        <!-- Clean up legacy per-user handlers written by pre-v0.7.2 MSIs (before ALLUSERS was set). -->
+        <!-- TODO: Can be removed once pre-v0.7.2 is no longer in circulation. -->
+        <RemoveRegistryKey Action="removeOnInstall" Root="HKCU" Key="Software\Classes\dash" />
+        <RemoveRegistryKey Action="removeOnInstall" Root="HKCU" Key="Software\Classes\dash-plugin" />
+
+        <RegistryKey Root="HKLM" Key="Software\Classes\dash">
+            <RegistryValue Type="string" Value="URL:Dash Protocol (Zeal)" />
+            <RegistryValue Name="URL Protocol" Type="string" Value="" />
+            <RegistryKey Key="DefaultIcon">
+                <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe],1&quot;" />
+            </RegistryKey>
+            <RegistryKey Key="shell\open\command">
+                <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
+            </RegistryKey>
+        </RegistryKey>
+
+        <RegistryKey Root="HKLM" Key="Software\Classes\dash-plugin">
+            <RegistryValue Type="string" Value="URL:Dash Plugin Protocol (Zeal)" />
+            <RegistryValue Name="URL Protocol" Type="string" Value="" />
+            <RegistryKey Key="DefaultIcon">
+                <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe],1&quot;" />
+            </RegistryKey>
+            <RegistryKey Key="shell\open\command">
+                <RegistryValue Type="string" Value="&quot;[#CM_FP_zeal.exe]&quot; &quot;%1&quot;" />
+            </RegistryKey>
+        </RegistryKey>
     </CPackWiXFragment>
 </CPackWiXPatch>
