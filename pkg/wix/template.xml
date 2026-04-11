@@ -15,7 +15,6 @@
 
         <Launch Condition="VersionNT64" Message="This package can only be installed on 64-bit versions of Windows." />
 
-        <WixVariable Id="WixUILicenseRtf" Value="$(var.CPACK_WIX_LICENSE_RTF)" />
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT" />
 
         <?ifdef CPACK_WIX_PRODUCT_ICON?>
@@ -41,9 +40,6 @@
 
         <!-- Custom properties to control installation options -->
         <Property Id="LAUNCHAPPONEXIT" Value="1" Secure="yes" />
-
-        <!-- Set properties based on existing conditions, prevents changing state on upgrade. -->
-        <SetProperty Id="LicenseAccepted" After="AppSearch" Value="1" Condition="WIX_UPGRADE_DETECTED" />
 
         <!-- Pull in the auto-generated feature/component fragments. -->
         <FeatureRef Id="ProductFeature" />

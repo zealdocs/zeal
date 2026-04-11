@@ -82,6 +82,9 @@ if(APPLE)
 elseif(WIN32)
     install(TARGETS App RUNTIME DESTINATION .)
 
+    # Install the license alongside the binary.
+    install(FILES "${CMAKE_SOURCE_DIR}/COPYING" DESTINATION .)
+
     if(_use_qt_cmake_commands)
         # Install Qt runtime dependencies.
         install(SCRIPT ${_qt_deploy_script})
@@ -134,9 +137,6 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
 set(CPACK_PACKAGE_EXECUTABLES ${_project_output_name} ${CPACK_PACKAGE_NAME})
 set(CPACK_CREATE_DESKTOP_LINKS ${_project_output_name} ${CPACK_PACKAGE_NAME})
 
-# Allow CPack to do text to RTF conversion.
-configure_file("${CMAKE_SOURCE_DIR}/COPYING" "${CMAKE_CURRENT_BINARY_DIR}/license.txt" COPYONLY)
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}/license.txt")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
 set(CPACK_PACKAGE_CHECKSUM SHA256)
