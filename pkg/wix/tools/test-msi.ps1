@@ -265,6 +265,13 @@ if ($Install) {
                 Write-Output "    OK   zeal.exe removed"
             }
 
+            if (Test-Path $installDir) {
+                Write-Output "    FAIL Install directory still present at $installDir"
+                $errors += "cleanup:installDir"
+            } else {
+                Write-Output "    OK   Install directory removed"
+            }
+
             if (Test-Path $uninstallKey) {
                 Write-Output "    FAIL Uninstall registry entry still present"
                 $errors += "cleanup:uninstall"
