@@ -22,8 +22,7 @@ if ($Version) {
     # Verify the release exists.
     try {
         Invoke-RestMethod -Uri "https://api.github.com/repos/zealdocs/zeal/releases/tags/v$Version" | Out-Null
-    }
-    catch {
+    } catch {
         throw "Release v$Version not found on GitHub."
     }
 
@@ -60,8 +59,7 @@ if ($Version) {
             throw "Portable checksum mismatch! Expected: $portableDigest, Got: $portableChecksum"
         }
         Write-Information "Checksums verified."
-    }
-    finally {
+    } finally {
         Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 
@@ -113,8 +111,7 @@ if ($Pack) {
         if ($LASTEXITCODE -ne 0) { throw "choco pack failed for zeal.portable" }
         choco pack zeal/zeal.nuspec
         if ($LASTEXITCODE -ne 0) { throw "choco pack failed for zeal" }
-    }
-    finally {
+    } finally {
         Pop-Location
     }
 }
