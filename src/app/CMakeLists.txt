@@ -55,6 +55,7 @@ qt_deploy_runtime_dependencies(
     BIN_DIR .
     NO_TRANSLATIONS
     NO_COMPILER_RUNTIME
+    DEPLOY_TOOL_OPTIONS --skip-plugin-types qmltooling,position,generic --no-quick-import
 )")
 
     if(ZEAL_DEPLOY_QT_ON_BUILD)
@@ -142,12 +143,19 @@ set(CPACK_PACKAGE_CHECKSUM SHA256)
 
 if(WIN32)
     # CPack WiX configuration.
+    # Requires WiX 4 or 5; avoid WiX 6+ (Open Source Maintenance Fee terms).
+    # Install WiX toolset:
+    #   dotnet tool install --global wix --version 5.0.2
+    # Install required extensions (pin to match WiX version):
+    #   wix extension add --global WixToolset.UI.wixext/5.0.2
+    #   wix extension add --global WixToolset.Util.wixext/5.0.2
+    set(CPACK_WIX_VERSION "4")
     set(CPACK_WIX_UPGRADE_GUID "5C4B6030-A1B4-4EFE-A5AF-28F6FA2E7978")
     set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT ${CMAKE_PROJECT_HOMEPAGE_URL})
     set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/src/app/resources/zeal.ico")
     #set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/pkg/wix/banner.png")
     #set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/pkg/wix/dialog.png")
-    set(CPACK_WIX_EXTENSIONS "WixUtilExtension")
+    set(CPACK_WIX_EXTENSIONS "WixToolset.Util.wixext")
     set(CPACK_WIX_UI_REF "Zeal_InstallDir")
     set(CPACK_WIX_TEMPLATE "${CMAKE_SOURCE_DIR}/pkg/wix/template.xml")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/pkg/wix/patch.xml")
