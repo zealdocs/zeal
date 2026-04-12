@@ -29,10 +29,6 @@ public:
     int columnCount(const QModelIndex &parent) const override;
     int rowCount(const QModelIndex &parent) const override;
 
-private slots:
-    void addDocset(const QString &name);
-    void removeDocset(const QString &name);
-
 private:
     friend class DocsetRegistry;
 
@@ -44,6 +40,9 @@ private:
     };
 
     explicit ListModel(DocsetRegistry *docsetRegistry);
+
+    void addDocset(const QString &name);
+    void removeDocset(const QString &name);
 
     inline static QString pluralize(const QString &s);
     inline static IndexLevel indexLevel(const QModelIndex &index);

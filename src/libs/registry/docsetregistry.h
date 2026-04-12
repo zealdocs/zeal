@@ -57,11 +57,9 @@ signals:
     void docsetUnloaded(const QString &name);
     void searchCompleted(const QList<SearchResult> &results);
 
-private slots:
-    void runQuery(const QString &query);
-
 private:
     void addDocsetsFromFolder(const QString &path);
+    void runQuery(const QString &query);
 
     QAbstractItemModel *m_model = nullptr;
 

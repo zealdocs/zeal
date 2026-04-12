@@ -211,6 +211,20 @@ void DocsetRegistry::search(const QString &query)
     }, Qt::QueuedConnection);
 }
 
+// Recursively finds and adds all docsets in a given directory.
+void DocsetRegistry::addDocsetsFromFolder(const QString &path)
+{
+    const QDir dir(path);
+    const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
+    for (const QFileInfo &subdir : subDirectories) {
+        if (subdir.suffix() == QLatin1String("docset")) {
+            loadDocset(subdir.filePath());
+        } else {
+            addDocsetsFromFolder(subdir.filePath());
+        }
+    }
+}
+
 void DocsetRegistry::runQuery(const QString &query)
 {
     m_cancelSearch.store(false, std::memory_order_relaxed);
@@ -248,20 +262,6 @@ void DocsetRegistry::runQuery(const QString &query)
     }
 
     emit searchCompleted(results);
-}
-
-// Recursively finds and adds all docsets in a given directory.
-void DocsetRegistry::addDocsetsFromFolder(const QString &path)
-{
-    const QDir dir(path);
-    const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
-    for (const QFileInfo &subdir : subDirectories) {
-        if (subdir.suffix() == QLatin1String("docset")) {
-            loadDocset(subdir.filePath());
-        } else {
-            addDocsetsFromFolder(subdir.filePath());
-        }
-    }
 }
 
 } // namespace Zeal::Registry

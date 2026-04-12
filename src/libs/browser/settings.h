@@ -26,10 +26,8 @@ public:
 
     static QWebEngineProfile *defaultProfile();
 
-private slots:
-    void applySettings();
-
 private:
+    void applySettings();
     void setCustomStyleSheet(const QString &name, const QString &cssUrl);
 
     Core::Settings *m_appSettings = nullptr;

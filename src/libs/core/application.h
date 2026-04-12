@@ -67,10 +67,8 @@ signals:
     void updateCheckDone(const QString &version = QString());
     void updateCheckError(const QString &message);
 
-private slots:
-    void applySettings();
-
 private:
+    void applySettings();
     static inline QString userAgent();
     QString userAgentJson() const;
 
