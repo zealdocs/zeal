@@ -311,62 +311,6 @@ void SearchSidebar::search(const Registry::SearchQuery &query)
     m_searchEdit->setText(query.toString());
 }
 
-void SearchSidebar::navigateToIndex(const QModelIndex &index)
-{
-    // When triggered by click, cancel delayed navigation request caused by the selection change.
-    if (m_delayedNavigationTimer->isActive() && m_delayedNavigationTimer->property("index").toModelIndex() == index) {
-        m_delayedNavigationTimer->stop();
-    }
-
-    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
-    if (url.isNull()) {
-        return;
-    }
-
-    emit navigationRequested(url.toUrl());
-}
-
-void SearchSidebar::navigateToIndexAndActivate(const QModelIndex &index)
-{
-    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
-    if (url.isNull()) {
-        return;
-    }
-
-    emit navigationRequested(url.toUrl());
-    emit activated();
-}
-
-void SearchSidebar::navigateToSelectionWithDelay(const QItemSelection &selection)
-{
-    if (selection.isEmpty()) {
-        return;
-    }
-
-    m_delayedNavigationTimer->setProperty("index", selection.indexes().first());
-    m_delayedNavigationTimer->start();
-}
-
-void SearchSidebar::setupSearchBoxCompletions()
-{
-    QStringList completions;
-    const auto docsets = Core::Application::instance()->docsetRegistry()->docsets();
-    for (const Registry::Docset *docset : docsets) {
-        const QStringList keywords = docset->keywords();
-        if (keywords.isEmpty()) {
-            continue;
-        }
-
-        completions << keywords.constFirst() + QLatin1Char(':');
-    }
-
-    if (completions.isEmpty()) {
-        return;
-    }
-
-    m_searchEdit->setCompletions(completions);
-}
-
 bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_treeView->viewport() && event->type() == QEvent::MouseButtonPress) {
@@ -462,6 +406,62 @@ void SearchSidebar::showEvent(QShowEvent *event)
         m_searchEdit->setFocus();
         m_pendingSearchEditFocus = false;
     }
+}
+
+void SearchSidebar::navigateToIndex(const QModelIndex &index)
+{
+    // When triggered by click, cancel delayed navigation request caused by the selection change.
+    if (m_delayedNavigationTimer->isActive() && m_delayedNavigationTimer->property("index").toModelIndex() == index) {
+        m_delayedNavigationTimer->stop();
+    }
+
+    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
+    if (url.isNull()) {
+        return;
+    }
+
+    emit navigationRequested(url.toUrl());
+}
+
+void SearchSidebar::navigateToIndexAndActivate(const QModelIndex &index)
+{
+    const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
+    if (url.isNull()) {
+        return;
+    }
+
+    emit navigationRequested(url.toUrl());
+    emit activated();
+}
+
+void SearchSidebar::navigateToSelectionWithDelay(const QItemSelection &selection)
+{
+    if (selection.isEmpty()) {
+        return;
+    }
+
+    m_delayedNavigationTimer->setProperty("index", selection.indexes().first());
+    m_delayedNavigationTimer->start();
+}
+
+void SearchSidebar::setupSearchBoxCompletions()
+{
+    QStringList completions;
+    const auto docsets = Core::Application::instance()->docsetRegistry()->docsets();
+    for (const Registry::Docset *docset : docsets) {
+        const QStringList keywords = docset->keywords();
+        if (keywords.isEmpty()) {
+            continue;
+        }
+
+        completions << keywords.constFirst() + QLatin1Char(':');
+    }
+
+    if (completions.isEmpty()) {
+        return;
+    }
+
+    m_searchEdit->setCompletions(completions);
 }
 
 } // namespace Zeal::WidgetUi

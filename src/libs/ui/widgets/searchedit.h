@@ -27,10 +27,9 @@ protected:
     bool event(QEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
 
-private slots:
+private:
     void showCompletions(const QString &text);
 
-private:
     QString currentCompletion(const QString &text) const;
     int queryStart() const;
 
