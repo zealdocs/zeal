@@ -5,9 +5,7 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
-permissions:
-  issues: write
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: lock
@@ -17,6 +15,9 @@ jobs:
     name: Lock Old Issues
     if: github.repository == 'zealdocs/zeal'
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
       - uses: dessant/lock-threads@v6

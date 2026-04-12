@@ -5,8 +5,7 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: write
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}
@@ -16,6 +15,9 @@ jobs:
   build-windows:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    permissions:
+      contents: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -98,6 +100,8 @@ jobs:
   build-appimage:
     name: AppImage
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -174,6 +178,9 @@ jobs:
   build-ubuntu:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    permissions:
+      contents: write
+
     strategy:
       fail-fast: false
       matrix:
