@@ -11,6 +11,8 @@
 #include <QMultiMap>
 #include <QUrl>
 
+#include <atomic>
+
 namespace Zeal {
 
 namespace Util {
@@ -19,7 +21,6 @@ class SQLiteDatabase;
 
 namespace Registry {
 
-class CancellationToken;
 struct SearchResult;
 
 class Docset final
@@ -50,7 +51,7 @@ public:
 
     const QMultiMap<QString, QUrl> &symbols(const QString &symbolType) const;
 
-    QList<SearchResult> search(const QString &query, const CancellationToken &token) const;
+    QList<SearchResult> search(const QString &query, const std::atomic_bool &canceled) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
     // FIXME: This a temporary solution to create URL on demand.

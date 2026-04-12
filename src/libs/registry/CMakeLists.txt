@@ -7,7 +7,6 @@ add_library(Registry STATIC
     searchquery.cpp
 
     # Show headers without .cpp in Qt Creator.
-    cancellationtoken.h
     itemdatarole.h
     searchresult.h
 )

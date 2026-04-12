@@ -18,7 +18,6 @@
 #include <QtConcurrent>
 
 #include <functional>
-#include <future>
 
 namespace Zeal::Registry {
 
@@ -200,7 +199,7 @@ QList<Docset *> DocsetRegistry::docsets() const
 
 void DocsetRegistry::search(const QString &query)
 {
-    m_cancellationToken.cancel();
+    m_cancelSearch.store(true, std::memory_order_relaxed);
 
     if (query.isEmpty()) {
         emit searchCompleted({});
@@ -212,7 +211,7 @@ void DocsetRegistry::search(const QString &query)
 
 void DocsetRegistry::_runQuery(const QString &query)
 {
-    m_cancellationToken.reset();
+    m_cancelSearch.store(false, std::memory_order_relaxed);
 
     QList<Docset *> enabledDocsets;
 
@@ -227,22 +226,22 @@ void DocsetRegistry::_runQuery(const QString &query)
         enabledDocsets = docsets();
     }
 
-    QFuture<QList<SearchResult>> queryResultsFuture = QtConcurrent::mappedReduced(enabledDocsets,
-                                                                                  std::bind(&Docset::search,
-                                                                                            std::placeholders::_1,
-                                                                                            searchQuery.query(),
-                                                                                            std::ref(
-                                                                                                m_cancellationToken)),
-                                                                                  &MergeQueryResults);
-    QList<SearchResult> results = queryResultsFuture.result();
+    const QString queryString = searchQuery.query();
+    QFuture<QList<SearchResult>> queryFuture = QtConcurrent::mappedReduced(enabledDocsets,
+                                                                           std::bind(&Docset::search,
+                                                                                     std::placeholders::_1,
+                                                                                     queryString,
+                                                                                     std::cref(m_cancelSearch)),
+                                                                           &MergeQueryResults);
+    QList<SearchResult> results = queryFuture.result();
 
-    if (m_cancellationToken.isCanceled()) {
+    if (m_cancelSearch.load(std::memory_order_relaxed)) {
         return;
     }
 
     std::sort(results.begin(), results.end());
 
-    if (m_cancellationToken.isCanceled()) {
+    if (m_cancelSearch.load(std::memory_order_relaxed)) {
         return;
     }
 
