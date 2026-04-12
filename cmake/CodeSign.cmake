@@ -202,9 +202,9 @@ function(codesign)
         list(APPEND _cmd_args "/p" ${_ARG_PASSWORD})
     endif()
 
-    # Set description.
-    if(NOT _ARG_DESCRIPTION AND PROJECT_DESCRIPTION)
-        set(_ARG_DESCRIPTION ${PROJECT_DESCRIPTION})
+    # Set description (shown as "Program name" in UAC prompts).
+    if(NOT _ARG_DESCRIPTION AND CPACK_PACKAGE_NAME)
+        set(_ARG_DESCRIPTION ${CPACK_PACKAGE_NAME})
     endif()
 
     if(_ARG_DESCRIPTION)
@@ -212,8 +212,8 @@ function(codesign)
     endif()
 
     # Set project URL.
-    if(NOT _ARG_URL AND PROJECT_HOMEPAGE_URL)
-        set(_ARG_URL ${PROJECT_HOMEPAGE_URL})
+    if(NOT _ARG_URL AND CPACK_PACKAGE_HOMEPAGE_URL)
+        set(_ARG_URL ${CPACK_PACKAGE_HOMEPAGE_URL})
     endif()
 
     if(_ARG_URL)
