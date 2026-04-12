@@ -47,12 +47,6 @@ public slots:
     void focusSearchEdit(bool clear = false);
     void search(const Registry::SearchQuery &query);
 
-private slots:
-    void navigateToIndex(const QModelIndex &index);
-    void navigateToIndexAndActivate(const QModelIndex &index);
-    void navigateToSelectionWithDelay(const QItemSelection &selection);
-    void setupSearchBoxCompletions();
-
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void showEvent(QShowEvent *event) override;
@@ -60,6 +54,11 @@ protected:
 private:
     explicit SearchSidebar(const SearchSidebar *other, QWidget *parent = nullptr);
     void setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated);
+
+    void navigateToIndex(const QModelIndex &index);
+    void navigateToIndexAndActivate(const QModelIndex &index);
+    void navigateToSelectionWithDelay(const QItemSelection &selection);
+    void setupSearchBoxCompletions();
 
     SearchEdit *m_searchEdit = nullptr;
     bool m_pendingSearchEditFocus = false;

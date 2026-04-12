@@ -42,7 +42,7 @@ public:
     explicit DocsetsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~DocsetsDialog() override;
 
-private slots:
+private:
     void addDashFeed();
     void updateSelectedDocsets();
     void updateAllDocsets();
@@ -59,13 +59,6 @@ private slots:
     void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
 
     void loadDocsetList();
-
-private:
-    enum DownloadType {
-        DownloadDashFeed,
-        DownloadDocset,
-        DownloadDocsetList
-    };
 
     Ui::DocsetsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;

@@ -61,13 +61,12 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void keyPressEvent(QKeyEvent *keyEvent) override;
 
-private slots:
+private:
     void applySettings();
     void closeTab(int index = -1);
     void moveTab(int from, int to);
     void duplicateTab(int index);
 
-private:
     void setupMainMenu();
     void setupShortcuts();
     void setupTabBar();
