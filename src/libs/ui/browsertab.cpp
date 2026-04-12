@@ -71,8 +71,8 @@ BrowserTab::BrowserTab(QWidget *parent)
         QList<QWebEngineHistoryItem> items = history->backItems(10);
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
             const QIcon icon = docsetIcon(it->url());
-            const QWebEngineHistoryItem item = *it;
-            backMenu->addAction(icon, it->title(), this, [=](bool) {
+            const QWebEngineHistoryItem &item = *it;
+            backMenu->addAction(icon, it->title(), this, [history, item](bool) {
                 history->goToItem(item);
             });
         }
@@ -95,7 +95,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         const auto forwardItems = history->forwardItems(10);
         for (const QWebEngineHistoryItem &item : forwardItems) {
             const QIcon icon = docsetIcon(item.url());
-            forwardMenu->addAction(icon, item.title(), this, [=](bool) {
+            forwardMenu->addAction(icon, item.title(), this, [history, item](bool) {
                 history->goToItem(item);
             });
         }

@@ -206,10 +206,12 @@ void DocsetRegistry::search(const QString &query)
         return;
     }
 
-    QMetaObject::invokeMethod(this, "_runQuery", Qt::QueuedConnection, Q_ARG(QString, query));
+    QMetaObject::invokeMethod(this, [this, query]() {
+        runQuery(query);
+    }, Qt::QueuedConnection);
 }
 
-void DocsetRegistry::_runQuery(const QString &query)
+void DocsetRegistry::runQuery(const QString &query)
 {
     m_cancelSearch.store(false, std::memory_order_relaxed);
 

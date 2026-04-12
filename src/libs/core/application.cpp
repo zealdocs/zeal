@@ -183,12 +183,9 @@ void Application::executeQuery(const Registry::SearchQuery &query, bool preventA
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)
 {
-    QMetaObject::invokeMethod(m_extractor,
-                              "extract",
-                              Qt::QueuedConnection,
-                              Q_ARG(QString, filePath),
-                              Q_ARG(QString, destination),
-                              Q_ARG(QString, root));
+    QMetaObject::invokeMethod(m_extractor, [this, filePath, destination, root]() {
+        m_extractor->extract(filePath, destination, root);
+    }, Qt::QueuedConnection);
 }
 
 QNetworkReply *Application::download(const QUrl &url)

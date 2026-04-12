@@ -58,7 +58,7 @@ signals:
     void searchCompleted(const QList<SearchResult> &results);
 
 private slots:
-    void _runQuery(const QString &query);
+    void runQuery(const QString &query);
 
 private:
     void addDocsetsFromFolder(const QString &path);
