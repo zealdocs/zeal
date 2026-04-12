@@ -570,11 +570,11 @@ void MainWindow::setupTabBar()
         action->setShortcut(QStringLiteral("Ctrl+%1").arg(i));
 #endif
         if (i == 9) {
-            connect(action, &QAction::triggered, this, [=]() {
+            connect(action, &QAction::triggered, this, [this]() {
                 m_tabBar->setCurrentIndex(m_tabBar->count() - 1);
             });
         } else {
-            connect(action, &QAction::triggered, this, [=]() {
+            connect(action, &QAction::triggered, this, [this, i]() {
                 m_tabBar->setCurrentIndex(i - 1);
             });
         }
