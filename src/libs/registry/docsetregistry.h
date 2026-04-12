@@ -5,11 +5,12 @@
 #ifndef ZEAL_REGISTRY_DOCSETREGISTRY_H
 #define ZEAL_REGISTRY_DOCSETREGISTRY_H
 
-#include "cancellationtoken.h"
 #include "searchresult.h"
 
 #include <QMap>
 #include <QObject>
+
+#include <atomic>
 
 class QAbstractItemModel;
 class QThread;
@@ -70,7 +71,7 @@ private:
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
 
-    CancellationToken m_cancellationToken;
+    std::atomic_bool m_cancelSearch{false};
 };
 
 } // namespace Zeal::Registry

@@ -4,7 +4,6 @@
 
 #include "docset.h"
 
-#include "cancellationtoken.h"
 #include "searchresult.h"
 
 #include <util/fuzzy.h>
@@ -310,7 +309,7 @@ const QMultiMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
     return m_symbols[symbolType];
 }
 
-QList<SearchResult> Docset::search(const QString &query, const CancellationToken &token) const
+QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool &canceled) const
 {
     QString sql;
     if (m_type == Docset::Type::Dash) {
@@ -351,7 +350,7 @@ QList<SearchResult> Docset::search(const QString &query, const CancellationToken
     m_db->prepare(sql.arg(sanitizedQuery));
 
     QList<SearchResult> results;
-    while (m_db->next() && !token.isCanceled()) {
+    while (m_db->next() && !canceled.load(std::memory_order_relaxed)) {
         SearchResult result;
         result.name = m_db->value(0).toString();
         result.type = parseSymbolType(m_db->value(1).toString());
