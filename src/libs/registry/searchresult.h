@@ -5,9 +5,9 @@
 #ifndef ZEAL_REGISTRY_SEARCHRESULT_H
 #define ZEAL_REGISTRY_SEARCHRESULT_H
 
+#include <QList>
 #include <QString>
 #include <QUrl>
-#include <QList>
 
 namespace Zeal::Registry {
 

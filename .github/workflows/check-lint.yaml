@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -33,9 +32,15 @@ jobs:
           version: '22'
           style: file
           tidy-checks: '-*'
-          format-review: true
+          file-annotations: true
           files-changed-only: false
           ignore-format: 'src/contrib'
+
+      - name: Fail on format issues
+        if: steps.linter.outputs.checks-failed > 0
+        run: |
+          echo "::error::${{ steps.linter.outputs.checks-failed }} formatting issue(s) found"
+          exit 1
 
   reuse:
     name: REUSE Compliance
