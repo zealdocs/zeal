@@ -64,3 +64,4 @@ jobs:
         name: build-log
         path: cov-int/build-log.txt
         if-no-files-found: ignore
+        retention-days: 5
