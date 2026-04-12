@@ -16,7 +16,9 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     permissions:
+      attestations: write
       contents: write
+      id-token: write
 
     strategy:
       fail-fast: false
@@ -90,6 +92,11 @@ jobs:
           CODESIGN_CERTIFICATE_BASE64: ${{ secrets.CODESIGN_CERTIFICATE_BASE64 }}
           CODESIGN_PASSWORD: ${{ secrets.CODESIGN_PASSWORD }}
 
+      - name: Attest Build Provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: build/${{ matrix.config.configurePreset }}/${{ matrix.config.uploadPattern }}
+
       - name: Upload Release Assets
         run: |
           gh release upload ${{ github.ref_name }} --clobber `
@@ -101,7 +108,9 @@ jobs:
     name: AppImage
     runs-on: ubuntu-24.04
     permissions:
+      attestations: write
       contents: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -167,6 +176,11 @@ jobs:
             --plugin qt \
             --output appimage
 
+      - name: Attest Build Provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: Zeal-*.AppImage*
+
       - name: Upload Release Assets
         run: gh release upload ${{ github.ref_name }} --clobber Zeal-*.AppImage*
         env:
@@ -176,7 +190,9 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     permissions:
+      attestations: write
       contents: write
+      id-token: write
 
     strategy:
       fail-fast: false
@@ -218,6 +234,11 @@ jobs:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
           buildPresetAdditionalArgs: "['--target package_source']"
+
+      - name: Attest Build Provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: build/${{ matrix.config.configurePreset }}/zeal-*.*
 
       - name: Upload Release Assets
         run: gh release upload ${{ github.ref_name }} --clobber build/${{ matrix.config.configurePreset }}/zeal-*.*
