@@ -140,8 +140,6 @@ set(CPACK_CREATE_DESKTOP_LINKS ${_project_output_name} ${CPACK_PACKAGE_NAME})
 
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
-set(CPACK_PACKAGE_CHECKSUM SHA256)
-
 if(WIN32)
     # CPack WiX configuration.
     # Requires WiX 4 or 5; avoid WiX 6+ (Open Source Maintenance Fee terms).

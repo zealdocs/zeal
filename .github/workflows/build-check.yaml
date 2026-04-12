@@ -159,19 +159,15 @@ jobs:
         if: matrix.config.publishArtifacts
         uses: actions/upload-artifact@v7
         with:
-          name: zeal-${{ env.ZEAL_VERSION }}${{ matrix.config.configurePreset == 'release-portable' &&  '-portable' || '' }}-windows-x64.zip
-          path: |
-            build/${{ matrix.config.configurePreset }}/zeal-*.zip
-            build/${{ matrix.config.configurePreset }}/zeal-*.zip.sha256
+          path: build/${{ matrix.config.configurePreset }}/zeal-*.zip
+          archive: false
 
       - name: Upload MSI Artifacts
         if: matrix.config.publishArtifacts && matrix.config.configurePreset == 'release'
         uses: actions/upload-artifact@v7
         with:
-          name: zeal-${{ env.ZEAL_VERSION }}-windows-x64.msi
-          path: |
-            build/${{ matrix.config.configurePreset }}/zeal-*.msi
-            build/${{ matrix.config.configurePreset }}/zeal-*.msi.sha256
+          path: build/${{ matrix.config.configurePreset }}/zeal-*.msi
+          archive: false
 
   build-macos:
     name: ${{ matrix.config.name }}

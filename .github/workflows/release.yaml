@@ -32,7 +32,7 @@ jobs:
             qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
-            uploadPattern: "zeal-*-windows-x64.msi*"
+            uploadPattern: "zeal-*-windows-x64.msi"
           - name: Windows Server 2022 / Portable
             os: windows-2022
             arch: win64_msvc2022_64
@@ -166,9 +166,6 @@ jobs:
             --appdir AppDir \
             --plugin qt \
             --output appimage
-
-      - name: Generate Digest Files
-        run: for file in Zeal-*.AppImage*; do sha256sum $file > $file.sha256; done
 
       - name: Upload Release Assets
         run: gh release upload ${{ github.ref_name }} --clobber Zeal-*.AppImage*

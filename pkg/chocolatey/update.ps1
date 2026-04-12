@@ -19,9 +19,9 @@ if ($Version) {
         throw "Invalid version format: '$Version'. Expected format: X.Y.Z"
     }
 
-    # Verify the release exists.
+    # Fetch the release metadata.
     try {
-        Invoke-RestMethod -Uri "https://api.github.com/repos/zealdocs/zeal/releases/tags/v$Version" | Out-Null
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/zealdocs/zeal/releases/tags/v$Version"
     } catch {
         throw "Release v$Version not found on GitHub."
     }
@@ -49,8 +49,8 @@ if ($Version) {
         Write-Information "Portable checksum: $portableChecksum"
 
         Write-Information "Verifying checksums against release digests..."
-        $msiDigest = ((Invoke-WebRequest -Uri "$msiUrl.sha256").ToString().Trim() -split '\s+')[0]
-        $portableDigest = ((Invoke-WebRequest -Uri "$portableUrl.sha256").ToString().Trim() -split '\s+')[0]
+        $msiDigest = ($release.assets | Where-Object { $_.name -eq "zeal-$Version-windows-x64.msi" }).digest -replace '^sha256:', ''
+        $portableDigest = ($release.assets | Where-Object { $_.name -eq "zeal-$Version-portable-windows-x64.7z" }).digest -replace '^sha256:', ''
 
         if ($msiChecksum -ne $msiDigest) {
             throw "MSI checksum mismatch! Expected: $msiDigest, Got: $msiChecksum"
