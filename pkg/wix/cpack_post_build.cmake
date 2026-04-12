@@ -9,4 +9,8 @@ if(NOT CPACK_GENERATOR STREQUAL "WIX")
 endif()
 
 include(CodeSign)
-codesign(FILES ${CPACK_PACKAGE_FILES} QUIET)
+codesign(
+    FILES ${CPACK_PACKAGE_FILES}
+    DESCRIPTION "${CPACK_PACKAGE_NAME} Setup"
+    QUIET
+)
