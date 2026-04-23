@@ -23,7 +23,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
