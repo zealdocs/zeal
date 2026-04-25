@@ -23,6 +23,7 @@ class Extractor;
 class FileManager;
 class HttpServer;
 class Settings;
+struct Session;
 
 class Application final : public QObject
 {
@@ -35,6 +36,7 @@ public:
     static Application *instance();
 
     QNetworkAccessManager *networkManager() const;
+    Session *session() const;
     Settings *settings() const;
 
     Registry::DocsetRegistry *docsetRegistry() const;
@@ -65,6 +67,7 @@ private:
 
     static Application *m_instance;
 
+    Session *m_session = nullptr;
     Settings *m_settings = nullptr;
 
     QNetworkAccessManager *m_networkManager = nullptr;

@@ -6,7 +6,7 @@
 #include "view.h"
 
 #include <core/application.h>
-#include <core/settings.h>
+#include <core/session.h>
 #include <ui/widgets/layouthelper.h>
 
 #include <QSplitter>
@@ -23,7 +23,7 @@ Container::Container(QWidget *parent)
     m_splitter = new QSplitter();
     m_splitter->setOrientation(Qt::Vertical);
     connect(m_splitter, &QSplitter::splitterMoved, this, [this]() {
-        Core::Application::instance()->settings()->tocSplitterState = m_splitter->saveState();
+        Core::Application::instance()->session()->primaryWindow().tocSplitterState = m_splitter->saveState();
     });
 
     // Setup main layout.

@@ -38,7 +38,6 @@ constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
 constexpr char GroupSearch[] = "search";
 constexpr char GroupTabs[] = "tabs";
 constexpr char GroupInternal[] = "internal";
-constexpr char GroupState[] = "state";
 constexpr char GroupProxy[] = "proxy";
 } // namespace
 
@@ -277,12 +276,6 @@ void Settings::load()
         }
     }
 
-    settings->beginGroup(GroupState);
-    windowGeometry = settings->value(QStringLiteral("window_geometry")).toByteArray();
-    verticalSplitterGeometry = settings->value(QStringLiteral("splitter_geometry")).toByteArray();
-    tocSplitterState = settings->value(QStringLiteral("toc_splitter_state")).toByteArray();
-    settings->endGroup();
-
     settings->beginGroup(GroupInternal);
     installId = settings
                     ->value(QStringLiteral("install_id"),
@@ -352,12 +345,6 @@ void Settings::save()
     settings->setValue(QStringLiteral("path"), docsetPath);
     settings->endGroup();
 
-    settings->beginGroup(GroupState);
-    settings->setValue(QStringLiteral("window_geometry"), windowGeometry);
-    settings->setValue(QStringLiteral("splitter_geometry"), verticalSplitterGeometry);
-    settings->setValue(QStringLiteral("toc_splitter_state"), tocSplitterState);
-    settings->endGroup();
-
     settings->beginGroup(GroupInternal);
     settings->setValue(QStringLiteral("install_id"), installId);
     // Version of configuration file format, should match Zeal version. Used for migration rules.
@@ -415,17 +402,6 @@ void Settings::migrate(QSettings *settings) const
             settings->setValue(QStringLiteral("minimum_font_size"), tmpMinimumFontSize);
             settings->endGroup();
         }
-    }
-
-    //
-    // Pre 0.3
-    //
-
-    // Unset 'state/splitter_geometry', because custom styles were removed.
-    if (version < QVersionNumber(0, 3, 0)) {
-        settings->beginGroup(GroupState);
-        settings->remove(QStringLiteral("splitter_geometry"));
-        settings->endGroup();
     }
 }
 

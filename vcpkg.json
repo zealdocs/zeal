@@ -11,6 +11,7 @@
       "default-features": false
     },
     "sqlite3",
+    "tomlplusplus",
     "vulkan-headers"
   ]
 }

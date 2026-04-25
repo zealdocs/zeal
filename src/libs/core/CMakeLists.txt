@@ -6,6 +6,7 @@ add_library(Core STATIC
     httpserver.cpp
     networkaccessmanager.cpp
     settings.cpp
+    session.cpp
 )
 
 target_link_libraries(Core PRIVATE Registry)
@@ -38,6 +39,15 @@ else()
     target_link_libraries(Core PRIVATE ${LibArchive_LIBRARIES})
 endif()
 
+# Configure toml++ (header-only).
+find_package(tomlplusplus CONFIG QUIET)
+if(tomlplusplus_FOUND)
+    target_link_libraries(Core PRIVATE tomlplusplus::tomlplusplus)
+else()
+    # Use bundled version of toml++ if not found.
+    target_include_directories(Core PRIVATE "${CMAKE_SOURCE_DIR}/src/contrib/tomlplusplus")
+endif()
+
 # Configure cpp-httplib.
 add_definitions(-DCPPHTTPLIB_USE_POLL)
 
@@ -54,4 +64,9 @@ if(NOT WIN32)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
     target_link_libraries(Core PRIVATE Threads::Threads)
+endif()
+
+# Tests
+if(BUILD_TESTING)
+    add_subdirectory(tests)
 endif()
