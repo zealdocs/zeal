@@ -8,6 +8,7 @@
 #include "httpserver.h"
 #include "networkaccessmanager.h"
 #include "settings.h"
+#include "state.h"
 
 #include <registry/docsetregistry.h>
 
@@ -39,6 +40,9 @@ Application::Application(QObject *parent)
     m_instance = this;
 
     m_settings = new Settings(this);
+    m_state = new State();
+    m_state->load();
+
     m_networkManager = new NetworkAccessManager(this);
 
     m_fileManager = new FileManager(this);
@@ -75,6 +79,9 @@ Application::~Application()
     m_extractorThread->wait();
     delete m_extractor;
     delete m_docsetRegistry;
+
+    m_state->save();
+    delete m_state;
 }
 
 /*!
@@ -95,6 +102,11 @@ QNetworkAccessManager *Application::networkManager() const
 Settings *Application::settings() const
 {
     return m_settings;
+}
+
+State *Application::state() const
+{
+    return m_state;
 }
 
 Registry::DocsetRegistry *Application::docsetRegistry() const
