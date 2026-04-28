@@ -71,28 +71,24 @@ QWebEngineProfile *Settings::defaultProfile()
 
 void Settings::setCustomStyleSheet(const QString &name, const QString &path)
 {
-    // Read the stylesheet file content.
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         qCWarning(log, "Failed to read stylesheet file '%s'.", qPrintable(path));
         return;
     }
 
-    QString stylesheet = QString::fromUtf8(file.readAll());
+    const QString b64 = QString::fromLatin1(file.readAll().toBase64());
     file.close();
 
-    // Escape single quotes and newlines for JavaScript string literal.
-    stylesheet.replace(QLatin1String("'"), QLatin1String("\\'"));
-    stylesheet.replace(QLatin1String("\n"), QLatin1String("\\n"));
-
     // clang-format off
-    QString cssInjectCode = QLatin1String(
+    const QString cssInjectCode = QLatin1String(
         "(() => {"
             "const head = document.getElementsByTagName('head')[0];"
             "if (!head) { console.error('Cannot set custom stylesheet.'); return; }"
+            "const bytes = Uint8Array.from(atob('%1'), c => c.charCodeAt(0));"
             "const stylesheet = document.createElement('style');"
             "stylesheet.setAttribute('type', 'text/css');"
-            "stylesheet.textContent = '%1';"
+            "stylesheet.textContent = new TextDecoder('utf-8').decode(bytes);"
             "head.appendChild(stylesheet);"
         "})()"
     );
@@ -100,7 +96,7 @@ void Settings::setCustomStyleSheet(const QString &name, const QString &path)
 
     QWebEngineScript script;
     script.setName(name);
-    script.setSourceCode(cssInjectCode.arg(stylesheet));
+    script.setSourceCode(cssInjectCode.arg(b64));
     script.setInjectionPoint(QWebEngineScript::DocumentReady);
     script.setRunsOnSubFrames(true);
     script.setWorldId(QWebEngineScript::ApplicationWorld);
