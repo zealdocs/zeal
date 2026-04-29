@@ -4,6 +4,7 @@
 #include "browsertab.h"
 
 #include "searchsidebar.h"
+#include "widgets/browserzoomwidget.h"
 #include "widgets/layouthelper.h"
 #include "widgets/toolbarframe.h"
 
@@ -20,6 +21,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWebEngineHistory>
+#include <QWidgetAction>
 
 namespace Zeal::WidgetUi {
 
@@ -114,6 +116,31 @@ BrowserTab::BrowserTab(QWidget *parent)
         label->setText(title);
     });
 
+    // Per-tab actions menu (zoom controls, etc.).
+    auto *zoomWidget = new BrowserZoomWidget();
+    zoomWidget->setZoomPercentage(m_webControl->zoomLevelPercentage());
+
+    connect(zoomWidget, &BrowserZoomWidget::zoomInRequested, m_webControl, &Browser::WebControl::zoomIn);
+    connect(zoomWidget, &BrowserZoomWidget::zoomOutRequested, m_webControl, &Browser::WebControl::zoomOut);
+    connect(zoomWidget, &BrowserZoomWidget::resetZoomRequested, m_webControl, &Browser::WebControl::resetZoom);
+    connect(m_webControl, &Browser::WebControl::zoomLevelChanged, zoomWidget, [this, zoomWidget]() {
+        zoomWidget->setZoomPercentage(m_webControl->zoomLevelPercentage());
+    });
+
+    auto *zoomAction = new QWidgetAction(this);
+    zoomAction->setDefaultWidget(zoomWidget);
+
+    auto *actionsMenu = new QMenu(this);
+    actionsMenu->addAction(zoomAction);
+
+    auto *actionsButton = new QToolButton();
+    actionsButton->setAutoRaise(true);
+    actionsButton->setMenu(actionsMenu);
+    actionsButton->setPopupMode(QToolButton::InstantPopup);
+    actionsButton->setStyleSheet(QStringLiteral("QToolButton::menu-indicator { image: none; }"));
+    actionsButton->setText(QStringLiteral("⋮"));
+    actionsButton->setToolTip(tr("More actions"));
+
     auto *toolBarLayout = new QHBoxLayout();
     toolBarLayout->setContentsMargins(4, 0, 4, 0);
     toolBarLayout->setSpacing(4);
@@ -121,6 +148,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     toolBarLayout->addWidget(m_backButton);
     toolBarLayout->addWidget(m_forwardButton);
     toolBarLayout->addWidget(label, 1);
+    toolBarLayout->addWidget(actionsButton);
 
     auto *toolBarFrame = new ToolBarFrame();
     toolBarFrame->setLayout(toolBarLayout);

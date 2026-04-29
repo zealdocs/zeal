@@ -1,4 +1,5 @@
 add_library(Widgets STATIC
+    browserzoomwidget.cpp
     layouthelper.cpp
     searchedit.cpp
     shortcutedit.cpp
