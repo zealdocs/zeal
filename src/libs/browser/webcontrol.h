@@ -35,15 +35,17 @@ public:
     QByteArray saveHistory() const;
 
     int zoomLevel() const;
-    int zoomLevelPercentage() const;
     void setZoomLevel(int level);
-    void setJavaScriptEnabled(bool enabled);
 
+    int zoomLevelPercentage() const;
+
+    void setJavaScriptEnabled(bool enabled);
     void setWebBridgeObject(const QString &name, QObject *object);
 
 signals:
     void titleChanged(const QString &title);
     void urlChanged(const QUrl &url);
+    void zoomLevelChanged();
 
 public slots:
     void activateSearchBar();

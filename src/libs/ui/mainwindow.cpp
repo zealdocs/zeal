@@ -356,11 +356,11 @@ void MainWindow::setupMainMenu()
         }
     });
 
-    // Menu bar is global on MacOS, so it should always be visible.
-#ifndef Q_OS_MACOS
     // View Menu.
     menu = m_menuBar->addMenu(tr("&View"));
 
+    // Menu bar is global on MacOS, so it should always be visible.
+#ifndef Q_OS_MACOS
     // -> Toolbars Submenu.
     auto *subMenu = menu->addMenu(tr("&Toolbars"));
 
@@ -389,7 +389,44 @@ void MainWindow::setupMainMenu()
             m_menuBar->setActiveAction(m_menuBar->actions().first());
         }
     });
+
+    menu->addSeparator();
 #endif
+
+    // -> Zoom Submenu.
+    auto *zoomMenu = menu->addMenu(tr("&Zoom"));
+
+    // -> -> Zoom In Action.
+    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-in")), tr("Zoom &In"));
+    addAction(action);
+    action->setShortcuts({QKeySequence::ZoomIn, QKeySequence(QStringLiteral("Ctrl+="))});
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->zoomIn();
+        }
+    });
+
+    // -> -> Zoom Out Action.
+    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-out")), tr("Zoom &Out"));
+    addAction(action);
+    action->setShortcut(QKeySequence::ZoomOut);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->zoomOut();
+        }
+    });
+
+    zoomMenu->addSeparator();
+
+    // -> -> Actual Size Action.
+    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-original")), tr("&Actual Size"));
+    addAction(action);
+    action->setShortcut(QKeySequence(QStringLiteral("Ctrl+0")));
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->resetZoom();
+        }
+    });
 
     // Tools Menu.
     menu = m_menuBar->addMenu(tr("&Tools"));
@@ -479,30 +516,6 @@ void MainWindow::setupShortcuts()
     connect(shortcut, &QShortcut::activated, this, [this]() {
         if (auto *tab = currentTab()) {
             tab->webControl()->forward();
-        }
-    });
-    shortcut = new QShortcut(QKeySequence::ZoomIn, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->zoomIn();
-        }
-    });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+="), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->zoomIn();
-        }
-    });
-    shortcut = new QShortcut(QKeySequence::ZoomOut, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->zoomOut();
-        }
-    });
-    shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->resetZoom();
         }
     });
 

@@ -38,6 +38,7 @@ WebControl::WebControl(QWidget *parent)
     });
     connect(m_webView, &QWebEngineView::titleChanged, this, &WebControl::titleChanged);
     connect(m_webView, &QWebEngineView::urlChanged, this, &WebControl::urlChanged);
+    connect(m_webView, &WebView::zoomLevelChanged, this, &WebControl::zoomLevelChanged);
 
     layout->addWidget(m_webView);
 
@@ -54,14 +55,14 @@ int WebControl::zoomLevel() const
     return m_webView->zoomLevel();
 }
 
-int WebControl::zoomLevelPercentage() const
-{
-    return m_webView->availableZoomLevels().at(zoomLevel());
-}
-
 void WebControl::setZoomLevel(int level)
 {
     m_webView->setZoomLevel(level);
+}
+
+int WebControl::zoomLevelPercentage() const
+{
+    return WebView::availableZoomLevels().value(m_webView->zoomLevel(), 100);
 }
 
 void WebControl::zoomIn()

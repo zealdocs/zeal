@@ -1,75 +1,63 @@
+// Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #include "browserzoomwidget.h"
-#include <QColor>
-#include <QPalette>
-#include <QPushButton>
-#include <QLabel>
+
 #include <QHBoxLayout>
-#include <QString>
+#include <QLabel>
+#include <QToolButton>
+
+namespace Zeal::WidgetUi {
+
+namespace {
+constexpr int ButtonWidth = 32;
+} // namespace
 
 BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
-: QWidget(parent)
+    : QWidget(parent)
 {
-    const auto highlightedBackgroundColor = palette().highlight().color().name();
-    const auto highlightedTextColor = palette().highlightedText().color().name();
-    const auto styleSheet
-        = QString("QPushButton:hover { background-color: %1; color: %2; border: none; }").arg(highlightedBackgroundColor)
-                                                                                          .arg(highlightedTextColor);
-    setStyleSheet(styleSheet);
-    setMouseTracking(true);
-    auto zoomLabel = new QLabel(tr("Zoom"));
-    zoomLabel->setMouseTracking(true);
-    zoomLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    auto *captionLabel = new QLabel(tr("Zoom"));
+    captionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    constexpr int maxButtonWidth = 32;
+    auto *zoomOutButton = new QToolButton();
+    zoomOutButton->setAutoRaise(true);
+    zoomOutButton->setFixedWidth(ButtonWidth);
+    zoomOutButton->setText(QStringLiteral("−"));
+    zoomOutButton->setToolTip(tr("Zoom out"));
+    connect(zoomOutButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomOutRequested);
 
-    m_zoomOutButton = new QPushButton(QStringLiteral("-"));
-    m_zoomOutButton->setMouseTracking(true);
-    m_zoomOutButton->setMaximumWidth(maxButtonWidth);
-    m_zoomOutButton->setToolTip(tr("Zoom out"));
+    m_levelLabel = new QLabel(QStringLiteral("100%"));
+    m_levelLabel->setAlignment(Qt::AlignCenter);
+    m_levelLabel->setMinimumWidth(ButtonWidth);
+    m_levelLabel->setToolTip(tr("Current zoom level"));
 
-    m_zoomOutButton->setFlat(true);
-    m_zoomLevelLabel = new QLabel("100%");
-    m_zoomLevelLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    m_zoomLevelLabel->setMouseTracking(true);
-    m_zoomLevelLabel->setToolTip(tr("Current zoom level"));
+    auto *zoomInButton = new QToolButton();
+    zoomInButton->setAutoRaise(true);
+    zoomInButton->setFixedWidth(ButtonWidth);
+    zoomInButton->setText(QStringLiteral("+"));
+    zoomInButton->setToolTip(tr("Zoom in"));
+    connect(zoomInButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomInRequested);
 
-    m_zoomInButton = new QPushButton(QStringLiteral("+"));
-    m_zoomInButton->setFlat(true);
-    m_zoomInButton->setMouseTracking(true);
-    m_zoomInButton->setMaximumWidth(maxButtonWidth);
-    m_zoomInButton->setToolTip(tr("Zoom in"));
+    auto *resetButton = new QToolButton();
+    resetButton->setAutoRaise(true);
+    resetButton->setFixedWidth(ButtonWidth);
+    resetButton->setText(QStringLiteral("↻"));
+    resetButton->setToolTip(tr("Actual size"));
+    connect(resetButton, &QToolButton::clicked, this, &BrowserZoomWidget::resetZoomRequested);
 
-    m_resetZoomButton = new QPushButton(QStringLiteral("↻"));
-    m_resetZoomButton->setFlat(true);
-    m_resetZoomButton->setMouseTracking(true);
-    m_resetZoomButton->setMaximumWidth(maxButtonWidth);
-    m_resetZoomButton->setToolTip(tr("Reset zoom level"));
-
-    auto layout = new QHBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(8, 4, 8, 4);
     layout->setSpacing(2);
-    layout->addWidget(zoomLabel);
-    layout->addWidget(m_zoomOutButton);
-    layout->addWidget(m_zoomLevelLabel);
-    layout->addWidget(m_zoomInButton);
-    layout->addWidget(m_resetZoomButton);
+    layout->addWidget(captionLabel, 1);
+    layout->addWidget(zoomOutButton);
+    layout->addWidget(m_levelLabel);
+    layout->addWidget(zoomInButton);
+    layout->addWidget(resetButton);
 }
 
-QPushButton *BrowserZoomWidget::zoomOutButton()
+void BrowserZoomWidget::setZoomPercentage(int percent)
 {
-    return m_zoomOutButton;
+    m_levelLabel->setText(QStringLiteral("%1%").arg(percent));
 }
 
-QPushButton *BrowserZoomWidget::zoomInButton()
-{
-    return m_zoomInButton;
-}
-
-QPushButton *BrowserZoomWidget::resetZoomButton()
-{
-    return m_resetZoomButton;
-}
-
-QLabel *BrowserZoomWidget::zoomLevelLabel()
-{
-    return m_zoomLevelLabel;
-}
+} // namespace Zeal::WidgetUi

@@ -1,26 +1,34 @@
-#ifndef BROWSERZOOMWIDGET_H
-#define BROWSERZOOMWIDGET_H
+// Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#ifndef ZEAL_WIDGETUI_BROWSERZOOMWIDGET_H
+#define ZEAL_WIDGETUI_BROWSERZOOMWIDGET_H
 
 #include <QWidget>
 
-class QPushButton;
 class QLabel;
 
-class BrowserZoomWidget : public QWidget
+namespace Zeal::WidgetUi {
+
+class BrowserZoomWidget final : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BrowserZoomWidget)
 public:
     explicit BrowserZoomWidget(QWidget *parent = nullptr);
-    QPushButton *zoomOutButton();
-    QPushButton *zoomInButton();
-    QPushButton *resetZoomButton();
-    QLabel *zoomLevelLabel();
+    ~BrowserZoomWidget() override = default;
+
+    void setZoomPercentage(int percent);
+
+signals:
+    void zoomInRequested();
+    void zoomOutRequested();
+    void resetZoomRequested();
 
 private:
-    QPushButton *m_zoomOutButton{nullptr};
-    QPushButton *m_zoomInButton{nullptr};
-    QPushButton *m_resetZoomButton{nullptr};
-    QLabel *m_zoomLevelLabel{nullptr};
+    QLabel *m_levelLabel = nullptr;
 };
 
-#endif // BROWSERZOOMWIDGETACTION_H
+} // namespace Zeal::WidgetUi
+
+#endif // ZEAL_WIDGETUI_BROWSERZOOMWIDGET_H

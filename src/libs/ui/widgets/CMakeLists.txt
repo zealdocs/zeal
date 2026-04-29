@@ -1,9 +1,9 @@
 add_library(Widgets STATIC
+    browserzoomwidget.cpp
     layouthelper.cpp
     searchedit.cpp
     shortcutedit.cpp
     toolbarframe.cpp
-    browserzoomwidget.cpp
 )
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
