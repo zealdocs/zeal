@@ -40,10 +40,6 @@
 #include <QtGui/private/qtx11extras_p.h>
 #include <QtGui/private/qxkbcommon_p.h>
 
-// X11 headers define KeyPress/KeyRelease as macros that conflict with Qt enums.
-#include <X11/Xlib.h>
-#undef KeyPress
-#undef KeyRelease
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
 
@@ -121,7 +117,7 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     QKeyEvent dummy(QEvent::KeyPress, key, Qt::NoModifier);
     const auto keysyms = QXkbCommon::toKeysym(&dummy);
 
-    KeySym keysym = keysyms.isEmpty() ? XCB_NO_SYMBOL : keysyms.first();
+    xcb_keysym_t keysym = keysyms.isEmpty() ? XCB_NO_SYMBOL : keysyms.first();
     if (keysym == XCB_NO_SYMBOL) {
         keysym = static_cast<ushort>(key);
     }
@@ -140,9 +136,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         // If the keysym at group 0, level 0 (no modifiers) differs from
         // our target, but group 0, level 1 (Shift) matches, then Shift
         // is an implicit modifier.
-        KeySym unshifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 0);
+        xcb_keysym_t unshifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 0);
         if (unshifted != keysym) {
-            KeySym shifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 1);
+            xcb_keysym_t shifted = xcb_key_symbols_get_keysym(xcbKeySymbols, native, 1);
             if (shifted == keysym) {
                 extraNativeMods |= XCB_MOD_MASK_SHIFT;
             }
