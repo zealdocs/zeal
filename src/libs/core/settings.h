@@ -38,6 +38,7 @@ public:
 
     // Tabs Behavior
     bool openNewTabAfterActive;
+    bool showTabCloseButton;
 
     // Search
     bool isFuzzySearchEnabled;

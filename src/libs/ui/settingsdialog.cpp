@@ -171,6 +171,7 @@ void SettingsDialog::loadSettings()
 
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
+    ui->showTabCloseButton->setChecked(settings->showTabCloseButton);
 
     // Search Tab
     ui->fuzzySearchCheckBox->setChecked(settings->isFuzzySearchEnabled);
@@ -264,6 +265,7 @@ void SettingsDialog::saveSettings()
 
     // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
+    settings->showTabCloseButton = ui->showTabCloseButton->isChecked();
 
     // Search Tab
     settings->isFuzzySearchEnabled = ui->fuzzySearchCheckBox->isChecked();
