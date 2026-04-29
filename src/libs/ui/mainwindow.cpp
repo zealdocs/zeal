@@ -554,7 +554,7 @@ void MainWindow::setupTabBar()
     m_tabBar->setMovable(true);
     m_tabBar->setSelectionBehaviorOnRemove(QTabBar::SelectPreviousTab);
     m_tabBar->setStyleSheet(QStringLiteral("QTabBar::tab { width: 150px; }"));
-    m_tabBar->setTabsClosable(true);
+    m_tabBar->setTabsClosable(m_settings->showTabCloseButton);
     m_tabBar->setUsesScrollButtons(true);
 
     connect(m_tabBar, &QTabBar::currentChanged, this, [this](int index) {
@@ -790,6 +790,8 @@ void MainWindow::applySettings()
     } else {
         removeTrayIcon();
     }
+
+    m_tabBar->setTabsClosable(m_settings->showTabCloseButton);
 }
 
 void MainWindow::toggleWindow()

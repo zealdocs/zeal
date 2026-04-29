@@ -185,6 +185,22 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="tabsAppearanceGroupBox">
+         <property name="title">
+          <string>Appearance</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_18">
+          <item>
+           <widget class="QCheckBox" name="showTabCloseButton">
+            <property name="text">
+             <string>Show close button on tabs</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_5">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
