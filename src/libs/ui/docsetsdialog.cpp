@@ -801,6 +801,19 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
         return;
     }
 
+    // Skip if an extraction is already in progress for this docset.
+    if (m_tmpFiles.contains(name)) {
+        return;
+    }
+
+    // Skip if a download is already in progress for this docset.
+    for (QNetworkReply *reply : std::as_const(m_replies)) {
+        if (reply->property(DownloadTypeProperty).toInt() == DownloadType::DownloadDocset
+            && reply->property(DocsetNameProperty).toString() == name) {
+            return;
+        }
+    }
+
     QUrl url;
     if (!m_userFeeds.contains(name)) {
         // No feed present means that this is a Kapeli docset
