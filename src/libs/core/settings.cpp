@@ -11,6 +11,7 @@
 #include <QLoggingCategory>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSystemTrayIcon>
 #include <QUrl>
 #include <QUuid>
 #include <QWebEngineProfile>
@@ -75,6 +76,11 @@ bool Settings::isDarkModeEnabled() const
     }
 
     return false;
+}
+
+bool Settings::isTrayActive() const
+{
+    return showSystrayIcon && QSystemTrayIcon::isSystemTrayAvailable();
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)

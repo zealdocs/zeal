@@ -27,15 +27,12 @@
 #include <QFocusEvent>
 #include <QIcon>
 #include <QKeyEvent>
-#include <QMenu>
 #include <QMenuBar>
-#include <QMessageBox>
 #include <QMouseEvent>
 #include <QScopedPointer>
 #include <QShortcut>
 #include <QSplitter>
 #include <QStackedWidget>
-#include <QSystemTrayIcon>
 #include <QTabBar>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -78,31 +75,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     restoreGeometry(m_settings->windowGeometry);
 
-    // Update check
-    connect(m_application, &Core::Application::updateCheckError, this, [this](const QString &message) {
-        QMessageBox::warning(this, QStringLiteral("Zeal"), message);
-    });
-
-    connect(m_application, &Core::Application::updateCheckDone, this, [this](const QString &version) {
-        if (version.isEmpty()) {
-            QMessageBox::information(this, QStringLiteral("Zeal"), tr("You are using the latest version."));
-            return;
-        }
-
-        // TODO: Remove this ugly workaround for #637.
-        qApp->setQuitOnLastWindowClosed(false);
-        const int ret = QMessageBox::information(this,
-                                                 QStringLiteral("Zeal"),
-                                                 tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
-                                                 QMessageBox::Yes | QMessageBox::No,
-                                                 QMessageBox::Yes);
-        qApp->setQuitOnLastWindowClosed(true);
-
-        if (ret == QMessageBox::Yes) {
-            QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
-        }
-    });
-
     // Setup sidebar.
     auto *sbViewProvider = new SidebarViewProvider(this);
     auto *sbView = new Sidebar::ProxyView(sbViewProvider, QStringLiteral("index"));
@@ -132,10 +104,6 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     connect(m_settings, &Core::Settings::updated, this, &MainWindow::applySettings);
     applySettings();
-
-    if (m_settings->checkForUpdate) {
-        m_application->checkForUpdates(true);
-    }
 }
 
 MainWindow::~MainWindow()
@@ -309,14 +277,14 @@ void MainWindow::setupMainMenu()
 
     // -> Quit Action.
     // Follow Windows HIG naming.
-    action = m_quitAction = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")),
+    action = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")),
 #ifdef Q_OS_WINDOWS
-                                            tr("E&xit"),
+                             tr("E&xit"),
 #else
-                                            tr("&Quit"),
+                             tr("&Quit"),
 #endif
-                                            qApp,
-                                            &QApplication::quit);
+                             qApp,
+                             &QApplication::quit);
     addAction(action);
     action->setMenuRole(QAction::QuitRole);
     action->setShortcut(QStringLiteral("Ctrl+Q"));
@@ -602,50 +570,6 @@ void MainWindow::setupTabBar()
     });
 }
 
-void MainWindow::createTrayIcon()
-{
-    if (m_trayIcon) {
-        return;
-    }
-
-    m_trayIcon = new QSystemTrayIcon(this);
-    m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), windowIcon()));
-    m_trayIcon->setToolTip(QStringLiteral("Zeal"));
-
-    connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
-        if (reason != QSystemTrayIcon::Trigger && reason != QSystemTrayIcon::DoubleClick) {
-            return;
-        }
-
-        toggleWindow();
-    });
-
-    auto *trayIconMenu = new QMenu(this);
-    QAction *toggleAction = trayIconMenu->addAction(tr("Show Zeal"), this, &MainWindow::toggleWindow);
-
-    connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
-        toggleAction->setText(isVisible() ? tr("Minimize to Tray") : tr("Show Zeal"));
-    });
-
-    trayIconMenu->addSeparator();
-    trayIconMenu->addAction(m_quitAction);
-    m_trayIcon->setContextMenu(trayIconMenu);
-
-    m_trayIcon->show();
-}
-
-void MainWindow::removeTrayIcon()
-{
-    if (!m_trayIcon) {
-        return;
-    }
-
-    QMenu *trayIconMenu = m_trayIcon->contextMenu();
-    delete m_trayIcon;
-    m_trayIcon = nullptr;
-    delete trayIconMenu;
-}
-
 void MainWindow::bringToFront()
 {
 #ifdef Q_OS_WINDOWS
@@ -688,7 +612,7 @@ void MainWindow::bringToFront()
 
 void MainWindow::changeEvent(QEvent *event)
 {
-    if (m_settings->showSystrayIcon && m_settings->minimizeToSystray && event->type() == QEvent::WindowStateChange
+    if (m_settings->isTrayActive() && m_settings->minimizeToSystray && event->type() == QEvent::WindowStateChange
         && isMinimized()) {
         hide();
     }
@@ -698,7 +622,7 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (m_settings->showSystrayIcon && m_settings->hideOnClose) {
+    if (m_settings->isTrayActive() && m_settings->hideOnClose) {
         event->ignore();
         toggleWindow();
     }
@@ -785,12 +709,6 @@ void MainWindow::applySettings()
         m_globalShortcut->setShortcut(m_settings->showShortcut);
     }
 
-    if (m_settings->showSystrayIcon) {
-        createTrayIcon();
-    } else {
-        removeTrayIcon();
-    }
-
     m_tabBar->setTabsClosable(m_settings->showTabCloseButton);
 }
 
@@ -801,7 +719,7 @@ void MainWindow::toggleWindow()
     if (!isVisible() || (checkActive && !isActiveWindow())) {
         bringToFront();
     } else {
-        if (m_trayIcon) {
+        if (m_settings->isTrayActive()) {
 #ifdef Q_OS_WINDOWS
             m_savedGeometry = saveGeometry(); // See bringToFront().
 #endif

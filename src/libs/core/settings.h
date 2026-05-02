@@ -110,6 +110,7 @@ public:
 
     // Helper functions.
     bool isDarkModeEnabled() const;
+    bool isTrayActive() const;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     using ColorScheme = Qt::ColorScheme;
