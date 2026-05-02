@@ -9,7 +9,6 @@
 #include "searchquery.h"
 #include "searchresult.h"
 
-#include <core/application.h>
 #include <core/httpserver.h>
 
 #include <QDir>
@@ -30,9 +29,10 @@ void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResul
 }
 } // namespace
 
-DocsetRegistry::DocsetRegistry(QObject *parent)
+DocsetRegistry::DocsetRegistry(Core::HttpServer *httpServer, QObject *parent)
     : QObject(parent)
     , m_model(new ListModel(this))
+    , m_httpServer(httpServer)
     , m_thread(new QThread(this))
 {
     // Register for use in signal connections.
@@ -132,7 +132,7 @@ void DocsetRegistry::loadDocset(const QString &path)
     }
 
     // Setup HTTP mount.
-    QUrl url = Core::Application::instance()->httpServer()->mount(name, docset->documentPath());
+    QUrl url = m_httpServer->mount(name, docset->documentPath());
     if (url.isEmpty()) {
         qCWarning(log,
                   "Could not enable docset '%s' from '%s'. Reinstall the docset.",
@@ -152,7 +152,7 @@ void DocsetRegistry::loadDocset(const QString &path)
 void DocsetRegistry::unloadDocset(const QString &name)
 {
     emit docsetAboutToBeUnloaded(name);
-    Core::Application::instance()->httpServer()->unmount(name);
+    m_httpServer->unmount(name);
     delete m_docsets.take(name);
     emit docsetUnloaded(name);
 }
