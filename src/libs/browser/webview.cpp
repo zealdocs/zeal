@@ -7,7 +7,6 @@
 #include "webcontrol.h"
 #include "webpage.h"
 
-#include <core/application.h>
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
 
@@ -91,12 +90,13 @@ void WebView::resetZoom()
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
+    auto *mw = qobject_cast<WidgetUi::MainWindow *>(window());
+    if (mw == nullptr) {
+        return nullptr;
+    }
+
     const bool activate = (type != QWebEnginePage::WebBrowserBackgroundTab);
-    return Core::Application::instance()
-        ->mainWindow()
-        ->createTab(QUrl(QStringLiteral("about:blank")), activate)
-        ->webControl()
-        ->m_webView;
+    return mw->createTab(QUrl(QStringLiteral("about:blank")), activate)->webControl()->m_webView;
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)

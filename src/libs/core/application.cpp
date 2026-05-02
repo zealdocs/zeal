@@ -10,8 +10,6 @@
 #include "settings.h"
 
 #include <registry/docsetregistry.h>
-#include <registry/searchquery.h>
-#include <ui/mainwindow.h>
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -69,8 +67,6 @@ Application::Application(QObject *parent)
 
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();
-
-    m_mainWindow = new WidgetUi::MainWindow(this);
 }
 
 Application::~Application()
@@ -78,7 +74,6 @@ Application::~Application()
     m_extractorThread->quit();
     m_extractorThread->wait();
     delete m_extractor;
-    delete m_mainWindow;
     delete m_docsetRegistry;
 }
 
@@ -90,28 +85,6 @@ Application::~Application()
 Application *Application::instance()
 {
     return m_instance;
-}
-
-WidgetUi::MainWindow *Application::mainWindow() const
-{
-    return m_mainWindow;
-}
-
-void Application::showMainWindow(bool forceMinimized)
-{
-    if (m_mainWindow->isVisible()) {
-        return;
-    }
-
-    if (forceMinimized || m_settings->startMinimized) {
-        if (m_settings->showSystrayIcon && m_settings->minimizeToSystray) {
-            return;
-        }
-
-        m_mainWindow->showMinimized();
-    } else {
-        m_mainWindow->show();
-    }
 }
 
 QNetworkAccessManager *Application::networkManager() const
@@ -168,17 +141,6 @@ QString Application::versionString()
 {
     static const auto v = QStringLiteral("v%1").arg(QCoreApplication::applicationVersion());
     return v;
-}
-
-void Application::executeQuery(const Registry::SearchQuery &query, bool preventActivation)
-{
-    m_mainWindow->search(query);
-
-    if (preventActivation) {
-        return;
-    }
-
-    m_mainWindow->bringToFront();
 }
 
 void Application::extract(const QString &filePath, const QString &destination, const QString &root)

@@ -14,7 +14,6 @@ class QAction;
 class QMenuBar;
 class QSplitter;
 class QStackedWidget;
-class QSystemTrayIcon;
 class QTabBar;
 
 namespace Zeal {
@@ -75,9 +74,6 @@ private:
     BrowserTab *currentTab() const;
     BrowserTab *tabAt(int index) const;
 
-    void createTrayIcon();
-    void removeTrayIcon();
-
     void syncTabState(BrowserTab *tab);
 
     Core::Application *m_application = nullptr;
@@ -94,7 +90,6 @@ private:
     QStackedWidget *m_webViewStack = nullptr;
 
     // TODO: Replace with proper action manager.
-    QAction *m_quitAction = nullptr;
     QAction *m_showDocsetManagerAction = nullptr;
     QAction *m_showPreferencesAction = nullptr;
 #ifndef Q_OS_MACOS
@@ -103,7 +98,6 @@ private:
 
     friend class SidebarViewProvider;
 
-    QSystemTrayIcon *m_trayIcon = nullptr;
 #ifdef Q_OS_WINDOWS
     QByteArray m_savedGeometry;
 #endif

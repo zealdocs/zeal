@@ -5,6 +5,7 @@
 #include <core/application.h>
 #include <core/applicationsingleton.h>
 #include <registry/searchquery.h>
+#include <ui/windowmanager.h>
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -296,21 +297,27 @@ int main(int argc, char *argv[])
     using Zeal::Core::Application;
     QScopedPointer<Application> app(new Application());
 
-    QObject::connect(appSingleton.data(), &ApplicationSingleton::messageReceived, [&app](const QByteArray &data) {
+    using Zeal::WidgetUi::WindowManager;
+    QScopedPointer<WindowManager> wm(new WindowManager(app.data()));
+
+    QObject::connect(appSingleton.data(),
+                     &ApplicationSingleton::messageReceived,
+                     wm.data(),
+                     [&wm](const QByteArray &data) {
         Zeal::Registry::SearchQuery query;
         bool preventActivation = false;
 
         QDataStream in(data);
         in >> query >> preventActivation;
 
-        app->executeQuery(query, preventActivation);
+        wm->executeQuery(query, preventActivation);
     });
 
-    app->showMainWindow(clParams.forceMinimized);
+    wm->openWindow(clParams.forceMinimized);
 
     if (!clParams.query.isEmpty()) {
-        QTimer::singleShot(0, app.data(), [&app, clParams] {
-            app->executeQuery(clParams.query, clParams.preventActivation);
+        QTimer::singleShot(0, wm.data(), [&wm, clParams] {
+            wm->executeQuery(clParams.query, clParams.preventActivation);
         });
     }
 

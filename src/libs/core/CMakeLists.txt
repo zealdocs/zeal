@@ -8,7 +8,7 @@ add_library(Core STATIC
     settings.cpp
 )
 
-target_link_libraries(Core PRIVATE Registry Ui)
+target_link_libraries(Core PRIVATE Registry)
 
 find_package(Qt6 COMPONENTS Network WebEngineCore Widgets REQUIRED)
 target_link_libraries(Core PRIVATE

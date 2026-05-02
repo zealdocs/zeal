@@ -33,7 +33,7 @@ qt_add_executable(App WIN32
     ${App_RESOURCES}
 )
 
-target_link_libraries(App PRIVATE Core Util Qt6::Widgets)
+target_link_libraries(App PRIVATE Core Ui Util Qt6::Widgets)
 
 set_target_properties(App PROPERTIES
     OUTPUT_NAME ${_project_output_name}
