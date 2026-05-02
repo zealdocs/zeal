@@ -31,7 +31,7 @@ if(NOT LibArchive_FOUND)
     )
 endif()
 
-if((CMAKE_VERSION VERSION_GREATER_EQUAL 3.17.0) AND (TARGET LibArchive::LibArchive))
+if(TARGET LibArchive::LibArchive)
     target_link_libraries(Core PRIVATE LibArchive::LibArchive)
 else()
     include_directories(${LibArchive_INCLUDE_DIRS})

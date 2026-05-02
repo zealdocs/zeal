@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.25.1)
 
 include(cmake/SetupVcpkg.cmake)
 setup_vcpkg()
@@ -40,11 +40,11 @@ if(ZEAL_USE_COMPILER_CACHE)
         set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 
         # sccache/ccache don't support MSVC's /Zi (shared PDB). Use /Z7 (embedded debug info) instead.
+        # CMP0141 is NEW (cmake_minimum_required >= 3.25), so use the CMake abstraction.
         # See: https://github.com/mozilla/sccache?tab=readme-ov-file#usage
         if(MSVC)
-            foreach(config DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
-                string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_${config} "${CMAKE_CXX_FLAGS_${config}}")
-            endforeach()
+            set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+                "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
         endif()
     else()
         message(WARNING "ZEAL_USE_COMPILER_CACHE is enabled but no sccache or ccache found.")
@@ -89,9 +89,7 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-    set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-endif()
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 option(ZEAL_FEATURE_UPDATE_CHECK "Automatic update check on startup" ON)
 if(ZEAL_FEATURE_UPDATE_CHECK)
