@@ -65,7 +65,7 @@ Application::Application(QObject *parent)
     connect(m_extractor, &Extractor::error, this, &Application::extractionError);
     connect(m_extractor, &Extractor::progress, this, &Application::extractionProgress);
 
-    m_docsetRegistry = new Registry::DocsetRegistry();
+    m_docsetRegistry = new Registry::DocsetRegistry(m_httpServer);
 
     connect(m_settings, &Settings::updated, this, &Application::applySettings);
     applySettings();

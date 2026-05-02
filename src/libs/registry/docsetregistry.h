@@ -15,7 +15,13 @@
 class QAbstractItemModel;
 class QThread;
 
-namespace Zeal::Registry {
+namespace Zeal {
+
+namespace Core {
+class HttpServer;
+} // namespace Core
+
+namespace Registry {
 
 class Docset;
 
@@ -24,7 +30,7 @@ class DocsetRegistry final : public QObject
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(DocsetRegistry)
 public:
-    explicit DocsetRegistry(QObject *parent = nullptr);
+    explicit DocsetRegistry(Core::HttpServer *httpServer, QObject *parent = nullptr);
     ~DocsetRegistry() override;
 
     QAbstractItemModel *model() const;
@@ -63,6 +69,8 @@ private:
 
     QAbstractItemModel *m_model = nullptr;
 
+    Core::HttpServer *m_httpServer = nullptr;
+
     QString m_storagePath;
     bool m_isFuzzySearchEnabled = false;
 
@@ -72,6 +80,7 @@ private:
     std::atomic_bool m_cancelSearch{false};
 };
 
-} // namespace Zeal::Registry
+} // namespace Registry
+} // namespace Zeal
 
 #endif // ZEAL_REGISTRY_DOCSETREGISTRY_H
