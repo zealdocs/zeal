@@ -1,5 +1,5 @@
 ---
-HeaderFilterRegex: 'src/.*'
+HeaderFilterRegex: 'src/(?!contrib/).*'
 Checks: >
   *,
   -abseil-*,
