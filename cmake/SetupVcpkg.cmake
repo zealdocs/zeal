@@ -21,9 +21,19 @@ function(setup_vcpkg)
         set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/build/vcpkg_installed" CACHE STRING "")
     endif()
 
-    # Default to release-only triplet on Windows to speed up builds.
+    # On Windows, default to a release-only triplet to speed up builds. Switch to the
+    # default (debug+release) triplet only for true Debug builds — RelWithDebInfo and
+    # MinSizeRel still link against release-built deps. Multi-config generators (Visual
+    # Studio, Ninja Multi-Config, Xcode) leave CMAKE_BUILD_TYPE empty at configure time,
+    # so default to the full triplet to cover every config the user may build.
     if(WIN32 AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-        set(VCPKG_TARGET_TRIPLET "x64-windows-release" CACHE STRING "")
+        get_cmake_property(_vcpkg_is_multi_config GENERATOR_IS_MULTI_CONFIG)
+        if(_vcpkg_is_multi_config OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "")
+        else()
+            set(VCPKG_TARGET_TRIPLET "x64-windows-release" CACHE STRING "")
+        endif()
+        unset(_vcpkg_is_multi_config)
     endif()
 
     # Deploy vcpkg dependencies alongside the build output.
