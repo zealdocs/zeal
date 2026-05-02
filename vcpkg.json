@@ -10,7 +10,6 @@
       "name": "libarchive",
       "default-features": false
     },
-    "openssl",
     "sqlite3",
     "vulkan-headers"
   ]
