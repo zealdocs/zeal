@@ -21,6 +21,8 @@ project(Zeal
 
 set(ZEAL_RELEASE_VERSION "0.8.1") # x-release-please-version
 
+include(ZealHelpers)
+
 option(ZEAL_USE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 if(ZEAL_USE_CLANG_TIDY)
     find_program(CLANG_TIDY_PROGRAM clang-tidy)
