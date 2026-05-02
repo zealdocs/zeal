@@ -16,6 +16,7 @@
 #include <browser/webcontrol.h>
 #include <core/application.h>
 #include <core/settings.h>
+#include <core/state.h>
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
 #include <sidebar/container.h>
 #include <sidebar/proxyview.h>
@@ -73,7 +74,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     setCentralWidget(centralWidget);
 
-    restoreGeometry(m_settings->windowGeometry);
+    Core::WindowState &windowState = m_application->state()->primaryWindow();
+    restoreGeometry(windowState.geometry);
 
     // Setup sidebar.
     auto *sbViewProvider = new SidebarViewProvider(this);
@@ -84,7 +86,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     // Setup splitter.
     m_splitter->insertWidget(0, sb);
-    m_splitter->restoreState(m_settings->verticalSplitterGeometry);
+    m_splitter->restoreState(windowState.splitterState);
 
     // Setup web settings.
     new Browser::Settings(m_settings, this);
@@ -108,8 +110,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    m_settings->verticalSplitterGeometry = m_splitter->saveState();
-    m_settings->windowGeometry = saveGeometry();
+    Core::WindowState &windowState = m_application->state()->primaryWindow();
+    windowState.splitterState = m_splitter->saveState();
+    windowState.geometry = saveGeometry();
 }
 
 void MainWindow::search(const Registry::SearchQuery &query)

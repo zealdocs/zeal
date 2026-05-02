@@ -10,6 +10,7 @@
 
 #include <core/application.h>
 #include <core/settings.h>
+#include <core/state.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/itemdatarole.h>
@@ -104,7 +105,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             m_pageTocView->hide();
         } else {
             m_pageTocView->show();
-            m_splitter->restoreState(Core::Application::instance()->settings()->tocSplitterState);
+            m_splitter->restoreState(Core::Application::instance()->state()->primaryWindow().tocSplitterState);
         }
     });
     m_pageTocView->setModel(m_pageTocModel);
@@ -192,7 +193,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     m_splitter->addWidget(m_treeView);
     m_splitter->addWidget(m_pageTocView);
     connect(m_splitter, &QSplitter::splitterMoved, this, [this]() {
-        Core::Application::instance()->settings()->tocSplitterState = m_splitter->saveState();
+        Core::Application::instance()->state()->primaryWindow().tocSplitterState = m_splitter->saveState();
     });
 
     // Setup main layout.

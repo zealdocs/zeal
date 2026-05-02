@@ -100,11 +100,6 @@ public:
     // Other
     QString docsetPath;
 
-    // State
-    QByteArray windowGeometry;
-    QByteArray verticalSplitterGeometry;
-    QByteArray tocSplitterState;
-
     explicit Settings(QObject *parent = nullptr);
     ~Settings() override;
 
