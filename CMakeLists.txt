@@ -10,16 +10,17 @@ set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 # VERSION is the next development version, bumped automatically after each release.
-# ZEAL_RELEASE_VERSION is the last released version, updated by release-please.
+# ZEAL_RELEASE_VERSION is the last released version, updated by `just release-prepare`.
 # When both match, the build is treated as a release; otherwise it's a dev build.
+# The `# x-version` marker on each version line acts as a sed anchor for the bump.
 project(Zeal
-    VERSION 0.8.2 # x-release-please-version
+    VERSION 0.8.2 # x-version
     DESCRIPTION "A simple documentation browser."
     HOMEPAGE_URL "https://zealdocs.org"
     LANGUAGES CXX
 )
 
-set(ZEAL_RELEASE_VERSION "0.8.1") # x-release-please-version
+set(ZEAL_RELEASE_VERSION "0.8.1") # x-version
 
 include(ZealHelpers)
 

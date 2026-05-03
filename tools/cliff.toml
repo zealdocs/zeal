@@ -1,40 +1,26 @@
 # git-cliff ~ configuration file
 # https://git-cliff.org/docs/configuration
 
-# Set via GITHUB_REPO and GITHUB_TOKEN environment variables.
-#[remote.github]
-#owner = "zealdocs"
-#repo = "zeal"
-#token = ""
+[remote.github]
+owner = "zealdocs"
+repo = "zeal"
+# Token is read from GITHUB_TOKEN env var (gh's auth) and is needed only to
+# enrich commits with PR titles and contributor info.
 
 [changelog]
 # Template docs: https://keats.github.io/tera/docs/.
 body = """\
-<!-- TODO: Update milestone link, review commits. -->
-{% if version and previous.version %}
-  [Full Changelog]({{ self::diff_url() }}) | [Resolved Issues]({{ self::remote_url() }}/milestone/TBD?closed=1)
-{% endif %}\
-
 {% for group, commits in commits | group_by(attribute="group") %}
   ### {{ group | striptags | trim }}
   {% for commit in commits %}
-    {% if commit.github.pr_title -%}
-      {%- set commit_message = commit.github.pr_title -%}
-    {%- else -%}
-      {%- set commit_message = commit.message -%}
-    {%- endif -%}
     - {% if commit.scope %}**{{ commit.scope }}:** {% endif %}\
         {{ commit.message | split(pat="\n") | first | trim }} \
         ({{ self::commit_link(id=commit.id) }})\
   {% endfor %}
 {% endfor %}
----
+{%- if github and github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
 
-{%- if github -%}\
-{% if github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
-  {% raw %}\n{% endraw -%}
-  #### New Contributors
-{%- endif %}
+#### New Contributors
 {% for contributor in github.contributors | filter(attribute="is_first_time", value=true) %}
   - @{{ contributor.username }} made their first contribution
     {%- if contributor.pr_number %} in \
@@ -42,6 +28,11 @@ body = """\
     {%- endif %}
 {%- endfor -%}
 {%- endif -%}
+{%- if version and previous.version %}
+---
+
+[Full Changelog]({{ self::diff_url() }}){% if extra and extra.milestone %} | [Resolved Issues]({{ self::remote_url() }}/milestone/{{ extra.milestone }}?closed=1){% endif %}
+{% endif %}\
 
 {%- macro remote_url() -%}
   https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
@@ -61,39 +52,37 @@ body = """\
 """
 # Remove the leading and trailing whitespace from the template.
 trim = true
-# Template for the changelog footer.
-footer = """
-"""
-# Postprocessors.
-postprocessors = []
 
 [git]
 # Parse the commits based on https://www.conventionalcommits.org.
 conventional_commits = true
 # Filter out the commits that are not conventional.
 filter_unconventional = true
-# Process each line of a commit as an individual commit.
-split_commits = false
 # Regex for preprocessing the commit messages.
 commit_preprocessors = [
   # Remove issue numbers from commits.
   { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
 ]
 # Regex for parsing and grouping commits.
+# The `<!-- N -->` prefix on each group name is a sort hack: cliff orders groups
+# alphabetically, the HTML comments establish the desired numeric order, and the
+# `striptags` filter in the body template strips them before display.
 commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->Features" },
   { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
   { message = "^perf", group = "<!-- 2 -->Performance" },
-  { message = "^doc", group = "<!-- 3 -->Documentation" },
+  { message = "^docs", group = "<!-- 3 -->Documentation" },
   { message = "^build", group = "<!-- 4 -->Build System" },
-  { message = "^ci", group = "<!-- 5 -->CI/CD" },
-  # Skipped groups:
+  # Skipped groups (kept in git history but excluded from release notes):
+  { message = "^ci", skip = true },
   { message = "^chore", skip = true },
   { message = "^refactor", skip = true },
+  { message = "^style", skip = true },
+  { message = "^test", skip = true },
+  { message = "^revert", skip = true },
 ]
-# Filter out the commits that are not matched by commit parsers.
-filter_commits = false
-# Sort the tags topologically.
-topo_order = false
-# Sort the commits inside sections by oldest/newest order.
-sort_commits = "oldest"
+# Drop commits whose type doesn't match any parser above (typos, weird types).
+filter_commits = true
+# Always include breaking-change commits (`feat!:`, `fix!:`, etc.) even if a
+# skip rule above would otherwise drop them.
+protect_breaking_commits = true

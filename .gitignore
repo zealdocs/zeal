@@ -41,3 +41,6 @@ CMakeUserPresets.json
 
 # Claude Code
 .claude/settings.local.json
+
+# DotENV
+.env
