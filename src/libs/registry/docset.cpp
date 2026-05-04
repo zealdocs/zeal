@@ -311,6 +311,28 @@ const QMultiMap<QString, QUrl> &Docset::symbols(const QString &symbolType) const
 
 QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool &canceled) const
 {
+    if (query.isEmpty()) {
+        // Keyword prefix only (e.g. "html:") — list all symbols alphabetically.
+        const QString sql = m_type == Docset::Type::Dash
+                              ? QStringLiteral("SELECT name, type, path, '' FROM searchIndex ORDER BY name LIMIT 1000")
+                              : QStringLiteral(
+                                    "SELECT name, type, path, fragment FROM searchIndex ORDER BY name LIMIT 1000");
+        m_db->prepare(sql);
+
+        QList<SearchResult> results;
+        while (m_db->next() && !canceled.load(std::memory_order_relaxed)) {
+            results.append({.name = m_db->value(0).toString(),
+                            .type = parseSymbolType(m_db->value(1).toString()),
+                            .urlPath = m_db->value(2).toString(),
+                            .urlFragment = m_db->value(3).toString(),
+                            .docset = const_cast<Docset *>(this),
+                            .score = 0,
+                            .matchPositions = {}});
+        }
+
+        return results;
+    }
+
     QString sql;
     if (m_type == Docset::Type::Dash) {
         if (m_isFuzzySearchEnabled) {
