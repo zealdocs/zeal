@@ -37,7 +37,6 @@
 #include <QKeySequence>
 #include <QList>
 #include <QScopedPointer>
-#include <QtGui/private/qtx11extras_p.h>
 #include <QtGui/private/qxkbcommon_p.h>
 
 #include <xcb/xcb.h>
@@ -45,6 +44,19 @@
 
 namespace {
 constexpr quint32 maskModifiers[] = {0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)};
+
+namespace X11 {
+xcb_connection_t *connection()
+{
+    auto *iface = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+    return iface ? iface->connection() : nullptr;
+}
+
+xcb_window_t rootWindow(xcb_connection_t *xcbConnection)
+{
+    return xcb_setup_roots_iterator(xcb_get_setup(xcbConnection)).data->root;
+}
+} // namespace X11
 } // namespace
 
 bool QxtGlobalShortcutPrivate::isSupported()
@@ -67,7 +79,7 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
     auto keyPressEvent = static_cast<xcb_key_press_event_t *>(message);
 
     // Avoid keyboard freeze
-    xcb_connection_t *xcbConnection = QX11Info::connection();
+    xcb_connection_t *xcbConnection = X11::connection();
     xcb_allow_events(xcbConnection, XCB_ALLOW_REPLAY_KEYBOARD, keyPressEvent->time);
     xcb_flush(xcbConnection);
 
@@ -122,8 +134,12 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
         keysym = static_cast<ushort>(key);
     }
 
-    xcb_connection_t *conn = QX11Info::connection();
-    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(conn);
+    xcb_connection_t *xcbConnection = X11::connection();
+    if (xcbConnection == nullptr) {
+        return 0;
+    }
+
+    xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(xcbConnection);
 
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
         xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
@@ -156,13 +172,16 @@ bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativ
         return false;
     }
 
-    xcb_connection_t *xcbConnection = QX11Info::connection();
+    xcb_connection_t *xcbConnection = X11::connection();
+    if (xcbConnection == nullptr) {
+        return false;
+    }
 
     QList<xcb_void_cookie_t> xcbCookies;
     for (quint32 maskMods : maskModifiers) {
         xcbCookies << xcb_grab_key_checked(xcbConnection,
                                            1,
-                                           QX11Info::appRootWindow(),
+                                           X11::rootWindow(xcbConnection),
                                            nativeMods | maskMods,
                                            nativeKey,
                                            XCB_GRAB_MODE_ASYNC,
@@ -188,13 +207,16 @@ bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nat
         return false;
     }
 
-    xcb_connection_t *xcbConnection = QX11Info::connection();
+    xcb_connection_t *xcbConnection = X11::connection();
+    if (xcbConnection == nullptr) {
+        return false;
+    }
 
     QList<xcb_void_cookie_t> xcbCookies;
     for (quint32 maskMods : maskModifiers) {
         xcbCookies << xcb_ungrab_key_checked(xcbConnection,
                                              nativeKey,
-                                             QX11Info::appRootWindow(),
+                                             X11::rootWindow(xcbConnection),
                                              nativeMods | maskMods);
     }
 
