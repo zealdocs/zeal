@@ -140,6 +140,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     }
 
     xcb_key_symbols_t *xcbKeySymbols = xcb_key_symbols_alloc(xcbConnection);
+    if (xcbKeySymbols == nullptr) {
+        return 0;
+    }
 
     QScopedPointer<xcb_keycode_t, QScopedPointerPodDeleter> keycodes(
         xcb_key_symbols_get_keycode(xcbKeySymbols, keysym));
