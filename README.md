@@ -29,7 +29,8 @@ After installing Zeal go to `Tools->Docsets`, select the ones you want, and clic
 * [Qt](https://www.qt.io/) version 6.4.2 or above. Required module: Qt WebEngine Widgets.
 * [libarchive](https://libarchive.org/).
 * [SQLite](https://sqlite.org/).
-* X11 platforms only: `xcb-util-keysyms`.
+* Linux/BSD platforms: `extra-cmake-modules`.
+* X11 platforms only: `libxkbcommon`, `xcb-util-keysyms`.
 
 ### Build instructions
 

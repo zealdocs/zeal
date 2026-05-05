@@ -33,14 +33,14 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QGuiApplication>
-#include <QKeyEvent>
 #include <QKeySequence>
 #include <QList>
 #include <QScopedPointer>
-#include <QtGui/private/qxkbcommon_p.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
+#include <xkbcommon/xkbcommon-keysyms.h>
+#include <xkbcommon/xkbcommon.h>
 
 namespace {
 constexpr quint32 maskModifiers[] = {0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)};
@@ -55,6 +55,120 @@ xcb_connection_t *connection()
 xcb_window_t rootWindow(xcb_connection_t *xcbConnection)
 {
     return xcb_setup_roots_iterator(xcb_get_setup(xcbConnection)).data->root;
+}
+
+xcb_keysym_t qtKeyToKeysym(Qt::Key key)
+{
+    if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
+        return XKB_KEY_F1 + (key - Qt::Key_F1);
+    }
+
+    switch (key) {
+    case Qt::Key_Escape:
+        return XKB_KEY_Escape;
+    case Qt::Key_Tab:
+        return XKB_KEY_Tab;
+    case Qt::Key_Backtab:
+        return XKB_KEY_ISO_Left_Tab;
+    case Qt::Key_Backspace:
+        return XKB_KEY_BackSpace;
+    case Qt::Key_Return:
+        return XKB_KEY_Return;
+    case Qt::Key_Enter:
+        return XKB_KEY_KP_Enter;
+    case Qt::Key_Insert:
+        return XKB_KEY_Insert;
+    case Qt::Key_Delete:
+        return XKB_KEY_Delete;
+    case Qt::Key_Pause:
+        return XKB_KEY_Pause;
+    case Qt::Key_Print:
+        return XKB_KEY_Print;
+    case Qt::Key_ScrollLock:
+        return XKB_KEY_Scroll_Lock;
+    case Qt::Key_Home:
+        return XKB_KEY_Home;
+    case Qt::Key_End:
+        return XKB_KEY_End;
+    case Qt::Key_Left:
+        return XKB_KEY_Left;
+    case Qt::Key_Up:
+        return XKB_KEY_Up;
+    case Qt::Key_Right:
+        return XKB_KEY_Right;
+    case Qt::Key_Down:
+        return XKB_KEY_Down;
+    case Qt::Key_PageUp:
+        return XKB_KEY_Page_Up;
+    case Qt::Key_PageDown:
+        return XKB_KEY_Page_Down;
+    case Qt::Key_Menu:
+        return XKB_KEY_Menu;
+
+    // Browser keys (XF86 vendor extensions).
+    case Qt::Key_Back:
+        return XKB_KEY_XF86Back;
+    case Qt::Key_Forward:
+        return XKB_KEY_XF86Forward;
+    case Qt::Key_Refresh:
+        return XKB_KEY_XF86Refresh;
+    case Qt::Key_Stop:
+        return XKB_KEY_XF86Stop;
+    case Qt::Key_Reload:
+        return XKB_KEY_XF86Reload;
+    case Qt::Key_Search:
+        return XKB_KEY_XF86Search;
+    case Qt::Key_HomePage:
+        return XKB_KEY_XF86HomePage;
+    case Qt::Key_Favorites:
+        return XKB_KEY_XF86Favorites;
+    case Qt::Key_OpenUrl:
+        return XKB_KEY_XF86OpenURL;
+
+    // Multimedia and system keys (XF86 vendor extensions).
+    case Qt::Key_VolumeMute:
+        return XKB_KEY_XF86AudioMute;
+    case Qt::Key_VolumeDown:
+        return XKB_KEY_XF86AudioLowerVolume;
+    case Qt::Key_VolumeUp:
+        return XKB_KEY_XF86AudioRaiseVolume;
+    case Qt::Key_MediaPlay:
+        return XKB_KEY_XF86AudioPlay;
+    case Qt::Key_MediaStop:
+        return XKB_KEY_XF86AudioStop;
+    case Qt::Key_MediaPrevious:
+        return XKB_KEY_XF86AudioPrev;
+    case Qt::Key_MediaNext:
+        return XKB_KEY_XF86AudioNext;
+    case Qt::Key_MediaPause:
+        return XKB_KEY_XF86AudioPause;
+    case Qt::Key_MediaTogglePlayPause:
+        return XKB_KEY_XF86AudioPlay;
+    case Qt::Key_MediaRecord:
+        return XKB_KEY_XF86AudioRecord;
+    case Qt::Key_MonBrightnessDown:
+        return XKB_KEY_XF86MonBrightnessDown;
+    case Qt::Key_MonBrightnessUp:
+        return XKB_KEY_XF86MonBrightnessUp;
+
+    default:
+        // ASCII/Latin-1: legacy keysym == codepoint. Lowercase letters so we
+        // match level-0 of the keymap and avoid spurious Shift inference for
+        // shortcuts like Ctrl+A.
+        if (key < 0x100) {
+            return xkb_keysym_to_lower(static_cast<xcb_keysym_t>(key));
+        }
+
+        // Non-Latin Unicode codepoint: X11 Unicode keysym encoding.
+        if (key < 0x01000000) {
+            return key | 0x01000000;
+        }
+
+        // Unhandled Qt special key (Help, Cancel, modifiers, etc.). Fail
+        // registration rather than passing a special-key encoding through as
+        // a Unicode keysym, which would grab the wrong physical key.
+        return XCB_NO_SYMBOL;
+    }
 }
 } // namespace X11
 } // namespace
@@ -125,13 +239,9 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     extraNativeMods = 0;
     quint32 native = 0;
 
-    // Use Qt's complete internal keysym table (covers media, launch, and all special keys).
-    QKeyEvent dummy(QEvent::KeyPress, key, Qt::NoModifier);
-    const auto keysyms = QXkbCommon::toKeysym(&dummy);
-
-    xcb_keysym_t keysym = keysyms.isEmpty() ? XCB_NO_SYMBOL : keysyms.first();
+    const xcb_keysym_t keysym = X11::qtKeyToKeysym(key);
     if (keysym == XCB_NO_SYMBOL) {
-        keysym = static_cast<ushort>(key);
+        return 0;
     }
 
     xcb_connection_t *xcbConnection = X11::connection();
