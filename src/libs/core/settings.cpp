@@ -147,6 +147,7 @@ void Settings::load()
 
     settings->beginGroup(GroupUI);
     hideMenuBar = settings->value(QStringLiteral("hide_menu_bar"), false).toBool();
+    hideSidebar = settings->value(QStringLiteral("hide_sidebar"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupGlobalShortcuts);
@@ -299,6 +300,7 @@ void Settings::save()
 
     settings->beginGroup(GroupUI);
     settings->setValue(QStringLiteral("hide_menu_bar"), hideMenuBar);
+    settings->setValue(QStringLiteral("hide_sidebar"), hideSidebar);
     settings->endGroup();
 
     settings->beginGroup(GroupGlobalShortcuts);
