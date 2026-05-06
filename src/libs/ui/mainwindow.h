@@ -92,6 +92,7 @@ private:
     // TODO: Replace with proper action manager.
     QAction *m_showDocsetManagerAction = nullptr;
     QAction *m_showPreferencesAction = nullptr;
+    QAction *m_showSidebarAction = nullptr;
 #ifndef Q_OS_MACOS
     QAction *m_showMenuBarAction = nullptr;
 #endif

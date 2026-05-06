@@ -87,6 +87,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     // Setup splitter.
     m_splitter->insertWidget(0, sb);
     m_splitter->restoreState(windowState.splitterState);
+    sb->setVisible(m_showSidebarAction->isChecked());
 
     // Setup web settings.
     new Browser::Settings(m_settings, this);
@@ -361,8 +362,23 @@ void MainWindow::setupMainMenu()
         }
     });
 
-    menu->addSeparator();
 #endif
+
+    // -> Toggle Sidebar Action.
+    action = m_showSidebarAction = menu->addAction(tr("&Sidebar"));
+    addAction(action);
+    action->setCheckable(true);
+    action->setChecked(!m_settings->hideSidebar);
+    action->setShortcut(QKeySequence(QStringLiteral("Ctrl+B")));
+    connect(action, &QAction::toggled, this, [this](bool checked) {
+        if (auto *sb = m_splitter->widget(0)) {
+            sb->setVisible(checked);
+        }
+        m_settings->hideSidebar = !checked;
+        m_settings->save();
+    });
+
+    menu->addSeparator();
 
     // -> Zoom Submenu.
     auto *zoomMenu = menu->addMenu(tr("&Zoom"));
@@ -461,19 +477,6 @@ void MainWindow::setupShortcuts()
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
         duplicateTab(m_tabBar->currentIndex());
-    });
-
-    // Hide/show sidebar.
-    // TODO: Move to the View menu.
-    shortcut = new QShortcut(QStringLiteral("Ctrl+B"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        auto *sb = m_splitter->widget(0);
-        if (sb == nullptr) {
-            // This should not really happen.
-            return;
-        }
-
-        sb->setVisible(!sb->isVisible());
     });
 
     // Browser Shortcuts.
