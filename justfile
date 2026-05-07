@@ -19,6 +19,11 @@ configure preset="dev":
 build preset="dev":
     cmake --build --preset {{preset}}
 
+# Build and launch Zeal.
+[group('dev')]
+run preset="dev" *args: (build preset)
+    ./build/{{preset}}/zeal {{args}}
+
 # Configure, build, and run the test suite.
 [group('dev')]
 test:
