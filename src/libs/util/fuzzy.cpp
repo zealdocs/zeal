@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 namespace Zeal::Util::Fuzzy {
 
@@ -149,43 +150,55 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
 
     const double SCORE_MIN = -std::numeric_limits<double>::infinity();
 
-    // Always allocate 2D tables on heap (simpler, memory overhead negligible for typical searches)
-    auto **D = new double *[needleLen];
-    auto **M = new double *[needleLen];
-    for (int i = 0; i < needleLen; ++i) {
-        D[i] = new double[haystackLen];
-        M[i] = new double[haystackLen];
+    // One flat buffer reused across calls on this thread; layout [D rows | M rows].
+    // Grows monotonically; bounded by 2 * FZY_MAX_LEN^2 doubles.
+    static thread_local std::vector<double> dp;
+    const std::size_t cells = static_cast<std::size_t>(needleLen) * haystackLen;
+    if (dp.size() < 2 * cells) {
+        dp.resize(2 * cells);
     }
+    double *const D = dp.data();
+    double *const M = dp.data() + cells;
+
+    // Lower the haystack once instead of once per needle row.
+    char16_t hsLower[FZY_MAX_LEN];
+    for (int j = 0; j < haystackLen; ++j) {
+        hsLower[j] = haystack[j].toLower().unicode();
+    }
+
+    auto idx = [haystackLen](int i, int j) {
+        return i * haystackLen + j;
+    };
 
     // Forward pass: compute scores
     for (int i = 0; i < needleLen; ++i) {
         double prevScore = SCORE_MIN;
         const double gapScore = (i == needleLen - 1) ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
-        const QChar needleCh = needle[i].toLower();
+        const char16_t needleCh = needle[i].toLower().unicode();
 
         for (int j = 0; j < haystackLen; ++j) {
-            if (needleCh == haystack[j].toLower()) {
+            if (needleCh == hsLower[j]) {
                 double score = SCORE_MIN;
 
                 if (i == 0) {
                     score = (j * SCORE_GAP_LEADING) + matchBonus[j];
                 } else if (j > 0) {
-                    const double prevM = M[i - 1][j - 1];
-                    const double prevD = D[i - 1][j - 1];
+                    const double prevM = M[idx(i - 1, j - 1)];
+                    const double prevD = D[idx(i - 1, j - 1)];
                     score = std::max(prevM + matchBonus[j], prevD + SCORE_MATCH_CONSECUTIVE);
                 }
 
-                D[i][j] = score;
-                M[i][j] = prevScore = std::max(score, prevScore + gapScore);
+                D[idx(i, j)] = score;
+                M[idx(i, j)] = prevScore = std::max(score, prevScore + gapScore);
             } else {
-                D[i][j] = SCORE_MIN;
-                M[i][j] = prevScore = prevScore + gapScore;
+                D[idx(i, j)] = SCORE_MIN;
+                M[idx(i, j)] = prevScore = prevScore + gapScore;
             }
         }
     }
 
-    const double result = M[needleLen - 1][haystackLen - 1];
+    const double result = M[idx(needleLen - 1, haystackLen - 1)];
 
     // Backtrack to find positions if requested (fzy algorithm)
     // Only backtrack if we have a valid match (not SCORE_MIN)
@@ -195,12 +208,13 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
 
         for (int i = needleLen - 1, j = haystackLen - 1; i >= 0; --i) {
             for (; j >= 0; --j) {
+                const double dij = D[idx(i, j)];
                 // Check if this is a valid match position on the optimal path
-                if (D[i][j] != SCORE_MIN && (matchRequired || D[i][j] == M[i][j])) {
+                if (dij != SCORE_MIN && (matchRequired || dij == M[idx(i, j)])) {
                     // Check if we used consecutive match bonus to get here.
-                    // Use D[i][j] (score at this specific position), not M[i][j]
+                    // Use D (score at this specific position), not M
                     // (global prefix optimum), which may reflect a different path entirely.
-                    matchRequired = (i > 0 && j > 0 && D[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
+                    matchRequired = (i > 0 && j > 0 && dij == D[idx(i - 1, j - 1)] + SCORE_MATCH_CONSECUTIVE);
                     (*positions)[i] = j;
                     --j;
                     break;
@@ -208,15 +222,6 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
             }
         }
     }
-
-    // Clean up
-    for (int i = 0; i < needleLen; ++i) {
-        delete[] D[i];
-        delete[] M[i];
-    }
-
-    delete[] D;
-    delete[] M;
 
     return result;
 }
