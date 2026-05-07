@@ -159,18 +159,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
     switch (indexLevel(child)) {
     case IndexLevel::Group: {
         auto *item = static_cast<DocsetItem *>(child.internalPointer());
-
-        auto it = std::find_if(m_docsetItems.cbegin(), m_docsetItems.cend(), [item](const auto &pair) {
-            return pair.second == item;
-        });
-
-        if (it == m_docsetItems.cend()) {
-            // TODO: Report error, this should never happen.
-            return {};
-        }
-
-        const int row = static_cast<int>(std::distance(m_docsetItems.begin(), it));
-        return createIndex(row, 0);
+        return createIndex(item->row, 0);
     }
     case IndexLevel::Symbol: {
         auto *item = static_cast<GroupItem *>(child.internalPointer());
@@ -227,6 +216,10 @@ void ListModel::addDocset(const QString &name)
     }
 
     m_docsetItems.insert({name, docsetItem});
+    m_docsetRows.insert(m_docsetRows.begin() + row, docsetItem);
+    for (int i = row; i < static_cast<int>(m_docsetRows.size()); ++i) {
+        m_docsetRows[i]->row = i;
+    }
 
     endInsertRows();
 }
@@ -239,12 +232,18 @@ void ListModel::removeDocset(const QString &name)
         return;
     }
 
-    const int row = static_cast<int>(std::distance(m_docsetItems.begin(), it));
+    auto *item = it->second;
+    const int row = item->row;
     beginRemoveRows(QModelIndex(), row, row);
 
-    qDeleteAll(it->second->groups);
-    delete it->second;
     m_docsetItems.erase(it);
+    m_docsetRows.erase(m_docsetRows.begin() + row);
+    for (int i = row; i < static_cast<int>(m_docsetRows.size()); ++i) {
+        m_docsetRows[i]->row = i;
+    }
+
+    qDeleteAll(item->groups);
+    delete item;
 
     endRemoveRows();
 }
@@ -277,9 +276,7 @@ ListModel::IndexLevel ListModel::indexLevel(const QModelIndex &index)
 
 ListModel::DocsetItem *ListModel::itemInRow(int row) const
 {
-    auto it = m_docsetItems.cbegin();
-    std::advance(it, row);
-    return it->second;
+    return m_docsetRows[row];
 }
 
 } // namespace Zeal::Registry

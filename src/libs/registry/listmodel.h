@@ -9,6 +9,8 @@
 
 #include <QAbstractItemModel>
 
+#include <vector>
+
 namespace Zeal::Registry {
 
 class Docset;
@@ -63,11 +65,13 @@ private:
         const IndexLevel level = IndexLevel::Docset;
         Docset *docset = nullptr;
         QList<GroupItem *> groups;
+        int row = 0;
     };
 
     inline DocsetItem *itemInRow(int row) const;
 
     Util::CaseInsensitiveMap<DocsetItem *> m_docsetItems;
+    std::vector<DocsetItem *> m_docsetRows;
 };
 
 } // namespace Zeal::Registry
