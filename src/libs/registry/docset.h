@@ -6,12 +6,14 @@
 #define ZEAL_REGISTRY_DOCSET_H
 
 #include <QIcon>
+#include <QList>
 #include <QMap>
 #include <QMetaObject>
 #include <QMultiMap>
 #include <QUrl>
 
 #include <atomic>
+#include <utility>
 
 namespace Zeal {
 
@@ -49,7 +51,7 @@ public:
     QMap<QString, int> symbolCounts() const;
     int symbolCount(const QString &symbolType) const;
 
-    const QMultiMap<QString, QUrl> &symbols(const QString &symbolType) const;
+    const QList<std::pair<QString, QUrl>> &symbols(const QString &symbolType) const;
 
     QList<SearchResult> search(const QString &query, const std::atomic_bool &canceled) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
@@ -100,7 +102,7 @@ private:
 
     QMultiMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
-    mutable QMap<QString, QMultiMap<QString, QUrl>> m_symbols;
+    mutable QMap<QString, QList<std::pair<QString, QUrl>>> m_symbols;
     Util::SQLiteDatabase *m_db = nullptr;
 
     bool m_isFuzzySearchEnabled = false;

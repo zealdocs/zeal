@@ -90,9 +90,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         }
         case IndexLevel::Symbol: {
             auto *groupItem = static_cast<GroupItem *>(index.internalPointer());
-            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin();
-            std::advance(it, index.row());
-            return it.key();
+            return groupItem->docsetItem->docset->symbols(groupItem->symbolType).at(index.row()).first;
         }
         default:
             return QVariant();
@@ -116,9 +114,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return itemInRow(index.row())->docset->indexFileUrl();
         case IndexLevel::Symbol: {
             auto *groupItem = static_cast<GroupItem *>(index.internalPointer());
-            auto it = groupItem->docsetItem->docset->symbols(groupItem->symbolType).cbegin();
-            std::advance(it, index.row());
-            return it.value();
+            return groupItem->docsetItem->docset->symbols(groupItem->symbolType).at(index.row()).second;
         }
         default:
             return QVariant();
