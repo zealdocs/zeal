@@ -649,6 +649,14 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
             }
             break;
         }
+        case QEvent::MouseButtonDblClick: {
+            // QTabBar emits tabBarDoubleClicked for any button.
+            auto *e = static_cast<QMouseEvent *>(event);
+            if (e->button() != Qt::LeftButton) {
+                return true;
+            }
+            break;
+        }
         case QEvent::Wheel:
             // TODO: Remove in case QTBUG-8428 is fixed on all platforms
             return true;
