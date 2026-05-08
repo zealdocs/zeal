@@ -271,11 +271,8 @@ ListModel::IndexLevel ListModel::indexLevel(const QModelIndex &index)
         return IndexLevel::Docset;
     }
 
-    if (*static_cast<IndexLevel *>(index.internalPointer()) == IndexLevel::Docset) {
-        return IndexLevel::Group;
-    }
-
-    return IndexLevel::Symbol;
+    return static_cast<const ItemBase *>(index.internalPointer())->level == IndexLevel::Docset ? IndexLevel::Group
+                                                                                               : IndexLevel::Symbol;
 }
 
 ListModel::DocsetItem *ListModel::itemInRow(int row) const
