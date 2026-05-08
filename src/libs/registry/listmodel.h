@@ -53,16 +53,34 @@ private:
 
     struct DocsetItem;
 
-    struct GroupItem
+    struct ItemBase
     {
-        const IndexLevel level = IndexLevel::Group;
+        const IndexLevel level;
+
+        explicit ItemBase(IndexLevel l)
+            : level(l)
+        {
+        }
+    };
+
+    struct GroupItem : ItemBase
+    {
+        GroupItem()
+            : ItemBase(IndexLevel::Group)
+        {
+        }
+
         DocsetItem *docsetItem = nullptr;
         QString symbolType;
     };
 
-    struct DocsetItem
+    struct DocsetItem : ItemBase
     {
-        const IndexLevel level = IndexLevel::Docset;
+        DocsetItem()
+            : ItemBase(IndexLevel::Docset)
+        {
+        }
+
         Docset *docset = nullptr;
         QList<GroupItem *> groups;
         int row = 0;
