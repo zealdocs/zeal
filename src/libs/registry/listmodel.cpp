@@ -201,6 +201,10 @@ int ListModel::rowCount(const QModelIndex &parent) const
 
 void ListModel::addDocset(const QString &name)
 {
+    if (m_docsetItems.contains(name)) {
+        return;
+    }
+
     const int row = static_cast<int>(std::distance(m_docsetItems.begin(), m_docsetItems.upper_bound(name)));
     beginInsertRows(QModelIndex(), row, row);
 
