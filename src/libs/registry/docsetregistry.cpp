@@ -27,6 +27,20 @@ void MergeQueryResults(QList<SearchResult> &finalResult, const QList<SearchResul
 {
     finalResult << partial;
 }
+
+// Construct a Docset, logging and returning nullptr on any exception so the
+// caller can skip rather than propagate out of QtConcurrent or signal slots.
+Docset *constructDocset(const QString &path)
+{
+    try {
+        return new Docset(path);
+    } catch (const std::exception &e) {
+        qCWarning(log, "Failed to construct docset from '%s': %s.", qPrintable(path), e.what());
+    } catch (...) {
+        qCWarning(log, "Failed to construct docset from '%s'.", qPrintable(path));
+    }
+    return nullptr;
+}
 } // namespace
 
 DocsetRegistry::DocsetRegistry(Core::HttpServer *httpServer, QObject *parent)
@@ -108,12 +122,13 @@ QStringList DocsetRegistry::names() const
 
 void DocsetRegistry::loadDocset(const QString &path)
 {
-    std::future<Docset *> f = std::async(std::launch::async, [path]() {
-        return new Docset(path);
-    });
+    if (Docset *docset = constructDocset(path)) {
+        registerDocset(docset);
+    }
+}
 
-    f.wait();
-    Docset *docset = f.get();
+void DocsetRegistry::registerDocset(Docset *docset)
+{
     // TODO: Emit error
     if (!docset->isValid()) {
         qCWarning(log,
@@ -211,18 +226,40 @@ void DocsetRegistry::search(const QString &query)
     }, Qt::QueuedConnection);
 }
 
-// Recursively finds and adds all docsets in a given directory.
+// Recursively finds and adds all docsets in a given directory. Docset
+// constructors run in parallel (each owns its own SQLite connection); the
+// post-construction registration (HTTP mount, model insertion, signal
+// emission) runs serially on the registry thread.
 void DocsetRegistry::addDocsetsFromFolder(const QString &path)
 {
+    const QStringList docsetPaths = collectDocsetPaths(path);
+
+    if (docsetPaths.isEmpty()) {
+        return;
+    }
+
+    const QList<Docset *> docsets = QtConcurrent::blockingMapped(docsetPaths, &constructDocset);
+
+    for (Docset *docset : docsets) {
+        if (docset != nullptr) {
+            registerDocset(docset);
+        }
+    }
+}
+
+QStringList DocsetRegistry::collectDocsetPaths(const QString &path) const
+{
+    QStringList result;
     const QDir dir(path);
     const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
     for (const QFileInfo &subdir : subDirectories) {
         if (subdir.suffix() == QLatin1String("docset")) {
-            loadDocset(subdir.filePath());
+            result << subdir.filePath();
         } else {
-            addDocsetsFromFolder(subdir.filePath());
+            result << collectDocsetPaths(subdir.filePath());
         }
     }
+    return result;
 }
 
 void DocsetRegistry::runQuery(const QString &query)
