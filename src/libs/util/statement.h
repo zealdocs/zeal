@@ -39,6 +39,10 @@ private:
     QString m_lastError;
 };
 
+// Escape SQL LIKE wildcards (%, _) and the escape character itself so the
+// pattern only matches literal occurrences. Pair with `ESCAPE '\\'` in SQL.
+QString escapeLikePattern(QStringView s);
+
 } // namespace Zeal::Util
 
 #endif // ZEAL_UTIL_STATEMENT_H
