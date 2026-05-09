@@ -7,10 +7,8 @@
 
 #include <QMutex>
 #include <QStringList>
-#include <QVariant>
 
 struct sqlite3;
-struct sqlite3_stmt;
 
 namespace Zeal::Util {
 
@@ -26,12 +24,7 @@ public:
     QStringList tables();
     QStringList views();
 
-    bool prepare(const QString &sql);
-    bool next();
-
     bool execute(const QString &sql);
-
-    QVariant value(int index) const;
 
     QString lastError() const;
 
@@ -39,13 +32,10 @@ public:
 
 private:
     void close();
-    void finalize();
-    void updateLastError();
 
     mutable QMutex m_mutex;
 
     sqlite3 *m_db = nullptr;
-    sqlite3_stmt *m_stmt = nullptr;
 
     QString m_lastError;
 };

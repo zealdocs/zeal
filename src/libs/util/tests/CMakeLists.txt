@@ -5,3 +5,9 @@ add_executable(fuzzy_test fuzzy_test.cpp)
 target_link_libraries(fuzzy_test PRIVATE Util Qt6::Test)
 
 zeal_add_test(fuzzy_test)
+
+# SQLite Statement tests
+add_executable(statement_test statement_test.cpp)
+target_link_libraries(statement_test PRIVATE Util Qt6::Test)
+
+zeal_add_test(statement_test)
