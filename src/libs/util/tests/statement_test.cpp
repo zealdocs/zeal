@@ -28,6 +28,9 @@ private slots:
     void testTextWithApostrophe();
     void testEmptyTextBind();
 
+    void testEscapeLikePattern();
+    void testEscapeLikePatternIntegration();
+
 private:
     SQLiteDatabase *m_db = nullptr;
 };
@@ -163,6 +166,31 @@ void StatementTest::testEmptyTextBind()
     stmt.bindText(1, QString());
     QVERIFY(stmt.step());
     QCOMPARE(stmt.value(0).toInt(), 5);
+}
+
+void StatementTest::testEscapeLikePattern()
+{
+    QCOMPARE(escapeLikePattern(QStringLiteral("abc")), QStringLiteral("abc"));
+    QCOMPARE(escapeLikePattern(QString()), QString());
+    QCOMPARE(escapeLikePattern(QStringLiteral("100%")), QStringLiteral("100\\%"));
+    QCOMPARE(escapeLikePattern(QStringLiteral("var_name")), QStringLiteral("var\\_name"));
+    QCOMPARE(escapeLikePattern(QStringLiteral("a%b_c\\d")), QStringLiteral("a\\%b\\_c\\\\d"));
+    QCOMPARE(escapeLikePattern(QStringLiteral("%%__\\\\")), QStringLiteral("\\%\\%\\_\\_\\\\\\\\"));
+}
+
+void StatementTest::testEscapeLikePatternIntegration()
+{
+    // The escaped pattern, paired with `ESCAPE '\\'`, must match the literal
+    // string and not be treated as a wildcard.
+    QVERIFY(m_db->execute(
+        QStringLiteral("INSERT INTO t VALUES (10, '100%'), (11, '100X'), (12, 'var_name'), (13, 'varXname')")));
+
+    Statement stmt(*m_db, QStringLiteral("SELECT id FROM t WHERE name LIKE ? ESCAPE '\\' ORDER BY id"));
+    QVERIFY(stmt.isValid());
+    stmt.bindText(1, escapeLikePattern(QStringLiteral("100%")));
+    QVERIFY(stmt.step());
+    QCOMPARE(stmt.value(0).toInt(), 10);
+    QVERIFY(!stmt.step());
 }
 
 QTEST_MAIN(StatementTest)

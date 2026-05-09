@@ -118,4 +118,17 @@ QString Statement::lastError() const
     return m_lastError;
 }
 
+QString escapeLikePattern(QStringView s)
+{
+    QString out;
+    out.reserve(s.size() * 2);
+    for (QChar c : s) {
+        if (c == QLatin1Char('\\') || c == QLatin1Char('%') || c == QLatin1Char('_')) {
+            out.append(QLatin1Char('\\'));
+        }
+        out.append(c);
+    }
+    return out;
+}
+
 } // namespace Zeal::Util

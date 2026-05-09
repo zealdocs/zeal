@@ -337,26 +337,26 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
     QString sql;
     if (m_type == Docset::Type::Dash) {
         if (m_isFuzzySearchEnabled) {
-            sql = QStringLiteral("SELECT name, type, path, '', zealScore('%1', name) as score"
+            sql = QStringLiteral("SELECT name, type, path, '', zealScore(?, name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE score > 0"
                                  "  ORDER BY score DESC");
         } else {
             sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  WHERE (name LIKE ? ESCAPE '\\')"
                                  "  ORDER BY score DESC");
         }
     } else {
         if (m_isFuzzySearchEnabled) {
-            sql = QStringLiteral("SELECT name, type, path, fragment, zealScore('%1', name) as score"
+            sql = QStringLiteral("SELECT name, type, path, fragment, zealScore(?, name) as score"
                                  "  FROM searchIndex"
                                  "  WHERE score > 0"
                                  "  ORDER BY score DESC");
         } else {
             sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE '%%1%' ESCAPE '\\')"
+                                 "  WHERE (name LIKE ? ESCAPE '\\')"
                                  "  ORDER BY score DESC");
         }
     }
@@ -367,10 +367,14 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         sql += QLatin1String("  LIMIT 1000");
     }
 
-    // Make it safe to use in a SQL query.
-    QString sanitizedQuery = query;
-    sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
-    Util::Statement stmt(*m_db, sql.arg(sanitizedQuery));
+    Util::Statement stmt(*m_db, sql);
+    QString likePattern;
+    if (m_isFuzzySearchEnabled) {
+        stmt.bindText(1, query);
+    } else {
+        likePattern = QLatin1Char('%') + Util::escapeLikePattern(query) + QLatin1Char('%');
+        stmt.bindText(1, likePattern);
+    }
 
     QList<SearchResult> results;
     while (stmt.step() && !canceled.load(std::memory_order_relaxed)) {
@@ -416,16 +420,24 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     if (m_type == Docset::Type::Dash) {
         sql = QStringLiteral("SELECT name, type, path"
                              "  FROM searchIndex"
-                             "  WHERE path LIKE \"%1%%\" AND path <> \"%1\"");
+                             "  WHERE path LIKE ? ESCAPE '\\' AND path <> ?");
     } else if (m_type == Docset::Type::ZDash) {
         sql = QStringLiteral("SELECT name, type, path, fragment"
                              "  FROM searchIndex"
-                             "  WHERE path = \"%1\" AND fragment IS NOT NULL");
+                             "  WHERE path = ? AND fragment IS NOT NULL");
     }
 
     QList<SearchResult> results;
 
-    Util::Statement stmt(*m_db, sql.arg(path));
+    Util::Statement stmt(*m_db, sql);
+    if (m_type == Docset::Type::Dash) {
+        const QString likePattern = Util::escapeLikePattern(path) + QLatin1Char('%');
+        stmt.bindText(1, likePattern);
+        stmt.bindText(2, path);
+    } else if (m_type == Docset::Type::ZDash) {
+        stmt.bindText(1, path);
+    }
+
     while (stmt.step()) {
         results.append({stmt.value(0).toString(),
                         parseSymbolType(stmt.value(1).toString()),
@@ -544,16 +556,16 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
     if (m_type == Docset::Type::Dash) {
         sql = QStringLiteral("SELECT name, path"
                              "  FROM searchIndex"
-                             "  WHERE type='%1'"
+                             "  WHERE type = ?"
                              "  ORDER BY name");
     } else {
         sql = QStringLiteral("SELECT name, path, fragment"
                              "  FROM searchIndex"
-                             "  WHERE type='%1'"
+                             "  WHERE type = ?"
                              "  ORDER BY name");
     }
 
-    Util::Statement stmt(*m_db, sql.arg(symbolString));
+    Util::Statement stmt(*m_db, sql);
     if (!stmt.isValid()) {
         qCWarning(log,
                   "[%s] Cannot prepare statement to load symbols for type '%s': %s.",
@@ -562,6 +574,7 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
                   qPrintable(stmt.lastError()));
         return;
     }
+    stmt.bindText(1, symbolString);
 
     QList<std::pair<QString, QUrl>> &symbols = m_symbols[symbolType];
     while (stmt.step()) {
