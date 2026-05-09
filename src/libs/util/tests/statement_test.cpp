@@ -182,15 +182,29 @@ void StatementTest::testEscapeLikePatternIntegration()
 {
     // The escaped pattern, paired with `ESCAPE '\\'`, must match the literal
     // string and not be treated as a wildcard.
-    QVERIFY(m_db->execute(
-        QStringLiteral("INSERT INTO t VALUES (10, '100%'), (11, '100X'), (12, 'var_name'), (13, 'varXname')")));
+    QVERIFY(m_db->execute(QStringLiteral("INSERT INTO t VALUES "
+                                         "(10, '100%'), (11, '100X'), "
+                                         "(12, 'var_name'), (13, 'varXname'), "
+                                         "(14, 'a\\b'), (15, 'aXb')")));
 
-    Statement stmt(*m_db, QStringLiteral("SELECT id FROM t WHERE name LIKE ? ESCAPE '\\' ORDER BY id"));
-    QVERIFY(stmt.isValid());
-    stmt.bindText(1, escapeLikePattern(QStringLiteral("100%")));
-    QVERIFY(stmt.step());
-    QCOMPARE(stmt.value(0).toInt(), 10);
-    QVERIFY(!stmt.step());
+    auto matchedIds = [this](QStringView needle) {
+        Statement stmt(*m_db, QStringLiteral("SELECT id FROM t WHERE name LIKE ? ESCAPE '\\' ORDER BY id"));
+        QList<int> ids;
+        if (stmt.isValid()) {
+            stmt.bindText(1, escapeLikePattern(needle));
+            while (stmt.step()) {
+                ids << stmt.value(0).toInt();
+            }
+        }
+        return ids;
+    };
+
+    // % is the multi-char SQL wildcard — must be treated as literal after escape.
+    QCOMPARE(matchedIds(QStringLiteral("100%")), QList<int>{10});
+    // _ is the single-char SQL wildcard — must be treated as literal after escape.
+    QCOMPARE(matchedIds(QStringLiteral("var_name")), QList<int>{12});
+    // The escape character itself must round-trip.
+    QCOMPARE(matchedIds(QStringLiteral("a\\b")), QList<int>{14});
 }
 
 QTEST_MAIN(StatementTest)
