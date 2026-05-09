@@ -11,7 +11,6 @@ path = [
     "src/app/resources/browser/assets/css/highlight.css",
     "src/app/resources/browser/assets/css/welcome.css",
     "src/app/resources/icons/**/*",
-    "src/app/resources/zeal.*",
     "src/app/zeal.qrc",
 ]
 SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
@@ -57,3 +56,15 @@ SPDX-License-Identifier = "MIT"
 path = "src/app/resources/icons/type/*.png"
 SPDX-FileCopyrightText = "Bogdan Popescu, et al. <https://github.com/Kapeli/Dash-X-Platform-Resources>"
 SPDX-License-Identifier = "LicenseRef-Kapeli"
+
+# CC-BY-4.0 for the application brand icon assets.
+[[annotations]]
+path = [
+    "assets/freedesktop/*-apps-zeal.png",
+    "assets/freedesktop/sc-apps-zeal.svg",
+    "assets/freedesktop/sc-apps-zeal-tray.svg",
+    "src/app/resources/zeal.icns",
+    "src/app/resources/zeal.ico",
+]
+SPDX-FileCopyrightText = "Oleg Shparber <https://zealdocs.org>"
+SPDX-License-Identifier = "CC-BY-4.0"

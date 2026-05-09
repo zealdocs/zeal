@@ -6,6 +6,8 @@
 
 #include <core/application.h>
 
+#include <QIcon>
+
 namespace Zeal::WidgetUi {
 
 AboutDialog::AboutDialog(QWidget *parent)
@@ -14,6 +16,9 @@ AboutDialog::AboutDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    const QIcon logo = QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg")));
+    ui->logoLabel->setPixmap(logo.pixmap(QSize(64, 64)));
 
     ui->versionLabel->setText(Core::Application::versionString());
     ui->buttonBox->setFocus(Qt::OtherFocusReason);

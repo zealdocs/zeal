@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="geometricPrecision">
+  <title>Zeal</title>
+  <desc>Offline documentation browser — letter Z on a red rounded square.</desc>
+  <rect width="32" height="32" rx="3" ry="3" fill="#b4322b"/>
+  <g transform="translate(8.446 25.000) scale(0.02514 -0.02514)" fill="#faf4e2">
+    <path d="M58.667,0L58.667,112.667L376.833,591.167L71,591.167L71,716L534,716L534,603.333L216.333,124.833L541.333,124.833L541.333,0L58.667,0Z"/>
+  </g>
+</svg>
