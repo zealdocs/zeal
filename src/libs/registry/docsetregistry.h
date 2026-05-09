@@ -65,6 +65,8 @@ signals:
 
 private:
     void addDocsetsFromFolder(const QString &path);
+    QStringList collectDocsetPaths(const QString &path) const;
+    void registerDocset(Docset *docset);
     void runQuery(const QString &query);
 
     QAbstractItemModel *m_model = nullptr;
