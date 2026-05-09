@@ -35,6 +35,10 @@ qt_add_executable(App WIN32
 
 target_link_libraries(App PRIVATE Core Ui Util Qt6::Widgets)
 
+# Scoped here (not project-wide) so changes to the version string don't
+# invalidate compiler caches for every TU on every commit.
+target_compile_definitions(App PRIVATE ZEAL_VERSION="${ZEAL_VERSION_FULL}")
+
 set_target_properties(App PROPERTIES
     OUTPUT_NAME ${_project_output_name}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
