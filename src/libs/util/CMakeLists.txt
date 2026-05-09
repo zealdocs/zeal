@@ -3,6 +3,7 @@ add_library(Util STATIC
     humanizer.cpp
     plist.cpp
     sqlitedatabase.cpp
+    statement.cpp
 
     # Show headers without .cpp in Qt Creator.
     caseinsensitivemap.h

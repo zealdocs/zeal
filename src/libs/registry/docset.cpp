@@ -9,6 +9,7 @@
 #include <util/fuzzy.h>
 #include <util/plist.h>
 #include <util/sqlitedatabase.h>
+#include <util/statement.h>
 
 #include <QDir>
 #include <QFile>
@@ -317,14 +318,14 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
                               ? QStringLiteral("SELECT name, type, path, '' FROM searchIndex ORDER BY name LIMIT 1000")
                               : QStringLiteral(
                                     "SELECT name, type, path, fragment FROM searchIndex ORDER BY name LIMIT 1000");
-        m_db->prepare(sql);
+        Util::Statement stmt(*m_db, sql);
 
         QList<SearchResult> results;
-        while (m_db->next() && !canceled.load(std::memory_order_relaxed)) {
-            results.append({.name = m_db->value(0).toString(),
-                            .type = parseSymbolType(m_db->value(1).toString()),
-                            .urlPath = m_db->value(2).toString(),
-                            .urlFragment = m_db->value(3).toString(),
+        while (stmt.step() && !canceled.load(std::memory_order_relaxed)) {
+            results.append({.name = stmt.value(0).toString(),
+                            .type = parseSymbolType(stmt.value(1).toString()),
+                            .urlPath = stmt.value(2).toString(),
+                            .urlFragment = stmt.value(3).toString(),
                             .docset = const_cast<Docset *>(this),
                             .score = 0,
                             .matchPositions = {}});
@@ -369,17 +370,17 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
     // Make it safe to use in a SQL query.
     QString sanitizedQuery = query;
     sanitizedQuery.replace(QLatin1Char('\''), QLatin1String("''"));
-    m_db->prepare(sql.arg(sanitizedQuery));
+    Util::Statement stmt(*m_db, sql.arg(sanitizedQuery));
 
     QList<SearchResult> results;
-    while (m_db->next() && !canceled.load(std::memory_order_relaxed)) {
+    while (stmt.step() && !canceled.load(std::memory_order_relaxed)) {
         SearchResult result;
-        result.name = m_db->value(0).toString();
-        result.type = parseSymbolType(m_db->value(1).toString());
-        result.urlPath = m_db->value(2).toString();
-        result.urlFragment = m_db->value(3).toString();
+        result.name = stmt.value(0).toString();
+        result.type = parseSymbolType(stmt.value(1).toString());
+        result.urlPath = stmt.value(2).toString();
+        result.urlFragment = stmt.value(3).toString();
         result.docset = const_cast<Docset *>(this);
-        result.score = m_db->value(4).toDouble();
+        result.score = stmt.value(4).toDouble();
 
         // Compute match positions for highlighting.
         if (m_isFuzzySearchEnabled) {
@@ -424,12 +425,12 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
 
     QList<SearchResult> results;
 
-    m_db->prepare(sql.arg(path));
-    while (m_db->next()) {
-        results.append({m_db->value(0).toString(),
-                        parseSymbolType(m_db->value(1).toString()),
-                        m_db->value(2).toString(),
-                        m_db->value(3).toString(),
+    Util::Statement stmt(*m_db, sql.arg(path));
+    while (stmt.step()) {
+        results.append({stmt.value(0).toString(),
+                        parseSymbolType(stmt.value(1).toString()),
+                        stmt.value(2).toString(),
+                        stmt.value(3).toString(),
                         const_cast<Docset *>(this),
                         0,
                         {}});
@@ -501,16 +502,17 @@ void Docset::countSymbols()
     static const QString sql = QStringLiteral("SELECT type, COUNT(*)"
                                               "  FROM searchIndex"
                                               "  GROUP BY type");
-    if (!m_db->prepare(sql)) {
+    Util::Statement stmt(*m_db, sql);
+    if (!stmt.isValid()) {
         qCWarning(log,
                   "[%s] Cannot prepare statement to count symbols: %s.",
                   qPrintable(m_name),
-                  qPrintable(m_db->lastError()));
+                  qPrintable(stmt.lastError()));
         return;
     }
 
-    while (m_db->next()) {
-        const QString symbolTypeStr = m_db->value(0).toString();
+    while (stmt.step()) {
+        const QString symbolTypeStr = stmt.value(0).toString();
 
         // A workaround for https://github.com/zealdocs/zeal/issues/980.
         if (symbolTypeStr.isEmpty()) {
@@ -520,7 +522,7 @@ void Docset::countSymbols()
 
         const QString symbolType = parseSymbolType(symbolTypeStr);
         m_symbolStrings.insert(symbolType, symbolTypeStr);
-        m_symbolCounts[symbolType] += m_db->value(1).toInt();
+        m_symbolCounts[symbolType] += stmt.value(1).toInt();
     }
 }
 
@@ -551,19 +553,20 @@ void Docset::loadSymbols(const QString &symbolType, const QString &symbolString)
                              "  ORDER BY name");
     }
 
-    if (!m_db->prepare(sql.arg(symbolString))) {
+    Util::Statement stmt(*m_db, sql.arg(symbolString));
+    if (!stmt.isValid()) {
         qCWarning(log,
                   "[%s] Cannot prepare statement to load symbols for type '%s': %s.",
                   qPrintable(m_name),
                   qPrintable(symbolString),
-                  qPrintable(m_db->lastError()));
+                  qPrintable(stmt.lastError()));
         return;
     }
 
     QList<std::pair<QString, QUrl>> &symbols = m_symbols[symbolType];
-    while (m_db->next()) {
-        symbols.emplace_back(m_db->value(0).toString(),
-                             createPageUrl(m_db->value(1).toString(), m_db->value(2).toString()));
+    while (stmt.step()) {
+        symbols.emplace_back(stmt.value(0).toString(),
+                             createPageUrl(stmt.value(1).toString(), stmt.value(2).toString()));
     }
 }
 
@@ -577,12 +580,12 @@ void Docset::createIndex()
     const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex") : QStringLiteral("ztoken");
     const QString columnName = m_type == Type::Dash ? QStringLiteral("name") : QStringLiteral("ztokenname");
 
-    m_db->prepare(indexListQuery.arg(tableName));
+    Util::Statement stmt(*m_db, indexListQuery.arg(tableName));
 
     QStringList oldIndexes;
 
-    while (m_db->next()) {
-        const QString indexName = m_db->value(1).toString();
+    while (stmt.step()) {
+        const QString indexName = stmt.value(1).toString();
         if (!indexName.startsWith(IndexNamePrefix)) {
             continue;
         }

@@ -38,14 +38,15 @@ SQLiteDatabase::SQLiteDatabase(const QString &path)
     }
 
     if (sqlite3_open16(path.constData(), &m_db) != SQLITE_OK) {
-        updateLastError();
+        if (m_db != nullptr) {
+            m_lastError = QString(static_cast<const QChar *>(sqlite3_errmsg16(m_db)));
+        }
         close();
     }
 }
 
 SQLiteDatabase::~SQLiteDatabase()
 {
-    finalize();
     close();
 }
 
@@ -100,67 +101,6 @@ QStringList SQLiteDatabase::views()
     return list;
 }
 
-bool SQLiteDatabase::prepare(const QString &sql)
-{
-    QMutexLocker locker(&m_mutex);
-    if (m_db == nullptr) {
-        return false;
-    }
-
-    if (m_stmt != nullptr) {
-        finalize();
-    }
-
-    m_lastError.clear();
-
-    const void *pzTail = nullptr;
-    const int res = sqlite3_prepare16_v2(m_db,
-                                         sql.constData(),
-                                         (sql.size() + 1) * 2, // 2 = sizeof(QChar)
-                                         &m_stmt,
-                                         &pzTail);
-
-    if (res != SQLITE_OK) {
-        // "Unable to execute statement"
-        updateLastError();
-        finalize();
-        return false;
-    }
-
-    if (pzTail && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
-        // Unable to execute multiple statements at a time
-        updateLastError();
-        finalize();
-        return false;
-    }
-
-    return true;
-}
-
-bool SQLiteDatabase::next()
-{
-    QMutexLocker locker(&m_mutex);
-    if (m_stmt == nullptr) {
-        return false;
-    }
-
-    const int res = sqlite3_step(m_stmt);
-
-    switch (res) {
-    case SQLITE_ROW:
-        return true;
-    case SQLITE_DONE:
-    case SQLITE_CONSTRAINT:
-    case SQLITE_ERROR:
-    case SQLITE_MISUSE:
-    case SQLITE_BUSY:
-    default:
-        updateLastError();
-    }
-
-    return false;
-}
-
 bool SQLiteDatabase::execute(const QString &sql)
 {
     QMutexLocker locker(&m_mutex);
@@ -184,29 +124,6 @@ bool SQLiteDatabase::execute(const QString &sql)
     return true;
 }
 
-QVariant SQLiteDatabase::value(int index) const
-{
-    QMutexLocker locker(&m_mutex);
-    Q_ASSERT(index >= 0);
-
-    // sqlite3_data_count() returns 0 if m_stmt is nullptr.
-    if (index >= sqlite3_data_count(m_stmt)) {
-        return QVariant();
-    }
-
-    const int type = sqlite3_column_type(m_stmt, index);
-
-    switch (type) {
-    case SQLITE_INTEGER:
-        return sqlite3_column_int64(m_stmt, index);
-    case SQLITE_NULL:
-        return QVariant();
-    default:
-        return QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
-                       sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
-    }
-}
-
 QString SQLiteDatabase::lastError() const
 {
     // QString is not thread-safe for concurrent read+write.
@@ -218,21 +135,6 @@ void SQLiteDatabase::close()
 {
     sqlite3_close(m_db);
     m_db = nullptr;
-}
-
-void SQLiteDatabase::finalize()
-{
-    sqlite3_finalize(m_stmt);
-    m_stmt = nullptr;
-}
-
-void SQLiteDatabase::updateLastError()
-{
-    if (m_db == nullptr) {
-        return;
-    }
-
-    m_lastError = QString(static_cast<const QChar *>(sqlite3_errmsg16(m_db)));
 }
 
 sqlite3 *SQLiteDatabase::handle() const
