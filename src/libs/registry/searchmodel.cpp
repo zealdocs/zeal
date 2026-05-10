@@ -39,16 +39,16 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         return item->name;
 
     case Qt::DecorationRole:
-        return item->docset->symbolTypeIcon(item->type);
+        return Docset::symbolTypeIcon(item->type);
 
     case ItemDataRole::DocsetIconRole:
-        return item->docset->icon();
+        return item->docsetIcon;
 
     case ItemDataRole::MatchPositionsRole:
         return QVariant::fromValue(item->matchPositions);
 
     case ItemDataRole::UrlRole:
-        return item->docset->searchResultUrl(*item);
+        return item->url;
 
     default:
         return QVariant();
@@ -94,7 +94,7 @@ void SearchModel::removeSearchResultWithName(const QString &name)
 
     int rowNum = 0;
     while (iterator.hasNext()) {
-        if (iterator.next().docset->name() == name) {
+        if (iterator.next().docsetName == name) {
             beginRemoveRows(QModelIndex(), rowNum, rowNum);
             iterator.remove();
             rowNum -= 1;

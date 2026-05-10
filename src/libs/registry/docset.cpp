@@ -278,7 +278,7 @@ QIcon Docset::icon() const
     return m_icon;
 }
 
-QIcon Docset::symbolTypeIcon(const QString &symbolType) const
+QIcon Docset::symbolTypeIcon(const QString &symbolType)
 {
     static const QIcon unknownIcon(QStringLiteral("typeIcon:Unknown.png"));
 
@@ -323,9 +323,9 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         while (stmt.step() && !canceled.load(std::memory_order_relaxed)) {
             results.append({.name = stmt.value(0).toString(),
                             .type = parseSymbolType(stmt.value(1).toString()),
-                            .urlPath = stmt.value(2).toString(),
-                            .urlFragment = stmt.value(3).toString(),
-                            .docset = const_cast<Docset *>(this),
+                            .url = createPageUrl(stmt.value(2).toString(), stmt.value(3).toString()),
+                            .docsetName = m_name,
+                            .docsetIcon = m_icon,
                             .score = 0,
                             .matchPositions = {}});
         }
@@ -380,9 +380,9 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         SearchResult result;
         result.name = stmt.value(0).toString();
         result.type = parseSymbolType(stmt.value(1).toString());
-        result.urlPath = stmt.value(2).toString();
-        result.urlFragment = stmt.value(3).toString();
-        result.docset = const_cast<Docset *>(this);
+        result.url = createPageUrl(stmt.value(2).toString(), stmt.value(3).toString());
+        result.docsetName = m_name;
+        result.docsetIcon = m_icon;
         result.score = stmt.value(4).toDouble();
 
         // Compute match positions for highlighting.
@@ -438,13 +438,13 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     }
 
     while (stmt.step()) {
-        results.append({stmt.value(0).toString(),
-                        parseSymbolType(stmt.value(1).toString()),
-                        stmt.value(2).toString(),
-                        stmt.value(3).toString(),
-                        const_cast<Docset *>(this),
-                        0,
-                        {}});
+        results.append({.name = stmt.value(0).toString(),
+                        .type = parseSymbolType(stmt.value(1).toString()),
+                        .url = createPageUrl(stmt.value(2).toString(), stmt.value(3).toString()),
+                        .docsetName = m_name,
+                        .docsetIcon = m_icon,
+                        .score = 0,
+                        .matchPositions = {}});
     }
 
     if (results.size() == 1) {
@@ -452,11 +452,6 @@ QList<SearchResult> Docset::relatedLinks(const QUrl &url) const
     }
 
     return results;
-}
-
-QUrl Docset::searchResultUrl(const SearchResult &result) const
-{
-    return createPageUrl(result.urlPath, result.urlFragment);
 }
 
 void Docset::loadMetadata()
