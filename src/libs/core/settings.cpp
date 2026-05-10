@@ -355,10 +355,6 @@ void Settings::save()
 
     settings->sync();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    applyColorScheme();
-#endif
-
     emit updated();
 }
 
