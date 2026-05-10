@@ -13,7 +13,7 @@
     <owners>trollixx</owners>
     <licenseUrl>https://www.gnu.org/licenses/gpl-3.0.html</licenseUrl>
     <projectUrl>https://zealdocs.org/</projectUrl>
-    <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.0.0/src/app/resources/icons/logo/128x128.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.0.0/assets/freedesktop/128-apps-zeal.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description><![CDATA[Zeal is an offline documentation browser inspired by [Dash](https://kapeli.com/dash/).
 

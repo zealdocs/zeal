@@ -1,4 +1,4 @@
-find_package(Qt6 6.4.2 COMPONENTS Concurrent WebEngineWidgets Widgets REQUIRED)
+find_package(Qt6 6.4.2 COMPONENTS Concurrent Svg WebEngineWidgets Widgets REQUIRED)
 
 # Define output binary name.
 if(APPLE)
@@ -33,7 +33,7 @@ qt_add_executable(App WIN32
     ${App_RESOURCES}
 )
 
-target_link_libraries(App PRIVATE Core Ui Util Qt6::Widgets)
+target_link_libraries(App PRIVATE Core Ui Util Qt6::Svg Qt6::Widgets)
 
 # Scoped here (not project-wide) so changes to the version string don't
 # invalidate compiler caches for every TU on every commit.

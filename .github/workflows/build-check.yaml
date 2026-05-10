@@ -26,6 +26,7 @@ jobs:
             qt_packages: >-
               libgl1-mesa-dev
               libqt6opengl6-dev
+              libqt6svg6-dev
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
@@ -36,6 +37,7 @@ jobs:
             qt_packages: >-
               libgl1-mesa-dev
               libqt6opengl6-dev
+              libqt6svg6-dev
               qt6-base-private-dev
               qt6-webengine-dev
               qt6-webengine-dev-tools
@@ -239,6 +241,7 @@ jobs:
             libfuse2t64 \
             libgl1-mesa-dev \
             libqt6opengl6-dev \
+            libqt6svg6-dev \
             libsqlite3-dev \
             libvulkan-dev \
             libxcb-keysyms1-dev \

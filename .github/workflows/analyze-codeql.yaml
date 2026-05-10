@@ -40,6 +40,7 @@ jobs:
           libarchive-dev \
           libgl1-mesa-dev \
           libqt6opengl6-dev \
+          libqt6svg6-dev \
           libsqlite3-dev \
           libvulkan-dev \
           libxcb-keysyms1-dev \

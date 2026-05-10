@@ -13,8 +13,13 @@ if(UNIX AND NOT APPLE)
     ecm_install_icons(ICONS "16-apps-zeal.png"
                             "24-apps-zeal.png"
                             "32-apps-zeal.png"
+                            "48-apps-zeal.png"
                             "64-apps-zeal.png"
                             "128-apps-zeal.png"
+                            "256-apps-zeal.png"
+                            "512-apps-zeal.png"
+                            "sc-apps-zeal.svg"
+                            "sc-apps-zeal-tray.svg"
                       DESTINATION ${KDE_INSTALL_ICONDIR}
     )
 

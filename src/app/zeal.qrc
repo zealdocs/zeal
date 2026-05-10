@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="zeal.ico">resources/zeal.ico</file>
+        <file alias="zeal.svg">../../assets/freedesktop/sc-apps-zeal.svg</file>
+        <file alias="zeal-tray.svg">../../assets/freedesktop/sc-apps-zeal-tray.svg</file>
     </qresource>
     <qresource prefix="/browser">
         <file alias="404.html">resources/browser/404.html</file>
@@ -264,11 +265,5 @@
         <file alias="Widget@2x.png">resources/icons/type/Widget@2x.png</file>
         <file alias="Word.png">resources/icons/type/Word.png</file>
         <file alias="Word@2x.png">resources/icons/type/Word@2x.png</file>
-    </qresource>
-    <qresource prefix="/icons/logo">
-        <file alias="64x64.png">resources/icons/logo/64x64.png</file>
-        <file alias="128x128.png">resources/icons/logo/128x128.png</file>
-        <file alias="icon.png">resources/icons/logo/icon.png</file>
-        <file alias="icon@2x.png">resources/icons/logo/icon@2x.png</file>
     </qresource>
 </RCC>

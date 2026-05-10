@@ -130,7 +130,18 @@ void WindowManager::createTrayIcon()
     }
 
     m_trayIcon = new QSystemTrayIcon(this);
-    m_trayIcon->setIcon(QIcon::fromTheme(QStringLiteral("zeal-tray"), qApp->windowIcon()));
+#if defined(Q_OS_MACOS)
+    // macOS menu-bar items render as template images: monochrome silhouettes
+    // tinted by the system to match light/dark mode and the active accent.
+    QIcon trayIcon(QStringLiteral(":/zeal-tray.svg"));
+    trayIcon.setIsMask(true);
+#elif defined(Q_OS_WIN)
+    // Windows tray takes the icon as-is — reuse the full-color window icon.
+    QIcon trayIcon = qApp->windowIcon();
+#else
+    QIcon trayIcon = QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
+#endif
+    m_trayIcon->setIcon(trayIcon);
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
     connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {

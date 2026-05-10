@@ -237,7 +237,7 @@ void BrowserTab::search(const Registry::SearchQuery &query)
 QIcon BrowserTab::docsetIcon(const QUrl &url) const
 {
     Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
-    return docset ? docset->icon() : QIcon(QStringLiteral(":/icons/logo/icon.png"));
+    return docset ? docset->icon() : QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg")));
 }
 
 } // namespace Zeal::WidgetUi
