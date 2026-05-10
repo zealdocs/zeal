@@ -2,7 +2,7 @@
 // Copyright (C) 2016 Jerzy Kozera
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "sqlitedatabase.h"
+#include "database.h"
 
 #include <QMutexLocker>
 
@@ -31,7 +31,7 @@ auto ListCallback = [](void *ptr, int, char **data, char **) {
 };
 } // namespace
 
-SQLiteDatabase::SQLiteDatabase(const QString &path)
+Database::Database(const QString &path)
 {
     if (sqlite3_initialize() != SQLITE_OK) {
         return;
@@ -45,17 +45,17 @@ SQLiteDatabase::SQLiteDatabase(const QString &path)
     }
 }
 
-SQLiteDatabase::~SQLiteDatabase()
+Database::~Database()
 {
     close();
 }
 
-bool SQLiteDatabase::isOpen() const
+bool Database::isOpen() const
 {
     return m_db != nullptr;
 }
 
-QStringList SQLiteDatabase::tables()
+QStringList Database::tables()
 {
     QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
@@ -78,7 +78,7 @@ QStringList SQLiteDatabase::tables()
     return list;
 }
 
-QStringList SQLiteDatabase::views()
+QStringList Database::views()
 {
     QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
@@ -101,7 +101,7 @@ QStringList SQLiteDatabase::views()
     return list;
 }
 
-bool SQLiteDatabase::execute(const QString &sql)
+bool Database::execute(const QString &sql)
 {
     QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
@@ -124,20 +124,20 @@ bool SQLiteDatabase::execute(const QString &sql)
     return true;
 }
 
-QString SQLiteDatabase::lastError() const
+QString Database::lastError() const
 {
     // QString is not thread-safe for concurrent read+write.
     QMutexLocker locker(&m_mutex);
     return m_lastError;
 }
 
-void SQLiteDatabase::close()
+void Database::close()
 {
     sqlite3_close(m_db);
     m_db = nullptr;
 }
 
-sqlite3 *SQLiteDatabase::handle() const
+sqlite3 *Database::handle() const
 {
     return m_db;
 }

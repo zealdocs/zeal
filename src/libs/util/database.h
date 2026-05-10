@@ -2,8 +2,8 @@
 // Copyright (C) 2016 Jerzy Kozera
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#ifndef ZEAL_UTIL_SQLITEDATABASE_H
-#define ZEAL_UTIL_SQLITEDATABASE_H
+#ifndef ZEAL_UTIL_DATABASE_H
+#define ZEAL_UTIL_DATABASE_H
 
 #include <QMutex>
 #include <QStringList>
@@ -12,12 +12,12 @@ struct sqlite3;
 
 namespace Zeal::Util {
 
-class SQLiteDatabase
+class Database
 {
-    Q_DISABLE_COPY_MOVE(SQLiteDatabase)
+    Q_DISABLE_COPY_MOVE(Database)
 public:
-    explicit SQLiteDatabase(const QString &path);
-    virtual ~SQLiteDatabase();
+    explicit Database(const QString &path);
+    virtual ~Database();
 
     bool isOpen() const;
 
@@ -42,4 +42,4 @@ private:
 
 } // namespace Zeal::Util
 
-#endif // ZEAL_UTIL_SQLITEDATABASE_H
+#endif // ZEAL_UTIL_DATABASE_H

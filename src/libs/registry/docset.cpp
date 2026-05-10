@@ -6,9 +6,9 @@
 
 #include "searchresult.h"
 
+#include <util/database.h>
 #include <util/fuzzy.h>
 #include <util/plist.h>
-#include <util/sqlitedatabase.h>
 #include <util/statement.h>
 
 #include <QDir>
@@ -129,7 +129,7 @@ Docset::Docset(QString path)
         return;
     }
 
-    m_db = new Util::SQLiteDatabase(dir.filePath(QStringLiteral("docSet.dsidx")));
+    m_db = new Util::Database(dir.filePath(QStringLiteral("docSet.dsidx")));
 
     if (!m_db->isOpen()) {
         qCWarning(log, "[%s] Cannot open database: %s.", qPrintable(m_name), qPrintable(m_db->lastError()));
