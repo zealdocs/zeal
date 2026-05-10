@@ -36,7 +36,7 @@ SearchQuery SearchQuery::fromString(const QString &str)
         query = str.trimmed();
     }
 
-    return SearchQuery(query, keywords);
+    return SearchQuery(std::move(query), keywords);
 }
 
 QString SearchQuery::toString() const
