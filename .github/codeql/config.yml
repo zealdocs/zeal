@@ -1,0 +1,7 @@
+name: Zeal CodeQL Configuration
+
+paths-ignore:
+  - src/contrib
+
+packs:
+  - codeql/cpp-queries:codeql-suites/cpp-security-experimental.qls
