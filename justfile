@@ -4,25 +4,29 @@
 
 set shell := ["bash", "-cu"]
 set windows-shell := ["sh", "-cu"]
+set positional-arguments
+
+# Default build preset; override with `just preset=name <recipe>`.
+preset := env_var_or_default("PRESET", "dev")
 
 [private]
 default:
     @just --list
 
-# Configure a build directory using a preset.
+# Configure a build directory using the current preset.
 [group('dev')]
-configure preset="dev":
+configure:
     cmake --preset {{preset}}
 
-# Build using a preset.
+# Build using the current preset.
 [group('dev')]
-build preset="dev":
+build:
     cmake --build --preset {{preset}}
 
-# Build and launch Zeal.
+# Build and launch Zeal. All arguments are forwarded to zeal verbatim.
 [group('dev')]
-run preset="dev" *args: (build preset)
-    ./build/{{preset}}/zeal {{args}}
+run *args: build
+    ./build/{{preset}}/zeal "$@"
 
 # Configure, build, and run the test suite.
 [group('dev')]
