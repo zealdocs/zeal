@@ -106,14 +106,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      # TODO: Find a way to include compiler version in the cache key so that
-      # runner image updates don't require manual cache deletion.
+      - name: Detect compiler version
+        id: compiler-version
+        shell: pwsh
+        run: |
+          if ($IsWindows) {
+              $msvc = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*" `
+                  -Directory | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
+              "version=$($msvc.Name)" >> $env:GITHUB_OUTPUT
+          } else {
+              "version=n/a" >> $env:GITHUB_OUTPUT
+          }
+
       - name: Restore vcpkg binary cache
         uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/.vcpkg-cache
-          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ hashFiles('vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-
+          key: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ steps.compiler-version.outputs.version }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.config.os }}-${{ matrix.config.buildPreset }}-${{ steps.compiler-version.outputs.version }}-
 
       - name: Prepare vcpkg
         uses: lukka/run-vcpkg@v11
