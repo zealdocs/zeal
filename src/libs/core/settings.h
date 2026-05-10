@@ -120,6 +120,10 @@ public:
 
     static ColorScheme colorScheme();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    void applyColorScheme();
+#endif
+
 public slots:
     void load();
     void save();
@@ -129,9 +133,6 @@ signals:
 
 private:
     void migrate(QSettings *settings) const;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    void applyColorScheme();
-#endif
 
     static QSettings *qsettings(QObject *parent = nullptr);
 };
