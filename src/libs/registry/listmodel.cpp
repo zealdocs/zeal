@@ -61,7 +61,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return itemInRow(index.row())->docset->icon();
         case IndexLevel::Group: {
             auto *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
-            const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
+            const QString &symbolType = docsetItem->groups.at(index.row())->symbolType;
             return docsetItem->docset->symbolTypeIcon(symbolType);
         }
         case IndexLevel::Symbol: {
@@ -84,7 +84,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             }
         case IndexLevel::Group: {
             auto *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
-            const QString symbolType = docsetItem->groups.at(index.row())->symbolType;
+            const QString &symbolType = docsetItem->groups.at(index.row())->symbolType;
             return QStringLiteral("%1 (%2)").arg(pluralize(symbolType),
                                                  QString::number(docsetItem->docset->symbolCount(symbolType)));
         }
