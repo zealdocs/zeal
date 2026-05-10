@@ -192,26 +192,25 @@ Docset::Docset(QString path)
 
     m_keywords.removeDuplicates();
 
-    // Determine index page. This is ridiculous.
-    const QString mdIndexFilePath = m_indexFilePath; // Save path from the metadata.
+    // Determine index page: prefer docset's plist, then metadata, then index.html.
+    QString indexFilePath;
 
-    // Prefer index path provided by the docset.
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
-        const QString indexFilePath = plist[InfoPlist::DashIndexFilePath].toString();
-        if (dir.exists(indexFilePath)) {
-            m_indexFilePath = indexFilePath;
+        const QString candidate = plist[InfoPlist::DashIndexFilePath].toString();
+        if (dir.exists(candidate)) {
+            indexFilePath = candidate;
         }
     }
 
-    // Check the metadata.
-    if (m_indexFilePath.isEmpty() && !mdIndexFilePath.isEmpty() && dir.exists(mdIndexFilePath)) {
-        m_indexFilePath = mdIndexFilePath;
+    if (indexFilePath.isEmpty() && !m_indexFilePath.isEmpty() && dir.exists(m_indexFilePath)) {
+        indexFilePath = m_indexFilePath;
     }
 
-    // What if there is index.html.
-    if (m_indexFilePath.isEmpty() && dir.exists(QStringLiteral("index.html"))) {
-        m_indexFilePath = QStringLiteral("index.html");
+    if (indexFilePath.isEmpty() && dir.exists(QStringLiteral("index.html"))) {
+        indexFilePath = QStringLiteral("index.html");
     }
+
+    m_indexFilePath = indexFilePath;
 
     // Log if unable to determine the index page. Otherwise the path will be set in setBaseUrl().
     if (m_indexFilePath.isEmpty()) {
