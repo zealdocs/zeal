@@ -133,7 +133,10 @@ QString Database::lastError() const
 
 void Database::close()
 {
-    sqlite3_close(m_db);
+    // Use the _v2 variant so that any prepared statements still alive at
+    // shutdown defer the actual deallocation instead of returning SQLITE_BUSY
+    // and leaking the connection.
+    sqlite3_close_v2(m_db);
     m_db = nullptr;
 }
 
