@@ -229,7 +229,7 @@
           <item>
            <widget class="QCheckBox" name="fuzzySearchCheckBox">
             <property name="text">
-             <string>Use fuzzy search (experimental)</string>
+             <string>Use fuzzy search</string>
             </property>
            </widget>
           </item>

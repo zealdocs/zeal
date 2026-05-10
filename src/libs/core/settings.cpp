@@ -160,7 +160,7 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupSearch);
-    isFuzzySearchEnabled = settings->value(QStringLiteral("fuzzy_search_enabled"), false).toBool();
+    isFuzzySearchEnabled = settings->value(QStringLiteral("fuzzy_search_enabled"), true).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupContent);
