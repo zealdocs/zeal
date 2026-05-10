@@ -1,8 +1,8 @@
 add_library(Util STATIC
+    database.cpp
     fuzzy.cpp
     humanizer.cpp
     plist.cpp
-    sqlitedatabase.cpp
     statement.cpp
 
     # Show headers without .cpp in Qt Creator.

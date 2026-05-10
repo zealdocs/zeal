@@ -12,15 +12,15 @@ struct sqlite3_stmt;
 
 namespace Zeal::Util {
 
-class SQLiteDatabase;
+class Database;
 
 // Short-lived RAII wrapper around sqlite3_stmt. Owned by the caller; the
-// underlying sqlite3 connection in SQLiteDatabase is shared.
+// underlying sqlite3 connection in Database is shared.
 class Statement
 {
     Q_DISABLE_COPY_MOVE(Statement)
 public:
-    Statement(SQLiteDatabase &db, const QString &sql);
+    Statement(Database &db, const QString &sql);
     ~Statement();
 
     bool isValid() const;

@@ -18,7 +18,7 @@
 namespace Zeal {
 
 namespace Util {
-class SQLiteDatabase;
+class Database;
 } // namespace Util
 
 namespace Registry {
@@ -103,7 +103,7 @@ private:
     QMultiMap<QString, QString> m_symbolStrings;
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QList<std::pair<QString, QUrl>>> m_symbols;
-    Util::SQLiteDatabase *m_db = nullptr;
+    Util::Database *m_db = nullptr;
 
     bool m_isFuzzySearchEnabled = false;
     bool m_isJavaScriptEnabled = false;

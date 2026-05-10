@@ -1,7 +1,7 @@
 // Copyright (C) Oleg Shparber, et al. <https://zealdocs.org>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "../sqlitedatabase.h"
+#include "../database.h"
 #include "../statement.h"
 
 #include <QtTest>
@@ -32,12 +32,12 @@ private slots:
     void testEscapeLikePatternIntegration();
 
 private:
-    SQLiteDatabase *m_db = nullptr;
+    Database *m_db = nullptr;
 };
 
 void StatementTest::initTestCase()
 {
-    m_db = new SQLiteDatabase(QStringLiteral(":memory:"));
+    m_db = new Database(QStringLiteral(":memory:"));
     QVERIFY(m_db->isOpen());
 }
 
@@ -64,7 +64,7 @@ void StatementTest::testRejectsMultipleStatements()
 
 void StatementTest::testStatementOnUnopenedDatabase()
 {
-    SQLiteDatabase bad(QStringLiteral("/non/existent/path/does/not/exist.db"));
+    Database bad(QStringLiteral("/non/existent/path/does/not/exist.db"));
     QVERIFY(!bad.isOpen());
     Statement stmt(bad, QStringLiteral("SELECT 1"));
     QVERIFY(!stmt.isValid());

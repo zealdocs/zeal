@@ -3,13 +3,13 @@
 
 #include "statement.h"
 
-#include "sqlitedatabase.h"
+#include "database.h"
 
 #include <sqlite3.h>
 
 namespace Zeal::Util {
 
-Statement::Statement(SQLiteDatabase &db, const QString &sql)
+Statement::Statement(Database &db, const QString &sql)
 {
     sqlite3 *const handle = db.handle();
     if (handle == nullptr) {
