@@ -61,7 +61,7 @@ signals:
     void docsetLoaded(const QString &name);
     void docsetAboutToBeUnloaded(const QString &name);
     void docsetUnloaded(const QString &name);
-    void searchCompleted(const QList<SearchResult> &results);
+    void searchCompleted(const QList<Zeal::Registry::SearchResult> &results);
 
 private:
     void addDocsetsFromFolder(const QString &path);
