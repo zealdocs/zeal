@@ -358,7 +358,7 @@ void MainWindow::setupMainMenu()
 
         m_menuBar->setFocus();
         if (!m_menuBar->actions().isEmpty()) {
-            m_menuBar->setActiveAction(m_menuBar->actions().first());
+            m_menuBar->setActiveAction(m_menuBar->actions().constFirst());
         }
     });
 
