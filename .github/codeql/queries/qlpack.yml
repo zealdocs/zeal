@@ -1,0 +1,5 @@
+name: zealdocs/cpp-zeal-custom
+version: 0.0.1
+library: false
+dependencies:
+  codeql/cpp-all: "*"

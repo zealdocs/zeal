@@ -33,7 +33,7 @@ jobs:
       with:
         languages: c-cpp
         build-mode: manual
-        queries: security-and-quality
+        queries: security-and-quality,./.github/codeql/queries
         config-file: .github/codeql/config.yml
         trap-caching: true
         dependency-caching: true
