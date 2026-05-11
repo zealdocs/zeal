@@ -256,14 +256,6 @@ bool QxtGlobalShortcut::isEnabled() const
     return d->enabled;
 }
 
-/*!
- * \brief QxtGlobalShortcut::isSupported checks if the current platform is supported.
- */
-bool QxtGlobalShortcut::isSupported()
-{
-    return QxtGlobalShortcutPrivate::isSupported();
-}
-
 void QxtGlobalShortcut::setEnabled(bool enabled)
 {
     Q_D(QxtGlobalShortcut);
@@ -282,4 +274,12 @@ void QxtGlobalShortcut::setEnabled(bool enabled)
     } else {
         d->nativeUnregister();
     }
+}
+
+/*!
+ * \brief QxtGlobalShortcut::isSupported checks if the current platform is supported.
+ */
+bool QxtGlobalShortcut::isSupported()
+{
+    return QxtGlobalShortcutPrivate::isSupported();
 }
