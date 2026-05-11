@@ -1,7 +1,7 @@
 name: Zeal CodeQL Configuration
 
-paths-ignore:
-  - src/contrib
+# paths-ignore is not honored for compiled C/C++ — filtering happens in the
+# workflow via advanced-security/filter-sarif after analysis.
 
 packs:
   - codeql/cpp-queries:codeql-suites/cpp-security-experimental.qls
