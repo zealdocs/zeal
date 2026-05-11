@@ -5,3 +5,11 @@ name: Zeal CodeQL Configuration
 
 packs:
   - codeql/cpp-queries:codeql-suites/cpp-security-experimental.qls
+
+# The upstream cpp/use-after-expired-lifetime rule misclassifies most Qt value
+# types (QModelIndex, QString, etc.) as LifetimePointerType because they contain
+# private d-pointer fields. We disable it and ship a patched copy in
+# .github/codeql/queries/ that tightens the type classification.
+query-filters:
+  - exclude:
+      id: cpp/use-after-expired-lifetime
