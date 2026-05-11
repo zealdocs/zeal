@@ -30,8 +30,10 @@ namespace Zeal::Registry {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.registry.docset")
 
-constexpr char IndexNamePrefix[] = "__zi_name"; // zi - Zeal index
-constexpr char IndexNameVersion[] = "0001";     // Current index version
+using Qt::Literals::StringLiterals::operator""_L1;
+
+constexpr auto IndexNamePrefix = "__zi_name"_L1; // zi - Zeal index
+constexpr auto IndexNameVersion = "0001"_L1;     // Current index version
 
 constexpr char NotFoundPageUrl[] = "qrc:///browser/404.html";
 
@@ -610,7 +612,7 @@ void Docset::createIndex()
         m_db->execute(indexDropQuery.arg(oldIndexName));
     }
 
-    m_db->execute(indexCreateQuery.arg(IndexNamePrefix).arg(IndexNameVersion).arg(tableName).arg(columnName));
+    m_db->execute(indexCreateQuery.arg(IndexNamePrefix, IndexNameVersion, tableName, columnName));
 }
 
 void Docset::createView()
