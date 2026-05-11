@@ -156,8 +156,9 @@ QString HttpServer::resolvePathCaseInsensitive(const QString &root, const QStrin
 
 QString HttpServer::sanitizePrefix(const QString &prefix)
 {
+    static const QRegularExpression invalidChars(QStringLiteral("[^a-zA-Z0-9-_]"));
     QString pfx = (prefix.startsWith(QLatin1String("/")) ? prefix.mid(1) : prefix).toLower();
-    pfx.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9-_]")), QStringLiteral("_"));
+    pfx.replace(invalidChars, QStringLiteral("_"));
     pfx.prepend(QLatin1Char('/'));
 
     return pfx;
