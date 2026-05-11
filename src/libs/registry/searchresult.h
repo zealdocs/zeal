@@ -5,23 +5,22 @@
 #ifndef ZEAL_REGISTRY_SEARCHRESULT_H
 #define ZEAL_REGISTRY_SEARCHRESULT_H
 
+#include <QIcon>
 #include <QList>
 #include <QString>
 #include <QUrl>
 
 namespace Zeal::Registry {
 
-class Docset;
-
 struct SearchResult
 {
     QString name;
     QString type;
 
-    QString urlPath;
-    QString urlFragment;
+    QUrl url;
 
-    Docset *docset;
+    QString docsetName;
+    QIcon docsetIcon;
 
     double score;
     QList<int> matchPositions;

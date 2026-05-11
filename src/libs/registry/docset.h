@@ -45,7 +45,7 @@ public:
     QString path() const;
     QString documentPath() const;
     QIcon icon() const;
-    QIcon symbolTypeIcon(const QString &symbolType) const;
+    static QIcon symbolTypeIcon(const QString &symbolType);
     QUrl indexFileUrl() const;
 
     QMap<QString, int> symbolCounts() const;
@@ -55,9 +55,6 @@ public:
 
     QList<SearchResult> search(const QString &query, const std::atomic_bool &canceled) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
-
-    // FIXME: This a temporary solution to create URL on demand.
-    QUrl searchResultUrl(const SearchResult &result) const;
 
     // FIXME: This is an ugly workaround before we have a proper docset sources implementation
     bool hasUpdate = false;
