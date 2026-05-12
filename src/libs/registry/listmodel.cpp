@@ -95,19 +95,13 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-    case Qt::ToolTipRole:
-        if (index.column() != SectionIndex::Name) {
+    case Qt::ToolTipRole: {
+        if (index.column() != SectionIndex::Name || indexLevel(index) != IndexLevel::Docset) {
             return QVariant();
         }
-
-        switch (indexLevel(index)) {
-        case IndexLevel::Docset: {
-            auto *const docset = itemInRow(index.row())->docset;
-            return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
-        }
-        default:
-            return QVariant();
-        }
+        auto *const docset = itemInRow(index.row())->docset;
+        return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
+    }
     case ItemDataRole::UrlRole:
         switch (indexLevel(index)) {
         case IndexLevel::Docset:

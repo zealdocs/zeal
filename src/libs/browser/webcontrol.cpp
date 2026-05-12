@@ -168,13 +168,10 @@ QByteArray WebControl::saveHistory() const
 
 void WebControl::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->key()) {
-    case Qt::Key_Slash:
+    if (event->key() == Qt::Key_Slash) {
         activateSearchBar();
-        break;
-    default:
+    } else {
         event->ignore();
-        break;
     }
 }
 
