@@ -28,27 +28,27 @@ bool SearchModel::isEmpty() const
 
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid()) {
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_dataList.count()) {
         return QVariant();
     }
 
-    auto *item = static_cast<SearchResult *>(index.internalPointer());
+    const SearchResult &item = m_dataList.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
-        return item->name;
+        return item.name;
 
     case Qt::DecorationRole:
-        return Docset::symbolTypeIcon(item->type);
+        return Docset::symbolTypeIcon(item.type);
 
     case ItemDataRole::DocsetIconRole:
-        return item->docsetIcon;
+        return item.docsetIcon;
 
     case ItemDataRole::MatchPositionsRole:
-        return QVariant::fromValue(item->matchPositions);
+        return QVariant::fromValue(item.matchPositions);
 
     case ItemDataRole::UrlRole:
-        return item->url;
+        return item.url;
 
     default:
         return QVariant();
@@ -61,9 +61,7 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
         return {};
     }
 
-    // FIXME: const_cast
-    auto *item = const_cast<SearchResult *>(&m_dataList.at(row));
-    return createIndex(row, column, item);
+    return createIndex(row, column);
 }
 
 int SearchModel::rowCount(const QModelIndex &parent) const
