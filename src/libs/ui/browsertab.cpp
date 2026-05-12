@@ -73,8 +73,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         QList<QWebEngineHistoryItem> items = history->backItems(10);
         for (auto it = items.crbegin(); it != items.crend(); ++it) {
             const QIcon icon = docsetIcon(it->url());
-            const QWebEngineHistoryItem &item = *it;
-            backMenu->addAction(icon, it->title(), this, [history, item](bool) {
+            backMenu->addAction(icon, it->title(), this, [history, item = *it](bool) {
                 history->goToItem(item);
             });
         }
