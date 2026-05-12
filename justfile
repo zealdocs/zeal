@@ -45,6 +45,11 @@ format *args:
 lint *args: configure
     pwsh tools/run-clang-tidy.ps1 {{args}}
 
+# Run clazy Qt-aware checks (use -Fix to apply, -Staged for staged files only, -Check <name> for a single check or level).
+[group('dev')]
+clazy *args: configure
+    pwsh tools/run-clazy.ps1 {{args}}
+
 # Remove all build directories.
 [group('dev')]
 clean:
