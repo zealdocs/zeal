@@ -88,6 +88,7 @@ private:
 
     void loadUserFeedList();
     void downloadDocsetList();
+    void processDocsetListReply(QNetworkReply *reply);
     void processDocsetList(const QJsonArray &list);
     void updateDocsetListDownloadTimeLabel(const QDateTime &modifiedTime);
 

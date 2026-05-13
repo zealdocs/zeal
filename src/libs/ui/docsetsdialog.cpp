@@ -276,40 +276,9 @@ void DocsetsDialog::downloadCompleted()
     }
 
     switch (reply->property(DownloadTypeProperty).toUInt()) {
-    case DownloadType::DownloadDocsetList: {
-        const QByteArray replyData = reply->readAll();
-
-        QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
-        if (file->open(QIODevice::WriteOnly)) {
-            file->write(replyData);
-            file->close(); // Flush to ensure timestamp update on all systems.
-        }
-
-        updateDocsetListDownloadTimeLabel(QFileInfo(file->fileName()).lastModified());
-
-        QJsonParseError jsonError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(replyData, &jsonError);
-
-        if (jsonError.error != QJsonParseError::NoError) {
-            qCWarning(log,
-                      "Failed to parse docset list JSON at offset %lld: %s.",
-                      static_cast<long long>(jsonError.offset),
-                      qPrintable(jsonError.errorString()));
-            const QMessageBox::StandardButton rc = QMessageBox::warning(this,
-                                                                        QStringLiteral("Zeal"),
-                                                                        tr("Server returned a corrupted docset list."),
-                                                                        QMessageBox::Retry | QMessageBox::Cancel);
-
-            if (rc == QMessageBox::Retry) {
-                downloadDocsetList();
-            }
-
-            break;
-        }
-
-        processDocsetList(jsonDoc.array());
+    case DownloadType::DownloadDocsetList:
+        processDocsetListReply(reply.data());
         break;
-    }
 
     case DownloadType::DownloadDashFeed: {
         Registry::DocsetMetadata metadata = Registry::DocsetMetadata::fromDashFeed(reply->request().url(),
@@ -738,6 +707,40 @@ void DocsetsDialog::downloadDocsetList()
 
     QNetworkReply *reply = download(QUrl(ApiServerUrl + QLatin1String("/docsets")));
     reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDocsetList);
+}
+
+void DocsetsDialog::processDocsetListReply(QNetworkReply *reply)
+{
+    const QByteArray replyData = reply->readAll();
+
+    QJsonParseError jsonError;
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(replyData, &jsonError);
+
+    if (jsonError.error != QJsonParseError::NoError) {
+        qCWarning(log,
+                  "Failed to parse docset list JSON at offset %lld: %s.",
+                  static_cast<long long>(jsonError.offset),
+                  qPrintable(jsonError.errorString()));
+        const QMessageBox::StandardButton rc = QMessageBox::warning(this,
+                                                                    QStringLiteral("Zeal"),
+                                                                    tr("Server returned a corrupted docset list."),
+                                                                    QMessageBox::Retry | QMessageBox::Cancel);
+
+        if (rc == QMessageBox::Retry) {
+            downloadDocsetList();
+        }
+
+        return;
+    }
+
+    QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
+    if (file->open(QIODevice::WriteOnly)) {
+        file->write(replyData);
+        file->close(); // Flush to ensure timestamp update on all systems.
+        updateDocsetListDownloadTimeLabel(QFileInfo(file->fileName()).lastModified());
+    }
+
+    processDocsetList(jsonDoc.array());
 }
 
 void DocsetsDialog::processDocsetList(const QJsonArray &list)
