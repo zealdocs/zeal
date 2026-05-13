@@ -25,6 +25,7 @@ protected:
                                   const QString &sourceId) override;
 
 private:
+    static bool promptForExternalLink(const QUrl &requestUrl);
     void applyBackgroundColor();
 };
 

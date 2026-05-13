@@ -23,6 +23,13 @@ namespace Zeal::Browser {
 
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.browser.webpage")
+
+void openInSystemBrowser(const QUrl &requestUrl)
+{
+    if (!QDesktopServices::openUrl(requestUrl)) {
+        qCWarning(log, "Failed to open external URL in system browser: '%s'.", qPrintable(requestUrl.toString()));
+    }
+}
 } // namespace
 
 WebPage::WebPage(QObject *parent)
@@ -62,60 +69,70 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
 
     auto *appSettings = Core::Application::instance()->settings();
 
-    // TODO: [C++20] using enum Core::Settings::ExternalLinkPolicy;
-    typedef Core::Settings::ExternalLinkPolicy ExternalLinkPolicy;
+    using ExternalLinkPolicy = Core::Settings::ExternalLinkPolicy;
 
     switch (appSettings->externalLinkPolicy) {
     case ExternalLinkPolicy::Open:
         return true;
-    case ExternalLinkPolicy::Ask: {
-        QMessageBox mb;
-        mb.setIcon(QMessageBox::Question);
-        mb.setText(tr("How do you want to open the external link?<br>URL: <b>%1</b>").arg(requestUrl.toString()));
-
-        auto *checkBox = new QCheckBox("Do &not ask again");
-        mb.setCheckBox(checkBox);
-
-        QPushButton *openInBrowserButton = mb.addButton(tr("Open in &Desktop Browser"), QMessageBox::ActionRole);
-        QPushButton *openInZealButton = mb.addButton(tr("Open in &Zeal"), QMessageBox::ActionRole);
-        mb.addButton(QMessageBox::Cancel);
-
-        mb.setDefaultButton(openInBrowserButton);
-
-        if (mb.exec() == QMessageBox::Cancel) {
-            qCDebug(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
-            return false;
-        }
-
-        if (mb.clickedButton() == openInZealButton) {
-            if (checkBox->isChecked()) {
-                appSettings->externalLinkPolicy = ExternalLinkPolicy::Open;
-                appSettings->save();
-            }
-
-            return true;
-        }
-
-        if (mb.clickedButton() == openInBrowserButton) {
-            if (checkBox->isChecked()) {
-                appSettings->externalLinkPolicy = ExternalLinkPolicy::OpenInSystemBrowser;
-                appSettings->save();
-            }
-
-            QDesktopServices::openUrl(requestUrl);
-            return false;
-        }
-
-        break;
-    }
+    case ExternalLinkPolicy::Ask:
+        return promptForExternalLink(requestUrl);
     case ExternalLinkPolicy::OpenInSystemBrowser:
-        QDesktopServices::openUrl(requestUrl);
+        openInSystemBrowser(requestUrl);
         return false;
     }
 
     // This code should not be reachable so log a warning.
     qCWarning(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
 
+    return false;
+}
+
+bool WebPage::promptForExternalLink(const QUrl &requestUrl)
+{
+    auto *appSettings = Core::Application::instance()->settings();
+
+    using ExternalLinkPolicy = Core::Settings::ExternalLinkPolicy;
+
+    QMessageBox mb;
+    mb.setIcon(QMessageBox::Question);
+    mb.setText(
+        tr("How do you want to open the external link?<br>URL: <b>%1</b>").arg(requestUrl.toString().toHtmlEscaped()));
+
+    auto *checkBox = new QCheckBox(tr("Do &not ask again"));
+    mb.setCheckBox(checkBox);
+
+    QPushButton *openInBrowserButton = mb.addButton(tr("Open in &Desktop Browser"), QMessageBox::ActionRole);
+    QPushButton *openInZealButton = mb.addButton(tr("Open in &Zeal"), QMessageBox::ActionRole);
+    mb.addButton(QMessageBox::Cancel);
+
+    mb.setDefaultButton(openInBrowserButton);
+
+    if (mb.exec() == QMessageBox::Cancel) {
+        qCDebug(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
+        return false;
+    }
+
+    if (mb.clickedButton() == openInZealButton) {
+        if (checkBox->isChecked()) {
+            appSettings->externalLinkPolicy = ExternalLinkPolicy::Open;
+            appSettings->save();
+        }
+
+        return true;
+    }
+
+    if (mb.clickedButton() == openInBrowserButton) {
+        if (checkBox->isChecked()) {
+            appSettings->externalLinkPolicy = ExternalLinkPolicy::OpenInSystemBrowser;
+            appSettings->save();
+        }
+
+        openInSystemBrowser(requestUrl);
+        return false;
+    }
+
+    // Dialog dismissed without a button click.
+    qCWarning(log, "Blocked request to '%s'.", qPrintable(requestUrl.toString()));
     return false;
 }
 
