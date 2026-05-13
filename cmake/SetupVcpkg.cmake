@@ -6,10 +6,37 @@
 #
 
 function(setup_vcpkg)
-    # Auto-detect vcpkg if available.
-    if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
-        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-        message(NOTICE "Using vcpkg from $ENV{VCPKG_ROOT}")
+    # Auto-detect vcpkg if not already configured.
+    if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+        set(_vcpkg_root "")
+        if(DEFINED ENV{VCPKG_ROOT})
+            if(EXISTS "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+                set(_vcpkg_root "$ENV{VCPKG_ROOT}")
+            else()
+                message(WARNING
+                    "VCPKG_ROOT is set to '$ENV{VCPKG_ROOT}' but does not contain a valid"
+                    " vcpkg checkout (scripts/buildsystems/vcpkg.cmake is missing); ignoring."
+                )
+            endif()
+        elseif(WIN32)
+            # PATH fallback only on Windows, where vcpkg is the canonical dep source.
+            # Other platforms use the system package manager and must not silently
+            # engage vcpkg via a stray binary on PATH.
+            # Resolve symlinks so e.g. /usr/local/bin/vcpkg -> /opt/vcpkg/vcpkg yields
+            # /opt/vcpkg rather than /usr/local/bin.
+            find_program(VCPKG_EXECUTABLE vcpkg)
+            if(VCPKG_EXECUTABLE)
+                get_filename_component(_vcpkg_real "${VCPKG_EXECUTABLE}" REALPATH)
+                get_filename_component(_candidate "${_vcpkg_real}" DIRECTORY)
+                if(EXISTS "${_candidate}/scripts/buildsystems/vcpkg.cmake")
+                    set(_vcpkg_root "${_candidate}")
+                endif()
+            endif()
+        endif()
+        if(_vcpkg_root)
+            set(CMAKE_TOOLCHAIN_FILE "${_vcpkg_root}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+            message(NOTICE "Using vcpkg from ${_vcpkg_root}")
+        endif()
     endif()
 
     if(NOT CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg")
