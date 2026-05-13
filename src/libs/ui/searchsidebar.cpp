@@ -322,12 +322,12 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         if (isMiddleClick || isCtrlClick) {
             const QModelIndex index = m_treeView->indexAt(e->position().toPoint());
             if (!index.isValid()) {
-                return false;
+                return Sidebar::View::eventFilter(object, event);
             }
 
             const QVariant url = index.data(Registry::ItemDataRole::UrlRole);
             if (url.isNull()) {
-                return false;
+                return Sidebar::View::eventFilter(object, event);
             }
 
             const bool activate = e->modifiers().testFlag(Qt::ShiftModifier);
