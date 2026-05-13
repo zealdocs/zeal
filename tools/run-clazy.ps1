@@ -40,7 +40,7 @@ if (-not (Get-Command clazy-standalone -ErrorAction SilentlyContinue)) {
 $checks = if ($Check) { $Check } else { "level1" }
 # -Wno-error keeps project -Werror flags from aborting a TU before clazy can
 # report all findings (e.g., Qt 6.4 QT_REQUIRE_VERSION trips -Wdeprecated-declarations).
-$clazyArgs = @("-p", $buildDir, "--checks=$checks", "--header-filter=.*[/\\]src[/\\].*", "--extra-arg=-Wno-error")
+$clazyArgs = @("-p", $buildDir, "--checks=$checks", "--header-filter=.*[/\\]src[/\\].*", "--ignore-dirs=.*[/\\]src[/\\]contrib[/\\].*", "--extra-arg=-Wno-error")
 
 $fixesDir = $null
 if ($Fix) {
