@@ -9,6 +9,9 @@ set positional-arguments
 # Default build preset; override with `just preset=name <recipe>`.
 preset := env_var_or_default("PRESET", "dev")
 
+# OS-specific preset selector for the build-time profiler.
+timetrace_preset := if os() == "windows" { "timetrace-windows" } else { "timetrace-unix" }
+
 [private]
 default:
     @just --list
@@ -49,6 +52,20 @@ lint *args: configure
 [group('dev')]
 clazy *args: configure
     pwsh tools/run-clazy.ps1 {{args}}
+
+# Profile build time with -ftime-trace and emit a ClangBuildAnalyzer report.
+# Requires Clang (clang-cl on Windows) and ClangBuildAnalyzer on PATH.
+[group('dev')]
+analyze-build-time:
+    cmake --preset {{timetrace_preset}}
+    cmake --build --preset {{timetrace_preset}}
+    ClangBuildAnalyzer --all build/{{timetrace_preset}} build/{{timetrace_preset}}/cba.bin
+    ClangBuildAnalyzer --analyze build/{{timetrace_preset}}/cba.bin
+
+# Re-emit the ClangBuildAnalyzer report from an existing timetrace build.
+[group('dev')]
+analyze-build-time-report:
+    ClangBuildAnalyzer --analyze build/{{timetrace_preset}}/cba.bin
 
 # Remove all build directories.
 [group('dev')]
