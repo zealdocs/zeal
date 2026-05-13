@@ -398,8 +398,8 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     const QString docsetPath = dataDir.filePath(docsetName + QLatin1String(".docset"));
 
     // Write metadata about docset
-    Registry::DocsetMetadata metadata = m_availableDocsets.count(docsetName) ? m_availableDocsets[docsetName]
-                                                                             : m_userFeeds[docsetName];
+    Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName) ? m_availableDocsets[docsetName]
+                                                                                : m_userFeeds[docsetName];
     metadata.save(docsetPath, metadata.latestVersion());
 
     m_docsetRegistry->loadDocset(docsetPath);
@@ -800,7 +800,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
     const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
 
-    if (m_availableDocsets.count(name) == 0 && !m_userFeeds.contains(name)) {
+    if (!m_availableDocsets.contains(name) && !m_userFeeds.contains(name)) {
         return;
     }
 
