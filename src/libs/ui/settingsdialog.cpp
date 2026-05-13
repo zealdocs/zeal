@@ -66,9 +66,6 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     QWebEngineSettings *webSettings = Browser::Settings::defaultProfile()->settings();
 
-    // Avoid casting in each connect.
-    auto currentIndexChangedSignal = static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
-
     auto syncStandardFont = [this, webSettings](QWebEngineSettings::FontFamily fontFamily, const QFont &font) {
         const int index = ui->defaultFontComboBox->currentIndex();
         if (BasicFontFamilies[index] == fontFamily) {
@@ -76,7 +73,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         }
     };
 
-    connect(ui->defaultFontComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
+    connect(ui->defaultFontComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
         const QString fontFamily = webSettings->fontFamily(BasicFontFamilies[index]);
         webSettings->setFontFamily(QWebEngineSettings::StandardFont, fontFamily);
     });
@@ -103,13 +100,13 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         syncStandardFont(QWebEngineSettings::FixedFont, font);
     });
 
-    connect(ui->fontSizeComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
+    connect(ui->fontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
         webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, AvailableFontSizes[index]);
     });
-    connect(ui->fixedFontSizeComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
+    connect(ui->fixedFontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
         webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, AvailableFontSizes[index]);
     });
-    connect(ui->minFontSizeComboBox, currentIndexChangedSignal, this, [webSettings](int index) {
+    connect(ui->minFontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
         const int fontSize = index == 0 ? 0 : AvailableFontSizes[index - 1];
         webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, fontSize);
     });
