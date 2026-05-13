@@ -72,6 +72,34 @@
     {
       "name": "testing",
       "inherits": ["debug", "config-testing"]
+    },
+    {
+      "name": "timetrace-windows",
+      "inherits": ["release"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_CXX_FLAGS": "/clang:-ftime-trace /EHsc"
+      }
+    },
+    {
+      "name": "timetrace-unix",
+      "inherits": ["release"],
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-ftime-trace"
+      }
     }
   ],
   "buildPresets": [
@@ -102,6 +130,14 @@
     {
       "name": "testing",
       "configurePreset": "testing"
+    },
+    {
+      "name": "timetrace-windows",
+      "configurePreset": "timetrace-windows"
+    },
+    {
+      "name": "timetrace-unix",
+      "configurePreset": "timetrace-unix"
     }
   ],
   "testPresets": [
