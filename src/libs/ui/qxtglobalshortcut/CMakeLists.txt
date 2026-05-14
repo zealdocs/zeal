@@ -32,6 +32,8 @@ add_library(QxtGlobalShortcut STATIC ${QxtGlobalShortcut_SOURCES})
 find_package(Qt6 COMPONENTS Gui REQUIRED)
 target_link_libraries(QxtGlobalShortcut PRIVATE Qt6::Gui)
 
+zeal_attach_qt_pch(QxtGlobalShortcut <QKeySequence>)
+
 if(APPLE)
     find_library(CARBON_LIBRARY Carbon)
     target_link_libraries(QxtGlobalShortcut PRIVATE ${CARBON_LIBRARY})

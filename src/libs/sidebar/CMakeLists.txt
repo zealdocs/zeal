@@ -7,3 +7,5 @@ add_library(Sidebar STATIC
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 target_link_libraries(Sidebar PRIVATE Qt6::Widgets)
+
+zeal_attach_qt_pch(Sidebar <QWidget>)

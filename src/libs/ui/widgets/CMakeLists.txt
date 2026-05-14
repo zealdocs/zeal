@@ -8,3 +8,5 @@ add_library(Widgets STATIC
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 target_link_libraries(Widgets PRIVATE Qt6::Widgets)
+
+zeal_attach_qt_pch(Widgets <QWidget>)
