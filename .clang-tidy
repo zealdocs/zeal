@@ -1,21 +1,33 @@
 ---
 HeaderFilterRegex: 'src/(?!contrib/).*'
+# Skip CMake autogen output (AUTOUIC/AUTOMOC/AUTORCC headers under build/).
+ExcludeHeaderFilterRegex: '.*_autogen[/\\].*'
+# TODO: Reevaluate -modernize-use-nodiscard.
 Checks: >
   *,
   -abseil-*,
   -altera-*,
   -android-*,
+  -bugprone-easily-swappable-parameters,
+  -concurrency-mt-unsafe,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-prefer-member-initializer,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
   -fuchsia-*,
   -google-*,
   google-build-using-namespace,
   -linuxkernel-*,
+  -llvm-prefer-static-over-anonymous-namespace,
   -llvmlibc-*,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -cppcoreguidelines-owning-memory,
-  -bugprone-easily-swappable-parameters,
-  -concurrency-mt-unsafe,
-  -cppcoreguidelines-prefer-member-initializer,
+  -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
-  -readability-identifier-length,
+  -performance-enum-size,
   -readability-function-cognitive-complexity,
+  -readability-identifier-length,
   -readability-magic-numbers,
+CheckOptions:
+  cppcoreguidelines-pro-bounds-avoid-unchecked-container-access.ExcludeClasses: >-
+    ::std::map;::std::unordered_map;::std::flat_map;
+    ::QJsonObject;::QMap;::QHash;::QMultiMap;::QMultiHash;
+    ::QVariantMap;::QVariantHash

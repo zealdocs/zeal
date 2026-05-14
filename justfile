@@ -44,13 +44,14 @@ format *args:
     pwsh tools/run-clang-format.ps1 {{args}}
 
 # Run clang-tidy (use -Fix to apply, -Staged for staged files only, -Check <name> for a single check).
+# Depends on `build` (not just `configure`) so AUTOUIC/AUTOMOC/AUTORCC outputs exist.
 [group('dev')]
-lint *args: configure
+lint *args: build
     pwsh tools/run-clang-tidy.ps1 {{args}}
 
 # Run clazy Qt-aware checks (use -Fix to apply, -Staged for staged files only, -Check <name> for a single check or level).
 [group('dev')]
-clazy *args: configure
+clazy *args: build
     pwsh tools/run-clazy.ps1 {{args}}
 
 # Profile build time with -ftime-trace and emit a ClangBuildAnalyzer report.
@@ -67,10 +68,10 @@ analyze-build-time:
 analyze-build-time-report:
     ClangBuildAnalyzer --analyze build/{{timetrace_preset}}/cba.bin
 
-# Remove all build directories.
+# Invoke the preset's clean target (removes built artifacts, keeps CMake cache).
 [group('dev')]
 clean:
-    rm -rf build
+    cmake --build --preset {{preset}} --target clean
 
 # Generate release notes for the given version, insert the corresponding
 # <release> entry into the appdata, and bump CMakeLists.txt versions.
