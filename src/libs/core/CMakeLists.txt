@@ -18,6 +18,8 @@ target_link_libraries(Core PRIVATE
     Qt6::Widgets
 )
 
+zeal_attach_qt_pch(Core <QDir>)
+
 find_package(LibArchive QUIET)
 if(NOT LibArchive_FOUND)
     find_path(LibArchive_INCLUDE_DIRS archive.h

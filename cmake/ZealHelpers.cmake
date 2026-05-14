@@ -20,3 +20,10 @@ function(zeal_add_test test_name)
         )
     endif()
 endfunction()
+
+# Attach the project's standard Qt precompiled-header set to a target. Every
+# target receives <QObject> and <QString>; additional headers may be passed as
+# extra arguments (e.g. zeal_attach_qt_pch(Ui <QDialog> <QWidget>)).
+function(zeal_attach_qt_pch target)
+    target_precompile_headers(${target} PRIVATE <QObject> <QString> ${ARGN})
+endfunction()

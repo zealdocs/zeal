@@ -35,6 +35,8 @@ qt_add_executable(App WIN32
 
 target_link_libraries(App PRIVATE Core Ui Util Qt6::Svg Qt6::Widgets)
 
+zeal_attach_qt_pch(App <QWidget>)
+
 # Scoped here (not project-wide) so changes to the version string don't
 # invalidate compiler caches for every TU on every commit.
 target_compile_definitions(App PRIVATE ZEAL_VERSION="${ZEAL_VERSION_FULL}")

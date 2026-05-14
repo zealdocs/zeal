@@ -10,3 +10,5 @@ add_library(Browser STATIC
 
 find_package(Qt6 COMPONENTS WebChannel WebEngineWidgets REQUIRED)
 target_link_libraries(Browser PRIVATE Qt6::WebChannel Qt6::WebEngineWidgets)
+
+zeal_attach_qt_pch(Browser <QWidget>)

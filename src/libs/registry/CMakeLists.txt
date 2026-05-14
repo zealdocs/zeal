@@ -18,3 +18,5 @@ target_link_libraries(Registry PRIVATE
     Qt6::Gui
     Qt6::Network
 )
+
+zeal_attach_qt_pch(Registry <QIcon>)

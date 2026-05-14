@@ -12,6 +12,8 @@ add_library(Util STATIC
 find_package(Qt6 COMPONENTS Core REQUIRED)
 target_link_libraries(Util PRIVATE Qt6::Core)
 
+zeal_attach_qt_pch(Util)
+
 find_package(SQLite3 REQUIRED)
 if(NOT TARGET SQLite3::SQLite3)
     add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
