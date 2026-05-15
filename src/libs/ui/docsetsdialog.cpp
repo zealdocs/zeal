@@ -240,7 +240,7 @@ void DocsetsDialog::downloadSelectedDocsets()
 */
 void DocsetsDialog::downloadCompleted()
 {
-    QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
+    const QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
 
     m_replies.removeOne(reply.data());
 
@@ -456,14 +456,14 @@ void DocsetsDialog::loadDocsetList()
         return;
     }
 
-    QScopedPointer<QFile> file(new QFile(fi.filePath()));
-    if (!file->open(QIODevice::ReadOnly)) {
+    QFile file(fi.filePath());
+    if (!file.open(QIODevice::ReadOnly)) {
         downloadDocsetList();
         return;
     }
 
     QJsonParseError jsonError;
-    const QJsonDocument jsonDoc = QJsonDocument::fromJson(file->readAll(), &jsonError);
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll(), &jsonError);
 
     if (jsonError.error != QJsonParseError::NoError) {
         downloadDocsetList();
@@ -733,11 +733,11 @@ void DocsetsDialog::processDocsetListReply(QNetworkReply *reply)
         return;
     }
 
-    QScopedPointer<QFile> file(new QFile(cacheLocation(DocsetListCacheFileName)));
-    if (file->open(QIODevice::WriteOnly)) {
-        file->write(replyData);
-        file->close(); // Flush to ensure timestamp update on all systems.
-        updateDocsetListDownloadTimeLabel(QFileInfo(file->fileName()).lastModified());
+    QFile file(cacheLocation(DocsetListCacheFileName));
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(replyData);
+        file.close(); // Flush to ensure timestamp update on all systems.
+        updateDocsetListDownloadTimeLabel(QFileInfo(file.fileName()).lastModified());
     }
 
     processDocsetList(jsonDoc.array());

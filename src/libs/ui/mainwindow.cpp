@@ -30,7 +30,6 @@
 #include <QKeyEvent>
 #include <QMenuBar>
 #include <QMouseEvent>
-#include <QScopedPointer>
 #include <QShortcut>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -320,8 +319,8 @@ void MainWindow::setupMainMenu()
             m_globalShortcut->setEnabled(false);
         }
 
-        QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
-        dialog->exec();
+        SettingsDialog dialog(this);
+        dialog.exec();
 
         if (m_globalShortcut) {
             m_globalShortcut->setEnabled(true);
@@ -420,8 +419,8 @@ void MainWindow::setupMainMenu()
 
     // -> Docsets Action.
     m_showDocsetManagerAction = menu->addAction(tr("&Docsets…"), this, [this]() {
-        QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
-        dialog->exec();
+        DocsetsDialog dialog(m_application, this);
+        dialog.exec();
     });
 
     // Help Menu.
@@ -441,8 +440,8 @@ void MainWindow::setupMainMenu()
 
     // -> About Action.
     action = menu->addAction(QIcon::fromTheme(QStringLiteral("help-about")), tr("&About Zeal"), this, [this]() {
-        QScopedPointer<AboutDialog> dialog(new AboutDialog(this));
-        dialog->exec();
+        AboutDialog dialog(this);
+        dialog.exec();
     });
     addAction(action);
     action->setMenuRole(QAction::AboutRole);

@@ -15,14 +15,14 @@ Q_LOGGING_CATEGORY(log, "zeal.util.plist")
 
 bool Plist::read(const QString &fileName)
 {
-    QScopedPointer<QFile> file(new QFile(fileName));
-    if (!file->open(QIODevice::ReadOnly)) {
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
         qCWarning(log, "Cannot open plist file '%s'.", qPrintable(fileName));
         m_hasError = true;
         return false;
     }
 
-    QXmlStreamReader xml(file.data());
+    QXmlStreamReader xml(&file);
 
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();

@@ -76,8 +76,8 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
         // See: https://github.com/zealdocs/zeal/issues/1393
         QDir().mkpath(QFileInfo(filePath).absolutePath());
 
-        QScopedPointer<QFile> file(new QFile(filePath));
-        if (!file->open(QIODevice::WriteOnly)) {
+        QFile file(filePath);
+        if (!file.open(QIODevice::WriteOnly)) {
             qCWarning(log, "Cannot open file for writing at '%s'.", qPrintable(pathname));
             continue;
         }
@@ -100,7 +100,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
                 return;
             }
 
-            file->write(static_cast<const char *>(buffer), size);
+            file.write(static_cast<const char *>(buffer), size);
         }
 
         emitProgress(info);

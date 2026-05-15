@@ -136,7 +136,7 @@ bool ApplicationSingleton::sendMessage(QByteArray &data, int timeout)
         return false;
     }
 
-    QScopedPointer<QLocalSocket, QScopedPointerDeleteLater> socket(new QLocalSocket);
+    const QScopedPointer<QLocalSocket, QScopedPointerDeleteLater> socket(new QLocalSocket);
     socket->connectToServer(m_id);
     if (!socket->waitForConnected(timeout)) {
         qCWarning(log) << "Cannot connect to the local service:" << socket->errorString();

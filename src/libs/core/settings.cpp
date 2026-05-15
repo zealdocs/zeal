@@ -129,9 +129,9 @@ Settings::ColorScheme Settings::colorScheme()
 
 void Settings::load()
 {
-    QScopedPointer<QSettings> settings(qsettings());
+    auto settings = qsettings();
     qCDebug(log, "Using settings file: %s", qPrintable(settings->fileName()));
-    migrate(settings.data());
+    migrate(settings.get());
 
     // TODO: Put everything in groups
     startMinimized = settings->value(QStringLiteral("start_minimized"), false).toBool();
@@ -288,7 +288,7 @@ void Settings::load()
 
 void Settings::save()
 {
-    QScopedPointer<QSettings> settings(qsettings());
+    auto settings = qsettings();
 
     // TODO: Put everything in groups
     settings->setValue(QStringLiteral("start_minimized"), startMinimized);
@@ -412,14 +412,13 @@ void Settings::migrate(QSettings *settings) const
  * QSettings is initialized according to build options, e.g. standard vs portable.
  * Caller is responsible for deleting the returned object.
  */
-QSettings *Settings::qsettings(QObject *parent)
+std::unique_ptr<QSettings> Settings::qsettings()
 {
 #ifndef PORTABLE_BUILD
-    return new QSettings(parent);
+    return std::make_unique<QSettings>();
 #else
-    return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
-                         QSettings::IniFormat,
-                         parent);
+    return std::make_unique<QSettings>(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
+                                       QSettings::IniFormat);
 #endif
 }
 
