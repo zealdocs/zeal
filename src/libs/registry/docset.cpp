@@ -465,13 +465,13 @@ void Docset::loadMetadata()
         return;
     }
 
-    QScopedPointer<QFile> file(new QFile(dir.filePath(QStringLiteral("meta.json"))));
-    if (!file->open(QIODevice::ReadOnly)) {
+    QFile file(dir.filePath(QStringLiteral("meta.json")));
+    if (!file.open(QIODevice::ReadOnly)) {
         return;
     }
 
     QJsonParseError jsonError;
-    const QJsonObject jsonObject = QJsonDocument::fromJson(file->readAll(), &jsonError).object();
+    const QJsonObject jsonObject = QJsonDocument::fromJson(file.readAll(), &jsonError).object();
 
     if (jsonError.error != QJsonParseError::NoError) {
         return;

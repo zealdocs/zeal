@@ -8,6 +8,8 @@
 #include <QKeySequence>
 #include <QObject>
 
+#include <memory>
+
 class QSettings;
 
 namespace Zeal::Core {
@@ -134,7 +136,7 @@ signals:
 private:
     void migrate(QSettings *settings) const;
 
-    static QSettings *qsettings(QObject *parent = nullptr);
+    static std::unique_ptr<QSettings> qsettings();
 };
 
 } // namespace Zeal::Core

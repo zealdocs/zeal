@@ -101,21 +101,21 @@ void DocsetListItemDelegate::paintProgressBar(QPainter *painter,
     styleOption.rect.setRight(styleOption.rect.right() - ProgressBarWidth);
 
     // Size progress bar
-    QScopedPointer<QProgressBar> renderer(new QProgressBar());
-    renderer->resize(ProgressBarWidth, styleOption.rect.height());
-    renderer->setRange(0, 100);
-    renderer->setValue(value);
+    QProgressBar renderer;
+    renderer.resize(ProgressBarWidth, styleOption.rect.height());
+    renderer.setRange(0, 100);
+    renderer.setValue(value);
 
     const QString format = index.model()->data(index, FormatRole).toString();
     if (!format.isEmpty()) {
-        renderer->setFormat(format);
+        renderer.setFormat(format);
     }
 
     painter->save();
 
     // Paint progress bar
     painter->translate(styleOption.rect.topRight());
-    renderer->render(painter);
+    renderer.render(painter);
 
     painter->restore();
 

@@ -157,27 +157,27 @@ void registerProtocolHandler(const QString &scheme, const QString &description)
     const QString appPath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
     const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes\\") + scheme;
 
-    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+    QSettings registry(regPath, QSettings::NativeFormat);
 
-    reg->setValue(QStringLiteral("Default"), description);
-    reg->setValue(QStringLiteral("URL Protocol"), QString());
+    registry.setValue(QStringLiteral("Default"), description);
+    registry.setValue(QStringLiteral("URL Protocol"), QString());
 
-    reg->beginGroup(QStringLiteral("DefaultIcon"));
-    reg->setValue(QStringLiteral("Default"), QString("%1,1").arg(appPath));
-    reg->endGroup();
+    registry.beginGroup(QStringLiteral("DefaultIcon"));
+    registry.setValue(QStringLiteral("Default"), QString("%1,1").arg(appPath));
+    registry.endGroup();
 
-    reg->beginGroup(QStringLiteral("shell"));
-    reg->beginGroup(QStringLiteral("open"));
-    reg->beginGroup(QStringLiteral("command"));
-    reg->setValue(QStringLiteral("Default"), QVariant(appPath + QLatin1String(" %1")));
+    registry.beginGroup(QStringLiteral("shell"));
+    registry.beginGroup(QStringLiteral("open"));
+    registry.beginGroup(QStringLiteral("command"));
+    registry.setValue(QStringLiteral("Default"), QVariant(appPath + QLatin1String(" %1")));
 }
 
 void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool force = false)
 {
     const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
-    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+    const QSettings registry(regPath, QSettings::NativeFormat);
 
-    const QStringList groups = reg->childGroups();
+    const QStringList groups = registry.childGroups();
     for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
         if (force || !groups.contains(it.key())) {
             registerProtocolHandler(it.key(), it.value());
@@ -188,10 +188,10 @@ void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool for
 void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
 {
     const QString regPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Classes");
-    QScopedPointer<QSettings> reg(new QSettings(regPath, QSettings::NativeFormat));
+    QSettings registry(regPath, QSettings::NativeFormat);
 
     for (auto it = protocols.cbegin(); it != protocols.cend(); ++it) {
-        reg->remove(it.key());
+        registry.remove(it.key());
     }
 }
 #endif
@@ -211,10 +211,10 @@ int main(int argc, char *argv[])
     // Handle --version before creating QApplication to avoid
     // initializing the platform/graphics stack just to print a version string.
     {
-        QCoreApplication coreApp(argc, argv);
+        const QCoreApplication coreApp(argc, argv);
         QCommandLineParser parser;
         parser.addVersionOption();
-        parser.parse(coreApp.arguments());
+        parser.parse(QCoreApplication::arguments());
         if (parser.isSet(QStringLiteral("version"))) {
             parser.showVersion();
         }
@@ -230,16 +230,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    QScopedPointer<QApplication> qapp(new QApplication(argc, argv));
+    QApplication qapp(argc, argv);
 
 #if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     DarkModeEraseFilter darkModeEraseFilter;
-    if (qapp->styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
-        qapp->installNativeEventFilter(&darkModeEraseFilter);
+    if (QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+        qapp.installNativeEventFilter(&darkModeEraseFilter);
     }
 #endif
 
-    const CommandLineParameters clParams = parseCommandLine(qapp->arguments());
+    const CommandLineParameters clParams = parseCommandLine(QApplication::arguments());
 
 #ifdef Q_OS_WINDOWS
     const static QHash<QString, QString> protocols = {{QStringLiteral("dash"),
@@ -268,20 +268,20 @@ int main(int argc, char *argv[])
 #endif // Q_OS_WINDOWS
 
     using Zeal::Core::ApplicationSingleton;
-    QScopedPointer<ApplicationSingleton> appSingleton(new ApplicationSingleton());
-    if (appSingleton->state() == ApplicationSingleton::State::Failed) {
+    ApplicationSingleton appSingleton;
+    if (appSingleton.state() == ApplicationSingleton::State::Failed) {
         QTextStream(stderr) << "Failed to initialize application singleton." << '\n';
         return EXIT_FAILURE;
     }
 
-    if (appSingleton->state() == ApplicationSingleton::State::Secondary) {
+    if (appSingleton.state() == ApplicationSingleton::State::Secondary) {
 #ifdef Q_OS_WINDOWS
-        ::AllowSetForegroundWindow(appSingleton->primaryPid());
+        ::AllowSetForegroundWindow(appSingleton.primaryPid());
 #endif
         QByteArray ba;
         QDataStream out(&ba, QIODevice::WriteOnly);
         out << clParams.query << clParams.preventActivation;
-        if (!appSingleton->sendMessage(ba)) {
+        if (!appSingleton.sendMessage(ba)) {
             QTextStream(stderr) << "Failed to send query to the primary instance." << '\n';
             return EXIT_FAILURE;
         }
@@ -289,37 +289,34 @@ int main(int argc, char *argv[])
     }
 
     // Set application-wide window icon. All message boxes and other windows will use it by default.
-    qapp->setDesktopFileName(QStringLiteral("org.zealdocs.zeal"));
-    qapp->setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg"))));
+    QApplication::setDesktopFileName(QStringLiteral("org.zealdocs.zeal"));
+    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg"))));
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     using Zeal::Core::Application;
-    QScopedPointer<Application> app(new Application());
+    Application app;
 
     using Zeal::WidgetUi::WindowManager;
-    QScopedPointer<WindowManager> wm(new WindowManager(app.data()));
+    WindowManager wm(&app);
 
-    QObject::connect(appSingleton.data(),
-                     &ApplicationSingleton::messageReceived,
-                     wm.data(),
-                     [&wm](const QByteArray &data) {
+    QObject::connect(&appSingleton, &ApplicationSingleton::messageReceived, &wm, [&wm](const QByteArray &data) {
         Zeal::Registry::SearchQuery query;
         bool preventActivation = false;
 
         QDataStream in(data);
         in >> query >> preventActivation;
 
-        wm->executeQuery(query, preventActivation);
+        wm.executeQuery(query, preventActivation);
     });
 
-    wm->openWindow(clParams.forceMinimized);
+    wm.openWindow(clParams.forceMinimized);
 
     if (!clParams.query.isEmpty()) {
-        QTimer::singleShot(0, wm.data(), [&wm, clParams] {
-            wm->executeQuery(clParams.query, clParams.preventActivation);
+        QTimer::singleShot(0, &wm, [&wm, clParams] {
+            wm.executeQuery(clParams.query, clParams.preventActivation);
         });
     }
 
-    return qapp->exec();
+    return QApplication::exec();
 }

@@ -58,8 +58,8 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
 */
 void DocsetMetadata::save(const QString &path, const QString &version)
 {
-    QScopedPointer<QFile> file(new QFile(path + QLatin1String("/meta.json")));
-    if (!file->open(QIODevice::WriteOnly)) {
+    QFile file(path + QLatin1String("/meta.json"));
+    if (!file.open(QIODevice::WriteOnly)) {
         return;
     }
 
@@ -93,28 +93,28 @@ void DocsetMetadata::save(const QString &path, const QString &version)
         jsonObject[QStringLiteral("extra")] = m_extra;
     }
 
-    file->write(QJsonDocument(jsonObject).toJson());
-    file->close();
+    file.write(QJsonDocument(jsonObject).toJson());
+    file.close();
 
     if (m_rawIcon.isEmpty()) {
         return;
     }
 
-    file->setFileName(path + QLatin1String("/icon.png"));
-    if (file->open(QIODevice::WriteOnly)) {
-        file->write(m_rawIcon);
+    file.setFileName(path + QLatin1String("/icon.png"));
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(m_rawIcon);
     }
-    file->close();
+    file.close();
 
     if (m_rawIcon2x.isEmpty()) {
         return;
     }
 
-    file->setFileName(path + QLatin1String("/icon@2x.png"));
-    if (file->open(QIODevice::WriteOnly)) {
-        file->write(m_rawIcon2x);
+    file.setFileName(path + QLatin1String("/icon@2x.png"));
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(m_rawIcon2x);
     }
-    file->close();
+    file.close();
 }
 
 QString DocsetMetadata::name() const

@@ -187,7 +187,7 @@ void Application::checkForUpdates(bool quiet)
 {
     QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
     connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
-        QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
+        const QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
 
         if (reply->error() != QNetworkReply::NoError) {
             if (!quiet) {
