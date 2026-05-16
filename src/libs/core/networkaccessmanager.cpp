@@ -27,11 +27,7 @@ bool NetworkAccessManager::isLocalUrl(const QUrl &url)
     }
 
     const QUrl &baseUrl = Application::instance()->httpServer()->baseUrl();
-    if (baseUrl.isParentOf(url)) {
-        return true;
-    }
-
-    return false;
+    return baseUrl.isParentOf(url);
 }
 
 QNetworkReply *NetworkAccessManager::createRequest(QNetworkAccessManager::Operation op,

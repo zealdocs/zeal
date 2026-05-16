@@ -14,7 +14,7 @@ class ToolBarFrame : public QWidget
 public:
     explicit ToolBarFrame(QWidget *parent = nullptr);
 
-private:
+protected:
     void paintEvent(QPaintEvent *event) override;
 };
 

@@ -48,7 +48,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->defaultFontComboBox->addItem(tr("Monospace"), QStringLiteral("monospace"));
 
     ui->minFontSizeComboBox->addItem(tr("None"), 0);
-    for (int fontSize : AvailableFontSizes) {
+    for (const int fontSize : AvailableFontSizes) {
         ui->fontSizeComboBox->addItem(QString::number(fontSize), fontSize);
         ui->fixedFontSizeComboBox->addItem(QString::number(fontSize), fontSize);
         ui->minFontSizeComboBox->addItem(QString::number(fontSize), fontSize);
@@ -134,6 +134,7 @@ void SettingsDialog::chooseCustomCssFile()
 
 void SettingsDialog::chooseDocsetStoragePath()
 {
+    // NOLINTNEXTLINE(misc-const-correctness): reassigned under #ifdef PORTABLE_BUILD.
     QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"), ui->docsetStorageEdit->text());
     if (path.isEmpty()) {
         return;

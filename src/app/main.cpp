@@ -46,6 +46,8 @@ public:
         auto *msg = static_cast<MSG *>(message);
         if (msg->message == WM_ERASEBKGND) {
             const QColor bg = QApplication::palette().color(QPalette::Window);
+            // Canonical Win32 pattern: WM_ERASEBKGND's wParam encodes the device-context handle.
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,performance-no-int-to-ptr)
             auto *hdc = reinterpret_cast<HDC>(msg->wParam);
             RECT rc;
             GetClientRect(msg->hwnd, &rc);

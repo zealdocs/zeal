@@ -29,6 +29,7 @@
 #include <QTemporaryFile>
 #include <QUrl>
 
+#include <algorithm>
 #include <memory>
 
 namespace Zeal::WidgetUi {
@@ -151,7 +152,7 @@ void DocsetsDialog::updateSelectedDocsets()
 
 void DocsetsDialog::updateAllDocsets()
 {
-    QAbstractItemModel *model = ui->installedDocsetList->model();
+    const QAbstractItemModel *model = ui->installedDocsetList->model();
     for (int i = 0; i < model->rowCount(); ++i) {
         const QModelIndex index = model->index(i, 0);
         if (!index.data(Registry::ItemDataRole::UpdateAvailableRole).toBool()) {
@@ -164,24 +165,23 @@ void DocsetsDialog::updateAllDocsets()
 
 void DocsetsDialog::removeSelectedDocsets()
 {
-    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    const QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     if (!selectionModel->hasSelection()) {
         return;
     }
 
-    int ret;
-
+    auto rc = QMessageBox::NoButton;
     const QModelIndexList selectedIndexes = selectionModel->selectedRows();
     if (selectedIndexes.size() == 1) {
         const QString docsetTitle = selectedIndexes.first().data().toString();
-        ret = QMessageBox::question(this, QStringLiteral("Zeal"), tr("Remove <b>%1</b> docset?").arg(docsetTitle));
+        rc = QMessageBox::question(this, QStringLiteral("Zeal"), tr("Remove <b>%1</b> docset?").arg(docsetTitle));
     } else {
-        ret = QMessageBox::question(this,
-                                    QStringLiteral("Zeal"),
-                                    tr("Remove <b>%n</b> docset(s)?", nullptr, selectedIndexes.size()));
+        rc = QMessageBox::question(this,
+                                   QStringLiteral("Zeal"),
+                                   tr("Remove <b>%n</b> docset(s)?", nullptr, selectedIndexes.size()));
     }
 
-    if (ret == QMessageBox::No) {
+    if (rc == QMessageBox::No) {
         return;
     }
 
@@ -263,10 +263,10 @@ void DocsetsDialog::downloadCompleted()
                 return;
             }
 
-            bool ok;
+            bool ok = false;
             QListWidgetItem *listItem = ui->availableDocsetList->item(
                 reply->property(ListItemIndexProperty).toInt(&ok));
-            if (ok && listItem) {
+            if (ok && listItem != nullptr) {
                 listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
             }
         }
@@ -281,8 +281,8 @@ void DocsetsDialog::downloadCompleted()
         break;
 
     case DownloadType::DownloadDashFeed: {
-        Registry::DocsetMetadata metadata = Registry::DocsetMetadata::fromDashFeed(reply->request().url(),
-                                                                                   reply->readAll());
+        const Registry::DocsetMetadata metadata = Registry::DocsetMetadata::fromDashFeed(reply->request().url(),
+                                                                                         reply->readAll());
 
         if (metadata.urls().isEmpty()) {
             QMessageBox::warning(this, QStringLiteral("Zeal"), tr("Invalid docset feed!"));
@@ -322,7 +322,7 @@ void DocsetsDialog::downloadCompleted()
         }
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
-        if (!tmpFile) {
+        if (tmpFile == nullptr) {
             tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp")
                                              .arg(Core::Application::cacheLocation(), docsetName),
                                          this);
@@ -332,14 +332,14 @@ void DocsetsDialog::downloadCompleted()
             m_tmpFiles.insert(docsetName, tmpFile);
         }
 
-        while (reply->bytesAvailable()) {
+        while (reply->bytesAvailable() > 0) {
             tmpFile->write(reply->read(1024 * 1024)); // Use small chunks.
         }
 
         tmpFile->close();
 
         QListWidgetItem *item = findDocsetListItem(docsetName);
-        if (item) {
+        if (item != nullptr) {
             item->setData(DocsetListItemDelegate::ValueRole, 0);
             item->setData(DocsetListItemDelegate::FormatRole, tr("Installing: %p%"));
         }
@@ -347,6 +347,10 @@ void DocsetsDialog::downloadCompleted()
         m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath, docsetDirectoryName);
         break;
     }
+
+    default:
+        qCWarning(log, "Unknown download type %u.", reply->property(DownloadTypeProperty).toUInt());
+        break;
     }
 
     // If all enqueued downloads have finished executing.
@@ -362,7 +366,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     }
 
     auto *reply = qobject_cast<QNetworkReply *>(sender());
-    if (!reply || !reply->isOpen()) {
+    if (reply == nullptr || !reply->isOpen()) {
         return;
     }
 
@@ -370,7 +374,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
         const QString docsetName = reply->property(DocsetNameProperty).toString();
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
-        if (!tmpFile) {
+        if (tmpFile == nullptr) {
             tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp")
                                              .arg(Core::Application::cacheLocation(), docsetName),
                                          this);
@@ -385,7 +389,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
 
     // Try to get the item associated to the request
     QListWidgetItem *item = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
-    if (item) {
+    if (item != nullptr) {
         item->setData(DocsetListItemDelegate::ValueRole, percent(received, total));
     }
 }
@@ -405,7 +409,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     m_docsetRegistry->loadDocset(docsetPath);
 
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
-    if (listItem) {
+    if (listItem != nullptr) {
         listItem->setHidden(true);
         listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
     }
@@ -424,7 +428,7 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
                          tr("Cannot extract docset <b>%1</b>: %2").arg(docsetName, errorString));
 
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
-    if (listItem) {
+    if (listItem != nullptr) {
         listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
     }
 
@@ -435,7 +439,7 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
 {
     const QString docsetName = docsetNameForTmpFilePath(filePath);
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
-    if (listItem) {
+    if (listItem != nullptr) {
         listItem->setData(DocsetListItemDelegate::ValueRole, percent(extracted, total));
     }
 }
@@ -499,7 +503,7 @@ void DocsetsDialog::setupInstalledDocsetsTab()
         downloadDashDocset(index);
     });
 
-    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    const QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [this, selectionModel]() {
         ui->removeDocsetsButton->setEnabled(selectionModel->hasSelection());
 
@@ -529,7 +533,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
     connect(m_docsetRegistry, &DocsetRegistry::docsetUnloaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
-        if (!item) {
+        if (item == nullptr) {
             return;
         }
 
@@ -537,7 +541,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
     });
     connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
-        if (!item) {
+        if (item == nullptr) {
             return;
         }
 
@@ -568,7 +572,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
         downloadDashDocset(index);
     });
 
-    QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
+    const QItemSelectionModel *selectionModel = ui->availableDocsetList->selectionModel();
     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, [this, selectionModel]() {
         const auto selectedRows = selectionModel->selectedRows();
         for (const QModelIndex &index : selectedRows) {
@@ -598,7 +602,7 @@ void DocsetsDialog::enableControls()
 
     // Installed docsets
     ui->addFeedButton->setEnabled(true);
-    QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
+    const QItemSelectionModel *selectionModel = ui->installedDocsetList->selectionModel();
     bool hasSelectedUpdates = false;
     const auto selectedRows = selectionModel->selectedRows();
     for (const QModelIndex &index : selectedRows) {
@@ -647,14 +651,9 @@ QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
 
 bool DocsetsDialog::updatesAvailable() const
 {
-    const auto docsets = m_docsetRegistry->docsets();
-    for (Registry::Docset *docset : docsets) {
-        if (docset->hasUpdate) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::any_of(m_docsetRegistry->docsets(), [](const Registry::Docset *docset) {
+        return docset->hasUpdate;
+    });
 }
 
 QNetworkReply *DocsetsDialog::download(const QUrl &url)
@@ -675,7 +674,7 @@ void DocsetsDialog::cancelDownloads()
     for (QNetworkReply *reply : std::as_const(m_replies)) {
         // Hide progress bar
         QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
-        if (listItem) {
+        if (listItem != nullptr) {
             listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
         }
 
@@ -692,7 +691,7 @@ void DocsetsDialog::cancelDownloads()
 void DocsetsDialog::loadUserFeedList()
 {
     const auto docsets = m_docsetRegistry->docsets();
-    for (Registry::Docset *docset : docsets) {
+    for (const Registry::Docset *docset : docsets) {
         if (!docset->feedUrl().isEmpty()) {
             QNetworkReply *reply = download(QUrl(docset->feedUrl()));
             reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDashFeed);
@@ -745,10 +744,10 @@ void DocsetsDialog::processDocsetListReply(QNetworkReply *reply)
 
 void DocsetsDialog::processDocsetList(const QJsonArray &list)
 {
-    for (const QJsonValue &v : list) {
-        QJsonObject docsetJson = v.toObject();
+    for (const auto &v : list) {
+        const QJsonObject docsetJson = v.toObject();
 
-        Registry::DocsetMetadata metadata(docsetJson);
+        const Registry::DocsetMetadata metadata(docsetJson);
         m_availableDocsets.insert({metadata.name(), metadata});
     }
 
@@ -810,7 +809,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     }
 
     // Skip if a download is already in progress for this docset.
-    for (QNetworkReply *reply : std::as_const(m_replies)) {
+    for (const QNetworkReply *reply : std::as_const(m_replies)) {
         if (reply->property(DownloadTypeProperty).toInt() == DownloadType::DownloadDocset
             && reply->property(DocsetNameProperty).toString() == name) {
             return;
@@ -820,7 +819,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     QUrl url;
     if (!m_userFeeds.contains(name)) {
         // No feed present means that this is a Kapeli docset
-        QString urlString = QString(RedirectServerUrl).arg(QLatin1String("com.kapeli"), name);
+        const QString urlString = QString(RedirectServerUrl).arg(QLatin1String("com.kapeli"), name);
         url = QUrl(urlString);
     } else {
         url = m_userFeeds[name].url();
@@ -840,7 +839,7 @@ void DocsetsDialog::removeDocset(const QString &name)
 
     const QString docsetPath = m_docsetRegistry->docset(name)->path();
     m_docsetRegistry->unloadDocset(name);
-    if (!m_application->fileManager()->removeRecursively(docsetPath)) {
+    if (!Core::FileManager::removeRecursively(docsetPath)) {
         const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
                                  " by another process.")
                                   .arg(docsetPath);
@@ -849,7 +848,7 @@ void DocsetsDialog::removeDocset(const QString &name)
     }
 
     QListWidgetItem *listItem = findDocsetListItem(name);
-    if (listItem) {
+    if (listItem != nullptr) {
         listItem->setHidden(false);
     }
 }
@@ -879,12 +878,12 @@ QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const
         }
     }
 
-    return QString();
+    return {};
 }
 
 int DocsetsDialog::percent(qint64 fraction, qint64 total)
 {
-    if (!total) {
+    if (total == 0) {
         return 0;
     }
 

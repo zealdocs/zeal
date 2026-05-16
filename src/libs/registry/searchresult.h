@@ -10,6 +10,8 @@
 #include <QString>
 #include <QUrl>
 
+#include <compare>
+
 namespace Zeal::Registry {
 
 struct SearchResult
@@ -25,12 +27,18 @@ struct SearchResult
     double score;
     QList<int> matchPositions;
 
-    inline bool operator<(const SearchResult &other) const
+    std::partial_ordering operator<=>(const SearchResult &other) const
     {
-        if (score == other.score) {
-            return QString::compare(name, other.name, Qt::CaseInsensitive) < 0;
+        if (const auto cmp = other.score <=> score; cmp != 0) {
+            return cmp;
         }
-        return score > other.score;
+
+        return QString::compare(name, other.name, Qt::CaseInsensitive) <=> 0;
+    }
+
+    bool operator==(const SearchResult &other) const
+    {
+        return score == other.score && QString::compare(name, other.name, Qt::CaseInsensitive) == 0;
     }
 };
 

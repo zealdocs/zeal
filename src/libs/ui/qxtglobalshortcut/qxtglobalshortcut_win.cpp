@@ -45,7 +45,7 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
     Q_UNUSED(eventType)
     Q_UNUSED(result)
 
-    MSG *msg = static_cast<MSG *>(message);
+    const MSG *msg = static_cast<MSG *>(message);
     if (msg->message == WM_HOTKEY) {
         const quint32 keycode = HIWORD(msg->lParam);
         const quint32 modifiers = LOWORD(msg->lParam);
@@ -206,8 +206,6 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     case Qt::Key_7:
     case Qt::Key_8:
     case Qt::Key_9:
-        return key;
-
         // letters
     case Qt::Key_A:
     case Qt::Key_B:
@@ -261,10 +259,10 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    return RegisterHotKey(0, nativeMods ^ nativeKey, nativeMods, nativeKey);
+    return RegisterHotKey(nullptr, nativeMods ^ nativeKey, nativeMods, nativeKey) != 0;
 }
 
 bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    return UnregisterHotKey(0, nativeMods ^ nativeKey);
+    return UnregisterHotKey(nullptr, nativeMods ^ nativeKey) != 0;
 }

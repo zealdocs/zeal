@@ -62,11 +62,11 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItem opt(option);
 
-    QStyle *style = opt.widget->style();
+    const QStyle *style = opt.widget->style();
 
     // Find decoration roles with data present.
     QList<int> roles;
-    for (int role : m_decorationRoles) {
+    for (const int role : m_decorationRoles) {
         if (!index.data(role).isNull()) {
             roles.append(role);
         }
@@ -99,14 +99,14 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         // All icons are sized after the first one.
         QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
         // Undo RTL mirroring
-        iconRect = style->visualRect(opt.direction, opt.rect, iconRect);
+        iconRect = QStyle::visualRect(opt.direction, opt.rect, iconRect);
         const int dx = iconRect.width() + margin;
 
         for (int i = 1; i < roles.size(); ++i) {
             opt.decorationSize.rwidth() += dx;
             iconRect.translate(dx, 0);
             // Redo RTL mirroring
-            const auto iconVisualRect = style->visualRect(opt.direction, opt.rect, iconRect);
+            const auto iconVisualRect = QStyle::visualRect(opt.direction, opt.rect, iconRect);
 
             const auto icon = index.data(roles[i]).value<QIcon>();
             icon.paint(painter, iconVisualRect, opt.decorationAlignment, mode, state);
@@ -160,7 +160,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->drawText(textPoint, elidedText, Qt::TextFlag::TextForceLeftToRight, 0);
     } else {
         // Draw text segments, bolding matched characters.
-        QFont normalFont = painter->font();
+        const QFont normalFont = painter->font();
         QFont boldFont = normalFont;
         boldFont.setBold(true);
         const QFontMetrics normalFm(normalFont);
@@ -171,7 +171,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                                     : opt.palette.color(QPalette::Active, QPalette::Highlight);
         const QColor textColor = painter->pen().color();
 
-        QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
+        const QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
 
         // Match positions are indices into the original text. When elided,
         // stop highlighting before the ellipsis to avoid mismatched indices.
@@ -213,7 +213,7 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 {
     QStyleOptionViewItem opt(option);
 
-    QStyle *style = opt.widget->style();
+    const QStyle *style = opt.widget->style();
 
     // Constrain decoration size to the style's small icon size to ensure consistent icon sizing.
     const int maxSize = style->pixelMetric(QStyle::PM_SmallIconSize, &opt, opt.widget);
@@ -227,17 +227,17 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
     // Find decoration roles with data present.
     QList<int> roles;
-    for (int role : m_decorationRoles) {
+    for (const int role : m_decorationRoles) {
         if (!index.data(role).isNull()) {
             roles.append(role);
         }
     }
 
     if (!roles.isEmpty()) {
-        size.rwidth() = (opt.decorationSize.width() + margin) * roles.size() + margin;
+        size.rwidth() = ((opt.decorationSize.width() + margin) * roles.size()) + margin;
     }
 
-    size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + margin * 2;
+    size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + (margin * 2);
 
     return size;
 }

@@ -4,6 +4,7 @@
 
 #include "searchquery.h"
 
+#include <algorithm>
 #include <utility>
 
 namespace Zeal::Registry {
@@ -21,8 +22,8 @@ SearchQuery::SearchQuery(QString query, const QStringList &keywords)
 
 SearchQuery SearchQuery::fromString(const QString &str)
 {
-    const int sepAt = str.indexOf(prefixSeparator);
-    const int next = sepAt + 1;
+    const qsizetype sepAt = str.indexOf(prefixSeparator);
+    const qsizetype next = sepAt + 1;
 
     QString query;
     QStringList keywords;
@@ -76,18 +77,14 @@ bool SearchQuery::hasKeywords() const
 
 bool SearchQuery::hasKeywords(const QStringList &keywords) const
 {
-    for (const QString &keyword : keywords) {
-        if (m_keywords.contains(keyword, Qt::CaseInsensitive)) {
-            return true;
-        }
-    }
-
-    return false;
+    return std::ranges::any_of(keywords, [this](const QString &keyword) {
+        return m_keywords.contains(keyword, Qt::CaseInsensitive);
+    });
 }
 
 int SearchQuery::keywordPrefixSize() const
 {
-    return m_keywordPrefix.size();
+    return static_cast<int>(m_keywordPrefix.size());
 }
 
 QString SearchQuery::query() const

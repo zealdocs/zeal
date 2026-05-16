@@ -25,7 +25,7 @@ constexpr char ListViewsSql[] = "SELECT name"
                                 "  ORDER BY name";
 
 // sqlite3_exec() callback used in tables() and views().
-auto ListCallback = [](void *ptr, int, char **data, char **) {
+const auto ListCallback = [](void *ptr, int, char **data, char **) {
     static_cast<QStringList *>(ptr)->append(QString::fromUtf8(data[0]));
     return 0;
 };
@@ -57,7 +57,7 @@ bool Database::isOpen() const
 
 QStringList Database::tables()
 {
-    QMutexLocker locker(&m_mutex);
+    const QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return {};
     }
@@ -67,7 +67,7 @@ QStringList Database::tables()
     const int rc = sqlite3_exec(m_db, ListTablesSql, ListCallback, &list, &errmsg);
 
     if (rc != SQLITE_OK) {
-        if (errmsg) {
+        if (errmsg != nullptr) {
             m_lastError = QString::fromUtf8(errmsg);
             sqlite3_free(errmsg);
         }
@@ -80,7 +80,7 @@ QStringList Database::tables()
 
 QStringList Database::views()
 {
-    QMutexLocker locker(&m_mutex);
+    const QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return {};
     }
@@ -90,7 +90,7 @@ QStringList Database::views()
     const int rc = sqlite3_exec(m_db, ListViewsSql, ListCallback, &list, &errmsg);
 
     if (rc != SQLITE_OK) {
-        if (errmsg) {
+        if (errmsg != nullptr) {
             m_lastError = QString::fromUtf8(errmsg);
             sqlite3_free(errmsg);
         }
@@ -103,7 +103,7 @@ QStringList Database::views()
 
 bool Database::execute(const QString &sql)
 {
-    QMutexLocker locker(&m_mutex);
+    const QMutexLocker locker(&m_mutex);
     if (m_db == nullptr) {
         return false;
     }
@@ -114,10 +114,11 @@ bool Database::execute(const QString &sql)
     const int rc = sqlite3_exec(m_db, sql.toUtf8(), nullptr, nullptr, &errmsg);
 
     if (rc != SQLITE_OK) {
-        if (errmsg) {
+        if (errmsg != nullptr) {
             m_lastError = QString::fromUtf8(errmsg);
             sqlite3_free(errmsg);
         }
+
         return false;
     }
 
@@ -127,7 +128,7 @@ bool Database::execute(const QString &sql)
 QString Database::lastError() const
 {
     // QString is not thread-safe for concurrent read+write.
-    QMutexLocker locker(&m_mutex);
+    const QMutexLocker locker(&m_mutex);
     return m_lastError;
 }
 

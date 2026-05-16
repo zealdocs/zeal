@@ -46,7 +46,7 @@ signals:
     void titleChanged(const QString &title);
 
 private:
-    QIcon docsetIcon(const QUrl &url) const;
+    static QIcon docsetIcon(const QUrl &url);
 
     // Widgets.
     SearchSidebar *m_searchSidebar = nullptr;

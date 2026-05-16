@@ -53,8 +53,10 @@ void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **arg
 {
     Q_UNUSED(argc)
 
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const auto *needle = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
     const auto *haystack = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     sqlite3_result_double(context, Zeal::Util::Fuzzy::scoreFunction(needle, haystack));
 }
@@ -393,10 +395,10 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
             Util::Fuzzy::score(query, result.name, &result.matchPositions);
         } else {
             // Non-fuzzy search: highlight only first occurrence.
-            const int pos = result.name.indexOf(query, 0, Qt::CaseInsensitive);
+            const qsizetype pos = result.name.indexOf(query, 0, Qt::CaseInsensitive);
             if (pos != -1) {
                 for (int i = 0; i < query.length(); ++i) {
-                    result.matchPositions.append(pos + i);
+                    result.matchPositions.append(static_cast<int>(pos + i));
                 }
             }
         }
@@ -495,7 +497,7 @@ void Docset::loadMetadata()
 
         if (extra.contains(QStringLiteral("keywords"))) {
             const QJsonArray keywords = extra[QStringLiteral("keywords")].toArray();
-            for (const QJsonValue &kw : keywords) {
+            for (const auto &kw : keywords) {
                 m_keywords << kw.toString();
             }
         }
@@ -641,10 +643,8 @@ QUrl Docset::createPageUrl(const QString &path, const QString &fragment) const
 
     if (fragment.isEmpty()) {
         const QStringList urlParts = path.split(QLatin1Char('#'));
-        realPath = urlParts[0];
-        if (urlParts.size() > 1) {
-            realFragment = urlParts[1];
-        }
+        realPath = urlParts.first();
+        realFragment = urlParts.value(1);
     } else {
         realPath = path;
         realFragment = fragment;

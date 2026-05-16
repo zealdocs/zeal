@@ -185,7 +185,7 @@ QNetworkReply *Application::download(const QUrl &url)
 */
 void Application::checkForUpdates(bool quiet)
 {
-    QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
+    const QNetworkReply *reply = download(QUrl(ReleasesApiUrl));
     connect(reply, &QNetworkReply::finished, this, [this, quiet]() {
         const QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply(qobject_cast<QNetworkReply *>(sender()));
 
@@ -260,19 +260,19 @@ QString Application::userAgent()
 
 QString Application::userAgentJson() const
 {
-    QJsonObject app = {{QStringLiteral("version"), QCoreApplication::applicationVersion()},
-                       {QStringLiteral("qt_version"), qVersion()},
-                       {QStringLiteral("install_id"), m_settings->installId}};
+    const QJsonObject app = {{QStringLiteral("version"), QCoreApplication::applicationVersion()},
+                             {QStringLiteral("qt_version"), qVersion()},
+                             {QStringLiteral("install_id"), m_settings->installId}};
 
-    QJsonObject os = {{QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
-                      {QStringLiteral("name"), QSysInfo::prettyProductName()},
-                      {QStringLiteral("product_type"), QSysInfo::productType()},
-                      {QStringLiteral("product_version"), QSysInfo::productVersion()},
-                      {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
-                      {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
-                      {QStringLiteral("locale"), QLocale::system().name()}};
+    const QJsonObject os = {{QStringLiteral("arch"), QSysInfo::currentCpuArchitecture()},
+                            {QStringLiteral("name"), QSysInfo::prettyProductName()},
+                            {QStringLiteral("product_type"), QSysInfo::productType()},
+                            {QStringLiteral("product_version"), QSysInfo::productVersion()},
+                            {QStringLiteral("kernel_type"), QSysInfo::kernelType()},
+                            {QStringLiteral("kernel_version"), QSysInfo::kernelVersion()},
+                            {QStringLiteral("locale"), QLocale::system().name()}};
 
-    QJsonObject ua = {{QStringLiteral("app"), app}, {QStringLiteral("os"), os}};
+    const QJsonObject ua = {{QStringLiteral("app"), app}, {QStringLiteral("os"), os}};
 
     return QString::fromUtf8(QJsonDocument(ua).toJson(QJsonDocument::Compact));
 }

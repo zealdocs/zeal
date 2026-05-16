@@ -13,10 +13,11 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QStack>
 #include <QThread>
 #include <QtConcurrent>
 
-#include <functional>
+#include <algorithm>
 
 namespace Zeal::Registry {
 
@@ -107,7 +108,7 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 
 int DocsetRegistry::count() const
 {
-    return m_docsets.count();
+    return static_cast<int>(m_docsets.count());
 }
 
 bool DocsetRegistry::contains(const QString &name) const
@@ -147,7 +148,7 @@ void DocsetRegistry::registerDocset(Docset *docset)
     }
 
     // Setup HTTP mount.
-    QUrl url = m_httpServer->mount(name, docset->documentPath());
+    const QUrl url = m_httpServer->mount(name, docset->documentPath());
     if (url.isEmpty()) {
         qCWarning(log,
                   "Could not enable docset '%s' from '%s'. Reinstall the docset.",
@@ -247,16 +248,20 @@ void DocsetRegistry::addDocsetsFromFolder(const QString &path)
     }
 }
 
-QStringList DocsetRegistry::collectDocsetPaths(const QString &path) const
+QStringList DocsetRegistry::collectDocsetPaths(const QString &path)
 {
     QStringList result;
-    const QDir dir(path);
-    const auto subDirectories = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
-    for (const QFileInfo &subdir : subDirectories) {
-        if (subdir.suffix() == QLatin1String("docset")) {
-            result << subdir.filePath();
-        } else {
-            result << collectDocsetPaths(subdir.filePath());
+    QStack<QString> stack;
+    stack.push(path);
+    while (!stack.isEmpty()) {
+        const QDir dir(stack.pop());
+        const auto entries = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs);
+        for (const QFileInfo &entry : entries) {
+            if (entry.suffix() == QLatin1String("docset")) {
+                result << entry.filePath();
+            } else {
+                stack.push(entry.filePath());
+            }
         }
     }
     return result;
@@ -280,19 +285,18 @@ void DocsetRegistry::runQuery(const QString &query)
     }
 
     const QString queryString = searchQuery.query();
-    QFuture<QList<SearchResult>> queryFuture = QtConcurrent::mappedReduced(enabledDocsets,
-                                                                           std::bind(&Docset::search,
-                                                                                     std::placeholders::_1,
-                                                                                     queryString,
-                                                                                     std::cref(m_cancelSearch)),
-                                                                           &MergeQueryResults);
+    const QFuture<QList<SearchResult>> queryFuture = QtConcurrent::mappedReduced(enabledDocsets,
+                                                                                 [this, &queryString](Docset *docset) {
+        return docset->search(queryString, m_cancelSearch);
+    },
+                                                                                 &MergeQueryResults);
     QList<SearchResult> results = queryFuture.result();
 
     if (m_cancelSearch.load(std::memory_order_relaxed)) {
         return;
     }
 
-    std::sort(results.begin(), results.end());
+    std::ranges::sort(results);
 
     if (m_cancelSearch.load(std::memory_order_relaxed)) {
         return;

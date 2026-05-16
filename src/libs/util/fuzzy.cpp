@@ -91,7 +91,7 @@ double score(const QString &needle, const QString &haystack, QList<int> *positio
     }
 
     // No match - return -infinity (SQL will filter with WHERE score > 0)
-    if (positions) {
+    if (positions != nullptr) {
         positions->clear();
     }
 
@@ -108,7 +108,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     const int haystackLen = haystack.length();
 
     if (needleLen == 0 || haystackLen == 0 || needleLen > haystackLen) {
-        if (positions) {
+        if (positions != nullptr) {
             positions->clear();
         }
 
@@ -118,7 +118,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     if (needleLen == haystackLen) {
         // Equal length strings get infinity score only if they actually match (case-insensitive)
         if (needle.compare(haystack, Qt::CaseInsensitive) == 0) {
-            if (positions) {
+            if (positions != nullptr) {
                 // Fill positions for exact match: [0, 1, 2, ..., n-1]
                 positions->resize(needleLen);
                 for (int i = 0; i < needleLen; ++i) {
@@ -130,7 +130,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
         }
 
         // Otherwise return no match - equal length non-matching strings can't fuzzy match
-        if (positions) {
+        if (positions != nullptr) {
             positions->clear();
         }
 
@@ -138,7 +138,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     }
 
     if (haystackLen > FZY_MAX_LEN || needleLen > FZY_MAX_LEN) {
-        if (positions) {
+        if (positions != nullptr) {
             positions->clear();
         }
 

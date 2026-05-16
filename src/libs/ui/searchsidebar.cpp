@@ -119,7 +119,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     setupSearchBoxCompletions();
 
     // Clone state if `other` is provided.
-    if (other) {
+    if (other != nullptr) {
         if (other->m_searchEdit->text().isEmpty()) {
             m_searchModel = new Registry::SearchModel(this);
             setTreeViewModel(Core::Application::instance()->docsetRegistry()->model(), true);
@@ -159,7 +159,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
             setTreeViewModel(m_searchModel, false);
         }
 
-        QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
+        const QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
         if (newSelectionModel != oldSelectionModel) {
             // TODO: Remove once QTBUG-49966 is addressed.
             if (oldSelectionModel) {
@@ -267,10 +267,10 @@ void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecor
         m_treeView->setColumnHidden(i, true);
     }
 
-    QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
+    const QItemSelectionModel *newSelectionModel = m_treeView->selectionModel();
     if (newSelectionModel != oldSelectionModel) {
         // TODO: Remove once QTBUG-49966 is addressed.
-        if (oldSelectionModel) {
+        if (oldSelectionModel != nullptr) {
             oldSelectionModel->deleteLater();
         }
 
@@ -387,6 +387,8 @@ bool SearchSidebar::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
             QCoreApplication::sendEvent(m_treeView, event);
+            break;
+        default:
             break;
         }
     }

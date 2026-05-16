@@ -62,7 +62,7 @@ bool ShortcutEdit::event(QEvent *event)
 
 QKeySequence ShortcutEdit::keySequence() const
 {
-    return QKeySequence(m_key);
+    return {m_key};
 }
 
 void ShortcutEdit::setKeySequence(const QKeySequence &keySequence)

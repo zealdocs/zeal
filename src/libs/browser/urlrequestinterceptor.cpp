@@ -35,8 +35,8 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
         return;
     }
 
-    bool isFirstPartyUrlLocal = Core::NetworkAccessManager::isLocalUrl(firstPartyUrl);
-    bool isRequestUrlLocal = Core::NetworkAccessManager::isLocalUrl(requestUrl);
+    const bool isFirstPartyUrlLocal = Core::NetworkAccessManager::isLocalUrl(firstPartyUrl);
+    const bool isRequestUrlLocal = Core::NetworkAccessManager::isLocalUrl(requestUrl);
 
     // Allow local resources on local pages and external resources on external pages.
     if (isFirstPartyUrlLocal == isRequestUrlLocal) {
