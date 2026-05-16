@@ -102,7 +102,7 @@ bool WebPage::promptForExternalLink(const QUrl &requestUrl)
     mb.setCheckBox(checkBox);
 
     QPushButton *openInBrowserButton = mb.addButton(tr("Open in &Desktop Browser"), QMessageBox::ActionRole);
-    QPushButton *openInZealButton = mb.addButton(tr("Open in &Zeal"), QMessageBox::ActionRole);
+    const QPushButton *openInZealButton = mb.addButton(tr("Open in &Zeal"), QMessageBox::ActionRole);
     mb.addButton(QMessageBox::Cancel);
 
     mb.setDefaultButton(openInBrowserButton);

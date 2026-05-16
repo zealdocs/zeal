@@ -57,7 +57,7 @@ void SearchEdit::selectQuery()
 
     const int pos = hasSelectedText() ? selectionStart() : cursorPosition();
     const int queryPos = queryStart();
-    const int textSize = text().size();
+    const int textSize = static_cast<int>(text().size());
     if (pos >= queryPos && selectionEnd() < textSize) {
         setSelection(queryPos, textSize);
         return;
@@ -74,13 +74,15 @@ bool SearchEdit::event(QEvent *event)
         auto *keyEvent = static_cast<QKeyEvent *>(event);
         // Tab key cannot be overriden in keyPressEvent().
         if (keyEvent->key() == Qt::Key_Tab) {
-            const QString completed = currentCompletion(text());
+            const QString completed = currentCompletion();
             if (!completed.isEmpty()) {
                 setText(completed);
             }
 
             return true;
-        } else if (keyEvent->key() == Qt::Key_Escape) {
+        }
+
+        if (keyEvent->key() == Qt::Key_Escape) {
             clearQuery();
             return true;
         }
@@ -120,22 +122,22 @@ void SearchEdit::focusInEvent(QFocusEvent *event)
     selectQuery();
 }
 
-void SearchEdit::showCompletions(const QString &newValue)
+void SearchEdit::showCompletions(const QString &text)
 {
     if (!isVisible()) {
         return;
     }
 
-    if (m_prefixCompleter) {
-        m_prefixCompleter->setCompletionPrefix(text());
+    if (m_prefixCompleter != nullptr) {
+        m_prefixCompleter->setCompletionPrefix(text);
     }
 
     QStyleOptionFrame option;
     initStyleOption(&option);
     const QRect contentsRect = style()->subElementRect(QStyle::SE_LineEditContents, &option, this);
 
-    const int textWidth = fontMetrics().horizontalAdvance(newValue);
-    const QString completed = currentCompletion(newValue).mid(newValue.size());
+    const int textWidth = fontMetrics().horizontalAdvance(text);
+    const QString completed = currentCompletion().mid(text.size());
     const QSize labelSize(fontMetrics().horizontalAdvance(completed), contentsRect.height());
     // QLineEditPrivate::horizontalMargin, an internal padding applied before rendering text.
     // See qtbase/src/widgets/widgets/qlineedit_p.cpp for the definition.
@@ -147,10 +149,10 @@ void SearchEdit::showCompletions(const QString &newValue)
     m_completionLabel->setText(completed);
 }
 
-QString SearchEdit::currentCompletion(const QString &text) const
+QString SearchEdit::currentCompletion() const
 {
-    if (text.isEmpty() || !m_prefixCompleter) {
-        return QString();
+    if (text().isEmpty() || m_prefixCompleter == nullptr) {
+        return {};
     }
 
     return m_prefixCompleter->currentCompletion();

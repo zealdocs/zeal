@@ -73,7 +73,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     setCentralWidget(centralWidget);
 
-    Core::WindowState &windowState = m_application->session()->primaryWindow();
+    const Core::WindowState &windowState = m_application->session()->primaryWindow();
     restoreGeometry(windowState.geometry);
 
     // Setup sidebar.
@@ -154,13 +154,13 @@ void MainWindow::moveTab(int from, int to)
 
 BrowserTab *MainWindow::createTab(const QUrl &url, bool activate)
 {
-    BrowserTab *tab;
+    BrowserTab *tab = nullptr;
     if (url.isEmpty()) {
         tab = new BrowserTab();
     } else {
         auto *source = currentTab();
         // Clone the current tab to preserve sidebar state.
-        tab = source ? source->clone(false) : new BrowserTab();
+        tab = source != nullptr ? source->clone(false) : new BrowserTab();
     }
 
     // Add the tab before navigating so signal handlers are connected.
@@ -183,7 +183,7 @@ BrowserTab *MainWindow::createTab(const QUrl &url, bool activate)
 
 void MainWindow::duplicateTab(int index)
 {
-    BrowserTab *tab = tabAt(index);
+    const BrowserTab *tab = tabAt(index);
     if (tab == nullptr) {
         return;
     }
@@ -535,7 +535,7 @@ void MainWindow::setupTabBar()
             return;
         }
 
-        BrowserTab *tab = tabAt(index);
+        const BrowserTab *tab = tabAt(index);
 #ifndef PORTABLE_BUILD
         setWindowTitle(QStringLiteral("%1 - Zeal").arg(tab->webControl()->title()));
 #else
@@ -718,7 +718,7 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent)
 
 void MainWindow::applySettings()
 {
-    if (m_globalShortcut) {
+    if (m_globalShortcut != nullptr) {
         m_globalShortcut->setShortcut(m_settings->showShortcut);
     }
 
@@ -727,7 +727,7 @@ void MainWindow::applySettings()
 
 void MainWindow::toggleWindow()
 {
-    const bool checkActive = m_globalShortcut && sender() == m_globalShortcut;
+    const bool checkActive = (m_globalShortcut != nullptr) && sender() == m_globalShortcut;
 
     if (!isVisible() || (checkActive && !isActiveWindow())) {
         bringToFront();

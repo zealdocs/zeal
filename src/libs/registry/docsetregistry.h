@@ -65,7 +65,7 @@ signals:
 
 private:
     void addDocsetsFromFolder(const QString &path);
-    QStringList collectDocsetPaths(const QString &path) const;
+    static QStringList collectDocsetPaths(const QString &path);
     void registerDocset(Docset *docset);
     void runQuery(const QString &query);
 

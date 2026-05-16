@@ -30,12 +30,12 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     }
 
     const QJsonArray aliases = jsonObject[QStringLiteral("aliases")].toArray();
-    for (const QJsonValue &vv : aliases) {
+    for (const auto &vv : aliases) {
         m_aliases << vv.toString();
     }
 
     const QJsonArray versions = jsonObject[QStringLiteral("versions")].toArray();
-    for (const QJsonValue &vv : versions) {
+    for (const auto &vv : versions) {
         m_versions << vv.toString();
     }
 
@@ -46,7 +46,7 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
 
     const QJsonArray urls = jsonObject[QStringLiteral("urls")].toArray();
-    for (const QJsonValue &vv : urls) {
+    for (const auto &vv : urls) {
         m_urls.append(QUrl(vv.toString()));
     }
 

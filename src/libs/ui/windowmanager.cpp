@@ -125,21 +125,21 @@ void WindowManager::applySettings()
 
 void WindowManager::createTrayIcon()
 {
-    if (m_trayIcon) {
+    if (m_trayIcon != nullptr) {
         return;
     }
 
     m_trayIcon = new QSystemTrayIcon(this);
-#if defined(Q_OS_MACOS)
+#ifdef Q_OS_MACOS
     // macOS menu-bar items render as template images: monochrome silhouettes
     // tinted by the system to match light/dark mode and the active accent.
     QIcon trayIcon(QStringLiteral(":/zeal-tray.svg"));
     trayIcon.setIsMask(true);
 #elif defined(Q_OS_WIN)
     // Windows tray takes the icon as-is — reuse the full-color window icon.
-    QIcon trayIcon = qApp->windowIcon();
+    const QIcon trayIcon = qApp->windowIcon();
 #else
-    QIcon trayIcon = QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
+    const QIcon trayIcon = QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
 #endif
     m_trayIcon->setIcon(trayIcon);
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
@@ -170,7 +170,7 @@ void WindowManager::createTrayIcon()
     });
 
     connect(trayIconMenu, &QMenu::aboutToShow, this, [this, toggleAction]() {
-        MainWindow *target = activeWindow();
+        const MainWindow *target = activeWindow();
         const bool visible = target != nullptr && target->isVisible();
         toggleAction->setText(visible ? tr("Minimize to Tray") : tr("Show Zeal"));
     });
@@ -184,11 +184,11 @@ void WindowManager::createTrayIcon()
 
 void WindowManager::removeTrayIcon()
 {
-    if (!m_trayIcon) {
+    if (m_trayIcon == nullptr) {
         return;
     }
 
-    QMenu *trayIconMenu = m_trayIcon->contextMenu();
+    const QMenu *trayIconMenu = m_trayIcon->contextMenu();
     delete m_trayIcon;
     m_trayIcon = nullptr;
     delete trayIconMenu;

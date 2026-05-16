@@ -15,10 +15,10 @@ class Humanizer
 {
     Q_DECLARE_TR_FUNCTIONS(Humanizer)
     Q_DISABLE_COPY_MOVE(Humanizer)
+public:
     Humanizer() = delete;
     ~Humanizer() = delete;
 
-public:
     static QString fromNow(const QDateTime &dt);
 };
 

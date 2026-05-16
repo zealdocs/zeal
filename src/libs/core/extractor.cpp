@@ -23,18 +23,16 @@ Extractor::Extractor(QObject *parent)
 
 void Extractor::extract(const QString &sourceFile, const QString &destination, const QString &root)
 {
-    ExtractInfo info = {
-        archive_read_new(),           // archiveHandle
-        sourceFile,                   // filePath
-        QFileInfo(sourceFile).size(), // totalBytes
-        0                             // extractedBytes
-    };
+    ExtractInfo info = {.archiveHandle = archive_read_new(),
+                        .filePath = sourceFile,
+                        .totalBytes = QFileInfo(sourceFile).size(),
+                        .extractedBytes = 0};
 
     archive_read_support_filter_all(info.archiveHandle);
     archive_read_support_format_all(info.archiveHandle);
 
-    int r = archive_read_open_filename(info.archiveHandle, qPrintable(sourceFile), 10240);
-    if (r) {
+    int rc = archive_read_open_filename(info.archiveHandle, qPrintable(sourceFile), 10240);
+    if (rc != 0) {
         emit error(sourceFile, QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
         archive_read_free(info.archiveHandle);
 
@@ -50,7 +48,7 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
     destinationDir.mkpath(QLatin1String("."));
 
     // TODO: Do not strip root directory in archive if it equals to 'root'
-    archive_entry *entry;
+    archive_entry *entry = nullptr;
     while (archive_read_next_header(info.archiveHandle, &entry) == ARCHIVE_OK) {
         // See https://github.com/libarchive/libarchive/issues/587 for more on UTF-8.
         QString pathname = QString::fromUtf8(archive_entry_pathname_utf8(entry));
@@ -82,11 +80,11 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
             continue;
         }
 
-        const void *buffer;
-        size_t size;
-        std::int64_t offset;
+        const void *buffer = nullptr;
+        size_t size = 0;
+        std::int64_t offset = 0;
         for (;;) {
-            int rc = archive_read_data_block(info.archiveHandle, &buffer, &size, &offset);
+            rc = archive_read_data_block(info.archiveHandle, &buffer, &size, &offset);
             if (rc != ARCHIVE_OK) {
                 if (rc == ARCHIVE_EOF) {
                     break;

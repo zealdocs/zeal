@@ -66,7 +66,7 @@ QString Session::defaultFilePath()
     // "<organizationName>/<applicationName>" yielding the doubled "Zeal/Zeal"
     // path tracked in #1104. The path must not depend on Qt version — distro
     // Qt upgrades shouldn't relocate the state file.
-#if defined(Q_OS_WIN)
+#ifdef Q_OS_WIN
     QString base = QString::fromLocal8Bit(qgetenv("LOCALAPPDATA"));
     if (base.isEmpty()) {
         base = QDir::homePath() + QLatin1String("/AppData/Local");

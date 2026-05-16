@@ -11,7 +11,7 @@ namespace Zeal::WidgetUi::LayoutHelper {
 template<class Layout>
 Layout *createBorderlessLayout()
 {
-    static_assert(std::is_base_of<QLayout, Layout>::value, "Layout must derive from QLayout");
+    static_assert(std::is_base_of_v<QLayout, Layout>, "Layout must derive from QLayout");
     auto layout = new Layout();
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);

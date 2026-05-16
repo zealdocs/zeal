@@ -123,7 +123,7 @@ public:
     static ColorScheme colorScheme();
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-    void applyColorScheme();
+    void applyColorScheme() const;
 #endif
 
 public slots:
@@ -134,7 +134,7 @@ signals:
     void updated();
 
 private:
-    void migrate(QSettings *settings) const;
+    static void migrate(QSettings *settings);
 
     static std::unique_ptr<QSettings> qsettings();
 };

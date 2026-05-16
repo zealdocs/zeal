@@ -101,7 +101,7 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 
 void WebView::contextMenuEvent(QContextMenuEvent *event)
 {
-    QWebEngineContextMenuRequest *contextMenuRequest = lastContextMenuRequest();
+    const QWebEngineContextMenuRequest *contextMenuRequest = lastContextMenuRequest();
     if (contextMenuRequest == nullptr) {
         QWebEngineView::contextMenuEvent(event);
         return;
@@ -109,7 +109,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
 
     event->accept();
 
-    if (m_contextMenu) {
+    if (m_contextMenu != nullptr) {
         m_contextMenu->deleteLater();
     }
 

@@ -29,7 +29,7 @@ bool SearchModel::isEmpty() const
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= m_dataList.count()) {
-        return QVariant();
+        return {};
     }
 
     const SearchResult &item = m_dataList.at(index.row());
@@ -51,7 +51,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         return item.url;
 
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -66,17 +66,15 @@ QModelIndex SearchModel::index(int row, int column, const QModelIndex &parent) c
 
 int SearchModel::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid()) {
-        return m_dataList.count();
-    }
-    return 0;
+    // Only the root elements can have children.
+    return parent.isValid() ? 0 : static_cast<int>(m_dataList.count());
 }
 
 bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (row + count <= m_dataList.size() && !parent.isValid()) {
         beginRemoveRows(parent, row, row + count - 1);
-        while (count) {
+        while (count > 0) {
             m_dataList.removeAt(row);
             --count;
         }

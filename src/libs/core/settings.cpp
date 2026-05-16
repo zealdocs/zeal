@@ -83,7 +83,7 @@ bool Settings::isTrayActive() const
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-void Settings::applyColorScheme()
+void Settings::applyColorScheme() const
 {
     Qt::ColorScheme scheme = Qt::ColorScheme::Unknown;
     switch (contentAppearance) {
@@ -366,7 +366,7 @@ void Settings::save()
  * The settings migration process relies on 'internal/version' option, that was introduced in the
  * release 0.2.0, so a missing option indicates pre-0.2 release.
  */
-void Settings::migrate(QSettings *settings) const
+void Settings::migrate(QSettings *settings)
 {
     settings->beginGroup(GroupInternal);
     const auto version = QVersionNumber::fromString(settings->value(QStringLiteral("version")).toString());
@@ -432,7 +432,7 @@ QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ContentAppearanc
 
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance &policy)
 {
-    std::underlying_type_t<Zeal::Core::Settings::ContentAppearance> value;
+    std::underlying_type_t<Zeal::Core::Settings::ContentAppearance> value = 0;
     in >> value;
     policy = static_cast<Zeal::Core::Settings::ContentAppearance>(value);
     return in;
@@ -446,7 +446,7 @@ QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPoli
 
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy)
 {
-    std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy> value;
+    std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy> value = 0;
     in >> value;
     policy = static_cast<Zeal::Core::Settings::ExternalLinkPolicy>(value);
     return in;

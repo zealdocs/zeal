@@ -23,14 +23,15 @@ public:
     void selectQuery();
     void setCompletions(const QStringList &completions);
 
-protected:
     bool event(QEvent *event) override;
+
+protected:
     void focusInEvent(QFocusEvent *event) override;
 
 private:
     void showCompletions(const QString &text);
 
-    QString currentCompletion(const QString &text) const;
+    QString currentCompletion() const;
     int queryStart() const;
 
     QCompleter *m_prefixCompleter = nullptr;

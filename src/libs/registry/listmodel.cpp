@@ -47,13 +47,13 @@ QVariant ListModel::headerData(int section, Qt::Orientation orientation, int rol
 QVariant ListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
-        return QVariant();
+        return {};
     }
 
     switch (role) {
     case Qt::DecorationRole:
         if (index.column() != SectionIndex::Name) {
-            return QVariant();
+            return {};
         }
 
         switch (indexLevel(index)) {
@@ -62,14 +62,14 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         case IndexLevel::Group: {
             auto *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
             const QString &symbolType = docsetItem->groups.at(index.row())->symbolType;
-            return docsetItem->docset->symbolTypeIcon(symbolType);
+            return Docset::symbolTypeIcon(symbolType);
         }
         case IndexLevel::Symbol: {
             auto *groupItem = static_cast<GroupItem *>(index.internalPointer());
-            return groupItem->docsetItem->docset->symbolTypeIcon(groupItem->symbolType);
+            return Docset::symbolTypeIcon(groupItem->symbolType);
         }
         default:
-            return QVariant();
+            return {};
         }
     case Qt::DisplayRole:
         switch (indexLevel(index)) {
@@ -80,7 +80,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             case SectionIndex::SearchPrefix:
                 return itemInRow(index.row())->docset->keywords().join(QLatin1String(", "));
             default:
-                return QVariant();
+                return {};
             }
         case IndexLevel::Group: {
             auto *docsetItem = static_cast<DocsetItem *>(index.internalPointer());
@@ -93,11 +93,11 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return groupItem->docsetItem->docset->symbols(groupItem->symbolType).at(index.row()).first;
         }
         default:
-            return QVariant();
+            return {};
         }
     case Qt::ToolTipRole: {
         if (index.column() != SectionIndex::Name || indexLevel(index) != IndexLevel::Docset) {
-            return QVariant();
+            return {};
         }
         auto *const docset = itemInRow(index.row())->docset;
         return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
@@ -111,20 +111,20 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
             return groupItem->docsetItem->docset->symbols(groupItem->symbolType).at(index.row()).second;
         }
         default:
-            return QVariant();
+            return {};
         }
     case ItemDataRole::DocsetNameRole:
         if (index.parent().isValid()) {
-            return QVariant();
+            return {};
         }
         return itemInRow(index.row())->docset->name();
     case ItemDataRole::UpdateAvailableRole:
         if (index.parent().isValid()) {
-            return QVariant();
+            return {};
         }
         return itemInRow(index.row())->docset->hasUpdate;
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -261,7 +261,7 @@ ListModel::IndexLevel ListModel::indexLevel(const QModelIndex &index)
         return IndexLevel::Root;
     }
 
-    if (!index.internalPointer()) {
+    if (index.internalPointer() == nullptr) {
         return IndexLevel::Docset;
     }
 
@@ -271,7 +271,7 @@ ListModel::IndexLevel ListModel::indexLevel(const QModelIndex &index)
 
 ListModel::DocsetItem *ListModel::itemInRow(int row) const
 {
-    return m_docsetRows[row];
+    return m_docsetRows.at(row);
 }
 
 } // namespace Zeal::Registry

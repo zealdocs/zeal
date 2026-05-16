@@ -38,7 +38,8 @@ HttpServer::HttpServer(QObject *parent)
         // See: https://github.com/zealdocs/zeal/issues/1009
         if (res.status == 404) {
             const QString reqPath = QString::fromStdString(req.path);
-            QReadLocker locker(&m_mountPointsLock);
+            const QReadLocker locker(&m_mountPointsLock);
+            // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): Qt COW d-pointer confuses the analyzer.
             for (auto it = m_mountPoints.constBegin(); it != m_mountPoints.constEnd(); ++it) {
                 const QString prefix = it.key() + QLatin1Char('/');
                 if (!reqPath.startsWith(prefix)) {
@@ -70,9 +71,13 @@ HttpServer::~HttpServer()
 {
     m_server->stop();
 
-    auto status = m_future.wait_for(std::chrono::seconds(2));
-    if (status != std::future_status::ready) {
-        qCWarning(log) << "Failed to stop server within timeout.";
+    try {
+        const auto status = m_future.wait_for(std::chrono::seconds(2));
+        if (status != std::future_status::ready) {
+            qCWarning(log) << "Failed to stop server within timeout.";
+        }
+    } catch (const std::future_error &e) {
+        qCDebug(log, "Future has no associated state; nothing to wait for: %s.", e.what());
     }
 }
 
@@ -87,11 +92,11 @@ QUrl HttpServer::mount(const QString &prefix, const QString &path)
     const bool ok = m_server->set_mount_point(pfx.toStdString(), path.toStdString());
     if (!ok) {
         qCWarning(log, "Failed to mount '%s' to '%s'.", qPrintable(path), qPrintable(pfx));
-        return QUrl();
+        return {};
     }
 
     {
-        QWriteLocker locker(&m_mountPointsLock);
+        const QWriteLocker locker(&m_mountPointsLock);
         m_mountPoints[pfx] = path;
     }
 
@@ -111,7 +116,7 @@ bool HttpServer::unmount(const QString &prefix)
     }
 
     {
-        QWriteLocker locker(&m_mountPointsLock);
+        const QWriteLocker locker(&m_mountPointsLock);
         m_mountPoints.remove(pfx);
     }
 

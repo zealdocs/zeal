@@ -16,7 +16,7 @@ public:
     explicit FileManager(QObject *parent = nullptr);
     ~FileManager() override = default;
 
-    bool removeRecursively(const QString &path);
+    static bool removeRecursively(const QString &path);
 };
 
 } // namespace Zeal::Core

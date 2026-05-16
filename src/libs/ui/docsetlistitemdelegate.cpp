@@ -88,7 +88,7 @@ void DocsetListItemDelegate::paintProgressBar(QPainter *painter,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
 {
-    bool ok;
+    bool ok = false;
     const int value = index.model()->data(index, ValueRole).toInt(&ok);
 
     if (!ok) {

@@ -49,8 +49,12 @@ public:
     explicit QxtGlobalShortcutPrivate(QxtGlobalShortcut *qq);
     ~QxtGlobalShortcutPrivate() override;
 
+    // Sentinel value for "no key bound"; Qt::Key has no zero member of its own.
+    // NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange)
+    static constexpr Qt::Key UnsetKey = Qt::Key(0);
+
     bool enabled = true;
-    Qt::Key key = Qt::Key(0);
+    Qt::Key key = UnsetKey;
     Qt::KeyboardModifiers mods = Qt::NoModifier;
 
 #ifndef Q_OS_MACOS

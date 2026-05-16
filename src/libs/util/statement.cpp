@@ -31,7 +31,7 @@ Statement::Statement(Database &db, const QString &sql)
         return;
     }
 
-    if (pzTail && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
+    if (pzTail != nullptr && !QString(static_cast<const QChar *>(pzTail)).trimmed().isEmpty()) {
         m_lastError = QStringLiteral("Multiple statements in a single prepare are not supported");
         sqlite3_finalize(m_stmt);
         m_stmt = nullptr;
@@ -95,7 +95,7 @@ QVariant Statement::value(int index) const
     Q_ASSERT(index >= 0);
 
     if (m_stmt == nullptr || index < 0 || index >= sqlite3_data_count(m_stmt)) {
-        return QVariant();
+        return {};
     }
 
     const int type = sqlite3_column_type(m_stmt, index);
@@ -106,10 +106,10 @@ QVariant Statement::value(int index) const
     case SQLITE_FLOAT:
         return sqlite3_column_double(m_stmt, index);
     case SQLITE_NULL:
-        return QVariant();
+        return {};
     default:
         return QString(static_cast<const QChar *>(sqlite3_column_text16(m_stmt, index)),
-                       sqlite3_column_bytes16(m_stmt, index) / sizeof(QChar));
+                       sqlite3_column_bytes16(m_stmt, index) / static_cast<int>(sizeof(QChar)));
     }
 }
 
@@ -122,7 +122,7 @@ QString escapeLikePattern(QStringView s)
 {
     QString out;
     out.reserve(s.size() * 2);
-    for (QChar c : s) {
+    for (const QChar c : s) {
         if (c == QLatin1Char('\\') || c == QLatin1Char('%') || c == QLatin1Char('_')) {
             out.append(QLatin1Char('\\'));
         }

@@ -166,7 +166,7 @@ void ApplicationSingleton::setupPrimary()
     connect(m_localServer, &QLocalServer::newConnection, this, [this] {
         QLocalSocket *socket = m_localServer->nextPendingConnection();
         connect(socket, &QLocalSocket::readyRead, this, [this, socket] {
-            QByteArray data = socket->readAll();
+            const QByteArray data = socket->readAll();
             emit messageReceived(data);
             socket->deleteLater();
         });

@@ -23,6 +23,8 @@
 #include <QWebEngineHistory>
 #include <QWidgetAction>
 
+#include <ranges>
+
 namespace Zeal::WidgetUi {
 
 namespace {
@@ -43,7 +45,7 @@ BrowserTab::BrowserTab(QWidget *parent)
         if (baseUrl != m_baseUrl) {
             m_baseUrl = baseUrl;
 
-            Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
+            const Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
             if (docset) {
                 searchSidebar()->pageTocModel()->setResults(docset->relatedLinks(url));
                 m_webControl->setJavaScriptEnabled(docset->isJavaScriptEnabled());
@@ -70,10 +72,10 @@ BrowserTab::BrowserTab(QWidget *parent)
     connect(backMenu, &QMenu::aboutToShow, this, [this, backMenu]() {
         backMenu->clear();
         QWebEngineHistory *history = m_webControl->history();
-        QList<QWebEngineHistoryItem> items = history->backItems(10);
-        for (auto it = items.crbegin(); it != items.crend(); ++it) {
-            const QIcon icon = docsetIcon(it->url());
-            backMenu->addAction(icon, it->title(), this, [history, item = *it](bool) {
+        const QList<QWebEngineHistoryItem> items = history->backItems(10);
+        for (const auto &item : std::views::reverse(items)) {
+            const QIcon icon = docsetIcon(item.url());
+            backMenu->addAction(icon, item.title(), this, [history, item](bool) {
                 history->goToItem(item);
             });
         }
@@ -161,7 +163,7 @@ BrowserTab::BrowserTab(QWidget *parent)
     auto *registry = Core::Application::instance()->docsetRegistry();
     using Registry::DocsetRegistry;
     connect(registry, &DocsetRegistry::docsetAboutToBeUnloaded, this, [this, registry](const QString &name) {
-        Registry::Docset *docset = registry->docsetForUrl(m_webControl->url());
+        const Registry::Docset *docset = registry->docsetForUrl(m_webControl->url());
         if (docset == nullptr || docset->name() != name) {
             return;
         }
@@ -177,7 +179,7 @@ BrowserTab *BrowserTab::clone(bool preserveHistory) const
 {
     auto *tab = new BrowserTab();
 
-    if (m_searchSidebar) {
+    if (m_searchSidebar != nullptr) {
         tab->m_searchSidebar = m_searchSidebar->clone();
         connect(tab->m_searchSidebar, &SearchSidebar::activated, tab->m_webControl, &Browser::WebControl::focus);
         connect(tab->m_searchSidebar,
@@ -196,7 +198,7 @@ BrowserTab *BrowserTab::clone(bool preserveHistory) const
 
 BrowserTab::~BrowserTab()
 {
-    if (m_searchSidebar) {
+    if (m_searchSidebar != nullptr) {
         // The sidebar is not in this widget's hierarchy, so direct delete is not safe.
         m_searchSidebar->deleteLater();
     }
@@ -233,10 +235,11 @@ void BrowserTab::search(const Registry::SearchQuery &query)
     m_searchSidebar->search(query);
 }
 
-QIcon BrowserTab::docsetIcon(const QUrl &url) const
+QIcon BrowserTab::docsetIcon(const QUrl &url)
 {
-    Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
-    return docset ? docset->icon() : QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg")));
+    const Registry::Docset *docset = Core::Application::instance()->docsetRegistry()->docsetForUrl(url);
+    return docset != nullptr ? docset->icon()
+                             : QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg")));
 }
 
 } // namespace Zeal::WidgetUi
