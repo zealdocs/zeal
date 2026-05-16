@@ -5,6 +5,7 @@
 #include "searchitemdelegate.h"
 
 #include <QAbstractItemView>
+#include <QApplication>
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QPainter>
@@ -62,7 +63,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 {
     QStyleOptionViewItem opt(option);
 
-    const QStyle *style = opt.widget->style();
+    const QStyle *style = opt.widget != nullptr ? opt.widget->style() : QApplication::style();
 
     // Find decoration roles with data present.
     QList<int> roles;
@@ -213,7 +214,7 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 {
     QStyleOptionViewItem opt(option);
 
-    const QStyle *style = opt.widget->style();
+    const QStyle *style = opt.widget != nullptr ? opt.widget->style() : QApplication::style();
 
     // Constrain decoration size to the style's small icon size to ensure consistent icon sizing.
     const int maxSize = style->pixelMetric(QStyle::PM_SmallIconSize, &opt, opt.widget);
