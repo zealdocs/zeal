@@ -72,16 +72,19 @@ int SearchModel::rowCount(const QModelIndex &parent) const
 
 bool SearchModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    if (row + count <= m_dataList.size() && !parent.isValid()) {
-        beginRemoveRows(parent, row, row + count - 1);
-        while (count > 0) {
-            m_dataList.removeAt(row);
-            --count;
-        }
-        endRemoveRows();
-        return true;
+    const auto size = m_dataList.size();
+    if (parent.isValid() || row < 0 || count <= 0 || row > size || count > (size - row)) {
+        return false;
     }
-    return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+    while (count > 0) {
+        m_dataList.removeAt(row);
+        --count;
+    }
+    endRemoveRows();
+
+    return true;
 }
 
 void SearchModel::removeSearchResultWithName(const QString &name)
