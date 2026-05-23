@@ -45,6 +45,17 @@
 namespace {
 constexpr quint32 maskModifiers[] = {0, XCB_MOD_MASK_2, XCB_MOD_MASK_LOCK, (XCB_MOD_MASK_2 | XCB_MOD_MASK_LOCK)};
 
+// XCB sets the high bit of response_type for synthetic (SendEvent) events;
+// mask it off to extract the actual event type.
+constexpr quint8 XcbEventTypeMask = 0x7F;
+
+// Modifiers we care about when matching shortcut activations.
+constexpr quint32 InterestingModifiers = XCB_MOD_MASK_1 | XCB_MOD_MASK_CONTROL | XCB_MOD_MASK_4 | XCB_MOD_MASK_SHIFT;
+
+// X11 keysym encoding boundaries (see <X11/keysymdef.h>).
+constexpr int Latin1KeysymLimit = 0x100;
+constexpr xcb_keysym_t UnicodeKeysymBase = 0x01000000;
+
 namespace X11 {
 xcb_connection_t *connection()
 {
@@ -155,13 +166,13 @@ xcb_keysym_t qtKeyToKeysym(Qt::Key key)
         // ASCII/Latin-1: legacy keysym == codepoint. Lowercase letters so we
         // match level-0 of the keymap and avoid spurious Shift inference for
         // shortcuts like Ctrl+A.
-        if (key < 0x100) {
+        if (key < Latin1KeysymLimit) {
             return xkb_keysym_to_lower(static_cast<xcb_keysym_t>(key));
         }
 
         // Non-Latin Unicode codepoint: X11 Unicode keysym encoding.
-        if (key < 0x01000000) {
-            return key | 0x01000000;
+        if (static_cast<xcb_keysym_t>(key) < UnicodeKeysymBase) {
+            return static_cast<xcb_keysym_t>(key) | UnicodeKeysymBase;
         }
 
         // Unhandled Qt special key (Help, Cancel, modifiers, etc.). Fail
@@ -186,7 +197,7 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
     }
 
     auto event = static_cast<xcb_generic_event_t *>(message);
-    if ((event->response_type & ~0x80) != XCB_KEY_PRESS) {
+    if ((event->response_type & XcbEventTypeMask) != XCB_KEY_PRESS) {
         return false;
     }
 
@@ -197,20 +208,8 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
     xcb_allow_events(xcbConnection, XCB_ALLOW_REPLAY_KEYBOARD, keyPressEvent->time);
     xcb_flush(xcbConnection);
 
-    unsigned int keycode = keyPressEvent->detail;
-    unsigned int keystate = 0;
-    if (keyPressEvent->state & XCB_MOD_MASK_1) {
-        keystate |= XCB_MOD_MASK_1;
-    }
-    if (keyPressEvent->state & XCB_MOD_MASK_CONTROL) {
-        keystate |= XCB_MOD_MASK_CONTROL;
-    }
-    if (keyPressEvent->state & XCB_MOD_MASK_4) {
-        keystate |= XCB_MOD_MASK_4;
-    }
-    if (keyPressEvent->state & XCB_MOD_MASK_SHIFT) {
-        keystate |= XCB_MOD_MASK_SHIFT;
-    }
+    const unsigned int keycode = keyPressEvent->detail;
+    const unsigned int keystate = keyPressEvent->state & InterestingModifiers;
 
     return activateShortcut(keycode, keystate);
 }
@@ -218,16 +217,16 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier) {
+    if (modifiers.testFlag(Qt::ShiftModifier)) {
         native |= XCB_MOD_MASK_SHIFT;
     }
-    if (modifiers & Qt::ControlModifier) {
+    if (modifiers.testFlag(Qt::ControlModifier)) {
         native |= XCB_MOD_MASK_CONTROL;
     }
-    if (modifiers & Qt::AltModifier) {
+    if (modifiers.testFlag(Qt::AltModifier)) {
         native |= XCB_MOD_MASK_1;
     }
-    if (modifiers & Qt::MetaModifier) {
+    if (modifiers.testFlag(Qt::MetaModifier)) {
         native |= XCB_MOD_MASK_4;
     }
 
@@ -259,6 +258,8 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
 
     // Silently returns 0 on failure; registration will fail downstream.
     if (!keycodes.isNull()) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access): xcb returns a null-terminated
+        // array; non-null guarantees [0] is valid.
         native = keycodes.data()[0]; // Use the first keycode
 
         // Check if Shift is needed to produce this keysym.
