@@ -20,44 +20,26 @@ target_link_libraries(Core PRIVATE
 
 zeal_attach_qt_pch(Core <QDir>)
 
-find_package(LibArchive QUIET)
-if(NOT LibArchive_FOUND)
-    find_path(LibArchive_INCLUDE_DIRS archive.h
-        PATHS /opt/homebrew/opt/libarchive/include /usr/local/opt/libarchive/include
-        REQUIRED
-    )
-    find_library(LibArchive_LIBRARIES
-        NAMES archive libarchive
-        PATHS /opt/homebrew/opt/libarchive/lib /usr/local/opt/libarchive/lib
-        REQUIRED
-        NO_DEFAULT_PATH
-    )
-endif()
-
-if(TARGET LibArchive::LibArchive)
-    target_link_libraries(Core PRIVATE LibArchive::LibArchive)
-else()
-    include_directories(${LibArchive_INCLUDE_DIRS})
-    target_link_libraries(Core PRIVATE ${LibArchive_LIBRARIES})
-endif()
+find_package(LibArchive REQUIRED)
+target_link_libraries(Core PRIVATE LibArchive::LibArchive)
 
 # Configure toml++ (header-only).
-find_package(tomlplusplus CONFIG QUIET)
+find_package(tomlplusplus CONFIG)
 if(tomlplusplus_FOUND)
     target_link_libraries(Core PRIVATE tomlplusplus::tomlplusplus)
 else()
-    # Use bundled version of toml++ if not found.
+    message(STATUS "Using bundled tomlplusplus")
     target_include_directories(Core PRIVATE "${CMAKE_SOURCE_DIR}/src/contrib/tomlplusplus")
 endif()
 
 # Configure cpp-httplib.
 add_definitions(-DCPPHTTPLIB_USE_POLL)
 
-find_package(httplib CONFIG QUIET)
+find_package(httplib CONFIG)
 if(httplib_FOUND)
     target_link_libraries(Core PRIVATE httplib::httplib)
 else()
-    # Use bundled version of cpp-httplib if not found.
+    message(STATUS "Using bundled cpp-httplib")
     include_directories("${CMAKE_SOURCE_DIR}/src/contrib/cpp-httplib")
 endif()
 

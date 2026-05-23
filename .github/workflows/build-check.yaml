@@ -202,7 +202,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Dependencies
-        run: brew install libarchive
+        run: brew install cpp-httplib libarchive tomlplusplus
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
