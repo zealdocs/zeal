@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.25.1)
 include(cmake/SetupVcpkg.cmake)
 setup_vcpkg()
 
+include(cmake/SetupHomebrew.cmake)
+setup_homebrew()
+
 # CMake options.
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
