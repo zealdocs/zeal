@@ -37,10 +37,10 @@ namespace Zeal::WidgetUi {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
 
-enum DownloadType {
-    DownloadDashFeed,
-    DownloadDocset,
-    DownloadDocsetList
+enum class DownloadType {
+    DashFeed,
+    Docset,
+    DocsetList
 };
 
 constexpr char ApiServerUrl[] = "https://api.zealdocs.org/v1";
@@ -58,6 +58,16 @@ constexpr qint64 DownloadChunkSize = 1024LL * 1024; // 1 MiB
 constexpr char DocsetNameProperty[] = "docsetName";
 constexpr char DownloadTypeProperty[] = "downloadType";
 constexpr char ListItemIndexProperty[] = "listItem";
+
+void setDownloadType(QNetworkReply *reply, DownloadType type)
+{
+    reply->setProperty(DownloadTypeProperty, static_cast<int>(type));
+}
+
+DownloadType downloadType(const QNetworkReply *reply)
+{
+    return static_cast<DownloadType>(reply->property(DownloadTypeProperty).toInt());
+}
 } // namespace
 
 DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
@@ -137,7 +147,7 @@ void DocsetsDialog::addDashFeed()
     }
 
     QNetworkReply *reply = download(QUrl(feedUrl));
-    reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDashFeed);
+    setDownloadType(reply, DownloadType::DashFeed);
 }
 
 void DocsetsDialog::updateSelectedDocsets()
@@ -262,7 +272,7 @@ void DocsetsDialog::downloadCompleted()
 
                 // Copy properties
                 newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
-                newReply->setProperty(DownloadTypeProperty, reply->property(DownloadTypeProperty));
+                setDownloadType(newReply, downloadType(reply.data()));
                 newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
                 return;
             }
@@ -279,12 +289,13 @@ void DocsetsDialog::downloadCompleted()
         return;
     }
 
-    switch (reply->property(DownloadTypeProperty).toUInt()) {
-    case DownloadType::DownloadDocsetList:
+    const auto type = downloadType(reply.data());
+    switch (type) {
+    case DownloadType::DocsetList:
         processDocsetListReply(reply.data());
         break;
 
-    case DownloadType::DownloadDashFeed: {
+    case DownloadType::DashFeed: {
         const Registry::DocsetMetadata metadata = Registry::DocsetMetadata::fromDashFeed(reply->request().url(),
                                                                                          reply->readAll());
 
@@ -300,7 +311,7 @@ void DocsetsDialog::downloadCompleted()
             // since further downloads are only update checks
             QNetworkReply *mdReply = download(metadata.url());
             mdReply->setProperty(DocsetNameProperty, metadata.name());
-            mdReply->setProperty(DownloadTypeProperty, DownloadType::DownloadDocset);
+            setDownloadType(mdReply, DownloadType::Docset);
         } else {
             // Check for feed update
             if (metadata.latestVersion() != docset->version() || metadata.revision() > docset->revision()) {
@@ -317,7 +328,7 @@ void DocsetsDialog::downloadCompleted()
         break;
     }
 
-    case DownloadType::DownloadDocset: {
+    case DownloadType::Docset: {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
         const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
 
@@ -353,7 +364,7 @@ void DocsetsDialog::downloadCompleted()
     }
 
     default:
-        qCWarning(log, "Unknown download type %u.", reply->property(DownloadTypeProperty).toUInt());
+        qCWarning(log, "Unknown download type %d.", static_cast<int>(type));
         break;
     }
 
@@ -374,7 +385,7 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
         return;
     }
 
-    if (reply->property(DownloadTypeProperty).toInt() == DownloadType::DownloadDocset) {
+    if (downloadType(reply) == DownloadType::Docset) {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
 
         QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
@@ -682,7 +693,7 @@ void DocsetsDialog::cancelDownloads()
             listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
         }
 
-        if (reply->property(DownloadTypeProperty).toInt() == DownloadType::DownloadDocset) {
+        if (downloadType(reply) == DownloadType::Docset) {
             delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
         }
 
@@ -698,7 +709,7 @@ void DocsetsDialog::loadUserFeedList()
     for (const Registry::Docset *docset : docsets) {
         if (!docset->feedUrl().isEmpty()) {
             QNetworkReply *reply = download(QUrl(docset->feedUrl()));
-            reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDashFeed);
+            setDownloadType(reply, DownloadType::DashFeed);
         }
     }
 }
@@ -709,7 +720,7 @@ void DocsetsDialog::downloadDocsetList()
     m_availableDocsets.clear();
 
     QNetworkReply *reply = download(QUrl(ApiServerUrl + QLatin1String("/docsets")));
-    reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDocsetList);
+    setDownloadType(reply, DownloadType::DocsetList);
 }
 
 void DocsetsDialog::processDocsetListReply(QNetworkReply *reply)
@@ -814,8 +825,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 
     // Skip if a download is already in progress for this docset.
     for (const QNetworkReply *reply : std::as_const(m_replies)) {
-        if (reply->property(DownloadTypeProperty).toInt() == DownloadType::DownloadDocset
-            && reply->property(DocsetNameProperty).toString() == name) {
+        if (downloadType(reply) == DownloadType::Docset && reply->property(DocsetNameProperty).toString() == name) {
             return;
         }
     }
@@ -831,7 +841,7 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 
     QNetworkReply *reply = download(url);
     reply->setProperty(DocsetNameProperty, name);
-    reply->setProperty(DownloadTypeProperty, DownloadType::DownloadDocset);
+    setDownloadType(reply, DownloadType::Docset);
     reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(findDocsetListItem(name)));
 }
 
