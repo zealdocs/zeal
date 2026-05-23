@@ -5,6 +5,7 @@
 #ifndef ZEAL_WIDGETUI_SHORTCUTEDIT_H
 #define ZEAL_WIDGETUI_SHORTCUTEDIT_H
 
+#include <QKeyCombination>
 #include <QLineEdit>
 
 namespace Zeal::WidgetUi {
@@ -22,10 +23,10 @@ public:
     void setKeySequence(const QKeySequence &keySequence);
 
 private:
-    int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
+    static Qt::KeyboardModifiers translateModifiers(Qt::KeyboardModifiers state, const QString &text);
 
-    int m_key = 0;
-    int m_originalKey = 0;
+    QKeyCombination m_key;
+    QKeyCombination m_originalKey;
 };
 
 } // namespace Zeal::WidgetUi

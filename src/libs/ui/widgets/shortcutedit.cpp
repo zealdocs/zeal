@@ -18,7 +18,9 @@ ShortcutEdit::ShortcutEdit(const QString &text, QWidget *parent)
     : QLineEdit(text, parent)
 {
     connect(this, &QLineEdit::textChanged, [this](const QString &text) {
-        m_key = QKeySequence(text, QKeySequence::NativeText)[0].toCombined();
+        const QKeySequence ks(text, QKeySequence::NativeText);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access): guarded by count().
+        m_key = ks.count() > 0 ? ks[0] : QKeyCombination();
     });
 }
 
@@ -41,8 +43,8 @@ bool ShortcutEdit::event(QEvent *event)
         case Qt::Key_Backtab:
             return QLineEdit::event(event);
         default:
-            m_key = keyEvent->key();
-            m_key |= translateModifiers(keyEvent->modifiers(), keyEvent->text());
+            m_key = QKeyCombination(translateModifiers(keyEvent->modifiers(), keyEvent->text()),
+                                    static_cast<Qt::Key>(keyEvent->key()));
             setText(keySequence().toString(QKeySequence::NativeText));
         }
 
@@ -70,14 +72,14 @@ void ShortcutEdit::setKeySequence(const QKeySequence &keySequence)
     setText(keySequence.toString(QKeySequence::NativeText));
 }
 
-int ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString &text)
+Qt::KeyboardModifiers ShortcutEdit::translateModifiers(Qt::KeyboardModifiers state, const QString &text)
 {
-    int modifiers = state & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
+    Qt::KeyboardModifiers modifiers = state & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
 
     // Strip Shift when it was used to produce a printable symbol (e.g., Shift+/ = ?),
     // so the shortcut displays as Ctrl+? rather than Ctrl+Shift+?.
     // The actual Shift modifier is recovered during native hotkey registration.
-    if (state & Qt::ShiftModifier) {
+    if (state.testFlag(Qt::ShiftModifier)) {
         const bool isShiftedSymbol = !text.isEmpty() && text.at(0).isPrint() && !text.at(0).isLetterOrNumber()
                                   && !text.at(0).isSpace();
         if (!isShiftedSymbol) {

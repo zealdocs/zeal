@@ -35,6 +35,16 @@
 #include <QGuiApplication>
 #include <qt_windows.h>
 
+namespace {
+// Shift-state bits returned in the high byte of VkKeyScan.
+constexpr unsigned int VkShiftStateShift = 0x1U;
+constexpr unsigned int VkShiftStateCtrl = 0x2U;
+constexpr unsigned int VkShiftStateAlt = 0x4U;
+
+// VkKeyScanW only accepts values representable in a WCHAR.
+constexpr int WcharKeyLimit = 0x10000;
+} // namespace
+
 bool QxtGlobalShortcutPrivate::isSupported()
 {
     return QGuiApplication::platformName() == QLatin1String("windows");
@@ -59,16 +69,16 @@ quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifier
 {
     // MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier) {
+    if (modifiers.testFlag(Qt::ShiftModifier)) {
         native |= MOD_SHIFT;
     }
-    if (modifiers & Qt::ControlModifier) {
+    if (modifiers.testFlag(Qt::ControlModifier)) {
         native |= MOD_CONTROL;
     }
-    if (modifiers & Qt::AltModifier) {
+    if (modifiers.testFlag(Qt::AltModifier)) {
         native |= MOD_ALT;
     }
-    if (modifiers & Qt::MetaModifier) {
+    if (modifiers.testFlag(Qt::MetaModifier)) {
         native |= MOD_WIN;
     }
     // TODO: resolve these?
@@ -238,16 +248,17 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
     default:
         // For keys not in the switch (shifted symbols like ?, !, etc.),
         // ask Windows to resolve the character to a virtual key + shift state.
-        if (key <= 0xFFFF) {
+        if (key < WcharKeyLimit) {
             const SHORT vk = VkKeyScanW(static_cast<WCHAR>(key));
             if (vk != -1) {
-                if (HIBYTE(vk) & 1) {
+                const unsigned int shiftState = HIBYTE(vk);
+                if ((shiftState & VkShiftStateShift) != 0) {
                     extraNativeMods |= MOD_SHIFT;
                 }
-                if (HIBYTE(vk) & 2) {
+                if ((shiftState & VkShiftStateCtrl) != 0) {
                     extraNativeMods |= MOD_CONTROL;
                 }
-                if (HIBYTE(vk) & 4) {
+                if ((shiftState & VkShiftStateAlt) != 0) {
                     extraNativeMods |= MOD_ALT;
                 }
                 return LOBYTE(vk);
@@ -259,10 +270,10 @@ quint32 QxtGlobalShortcutPrivate::nativeKeycode(Qt::Key key, quint32 &extraNativ
 
 bool QxtGlobalShortcutPrivate::registerShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    return RegisterHotKey(nullptr, nativeMods ^ nativeKey, nativeMods, nativeKey) != 0;
+    return RegisterHotKey(nullptr, static_cast<int>(nativeMods ^ nativeKey), nativeMods, nativeKey) != 0;
 }
 
 bool QxtGlobalShortcutPrivate::unregisterShortcut(quint32 nativeKey, quint32 nativeMods)
 {
-    return UnregisterHotKey(nullptr, nativeMods ^ nativeKey) != 0;
+    return UnregisterHotKey(nullptr, static_cast<int>(nativeMods ^ nativeKey)) != 0;
 }

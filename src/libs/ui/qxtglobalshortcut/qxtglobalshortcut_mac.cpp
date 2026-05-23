@@ -76,19 +76,19 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray &eventType, vo
 quint32 QxtGlobalShortcutPrivate::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
-    if (modifiers & Qt::ShiftModifier) {
+    if (modifiers.testFlag(Qt::ShiftModifier)) {
         native |= shiftKey;
     }
-    if (modifiers & Qt::ControlModifier) {
+    if (modifiers.testFlag(Qt::ControlModifier)) {
         native |= cmdKey;
     }
-    if (modifiers & Qt::AltModifier) {
+    if (modifiers.testFlag(Qt::AltModifier)) {
         native |= optionKey;
     }
-    if (modifiers & Qt::MetaModifier) {
+    if (modifiers.testFlag(Qt::MetaModifier)) {
         native |= controlKey;
     }
-    if (modifiers & Qt::KeypadModifier) {
+    if (modifiers.testFlag(Qt::KeypadModifier)) {
         native |= kEventKeyModifierNumLockMask;
     }
     return native;

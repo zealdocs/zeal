@@ -34,6 +34,7 @@
 #include "qxtglobalshortcut_p.h"
 
 #include <QAbstractEventDispatcher>
+#include <QKeyCombination>
 #include <QLoggingCategory>
 
 namespace {
@@ -80,7 +81,9 @@ bool QxtGlobalShortcutPrivate::nativeRegister()
     const quint32 nativeMods = nativeModifiers(mods) | extraNativeMods;
     const bool res = registerShortcut(nativeKey, nativeMods);
     if (!res) {
-        qCWarning(log, "Failed to register '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        qCWarning(log,
+                  "Failed to register '%s' shortcut.",
+                  qPrintable(QKeySequence(QKeyCombination(mods, key)).toString()));
         return false;
     }
 
@@ -97,13 +100,17 @@ bool QxtGlobalShortcutPrivate::nativeUnregister()
     const quint32 nativeMods = nativeModifiers(mods) | extraNativeMods;
 
     if (shortcuts.value({nativeKey, nativeMods}) != q) {
-        qCWarning(log, "Tried to unregister unowned '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        qCWarning(log,
+                  "Tried to unregister unowned '%s' shortcut.",
+                  qPrintable(QKeySequence(QKeyCombination(mods, key)).toString()));
         return false;
     }
 
     const bool res = unregisterShortcut(nativeKey, nativeMods);
     if (!res) {
-        qCWarning(log, "Failed to unregister '%s' shortcut.", qPrintable(QKeySequence(key | mods).toString()));
+        qCWarning(log,
+                  "Failed to unregister '%s' shortcut.",
+                  qPrintable(QKeySequence(QKeyCombination(mods, key)).toString()));
         return false;
     }
 
@@ -113,13 +120,14 @@ bool QxtGlobalShortcutPrivate::nativeUnregister()
 
 bool QxtGlobalShortcutPrivate::setShortcut(const QKeySequence &shortcut)
 {
-    const int combination = shortcut[0].toCombined();
-    const auto newKey = shortcut.isEmpty() ? UnsetKey : Qt::Key(combination & ~Qt::KeyboardModifierMask);
-    const auto newMods = shortcut.isEmpty() ? Qt::NoModifier
-                                            : Qt::KeyboardModifiers(combination & Qt::KeyboardModifierMask);
-
-    key = newKey;
-    mods = newMods;
+    key = UnsetKey;
+    mods = Qt::NoModifier;
+    if (!shortcut.isEmpty()) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access): guarded by isEmpty().
+        const QKeyCombination combination = shortcut[0];
+        key = combination.key();
+        mods = combination.keyboardModifiers();
+    }
 
     if (enabled && !nativeRegister()) {
         key = UnsetKey;
@@ -226,7 +234,7 @@ QxtGlobalShortcut::~QxtGlobalShortcut()
 QKeySequence QxtGlobalShortcut::shortcut() const
 {
     Q_D(const QxtGlobalShortcut);
-    return {d->key | d->mods};
+    return {QKeyCombination(d->mods, d->key)};
 }
 
 bool QxtGlobalShortcut::setShortcut(const QKeySequence &shortcut)
