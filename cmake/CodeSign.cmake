@@ -22,6 +22,9 @@ function(codesign)
         if(DEFINED _certificate_file)
             file(REMOVE ${_certificate_file})
         endif()
+        if(DEFINED _azure_metadata_file)
+            file(REMOVE ${_azure_metadata_file})
+        endif()
     endmacro()
 
     # Sets '_certificate_file' variable to a temporary file path.
@@ -100,106 +103,184 @@ function(codesign)
     set(_cmd_args "sign")
     list(APPEND _cmd_args "/fd" "sha256")
 
-    # Set certificate file.
-    if(NOT _ARG_CERTIFICATE_FILE)
-        if(CODESIGN_CERTIFICATE_FILE)
-            if(NOT EXISTS ${CODESIGN_CERTIFICATE_FILE})
-                message(NOTICE "Certificate file '${CODESIGN_CERTIFICATE_FILE}' does not exist.")
-                return()
-            endif()
+    # Detect Azure Trusted Signing mode. If all three required variables are set,
+    # signing is delegated to Microsoft.Trusted.Signing.Client (loaded by signtool
+    # via /dlib) instead of using a local PFX certificate. Authentication to Azure
+    # is handled out-of-band by the Azure SDK credential chain (typically a
+    # workload-identity token from `azure/login@v2` in CI).
+    set(_azure_endpoint "${CODESIGN_AZURE_ENDPOINT}")
+    if(NOT _azure_endpoint AND DEFINED ENV{CODESIGN_AZURE_ENDPOINT})
+        set(_azure_endpoint "$ENV{CODESIGN_AZURE_ENDPOINT}")
+    endif()
 
-            set(_ARG_CERTIFICATE_FILE ${CODESIGN_CERTIFICATE_FILE})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_FILE})
-            if("$ENV{CODESIGN_CERTIFICATE_FILE}" STREQUAL "")
-                message(NOTICE "CODESIGN_CERTIFICATE_FILE is set to an empty string.")
-                return()
-            endif()
+    set(_azure_account "${CODESIGN_AZURE_ACCOUNT}")
+    if(NOT _azure_account AND DEFINED ENV{CODESIGN_AZURE_ACCOUNT})
+        set(_azure_account "$ENV{CODESIGN_AZURE_ACCOUNT}")
+    endif()
 
-            if(NOT EXISTS $ENV{CODESIGN_CERTIFICATE_FILE})
-                message(NOTICE
-                    "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' "
-                    "(set in CODESIGN_CERTIFICATE_FILE) does not exist."
-                )
-                return()
-            endif()
+    set(_azure_profile "${CODESIGN_AZURE_PROFILE}")
+    if(NOT _azure_profile AND DEFINED ENV{CODESIGN_AZURE_PROFILE})
+        set(_azure_profile "$ENV{CODESIGN_AZURE_PROFILE}")
+    endif()
 
-            set(_ARG_CERTIFICATE_FILE $ENV{CODESIGN_CERTIFICATE_FILE})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE})
-            if("$ENV{CODESIGN_CERTIFICATE}" STREQUAL "")
-                message(NOTICE "CODESIGN_CERTIFICATE is set to an empty string.")
-                return()
-            endif()
+    set(_use_azure FALSE)
+    if(_azure_endpoint AND _azure_account AND _azure_profile)
+        set(_use_azure TRUE)
+    elseif(_azure_endpoint OR _azure_account OR _azure_profile)
+        message(FATAL_ERROR
+            "Incomplete Azure Trusted Signing configuration. "
+            "CODESIGN_AZURE_ENDPOINT, CODESIGN_AZURE_ACCOUNT, and "
+            "CODESIGN_AZURE_PROFILE must all be set."
+        )
+    endif()
 
-            # Store certificate value in a temporary file for signtool to use.
-            _set_temporary_certificate_file()
-            file(WRITE ${_certificate_file} $ENV{CODESIGN_CERTIFICATE})
-            set(_ARG_CERTIFICATE_FILE ${_certificate_file})
-        elseif(DEFINED ENV{CODESIGN_CERTIFICATE_BASE64})
-            if("$ENV{CODESIGN_CERTIFICATE_BASE64}" STREQUAL "")
-                message(NOTICE "CODESIGN_CERTIFICATE_BASE64 is set to an empty string.")
-                return()
-            endif()
+    if(_use_azure)
+        # Resolve dlib path.
+        set(_azure_dlib "${CODESIGN_AZURE_DLIB}")
+        if(NOT _azure_dlib AND DEFINED ENV{CODESIGN_AZURE_DLIB})
+            set(_azure_dlib "$ENV{CODESIGN_AZURE_DLIB}")
+        endif()
 
-            # Read base64-encoded certificate from environment variable,
-            # decode with `certutil.exe`, and store in a temporary file
-            # for signtool to use.
-            #
-            # This is useful for GitHub Actions, which cannot handle unencoded
-            # multiline secrets.
-
-            _set_temporary_certificate_file()
-
-            # Save base64-encoded certificate to file.
-            set(_certificate_base64_file "${_certificate_file}.base64")
-            file(WRITE ${_certificate_base64_file} $ENV{CODESIGN_CERTIFICATE_BASE64})
-
-            # Decode certificate.
-            set(_cmd_certutil_args "-decode" ${_certificate_base64_file} ${_certificate_file})
-            execute_process(COMMAND "certutil.exe" ${_cmd_certutil_args}
-                RESULT_VARIABLE _rc
-                OUTPUT_VARIABLE _stdout
-                # For some reason certutil prints errors to stdout.
-                # ERROR_VARIABLE  _stderr
+        if(NOT _azure_dlib)
+            message(FATAL_ERROR
+                "CODESIGN_AZURE_DLIB is not set. "
+                "Azure Trusted Signing requires the path to Azure.CodeSigning.Dlib.dll."
             )
+        endif()
 
-            # Remove temporary file first.
-            file(REMOVE ${_certificate_base64_file})
+        if(NOT EXISTS "${_azure_dlib}")
+            message(FATAL_ERROR
+                "Azure Trusted Signing dlib '${_azure_dlib}' does not exist."
+            )
+        endif()
 
-            if(NOT _rc EQUAL 0)
-                message(WARNING "Failed to decode certificate: ${_stdout}")
-                _cleanup()
-                return()
-            endif()
-
-            unset(_rc)
-            unset(_stdout)
-
-            set(_ARG_CERTIFICATE_FILE ${_certificate_file})
+        # Determine temporary file location for the metadata JSON.
+        if(CMAKE_BINARY_DIR)
+            set(_temp_path ${CMAKE_BINARY_DIR})
+        elseif(CPACK_TEMPORARY_DIRECTORY)
+            set(_temp_path ${CPACK_TEMPORARY_DIRECTORY})
         else()
-            message(NOTICE "Certificate is not provided, no binaries will be signed.")
-            return()
+            set(_temp_path $ENV{TEMP})
         endif()
-    endif()
 
-    list(APPEND _cmd_args "/f" ${_ARG_CERTIFICATE_FILE})
+        set(_azure_metadata_file "${_temp_path}/codesign-azure-metadata.json")
 
-    # Set password.
-    if(NOT _ARG_PASSWORD)
-        if(CODESIGN_PASSWORD)
-            set(_ARG_PASSWORD ${CODESIGN_PASSWORD})
-        elseif(DEFINED ENV{CODESIGN_PASSWORD})
-            if("$ENV{CODESIGN_PASSWORD}" STREQUAL "")
-                message(NOTICE "CODESIGN_PASSWORD is set to an empty string. Unset if not used.")
-                _cleanup()
+        # Remove any leftover from a previous run.
+        if(EXISTS ${_azure_metadata_file})
+            file(REMOVE ${_azure_metadata_file})
+        endif()
+
+        file(WRITE ${_azure_metadata_file}
+"{
+  \"Endpoint\": \"${_azure_endpoint}\",
+  \"CodeSigningAccountName\": \"${_azure_account}\",
+  \"CertificateProfileName\": \"${_azure_profile}\"
+}
+")
+
+        list(APPEND _cmd_args "/dlib" ${_azure_dlib} "/dmdf" ${_azure_metadata_file})
+    else()
+        # Set certificate file.
+        if(NOT _ARG_CERTIFICATE_FILE)
+            if(CODESIGN_CERTIFICATE_FILE)
+                if(NOT EXISTS ${CODESIGN_CERTIFICATE_FILE})
+                    message(NOTICE "Certificate file '${CODESIGN_CERTIFICATE_FILE}' does not exist.")
+                    return()
+                endif()
+
+                set(_ARG_CERTIFICATE_FILE ${CODESIGN_CERTIFICATE_FILE})
+            elseif(DEFINED ENV{CODESIGN_CERTIFICATE_FILE})
+                if("$ENV{CODESIGN_CERTIFICATE_FILE}" STREQUAL "")
+                    message(NOTICE "CODESIGN_CERTIFICATE_FILE is set to an empty string.")
+                    return()
+                endif()
+
+                if(NOT EXISTS $ENV{CODESIGN_CERTIFICATE_FILE})
+                    message(NOTICE
+                        "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' "
+                        "(set in CODESIGN_CERTIFICATE_FILE) does not exist."
+                    )
+                    return()
+                endif()
+
+                set(_ARG_CERTIFICATE_FILE $ENV{CODESIGN_CERTIFICATE_FILE})
+            elseif(DEFINED ENV{CODESIGN_CERTIFICATE})
+                if("$ENV{CODESIGN_CERTIFICATE}" STREQUAL "")
+                    message(NOTICE "CODESIGN_CERTIFICATE is set to an empty string.")
+                    return()
+                endif()
+
+                # Store certificate value in a temporary file for signtool to use.
+                _set_temporary_certificate_file()
+                file(WRITE ${_certificate_file} $ENV{CODESIGN_CERTIFICATE})
+                set(_ARG_CERTIFICATE_FILE ${_certificate_file})
+            elseif(DEFINED ENV{CODESIGN_CERTIFICATE_BASE64})
+                if("$ENV{CODESIGN_CERTIFICATE_BASE64}" STREQUAL "")
+                    message(NOTICE "CODESIGN_CERTIFICATE_BASE64 is set to an empty string.")
+                    return()
+                endif()
+
+                # Read base64-encoded certificate from environment variable,
+                # decode with `certutil.exe`, and store in a temporary file
+                # for signtool to use.
+                #
+                # This is useful for GitHub Actions, which cannot handle unencoded
+                # multiline secrets.
+
+                _set_temporary_certificate_file()
+
+                # Save base64-encoded certificate to file.
+                set(_certificate_base64_file "${_certificate_file}.base64")
+                file(WRITE ${_certificate_base64_file} $ENV{CODESIGN_CERTIFICATE_BASE64})
+
+                # Decode certificate.
+                set(_cmd_certutil_args "-decode" ${_certificate_base64_file} ${_certificate_file})
+                execute_process(COMMAND "certutil.exe" ${_cmd_certutil_args}
+                    RESULT_VARIABLE _rc
+                    OUTPUT_VARIABLE _stdout
+                    # For some reason certutil prints errors to stdout.
+                    # ERROR_VARIABLE  _stderr
+                )
+
+                # Remove temporary file first.
+                file(REMOVE ${_certificate_base64_file})
+
+                if(NOT _rc EQUAL 0)
+                    message(WARNING "Failed to decode certificate: ${_stdout}")
+                    _cleanup()
+                    return()
+                endif()
+
+                unset(_rc)
+                unset(_stdout)
+
+                set(_ARG_CERTIFICATE_FILE ${_certificate_file})
+            else()
+                message(NOTICE "Certificate is not provided, no binaries will be signed.")
                 return()
             endif()
-
-            set(_ARG_PASSWORD $ENV{CODESIGN_PASSWORD})
         endif()
-    endif()
 
-    if(_ARG_PASSWORD)
-        list(APPEND _cmd_args "/p" ${_ARG_PASSWORD})
+        list(APPEND _cmd_args "/f" ${_ARG_CERTIFICATE_FILE})
+
+        # Set password.
+        if(NOT _ARG_PASSWORD)
+            if(CODESIGN_PASSWORD)
+                set(_ARG_PASSWORD ${CODESIGN_PASSWORD})
+            elseif(DEFINED ENV{CODESIGN_PASSWORD})
+                if("$ENV{CODESIGN_PASSWORD}" STREQUAL "")
+                    message(NOTICE "CODESIGN_PASSWORD is set to an empty string. Unset if not used.")
+                    _cleanup()
+                    return()
+                endif()
+
+                set(_ARG_PASSWORD $ENV{CODESIGN_PASSWORD})
+            endif()
+        endif()
+
+        if(_ARG_PASSWORD)
+            list(APPEND _cmd_args "/p" ${_ARG_PASSWORD})
+        endif()
     endif()
 
     # Set description (shown as "Program name" in UAC prompts).
