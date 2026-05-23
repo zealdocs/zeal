@@ -69,7 +69,7 @@ const QList<int> &WebView::availableZoomLevels()
 
 int WebView::defaultZoomLevel()
 {
-    static const int level = availableZoomLevels().indexOf(100);
+    static const int level = static_cast<int>(availableZoomLevels().indexOf(100));
     return level;
 }
 
@@ -195,7 +195,7 @@ bool WebView::handleMouseReleaseEvent(QMouseEvent *event)
 
 bool WebView::handleWheelEvent(QWheelEvent *event)
 {
-    if (event->modifiers() & Qt::ControlModifier) {
+    if (event->modifiers().testFlag(Qt::ControlModifier)) {
         const QPoint angleDelta = event->angleDelta();
         int delta = qAbs(angleDelta.x()) > qAbs(angleDelta.y()) ? angleDelta.x() : angleDelta.y();
         const int direction = delta > 0 ? 1 : -1;

@@ -157,7 +157,7 @@ QModelIndex ListModel::parent(const QModelIndex &child) const
     }
     case IndexLevel::Symbol: {
         auto *item = static_cast<GroupItem *>(child.internalPointer());
-        return createIndex(item->docsetItem->groups.indexOf(item), 0, item->docsetItem);
+        return createIndex(static_cast<int>(item->docsetItem->groups.indexOf(item)), 0, item->docsetItem);
     }
     default:
         return {};
@@ -183,7 +183,7 @@ int ListModel::rowCount(const QModelIndex &parent) const
     case IndexLevel::Root:
         return static_cast<int>(m_docsetItems.size());
     case IndexLevel::Docset:
-        return itemInRow(parent.row())->docset->symbolCounts().count();
+        return static_cast<int>(itemInRow(parent.row())->docset->symbolCounts().count());
     case IndexLevel::Group: {
         auto *docsetItem = static_cast<DocsetItem *>(parent.internalPointer());
         return docsetItem->docset->symbolCount(docsetItem->groups.at(parent.row())->symbolType);
@@ -215,8 +215,9 @@ void ListModel::addDocset(const QString &name)
 
     m_docsetItems.insert({name, docsetItem});
     m_docsetRows.insert(m_docsetRows.begin() + row, docsetItem);
-    for (int i = row; i < static_cast<int>(m_docsetRows.size()); ++i) {
-        m_docsetRows[i]->row = i;
+    int rowIndex = 0;
+    for (auto *item : m_docsetRows) {
+        item->row = rowIndex++;
     }
 
     endInsertRows();
@@ -236,8 +237,9 @@ void ListModel::removeDocset(const QString &name)
 
     m_docsetItems.erase(it);
     m_docsetRows.erase(m_docsetRows.begin() + row);
-    for (int i = row; i < static_cast<int>(m_docsetRows.size()); ++i) {
-        m_docsetRows[i]->row = i;
+    int rowIndex = 0;
+    for (auto *docsetRow : m_docsetRows) {
+        docsetRow->row = rowIndex++;
     }
 
     qDeleteAll(item->groups);

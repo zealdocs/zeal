@@ -53,7 +53,7 @@ void precomputeBonus(const QString &haystack, double *matchBonus)
 bool hasMatch(const QString &needle, const QString &haystack)
 {
     int haystackPos = 0;
-    const int haystackLen = haystack.length();
+    const int haystackLen = static_cast<int>(haystack.length());
 
     for (int i = 0; i < needle.length(); ++i) {
         const QChar needleCh = needle[i].toLower();
@@ -104,8 +104,8 @@ double score(const QString &needle, const QString &haystack, QList<int> *positio
 
 double computeScore(const QString &needle, const QString &haystack, QList<int> *positions)
 {
-    const int needleLen = needle.length();
-    const int haystackLen = haystack.length();
+    const int needleLen = static_cast<int>(needle.length());
+    const int haystackLen = static_cast<int>(haystack.length());
 
     if (needleLen == 0 || haystackLen == 0 || needleLen > haystackLen) {
         if (positions != nullptr) {
@@ -167,7 +167,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     }
 
     auto idx = [haystackLen](int i, int j) {
-        return i * haystackLen + j;
+        return (i * haystackLen) + j;
     };
 
     // Forward pass: compute scores

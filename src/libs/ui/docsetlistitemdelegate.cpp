@@ -70,9 +70,9 @@ void DocsetListItemDelegate::paint(QPainter *painter,
     const QPalette &palette = option.palette;
 #endif
 
-    const QPalette::ColorGroup cg = (option.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
+    const QPalette::ColorGroup cg = option.state.testFlag(QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
 
-    if (option.state & QStyle::State_Selected) {
+    if (option.state.testFlag(QStyle::State_Selected)) {
         painter->setPen(palette.color(cg, QPalette::HighlightedText));
     } else {
         painter->setPen(palette.color(cg, QPalette::Text));

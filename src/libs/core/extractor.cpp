@@ -98,7 +98,14 @@ void Extractor::extract(const QString &sourceFile, const QString &destination, c
                 return;
             }
 
-            file.write(static_cast<const char *>(buffer), size);
+            const auto toWrite = static_cast<qint64>(size);
+            const qint64 written = file.write(static_cast<const char *>(buffer), toWrite);
+            if (written != toWrite) {
+                qCWarning(log, "Cannot write extracted file data for '%s'.", qPrintable(pathname));
+                emit error(sourceFile, tr("Failed to write extracted file '%1'.").arg(pathname));
+                archive_read_free(info.archiveHandle);
+                return;
+            }
         }
 
         emitProgress(info);

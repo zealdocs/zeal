@@ -26,7 +26,7 @@ constexpr char ListViewsSql[] = "SELECT name"
 
 // sqlite3_exec() callback used in tables() and views().
 const auto ListCallback = [](void *ptr, int, char **data, char **) {
-    static_cast<QStringList *>(ptr)->append(QString::fromUtf8(data[0]));
+    static_cast<QStringList *>(ptr)->append(QString::fromUtf8(*data));
     return 0;
 };
 } // namespace

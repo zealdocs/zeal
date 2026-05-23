@@ -21,11 +21,11 @@ signals:
     void actionTriggered(const QString &action);
 
 public slots:
-    Q_INVOKABLE void openShortUrl(const QString &key);
+    Q_INVOKABLE static void openShortUrl(const QString &key);
     Q_INVOKABLE void triggerAction(const QString &action);
 
 private:
-    QString appVersion() const;
+    static QString appVersion();
 };
 
 } // namespace Zeal::Browser

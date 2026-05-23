@@ -32,6 +32,7 @@ HttpServer::HttpServer(QObject *parent)
     m_baseUrl.setHost(LocalHttpServerHost);
     m_baseUrl.setPort(port);
 
+    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
     m_server->set_error_handler([this](const auto &req, auto &res) {
         // On 404, try case-insensitive path resolution.
         // Docsets generated on macOS (case-insensitive) may have links with mismatched case.

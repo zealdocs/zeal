@@ -51,6 +51,9 @@ constexpr char DocsetListCacheFileName[] = "com.kapeli.json";
 // TODO: Make the timeout period configurable
 constexpr int CacheTimeout = 24 * 60 * 60; // 24 hours in seconds
 
+// Read downloads in small chunks to keep the UI responsive.
+constexpr qint64 DownloadChunkSize = 1024LL * 1024; // 1 MiB
+
 // QNetworkReply properties
 constexpr char DocsetNameProperty[] = "docsetName";
 constexpr char DownloadTypeProperty[] = "downloadType";
@@ -64,7 +67,6 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     , m_docsetRegistry(app->docsetRegistry())
 {
     ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     loadDocsetList();
 
@@ -178,7 +180,9 @@ void DocsetsDialog::removeSelectedDocsets()
     } else {
         rc = QMessageBox::question(this,
                                    QStringLiteral("Zeal"),
-                                   tr("Remove <b>%n</b> docset(s)?", nullptr, selectedIndexes.size()));
+                                   tr("Remove <b>%n</b> docset(s)?",
+                                      nullptr,
+                                      static_cast<int>(selectedIndexes.size())));
     }
 
     if (rc == QMessageBox::No) {
@@ -333,7 +337,7 @@ void DocsetsDialog::downloadCompleted()
         }
 
         while (reply->bytesAvailable() > 0) {
-            tmpFile->write(reply->read(1024 * 1024)); // Use small chunks.
+            tmpFile->write(reply->read(DownloadChunkSize));
         }
 
         tmpFile->close();
@@ -858,11 +862,11 @@ void DocsetsDialog::updateStatus()
     QString text;
 
     if (!m_replies.isEmpty()) {
-        text = tr("Downloading: %n.", nullptr, m_replies.size());
+        text = tr("Downloading: %n.", nullptr, static_cast<int>(m_replies.size()));
     }
 
     if (!m_tmpFiles.isEmpty()) {
-        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, m_tmpFiles.size());
+        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, static_cast<int>(m_tmpFiles.size()));
     }
 
     ui->statusLabel->setText(text);
@@ -887,7 +891,7 @@ int DocsetsDialog::percent(qint64 fraction, qint64 total)
         return 0;
     }
 
-    return static_cast<int>(fraction / static_cast<double>(total) * 100);
+    return static_cast<int>(static_cast<double>(fraction) / static_cast<double>(total) * 100);
 }
 
 QString DocsetsDialog::cacheLocation(const QString &fileName)

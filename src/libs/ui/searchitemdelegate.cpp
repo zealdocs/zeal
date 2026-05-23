@@ -90,12 +90,12 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     if (!roles.isEmpty()) {
         QIcon::Mode mode = QIcon::Normal;
-        if (!(opt.state & QStyle::State_Enabled)) {
+        if (!opt.state.testFlag(QStyle::State_Enabled)) {
             mode = QIcon::Disabled;
-        } else if (opt.state & QStyle::State_Selected) {
+        } else if (opt.state.testFlag(QStyle::State_Selected)) {
             mode = QIcon::Selected;
         }
-        const QIcon::State state = (opt.state & QStyle::State_Open) ? QIcon::On : QIcon::Off;
+        const QIcon::State state = opt.state.testFlag(QStyle::State_Open) ? QIcon::On : QIcon::Off;
 
         // All icons are sized after the first one.
         QRect iconRect = style->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
@@ -103,13 +103,13 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         iconRect = QStyle::visualRect(opt.direction, opt.rect, iconRect);
         const int dx = iconRect.width() + margin;
 
-        for (int i = 1; i < roles.size(); ++i) {
+        for (qsizetype i = 1; i < roles.size(); ++i) {
             opt.decorationSize.rwidth() += dx;
             iconRect.translate(dx, 0);
             // Redo RTL mirroring
             const auto iconVisualRect = QStyle::visualRect(opt.direction, opt.rect, iconRect);
 
-            const auto icon = index.data(roles[i]).value<QIcon>();
+            const auto icon = index.data(roles.at(i)).value<QIcon>();
             icon.paint(painter, iconVisualRect, opt.decorationAlignment, mode, state);
         }
     }
@@ -142,9 +142,9 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 #endif
 
-    const QPalette::ColorGroup cg = (opt.state & QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
+    const QPalette::ColorGroup cg = opt.state.testFlag(QStyle::State_Active) ? QPalette::Normal : QPalette::Inactive;
 
-    if (opt.state & QStyle::State_Selected) {
+    if (opt.state.testFlag(QStyle::State_Selected)) {
         painter->setPen(opt.palette.color(cg, QPalette::HighlightedText));
     } else {
         painter->setPen(opt.palette.color(cg, QPalette::Text));
@@ -167,7 +167,7 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         const QFontMetrics normalFm(normalFont);
         const QFontMetrics boldFm(boldFont);
 
-        const QColor matchColor = (opt.state & QStyle::State_Selected)
+        const QColor matchColor = opt.state.testFlag(QStyle::State_Selected)
                                     ? opt.palette.color(cg, QPalette::HighlightedText)
                                     : opt.palette.color(QPalette::Active, QPalette::Highlight);
         const QColor textColor = painter->pen().color();
@@ -177,7 +177,8 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         // Match positions are indices into the original text. When elided,
         // stop highlighting before the ellipsis to avoid mismatched indices.
         const bool isElided = (elidedText != opt.text);
-        const int highlightLen = isElided ? elidedText.length() - 1 : elidedText.length();
+        const int textLen = static_cast<int>(elidedText.length());
+        const int highlightLen = isElided ? textLen - 1 : textLen;
 
         int x = alignedRect.x();
         const int y = alignedRect.y() + fm.ascent();
@@ -235,7 +236,7 @@ QSize SearchItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     }
 
     if (!roles.isEmpty()) {
-        size.rwidth() = ((opt.decorationSize.width() + margin) * roles.size()) + margin;
+        size.rwidth() = ((opt.decorationSize.width() + margin) * static_cast<int>(roles.size())) + margin;
     }
 
     size.rwidth() += opt.fontMetrics.horizontalAdvance(index.data().toString()) + (margin * 2);

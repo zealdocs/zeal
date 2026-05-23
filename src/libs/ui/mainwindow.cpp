@@ -591,7 +591,9 @@ void MainWindow::bringToFront()
     }
 #endif
     show();
-    setWindowState(windowState() & ~Qt::WindowMinimized);
+    Qt::WindowStates state = windowState();
+    state.setFlag(Qt::WindowMinimized, false);
+    setWindowState(state);
 #ifdef Q_OS_WINDOWS
     if (!m_savedGeometry.isEmpty()) {
         const QByteArray geom = m_savedGeometry;
