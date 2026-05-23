@@ -19,7 +19,9 @@ namespace Zeal::Browser {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.browser.settings")
 
-constexpr char HighlightOnNavigateCssPath[] = ":/browser/assets/css/highlight.css";
+using Qt::Literals::StringLiterals::operator""_L1;
+
+constexpr auto HighlightOnNavigateCssPath = ":/browser/assets/css/highlight.css"_L1;
 } // namespace
 
 QWebEngineProfile *Settings::m_webProfile = nullptr;

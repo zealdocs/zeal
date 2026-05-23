@@ -28,7 +28,9 @@
 namespace Zeal::WidgetUi {
 
 namespace {
-constexpr char WelcomePageUrl[] = "qrc:///browser/welcome.html";
+using Qt::Literals::StringLiterals::operator""_L1;
+
+constexpr auto WelcomePageUrl = "qrc:///browser/welcome.html"_L1;
 } // namespace
 
 BrowserTab::BrowserTab(QWidget *parent)

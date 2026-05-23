@@ -11,18 +11,18 @@
 namespace Zeal::Util {
 
 namespace {
-constexpr char ListTablesSql[] = "SELECT name"
-                                 "  FROM"
-                                 "    (SELECT * FROM sqlite_master UNION ALL"
-                                 "    SELECT * FROM sqlite_temp_master)"
-                                 "  WHERE type='table'"
-                                 "  ORDER BY name";
-constexpr char ListViewsSql[] = "SELECT name"
-                                "  FROM"
-                                "    (SELECT * FROM sqlite_master UNION ALL"
-                                "    SELECT * FROM sqlite_temp_master)"
-                                "  WHERE type='view'"
-                                "  ORDER BY name";
+constexpr const char *ListTablesSql = "SELECT name"
+                                      "  FROM"
+                                      "    (SELECT * FROM sqlite_master UNION ALL"
+                                      "    SELECT * FROM sqlite_temp_master)"
+                                      "  WHERE type='table'"
+                                      "  ORDER BY name";
+constexpr const char *ListViewsSql = "SELECT name"
+                                     "  FROM"
+                                     "    (SELECT * FROM sqlite_master UNION ALL"
+                                     "    SELECT * FROM sqlite_temp_master)"
+                                     "  WHERE type='view'"
+                                     "  ORDER BY name";
 
 // sqlite3_exec() callback used in tables() and views().
 const auto ListCallback = [](void *ptr, int, char **data, char **) {

@@ -37,16 +37,18 @@ namespace Zeal::WidgetUi {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
 
+using Qt::Literals::StringLiterals::operator""_L1;
+
 enum class DownloadType {
     DashFeed,
     Docset,
     DocsetList
 };
 
-constexpr char ApiServerUrl[] = "https://api.zealdocs.org/v1";
-constexpr char RedirectServerUrl[] = "https://go.zealdocs.org/d/%1/%2/latest";
+constexpr auto ApiServerUrl = "https://api.zealdocs.org/v1"_L1;
+constexpr auto RedirectServerUrl = "https://go.zealdocs.org/d/%1/%2/latest"_L1;
 // TODO: Each source plugin should have its own cache
-constexpr char DocsetListCacheFileName[] = "com.kapeli.json";
+constexpr auto DocsetListCacheFileName = "com.kapeli.json"_L1;
 
 // TODO: Make the timeout period configurable
 constexpr int CacheTimeout = 24 * 60 * 60; // 24 hours in seconds
@@ -55,9 +57,9 @@ constexpr int CacheTimeout = 24 * 60 * 60; // 24 hours in seconds
 constexpr qint64 DownloadChunkSize = 1024LL * 1024; // 1 MiB
 
 // QNetworkReply properties
-constexpr char DocsetNameProperty[] = "docsetName";
-constexpr char DownloadTypeProperty[] = "downloadType";
-constexpr char ListItemIndexProperty[] = "listItem";
+constexpr const char *DocsetNameProperty = "docsetName";
+constexpr const char *DownloadTypeProperty = "downloadType";
+constexpr const char *ListItemIndexProperty = "listItem";
 
 void setDownloadType(QNetworkReply *reply, DownloadType type)
 {

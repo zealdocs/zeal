@@ -27,7 +27,9 @@
 namespace Zeal::Core {
 
 namespace {
-constexpr char ReleasesApiUrl[] = "https://api.zealdocs.org/v1/releases";
+using Qt::Literals::StringLiterals::operator""_L1;
+
+constexpr auto ReleasesApiUrl = "https://api.zealdocs.org/v1/releases"_L1;
 } // namespace
 
 Application *Application::m_instance = nullptr;

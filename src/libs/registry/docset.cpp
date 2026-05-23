@@ -35,18 +35,18 @@ using Qt::Literals::StringLiterals::operator""_L1;
 constexpr auto IndexNamePrefix = "__zi_name"_L1; // zi - Zeal index
 constexpr auto IndexNameVersion = "0001"_L1;     // Current index version
 
-constexpr char NotFoundPageUrl[] = "qrc:///browser/404.html";
+constexpr auto NotFoundPageUrl = "qrc:///browser/404.html"_L1;
 
 namespace InfoPlist {
-constexpr char CFBundleName[] = "CFBundleName";
+constexpr auto CFBundleName = "CFBundleName"_L1;
 // const char CFBundleIdentifier[] = "CFBundleIdentifier";
-constexpr char DashDocSetFamily[] = "DashDocSetFamily";
-constexpr char DashDocSetKeyword[] = "DashDocSetKeyword";
-constexpr char DashDocSetPluginKeyword[] = "DashDocSetPluginKeyword";
-constexpr char DashIndexFilePath[] = "dashIndexFilePath";
-constexpr char DocSetPlatformFamily[] = "DocSetPlatformFamily";
+constexpr auto DashDocSetFamily = "DashDocSetFamily"_L1;
+constexpr auto DashDocSetKeyword = "DashDocSetKeyword"_L1;
+constexpr auto DashDocSetPluginKeyword = "DashDocSetPluginKeyword"_L1;
+constexpr auto DashIndexFilePath = "dashIndexFilePath"_L1;
+constexpr auto DocSetPlatformFamily = "DocSetPlatformFamily"_L1;
 // const char IsDashDocset[] = "isDashDocset";
-constexpr char IsJavaScriptEnabled[] = "isJavaScriptEnabled";
+constexpr auto IsJavaScriptEnabled = "isJavaScriptEnabled"_L1;
 } // namespace InfoPlist
 
 void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
