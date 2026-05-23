@@ -101,8 +101,11 @@ if (-not $files) {
 $counts = @{}
 
 try {
+    $total = @($files).Count
+    $i = 0
     foreach ($file in $files) {
-        Write-Verbose "Processing $file"
+        $i++
+        Write-Verbose "[$i/$total] Processing $file"
         & clang-tidy @tidyArgs --quiet $file 2>&1 | ForEach-Object {
             $line = "$_"
             $line

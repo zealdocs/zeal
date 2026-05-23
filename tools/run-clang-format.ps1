@@ -38,8 +38,11 @@ if ($Fix) {
 }
 
 $failed = $false
+$total = @($files).Count
+$i = 0
 foreach ($file in $files) {
-    Write-Verbose "Processing $file"
+    $i++
+    Write-Verbose "[$i/$total] Processing $file"
     & clang-format @formatArgs $file
     if ($LASTEXITCODE -ne 0) {
         $failed = $true

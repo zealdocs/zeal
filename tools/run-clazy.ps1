@@ -78,9 +78,11 @@ if (-not $files) {
 
 $failed = $false
 try {
+    $total = @($files).Count
     $i = 0
     foreach ($file in $files) {
-        Write-Verbose "Processing $file"
+        $i++
+        Write-Verbose "[$i/$total] Processing $file"
         $perFileArgs = $clazyArgs
         if ($Fix) {
             $perFileArgs = $perFileArgs + @("--export-fixes=$fixesDir/$i.yaml")
@@ -89,7 +91,6 @@ try {
         if ($LASTEXITCODE -ne 0) {
             $failed = $true
         }
-        $i++
     }
 
     if ($Fix) {
