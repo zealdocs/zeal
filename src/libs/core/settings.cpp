@@ -30,15 +30,17 @@ namespace Zeal::Core {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.core.settings")
 
+using Qt::Literals::StringLiterals::operator""_L1;
+
 // Configuration file groups
-constexpr char GroupUI[] = "ui";
-constexpr char GroupContent[] = "content";
-constexpr char GroupDocsets[] = "docsets";
-constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
-constexpr char GroupSearch[] = "search";
-constexpr char GroupTabs[] = "tabs";
-constexpr char GroupInternal[] = "internal";
-constexpr char GroupProxy[] = "proxy";
+constexpr auto GroupUI = "ui"_L1;
+constexpr auto GroupContent = "content"_L1;
+constexpr auto GroupDocsets = "docsets"_L1;
+constexpr auto GroupGlobalShortcuts = "global_shortcuts"_L1;
+constexpr auto GroupSearch = "search"_L1;
+constexpr auto GroupTabs = "tabs"_L1;
+constexpr auto GroupInternal = "internal"_L1;
+constexpr auto GroupProxy = "proxy"_L1;
 } // namespace
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init): initialized by load().

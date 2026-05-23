@@ -18,7 +18,7 @@ namespace Zeal::Core {
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.core.httpserver")
 
-constexpr char LocalHttpServerHost[] = "127.0.0.1"; // macOS only routes 127.0.0.1 by default.
+constexpr const char *LocalHttpServerHost = "127.0.0.1"; // macOS only routes 127.0.0.1 by default.
 } // namespace
 
 HttpServer::HttpServer(QObject *parent)
@@ -29,7 +29,7 @@ HttpServer::HttpServer(QObject *parent)
     const int port = m_server->bind_to_any_port(LocalHttpServerHost);
 
     m_baseUrl.setScheme(QStringLiteral("http"));
-    m_baseUrl.setHost(LocalHttpServerHost);
+    m_baseUrl.setHost(QString::fromLatin1(LocalHttpServerHost));
     m_baseUrl.setPort(port);
 
     // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
