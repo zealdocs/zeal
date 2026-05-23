@@ -29,6 +29,7 @@ Checks: >
   -readability-magic-numbers,
 CheckOptions:
   cppcoreguidelines-pro-bounds-avoid-unchecked-container-access.ExcludeClasses: >-
+    ::std::array;::std::span;
     ::std::map;::std::unordered_map;::std::flat_map;
     ::QJsonObject;::QMap;::QHash;::QMultiMap;::QMultiHash;
     ::QVariantMap;::QVariantHash

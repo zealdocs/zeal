@@ -4,7 +4,9 @@
 #include "fuzzy.h"
 
 #include <algorithm>
+#include <array>
 #include <limits>
+#include <span>
 #include <vector>
 
 namespace Zeal::Util::Fuzzy {
@@ -20,7 +22,7 @@ constexpr double SCORE_MATCH_CAPITAL = 0.7;
 constexpr double SCORE_MATCH_DOT = 0.6;
 constexpr int FZY_MAX_LEN = 1024;
 
-void precomputeBonus(const QString &haystack, double *matchBonus)
+void precomputeBonus(const QString &haystack, std::span<double> matchBonus)
 {
     // Initialize to '/' so the first character of the haystack always receives
     // SCORE_MATCH_SLASH (0.9), the highest boundary bonus. This mirrors fzy's
@@ -30,7 +32,7 @@ void precomputeBonus(const QString &haystack, double *matchBonus)
     // prefix matches.
     QChar lastCh = '/';
     for (int i = 0; i < haystack.length(); ++i) {
-        const QChar ch = haystack[i];
+        const QChar ch = haystack.at(i);
 
         if (lastCh == '/' || lastCh == '\\') {
             matchBonus[i] = SCORE_MATCH_SLASH;
@@ -56,11 +58,11 @@ bool hasMatch(const QString &needle, const QString &haystack)
     const int haystackLen = static_cast<int>(haystack.length());
 
     for (int i = 0; i < needle.length(); ++i) {
-        const QChar needleCh = needle[i].toLower();
+        const QChar needleCh = needle.at(i).toLower();
         bool found = false;
 
         while (haystackPos < haystackLen) {
-            if (haystack[haystackPos].toLower() == needleCh) {
+            if (haystack.at(haystackPos).toLower() == needleCh) {
                 found = true;
                 ++haystackPos;
                 break;
@@ -122,7 +124,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
                 // Fill positions for exact match: [0, 1, 2, ..., n-1]
                 positions->resize(needleLen);
                 for (int i = 0; i < needleLen; ++i) {
-                    (*positions)[i] = i;
+                    positions->replace(i, i);
                 }
             }
 
@@ -145,7 +147,8 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
         return -std::numeric_limits<double>::infinity();
     }
 
-    double matchBonus[FZY_MAX_LEN] = {}; // Zero-initialize to satisfy static analyzer
+    std::array<double, FZY_MAX_LEN> matchBonusStorage{};
+    const std::span<double> matchBonus(matchBonusStorage);
     precomputeBonus(haystack, matchBonus);
 
     const double SCORE_MIN = -std::numeric_limits<double>::infinity();
@@ -157,13 +160,14 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     if (dp.size() < 2 * cells) {
         dp.resize(2 * cells);
     }
-    double *const D = dp.data();
-    double *const M = dp.data() + cells;
+    const auto D = std::span(dp).first(cells);
+    const auto M = std::span(dp).subspan(cells, cells);
 
     // Lower the haystack once instead of once per needle row.
-    char16_t hsLower[FZY_MAX_LEN];
+    std::array<char16_t, FZY_MAX_LEN> hsLowerStorage{};
+    const std::span<char16_t> hsLower(hsLowerStorage);
     for (int j = 0; j < haystackLen; ++j) {
-        hsLower[j] = haystack[j].toLower().unicode();
+        hsLower[j] = haystack.at(j).toLower().unicode();
     }
 
     auto idx = [haystackLen](int i, int j) {
@@ -175,7 +179,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
         double prevScore = SCORE_MIN;
         const double gapScore = (i == needleLen - 1) ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
-        const char16_t needleCh = needle[i].toLower().unicode();
+        const char16_t needleCh = needle.at(i).toLower().unicode();
 
         for (int j = 0; j < haystackLen; ++j) {
             if (needleCh == hsLower[j]) {
@@ -215,7 +219,7 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
                     // Use D (score at this specific position), not M
                     // (global prefix optimum), which may reflect a different path entirely.
                     matchRequired = (i > 0 && j > 0 && dij == D[idx(i - 1, j - 1)] + SCORE_MATCH_CONSECUTIVE);
-                    (*positions)[i] = j;
+                    positions->replace(i, j);
                     --j;
                     break;
                 }
