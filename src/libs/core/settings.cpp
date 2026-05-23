@@ -41,6 +41,7 @@ constexpr char GroupInternal[] = "internal";
 constexpr char GroupProxy[] = "proxy";
 } // namespace
 
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init): initialized by load().
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {

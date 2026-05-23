@@ -28,7 +28,7 @@ public:
 
 private:
     void applySettings();
-    void setCustomStyleSheet(const QString &name, const QString &path);
+    static void setCustomStyleSheet(const QString &name, const QString &path);
 
     Core::Settings *m_appSettings = nullptr;
     static QWebEngineProfile *m_webProfile;

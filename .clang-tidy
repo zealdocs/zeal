@@ -20,6 +20,7 @@ Checks: >
   -linuxkernel-*,
   -llvm-prefer-static-over-anonymous-namespace,
   -llvmlibc-*,
+  -misc-include-cleaner,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,

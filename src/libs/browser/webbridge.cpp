@@ -25,7 +25,7 @@ void WebBridge::triggerAction(const QString &action)
     emit actionTriggered(action);
 }
 
-QString WebBridge::appVersion() const
+QString WebBridge::appVersion()
 {
     return Core::Application::versionString();
 }

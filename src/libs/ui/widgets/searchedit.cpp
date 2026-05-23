@@ -94,8 +94,7 @@ bool SearchEdit::event(QEvent *event)
         static const QStringList focusShortcuts = {QStringLiteral("Ctrl+K"), QStringLiteral("Ctrl+L")};
 
         auto *keyEvent = static_cast<QKeyEvent *>(event);
-        const int keyCode = keyEvent->key() | static_cast<int>(keyEvent->modifiers());
-        if (focusShortcuts.contains(QKeySequence(keyCode).toString())) {
+        if (focusShortcuts.contains(QKeySequence(keyEvent->keyCombination()).toString())) {
             selectQuery();
             event->accept();
             return true;

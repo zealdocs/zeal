@@ -15,15 +15,17 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
+#include <array>
+
 namespace Zeal::WidgetUi {
 
 namespace {
 // QFontDatabase::standardSizes() lacks some sizes, like 13, which QtWK uses by default.
-constexpr int AvailableFontSizes[] = {9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24,
-                                      26, 28, 30, 32, 34, 36, 40, 44, 48, 56, 64, 72};
-constexpr QWebEngineSettings::FontFamily BasicFontFamilies[] = {QWebEngineSettings::SerifFont,
-                                                                QWebEngineSettings::SansSerifFont,
-                                                                QWebEngineSettings::FixedFont};
+constexpr std::array AvailableFontSizes = {9,  10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24,
+                                           26, 28, 30, 32, 34, 36, 40, 44, 48, 56, 64, 72};
+constexpr std::array BasicFontFamilies = {QWebEngineSettings::SerifFont,
+                                          QWebEngineSettings::SansSerifFont,
+                                          QWebEngineSettings::FixedFont};
 } // namespace
 
 SettingsDialog::SettingsDialog(QWidget *parent)
@@ -31,7 +33,6 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     , ui(new Ui::SettingsDialog())
 {
     ui->setupUi(this);
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
@@ -68,13 +69,13 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     auto syncStandardFont = [this, webSettings](QWebEngineSettings::FontFamily fontFamily, const QFont &font) {
         const int index = ui->defaultFontComboBox->currentIndex();
-        if (BasicFontFamilies[index] == fontFamily) {
+        if (BasicFontFamilies.at(index) == fontFamily) {
             webSettings->setFontFamily(QWebEngineSettings::StandardFont, font.family());
         }
     };
 
     connect(ui->defaultFontComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
-        const QString fontFamily = webSettings->fontFamily(BasicFontFamilies[index]);
+        const QString fontFamily = webSettings->fontFamily(BasicFontFamilies.at(index));
         webSettings->setFontFamily(QWebEngineSettings::StandardFont, fontFamily);
     });
 
@@ -101,13 +102,13 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     });
 
     connect(ui->fontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
-        webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, AvailableFontSizes[index]);
+        webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, AvailableFontSizes.at(index));
     });
     connect(ui->fixedFontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
-        webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, AvailableFontSizes[index]);
+        webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, AvailableFontSizes.at(index));
     });
     connect(ui->minFontSizeComboBox, &QComboBox::currentIndexChanged, this, [webSettings](int index) {
-        const int fontSize = index == 0 ? 0 : AvailableFontSizes[index - 1];
+        const int fontSize = index == 0 ? 0 : AvailableFontSizes.at(index - 1);
         webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, fontSize);
     });
 
