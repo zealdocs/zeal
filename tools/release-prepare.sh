@@ -66,19 +66,25 @@ else
     git cliff --tag "v${VERSION}" --unreleased --config tools/cliff.toml > build/release-notes.md
 fi
 
-claude -p "Read this git-cliff release changelog and summarize the \
-user-facing changes as up to 10 <li>...</li> bullets for an AppStream \
-<description>. AppStream is read by Linux software centers, so skip \
-Windows-only and macOS-only changes. Each bullet should be concrete: the \
-specific problem fixed or capability added, in terms a non-developer \
-recognizes. Use past tense and start each bullet with one of: Added, \
-Changed, Removed, Deprecated, Fixed. Order bullets by category in that \
-sequence (Added first, Fixed last). No trailing period on bullets. Skip \
-internal refactors, build/CI/dependency commits, and changes a user \
-wouldn't notice. Avoid common AI cliches (em-dashes, 'delve into', \
-'leverage', 'robust', 'ensure', 'seamless', 'comprehensive'). Output \
-bullets only, no wrapping <ul>." \
-    < build/release-notes.md \
+# Read-only git only; unallowed tools are auto-denied in -p mode (no prompt).
+claude -p "Write the AppStream release notes for Zeal v${VERSION}, shown to \
+users browsing Linux software centers. The release covers every commit \
+since the previous git tag; use git (log, show, diff) to find that range \
+and read what each commit actually changes. Select only the changes a user \
+would notice and care about. There is no target count: include a change \
+only if it earns its place, and leave out cosmetic trivia, internal \
+refactors, build/CI/dependency commits, and Windows-only or macOS-only \
+changes. If you cannot tell a change's user-visible effect from its diff, \
+omit it. Write each as one <li>...</li> bullet that starts with Added, \
+Changed, Removed, Deprecated, or Fixed, grouped in that order (Added first, \
+Fixed last) and most significant first within each group. Keep each bullet \
+concrete and specific about what changed, in plain language a non-developer \
+understands; a short clause on why it helps is welcome. No trailing period. \
+Avoid AI cliches (em-dashes, 'delve into', 'leverage', 'robust', 'ensure', \
+'seamless', 'comprehensive'). Output the <li> lines only: no preamble, \
+commentary, or wrapping <ul>." \
+    --allowedTools "Bash(git log:*) Bash(git show:*) Bash(git diff:*)" \
+    < /dev/null \
     > build/appdata-bullets.txt
 
 today=$(date -u +%Y-%m-%d)
