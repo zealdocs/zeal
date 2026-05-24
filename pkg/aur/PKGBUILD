@@ -1,0 +1,64 @@
+# Maintainer: Oleg Shparber <oleg@zealdocs.org>
+
+_appname=zeal
+
+pkgname=${_appname}-git
+pkgver=0.0.0
+pkgrel=1
+pkgdesc='Offline documentation browser'
+arch=(aarch64 i686 x86_64)
+url="https://zealdocs.org/"
+license=(GPL-3.0-or-later)
+depends=(
+  gcc-libs
+  glibc
+  hicolor-icon-theme
+  libarchive
+  libgcc
+  libstdc++
+  libx11
+  libxcb
+  qt6-base
+  qt6-svg
+  qt6-webchannel
+  qt6-webengine
+  sqlite
+  xcb-util-keysyms
+)
+makedepends=(
+  cmake
+  extra-cmake-modules
+  git
+  ninja
+  tomlplusplus
+  vulkan-headers
+)
+provides=(${_appname})
+conflicts=(${_appname})
+source=("${_appname}::git+https://github.com/zealdocs/${_appname}#branch=main")
+sha1sums=(SKIP)
+
+pkgver() {
+  cd ${_appname}
+
+  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+  local cmake_options=(
+    -G Ninja
+    -B build
+    -S "$_appname"
+    -W no-dev
+    -D CMAKE_BUILD_TYPE=Release
+    -D CMAKE_INSTALL_PREFIX=/usr
+  )
+
+  cmake "${cmake_options[@]}"
+
+  cmake --build build
+}
+
+package() {
+  cmake --install build --prefix "${pkgdir}/usr"
+}

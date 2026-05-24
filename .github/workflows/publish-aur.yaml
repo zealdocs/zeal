@@ -1,0 +1,50 @@
+name: Publish AUR Package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish
+    if: github.repository == 'zealdocs/zeal'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # zeal-git tracks main HEAD; full history + tags are needed for git describe.
+          ref: main
+          fetch-depth: 0
+
+      - name: Compute package version
+        id: pkgver
+        # Mirror the PKGBUILD's pkgver() against main HEAD. The action computes the same
+        # value internally for .SRCINFO but commits before exposing it as an output.
+        run: |
+          version=$(git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish zeal-git to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v4
+        with:
+          pkgname: zeal-git
+          pkgbuild: pkg/aur/PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          ssh_keyscan_types: rsa,ecdsa,ed25519
+          commit_message: "Update to v${{ steps.pkgver.outputs.version }}"
+          # zeal-git is a VCS package: makepkg --printsrcinfo alone does not run
+          # pkgver(), so a --nobuild pass is required to refresh the version in the
+          # committed PKGBUILD and .SRCINFO. --nodeps skips installing build deps.
+          test: true
+          test_flags: --nobuild --nodeps
