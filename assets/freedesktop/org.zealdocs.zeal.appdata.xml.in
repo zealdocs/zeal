@@ -30,7 +30,34 @@
     <id>zeal.desktop</id>
   </provides>
   <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
-    <release date="2025-02-27" version="0.8.0" type="stable">
+    <release date="2026-04-04" version="0.8.1" type="stable">
+      <description>
+        <ul>
+          <li>Added the ability to open search results in a background tab</li>
+          <li>Fixed Zeal failing to start after a crash or unclean shutdown</li>
+          <li>Fixed the global hotkey not working with some key combinations on X11</li>
+          <li>Fixed a crash when updating docsets</li>
+          <li>Fixed a brief white flash when the window opened</li>
+          <li>Fixed find-in-page highlighting disappearing while searching</li>
+          <li>Fixed documentation links not opening when their capitalization did not match</li>
+          <li>Fixed keyword searches, including queries that begin with ::</li>
+        </ul>
+      </description>
+      <url>https://github.com/zealdocs/zeal/releases/tag/v0.8.1</url>
+    </release>
+    <release date="2026-02-28" version="0.8.0" type="stable">
+      <description>
+        <ul>
+          <li>Added support for viewing PDF files in the documentation view</li>
+          <li>Added an option to hide the menu bar for more reading space</li>
+          <li>Changed search fuzzy search to use a faster, more accurate algorithm</li>
+          <li>Changed search match highlighting method, added support for multiple matches</li>
+          <li>Changed docset loading to run in the background, so Zeal starts faster</li>
+          <li>Fixed custom user stylesheets not being applied</li>
+          <li>Fixed the color scheme not taking effect until the page was reloaded</li>
+          <li>Fixed documentation pages appearing over-zoomed on high-resolution displays</li>
+        </ul>
+      </description>
       <url>https://github.com/zealdocs/zeal/releases/tag/v0.8.0</url>
     </release>
     <release date="2024-09-08" version="0.7.2" type="stable">
