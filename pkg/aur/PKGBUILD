@@ -23,6 +23,7 @@ depends=(
   qt6-webchannel
   qt6-webengine
   sqlite
+  tomlplusplus
   xcb-util-keysyms
 )
 makedepends=(
@@ -30,7 +31,6 @@ makedepends=(
   extra-cmake-modules
   git
   ninja
-  tomlplusplus
   vulkan-headers
 )
 provides=(${_appname})
