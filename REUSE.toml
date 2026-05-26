@@ -68,3 +68,9 @@ path = [
 ]
 SPDX-FileCopyrightText = "Oleg Shparber <https://zealdocs.org>"
 SPDX-License-Identifier = "CC-BY-4.0"
+
+# MIT for the bundled Tabler icon glyphs.
+[[annotations]]
+path = "assets/tabler/*.svg"
+SPDX-FileCopyrightText = "Copyright (c) Paweł Kuna <https://tabler.io>"
+SPDX-License-Identifier = "MIT"

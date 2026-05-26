@@ -10,6 +10,23 @@
         <file alias="assets/css/welcome.css">resources/browser/assets/css/welcome.css</file>
         <file alias="welcome.html">resources/browser/welcome.html</file>
     </qresource>
+    <qresource prefix="/icons/tabler">
+        <file alias="arrow-left.svg">../../assets/tabler/arrow-left.svg</file>
+        <file alias="arrow-right.svg">../../assets/tabler/arrow-right.svg</file>
+        <file alias="dots-vertical.svg">../../assets/tabler/dots-vertical.svg</file>
+        <file alias="info-circle.svg">../../assets/tabler/info-circle.svg</file>
+        <file alias="library.svg">../../assets/tabler/library.svg</file>
+        <file alias="logout.svg">../../assets/tabler/logout.svg</file>
+        <file alias="minus.svg">../../assets/tabler/minus.svg</file>
+        <file alias="plus.svg">../../assets/tabler/plus.svg</file>
+        <file alias="rotate-clockwise.svg">../../assets/tabler/rotate-clockwise.svg</file>
+        <file alias="search.svg">../../assets/tabler/search.svg</file>
+        <file alias="settings.svg">../../assets/tabler/settings.svg</file>
+        <file alias="x.svg">../../assets/tabler/x.svg</file>
+        <file alias="zoom-in.svg">../../assets/tabler/zoom-in.svg</file>
+        <file alias="zoom-out.svg">../../assets/tabler/zoom-out.svg</file>
+        <file alias="zoom-reset.svg">../../assets/tabler/zoom-reset.svg</file>
+    </qresource>
     <qresource prefix="/icons/type">
         <file alias="Abbreviation.png">resources/icons/type/Abbreviation.png</file>
         <file alias="Abbreviation@2x.png">resources/icons/type/Abbreviation@2x.png</file>

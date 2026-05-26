@@ -3,12 +3,13 @@
 
 #include "searchtoolbar.h"
 
+#include <ui/widgets/iconhelper.h>
+
 #include <QAction>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLineEdit>
-#include <QStyle>
 #include <QToolButton>
 #include <QWebEnginePage>
 #include <QWebEngineView>
@@ -36,7 +37,8 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     m_findPreviousButton = new QToolButton();
     m_findPreviousButton->setAutoRaise(true);
-    m_findPreviousButton->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
+    m_findPreviousButton->setIcon(WidgetUi::IconHelper::fromTheme(QStringLiteral("go-previous"),
+                                                                  QStringLiteral(":/icons/tabler/arrow-left.svg")));
     m_findPreviousButton->setToolTip(tr("Previous result"));
     connect(m_findPreviousButton, &QToolButton::clicked, this, &SearchToolBar::findPrevious);
     layout->addWidget(m_findPreviousButton);
@@ -51,7 +53,8 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     m_findNextButton = new QToolButton();
     m_findNextButton->setAutoRaise(true);
-    m_findNextButton->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
+    m_findNextButton->setIcon(
+        WidgetUi::IconHelper::fromTheme(QStringLiteral("go-next"), QStringLiteral(":/icons/tabler/arrow-right.svg")));
     m_findNextButton->setToolTip(tr("Next result"));
     connect(m_findNextButton, &QToolButton::clicked, this, &SearchToolBar::findNext);
     layout->addWidget(m_findNextButton);
@@ -74,7 +77,8 @@ SearchToolBar::SearchToolBar(QWebEngineView *webView, QWidget *parent)
 
     auto *closeButton = new QToolButton();
     closeButton->setAutoRaise(true);
-    closeButton->setIcon(qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+    closeButton->setIcon(
+        WidgetUi::IconHelper::fromTheme(QStringLiteral("window-close"), QStringLiteral(":/icons/tabler/x.svg")));
     closeButton->setToolTip(tr("Close find bar"));
     connect(closeButton, &QToolButton::clicked, this, &QWidget::hide);
     layout->addWidget(closeButton);
