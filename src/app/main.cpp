@@ -5,6 +5,7 @@
 #include <core/application.h>
 #include <core/applicationsingleton.h>
 #include <registry/searchquery.h>
+#include <ui/widgets/proxystyle.h>
 #include <ui/windowmanager.h>
 
 #include <QApplication>
@@ -14,6 +15,8 @@
 #include <QDir>
 #include <QIcon>
 #include <QMessageBox>
+#include <QStyleFactory>
+#include <QStyleHints>
 #include <QTextStream>
 #include <QTimer>
 #include <QUrlQuery>
@@ -22,7 +25,6 @@
 #include <QAbstractNativeEventFilter>
 #include <QPalette>
 #include <QSettings>
-#include <QStyleHints>
 #include <qt_windows.h>
 
 #include <utility> // for std::ignore
@@ -222,17 +224,33 @@ int main(int argc, char *argv[])
         }
     }
 
-// Use Fusion style on Windows 10 & 11. This enables proper dark mode support.
-// See https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
-// TODO: Make style configurable, detect -style argument.
-#if defined(Q_OS_WINDOWS) && (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
-    const auto osName = QSysInfo::prettyProductName();
-    if (osName.startsWith("Windows 10") || osName.startsWith("Windows 11")) {
-        QApplication::setStyle("fusion");
-    }
-#endif
-
     QApplication qapp(argc, argv);
+
+    // Install ProxyStyle so restyled primitives (e.g. the tab bar close button) use
+    // Tabler glyphs like the rest of the UI. On Windows 10 & 11 base it on Fusion,
+    // which enables proper dark mode support.
+    // See https://www.qt.io/blog/dark-mode-on-windows-11-with-qt-6.5.
+    // Re-installing the style whenever the color scheme changes re-derives the
+    // platform palette and runs the full widget unpolish/polish cycle; Settings
+    // only sets the scheme (a plain setColorScheme/setPalette does not repaint
+    // widgets like the tab bar, search box, and tree views).
+    // TODO: Make style configurable, detect -style argument.
+    const auto applyApplicationStyle = []() {
+        QStyle *baseStyle = nullptr;
+#if defined(Q_OS_WINDOWS) && (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+        const auto osName = QSysInfo::prettyProductName();
+        if (osName.startsWith("Windows 10") || osName.startsWith("Windows 11")) {
+            baseStyle = QStyleFactory::create(QStringLiteral("fusion"));
+        }
+#endif
+        QApplication::setStyle(new Zeal::WidgetUi::ProxyStyle(baseStyle));
+    };
+    applyApplicationStyle();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QObject::connect(QApplication::styleHints(), &QStyleHints::colorSchemeChanged, &qapp, [applyApplicationStyle]() {
+        applyApplicationStyle();
+    });
+#endif
 
 #if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     DarkModeEraseFilter darkModeEraseFilter;

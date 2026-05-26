@@ -3,6 +3,8 @@
 
 #include "browserzoomwidget.h"
 
+#include "iconhelper.h"
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QToolButton>
@@ -22,6 +24,11 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     auto *zoomOutButton = new QToolButton();
     zoomOutButton->setAutoRaise(true);
     zoomOutButton->setFixedWidth(ButtonWidth);
+    // Light, symmetric fallback glyphs (−, +, ↻) suit this inline stepper better
+    // than the bulkier magnifier icons used for the equivalent View → Zoom menu
+    // actions; a themed desktop still substitutes its own zoom icons.
+    zoomOutButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("zoom-out"), QStringLiteral(":/icons/tabler/minus.svg")));
     zoomOutButton->setText(QStringLiteral("−"));
     zoomOutButton->setToolTip(tr("Zoom out"));
     connect(zoomOutButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomOutRequested);
@@ -34,6 +41,7 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     auto *zoomInButton = new QToolButton();
     zoomInButton->setAutoRaise(true);
     zoomInButton->setFixedWidth(ButtonWidth);
+    zoomInButton->setIcon(IconHelper::fromTheme(QStringLiteral("zoom-in"), QStringLiteral(":/icons/tabler/plus.svg")));
     zoomInButton->setText(QStringLiteral("+"));
     zoomInButton->setToolTip(tr("Zoom in"));
     connect(zoomInButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomInRequested);
@@ -41,6 +49,8 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     auto *resetButton = new QToolButton();
     resetButton->setAutoRaise(true);
     resetButton->setFixedWidth(ButtonWidth);
+    resetButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("zoom-original"), QStringLiteral(":/icons/tabler/rotate-clockwise.svg")));
     resetButton->setText(QStringLiteral("↻"));
     resetButton->setToolTip(tr("Actual size"));
     connect(resetButton, &QToolButton::clicked, this, &BrowserZoomWidget::resetZoomRequested);

@@ -33,7 +33,7 @@ qt_add_executable(App WIN32
     ${App_RESOURCES}
 )
 
-target_link_libraries(App PRIVATE Core Ui Util Qt6::Svg Qt6::Widgets)
+target_link_libraries(App PRIVATE Core Ui Util Widgets Qt6::Svg Qt6::Widgets)
 
 zeal_attach_qt_pch(App <QWidget>)
 

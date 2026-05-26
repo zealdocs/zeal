@@ -10,6 +10,7 @@
 #include "searchsidebar.h"
 #include "settingsdialog.h"
 #include "sidebarviewprovider.h"
+#include "widgets/iconhelper.h"
 
 #include <browser/settings.h>
 #include <browser/webbridge.h>
@@ -261,7 +262,9 @@ void MainWindow::setupMainMenu()
 
     // -> New Tab Action.
     // Not a standard icon, but it is often provided by GTK themes.
-    auto *action = menu->addAction(QIcon::fromTheme(QStringLiteral("tab-new")), tr("New &Tab"));
+    auto *action = menu->addAction(IconHelper::fromTheme(QStringLiteral("tab-new"),
+                                                         QStringLiteral(":/icons/tabler/plus.svg")),
+                                   tr("New &Tab"));
     addAction(action);
     action->setShortcut(QKeySequence::AddTab);
     connect(action, &QAction::triggered, this, [this]() {
@@ -280,7 +283,8 @@ void MainWindow::setupMainMenu()
 
     // -> Quit Action.
     // Follow Windows HIG naming.
-    action = menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")),
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("application-exit"),
+                                                   QStringLiteral(":/icons/tabler/logout.svg")),
 #ifdef Q_OS_WINDOWS
                              tr("E&xit"),
 #else
@@ -296,7 +300,9 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Edit"));
 
     // -> Find in Page Action.
-    action = menu->addAction(QIcon::fromTheme(QStringLiteral("edit-find")), tr("&Find in Page"));
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("edit-find"),
+                                                   QStringLiteral(":/icons/tabler/search.svg")),
+                             tr("&Find in Page"));
     addAction(action);
     action->setShortcut(QKeySequence::Find);
     connect(action, &QAction::triggered, this, [this]() {
@@ -309,7 +315,10 @@ void MainWindow::setupMainMenu()
 
     // -> Preferences Action.
     // cspell:disable-next-line - cSpell does not like the ampersand.
-    action = m_showPreferencesAction = menu->addAction(tr("Prefere&nces"));
+    action = m_showPreferencesAction = menu->addAction(IconHelper::fromTheme(QStringLiteral("preferences-system"),
+                                                                             QStringLiteral(
+                                                                                 ":/icons/tabler/settings.svg")),
+                                                       tr("Prefere&nces"));
     addAction(action);
     action->setMenuRole(QAction::PreferencesRole);
     action->setShortcut(QStringLiteral("Ctrl+,"));
@@ -383,7 +392,9 @@ void MainWindow::setupMainMenu()
     auto *zoomMenu = menu->addMenu(tr("&Zoom"));
 
     // -> -> Zoom In Action.
-    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-in")), tr("Zoom &In"));
+    action = zoomMenu->addAction(IconHelper::fromTheme(QStringLiteral("zoom-in"),
+                                                       QStringLiteral(":/icons/tabler/zoom-in.svg")),
+                                 tr("Zoom &In"));
     addAction(action);
     action->setShortcuts({QKeySequence::ZoomIn, QKeySequence(QStringLiteral("Ctrl+="))});
     connect(action, &QAction::triggered, this, [this]() {
@@ -393,7 +404,9 @@ void MainWindow::setupMainMenu()
     });
 
     // -> -> Zoom Out Action.
-    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-out")), tr("Zoom &Out"));
+    action = zoomMenu->addAction(IconHelper::fromTheme(QStringLiteral("zoom-out"),
+                                                       QStringLiteral(":/icons/tabler/zoom-out.svg")),
+                                 tr("Zoom &Out"));
     addAction(action);
     action->setShortcut(QKeySequence::ZoomOut);
     connect(action, &QAction::triggered, this, [this]() {
@@ -405,7 +418,9 @@ void MainWindow::setupMainMenu()
     zoomMenu->addSeparator();
 
     // -> -> Actual Size Action.
-    action = zoomMenu->addAction(QIcon::fromTheme(QStringLiteral("zoom-original")), tr("&Actual Size"));
+    action = zoomMenu->addAction(IconHelper::fromTheme(QStringLiteral("zoom-original"),
+                                                       QStringLiteral(":/icons/tabler/zoom-reset.svg")),
+                                 tr("&Actual Size"));
     addAction(action);
     action->setShortcut(QKeySequence(QStringLiteral("Ctrl+0")));
     connect(action, &QAction::triggered, this, [this]() {
@@ -418,7 +433,11 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Tools"));
 
     // -> Docsets Action.
-    m_showDocsetManagerAction = menu->addAction(tr("&Docsets…"), this, [this]() {
+    m_showDocsetManagerAction = menu->addAction(IconHelper::fromTheme(QStringLiteral("accessories-dictionary"),
+                                                                      QStringLiteral(":/icons/tabler/library.svg")),
+                                                tr("&Docsets…"),
+                                                this,
+                                                [this]() {
         DocsetsDialog dialog(m_application, this);
         dialog.exec();
     });
@@ -439,7 +458,11 @@ void MainWindow::setupMainMenu()
     menu->addSeparator();
 
     // -> About Action.
-    action = menu->addAction(QIcon::fromTheme(QStringLiteral("help-about")), tr("&About Zeal"), this, [this]() {
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("help-about"),
+                                                   QStringLiteral(":/icons/tabler/info-circle.svg")),
+                             tr("&About Zeal"),
+                             this,
+                             [this]() {
         AboutDialog dialog(this);
         dialog.exec();
     });

@@ -5,6 +5,7 @@
 
 #include "searchsidebar.h"
 #include "widgets/browserzoomwidget.h"
+#include "widgets/iconhelper.h"
 #include "widgets/layouthelper.h"
 #include "widgets/toolbarframe.h"
 
@@ -14,10 +15,8 @@
 #include <registry/docsetregistry.h>
 #include <registry/searchquery.h>
 
-#include <QApplication>
 #include <QLabel>
 #include <QMenu>
-#include <QStyle>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWebEngineHistory>
@@ -65,7 +64,8 @@ BrowserTab::BrowserTab(QWidget *parent)
     // Setup navigation toolbar.
     m_backButton = new QToolButton();
     m_backButton->setAutoRaise(true);
-    m_backButton->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowBack));
+    m_backButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("go-previous"), QStringLiteral(":/icons/tabler/arrow-left.svg")));
     m_backButton->setStyleSheet(QStringLiteral("QToolButton::menu-indicator { image: none; }"));
     m_backButton->setText(QStringLiteral("←"));
     m_backButton->setToolTip(tr("Go back one page"));
@@ -88,7 +88,8 @@ BrowserTab::BrowserTab(QWidget *parent)
 
     m_forwardButton = new QToolButton();
     m_forwardButton->setAutoRaise(true);
-    m_forwardButton->setIcon(qApp->style()->standardIcon(QStyle::SP_ArrowForward));
+    m_forwardButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("go-next"), QStringLiteral(":/icons/tabler/arrow-right.svg")));
     m_forwardButton->setStyleSheet(QStringLiteral("QToolButton::menu-indicator { image: none; }"));
     m_forwardButton->setText(QStringLiteral("→"));
     m_forwardButton->setToolTip(tr("Go forward one page"));
@@ -141,6 +142,8 @@ BrowserTab::BrowserTab(QWidget *parent)
     actionsButton->setMenu(actionsMenu);
     actionsButton->setPopupMode(QToolButton::InstantPopup);
     actionsButton->setStyleSheet(QStringLiteral("QToolButton::menu-indicator { image: none; }"));
+    actionsButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("overflow-menu"), QStringLiteral(":/icons/tabler/dots-vertical.svg")));
     actionsButton->setText(QStringLiteral("⋮"));
     actionsButton->setToolTip(tr("More actions"));
 

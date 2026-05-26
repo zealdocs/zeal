@@ -18,8 +18,6 @@
 #include <QWebEngineSettings>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-#include <QStyle>
-#include <QStyleFactory>
 #include <QStyleHints>
 #else
 #include <QPalette>
@@ -100,18 +98,12 @@ void Settings::applyColorScheme() const
         break;
     }
 
+    // Setting the scheme updates the platform palette. The full widget refresh
+    // (re-deriving the palette and re-polishing existing widgets) is handled by
+    // re-installing the application style on QStyleHints::colorSchemeChanged; see
+    // app/main.cpp. Doing it there preserves the active QProxyStyle wrapper that
+    // restyles the tab close button, which re-creating the style here would drop.
     qApp->styleHints()->setColorScheme(scheme);
-    // setColorScheme() alone doesn't reliably update existing widgets:
-    //  - Widgets with stylesheets (QStyleSheetStyle) only update on polish().
-    //  - Direct palette consumers (QTreeView, QLineEdit) only update when the
-    //    application palette changes.
-    // Re-instantiating the style triggers the full unpolish-polish cycle for
-    // QStyleSheetStyle widgets and also updates the application palette via
-    // the new style's standardPalette().
-    QStyle *newStyle = QStyleFactory::create(qApp->style()->name());
-    if (newStyle != nullptr) {
-        qApp->setStyle(newStyle);
-    }
 }
 #endif
 
