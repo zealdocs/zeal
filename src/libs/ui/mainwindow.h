@@ -75,6 +75,7 @@ private:
     BrowserTab *tabAt(int index) const;
 
     void syncTabState(BrowserTab *tab);
+    void updateWindowTitle(const QString &pageTitle);
 
     Core::Application *m_application = nullptr;
     Core::Settings *m_settings = nullptr;
