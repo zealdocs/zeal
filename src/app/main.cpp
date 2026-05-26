@@ -244,6 +244,8 @@ int main(int argc, char *argv[])
         }
 #endif
         QApplication::setStyle(new Zeal::WidgetUi::ProxyStyle(baseStyle));
+        // The analyzer reports a leak at this scope exit; QApplication::setStyle() owns the style.
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
     };
     applyApplicationStyle();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
