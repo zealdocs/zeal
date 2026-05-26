@@ -201,22 +201,17 @@ void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
         m_tabBar->setTabIcon(index, icon);
     });
     connect(tab, &BrowserTab::titleChanged, this, [this, tab](const QString &title) {
-        if (title.isEmpty()) {
-            return;
+        // Keep the previous tab label rather than blanking it on an empty title.
+        if (!title.isEmpty()) {
+            const int index = m_webViewStack->indexOf(tab);
+            Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
+            m_tabBar->setTabText(index, title);
+            m_tabBar->setTabToolTip(index, title);
         }
 
-        const int index = m_webViewStack->indexOf(tab);
-        Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
-        m_tabBar->setTabText(index, title);
-        m_tabBar->setTabToolTip(index, title);
-
-        // Only update window title for the active tab.
+        // Only update the window title for the active tab.
         if (tab == currentTab()) {
-#ifndef PORTABLE_BUILD
-            setWindowTitle(QStringLiteral("%1 - Zeal").arg(title));
-#else
-            setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(title));
-#endif
+            updateWindowTitle(title);
         }
     });
 
@@ -247,6 +242,18 @@ BrowserTab *MainWindow::currentTab() const
 BrowserTab *MainWindow::tabAt(int index) const
 {
     return qobject_cast<BrowserTab *>(m_webViewStack->widget(index));
+}
+
+void MainWindow::updateWindowTitle(const QString &pageTitle)
+{
+#ifndef PORTABLE_BUILD
+    const auto appName = QStringLiteral("Zeal");
+#else
+    const auto appName = QStringLiteral("Zeal Portable");
+#endif
+
+    // Suppress the " - " separator when the page has no title.
+    setWindowTitle(pageTitle.isEmpty() ? appName : QStringLiteral("%1 - %2").arg(pageTitle, appName));
 }
 
 void MainWindow::setupMainMenu()
@@ -559,11 +566,7 @@ void MainWindow::setupTabBar()
         }
 
         const BrowserTab *tab = tabAt(index);
-#ifndef PORTABLE_BUILD
-        setWindowTitle(QStringLiteral("%1 - Zeal").arg(tab->webControl()->title()));
-#else
-        setWindowTitle(QStringLiteral("%1 - Zeal Portable").arg(tab->webControl()->title()));
-#endif
+        updateWindowTitle(tab->webControl()->title());
 
         m_webViewStack->setCurrentIndex(index);
         emit currentTabChanged();
