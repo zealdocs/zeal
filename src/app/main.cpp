@@ -75,7 +75,6 @@ struct CommandLineParameters
     bool preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
-    bool attachConsole = false;
     bool registerProtocolHandlers = false;
     bool unregisterProtocolHandlers = false;
 #endif
@@ -108,6 +107,9 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addOptions({{QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")}});
 
 #ifdef Q_OS_WINDOWS
+    // --attach-console is acted on at the top of main() (before any parsing) so that
+    // --version/--help output is visible; it is registered here only so --help lists
+    // it and process() accepts it.
     parser.addOptions({{QStringLiteral("attach-console"), QObject::tr("Attach console for logging.")},
                        {QStringLiteral("register"), QObject::tr("Register protocol handlers.")},
                        {QStringLiteral("unregister"), QObject::tr("Unregister protocol handlers.")}});
@@ -121,7 +123,6 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     clParams.preventActivation = false;
 
 #ifdef Q_OS_WINDOWS
-    clParams.attachConsole = parser.isSet(QStringLiteral("attach-console"));
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
     clParams.unregisterProtocolHandlers = parser.isSet(QStringLiteral("unregister"));
 
@@ -212,10 +213,25 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QStringLiteral("zealdocs.org"));
     QCoreApplication::setOrganizationName(QStringLiteral("Zeal"));
 
-    // Handle --version before creating QApplication to avoid
+    // Handle --version (and --attach-console) before creating QApplication to avoid
     // initializing the platform/graphics stack just to print a version string.
     {
         const QCoreApplication coreApp(argc, argv);
+
+#ifdef Q_OS_WINDOWS
+        // Attach to the parent console before any output so --version/--help (and
+        // runtime logging) are visible when launched from a terminal; this must
+        // precede the version/help handling, which prints and exits.
+        if (QCoreApplication::arguments().contains(QStringLiteral("--attach-console"))) {
+            if (AttachConsole(ATTACH_PARENT_PROCESS) != 0) {
+                FILE *fp = nullptr;
+                std::ignore = freopen_s(&fp, "CONOUT$", "w", stdout);
+                std::ignore = freopen_s(&fp, "CONOUT$", "w", stderr);
+                std::ignore = freopen_s(&fp, "CONIN$", "r", stdin);
+            }
+        }
+#endif
+
         QCommandLineParser parser;
         parser.addVersionOption();
         parser.parse(QCoreApplication::arguments());
@@ -279,15 +295,6 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
 #endif
-
-#ifdef Q_OS_WINDOWS
-    if (clParams.attachConsole && (AttachConsole(ATTACH_PARENT_PROCESS) != 0)) {
-        FILE *fp = nullptr;
-        std::ignore = freopen_s(&fp, "CONOUT$", "w", stdout);
-        std::ignore = freopen_s(&fp, "CONOUT$", "w", stderr);
-        std::ignore = freopen_s(&fp, "CONIN$", "r", stdin);
-    }
-#endif // Q_OS_WINDOWS
 
     using Zeal::Core::ApplicationSingleton;
     ApplicationSingleton appSingleton;
