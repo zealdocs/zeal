@@ -127,10 +127,6 @@ void SearchEdit::showCompletions(const QString &text)
         return;
     }
 
-    if (m_prefixCompleter != nullptr) {
-        m_prefixCompleter->setCompletionPrefix(text);
-    }
-
     QStyleOptionFrame option;
     initStyleOption(&option);
     const QRect contentsRect = style()->subElementRect(QStyle::SE_LineEditContents, &option, this);
@@ -154,6 +150,10 @@ QString SearchEdit::currentCompletion() const
         return {};
     }
 
+    // Prime the completer so the result never depends on showCompletions() having
+    // run first. setCompletionPrefix() on a const method is fine: the completer is
+    // a pointer member, not a const-qualified one (standard Qt idiom).
+    m_prefixCompleter->setCompletionPrefix(text());
     return m_prefixCompleter->currentCompletion();
 }
 
