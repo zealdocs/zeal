@@ -134,6 +134,10 @@ void MainWindow::closeTab(int index)
     }
 
     BrowserTab *tab = tabAt(index);
+    if (tab == nullptr) {
+        return;
+    }
+
     m_webViewStack->removeWidget(tab);
     tab->deleteLater();
 
@@ -566,6 +570,10 @@ void MainWindow::setupTabBar()
         }
 
         const BrowserTab *tab = tabAt(index);
+        if (tab == nullptr) {
+            return;
+        }
+
         updateWindowTitle(tab->webControl()->title());
 
         m_webViewStack->setCurrentIndex(index);
