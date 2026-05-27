@@ -35,7 +35,7 @@ public:
     ~BrowserTab() override;
 
     Browser::WebControl *webControl() const;
-    SearchSidebar *searchSidebar(); // TODO: const
+    SearchSidebar *searchSidebar() const;
 
 public slots:
     void navigateToStartPage();
@@ -46,6 +46,9 @@ signals:
     void titleChanged(const QString &title);
 
 private:
+    // Shared constructor. Clones sidebarToClone when set, otherwise builds a fresh sidebar.
+    explicit BrowserTab(SearchSidebar *sidebarToClone, QWidget *parent = nullptr);
+
     static QIcon docsetIcon(const QUrl &url);
 
     // Widgets.
