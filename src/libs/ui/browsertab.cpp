@@ -33,6 +33,11 @@ constexpr auto WelcomePageUrl = "qrc:///browser/welcome.html"_L1;
 } // namespace
 
 BrowserTab::BrowserTab(QWidget *parent)
+    : BrowserTab(nullptr, parent)
+{
+}
+
+BrowserTab::BrowserTab(SearchSidebar *sidebarToClone, QWidget *parent)
     : QWidget(parent)
 {
     // Setup WebControl.
@@ -60,6 +65,12 @@ BrowserTab::BrowserTab(QWidget *parent)
         m_backButton->setEnabled(m_webControl->canGoBack());
         m_forwardButton->setEnabled(m_webControl->canGoForward());
     });
+
+    // Setup SearchSidebar. It is owned by this tab but lives outside the widget
+    // hierarchy (shown in the shared sidebar dock), hence deleteLater() in the dtor.
+    m_searchSidebar = sidebarToClone != nullptr ? sidebarToClone->clone() : new SearchSidebar();
+    connect(m_searchSidebar, &SearchSidebar::activated, m_webControl, &Browser::WebControl::focus);
+    connect(m_searchSidebar, &SearchSidebar::navigationRequested, m_webControl, &Browser::WebControl::load);
 
     // Setup navigation toolbar.
     m_backButton = new QToolButton();
@@ -182,16 +193,7 @@ BrowserTab::BrowserTab(QWidget *parent)
 
 BrowserTab *BrowserTab::clone(bool preserveHistory) const
 {
-    auto *tab = new BrowserTab();
-
-    if (m_searchSidebar != nullptr) {
-        tab->m_searchSidebar = m_searchSidebar->clone();
-        connect(tab->m_searchSidebar, &SearchSidebar::activated, tab->m_webControl, &Browser::WebControl::focus);
-        connect(tab->m_searchSidebar,
-                &SearchSidebar::navigationRequested,
-                tab->m_webControl,
-                &Browser::WebControl::load);
-    }
+    auto *tab = new BrowserTab(m_searchSidebar);
 
     if (preserveHistory) {
         tab->m_webControl->restoreHistory(m_webControl->saveHistory());
@@ -203,10 +205,8 @@ BrowserTab *BrowserTab::clone(bool preserveHistory) const
 
 BrowserTab::~BrowserTab()
 {
-    if (m_searchSidebar != nullptr) {
-        // The sidebar is not in this widget's hierarchy, so direct delete is not safe.
-        m_searchSidebar->deleteLater();
-    }
+    // The sidebar is not in this widget's hierarchy, so direct delete is not safe.
+    m_searchSidebar->deleteLater();
 }
 
 Browser::WebControl *BrowserTab::webControl() const
@@ -214,15 +214,8 @@ Browser::WebControl *BrowserTab::webControl() const
     return m_webControl;
 }
 
-SearchSidebar *BrowserTab::searchSidebar()
+SearchSidebar *BrowserTab::searchSidebar() const
 {
-    if (m_searchSidebar == nullptr) {
-        // Create SearchSidebar managed by this tab.
-        m_searchSidebar = new SearchSidebar();
-        connect(m_searchSidebar, &SearchSidebar::activated, m_webControl, &Browser::WebControl::focus);
-        connect(m_searchSidebar, &SearchSidebar::navigationRequested, m_webControl, &Browser::WebControl::load);
-    }
-
     return m_searchSidebar;
 }
 
