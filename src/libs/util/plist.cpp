@@ -31,7 +31,7 @@ bool Plist::read(const QString &fileName)
         }
 
         if (xml.name() != QLatin1String("key")) {
-            continue; // TODO: Should it fail here?
+            continue;
         }
 
         const QString key = xml.readElementText();
@@ -56,6 +56,11 @@ bool Plist::read(const QString &fileName)
         }
 
         insert(key, value);
+    }
+
+    if (xml.hasError()) {
+        qCWarning(log, "Cannot parse plist file '%s': %s", qPrintable(fileName), qPrintable(xml.errorString()));
+        m_hasError = true;
     }
 
     return !m_hasError;
