@@ -17,12 +17,11 @@ public:
     explicit WebBridge(QObject *parent = nullptr);
     ~WebBridge() override = default;
 
-signals:
-    void actionTriggered(const QString &action);
-
-public slots:
     Q_INVOKABLE static void openShortUrl(const QString &key);
     Q_INVOKABLE void triggerAction(const QString &action);
+
+signals:
+    void actionTriggered(const QString &action);
 
 private:
     static QString appVersion();

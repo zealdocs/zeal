@@ -24,7 +24,7 @@ struct SearchResult
     QString docsetName;
     QIcon docsetIcon;
 
-    double score;
+    double score = 0;
     QList<int> matchPositions;
 
     std::partial_ordering operator<=>(const SearchResult &other) const

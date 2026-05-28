@@ -26,7 +26,6 @@ public:
     static const QList<int> &availableZoomLevels();
     static int defaultZoomLevel();
 
-public slots:
     void zoomIn();
     void zoomOut();
     void resetZoom();

@@ -8,6 +8,11 @@
 
 namespace Zeal::Registry {
 
+// These enums intentionally stay unscoped: their values feed Qt's int-based
+// model/view API — data() roles (extending Qt::UserRole) and column/section
+// indices — where an enum class would force casts at every use.
+
+// NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
 enum ItemDataRole {
     DocsetIconRole = Qt::UserRole,
     DocsetNameRole,
@@ -16,6 +21,7 @@ enum ItemDataRole {
     UrlRole
 };
 
+// NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
 enum SectionIndex {
     Name,
     SearchPrefix,

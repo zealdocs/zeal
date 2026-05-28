@@ -13,6 +13,9 @@ class DocsetListItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
+    // Unscoped: these values feed Qt's int-based model/view API — data()/setData()
+    // roles extending Qt::UserRole — where an enum class would force casts at every use.
+    // NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
     enum ProgressRoles {
         ValueRole = Qt::UserRole + 10,
         FormatRole,

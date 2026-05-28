@@ -42,12 +42,6 @@ public:
     void setJavaScriptEnabled(bool enabled);
     void setWebBridgeObject(const QString &name, QObject *object);
 
-signals:
-    void titleChanged(const QString &title);
-    void urlChanged(const QUrl &url);
-    void zoomLevelChanged();
-
-public slots:
     void activateSearchBar();
     void back();
     void forward();
@@ -55,6 +49,11 @@ public slots:
     void zoomIn();
     void zoomOut();
     void resetZoom();
+
+signals:
+    void titleChanged(const QString &title);
+    void urlChanged(const QUrl &url);
+    void zoomLevelChanged();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

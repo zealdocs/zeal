@@ -55,7 +55,7 @@ private:
 
     struct ItemBase
     {
-        const IndexLevel level;
+        IndexLevel level;
 
         explicit ItemBase(IndexLevel l)
             : level(l)
