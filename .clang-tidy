@@ -1,8 +1,13 @@
 ---
-HeaderFilterRegex: 'src/(?!contrib/).*'
-# Skip CMake autogen output (AUTOUIC/AUTOMOC/AUTORCC headers under build/).
-ExcludeHeaderFilterRegex: '.*_autogen[/\\].*'
+# Match either path separator: on Windows, headers resolved via backslash -I
+# paths are reported as ...\src\..., which a forward-slash-only regex misses.
+HeaderFilterRegex: 'src[/\\].*'
+# Exclude src/contrib and CMake autogen output (AUTOUIC/AUTOMOC/AUTORCC headers
+# under build/). Note: HeaderFilterRegex uses POSIX ERE (no lookahead), so the
+# contrib exclusion must live here rather than as a negative lookahead above.
+ExcludeHeaderFilterRegex: 'src[/\\]contrib[/\\].*|.*_autogen[/\\].*'
 # TODO: Reevaluate -modernize-use-nodiscard.
+# TODO: Re-enable {cppcoreguidelines,misc}-non-private-member-variables-in-classes.
 Checks: >
   *,
   -abseil-*,
@@ -11,6 +16,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -concurrency-mt-unsafe,
   -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-owning-memory,
   -cppcoreguidelines-prefer-member-initializer,
   -cppcoreguidelines-pro-type-static-cast-downcast,
@@ -18,9 +24,11 @@ Checks: >
   -google-*,
   google-build-using-namespace,
   -linuxkernel-*,
+  -llvm-header-guard,
   -llvm-prefer-static-over-anonymous-namespace,
   -llvmlibc-*,
   -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,
