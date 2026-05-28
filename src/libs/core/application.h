@@ -48,7 +48,6 @@ public:
     static QVersionNumber version();
     static QString versionString();
 
-public slots:
     void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
     void checkForUpdates(bool quiet = false);

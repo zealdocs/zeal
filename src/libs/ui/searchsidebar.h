@@ -38,17 +38,17 @@ public:
 
     Registry::SearchModel *pageTocModel() const;
 
+    void focusSearchEdit(bool clear = false);
+    void search(const Registry::SearchQuery &query);
+
+    bool eventFilter(QObject *object, QEvent *event) override;
+
 signals:
     void activated();
     void navigationRequested(const QUrl &url);
     void openInNewTabRequested(const QUrl &url, bool activate = false);
 
-public slots:
-    void focusSearchEdit(bool clear = false);
-    void search(const Registry::SearchQuery &query);
-
 protected:
-    bool eventFilter(QObject *object, QEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
 private:

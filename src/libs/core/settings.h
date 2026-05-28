@@ -77,7 +77,7 @@ public:
     bool isSmoothScrollingEnabled;
 
     // Network
-    enum ProxyType : unsigned int {
+    enum class ProxyType : unsigned int {
         None = 0,
         System = 1,
         Http = 3,
@@ -126,7 +126,6 @@ public:
     void applyColorScheme() const;
 #endif
 
-public slots:
     void load();
     void save();
 

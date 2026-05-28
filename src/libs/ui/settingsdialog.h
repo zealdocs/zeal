@@ -21,7 +21,6 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog() override;
 
-public slots:
     void chooseCustomCssFile();
     void chooseDocsetStoragePath();
 
@@ -29,7 +28,6 @@ private:
     void loadSettings();
     void saveSettings();
 
-private:
     Ui::SettingsDialog *ui = nullptr;
 
     friend class Ui::SettingsDialog;

@@ -18,7 +18,6 @@ public:
     explicit Extractor(QObject *parent = nullptr);
     ~Extractor() override = default;
 
-public slots:
     void extract(const QString &sourceFile, const QString &destination, const QString &root = QString());
 
 signals:

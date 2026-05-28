@@ -37,7 +37,6 @@ public:
     Browser::WebControl *webControl() const;
     SearchSidebar *searchSidebar() const;
 
-public slots:
     void navigateToStartPage();
     void search(const Registry::SearchQuery &query);
 
