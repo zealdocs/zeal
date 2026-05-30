@@ -458,12 +458,12 @@ void MainWindow::setupMainMenu()
     menu = m_menuBar->addMenu(tr("&Help"));
 
     // -> Submit Feedback Action.
-    menu->addAction(tr("&Submit Feedback…"), this, []() {
+    menu->addAction(tr("&Submit Feedback"), this, []() {
         QDesktopServices::openUrl(QUrl(QStringLiteral("https://go.zealdocs.org/l/report-bug")));
     });
 
     // -> Check for Updates Action.
-    menu->addAction(tr("&Check for Updates…"), this, [this]() {
+    menu->addAction(tr("&Check for Updates"), this, [this]() {
         m_application->checkForUpdates();
     });
 
