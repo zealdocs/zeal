@@ -63,6 +63,7 @@ private:
 
     WebView *m_webView = nullptr;
     SearchToolBar *m_searchToolBar = nullptr;
+    int m_renderProcessReloadAttempts = 0;
 };
 
 } // namespace Zeal::Browser

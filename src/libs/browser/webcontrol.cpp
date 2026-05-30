@@ -11,6 +11,10 @@
 
 #include <QDataStream>
 #include <QKeyEvent>
+#include <QLoggingCategory>
+#include <QMetaEnum>
+#include <QTimer>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWebChannel>
 #include <QWebEngineHistory>
@@ -18,6 +22,13 @@
 #include <QWebEngineSettings>
 
 namespace Zeal::Browser {
+
+namespace {
+Q_LOGGING_CATEGORY(log, "zeal.browser.webcontrol")
+
+// Bound recovery attempts so a deterministically crashing page does not thrash forever.
+constexpr int MaxRenderProcessReloadAttempts = 3;
+} // namespace
 
 WebControl::WebControl(QWidget *parent)
     : QWidget(parent)
@@ -39,6 +50,57 @@ WebControl::WebControl(QWidget *parent)
     connect(m_webView, &QWebEngineView::titleChanged, this, &WebControl::titleChanged);
     connect(m_webView, &QWebEngineView::urlChanged, this, &WebControl::urlChanged);
     connect(m_webView, &WebView::zoomLevelChanged, this, &WebControl::zoomLevelChanged);
+
+    // On a failed load that set no title, relabel the tab to signal the failure.
+    connect(m_webView, &QWebEngineView::loadFinished, this, [this](bool ok) {
+        if (ok) {
+            m_renderProcessReloadAttempts = 0;
+            return;
+        }
+
+        qCWarning(log, "Failed to load '%s'.", qPrintable(m_webView->url().toString()));
+        if (m_webView->title().isEmpty()) {
+            emit titleChanged(tr("Couldn't load page"));
+        }
+    });
+
+    // A crashed render process leaves a blank page and never updates the title. Reload a
+    // bounded number of times to recover, then relabel the tab if it keeps dying.
+    connect(m_webView,
+            &QWebEngineView::renderProcessTerminated,
+            this,
+            [this](QWebEnginePage::RenderProcessTerminationStatus status, int exitCode) {
+        if (status == QWebEnginePage::NormalTerminationStatus) {
+            return;
+        }
+
+        const char *statusName = QMetaEnum::fromType<QWebEnginePage::RenderProcessTerminationStatus>().valueToKey(
+            status);
+        qCWarning(log,
+                  "Render process for '%s' terminated (%s, exit code %d).",
+                  qPrintable(m_webView->url().toString()),
+                  statusName,
+                  exitCode);
+
+        if (m_renderProcessReloadAttempts < MaxRenderProcessReloadAttempts) {
+            ++m_renderProcessReloadAttempts;
+            // Reloading directly from the termination handler is not supported; defer it.
+            // Skip if the user has navigated away in the meantime.
+            const QUrl crashedUrl = m_webView->url();
+            QTimer::singleShot(0, m_webView, [this, crashedUrl]() {
+                if (m_webView->url() == crashedUrl) {
+                    m_webView->reload();
+                }
+            });
+            return;
+        }
+
+        qCWarning(log,
+                  "Giving up reloading '%s' after %d attempts.",
+                  qPrintable(m_webView->url().toString()),
+                  MaxRenderProcessReloadAttempts);
+        emit titleChanged(tr("Couldn't load page"));
+    });
 
     layout->addWidget(m_webView);
 
@@ -97,6 +159,7 @@ void WebControl::setWebBridgeObject(const QString &name, QObject *object)
 
 void WebControl::load(const QUrl &url)
 {
+    m_renderProcessReloadAttempts = 0;
     m_webView->load(url);
 }
 

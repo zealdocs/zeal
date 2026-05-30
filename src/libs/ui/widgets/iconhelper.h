@@ -19,6 +19,11 @@ bool useThemeIcons();
 // color schemes. Use freedesktop icon naming for themeName (e.g. "go-previous").
 QIcon fromTheme(const QString &themeName, const QString &fallbackSvgResource);
 
+// Returns a monochrome Tabler SVG loaded from svgResource and tinted to the active
+// palette, without any desktop icon theme lookup. Use this for glyphs that have no
+// suitable freedesktop equivalent (e.g. the tab loading placeholder).
+QIcon fromResource(const QString &svgResource);
+
 } // namespace Zeal::WidgetUi::IconHelper
 
 #endif // ZEAL_WIDGETUI_ICONHELPER_H
