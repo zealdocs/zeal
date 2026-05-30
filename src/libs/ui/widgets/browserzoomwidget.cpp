@@ -21,30 +21,31 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     auto *captionLabel = new QLabel(tr("Zoom"));
     captionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    auto *zoomOutButton = new QToolButton();
-    zoomOutButton->setAutoRaise(true);
-    zoomOutButton->setFixedWidth(ButtonWidth);
+    m_zoomOutButton = new QToolButton();
+    m_zoomOutButton->setAutoRaise(true);
+    m_zoomOutButton->setFixedWidth(ButtonWidth);
     // Light, symmetric fallback glyphs (−, +, ↻) suit this inline stepper better
     // than the bulkier magnifier icons used for the equivalent View → Zoom menu
     // actions; a themed desktop still substitutes its own zoom icons.
-    zoomOutButton->setIcon(
+    m_zoomOutButton->setIcon(
         IconHelper::fromTheme(QStringLiteral("zoom-out"), QStringLiteral(":/icons/tabler/minus.svg")));
-    zoomOutButton->setText(QStringLiteral("−"));
-    zoomOutButton->setToolTip(tr("Zoom out"));
-    connect(zoomOutButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomOutRequested);
+    m_zoomOutButton->setText(QStringLiteral("−"));
+    m_zoomOutButton->setToolTip(tr("Zoom out"));
+    connect(m_zoomOutButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomOutRequested);
 
     m_levelLabel = new QLabel(QStringLiteral("100%"));
     m_levelLabel->setAlignment(Qt::AlignCenter);
     m_levelLabel->setMinimumWidth(ButtonWidth);
     m_levelLabel->setToolTip(tr("Current zoom level"));
 
-    auto *zoomInButton = new QToolButton();
-    zoomInButton->setAutoRaise(true);
-    zoomInButton->setFixedWidth(ButtonWidth);
-    zoomInButton->setIcon(IconHelper::fromTheme(QStringLiteral("zoom-in"), QStringLiteral(":/icons/tabler/plus.svg")));
-    zoomInButton->setText(QStringLiteral("+"));
-    zoomInButton->setToolTip(tr("Zoom in"));
-    connect(zoomInButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomInRequested);
+    m_zoomInButton = new QToolButton();
+    m_zoomInButton->setAutoRaise(true);
+    m_zoomInButton->setFixedWidth(ButtonWidth);
+    m_zoomInButton->setIcon(
+        IconHelper::fromTheme(QStringLiteral("zoom-in"), QStringLiteral(":/icons/tabler/plus.svg")));
+    m_zoomInButton->setText(QStringLiteral("+"));
+    m_zoomInButton->setToolTip(tr("Zoom in"));
+    connect(m_zoomInButton, &QToolButton::clicked, this, &BrowserZoomWidget::zoomInRequested);
 
     auto *resetButton = new QToolButton();
     resetButton->setAutoRaise(true);
@@ -59,15 +60,17 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     layout->setContentsMargins(8, 4, 8, 4);
     layout->setSpacing(2);
     layout->addWidget(captionLabel, 1);
-    layout->addWidget(zoomOutButton);
+    layout->addWidget(m_zoomOutButton);
     layout->addWidget(m_levelLabel);
-    layout->addWidget(zoomInButton);
+    layout->addWidget(m_zoomInButton);
     layout->addWidget(resetButton);
 }
 
-void BrowserZoomWidget::setZoomPercentage(int percent)
+void BrowserZoomWidget::setZoomState(int percent, bool canZoomOut, bool canZoomIn)
 {
     m_levelLabel->setText(QStringLiteral("%1%").arg(percent));
+    m_zoomOutButton->setEnabled(canZoomOut);
+    m_zoomInButton->setEnabled(canZoomIn);
 }
 
 } // namespace Zeal::WidgetUi

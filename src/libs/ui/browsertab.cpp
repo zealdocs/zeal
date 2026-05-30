@@ -10,6 +10,7 @@
 #include "widgets/toolbarframe.h"
 
 #include <browser/webcontrol.h>
+#include <browser/webview.h>
 #include <core/application.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
@@ -133,14 +134,18 @@ BrowserTab::BrowserTab(SearchSidebar *sidebarToClone, QWidget *parent)
 
     // Per-tab actions menu (zoom controls, etc.).
     auto *zoomWidget = new BrowserZoomWidget();
-    zoomWidget->setZoomPercentage(m_webControl->zoomLevelPercentage());
+    const auto updateZoomWidget = [this, zoomWidget]() {
+        const int zoomLevel = m_webControl->zoomLevel();
+        zoomWidget->setZoomState(m_webControl->zoomLevelPercentage(),
+                                 zoomLevel > 0,
+                                 zoomLevel < static_cast<int>(Browser::WebView::availableZoomLevels().size()) - 1);
+    };
+    updateZoomWidget();
 
     connect(zoomWidget, &BrowserZoomWidget::zoomInRequested, m_webControl, &Browser::WebControl::zoomIn);
     connect(zoomWidget, &BrowserZoomWidget::zoomOutRequested, m_webControl, &Browser::WebControl::zoomOut);
     connect(zoomWidget, &BrowserZoomWidget::resetZoomRequested, m_webControl, &Browser::WebControl::resetZoom);
-    connect(m_webControl, &Browser::WebControl::zoomLevelChanged, zoomWidget, [this, zoomWidget]() {
-        zoomWidget->setZoomPercentage(m_webControl->zoomLevelPercentage());
-    });
+    connect(m_webControl, &Browser::WebControl::zoomLevelChanged, zoomWidget, updateZoomWidget);
 
     auto *zoomAction = new QWidgetAction(this);
     zoomAction->setDefaultWidget(zoomWidget);
