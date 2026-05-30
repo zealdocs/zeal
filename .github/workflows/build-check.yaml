@@ -145,7 +145,7 @@ jobs:
         with:
           configurePreset: ${{ matrix.config.configurePreset }}
           buildPreset: ${{ matrix.config.buildPreset }}
-          configurePresetAdditionalArgs: "['-DVCPKG_DISABLE_COMPILER_TRACKING=ON']"
+          configurePresetAdditionalArgs: "['-DVCPKG_INSTALL_OPTIONS=--x-abi-tools-use-exact-versions']"
 
       - name: Retrieve Application Version
         run: |
