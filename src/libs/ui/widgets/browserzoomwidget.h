@@ -7,6 +7,7 @@
 #include <QWidget>
 
 class QLabel;
+class QToolButton;
 
 namespace Zeal::WidgetUi {
 
@@ -18,7 +19,7 @@ public:
     explicit BrowserZoomWidget(QWidget *parent = nullptr);
     ~BrowserZoomWidget() override = default;
 
-    void setZoomPercentage(int percent);
+    void setZoomState(int percent, bool canZoomOut, bool canZoomIn);
 
 signals:
     void zoomInRequested();
@@ -27,6 +28,8 @@ signals:
 
 private:
     QLabel *m_levelLabel = nullptr;
+    QToolButton *m_zoomInButton = nullptr;
+    QToolButton *m_zoomOutButton = nullptr;
 };
 
 } // namespace Zeal::WidgetUi
