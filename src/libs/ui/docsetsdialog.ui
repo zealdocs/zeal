@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Docsets</string>
+   <string>Docset Library</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

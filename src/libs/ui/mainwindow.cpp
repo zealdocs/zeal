@@ -292,6 +292,20 @@ void MainWindow::setupMainMenu()
 
     menu->addSeparator();
 
+    // -> Docset Library Action.
+    m_showDocsetManagerAction = menu->addAction(IconHelper::fromTheme(QStringLiteral("accessories-dictionary"),
+                                                                      QStringLiteral(":/icons/tabler/library.svg")),
+                                                tr("Docset &Library"),
+                                                this,
+                                                [this]() {
+        DocsetsDialog dialog(m_application, this);
+        dialog.exec();
+    });
+    addAction(m_showDocsetManagerAction);
+    m_showDocsetManagerAction->setShortcut(QStringLiteral("Ctrl+Shift+L"));
+
+    menu->addSeparator();
+
     // -> Quit Action.
     // Follow Windows HIG naming.
     action = menu->addAction(IconHelper::fromTheme(QStringLiteral("application-exit"),
@@ -438,19 +452,6 @@ void MainWindow::setupMainMenu()
         if (auto *tab = currentTab()) {
             tab->webControl()->resetZoom();
         }
-    });
-
-    // Tools Menu.
-    menu = m_menuBar->addMenu(tr("&Tools"));
-
-    // -> Docsets Action.
-    m_showDocsetManagerAction = menu->addAction(IconHelper::fromTheme(QStringLiteral("accessories-dictionary"),
-                                                                      QStringLiteral(":/icons/tabler/library.svg")),
-                                                tr("&Docsets…"),
-                                                this,
-                                                [this]() {
-        DocsetsDialog dialog(m_application, this);
-        dialog.exec();
     });
 
     // Help Menu.
