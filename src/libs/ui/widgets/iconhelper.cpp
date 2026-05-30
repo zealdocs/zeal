@@ -125,12 +125,17 @@ bool useThemeIcons()
 #endif
 }
 
+QIcon fromResource(const QString &svgResource)
+{
+    return QIcon(new TintedSvgIconEngine(svgResource));
+}
+
 QIcon fromTheme(const QString &themeName, const QString &fallbackSvgResource)
 {
     if (useThemeIcons()) {
-        return QIcon::fromTheme(themeName, QIcon(new TintedSvgIconEngine(fallbackSvgResource)));
+        return QIcon::fromTheme(themeName, fromResource(fallbackSvgResource));
     }
-    return QIcon(new TintedSvgIconEngine(fallbackSvgResource));
+    return fromResource(fallbackSvgResource);
 }
 
 } // namespace Zeal::WidgetUi::IconHelper

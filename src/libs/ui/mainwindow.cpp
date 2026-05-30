@@ -230,7 +230,9 @@ void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
     }
 
     m_webViewStack->insertWidget(index, tab);
-    m_tabBar->insertTab(index, tr("Loading…"));
+    // Seed with "New tab" to match browsers and avoid a stranded label.
+    // The placeholder icon reserves the slot so the label does not jump when the favicon loads.
+    m_tabBar->insertTab(index, IconHelper::fromResource(QStringLiteral(":/icons/tabler/loader-2.svg")), tr("New tab"));
     m_tabBar->setTabData(index, QVariant::fromValue(tab));
 
     if (activate) {

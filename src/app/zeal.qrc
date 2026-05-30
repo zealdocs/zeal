@@ -16,6 +16,7 @@
         <file alias="dots-vertical.svg">../../assets/tabler/dots-vertical.svg</file>
         <file alias="info-circle.svg">../../assets/tabler/info-circle.svg</file>
         <file alias="library.svg">../../assets/tabler/library.svg</file>
+        <file alias="loader-2.svg">../../assets/tabler/loader-2.svg</file>
         <file alias="logout.svg">../../assets/tabler/logout.svg</file>
         <file alias="minus.svg">../../assets/tabler/minus.svg</file>
         <file alias="plus.svg">../../assets/tabler/plus.svg</file>
