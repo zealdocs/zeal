@@ -155,6 +155,11 @@ if(WIN32)
     #   wix extension add --global WixToolset.UI.wixext/5.0.2
     #   wix extension add --global WixToolset.Util.wixext/5.0.2
     set(CPACK_WIX_VERSION "4")
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+        set(CPACK_WIX_ARCHITECTURE "x64")
+    else()
+        string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" CPACK_WIX_ARCHITECTURE)
+    endif()
     set(CPACK_WIX_UPGRADE_GUID "5C4B6030-A1B4-4EFE-A5AF-28F6FA2E7978")
     set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT ${CMAKE_PROJECT_HOMEPAGE_URL})
     set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/src/app/resources/zeal.ico")

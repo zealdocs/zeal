@@ -27,7 +27,6 @@ jobs:
         config:
           - name: Windows Server 2022
             os: windows-2022
-            arch: win64_msvc2022_64
             qt_modules: >-
               qtpositioning
               qtwebchannel
@@ -38,7 +37,6 @@ jobs:
             uploadPattern: "zeal-*-windows-x64.msi"
           - name: Windows Server 2022 / Portable
             os: windows-2022
-            arch: win64_msvc2022_64
             qt_modules: >-
               qtpositioning
               qtwebchannel
@@ -47,6 +45,26 @@ jobs:
             configurePreset: release-portable
             buildPreset: release-portable
             uploadPattern: "zeal-*-portable-windows-x64.*"
+          - name: Windows 11 ARM64
+            os: windows-11-arm
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.10.2"
+            configurePreset: release
+            buildPreset: release
+            uploadPattern: "zeal-*-windows-arm64.msi"
+          - name: Windows 11 ARM64 / Portable
+            os: windows-11-arm
+            qt_modules: >-
+              qtpositioning
+              qtwebchannel
+              qtwebengine
+            qt_version: "6.10.2"
+            configurePreset: release-portable
+            buildPreset: release-portable
+            uploadPattern: "zeal-*-portable-windows-arm64.*"
 
     steps:
       - name: Checkout
@@ -60,12 +78,14 @@ jobs:
           vcpkgDirectory: ${{ github.workspace }}/.vcpkg
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          arch: ${{ matrix.config.arch }}
-          modules: ${{ matrix.config.qt_modules }}
-          version: ${{ matrix.config.qt_version }}
-          cache: true
+        run: |
+          $arch = if ("${{ runner.arch }}" -eq "ARM64") { "arm64" } else { "amd64" }
+          $qvm = "$env:RUNNER_TEMP\qvm.exe"
+          Invoke-WebRequest "https://github.com/trollixx/qvm/releases/latest/download/qvm-$arch.exe" -OutFile $qvm
+          & $qvm config set install.dir ${{ runner.workspace }}/qt
+          $modules = "${{ matrix.config.qt_modules }}".Trim() -replace '\s+', ','
+          & $qvm install ${{ matrix.config.qt_version }} --modules $modules
+          "CMAKE_PREFIX_PATH=$(& $qvm prefix ${{ matrix.config.qt_version }})" >> $env:GITHUB_ENV
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
@@ -100,11 +120,12 @@ jobs:
           $dir = Join-Path $env:RUNNER_TEMP 'trusted-signing-client'
           New-Item -ItemType Directory -Force -Path $dir | Out-Null
           nuget install Microsoft.Trusted.Signing.Client -OutputDirectory $dir -ExcludeVersion
+          $arch = if ("${{ runner.arch }}" -eq "ARM64") { "arm64" } else { "x64" }
           $dlib = Get-ChildItem -Path $dir -Filter 'Azure.CodeSigning.Dlib.dll' -Recurse |
-              Where-Object { $_.FullName -match '[\\/]x64[\\/]' } |
+              Where-Object { $_.FullName -match "[\\/]$arch[\\/]" } |
               Select-Object -First 1 -ExpandProperty FullName
           if (-not $dlib) {
-              throw 'x64 Azure.CodeSigning.Dlib.dll not found in installed package.'
+              throw "$arch Azure.CodeSigning.Dlib.dll not found in installed package."
           }
           "CODESIGN_AZURE_DLIB=$dlib" >> $env:GITHUB_ENV
 
