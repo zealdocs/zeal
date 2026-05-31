@@ -84,6 +84,8 @@ Application::~Application()
 
     m_session->save();
     delete m_session;
+
+    m_instance = nullptr;
 }
 
 /*!
