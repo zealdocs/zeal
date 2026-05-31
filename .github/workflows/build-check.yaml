@@ -151,14 +151,10 @@ jobs:
           vcpkgDirectory: ${{ github.workspace }}/.vcpkg
 
       - name: Install Qt
-        run: |
-          $arch = if ("${{ runner.arch }}" -eq "ARM64") { "arm64" } else { "amd64" }
-          $qvm = "$env:RUNNER_TEMP\qvm.exe"
-          Invoke-WebRequest "https://github.com/trollixx/qvm/releases/latest/download/qvm-$arch.exe" -OutFile $qvm
-          & $qvm config set install.dir ${{ runner.workspace }}/qt
-          $modules = "${{ matrix.config.qt_modules }}".Trim() -replace '\s+', ','
-          & $qvm install ${{ matrix.config.qt_version }} --modules $modules
-          "CMAKE_PREFIX_PATH=$(& $qvm prefix ${{ matrix.config.qt_version }})" >> $env:GITHUB_ENV
+        uses: trollixx/setup-qt@v1
+        with:
+          version: ${{ matrix.config.qt_version }}
+          modules: ${{ matrix.config.qt_modules }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
