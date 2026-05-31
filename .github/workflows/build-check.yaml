@@ -221,11 +221,10 @@ jobs:
         run: brew install cpp-httplib libarchive tomlplusplus
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: trollixx/setup-qt@v1
         with:
-          modules: ${{ matrix.config.qt_modules }}
           version: ${{ matrix.config.qt_version }}
-          cache: true
+          modules: ${{ matrix.config.qt_modules }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
