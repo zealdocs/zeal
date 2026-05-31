@@ -1,0 +1,8 @@
+zeal (1:0.8.2-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Placeholder entry. The real version and target series are set at upload
+    time by debian/rules consumers: the release workflow rewrites this with
+    `dch` per series, and the Launchpad nightly recipe derives the version
+    from its `deb-version` template. See pkg/ppa/README.md.
+
+ -- Zeal Release <release@zealdocs.org>  Thu, 01 May 2025 00:00:00 +0000

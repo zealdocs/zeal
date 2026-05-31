@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+# Build Zeal as a Debian/Ubuntu package.
+#
+# CMake already installs the binary, .desktop file, AppStream metainfo, and
+# icons under /usr on Linux (see assets/freedesktop/CMakeLists.txt), so dh's
+# cmake buildsystem needs no extra install glue.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
