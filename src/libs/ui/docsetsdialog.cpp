@@ -6,6 +6,7 @@
 #include "ui_docsetsdialog.h"
 
 #include "docsetlistitemdelegate.h"
+#include "widgets/emptystatelabel.h"
 
 #include <core/application.h>
 #include <core/filemanager.h>
@@ -115,6 +116,8 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 
     setupInstalledDocsetsTab();
     setupAvailableDocsetsTab();
+    updateInstalledDocsetsEmptyState();
+    updateAvailableDocsetsEmptyState();
 
     if (m_isStorageReadOnly) {
         disableControls();
@@ -226,6 +229,8 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
 
         item->setHidden(doSearch && !item->text().contains(filterString, Qt::CaseInsensitive));
     }
+
+    updateAvailableDocsetsEmptyState();
 }
 
 void DocsetsDialog::downloadSelectedDocsets()
@@ -508,6 +513,21 @@ void DocsetsDialog::setupInstalledDocsetsTab()
     ui->installedDocsetList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->installedDocsetList->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
+    m_installedDocsetsEmptyState = new EmptyStateLabel(ui->installedDocsetList, tr("No installed docsets"));
+
+    const QAbstractItemModel *installedModel = ui->installedDocsetList->model();
+    connect(installedModel, &QAbstractItemModel::rowsInserted, this, &DocsetsDialog::updateInstalledDocsetsEmptyState);
+    connect(installedModel, &QAbstractItemModel::rowsRemoved, this, &DocsetsDialog::updateInstalledDocsetsEmptyState);
+    connect(installedModel, &QAbstractItemModel::modelReset, this, &DocsetsDialog::updateInstalledDocsetsEmptyState);
+    connect(m_docsetRegistry,
+            &Registry::DocsetRegistry::docsetLoadingStarted,
+            this,
+            &DocsetsDialog::updateInstalledDocsetsEmptyState);
+    connect(m_docsetRegistry,
+            &Registry::DocsetRegistry::docsetLoadingFinished,
+            this,
+            &DocsetsDialog::updateInstalledDocsetsEmptyState);
+
     if (m_isStorageReadOnly) {
         return;
     }
@@ -555,6 +575,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
         }
 
         item->setHidden(false);
+        updateAvailableDocsetsEmptyState();
     });
     connect(m_docsetRegistry, &DocsetRegistry::docsetLoaded, this, [this](const QString &name) {
         QListWidgetItem *item = findDocsetListItem(name);
@@ -563,11 +584,14 @@ void DocsetsDialog::setupAvailableDocsetsTab()
         }
 
         item->setHidden(true);
+        updateAvailableDocsetsEmptyState();
     });
 
     connect(ui->refreshButton, &QPushButton::clicked, this, &DocsetsDialog::downloadDocsetList);
 
     connect(ui->docsetFilterInput, &QLineEdit::textEdited, this, &DocsetsDialog::updateDocsetFilter);
+
+    m_availableDocsetsEmptyState = new EmptyStateLabel(ui->availableDocsetList, tr("No available docsets"));
 
     if (m_isStorageReadOnly) {
         return;
@@ -603,6 +627,43 @@ void DocsetsDialog::setupAvailableDocsetsTab()
     });
 
     connect(ui->downloadDocsetsButton, &QPushButton::clicked, this, &DocsetsDialog::downloadSelectedDocsets);
+}
+
+void DocsetsDialog::updateInstalledDocsetsEmptyState()
+{
+    if (m_installedDocsetsEmptyState == nullptr) {
+        return;
+    }
+
+    m_installedDocsetsEmptyState->setText(m_docsetRegistry->isLoading() ? tr("Loading docsets")
+                                                                        : tr("No installed docsets"));
+    m_installedDocsetsEmptyState->setEmpty(ui->installedDocsetList->model()->rowCount() == 0);
+}
+
+void DocsetsDialog::updateAvailableDocsetsEmptyState()
+{
+    if (m_availableDocsetsEmptyState == nullptr) {
+        return;
+    }
+
+    bool hasVisibleDocsets = false;
+    for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
+        if (!ui->availableDocsetList->item(i)->isHidden()) {
+            hasVisibleDocsets = true;
+            break;
+        }
+    }
+
+    const bool isFiltering = !ui->docsetFilterInput->text().simplified().isEmpty();
+    if (isFiltering) {
+        m_availableDocsetsEmptyState->setText(tr("No matching docsets"));
+    } else if (!m_availableDocsets.empty()) {
+        m_availableDocsetsEmptyState->setText(tr("All available docsets are installed"));
+    } else {
+        m_availableDocsetsEmptyState->setText(tr("No available docsets"));
+    }
+
+    m_availableDocsetsEmptyState->setEmpty(!hasVisibleDocsets && m_replies.isEmpty());
 }
 
 void DocsetsDialog::enableControls()
@@ -882,6 +943,7 @@ void DocsetsDialog::updateStatus()
     }
 
     ui->statusLabel->setText(text);
+    updateAvailableDocsetsEmptyState();
 
     enableControls();
 }

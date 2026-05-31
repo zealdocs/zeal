@@ -24,6 +24,7 @@ class SearchQuery;
 
 namespace WidgetUi {
 
+class EmptyStateLabel;
 class SearchEdit;
 
 class SearchSidebar final : public Sidebar::View
@@ -59,12 +60,14 @@ private:
     void navigateToIndexAndActivate(const QModelIndex &index);
     void navigateToSelectionWithDelay(const QItemSelection &selection);
     void setupSearchBoxCompletions();
+    void updateEmptyState();
 
     SearchEdit *m_searchEdit = nullptr;
     bool m_pendingSearchEditFocus = false;
 
     // Index and search results tree view state.
     QTreeView *m_treeView = nullptr;
+    EmptyStateLabel *m_treeViewEmptyState = nullptr;
     QModelIndexList m_expandedIndexList;
     int m_pendingVerticalPosition = 0;
     Registry::SearchModel *m_searchModel = nullptr;

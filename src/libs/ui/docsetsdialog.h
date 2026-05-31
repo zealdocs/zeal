@@ -34,6 +34,8 @@ namespace Ui {
 class DocsetsDialog;
 } // namespace Ui
 
+class EmptyStateLabel;
+
 class DocsetsDialog : public QDialog
 {
     Q_OBJECT
@@ -63,6 +65,8 @@ private:
     Ui::DocsetsDialog *ui = nullptr;
     Core::Application *m_application = nullptr;
     Registry::DocsetRegistry *m_docsetRegistry = nullptr;
+    EmptyStateLabel *m_installedDocsetsEmptyState = nullptr;
+    EmptyStateLabel *m_availableDocsetsEmptyState = nullptr;
 
     bool m_isStorageReadOnly = false;
 
@@ -76,6 +80,8 @@ private:
 
     void setupInstalledDocsetsTab();
     void setupAvailableDocsetsTab();
+    void updateInstalledDocsetsEmptyState();
+    void updateAvailableDocsetsEmptyState();
 
     void enableControls();
     void disableControls();

@@ -1,5 +1,6 @@
 add_library(Widgets STATIC
     browserzoomwidget.cpp
+    emptystatelabel.cpp
     iconhelper.cpp
     layouthelper.cpp
     proxystyle.cpp
