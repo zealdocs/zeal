@@ -13,6 +13,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  QT_VERSION: "6.10.2"
+  QT_MODULES: >-
+    qtpositioning
+    qtwebchannel
+    qtwebengine
+
 jobs:
   build-ubuntu:
     name: ${{ matrix.config.name }}
@@ -78,41 +85,21 @@ jobs:
         config:
           - name: Windows Server 2022
             os: windows-2022
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
             publishArtifacts: true
           - name: Windows Server 2022 Portable
             os: windows-2022
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
             publishArtifacts: true
           - name: Windows 11 ARM64
             os: windows-11-arm
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
             publishArtifacts: true
           - name: Windows 11 ARM64 Portable
             os: windows-11-arm
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
             publishArtifacts: true
@@ -153,8 +140,8 @@ jobs:
       - name: Install Qt
         uses: trollixx/setup-qt@v1
         with:
-          version: ${{ matrix.config.qt_version }}
-          modules: ${{ matrix.config.qt_modules }}
+          version: ${{ env.QT_VERSION }}
+          modules: ${{ env.QT_MODULES }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
@@ -203,11 +190,6 @@ jobs:
         config:
           - name: macOS 15 ARM64
             os: macos-15
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
 
@@ -223,8 +205,8 @@ jobs:
       - name: Install Qt
         uses: trollixx/setup-qt@v1
         with:
-          version: ${{ matrix.config.qt_version }}
-          modules: ${{ matrix.config.qt_modules }}
+          version: ${{ env.QT_VERSION }}
+          modules: ${{ env.QT_MODULES }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
