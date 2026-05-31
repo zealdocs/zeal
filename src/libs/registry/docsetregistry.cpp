@@ -13,6 +13,7 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QScopeGuard>
 #include <QStack>
 #include <QThread>
 #include <QtConcurrent>
@@ -82,6 +83,14 @@ void DocsetRegistry::setStoragePath(const QString &path)
     }
 
     QMetaObject::invokeMethod(this, [this, path]() {
+        m_isLoadingDocsets.store(true, std::memory_order_relaxed);
+        emit docsetLoadingStarted();
+
+        const QScopeGuard loadingFinished([this]() {
+            m_isLoadingDocsets.store(false, std::memory_order_relaxed);
+            emit docsetLoadingFinished();
+        });
+
         unloadAllDocsets();
         addDocsetsFromFolder(path);
         m_storagePath = path;
@@ -109,6 +118,11 @@ void DocsetRegistry::setFuzzySearchEnabled(bool enabled)
 int DocsetRegistry::count() const
 {
     return static_cast<int>(m_docsets.count());
+}
+
+bool DocsetRegistry::isLoading() const
+{
+    return m_isLoadingDocsets.load(std::memory_order_relaxed);
 }
 
 bool DocsetRegistry::contains(const QString &name) const

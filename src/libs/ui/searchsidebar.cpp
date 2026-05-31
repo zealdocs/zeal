@@ -4,6 +4,7 @@
 #include "searchsidebar.h"
 
 #include "searchitemdelegate.h"
+#include "widgets/emptystatelabel.h"
 #include "widgets/layouthelper.h"
 #include "widgets/searchedit.h"
 #include "widgets/toolbarframe.h"
@@ -71,6 +72,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
     delegate->setDecorationRoles({Registry::ItemDataRole::DocsetIconRole, Qt::DecorationRole});
     delegate->setTextHighlightRole(Registry::ItemDataRole::MatchPositionsRole);
     m_treeView->setItemDelegate(delegate);
+    m_treeViewEmptyState = new EmptyStateLabel(m_treeView, tr("No installed docsets"));
 
     connect(m_treeView, &QTreeView::activated, this, &SearchSidebar::navigateToIndexAndActivate);
     connect(m_treeView, &QTreeView::clicked, this, &SearchSidebar::navigateToIndex);
@@ -149,6 +151,7 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         m_searchModel = new Registry::SearchModel(this);
         setTreeViewModel(Core::Application::instance()->docsetRegistry()->model(), true);
     }
+    connect(m_searchModel, &Registry::SearchModel::updated, this, &SearchSidebar::updateEmptyState);
 
     connect(m_searchEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         QItemSelectionModel *oldSelectionModel = m_treeView->selectionModel();
@@ -176,6 +179,11 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         m_treeView->reset();
 
         Core::Application::instance()->docsetRegistry()->search(text);
+        if (text.isEmpty()) {
+            updateEmptyState();
+        } else {
+            m_treeViewEmptyState->setEmpty(false);
+        }
     });
 
     auto *toolBarLayout = new QVBoxLayout();
@@ -228,6 +236,10 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         m_searchModel->setResults(results);
 
         const QModelIndex index = m_searchModel->index(0, 0, QModelIndex());
+        if (!index.isValid()) {
+            return;
+        }
+
         m_treeView->setCurrentIndex(index);
         m_delayedNavigationTimer->setProperty("index", index);
         m_delayedNavigationTimer->start();
@@ -248,11 +260,20 @@ SearchSidebar::SearchSidebar(const SearchSidebar *other, QWidget *parent)
         }
 
         setupSearchBoxCompletions();
+        updateEmptyState();
     });
 
     connect(registry, &DocsetRegistry::docsetLoaded, this, [this](const QString &) {
         setupSearchBoxCompletions();
+        updateEmptyState();
     });
+    connect(registry, &DocsetRegistry::docsetUnloaded, this, [this](const QString &) {
+        updateEmptyState();
+    });
+    connect(registry, &DocsetRegistry::docsetLoadingStarted, this, &SearchSidebar::updateEmptyState);
+    connect(registry, &DocsetRegistry::docsetLoadingFinished, this, &SearchSidebar::updateEmptyState);
+
+    updateEmptyState();
 }
 
 void SearchSidebar::setTreeViewModel(QAbstractItemModel *model, bool isRootDecorated)
@@ -465,6 +486,24 @@ void SearchSidebar::setupSearchBoxCompletions()
     }
 
     m_searchEdit->setCompletions(completions);
+}
+
+void SearchSidebar::updateEmptyState()
+{
+    if (m_treeViewEmptyState == nullptr || m_treeView->model() == nullptr) {
+        return;
+    }
+
+    if (m_searchEdit->text().isEmpty()) {
+        m_treeViewEmptyState->setText(Core::Application::instance()->docsetRegistry()->isLoading()
+                                          ? tr("Loading docsets")
+                                          : tr("No installed docsets"));
+        m_treeViewEmptyState->setEmpty(Core::Application::instance()->docsetRegistry()->count() == 0);
+        return;
+    }
+
+    m_treeViewEmptyState->setText(tr("No matches"));
+    m_treeViewEmptyState->setEmpty(m_treeView->model()->rowCount() == 0);
 }
 
 } // namespace Zeal::WidgetUi

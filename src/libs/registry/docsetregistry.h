@@ -42,6 +42,7 @@ public:
     void setFuzzySearchEnabled(bool enabled);
 
     int count() const;
+    bool isLoading() const;
     bool contains(const QString &name) const;
     QStringList names() const;
 
@@ -58,6 +59,8 @@ public:
     const QList<SearchResult> &queryResults();
 
 signals:
+    void docsetLoadingStarted();
+    void docsetLoadingFinished();
     void docsetLoaded(const QString &name);
     void docsetAboutToBeUnloaded(const QString &name);
     void docsetUnloaded(const QString &name);
@@ -79,6 +82,7 @@ private:
     QThread *m_thread = nullptr;
     QMap<QString, Docset *> m_docsets;
 
+    std::atomic_bool m_isLoadingDocsets{false};
     std::atomic_bool m_cancelSearch{false};
 };
 
