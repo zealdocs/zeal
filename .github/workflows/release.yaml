@@ -11,6 +11,13 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
+env:
+  QT_VERSION: "6.10.2"
+  QT_MODULES: >-
+    qtpositioning
+    qtwebchannel
+    qtwebengine
+
 jobs:
   build-windows:
     name: ${{ matrix.config.name }}
@@ -27,41 +34,21 @@ jobs:
         config:
           - name: Windows Server 2022
             os: windows-2022
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
             uploadPattern: "zeal-*-windows-x64.msi"
           - name: Windows Server 2022 / Portable
             os: windows-2022
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
             uploadPattern: "zeal-*-portable-windows-x64.*"
           - name: Windows 11 ARM64
             os: windows-11-arm
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release
             buildPreset: release
             uploadPattern: "zeal-*-windows-arm64.msi"
           - name: Windows 11 ARM64 / Portable
             os: windows-11-arm
-            qt_modules: >-
-              qtpositioning
-              qtwebchannel
-              qtwebengine
-            qt_version: "6.10.2"
             configurePreset: release-portable
             buildPreset: release-portable
             uploadPattern: "zeal-*-portable-windows-arm64.*"
@@ -80,8 +67,8 @@ jobs:
       - name: Install Qt
         uses: trollixx/setup-qt@v1
         with:
-          version: ${{ matrix.config.qt_version }}
-          modules: ${{ matrix.config.qt_modules }}
+          version: ${{ env.QT_VERSION }}
+          modules: ${{ env.QT_MODULES }}
 
       - name: Configure & Build
         uses: lukka/run-cmake@v10
