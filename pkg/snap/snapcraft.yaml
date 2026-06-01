@@ -45,7 +45,7 @@ parts:
     build-packages:
       - extra-cmake-modules
       - libarchive-dev
-      - libgl1-mesa-dev
+      - libgl-dev
       - libsqlite3-dev
       - libvulkan-dev
       - libxcb-keysyms1-dev

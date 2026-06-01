@@ -31,7 +31,7 @@ jobs:
           - name: Ubuntu 24.04
             os: ubuntu-24.04
             qt_packages: >-
-              libgl1-mesa-dev
+              libgl-dev
               libqt6opengl6-dev
               libqt6svg6-dev
               qt6-base-private-dev
@@ -42,7 +42,7 @@ jobs:
           - name: Ubuntu 24.04 ARM64
             os: ubuntu-24.04-arm
             qt_packages: >-
-              libgl1-mesa-dev
+              libgl-dev
               libqt6opengl6-dev
               libqt6svg6-dev
               qt6-base-private-dev
@@ -233,7 +233,7 @@ jobs:
             extra-cmake-modules \
             libarchive-dev \
             libfuse2t64 \
-            libgl1-mesa-dev \
+            libgl-dev \
             libqt6opengl6-dev \
             libqt6svg6-dev \
             libsqlite3-dev \
