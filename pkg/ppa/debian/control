@@ -1,6 +1,6 @@
 Source: zeal
 Maintainer: Zeal Release <release@zealdocs.org>
-Section: utils
+Section: doc
 Priority: optional
 Build-Depends: debhelper-compat (= 13),
                appstream,
