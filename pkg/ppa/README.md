@@ -47,22 +47,37 @@ ships the same upstream.
 
 ### One-time setup (releases)
 
-1. Create a GPG key for CI signing (a dedicated, ideally passphrase-less, key is
-   simplest):
+1. Create a dedicated, passphrase-less ed25519 signing key. It **must include an
+   encryption subkey** — Launchpad confirms key ownership with an *encrypted*
+   email, so a sign-only key cannot be registered:
 
    ```sh
-   gpg --quick-generate-key "Zeal Release <release@zealdocs.org>" default sign never
+   gpg --quick-generate-key "Zeal Release <release@zealdocs.org>" ed25519 sign never
+   gpg --quick-add-key <keyid> cv25519 encr never   # encryption subkey
    ```
 
-2. Upload its **public** key to a Launchpad account that has signed the Ubuntu
-   Code of Conduct and has upload rights to `ppa:zealdocs/ppa`
-   (`gpg --keyserver keyserver.ubuntu.com --send-keys <keyid>` — Launchpad imports
-   from that keyserver — then register the fingerprint at
-   <https://launchpad.net/~/+editpgpkeys>).
-3. Add repository secrets:
-   - `LAUNCHPAD_GPG_PRIVATE_KEY` — ASCII-armored private key
+   Leave the passphrase empty — in CI it would live in the same secret store as
+   the key, so it adds no security. This is the project's general release-signing
+   key and can also sign other artifacts (e.g. AppImages).
+
+2. Publish the **public** key and register it on Launchpad. It must be registered
+   to a Launchpad account that has signed the Ubuntu Code of Conduct and has
+   upload rights to `ppa:zealdocs` — and the key's UID email must be a verified
+   email on that account:
+
+   ```sh
+   gpg --keyserver keyserver.ubuntu.com --send-keys <keyid>
+   ```
+
+   Then add the fingerprint at <https://launchpad.net/~/+editpgpkeys> and confirm
+   the encrypted email Launchpad sends to the UID address. (keyserver.ubuntu.com
+   is append-only, so published UIDs are permanent — only put role addresses on
+   the key, never a personal one.)
+3. Add the repository secret:
+   - `RELEASE_GPG_PRIVATE_KEY` — ASCII-armored private key
      (`gpg --armor --export-secret-keys <keyid>`).
-   - `LAUNCHPAD_GPG_PASSPHRASE` — optional; only if the key has a passphrase.
+   - `RELEASE_GPG_PASSPHRASE` — only if the key has a passphrase (not recommended;
+     see above).
 
 ## Nightly builds (Launchpad recipe)
 
@@ -79,7 +94,9 @@ secret, since Launchpad's build farm signs internally. It only rebuilds when
    (<https://launchpad.net/~zealdocs/+recipes>) and paste the contents of
    `zeal.recipe`. The recipe nests `pkg/ppa/debian` into `debian/` via
    `nest-part` and derives the version from `deb-version`
-   (`1:{debupstream}+git{time}`).
+   (`1:{debupstream}-0~{revtime}`). The `-0~{revtime}` keeps each nightly below
+   the next stable release and keys off the commit time; the `1:` epoch keeps it
+   above the archive.
 4. Set the recipe to build into `nightly`, select the target series, and
    tick **Build daily**.
 5. Request an initial build to confirm it produces binaries.
