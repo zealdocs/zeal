@@ -1,0 +1,3 @@
+# git-build-recipe format 0.4 deb-version 1:{debupstream}+git{time}
+lp:zeal
+nest-part packaging lp:zeal pkg/ppa/debian debian

@@ -1,0 +1,36 @@
+Source: zeal
+Maintainer: Zeal Release <release@zealdocs.org>
+Section: utils
+Priority: optional
+Build-Depends: debhelper-compat (= 13),
+               appstream,
+               cmake (>= 3.25.1),
+               extra-cmake-modules,
+               libarchive-dev,
+               libgl-dev,
+               libqt6opengl6-dev,
+               libqt6svg6-dev,
+               libsqlite3-dev,
+               libvulkan-dev,
+               libxcb-keysyms1-dev,
+               qt6-base-private-dev,
+               qt6-webengine-dev,
+               qt6-webengine-dev-tools,
+Standards-Version: 4.7.0
+Vcs-Git: https://github.com/zealdocs/zeal.git
+Vcs-Browser: https://github.com/zealdocs/zeal
+Homepage: https://zealdocs.org
+
+Package: zeal
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: Simple offline documentation browser
+ Zeal is a simple offline documentation browser inspired by Dash. It offers
+ access to over 200 docsets covering various libraries and APIs.
+ .
+  * Quickly search documentation using Alt+Space (or customised) hotkey to
+    display Zeal from any place in your workspace.
+  * Search in multiple sets of documentation at once.
+  * Don't be dependent on your internet connection.
+  * Integrate Zeal with Emacs, Sublime Text, or Vim.

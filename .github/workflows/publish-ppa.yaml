@@ -1,0 +1,187 @@
+name: Publish PPA Packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Upstream version to upload (without 'v' prefix)"
+        required: true
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  # Ubuntu series to target, as <codename>:<version> pairs. Zeal needs Qt >= 6.4.2,
+  # so 24.04 (noble) is the floor — 22.04 ships Qt 6.2 and cannot build. The numeric
+  # version forms the ~ubuntu<version> suffix (Launchpad's recommended scheme, which
+  # sorts correctly across series upgrades); the codename is the changelog
+  # distribution. Keep trimmed to supported series; Launchpad rejects EOL/unknown ones.
+  SERIES: "noble:24.04 questing:25.10 resolute:26.04"
+  PPA: "ppa:zealdocs/ppa"
+
+jobs:
+  publish:
+    name: Publish
+    if: github.repository == 'zealdocs/zeal'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Determine version
+        id: version
+        # Pass untrusted event/input values through env, never interpolated into
+        # the script body, then validate before use to block shell injection.
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            version="$DISPATCH_VERSION"
+          else
+            version="$RELEASE_TAG"
+          fi
+          version="${version#v}"   # tolerate an optional leading v from either source
+          case "$version" in
+            ''|*[!0-9A-Za-z.+~-]*)
+              echo "::error::Unexpected version string: '${version}'"
+              exit 1
+              ;;
+          esac
+          echo "Upstream version: ${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: v${{ steps.version.outputs.version }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install packaging tools
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y -qq --no-install-recommends install \
+            debhelper \
+            devscripts \
+            dput-ng \
+            fakeroot
+
+      - name: Import signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.LAUNCHPAD_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.LAUNCHPAD_GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          gpgconf --kill gpg-agent || true
+
+          printf '%s' "$GPG_PRIVATE_KEY" | gpg --batch --import
+          keyid=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
+          if [ -z "$keyid" ]; then
+            echo "::error::No secret key imported; set the LAUNCHPAD_GPG_PRIVATE_KEY secret."
+            exit 1
+          fi
+          echo "GPG_KEYID=${keyid}" >> "$GITHUB_ENV"
+
+          # dpkg-buildpackage -p takes a single token (no spaces), so wrap gpg in
+          # a script that adds loopback signing and the passphrase when one is set.
+          # Written with printf so the shebang lands at column 0 (a leading-space
+          # shebang is not honoured).
+          if [ -n "$GPG_PASSPHRASE" ]; then
+            printf '%s' "$GPG_PASSPHRASE" > ~/.ppa-passphrase
+            chmod 600 ~/.ppa-passphrase
+          fi
+          {
+            printf '#!/bin/sh\n'
+            printf 'if [ -f "$HOME/.ppa-passphrase" ]; then\n'
+            printf '  exec gpg --batch --pinentry-mode loopback --passphrase-file "$HOME/.ppa-passphrase" "$@"\n'
+            printf 'fi\n'
+            printf 'exec gpg --batch --pinentry-mode loopback "$@"\n'
+          } > ~/.gpg-sign
+          chmod +x ~/.gpg-sign
+
+      - name: Build source tarball
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          # Pristine upstream tarball from the tag. The debian/ dir is added per
+          # series below, keeping the orig tarball clean for 3.0 (quilt).
+          git archive --prefix="zeal-${VERSION}/" "v${VERSION}" \
+            | gzip -9 > "${RUNNER_TEMP}/zeal_${VERSION}.orig.tar.gz"
+
+      - name: Build and upload source packages
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DEBFULLNAME: Zeal Release
+          DEBEMAIL: release@zealdocs.org
+        run: |
+          set -euo pipefail
+
+          if [ ! -d pkg/ppa/debian ]; then
+            echo "::error::pkg/ppa/debian missing in tag v${VERSION}; the tag predates PPA packaging."
+            exit 1
+          fi
+
+          src_root="${RUNNER_TEMP}/ppa"
+          mkdir -p "$src_root"
+          cp "${RUNNER_TEMP}/zeal_${VERSION}.orig.tar.gz" "$src_root/"
+
+          first=true
+          status=0
+          for entry in $SERIES; do
+            series="${entry%%:*}"      # codename, e.g. noble — the changelog distribution
+            relver="${entry##*:}"      # version, e.g. 24.04 — the ~ubuntu<version> suffix
+            ppa_ver="1:${VERSION}-0ubuntu1~ubuntu${relver}.1"
+            file_ver="${VERSION}-0ubuntu1~ubuntu${relver}.1"  # epoch is stripped from filenames
+            echo "::group::${series} (${relver})"
+            work="$src_root/zeal-${VERSION}"
+            rm -rf "$work"
+            tar -C "$src_root" -xzf "$src_root/zeal_${VERSION}.orig.tar.gz"
+            cp -r pkg/ppa/debian "$work/debian"
+
+            # Write the changelog for this series. The ~ubuntu<version>.1 suffix
+            # (numeric series version) keeps the version unique and correctly ordered
+            # across series upgrades, and lets the official archive reclaim users once
+            # it ships the same upstream.
+            {
+              printf 'zeal (%s) %s; urgency=medium\n\n' "$ppa_ver" "$series"
+              printf '  * New upstream release %s.\n\n' "$VERSION"
+              printf ' -- %s <%s>  %s\n' "$DEBFULLNAME" "$DEBEMAIL" "$(date -R)"
+            } > "$work/debian/changelog"
+
+            # Include the orig tarball only in the first successful upload (-sa);
+            # reuse it (-sd) thereafter, since it is byte-identical across series.
+            if [ "$first" = true ]; then
+              tarball_opt=-sa
+            else
+              tarball_opt=-sd
+            fi
+
+            # One failing series (e.g. an EOL or mistyped entry Launchpad rejects) must
+            # not abort the rest, so guard the build+upload and record the failure. The
+            # if-condition context suspends set -e, so a failure falls through to else.
+            # debuild options precede dpkg-buildpackage options (-S/-sa/-k/-p). Flip
+            # `first` only on success, so the orig tarball still ships with the next
+            # series if the first one failed before uploading it.
+            if ( cd "$work" && debuild --no-lintian -S "$tarball_opt" -k"$GPG_KEYID" -p"$HOME/.gpg-sign" ) \
+                && dput "$PPA" "$src_root/zeal_${file_ver}_source.changes"; then
+              first=false
+            else
+              status=1
+              echo "::error::${series} (${relver}) source build or upload failed"
+            fi
+            echo "::endgroup::"
+          done
+
+          exit "$status"
