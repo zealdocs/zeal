@@ -20,9 +20,10 @@ nightly run skips when `main` has not advanced since its last build.
 CMake installs the binary, desktop file, metainfo, and icons under the prefix.
 toml++ comes from `tomlplusplus-devel`; cpp-httplib stays bundled in `src/contrib`.
 
-`Version:` is a placeholder. The workflow sets it with `--define "zeal_version <v>"`:
-the tag for releases, a `git describe` snapshot for nightlies (which sorts above
-the last release and below the next).
+`Version:` is a placeholder the workflow rewrites in the spec before building the
+SRPM (not via `--define`, which COPR drops when it rebuilds the SRPM): the tag for
+releases, a `git describe` snapshot for nightlies (which sorts above the last
+release and below the next).
 
 ## Chroots
 
@@ -51,8 +52,7 @@ VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
 mkdir -p ~/rpmbuild/SOURCES ~/rpmbuild/SPECS
 git archive --prefix="zeal-$VERSION/" "v$VERSION" | gzip -9 \
     > ~/rpmbuild/SOURCES/zeal-$VERSION.tar.gz
-cp pkg/copr/zeal.spec ~/rpmbuild/SPECS/
-rpmbuild -bs ~/rpmbuild/SPECS/zeal.spec \
-    --define "_topdir $HOME/rpmbuild" --define "zeal_version $VERSION"
+sed "s/^Version:.*/Version:        $VERSION/" pkg/copr/zeal.spec > ~/rpmbuild/SPECS/zeal.spec
+rpmbuild -bs ~/rpmbuild/SPECS/zeal.spec --define "_topdir $HOME/rpmbuild"
 mock ~/rpmbuild/SRPMS/zeal-$VERSION-1*.src.rpm
 ```

@@ -158,28 +158,26 @@ jobs:
           git archive --prefix="zeal-${VERSION}/" HEAD \
             | gzip -9 > "${HOME}/rpmbuild/SOURCES/zeal-${VERSION}.tar.gz"
 
-          # Replace the spec's %changelog with a single dated entry.
+          # Bake the version and bundled cpp-httplib version into the spec. A --define
+          # would be lost when COPR rebuilds the SRPM, resetting the version to 0.0.0.
           spec="${HOME}/rpmbuild/SPECS/zeal.spec"
           sed '/^%changelog/q' pkg/copr/zeal.spec > "$spec"
+          sed -i "s/^Version:.*/Version:        ${VERSION}/" "$spec"
+
+          if [ -f src/contrib/cpp-httplib/httplib.h ]; then
+            httplib_version=$(sed -n 's/^#define CPPHTTPLIB_VERSION "\([^"]*\)".*/\1/p' \
+              src/contrib/cpp-httplib/httplib.h | head -n1)
+            if [ -n "$httplib_version" ]; then
+              sed -i "s|^Provides:.*bundled(cpp-httplib).*|Provides:       bundled(cpp-httplib) = ${httplib_version}|" "$spec"
+            fi
+          fi
+
           {
             printf '* %s %s - %s-1\n' "$(LC_ALL=C date '+%a %b %d %Y')" "$PACKAGER" "$VERSION"
             printf -- '- Build of %s.\n' "$VERSION"
           } >> "$spec"
 
-          # Pass the bundled cpp-httplib version (from its header) to the spec's
-          # bundled() Provides. Omitted if not found, leaving it unversioned.
-          httplib_version=""
-          if [ -f src/contrib/cpp-httplib/httplib.h ]; then
-            httplib_version=$(sed -n 's/^#define CPPHTTPLIB_VERSION "\([^"]*\)".*/\1/p' \
-              src/contrib/cpp-httplib/httplib.h | head -n1)
-          fi
-
-          defines=(--define "_topdir ${HOME}/rpmbuild" --define "zeal_version ${VERSION}")
-          if [ -n "$httplib_version" ]; then
-            defines+=(--define "httplib_version ${httplib_version}")
-          fi
-
-          rpmbuild -bs "$spec" "${defines[@]}"
+          rpmbuild -bs "$spec" --define "_topdir ${HOME}/rpmbuild"
 
           srpm=$(find "${HOME}/rpmbuild/SRPMS" -name "zeal-${VERSION}-1*.src.rpm" | head -n1)
           if [ -z "$srpm" ]; then
