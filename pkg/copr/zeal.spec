@@ -1,18 +1,17 @@
 # RPM spec for Zeal, built on Fedora COPR.
 #
-# The Version tag is a placeholder overridden by the release automation, which
-# passes --define "zeal_version <version>" when building the source RPM (see
-# .github/workflows/publish-copr.yaml). A plain build with no override produces
-# 0.0.0, matching the AUR PKGBUILD convention. CMake already installs the binary,
-# .desktop file, AppStream metainfo, and icons under the prefix on Linux
-# (see assets/freedesktop/CMakeLists.txt), so %%cmake_install needs no extra glue.
-# toml++ is taken from the distro (tomlplusplus-devel). cpp-httplib stays bundled
-# in src/contrib because the system versions span too wide a range to rely on; its
-# bundled() Provides version is injected by the workflow via
-# --define "httplib_version <v>", read from the bundled header.
+# The automation rewrites the Version line (and the bundled(cpp-httplib) Provides)
+# in this spec before building the source RPM (see .github/workflows/publish-copr.yaml).
+# They are baked in rather than passed via --define, because COPR rebuilds the SRPM
+# without those defines and the version would reset to 0.0.0. A plain build with no
+# rewrite produces 0.0.0. CMake already installs the binary, .desktop file, AppStream
+# metainfo, and icons under the prefix on Linux (see assets/freedesktop/CMakeLists.txt),
+# so %%cmake_install needs no extra glue. toml++ comes from the distro
+# (tomlplusplus-devel); cpp-httplib stays bundled in src/contrib because the system
+# versions span too wide a range to rely on.
 
 Name:           zeal
-Version:        %{?zeal_version}%{!?zeal_version:0.0.0}
+Version:        0.0.0
 Release:        1%{?dist}
 Summary:        Simple offline documentation browser
 
@@ -45,11 +44,7 @@ BuildRequires:  libxkbcommon-devel
 
 Requires:       hicolor-icon-theme
 
-%if "%{?httplib_version}" != ""
-Provides:       bundled(cpp-httplib) = %{httplib_version}
-%else
 Provides:       bundled(cpp-httplib)
-%endif
 
 %description
 Zeal is a simple offline documentation browser inspired by Dash. It offers
