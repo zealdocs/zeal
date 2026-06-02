@@ -1,0 +1,199 @@
+name: Publish COPR Packages
+
+on:
+  release:
+    types: [published]
+  schedule:
+    # Skipped when main has not advanced since the last build (see "Resolve version").
+    - cron: "2 4 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to upload (without 'v'). Leave blank to build a nightly snapshot from main."
+        required: false
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  COPR_PROJECT_STABLE: "@zealdocs/zeal"
+  COPR_PROJECT_NIGHTLY: "@zealdocs/zeal-nightly"
+
+jobs:
+  publish:
+    name: Publish
+    if: github.repository == 'zealdocs/zeal'
+    runs-on: ubuntu-latest
+    # Build the source RPM on Fedora so the Fedora spec macros (%cmake, %autosetup,
+    # %{?dist}) and rpmbuild/copr-cli are all native. The first step installs git
+    # so the checkout below can use it.
+    container:
+      image: fedora:latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Install packaging tools
+        run: dnf -y install git rpm-build copr-cli jq
+
+      - name: Determine mode and target
+        id: mode
+        # Untrusted event/input values go through env and are validated before use
+        # to block shell injection.
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            raw="$RELEASE_TAG"; stable=true
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "$DISPATCH_VERSION" ]; then
+            raw="$DISPATCH_VERSION"; stable=true
+          else
+            stable=false
+          fi
+
+          if [ "$stable" = true ]; then
+            version="${raw#v}"   # tolerate an optional leading v
+            # RPM forbids '-' in Version: (it delimits version from release), so
+            # reject it here along with anything else outside an RPM version.
+            case "$version" in
+              ''|*[!0-9A-Za-z.+~]*)
+                echo "::error::Unexpected version string: '${version}'"; exit 1 ;;
+            esac
+            {
+              echo "mode=stable"
+              echo "ref=v${version}"
+              echo "version=${version}"
+              echo "project=${COPR_PROJECT_STABLE}"
+            } >> "$GITHUB_OUTPUT"
+            echo "Stable release: ${version}"
+          else
+            # Version is derived from the checkout below, so it is left empty here.
+            {
+              echo "mode=nightly"
+              echo "ref=main"
+              echo "version="
+              echo "project=${COPR_PROJECT_NIGHTLY}"
+            } >> "$GITHUB_OUTPUT"
+            echo "Nightly snapshot from main"
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.mode.outputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Configure COPR credentials
+        env:
+          COPR_CONFIG: ${{ secrets.COPR_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$COPR_CONFIG" ]; then
+            echo "::error::COPR_API_TOKEN secret is empty; copy the token block from https://copr.fedorainfracloud.org/api/."
+            exit 1
+          fi
+          mkdir -p "${HOME}/.config"
+          printf '%s' "$COPR_CONFIG" > "${HOME}/.config/copr"
+          chmod 600 "${HOME}/.config/copr"
+
+      - name: Resolve version
+        id: resolve
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+          VERSION: ${{ steps.mode.outputs.version }}
+          PROJECT: ${{ steps.mode.outputs.project }}
+        run: |
+          set -euo pipefail
+          # The checkout populates the workspace as a different owner than the
+          # container's root, which trips git's ownership guard.
+          git config --global --add safe.directory "$PWD"
+
+          if [ "$MODE" = "stable" ]; then
+            version="$VERSION"
+          else
+            # Snapshot version from main: 0.8.2-15-gabcdef -> 0.8.2^15.gabcdef, which
+            # sorts above the last release and below the next.
+            version=$(git describe --tags --long | sed 's/^v//; s/-\([0-9]*\)-g/^\1.g/')
+
+            # Skip when COPR's latest build already has this version (the version
+            # embeds the commit). An empty result never skips, so a failed or missing
+            # build is retried. Confirm the JSON path against copr-cli; a wrong path
+            # just falls back to always building.
+            last=$(copr-cli get-package "$PROJECT" --name zeal --with-latest-build \
+                     --output-format json 2>/dev/null | jq -r '.latest_build.source_package.version // empty' || true)
+            if [ -n "$last" ] && [ "$version" = "$last" ]; then
+              echo "main has not advanced since the last build (${last}); nothing to do."
+              echo "proceed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "Building version: ${version}"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build source RPM
+        if: steps.resolve.outputs.proceed == 'true'
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+          PACKAGER: Zeal Release <release@zealdocs.org>
+        run: |
+          set -euo pipefail
+
+          if [ ! -f pkg/copr/zeal.spec ]; then
+            echo "::error::pkg/copr/zeal.spec missing in this checkout."
+            exit 1
+          fi
+
+          mkdir -p "${HOME}/rpmbuild/SOURCES" "${HOME}/rpmbuild/SPECS"
+
+          # Tarball name and prefix must match the spec's Source0.
+          git archive --prefix="zeal-${VERSION}/" HEAD \
+            | gzip -9 > "${HOME}/rpmbuild/SOURCES/zeal-${VERSION}.tar.gz"
+
+          # Replace the spec's %changelog with a single dated entry.
+          spec="${HOME}/rpmbuild/SPECS/zeal.spec"
+          sed '/^%changelog/q' pkg/copr/zeal.spec > "$spec"
+          {
+            printf '* %s %s - %s-1\n' "$(LC_ALL=C date '+%a %b %d %Y')" "$PACKAGER" "$VERSION"
+            printf -- '- Build of %s.\n' "$VERSION"
+          } >> "$spec"
+
+          # Pass the bundled cpp-httplib version (from its header) to the spec's
+          # bundled() Provides. Omitted if not found, leaving it unversioned.
+          httplib_version=""
+          if [ -f src/contrib/cpp-httplib/httplib.h ]; then
+            httplib_version=$(sed -n 's/^#define CPPHTTPLIB_VERSION "\([^"]*\)".*/\1/p' \
+              src/contrib/cpp-httplib/httplib.h | head -n1)
+          fi
+
+          defines=(--define "_topdir ${HOME}/rpmbuild" --define "zeal_version ${VERSION}")
+          if [ -n "$httplib_version" ]; then
+            defines+=(--define "httplib_version ${httplib_version}")
+          fi
+
+          rpmbuild -bs "$spec" "${defines[@]}"
+
+          srpm=$(find "${HOME}/rpmbuild/SRPMS" -name "zeal-${VERSION}-1*.src.rpm" | head -n1)
+          if [ -z "$srpm" ]; then
+            echo "::error::Source RPM was not produced."
+            exit 1
+          fi
+          echo "SRPM=${srpm}" >> "$GITHUB_ENV"
+
+      - name: Submit build to COPR
+        if: steps.resolve.outputs.proceed == 'true'
+        # No --nowait: wait so a failing chroot fails the workflow. COPR rebuilds
+        # for every enabled chroot.
+        env:
+          PROJECT: ${{ steps.mode.outputs.project }}
+        run: |
+          set -euo pipefail
+          copr-cli build "$PROJECT" "$SRPM"
