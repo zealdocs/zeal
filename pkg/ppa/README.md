@@ -1,126 +1,93 @@
 # Ubuntu PPA packaging
 
-Debian/Ubuntu source packaging for Zeal, plus the automation that publishes it
-to Launchpad. Two flows feed two PPAs:
+Debian/Ubuntu source packaging for Zeal and the automation that publishes it to
+Launchpad. Two flows feed two PPAs:
 
-| Flow    | PPA                            | Trigger                                   | Signed by         |
-| ------- | ------------------------------ | ----------------------------------------- | ----------------- |
-| Release | `ppa:zealdocs`          | `publish-ppa.yaml` on each GitHub release | repo GPG secret   |
-| Nightly | `ppa:zealdocs/nightly`  | Launchpad daily-build recipe (`main`)     | Launchpad buildds |
+| Flow    | PPA                    | Trigger                                   | Signed by         |
+| ------- | ---------------------- | ----------------------------------------- | ----------------- |
+| Release | `ppa:zealdocs`         | `publish-ppa.yaml` on each GitHub release | repo GPG secret   |
+| Nightly | `ppa:zealdocs/nightly` | Launchpad recipe (`main`)                 | Launchpad buildds |
 
-The stable PPA is the team's default (named `ppa`), so `ppa:zealdocs` is shorthand
-for `ppa:zealdocs/ppa`.
+`ppa:zealdocs` is shorthand for the team's default PPA, `ppa:zealdocs/ppa`. Launchpad
+builds the binaries from the uploaded source package, once per series and architecture.
 
-Launchpad builds the binaries from the uploaded *source* package, once per
-target series, for every architecture the PPA enables.
+## Files
 
-## Layout
-
-- `debian/` — the Debian source package (Qt 6). `rules` is a thin `dh` wrapper
-  because CMake already installs the binary, `.desktop`, AppStream metainfo, and
-  icons under `/usr` (see `assets/freedesktop/CMakeLists.txt`).
-- `zeal.recipe` — the Launchpad git-build recipe used for nightly builds.
+- `debian/` is the Debian source package (Qt 6). `rules` is a thin `dh` wrapper, since
+  CMake installs the binary, `.desktop`, metainfo, and icons under `/usr`.
+- `zeal.recipe` is the Launchpad recipe for nightly builds.
 
 ## Target series
 
-Zeal requires **Qt ≥ 6.4.2** (`src/app/CMakeLists.txt`), so **24.04 (noble)** is
-the oldest buildable series; 22.04 (Qt 6.2) cannot build it. Targets are noble
-and every newer supported series.
-
-For releases, the series list is the single `SERIES` variable at the top of
-`.github/workflows/publish-ppa.yaml` — trim or extend it as releases come and go.
-Launchpad rejects uploads for EOL or unknown series, so a stale entry only fails
-its own upload. For nightlies, the series are chosen in the recipe's settings on
-Launchpad.
+The series live in the `SERIES` variable at the top of `publish-ppa.yaml`. The floor is
+24.04 (noble); 22.04's Qt 6.2 is too old (Zeal needs Qt >= 6.4.2). Launchpad rejects EOL
+or unknown series, so a stale entry only fails its own upload. Nightly series are set in
+the recipe on Launchpad.
 
 ## Release uploads (`publish-ppa.yaml`)
 
-On a published release (or via **Run workflow** with a version), the workflow
-builds a GPG-signed source package per series and `dput`s it to
-`ppa:zealdocs/ppa`, versioned `1:<version>-0ubuntu1~ubuntu<series-version>.1`
-(e.g. `1:0.8.2-0ubuntu1~ubuntu24.04.1`). The `1:` epoch is mandatory, not
-cosmetic: the official archive package carries it too (`1:0.7.x`), so without
-it a PPA build would sort *below* the archive and users would never receive it.
-The numeric `~ubuntu<version>` suffix (Launchpad's recommended scheme) orders
-correctly across series upgrades and lets the archive reclaim users once it
-ships the same upstream.
+On a release (or manual run with a version), the workflow builds a GPG-signed source
+package per series and `dput`s it to `ppa:zealdocs/ppa`, versioned
+`1:<version>-0ubuntu1~ubuntu<series>.1`. The `1:` epoch is required: the official archive
+package carries it (`1:0.7.x`), so without it a PPA build would sort below the archive
+and never reach users. The `~ubuntu<series>` suffix orders correctly across series
+upgrades.
 
 ### One-time setup (releases)
 
-1. Create a dedicated, passphrase-less ed25519 signing key. It **must include an
-   encryption subkey** — Launchpad confirms key ownership with an *encrypted*
-   email, so a sign-only key cannot be registered:
+1. Create a passphrase-less ed25519 signing key with an **encryption subkey**. Launchpad
+   confirms ownership via an encrypted email, so a sign-only key can't be registered:
 
    ```sh
    gpg --quick-generate-key "Zeal Release <release@zealdocs.org>" ed25519 sign never
-   gpg --quick-add-key <keyid> cv25519 encr never   # encryption subkey
+   gpg --quick-add-key <keyid> cv25519 encr never
    ```
 
-   Leave the passphrase empty — in CI it would live in the same secret store as
-   the key, so it adds no security. This is the project's general release-signing
-   key and can also sign other artifacts (e.g. AppImages).
-
-2. Publish the **public** key and register it on Launchpad. It must be registered
-   to a Launchpad account that has signed the Ubuntu Code of Conduct and has
-   upload rights to `ppa:zealdocs` — and the key's UID email must be a verified
-   email on that account:
+2. Publish the public key and register it on Launchpad. The account must have signed the
+   Ubuntu CoC and have upload rights to `ppa:zealdocs`, and the key's UID email must be
+   verified on that account:
 
    ```sh
    gpg --keyserver keyserver.ubuntu.com --send-keys <keyid>
    ```
 
-   Then add the fingerprint at <https://launchpad.net/~/+editpgpkeys> and confirm
-   the encrypted email Launchpad sends to the UID address. (keyserver.ubuntu.com
-   is append-only, so published UIDs are permanent — only put role addresses on
-   the key, never a personal one.)
-3. Add the repository secret:
-   - `RELEASE_GPG_PRIVATE_KEY` — ASCII-armored private key
-     (`gpg --armor --export-secret-keys <keyid>`).
-   - `RELEASE_GPG_PASSPHRASE` — only if the key has a passphrase (not recommended;
-     see above).
+   Add the fingerprint at <https://launchpad.net/~/+editpgpkeys> and confirm the email
+   Launchpad sends. keyserver.ubuntu.com is append-only, so put only role addresses on
+   the key, never a personal one.
+3. Add the secret `RELEASE_GPG_PRIVATE_KEY` (armored key from
+   `gpg --armor --export-secret-keys <keyid>`). Set `RELEASE_GPG_PASSPHRASE` only if the
+   key has one (not recommended).
 
 ## Nightly builds (Launchpad recipe)
 
-Launchpad rebuilds nightlies itself from `main` — no GitHub cron and no signing
-secret, since Launchpad's build farm signs internally. It only rebuilds when
-`main` has new commits.
+Launchpad rebuilds nightlies from `main` itself, when `main` changes. No GitHub cron or
+signing secret, since the buildds sign internally.
 
 ### One-time setup (nightly)
 
-1. Create the PPA `ppa:zealdocs/nightly`.
-2. Import the GitHub repo into Launchpad as a Git repository (Code → Import), so
-   `lp:zeal` is available to recipes.
-3. Create a new source package recipe
-   (<https://launchpad.net/~zealdocs/+recipes>) and paste the contents of
-   `zeal.recipe`. The recipe nests `pkg/ppa/debian` into `debian/` via
-   `nest-part` and derives the version from `deb-version`
-   (`1:{debupstream}-0~{revtime}`). The `-0~{revtime}` keeps each nightly below
-   the next stable release and keys off the commit time; the `1:` epoch keeps it
-   above the archive.
-4. Set the recipe to build into `nightly`, select the target series, and
-   tick **Build daily**.
-5. Request an initial build to confirm it produces binaries.
+1. Create `ppa:zealdocs/nightly`.
+2. Import the GitHub repo into Launchpad (Code -> Import) so `lp:zeal` is available.
+3. Create a recipe (<https://launchpad.net/~zealdocs/+recipes>) from `zeal.recipe`. It
+   nests `pkg/ppa/debian` into `debian/` and versions via `1:{debupstream}-0~{revtime}`,
+   keeping each nightly below the next release and above the archive.
+4. Set it to build into `nightly`, pick the series, and tick **Build daily**.
+5. Request an initial build to confirm it works.
 
 ## Local testing
 
-Build a source package the way the workflow does, then build the binary in a
-clean chroot:
+Build a source package as the workflow does, then build the binary in a clean chroot:
 
 ```sh
-VERSION=0.8.2
+VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
 ZEAL=~/zeal   # your checkout
 
-# Pristine upstream tarball, placed in /tmp — debuild looks for the .orig tarball
-# in the build dir's parent. Use the release tag, or HEAD/a branch to test
-# unreleased changes.
-git -C "$ZEAL" archive --prefix="zeal-${VERSION}/" "v${VERSION}" \
-    | gzip -9 > "/tmp/zeal_${VERSION}.orig.tar.gz"
-
+# debuild looks for the .orig tarball in the parent directory.
+git -C "$ZEAL" archive --prefix="zeal-${VERSION}/" "v${VERSION}" | gzip -9 \
+    > "/tmp/zeal_${VERSION}.orig.tar.gz"
 cd /tmp && tar xf "zeal_${VERSION}.orig.tar.gz" && cd "zeal-${VERSION}"
 cp -r "$ZEAL/pkg/ppa/debian" debian
 
-# Overwrite the seed changelog with a target-series entry, exactly as the workflow
-# does. (debian/changelog already exists in pkg/ppa/debian, so `dch --create` fails.)
+# Overwrite the seed changelog with a target-series entry, as the workflow does.
 cat > debian/changelog <<EOF
 zeal (1:${VERSION}-0ubuntu1~ubuntu24.04.1) noble; urgency=medium
 
@@ -129,6 +96,6 @@ zeal (1:${VERSION}-0ubuntu1~ubuntu24.04.1) noble; urgency=medium
  -- Zeal Release <release@zealdocs.org>  $(date -R)
 EOF
 
-debuild -S -us -uc                 # build an unsigned source package
-sudo pbuilder build ../zeal_*.dsc  # build the binary against noble
+debuild -S -us -uc                 # unsigned source package
+sudo pbuilder build ../zeal_*.dsc  # binary against noble
 ```

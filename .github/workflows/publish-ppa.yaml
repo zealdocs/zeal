@@ -16,11 +16,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Ubuntu series to target, as <codename>:<version> pairs. Zeal needs Qt >= 6.4.2,
-  # so 24.04 (noble) is the floor — 22.04 ships Qt 6.2 and cannot build. The numeric
-  # version forms the ~ubuntu<version> suffix (Launchpad's recommended scheme, which
-  # sorts correctly across series upgrades); the codename is the changelog
-  # distribution. Keep trimmed to supported series; Launchpad rejects EOL/unknown ones.
+  # Ubuntu series as <codename>:<version> pairs. 24.04 (noble) is the floor; 22.04's
+  # Qt 6.2 is too old. <version> forms the ~ubuntu<version> suffix, <codename> is the
+  # changelog distribution. Launchpad rejects EOL or unknown series.
   SERIES: "noble:24.04 questing:25.10 resolute:26.04"
   PPA: "ppa:zealdocs/ppa"
 
@@ -35,8 +33,8 @@ jobs:
     steps:
       - name: Determine version
         id: version
-        # Pass untrusted event/input values through env, never interpolated into
-        # the script body, then validate before use to block shell injection.
+        # Untrusted event/input values go through env and are validated before use
+        # to block shell injection.
         env:
           DISPATCH_VERSION: ${{ inputs.version }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
@@ -47,7 +45,7 @@ jobs:
           else
             version="$RELEASE_TAG"
           fi
-          version="${version#v}"   # tolerate an optional leading v from either source
+          version="${version#v}"   # tolerate an optional leading v
           case "$version" in
             ''|*[!0-9A-Za-z.+~-]*)
               echo "::error::Unexpected version string: '${version}'"
@@ -93,10 +91,9 @@ jobs:
           fi
           echo "GPG_KEYID=${keyid}" >> "$GITHUB_ENV"
 
-          # dpkg-buildpackage -p takes a single token (no spaces), so wrap gpg in
-          # a script that adds loopback signing and the passphrase when one is set.
-          # Written with printf so the shebang lands at column 0 (a leading-space
-          # shebang is not honoured).
+          # dpkg-buildpackage -p takes one token, so wrap gpg in a script that adds
+          # loopback signing (and the passphrase when set). printf keeps the shebang
+          # at column 0.
           if [ -n "$GPG_PASSPHRASE" ]; then
             printf '%s' "$GPG_PASSPHRASE" > ~/.ppa-passphrase
             chmod 600 ~/.ppa-passphrase
@@ -140,8 +137,8 @@ jobs:
           first=true
           status=0
           for entry in $SERIES; do
-            series="${entry%%:*}"      # codename, e.g. noble — the changelog distribution
-            relver="${entry##*:}"      # version, e.g. 24.04 — the ~ubuntu<version> suffix
+            series="${entry%%:*}"      # codename, e.g. noble
+            relver="${entry##*:}"      # version, e.g. 24.04
             ppa_ver="1:${VERSION}-0ubuntu1~ubuntu${relver}.1"
             file_ver="${VERSION}-0ubuntu1~ubuntu${relver}.1"  # epoch is stripped from filenames
             echo "::group::${series} (${relver})"
@@ -150,10 +147,8 @@ jobs:
             tar -C "$src_root" -xzf "$src_root/zeal_${VERSION}.orig.tar.gz"
             cp -r pkg/ppa/debian "$work/debian"
 
-            # Write the changelog for this series. The ~ubuntu<version>.1 suffix
-            # (numeric series version) keeps the version unique and correctly ordered
-            # across series upgrades, and lets the official archive reclaim users once
-            # it ships the same upstream.
+            # Per-series changelog. The ~ubuntu<version>.1 suffix orders correctly
+            # across series upgrades and lets the archive reclaim users later.
             {
               printf 'zeal (%s) %s; urgency=medium\n\n' "$ppa_ver" "$series"
               printf '  * New upstream release %s.\n\n' "$VERSION"
@@ -168,12 +163,9 @@ jobs:
               tarball_opt=-sd
             fi
 
-            # One failing series (e.g. an EOL or mistyped entry Launchpad rejects) must
-            # not abort the rest, so guard the build+upload and record the failure. The
-            # if-condition context suspends set -e, so a failure falls through to else.
-            # debuild options precede dpkg-buildpackage options (-S/-sa/-k/-p). Flip
-            # `first` only on success, so the orig tarball still ships with the next
-            # series if the first one failed before uploading it.
+            # Guard so one rejected series doesn't abort the rest (the if-context
+            # suspends set -e). Flip `first` only on success, so the orig tarball
+            # still ships with the next series if this upload failed.
             if ( cd "$work" && debuild --no-lintian -S "$tarball_opt" -k"$GPG_KEYID" -p"$HOME/.gpg-sign" ) \
                 && dput "$PPA" "$src_root/zeal_${file_ver}_source.changes"; then
               first=false
