@@ -329,7 +329,7 @@ void SettingsDialog::saveSettings()
 
     settings->save();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     settings->applyColorScheme();
 #endif
 }

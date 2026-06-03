@@ -122,7 +122,7 @@ public:
 
     static ColorScheme colorScheme();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     void applyColorScheme() const;
 #endif
 

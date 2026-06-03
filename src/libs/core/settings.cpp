@@ -48,7 +48,7 @@ Settings::Settings(QObject *parent)
     qRegisterMetaType<ContentAppearance>("ContentAppearance");
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     // When the OS color scheme changes, reapply the color scheme.
     connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this]() {
         if (contentAppearance == ContentAppearance::Automatic) {
@@ -83,7 +83,7 @@ bool Settings::isTrayActive() const
     return showSystrayIcon && QSystemTrayIcon::isSystemTrayAvailable();
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
 void Settings::applyColorScheme() const
 {
     Qt::ColorScheme scheme = Qt::ColorScheme::Unknown;
@@ -176,7 +176,7 @@ void Settings::load()
     }
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     applyColorScheme();
 #endif
 
