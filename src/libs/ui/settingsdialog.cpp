@@ -327,11 +327,12 @@ void SettingsDialog::saveSettings()
 
     settings->isIgnoreSslErrorsEnabled = ui->ignoreSslErrorsCheckBox->isChecked();
 
-    settings->save();
-
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    // Must precede save(), so that updated() is emitted with the effective scheme.
     settings->applyColorScheme();
 #endif
+
+    settings->save();
 }
 
 } // namespace Zeal::WidgetUi

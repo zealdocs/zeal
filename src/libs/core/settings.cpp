@@ -53,6 +53,7 @@ Settings::Settings(QObject *parent)
     connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this]() {
         if (contentAppearance == ContentAppearance::Automatic) {
             applyColorScheme();
+            emit updated();
         }
     });
 #endif
