@@ -6,6 +6,7 @@ add_library(Widgets STATIC
     proxystyle.cpp
     searchedit.cpp
     shortcutedit.cpp
+    tabbar.cpp
     toolbarframe.cpp
 )
 
