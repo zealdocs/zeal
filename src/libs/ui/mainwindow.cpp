@@ -285,6 +285,19 @@ void MainWindow::setupMainMenu()
         createTab();
     });
 
+    // -> Duplicate Tab Action.
+    action = menu->addAction(tr("&Duplicate Tab"));
+    if (IconHelper::useThemeIcons()) {
+        // Not a standard icon, but it is often provided by GTK themes.
+        // No Tabler fallback, so other platforms get no icon.
+        action->setIcon(QIcon::fromTheme(QStringLiteral("tab-duplicate")));
+    }
+    addAction(action);
+    action->setShortcut(QStringLiteral("Ctrl+Alt+T"));
+    connect(action, &QAction::triggered, this, [this]() {
+        duplicateTab(m_tabBar->currentIndex());
+    });
+
     // -> Close Tab Action.
     action = menu->addAction(tr("&Close Tab"));
     addAction(action);
@@ -457,6 +470,92 @@ void MainWindow::setupMainMenu()
         }
     });
 
+    // Go Menu.
+    menu = m_menuBar->addMenu(tr("&Go"));
+
+    // -> Back Action.
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("go-previous"),
+                                                   QStringLiteral(":/icons/tabler/arrow-left.svg")),
+                             tr("&Back"));
+    addAction(action);
+    action->setShortcuts(QKeySequence::Back);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->back();
+        }
+    });
+
+    // -> Forward Action.
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("go-next"),
+                                                   QStringLiteral(":/icons/tabler/arrow-right.svg")),
+                             tr("&Forward"));
+    addAction(action);
+    action->setShortcuts(QKeySequence::Forward);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->forward();
+        }
+    });
+
+    menu->addSeparator();
+
+    // -> Next Tab Action.
+    // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
+    action = menu->addAction(tr("&Next Tab"));
+    addAction(action);
+    action->setShortcuts(
+        {QKeySequence(Qt::ControlModifier | Qt::Key_Tab), QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
+    connect(action, &QAction::triggered, this, [this]() {
+        const int count = m_tabBar->count();
+        if (count > 0) {
+            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % count);
+        }
+    });
+
+    // -> Previous Tab Action.
+    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
+    action = menu->addAction(tr("&Previous Tab"));
+    addAction(action);
+    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
+                          QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
+    connect(action, &QAction::triggered, this, [this]() {
+        const int count = m_tabBar->count();
+        if (count > 0) {
+            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + count) % count);
+        }
+    });
+
+    menu->addSeparator();
+
+    // -> Focus Search Action.
+    action = menu->addAction(tr("Focus &Search"));
+    addAction(action);
+    action->setShortcuts({QKeySequence(QStringLiteral("Ctrl+K")), QKeySequence(QStringLiteral("Ctrl+L"))});
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    });
+
+    // -> Switch Focus Action.
+    // Cycles focus between the search bar and the web view.
+    action = menu->addAction(tr("S&witch Focus"));
+    addAction(action);
+    action->setShortcut(QKeySequence(Qt::Key_F6));
+    connect(action, &QAction::triggered, this, [this]() {
+        auto *tab = currentTab();
+        if (tab == nullptr) {
+            return;
+        }
+
+        const QWidget *focusWidget = QApplication::focusWidget();
+        if (focusWidget != nullptr && tab->webControl()->isAncestorOf(focusWidget)) {
+            tab->searchSidebar()->focusSearchEdit();
+        } else {
+            tab->webControl()->focus();
+        }
+    });
+
     // Help Menu.
     menu = m_menuBar->addMenu(tr("&Help"));
 
@@ -494,81 +593,6 @@ void MainWindow::setupShortcuts()
         m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
         connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
     }
-
-    // Focus search bar.
-    auto *shortcut = new QShortcut(QStringLiteral("Ctrl+K"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->searchSidebar()->focusSearchEdit();
-        }
-    });
-
-    shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->searchSidebar()->focusSearchEdit();
-        }
-    });
-
-    // Cycle focus between the search bar and the web view.
-    shortcut = new QShortcut(QKeySequence(Qt::Key_F6), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        auto *tab = currentTab();
-        if (tab == nullptr) {
-            return;
-        }
-
-        const QWidget *focusWidget = QApplication::focusWidget();
-        if (focusWidget != nullptr && tab->webControl()->isAncestorOf(focusWidget)) {
-            tab->searchSidebar()->focusSearchEdit();
-        } else {
-            tab->webControl()->focus();
-        }
-    });
-
-    // Duplicate current tab.
-    shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        duplicateTab(m_tabBar->currentIndex());
-    });
-
-    // Browser Shortcuts.
-    shortcut = new QShortcut(QKeySequence::Back, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->back();
-        }
-    });
-    shortcut = new QShortcut(QKeySequence::Forward, this);
-    connect(shortcut, &QShortcut::activated, this, [this]() {
-        if (auto *tab = currentTab()) {
-            tab->webControl()->forward();
-        }
-    });
-
-    // TODO: Use QKeySequence::NextChild, when QTBUG-112193 is fixed.
-    auto *action = new QAction(this);
-    addAction(action);
-    action->setShortcuts(
-        {QKeySequence(Qt::ControlModifier | Qt::Key_Tab), QKeySequence(Qt::ControlModifier | Qt::Key_PageDown)});
-    connect(action, &QAction::triggered, this, [this]() {
-        const int count = m_tabBar->count();
-        if (count > 0) {
-            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() + 1) % count);
-        }
-    });
-
-    // TODO: Use QKeySequence::PreviousChild, when QTBUG-15746 and QTBUG-112193 are fixed.
-    action = new QAction(this);
-    addAction(action);
-    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Tab),
-                          QKeySequence(Qt::ControlModifier | Qt::Key_PageUp)});
-    connect(action, &QAction::triggered, this, [this]() {
-        const int count = m_tabBar->count();
-        if (count > 0) {
-            m_tabBar->setCurrentIndex((m_tabBar->currentIndex() - 1 + count) % count);
-        }
-    });
 }
 
 void MainWindow::setupTabBar()
