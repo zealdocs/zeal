@@ -2,7 +2,8 @@
 Version=1.0
 Name=Zeal
 GenericName=Documentation Browser
-Comment=Simple API documentation browser
+Comment=Offline documentation browser
+Keywords=documentation;docs;docset;offline;api;reference;dash;devdocs;manual;developer;programming;
 Exec=zeal %u
 Icon=zeal
 Terminal=false

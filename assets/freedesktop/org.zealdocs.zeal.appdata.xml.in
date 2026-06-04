@@ -8,13 +8,32 @@
   <developer id="org.zealdocs">
     <name>Oleg Shparber</name>
   </developer>
-  <summary>Documentation browser</summary>
+  <summary>Your offline reference library</summary>
   <description>
-    <p>Zeal is a simple offline documentation browser inspired by Dash. It offers access to over 200 docsets covering various libraries and APIs.</p>
+    <p>Zeal is an offline documentation browser that keeps the references you rely on right on your computer, ready the moment you need them — on a plane, off the grid, or just on flaky Wi-Fi. Instant search takes you straight to the right page before a browser tab would even finish loading.</p>
+    <p>Build your personal library from over 900 docsets in the same format Dash uses, covering programming languages, frameworks, and tools. Open results in tabs, read bundled PDF manuals, and summon Zeal from anywhere with a global shortcut.</p>
   </description>
   <categories>
     <category>Development</category>
+    <category>Documentation</category>
   </categories>
+  <keywords>
+    <keyword>documentation</keyword>
+    <keyword>docs</keyword>
+    <keyword>docset</keyword>
+    <keyword>offline</keyword>
+    <keyword>api</keyword>
+    <keyword>reference</keyword>
+    <keyword>dash</keyword>
+    <keyword>devdocs</keyword>
+    <keyword>manual</keyword>
+    <keyword>developer</keyword>
+    <keyword>programming</keyword>
+  </keywords>
+  <branding>
+    <color type="primary" scheme_preference="light">#f1c3a7</color>
+    <color type="primary" scheme_preference="dark">#75201a</color>
+  </branding>
   <url type="homepage">https://zealdocs.org/</url>
   <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
   <url type="help">https://zealdocs.org/usage.html</url>
@@ -22,7 +41,7 @@
   <url type="vcs-browser">https://github.com/zealdocs/zeal</url>
   <screenshots>
     <screenshot type="default">
-      <caption>The main window</caption>
+      <caption>Instant search across your whole library</caption>
       <image>https://i.imgur.com/FvGEguY.png</image>
     </screenshot>
   </screenshots>
