@@ -510,6 +510,22 @@ void MainWindow::setupShortcuts()
         }
     });
 
+    // Cycle focus between the search bar and the web view.
+    shortcut = new QShortcut(QKeySequence(Qt::Key_F6), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        auto *tab = currentTab();
+        if (tab == nullptr) {
+            return;
+        }
+
+        const QWidget *focusWidget = QApplication::focusWidget();
+        if (focusWidget != nullptr && tab->webControl()->isAncestorOf(focusWidget)) {
+            tab->searchSidebar()->focusSearchEdit();
+        } else {
+            tab->webControl()->focus();
+        }
+    });
+
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
