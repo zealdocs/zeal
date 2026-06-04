@@ -52,9 +52,7 @@ jobs:
           libvulkan-dev \
           libxcb-keysyms1-dev \
           ninja-build \
-          qt6-base-private-dev \
-          qt6-webengine-dev \
-          qt6-webengine-dev-tools
+          qt6-webengine-dev
 
     - name: Configure & Build
       uses: lukka/run-cmake@v10

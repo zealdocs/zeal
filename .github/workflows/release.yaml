@@ -161,9 +161,7 @@ jobs:
             libvulkan-dev \
             libxcb-keysyms1-dev \
             ninja-build \
-            qt6-base-private-dev \
-            qt6-webengine-dev \
-            qt6-webengine-dev-tools
+            qt6-webengine-dev
 
       - name: Install linuxdeploy
         run: |
@@ -232,9 +230,7 @@ jobs:
               libgl-dev
               libqt6opengl6-dev
               libqt6svg6-dev
-              qt6-base-private-dev
               qt6-webengine-dev
-              qt6-webengine-dev-tools
             configurePreset: release
             buildPreset: release
 

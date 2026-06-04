@@ -13,9 +13,7 @@ Build-Depends: debhelper-compat (= 13),
                libsqlite3-dev,
                libvulkan-dev,
                libxcb-keysyms1-dev,
-               qt6-base-private-dev,
                qt6-webengine-dev,
-               qt6-webengine-dev-tools,
 Standards-Version: 4.7.0
 Vcs-Git: https://github.com/zealdocs/zeal.git
 Vcs-Browser: https://github.com/zealdocs/zeal
