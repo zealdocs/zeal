@@ -18,13 +18,10 @@ without a connection. Originally inspired by [Dash](https://kapeli.com/dash), it
 
 ## Download
 
-<a href="https://flathub.org/apps/org.zealdocs.Zeal">
-  <img height="44" alt="Get it on Flathub" src="https://flathub.org/api/badge?svg&amp;locale=en"/>
-</a>
-<a href="https://snapcraft.io/zeal">
-  <img height="44" alt="Get it from the Snap Store"
-       src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg"/>
-</a>
+<a href="https://flathub.org/apps/org.zealdocs.Zeal"><img height="44" alt="Get it on Flathub"
+  src="https://flathub.org/api/badge?svg&amp;locale=en"/></a>
+<a href="https://snapcraft.io/zeal"><img height="44" alt="Get it from the Snap Store"
+  src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg"/></a>
 
 Binary builds for Windows and other installation options are available on the
 [download page](https://zealdocs.org/download).
