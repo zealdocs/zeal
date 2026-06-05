@@ -1,0 +1,6 @@
+# Inline HTML is used deliberately for the theme-aware screenshot and store badges.
+MD033: false
+
+# Keep in sync with max_line_length in .editorconfig.
+MD013:
+  line_length: 120

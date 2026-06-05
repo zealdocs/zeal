@@ -36,6 +36,7 @@ path = [
     ".gitattributes",
     ".github/**/*",
     ".gitignore",
+    ".markdownlint.yaml",
     "CHANGELOG.md",
     "tools/cliff.toml",
 ]
