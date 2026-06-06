@@ -14,6 +14,7 @@
         <file alias="arrow-left.svg">../../assets/tabler/arrow-left.svg</file>
         <file alias="arrow-right.svg">../../assets/tabler/arrow-right.svg</file>
         <file alias="dots-vertical.svg">../../assets/tabler/dots-vertical.svg</file>
+        <file alias="edit-copy.svg">../../assets/tabler/edit-copy.svg</file>
         <file alias="info-circle.svg">../../assets/tabler/info-circle.svg</file>
         <file alias="library.svg">../../assets/tabler/library.svg</file>
         <file alias="loader-2.svg">../../assets/tabler/loader-2.svg</file>
