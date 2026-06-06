@@ -84,7 +84,7 @@ Ways to get help or reach the developers:
 
 * Report bugs and submit feature requests to [GitHub issues](https://github.com/zealdocs/zeal/issues).
 * Ask questions in [GitHub discussions](https://github.com/zealdocs/zeal/discussions).
-* Chat with developers and other Zeal users on [Discord](https://go.zealdocs.org/l/discord).
+* Chat with the developers and other Zeal users on [Discord](https://go.zealdocs.org/l/discord).
 * Subscribe to the [Telegram channel](https://go.zealdocs.org/l/telegram) for announcements.
 * Follow [@zealdocs](https://go.zealdocs.org/l/x) on X for news and updates.
 * Email <support@zealdocs.org> for anything private or sensitive.

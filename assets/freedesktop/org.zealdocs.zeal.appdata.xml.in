@@ -11,7 +11,7 @@
   <summary>Your offline reference library</summary>
   <description>
     <p>Zeal is an offline documentation browser that keeps the references you rely on right on your computer, ready the moment you need them — on a plane, off the grid, or just on flaky Wi-Fi. Instant search takes you straight to the right page before a browser tab would even finish loading.</p>
-    <p>Build your personal library from over 900 docsets in the same format Dash uses, covering programming languages, frameworks, and tools. Open results in tabs, read bundled PDF manuals, and summon Zeal from anywhere with a global shortcut.</p>
+    <p>Build your personal library from over 900 docsets in the same format Dash uses, covering programming languages, frameworks, and tools. Open results in tabs and summon Zeal from anywhere with a global shortcut.</p>
   </description>
   <categories>
     <category>Development</category>
@@ -36,7 +36,7 @@
   </branding>
   <url type="homepage">https://zealdocs.org/</url>
   <url type="bugtracker">https://github.com/zealdocs/zeal/issues</url>
-  <url type="help">https://zealdocs.org/usage.html</url>
+  <url type="help">https://zealdocs.org/usage</url>
   <url type="contact">https://go.zealdocs.org/l/contact</url>
   <url type="vcs-browser">https://github.com/zealdocs/zeal</url>
   <screenshots>
