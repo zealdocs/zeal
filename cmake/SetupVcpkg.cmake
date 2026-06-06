@@ -52,8 +52,11 @@ function(setup_vcpkg)
     # against arm64 deps instead of vcpkg's x64 default. PROCESSOR_ARCHITEW6432 covers an
     # x86/x64 process running under emulation on an arm64 host.
     if(WIN32 AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-        if("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64" OR
-           "$ENV{PROCESSOR_ARCHITEW6432}" STREQUAL "ARM64")
+        set(_host_arch "$ENV{PROCESSOR_ARCHITECTURE}")
+        if(DEFINED ENV{PROCESSOR_ARCHITEW6432})
+            set(_host_arch "$ENV{PROCESSOR_ARCHITEW6432}")
+        endif()
+        if(_host_arch STREQUAL "ARM64")
             # vcpkg ships no arm64-windows-release triplet, so use the full one.
             set(VCPKG_TARGET_TRIPLET "arm64-windows" CACHE STRING "")
         else()
