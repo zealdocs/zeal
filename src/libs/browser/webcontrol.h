@@ -49,6 +49,7 @@ public:
     void zoomIn();
     void zoomOut();
     void resetZoom();
+    void copySelection();
 
 signals:
     void titleChanged(const QString &title);
