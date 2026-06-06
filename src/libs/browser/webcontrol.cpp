@@ -142,6 +142,11 @@ void WebControl::resetZoom()
     m_webView->resetZoom();
 }
 
+void WebControl::copySelection()
+{
+    m_webView->copySelection();
+}
+
 void WebControl::setJavaScriptEnabled(bool enabled)
 {
     m_webView->page()->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, enabled);
