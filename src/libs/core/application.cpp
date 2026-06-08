@@ -65,9 +65,6 @@ Application::Application(QObject *parent)
     m_extractor = new Extractor();
     m_extractor->moveToThread(m_extractorThread);
     m_extractorThread->start();
-    connect(m_extractor, &Extractor::completed, this, &Application::extractionCompleted);
-    connect(m_extractor, &Extractor::error, this, &Application::extractionError);
-    connect(m_extractor, &Extractor::progress, this, &Application::extractionProgress);
 
     m_docsetRegistry = new Registry::DocsetRegistry(m_httpServer);
 
@@ -128,6 +125,11 @@ HttpServer *Application::httpServer() const
     return m_httpServer;
 }
 
+Extractor *Application::extractor() const
+{
+    return m_extractor;
+}
+
 QString Application::cacheLocation()
 {
 #ifndef PORTABLE_BUILD
@@ -157,13 +159,6 @@ QString Application::versionString()
 {
     static const auto v = QStringLiteral("v%1").arg(QCoreApplication::applicationVersion());
     return v;
-}
-
-void Application::extract(const QString &filePath, const QString &destination, const QString &root)
-{
-    QMetaObject::invokeMethod(m_extractor, [this, filePath, destination, root]() {
-        m_extractor->extract(filePath, destination, root);
-    }, Qt::QueuedConnection);
 }
 
 QNetworkReply *Application::download(const QUrl &url)

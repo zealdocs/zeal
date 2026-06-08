@@ -9,6 +9,7 @@
 #include "widgets/emptystatelabel.h"
 
 #include <core/application.h>
+#include <core/extractor.h>
 #include <core/filemanager.h>
 #include <core/settings.h>
 #include <registry/docset.h>
@@ -97,9 +98,9 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     ui->storageStatusLabel->setText(fi.exists() ? tr("<b>Docset storage is read only.</b>")
                                                 : tr("<b>Docset storage does not exist.</b>"));
 
-    connect(m_application, &Core::Application::extractionCompleted, this, &DocsetsDialog::extractionCompleted);
-    connect(m_application, &Core::Application::extractionError, this, &DocsetsDialog::extractionError);
-    connect(m_application, &Core::Application::extractionProgress, this, &DocsetsDialog::extractionProgress);
+    connect(m_application->extractor(), &Core::Extractor::completed, this, &DocsetsDialog::extractionCompleted);
+    connect(m_application->extractor(), &Core::Extractor::error, this, &DocsetsDialog::extractionError);
+    connect(m_application->extractor(), &Core::Extractor::progress, this, &DocsetsDialog::extractionProgress);
 
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
@@ -366,7 +367,9 @@ void DocsetsDialog::downloadCompleted()
             item->setData(DocsetListItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
-        m_application->extract(tmpFile->fileName(), m_application->settings()->docsetPath, docsetDirectoryName);
+        m_application->extractor()->extract(tmpFile->fileName(),
+                                            m_application->settings()->docsetPath,
+                                            docsetDirectoryName);
         break;
     }
 

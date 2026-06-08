@@ -42,20 +42,17 @@ public:
     Registry::DocsetRegistry *docsetRegistry() const;
     FileManager *fileManager() const;
     HttpServer *httpServer() const;
+    Extractor *extractor() const;
 
     static QString cacheLocation();
     static QString configLocation();
     static QVersionNumber version();
     static QString versionString();
 
-    void extract(const QString &filePath, const QString &destination, const QString &root = QString());
     QNetworkReply *download(const QUrl &url);
     void checkForUpdates(bool quiet = false);
 
 signals:
-    void extractionCompleted(const QString &filePath);
-    void extractionError(const QString &filePath, const QString &errorString);
-    void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
     void updateCheckDone(const QString &version = QString());
     void updateCheckError(const QString &message);
 
