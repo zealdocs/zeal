@@ -4,6 +4,7 @@ add_library(Util STATIC
     humanizer.cpp
     plist.cpp
     statement.cpp
+    tarixarchive.cpp
 
     # Show headers without .cpp in Qt Creator.
     caseinsensitivemap.h
@@ -22,6 +23,12 @@ target_link_libraries(Util PRIVATE SQLite3::SQLite3)
 
 # TODO: Do not export SQLite headers.
 target_include_directories(Util PUBLIC ${SQLite3_INCLUDE_DIRS})
+
+find_package(LibArchive REQUIRED)
+target_link_libraries(Util PRIVATE LibArchive::LibArchive)
+
+find_package(ZLIB REQUIRED)
+target_link_libraries(Util PRIVATE ZLIB::ZLIB)
 
 # Tests
 if(BUILD_TESTING)

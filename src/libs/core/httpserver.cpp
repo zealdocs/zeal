@@ -7,6 +7,7 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QMimeDatabase>
 #include <QReadLocker>
 #include <QRegularExpression>
 #include <QWriteLocker>
@@ -63,6 +64,44 @@ HttpServer::HttpServer(QObject *parent)
         res.set_content(html.toUtf8().data(), "text/html");
     });
 
+    // Content-provider mounts share one catch-all route because cpp-httplib
+    // cannot remove individual handlers. Directory mounts are served by
+    // cpp-httplib before this handler is reached.
+    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
+    m_server->Get("/.+", [this](const auto &req, auto &res) {
+        const QString reqPath = QString::fromStdString(req.path);
+        const qsizetype prefixEnd = reqPath.indexOf(QLatin1Char('/'), 1);
+        const QString prefix = prefixEnd < 0 ? reqPath : reqPath.first(prefixEnd);
+        QString path = prefixEnd < 0 ? QString() : reqPath.mid(prefixEnd + 1);
+
+        // Hold the lock while reading so unmount cannot invalidate the provider mid-request.
+        const QReadLocker locker(&m_mountPointsLock);
+        const auto it = m_contentProviders.constFind(prefix);
+        if (it == m_contentProviders.constEnd()) {
+            res.status = 404;
+            return;
+        }
+
+        if (path.isEmpty() || path.endsWith(QLatin1Char('/'))) {
+            path += QLatin1String("index.html");
+        }
+
+        const std::optional<QByteArray> content = (*it)(path);
+        if (!content) {
+            res.status = 404;
+            return;
+        }
+
+        // Extension-less docset pages are HTML.
+        std::string mimeType = "text/html";
+        const QString fileName = path.mid(path.lastIndexOf(QLatin1Char('/')) + 1);
+        if (fileName.contains(QLatin1Char('.'))) {
+            mimeType = QMimeDatabase().mimeTypeForFile(path, QMimeDatabase::MatchExtension).name().toStdString();
+        }
+
+        res.set_content(content->constData(), content->size(), mimeType);
+    });
+
     m_future = std::async(std::launch::async, &httplib::Server::listen_after_bind, m_server.get());
 
     qCDebug(log, "Listening on %s...", qPrintable(m_baseUrl.toString()));
@@ -103,20 +142,43 @@ QUrl HttpServer::mount(const QString &prefix, const QString &path)
 
     qCDebug(log, "Mounted '%s' to '%s'.", qPrintable(path), qPrintable(pfx));
 
-    QUrl mountUrl = m_baseUrl;
-    mountUrl.setPath(m_baseUrl.path() + pfx);
-    return mountUrl;
+    return prefixUrl(pfx);
+}
+
+QUrl HttpServer::mount(const QString &prefix, ContentProvider provider)
+{
+    const QString pfx = sanitizePrefix(prefix);
+
+    {
+        const QWriteLocker locker(&m_mountPointsLock);
+        if (m_contentProviders.contains(pfx)) {
+            qCWarning(log, "Prefix '%s' is already mounted.", qPrintable(pfx));
+            return {};
+        }
+        m_contentProviders[pfx] = std::move(provider);
+    }
+
+    qCDebug(log, "Mounted content provider to '%s'.", qPrintable(pfx));
+
+    return prefixUrl(pfx);
 }
 
 bool HttpServer::unmount(const QString &prefix)
 {
     const QString pfx = sanitizePrefix(prefix);
-    const bool ok = m_server->remove_mount_point(pfx.toStdString());
-    if (!ok) {
-        qCWarning(log, "Failed to unmount '%s' to '%s'.", qPrintable(prefix), qPrintable(pfx));
+
+    bool ok = false;
+    {
+        const QWriteLocker locker(&m_mountPointsLock);
+        ok = m_contentProviders.remove(pfx);
     }
 
-    {
+    if (!ok) {
+        ok = m_server->remove_mount_point(pfx.toStdString());
+        if (!ok) {
+            qCWarning(log, "Failed to unmount '%s' to '%s'.", qPrintable(prefix), qPrintable(pfx));
+        }
+
         const QWriteLocker locker(&m_mountPointsLock);
         m_mountPoints.remove(pfx);
     }
@@ -158,6 +220,13 @@ QString HttpServer::resolvePathCaseInsensitive(const QString &root, const QStrin
     }
 
     return resolved;
+}
+
+QUrl HttpServer::prefixUrl(const QString &prefix) const
+{
+    QUrl url = m_baseUrl;
+    url.setPath(m_baseUrl.path() + prefix);
+    return url;
 }
 
 QString HttpServer::sanitizePrefix(const QString &prefix)

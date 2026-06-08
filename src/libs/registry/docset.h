@@ -13,12 +13,15 @@
 #include <QUrl>
 
 #include <atomic>
+#include <memory>
+#include <optional>
 #include <utility>
 
 namespace Zeal {
 
 namespace Util {
 class Database;
+class TarixArchive;
 } // namespace Util
 
 namespace Registry {
@@ -44,6 +47,10 @@ public:
 
     QString path() const;
     QString documentPath() const;
+
+    bool isArchived() const;
+    std::optional<QByteArray> readDocument(const QString &path) const;
+
     QIcon icon() const;
     static QIcon symbolTypeIcon(const QString &symbolType);
     QUrl indexFileUrl() const;
@@ -101,6 +108,7 @@ private:
     QMap<QString, int> m_symbolCounts;
     mutable QMap<QString, QList<std::pair<QString, QUrl>>> m_symbols;
     Util::Database *m_db = nullptr;
+    std::unique_ptr<Util::TarixArchive> m_tarixArchive;
 
     bool m_isFuzzySearchEnabled = false;
     bool m_isJavaScriptEnabled = false;

@@ -63,6 +63,13 @@ DocsetRegistry::~DocsetRegistry()
 {
     m_thread->exit();
     m_thread->wait();
+
+    // Unmount before deleting so the still-running HTTP server cannot invoke a
+    // content provider that captured a docset being destroyed.
+    const auto names = m_docsets.keys();
+    for (const QString &name : names) {
+        m_httpServer->unmount(name);
+    }
     qDeleteAll(m_docsets);
 }
 
@@ -162,7 +169,14 @@ void DocsetRegistry::registerDocset(Docset *docset)
     }
 
     // Setup HTTP mount.
-    const QUrl url = m_httpServer->mount(name, docset->documentPath());
+    QUrl url;
+    if (docset->isArchived()) {
+        url = m_httpServer->mount(name, [docset](const QString &path) {
+            return docset->readDocument(path);
+        });
+    } else {
+        url = m_httpServer->mount(name, docset->documentPath());
+    }
     if (url.isEmpty()) {
         qCWarning(log,
                   "Could not enable docset '%s' from '%s'. Reinstall the docset.",
