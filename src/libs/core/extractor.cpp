@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QLoggingCategory>
+#include <QThread>
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -23,6 +24,13 @@ Extractor::Extractor(QObject *parent)
 
 void Extractor::extract(const QString &sourceFile, const QString &destination, const QString &root)
 {
+    if (QThread::currentThread() != thread()) {
+        QMetaObject::invokeMethod(this, [this, sourceFile, destination, root] {
+            extract(sourceFile, destination, root);
+        }, Qt::QueuedConnection);
+        return;
+    }
+
     ExtractInfo info = {.archiveHandle = archive_read_new(),
                         .filePath = sourceFile,
                         .totalBytes = QFileInfo(sourceFile).size(),
