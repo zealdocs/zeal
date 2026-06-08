@@ -18,8 +18,8 @@ default:
 
 # Configure a build directory using the current preset.
 [group('dev')]
-configure:
-    cmake --preset {{preset}}
+configure *args:
+    cmake --preset {{preset}} "$@"
 
 # Build using the current preset.
 [group('dev')]
