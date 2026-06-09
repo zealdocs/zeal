@@ -107,6 +107,10 @@ private:
 
     void updateStatus();
 
+    // Returns the download buffer for a docset, creating it on first use.
+    // Returns nullptr if the temporary file cannot be opened.
+    QTemporaryFile *docsetTemporaryFile(const QString &docsetName);
+
     // FIXME: Come up with a better approach
     QString docsetNameForTmpFilePath(const QString &filePath) const;
 

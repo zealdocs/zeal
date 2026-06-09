@@ -115,9 +115,13 @@ bool Extractor::extractEntries(const QString &sourceFile,
     // Destination directory must be created before any other files.
     destinationDir.mkpath(QLatin1String("."));
 
+    const QString destinationRoot = destinationDir.absolutePath();
+    const QString destinationPrefix = destinationRoot.endsWith(QLatin1Char('/')) ? destinationRoot
+                                                                                 : destinationRoot + QLatin1Char('/');
+
     // TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry = nullptr;
-    while (archive_read_next_header(info.archiveHandle, &entry) == ARCHIVE_OK) {
+    while ((rc = archive_read_next_header(info.archiveHandle, &entry)) == ARCHIVE_OK) {
         // See https://github.com/libarchive/libarchive/issues/587 for more on UTF-8.
         QString pathname = QString::fromUtf8(archive_entry_pathname_utf8(entry));
 
@@ -130,7 +134,14 @@ bool Extractor::extractEntries(const QString &sourceFile,
             continue;
         }
 
-        const QString filePath = destinationDir.absoluteFilePath(pathname);
+        // Reject entries that resolve outside the destination (path traversal).
+        const QString filePath = QDir::cleanPath(destinationDir.absoluteFilePath(pathname));
+        if (filePath != destinationRoot && !filePath.startsWith(destinationPrefix)) {
+            qCWarning(log, "Archive entry escapes destination: '%s'.", qPrintable(pathname));
+            emit error(sourceFile, tr("Archive entry '%1' escapes the destination directory.").arg(pathname));
+            archive_read_free(info.archiveHandle);
+            return false;
+        }
 
         const auto filetype = archive_entry_filetype(entry);
         if (filetype == S_IFDIR) {
@@ -182,6 +193,13 @@ bool Extractor::extractEntries(const QString &sourceFile,
         }
 
         emitProgress(info);
+    }
+
+    if (rc != ARCHIVE_EOF) {
+        qCWarning(log, "Cannot read from archive: %s.", archive_error_string(info.archiveHandle));
+        emit error(sourceFile, QString::fromLocal8Bit(archive_error_string(info.archiveHandle)));
+        archive_read_free(info.archiveHandle);
+        return false;
     }
 
     archive_read_free(info.archiveHandle);
