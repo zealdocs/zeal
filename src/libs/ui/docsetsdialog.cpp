@@ -28,6 +28,7 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPushButton>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -44,7 +45,8 @@ using Qt::Literals::StringLiterals::operator""_L1;
 enum class DownloadType {
     DashFeed,
     Docset,
-    DocsetList
+    DocsetList,
+    TarixIndex
 };
 
 constexpr auto ApiServerUrl = "https://api.zealdocs.org/v1"_L1;
@@ -62,6 +64,9 @@ constexpr qint64 DownloadChunkSize = 1024LL * 1024; // 1 MiB
 constexpr const char *DocsetNameProperty = "docsetName";
 constexpr const char *DownloadTypeProperty = "downloadType";
 constexpr const char *ListItemIndexProperty = "listItem";
+constexpr const char *TarixRetryProperty = "tarixRetry";
+
+constexpr int MaxTarixIndexRetries = 2;
 
 void setDownloadType(QNetworkReply *reply, DownloadType type)
 {
@@ -267,6 +272,15 @@ void DocsetsDialog::downloadCompleted()
     m_replies.removeOne(reply.data());
 
     if (reply->error() != QNetworkReply::NoError) {
+        if (downloadType(reply.data()) == DownloadType::TarixIndex) {
+            if (reply->error() != QNetworkReply::OperationCanceledError) {
+                onTarixIndexFailed(reply.data());
+            }
+
+            updateStatus();
+            return;
+        }
+
         if (reply->error() != QNetworkReply::OperationCanceledError) {
             const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
                                     .arg(reply->errorString(), reply->request().url().toString());
@@ -367,9 +381,52 @@ void DocsetsDialog::downloadCompleted()
             item->setData(DocsetListItemDelegate::FormatRole, tr("Installing: %p%"));
         }
 
-        m_application->extractor()->extract(tmpFile->fileName(),
-                                            m_application->settings()->docsetPath,
-                                            docsetDirectoryName);
+        const Registry::DocsetMetadata metadata = m_availableDocsets.contains(docsetName)
+                                                    ? m_availableDocsets[docsetName]
+                                                    : m_userFeeds[docsetName];
+
+        // A tarix index lets Zeal serve documents from the archive without extraction.
+        if (metadata.hasTarix()) {
+            QUrl indexUrl = reply->url();
+            indexUrl.setPath(indexUrl.path() + QLatin1String(".tarix"));
+            downloadTarixIndex(docsetName, indexUrl, 0);
+        } else {
+            installDownloadedDocset(docsetName);
+        }
+
+        break;
+    }
+
+    case DownloadType::TarixIndex: {
+        const QString docsetName = reply->property(DocsetNameProperty).toString();
+        const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
+
+        QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
+        if (tmpFile == nullptr) {
+            break; // Installation has been canceled.
+        }
+
+        const QByteArray indexData = reply->readAll();
+
+        // Some mirrors soft-404 with an HTML page; verify the gzip signature.
+        if (indexData.startsWith(QByteArrayLiteral("\x1f\x8b"))) {
+            auto *indexFile = new QTemporaryFile(QStringLiteral("%1/%2.tarix.XXXXXX.tmp")
+                                                     .arg(Core::Application::cacheLocation(), docsetName),
+                                                 this);
+            if (indexFile->open() && indexFile->write(indexData) == indexData.size()) {
+                indexFile->close();
+                m_tarixIndexFiles.insert(docsetName, indexFile);
+                m_application->extractor()->installTarixDocset(tmpFile->fileName(),
+                                                               indexFile->fileName(),
+                                                               m_application->settings()->docsetPath,
+                                                               docsetDirectoryName);
+                break;
+            }
+
+            delete indexFile;
+        }
+
+        installDownloadedDocset(docsetName);
         break;
     }
 
@@ -440,6 +497,7 @@ void DocsetsDialog::extractionCompleted(const QString &filePath)
     }
 
     delete m_tmpFiles.take(docsetName);
+    delete m_tarixIndexFiles.take(docsetName);
 
     updateStatus();
 }
@@ -458,6 +516,7 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
     }
 
     delete m_tmpFiles.take(docsetName);
+    delete m_tarixIndexFiles.take(docsetName);
 }
 
 void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted, qint64 total)
@@ -759,7 +818,8 @@ void DocsetsDialog::cancelDownloads()
             listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
         }
 
-        if (downloadType(reply) == DownloadType::Docset) {
+        const DownloadType type = downloadType(reply);
+        if (type == DownloadType::Docset || type == DownloadType::TarixIndex) {
             delete m_tmpFiles.take(reply->property(DocsetNameProperty).toString());
         }
 
@@ -909,6 +969,64 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     reply->setProperty(DocsetNameProperty, name);
     setDownloadType(reply, DownloadType::Docset);
     reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(findDocsetListItem(name)));
+}
+
+void DocsetsDialog::downloadTarixIndex(const QString &docsetName, const QUrl &indexUrl, int attempt)
+{
+    QNetworkReply *reply = download(indexUrl);
+    reply->setProperty(DocsetNameProperty, docsetName);
+    reply->setProperty(TarixRetryProperty, attempt);
+    reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(findDocsetListItem(docsetName)));
+    setDownloadType(reply, DownloadType::TarixIndex);
+}
+
+void DocsetsDialog::onTarixIndexFailed(QNetworkReply *reply)
+{
+    const QString docsetName = reply->property(DocsetNameProperty).toString();
+    const QUrl indexUrl = reply->request().url();
+    const int attempt = reply->property(TarixRetryProperty).toInt();
+
+    if (attempt < MaxTarixIndexRetries) {
+        downloadTarixIndex(docsetName, indexUrl, attempt + 1);
+        return;
+    }
+
+    QMessageBox box(QMessageBox::Warning,
+                    QStringLiteral("Zeal"),
+                    tr("Could not download the compact index for <b>%1</b>. Installing without it will be "
+                       "slower and use considerably more disk space.")
+                        .arg(docsetName),
+                    QMessageBox::NoButton,
+                    this);
+    QPushButton *retryButton = box.addButton(QMessageBox::Retry);
+    QPushButton *installButton = box.addButton(tr("Install Anyway"), QMessageBox::AcceptRole);
+    box.addButton(QMessageBox::Cancel);
+    box.setDefaultButton(retryButton);
+    box.exec();
+
+    if (box.clickedButton() == retryButton) {
+        downloadTarixIndex(docsetName, indexUrl, 0);
+    } else if (box.clickedButton() == installButton) {
+        installDownloadedDocset(docsetName);
+    } else {
+        QListWidgetItem *listItem = findDocsetListItem(docsetName);
+        if (listItem != nullptr) {
+            listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+        }
+        delete m_tmpFiles.take(docsetName);
+    }
+}
+
+void DocsetsDialog::installDownloadedDocset(const QString &docsetName)
+{
+    QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
+    if (tmpFile == nullptr) {
+        return;
+    }
+
+    m_application->extractor()->extract(tmpFile->fileName(),
+                                        m_application->settings()->docsetPath,
+                                        docsetName + QLatin1String(".docset"));
 }
 
 void DocsetsDialog::removeDocset(const QString &name)

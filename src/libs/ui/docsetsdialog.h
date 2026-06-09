@@ -77,6 +77,7 @@ private:
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
+    QHash<QString, QTemporaryFile *> m_tarixIndexFiles;
 
     void setupInstalledDocsetsTab();
     void setupAvailableDocsetsTab();
@@ -99,6 +100,9 @@ private:
     void updateDocsetListDownloadTimeLabel(const QDateTime &modifiedTime);
 
     void downloadDashDocset(const QModelIndex &index);
+    void downloadTarixIndex(const QString &docsetName, const QUrl &indexUrl, int attempt);
+    void onTarixIndexFailed(QNetworkReply *reply);
+    void installDownloadedDocset(const QString &docsetName);
     void removeDocset(const QString &name);
 
     void updateStatus();

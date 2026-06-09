@@ -19,6 +19,10 @@ public:
     ~Extractor() override = default;
 
     void extract(const QString &sourceFile, const QString &destination, const QString &root = QString());
+    void installTarixDocset(const QString &sourceFile,
+                            const QString &indexArchiveFile,
+                            const QString &destination,
+                            const QString &root);
 
 signals:
     void error(const QString &filePath, const QString &message);
@@ -33,6 +37,12 @@ private:
         qint64 totalBytes;
         qint64 extractedBytes;
     };
+
+    bool extractEntries(const QString &sourceFile,
+                        const QString &destination,
+                        const QString &root,
+                        const QString &skipPrefix);
+    static bool extractTarixIndex(const QString &indexArchiveFile, const QString &indexPath);
 
     void emitProgress(ExtractInfo &info);
 };

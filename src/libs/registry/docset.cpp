@@ -10,6 +10,7 @@
 #include <util/fuzzy.h>
 #include <util/plist.h>
 #include <util/statement.h>
+#include <util/tarixarchive.h>
 
 #include <QDir>
 #include <QFile>
@@ -34,6 +35,8 @@ using Qt::Literals::StringLiterals::operator""_L1;
 
 constexpr auto IndexNamePrefix = "__zi_name"_L1; // zi - Zeal index
 constexpr auto IndexNameVersion = "0001"_L1;     // Current index version
+
+constexpr auto DocumentsPath = "Contents/Resources/Documents/"_L1;
 
 constexpr auto NotFoundPageUrl = "qrc:///browser/404.html"_L1;
 
@@ -157,7 +160,18 @@ Docset::Docset(QString path)
         createView();
     }
 
-    if (!dir.cd(QStringLiteral("Documents"))) {
+    // Archived docsets keep documents in a tarix archive instead of a Documents directory.
+    if (dir.exists(QStringLiteral("tarix.tgz")) && dir.exists(QStringLiteral("tarixIndex.db"))) {
+        auto archive = std::make_unique<Util::TarixArchive>(dir.filePath(QStringLiteral("tarix.tgz")),
+                                                            dir.filePath(QStringLiteral("tarixIndex.db")));
+        if (!archive->isOpen()) {
+            qCWarning(log, "[%s] Cannot open tarix archive: %s.", qPrintable(m_name), qPrintable(archive->lastError()));
+            m_type = Type::Invalid;
+            return;
+        }
+
+        m_tarixArchive = std::move(archive);
+    } else if (!dir.cd(QStringLiteral("Documents"))) {
         qCWarning(log,
                   "[%s] Cannot change directory into 'Documents' at '%s'.",
                   qPrintable(m_name),
@@ -197,20 +211,24 @@ Docset::Docset(QString path)
     m_keywords.removeDuplicates();
 
     // Determine index page: prefer docset's plist, then metadata, then index.html.
+    const auto documentExists = [this, &dir](const QString &path) {
+        return m_tarixArchive != nullptr ? m_tarixArchive->exists(DocumentsPath + path) : dir.exists(path);
+    };
+
     QString indexFilePath;
 
     if (plist.contains(InfoPlist::DashIndexFilePath)) {
         const QString candidate = plist[InfoPlist::DashIndexFilePath].toString();
-        if (dir.exists(candidate)) {
+        if (documentExists(candidate)) {
             indexFilePath = candidate;
         }
     }
 
-    if (indexFilePath.isEmpty() && !m_indexFilePath.isEmpty() && dir.exists(m_indexFilePath)) {
+    if (indexFilePath.isEmpty() && !m_indexFilePath.isEmpty() && documentExists(m_indexFilePath)) {
         indexFilePath = m_indexFilePath;
     }
 
-    if (indexFilePath.isEmpty() && dir.exists(QStringLiteral("index.html"))) {
+    if (indexFilePath.isEmpty() && documentExists(QStringLiteral("index.html"))) {
         indexFilePath = QStringLiteral("index.html");
     }
 
@@ -275,6 +293,25 @@ QString Docset::path() const
 QString Docset::documentPath() const
 {
     return QDir(m_path).filePath(QStringLiteral("Contents/Resources/Documents"));
+}
+
+bool Docset::isArchived() const
+{
+    return m_tarixArchive != nullptr;
+}
+
+std::optional<QByteArray> Docset::readDocument(const QString &path) const
+{
+    if (m_tarixArchive == nullptr) {
+        return {};
+    }
+
+    QString relativePath = path;
+    while (relativePath.startsWith(QLatin1Char('/'))) {
+        relativePath.remove(0, 1);
+    }
+
+    return m_tarixArchive->read(DocumentsPath + relativePath);
 }
 
 QIcon Docset::icon() const
