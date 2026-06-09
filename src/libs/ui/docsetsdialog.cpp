@@ -260,6 +260,31 @@ void DocsetsDialog::downloadSelectedDocsets()
     }
 }
 
+QTemporaryFile *DocsetsDialog::docsetTemporaryFile(const QString &docsetName)
+{
+    // A name with path separators could escape the cache and storage directories.
+    if (docsetName.contains(QLatin1Char('/')) || docsetName.contains(QLatin1Char('\\'))) {
+        qCWarning(log, "Refusing docset with an unsafe name '%s'.", qPrintable(docsetName));
+        return nullptr;
+    }
+
+    QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
+    if (tmpFile != nullptr) {
+        return tmpFile;
+    }
+
+    tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp").arg(Core::Application::cacheLocation(), docsetName),
+                                 this);
+    if (!tmpFile->open()) {
+        qCWarning(log, "Cannot create a temporary file for '%s'.", qPrintable(docsetName));
+        delete tmpFile;
+        return nullptr;
+    }
+
+    m_tmpFiles.insert(docsetName, tmpFile);
+    return tmpFile;
+}
+
 /*!
   \internal
   Should be connected to all \l QNetworkReply::finished signals in order to process possible
@@ -358,15 +383,16 @@ void DocsetsDialog::downloadCompleted()
             removeDocset(docsetName);
         }
 
-        QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
+        QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
         if (tmpFile == nullptr) {
-            tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp")
-                                             .arg(Core::Application::cacheLocation(), docsetName),
-                                         this);
-            if (!tmpFile->open()) {
-                return;
+            QListWidgetItem *listItem = findDocsetListItem(docsetName);
+            if (listItem != nullptr) {
+                listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
             }
-            m_tmpFiles.insert(docsetName, tmpFile);
+            QMessageBox::warning(this,
+                                 QStringLiteral("Zeal"),
+                                 tr("Cannot create a temporary file to install <b>%1</b>.").arg(docsetName));
+            break;
         }
 
         while (reply->bytesAvailable() > 0) {
@@ -455,15 +481,9 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     if (downloadType(reply) == DownloadType::Docset) {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
 
-        QTemporaryFile *tmpFile = m_tmpFiles[docsetName];
+        QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
         if (tmpFile == nullptr) {
-            tmpFile = new QTemporaryFile(QStringLiteral("%1/%2.XXXXXX.tmp")
-                                             .arg(Core::Application::cacheLocation(), docsetName),
-                                         this);
-            if (!tmpFile->open()) {
-                return;
-            }
-            m_tmpFiles.insert(docsetName, tmpFile);
+            return;
         }
 
         tmpFile->write(reply->read(received));
