@@ -88,6 +88,11 @@ void WebView::resetZoom()
     setZoomLevel(defaultZoomLevel());
 }
 
+void WebView::copySelection()
+{
+    triggerPageAction(QWebEnginePage::Copy);
+}
+
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
     auto *mw = qobject_cast<WidgetUi::MainWindow *>(window());

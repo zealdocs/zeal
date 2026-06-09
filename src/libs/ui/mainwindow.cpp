@@ -352,6 +352,17 @@ void MainWindow::setupMainMenu()
         }
     });
 
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("edit-copy"),
+                                                   QStringLiteral(":/icons/tabler/edit-copy.svg")),
+                             tr("&Copy Selection"));
+    addAction(action);
+    action->setShortcut(QKeySequence(QStringLiteral("Ctrl+C")));
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->copySelection();
+        }
+    });
+
     menu->addSeparator();
 
     // -> Preferences Action.
