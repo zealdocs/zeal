@@ -34,7 +34,7 @@ constexpr auto ReleasesApiUrl = "https://api.zealdocs.org/v1/releases"_L1;
 
 Application *Application::m_instance = nullptr;
 
-Application::Application(QObject *parent)
+Application::Application(quint16 httpServerPort, QObject *parent)
     : QObject(parent)
 {
     // Ensure only one instance of Application
@@ -48,7 +48,7 @@ Application::Application(QObject *parent)
     m_networkManager = new NetworkAccessManager(this);
 
     m_fileManager = new FileManager(this);
-    m_httpServer = new HttpServer(this);
+    m_httpServer = new HttpServer(httpServerPort, this);
 
     connect(m_networkManager,
             &QNetworkAccessManager::sslErrors,

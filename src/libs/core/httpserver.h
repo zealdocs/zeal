@@ -29,9 +29,12 @@ public:
     // Returns the file content for a mount-relative path, or nothing if absent.
     using ContentProvider = std::function<std::optional<QByteArray>(const QString &path)>;
 
-    explicit HttpServer(QObject *parent = nullptr);
+    // A non-zero port binds to that specific port; zero binds to a random one.
+    // Binding failure leaves the server not listening; check isListening().
+    explicit HttpServer(quint16 port = 0, QObject *parent = nullptr);
     ~HttpServer() override;
 
+    bool isListening() const;
     QUrl baseUrl() const;
 
     QUrl mount(const QString &prefix, const QString &path);
