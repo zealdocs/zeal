@@ -285,6 +285,21 @@ QString Docset::feedUrl() const
     return m_feedUrl;
 }
 
+bool Docset::hasUpdate() const
+{
+    return m_update.has_value();
+}
+
+const std::optional<Docset::UpdateInfo> &Docset::update() const
+{
+    return m_update;
+}
+
+void Docset::setUpdate(std::optional<UpdateInfo> update)
+{
+    m_update = std::move(update);
+}
+
 QString Docset::path() const
 {
     return m_path;

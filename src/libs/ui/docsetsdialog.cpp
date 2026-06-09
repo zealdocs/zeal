@@ -362,7 +362,9 @@ void DocsetsDialog::downloadCompleted()
         } else {
             // Check for feed update
             if (metadata.latestVersion() != docset->version() || metadata.revision() > docset->revision()) {
-                docset->hasUpdate = true;
+                docset->setUpdate(Registry::Docset::UpdateInfo{.version = metadata.latestVersion(),
+                                                               .revision = metadata.revision(),
+                                                               .size = metadata.size()});
 
                 if (!m_isStorageReadOnly) {
                     ui->updateAllDocsetsButton->setEnabled(true);
@@ -812,7 +814,7 @@ QListWidgetItem *DocsetsDialog::findDocsetListItem(const QString &name) const
 bool DocsetsDialog::updatesAvailable() const
 {
     return std::ranges::any_of(m_docsetRegistry->docsets(), [](const Registry::Docset *docset) {
-        return docset->hasUpdate;
+        return docset->hasUpdate();
     });
 }
 
@@ -919,6 +921,19 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         auto *listItem = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
         listItem->setData(Registry::ItemDataRole::DocsetNameRole, metadata.name());
 
+        QStringList tooltipLines;
+        if (!metadata.latestVersion().isEmpty()) {
+            tooltipLines << tr("Version: %1r%2").arg(metadata.latestVersion()).arg(metadata.revision());
+        }
+
+        if (metadata.size() > 0) {
+            tooltipLines << tr("Download size: %1").arg(QLocale::system().formattedDataSize(metadata.size()));
+        }
+
+        if (!tooltipLines.isEmpty()) {
+            listItem->setToolTip(tooltipLines.join(QLatin1Char('\n')));
+        }
+
         if (!m_docsetRegistry->contains(metadata.name())) {
             continue;
         }
@@ -928,7 +943,9 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         Registry::Docset *docset = m_docsetRegistry->docset(metadata.name());
 
         if (metadata.latestVersion() != docset->version() || metadata.revision() > docset->revision()) {
-            docset->hasUpdate = true;
+            docset->setUpdate(Registry::Docset::UpdateInfo{.version = metadata.latestVersion(),
+                                                           .revision = metadata.revision(),
+                                                           .size = metadata.size()});
 
             if (!m_isStorageReadOnly) {
                 ui->updateAllDocsetsButton->setEnabled(true);

@@ -43,6 +43,8 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     // for comparison to work properly.
     m_revision = jsonObject[QStringLiteral("revision")].toString().toInt();
 
+    m_size = jsonObject[QStringLiteral("size")].toInteger();
+
     m_hasTarix = jsonObject[QStringLiteral("tarix")].toBool();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
@@ -152,6 +154,11 @@ QString DocsetMetadata::latestVersion() const
 int DocsetMetadata::revision() const
 {
     return m_revision;
+}
+
+qint64 DocsetMetadata::size() const
+{
+    return m_size;
 }
 
 bool DocsetMetadata::hasTarix() const

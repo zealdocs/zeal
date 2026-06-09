@@ -26,6 +26,7 @@ public:
     QStringList versions() const;
     QString latestVersion() const;
     int revision() const;
+    qint64 size() const;
     QIcon icon() const;
     bool hasTarix() const;
 
@@ -41,6 +42,7 @@ private:
     QStringList m_aliases;
     QStringList m_versions;
     int m_revision = 0;
+    qint64 m_size = 0;
     bool m_hasTarix = false;
 
     QByteArray m_rawIcon;
