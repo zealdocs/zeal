@@ -30,7 +30,7 @@ class Application final : public QObject
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(Application)
 public:
-    explicit Application(QObject *parent = nullptr);
+    explicit Application(quint16 httpServerPort = 0, QObject *parent = nullptr);
     ~Application() override;
 
     static Application *instance();

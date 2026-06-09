@@ -4,6 +4,7 @@
 
 #include <core/application.h>
 #include <core/applicationsingleton.h>
+#include <core/httpserver.h>
 #include <registry/searchquery.h>
 #include <ui/widgets/proxystyle.h>
 #include <ui/windowmanager.h>
@@ -30,9 +31,20 @@
 #include <utility> // for std::ignore
 #endif
 
+#include <algorithm>
+#include <array>
 #include <cstdlib>
+#include <limits>
 
 namespace {
+
+// Qt WebEngine is Chromium, which refuses to connect to a fixed set of ports;
+// a server bound to one would be unreachable from the embedded browser. Ports
+// below 1024 are excluded by the unprivileged-range check, so only the
+// restricted ports at or above 1024 need listing here.
+// See net/base/port_util.cc (kRestrictedPorts) in Chromium.
+constexpr std::array<quint16, 17> BrowserRestrictedPorts =
+    {1719, 1720, 1723, 2049, 3659, 4045, 5060, 5061, 6000, 6566, 6665, 6666, 6667, 6668, 6669, 6697, 10080};
 
 #if defined(Q_OS_WINDOWS) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 // Windows fills new window client areas with COLOR_WINDOW (always white, even in dark mode)
@@ -74,6 +86,8 @@ struct CommandLineParameters
     bool forceMinimized = false;
     bool preventActivation = false;
 
+    quint16 httpServerPort = 0;
+
 #ifdef Q_OS_WINDOWS
     bool registerProtocolHandlers = false;
     bool unregisterProtocolHandlers = false;
@@ -97,6 +111,14 @@ QString stripParameterUrl(const QString &url, const QString &scheme)
     return str;
 }
 
+// Reports a fatal startup error both on the console and in a dialog, so it is
+// visible whether Zeal was launched from a terminal or a desktop shortcut.
+void showStartupError(const QString &message)
+{
+    QTextStream(stderr) << message << '\n';
+    QMessageBox::critical(nullptr, QObject::tr("Zeal"), message);
+}
+
 CommandLineParameters parseCommandLine(const QStringList &arguments)
 {
     QCommandLineParser parser;
@@ -104,7 +126,10 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addOptions({{QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")}});
+    parser.addOptions({{QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")},
+                       {QStringLiteral("port"),
+                        QObject::tr("Bind the local documentation server to a fixed port."),
+                        QObject::tr("port")}});
 
 #ifdef Q_OS_WINDOWS
     // --attach-console is acted on at the top of main() (before any parsing) so that
@@ -121,6 +146,20 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     CommandLineParameters clParams;
     clParams.forceMinimized = parser.isSet(QStringLiteral("minimized"));
     clParams.preventActivation = false;
+
+    if (parser.isSet(QStringLiteral("port"))) {
+        const QString value = parser.value(QStringLiteral("port"));
+        bool ok = false;
+        const uint port = value.toUInt(&ok);
+        const bool restricted = std::ranges::find(BrowserRestrictedPorts, port) != BrowserRestrictedPorts.cend();
+        if (!ok || port < 1024 || port > std::numeric_limits<quint16>::max() || restricted) {
+            showStartupError(QObject::tr("Invalid port: %1. Specify an unprivileged port (1024-65535) that the "
+                                         "browser permits.")
+                                 .arg(value));
+            ::exit(EXIT_FAILURE);
+        }
+        clParams.httpServerPort = static_cast<quint16>(port);
+    }
 
 #ifdef Q_OS_WINDOWS
     clParams.registerProtocolHandlers = parser.isSet(QStringLiteral("register"));
@@ -324,7 +363,15 @@ int main(int argc, char *argv[])
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
     using Zeal::Core::Application;
-    Application app;
+    Application app(clParams.httpServerPort);
+
+    if (!app.httpServer()->isListening()) {
+        showStartupError(
+            clParams.httpServerPort != 0
+                ? QObject::tr("Failed to bind the documentation server to port %1.").arg(clParams.httpServerPort)
+                : QObject::tr("Failed to start the documentation server."));
+        return EXIT_FAILURE;
+    }
 
     using Zeal::WidgetUi::WindowManager;
     WindowManager wm(&app);

@@ -22,16 +22,26 @@ Q_LOGGING_CATEGORY(log, "zeal.core.httpserver")
 constexpr const char *LocalHttpServerHost = "127.0.0.1"; // macOS only routes 127.0.0.1 by default.
 } // namespace
 
-HttpServer::HttpServer(QObject *parent)
+HttpServer::HttpServer(quint16 port, QObject *parent)
     : QObject(parent)
 {
     m_server = std::make_unique<httplib::Server>();
 
-    const int port = m_server->bind_to_any_port(LocalHttpServerHost);
+    int boundPort = -1;
+    if (port != 0) {
+        boundPort = m_server->bind_to_port(LocalHttpServerHost, port) ? port : -1;
+    } else {
+        boundPort = m_server->bind_to_any_port(LocalHttpServerHost);
+    }
+
+    if (boundPort <= 0) {
+        qCWarning(log, "Failed to bind to %s:%u.", LocalHttpServerHost, port);
+        return;
+    }
 
     m_baseUrl.setScheme(QStringLiteral("http"));
     m_baseUrl.setHost(QString::fromLatin1(LocalHttpServerHost));
-    m_baseUrl.setPort(port);
+    m_baseUrl.setPort(boundPort);
 
     // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
     m_server->set_error_handler([this](const auto &req, auto &res) {
@@ -119,6 +129,11 @@ HttpServer::~HttpServer()
     } catch (const std::future_error &e) {
         qCDebug(log, "Future has no associated state; nothing to wait for: %s.", e.what());
     }
+}
+
+bool HttpServer::isListening() const
+{
+    return !m_baseUrl.isEmpty();
 }
 
 QUrl HttpServer::baseUrl() const
