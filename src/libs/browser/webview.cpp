@@ -9,7 +9,9 @@
 
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
+#include <ui/widgets/iconhelper.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -120,19 +122,32 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         const QString scheme = linkUrl.scheme();
 
         if (scheme != QLatin1String("javascript")) {
-            m_contextMenu->addAction(tr("Open Link in New Tab"), this, [this]() {
+            // Tabler has no dedicated new-tab glyph yet, so app-window stands in for the
+            // fallback. See https://github.com/tabler/tabler-icons/issues/1535.
+            m_contextMenu->addAction(WidgetUi::IconHelper::fromTheme(QStringLiteral("tab-new"),
+                                                                     QStringLiteral(":/icons/tabler/app-window.svg")),
+                                     tr("Open Link in New Tab"),
+                                     this,
+                                     [this]() {
                 triggerPageAction(QWebEnginePage::WebAction::OpenLinkInNewWindow);
             });
         }
 
         if (scheme != QLatin1String("qrc")) {
             if (scheme != QLatin1String("javascript")) {
-                m_contextMenu->addAction(tr("Open Link in Desktop Browser"), this, [linkUrl]() {
+                m_contextMenu->addAction(WidgetUi::IconHelper::fromResource(
+                                             QStringLiteral(":/icons/tabler/external-link.svg")),
+                                         tr("Open Link in Desktop Browser"),
+                                         this,
+                                         [linkUrl]() {
                     QDesktopServices::openUrl(linkUrl);
                 });
             }
 
-            m_contextMenu->addAction(pageAction(QWebEnginePage::CopyLinkToClipboard));
+            QAction *copyLinkAction = pageAction(QWebEnginePage::CopyLinkToClipboard);
+            copyLinkAction->setIcon(WidgetUi::IconHelper::fromTheme(QStringLiteral("insert-link"),
+                                                                    QStringLiteral(":/icons/tabler/link.svg")));
+            m_contextMenu->addAction(copyLinkAction);
         }
     }
 
@@ -142,7 +157,10 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
             m_contextMenu->addSeparator();
         }
 
-        m_contextMenu->addAction(pageAction(QWebEnginePage::Copy));
+        QAction *copyAction = pageAction(QWebEnginePage::Copy);
+        copyAction->setIcon(
+            WidgetUi::IconHelper::fromTheme(QStringLiteral("edit-copy"), QStringLiteral(":/icons/tabler/copy.svg")));
+        m_contextMenu->addAction(copyAction);
     }
 
     if (!linkUrl.isValid() && url().scheme() != QLatin1String("qrc")) {
@@ -150,11 +168,22 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
             m_contextMenu->addSeparator();
         }
 
-        m_contextMenu->addAction(pageAction(QWebEnginePage::Back));
-        m_contextMenu->addAction(pageAction(QWebEnginePage::Forward));
+        QAction *backAction = pageAction(QWebEnginePage::Back);
+        backAction->setIcon(WidgetUi::IconHelper::fromTheme(QStringLiteral("go-previous"),
+                                                            QStringLiteral(":/icons/tabler/arrow-left.svg")));
+        m_contextMenu->addAction(backAction);
+
+        QAction *forwardAction = pageAction(QWebEnginePage::Forward);
+        forwardAction->setIcon(WidgetUi::IconHelper::fromTheme(QStringLiteral("go-next"),
+                                                               QStringLiteral(":/icons/tabler/arrow-right.svg")));
+        m_contextMenu->addAction(forwardAction);
+
         m_contextMenu->addSeparator();
 
-        m_contextMenu->addAction(tr("Open Page in Desktop Browser"), this, [this]() {
+        m_contextMenu->addAction(WidgetUi::IconHelper::fromResource(QStringLiteral(":/icons/tabler/external-link.svg")),
+                                 tr("Open Page in Desktop Browser"),
+                                 this,
+                                 [this]() {
             QDesktopServices::openUrl(url());
         });
     }

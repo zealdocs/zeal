@@ -11,11 +11,15 @@
         <file alias="welcome.html">resources/browser/welcome.html</file>
     </qresource>
     <qresource prefix="/icons/tabler">
+        <file alias="app-window.svg">../../assets/tabler/app-window.svg</file>
         <file alias="arrow-left.svg">../../assets/tabler/arrow-left.svg</file>
         <file alias="arrow-right.svg">../../assets/tabler/arrow-right.svg</file>
+        <file alias="copy.svg">../../assets/tabler/copy.svg</file>
         <file alias="dots-vertical.svg">../../assets/tabler/dots-vertical.svg</file>
+        <file alias="external-link.svg">../../assets/tabler/external-link.svg</file>
         <file alias="info-circle.svg">../../assets/tabler/info-circle.svg</file>
         <file alias="library.svg">../../assets/tabler/library.svg</file>
+        <file alias="link.svg">../../assets/tabler/link.svg</file>
         <file alias="loader-2.svg">../../assets/tabler/loader-2.svg</file>
         <file alias="logout.svg">../../assets/tabler/logout.svg</file>
         <file alias="minus.svg">../../assets/tabler/minus.svg</file>
