@@ -8,6 +8,8 @@
 #include "docsetregistry.h"
 #include "itemdatarole.h"
 
+#include <QLocale>
+
 #include <iterator>
 
 namespace Zeal::Registry {
@@ -99,8 +101,23 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         if (index.column() != SectionIndex::Name || indexLevel(index) != IndexLevel::Docset) {
             return {};
         }
+
         auto *const docset = itemInRow(index.row())->docset;
-        return tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
+        QString tooltip = tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
+        if (docset->hasUpdate()) {
+            const Docset::UpdateInfo &update = docset->update().value();
+            if (update.size > 0) {
+                tooltip += QLatin1Char('\n')
+                         + tr("Update available: %1r%2 (%3)")
+                               .arg(update.version)
+                               .arg(update.revision)
+                               .arg(QLocale::system().formattedDataSize(update.size));
+            } else {
+                tooltip += QLatin1Char('\n') + tr("Update available: %1r%2").arg(update.version).arg(update.revision);
+            }
+        }
+
+        return tooltip;
     }
     case ItemDataRole::UrlRole:
         switch (indexLevel(index)) {
@@ -122,7 +139,8 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         if (index.parent().isValid()) {
             return {};
         }
-        return itemInRow(index.row())->docset->hasUpdate;
+
+        return itemInRow(index.row())->docset->hasUpdate();
     default:
         return {};
     }

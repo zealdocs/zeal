@@ -63,8 +63,17 @@ public:
     QList<SearchResult> search(const QString &query, const std::atomic_bool &canceled) const;
     QList<SearchResult> relatedLinks(const QUrl &url) const;
 
-    // FIXME: This is an ugly workaround before we have a proper docset sources implementation
-    bool hasUpdate = false;
+    // Update availability lives here until a proper docset catalog implementation exists.
+    struct UpdateInfo
+    {
+        QString version;
+        int revision = 0;
+        qint64 size = 0; // Compressed archive size in bytes; 0 when unknown (e.g. user dash feeds).
+    };
+
+    bool hasUpdate() const;
+    const std::optional<UpdateInfo> &update() const;
+    void setUpdate(std::optional<UpdateInfo> update);
 
     QUrl baseUrl() const;
     void setBaseUrl(const QUrl &baseUrl);
@@ -114,6 +123,8 @@ private:
     bool m_isJavaScriptEnabled = false;
 
     QUrl m_baseUrl;
+
+    std::optional<UpdateInfo> m_update;
 };
 
 } // namespace Registry
