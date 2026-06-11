@@ -8,12 +8,15 @@ HeaderFilterRegex: 'src[/\\].*'
 ExcludeHeaderFilterRegex: 'src[/\\]contrib[/\\].*|.*_autogen[/\\].*'
 # TODO: Reevaluate -modernize-use-nodiscard.
 # TODO: Re-enable {cppcoreguidelines,misc}-non-private-member-variables-in-classes.
+# clang-analyzer-core.StackAddressEscape: cpp-httplib stores handlers by value, but the analyzer
+# reports a false escape inside the library header, where it cannot be suppressed in-source.
 Checks: >
   *,
   -abseil-*,
   -altera-*,
   -android-*,
   -bugprone-easily-swappable-parameters,
+  -clang-analyzer-core.StackAddressEscape,
   -concurrency-mt-unsafe,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-non-private-member-variables-in-classes,

@@ -12,8 +12,6 @@
 #include <archive_entry.h>
 #include <zlib.h>
 
-#include <bit>
-
 namespace Zeal::Util {
 
 namespace {
@@ -33,7 +31,8 @@ QByteArray inflateFrom(QFile &file, qint64 rawSize)
     QByteArray in(InflateChunkSize, Qt::Uninitialized);
 
     // next_out is set once; zlib advances it as it fills the output buffer.
-    zs.next_out = std::bit_cast<Bytef *>(out.data());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): Bytef* is unsigned char*; conversion is defined.
+    zs.next_out = reinterpret_cast<Bytef *>(out.data());
     zs.avail_out = static_cast<uInt>(rawSize);
 
     int rc = Z_OK;
@@ -43,7 +42,8 @@ QByteArray inflateFrom(QFile &file, qint64 rawSize)
             break;
         }
 
-        zs.next_in = std::bit_cast<Bytef *>(in.data());
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        zs.next_in = reinterpret_cast<Bytef *>(in.data());
         zs.avail_in = static_cast<uInt>(inSize);
 
         while (zs.avail_in > 0 && zs.avail_out > 0) {

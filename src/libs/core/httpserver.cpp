@@ -43,7 +43,6 @@ HttpServer::HttpServer(quint16 port, QObject *parent)
     m_baseUrl.setHost(QString::fromLatin1(LocalHttpServerHost));
     m_baseUrl.setPort(boundPort);
 
-    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
     m_server->set_error_handler([this](const auto &req, auto &res) {
         // On 404, try case-insensitive path resolution.
         // Docsets generated on macOS (case-insensitive) may have links with mismatched case.
@@ -77,7 +76,6 @@ HttpServer::HttpServer(quint16 port, QObject *parent)
     // Content-provider mounts share one catch-all route because cpp-httplib
     // cannot remove individual handlers. Directory mounts are served by
     // cpp-httplib before this handler is reached.
-    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): false positive — cpp-httplib stores the handler by value.
     m_server->Get("/.+", [this](const auto &req, auto &res) {
         const QString reqPath = QString::fromStdString(req.path);
         const qsizetype prefixEnd = reqPath.indexOf(QLatin1Char('/'), 1);
@@ -86,6 +84,7 @@ HttpServer::HttpServer(quint16 port, QObject *parent)
 
         // Hold the lock while reading so unmount cannot invalidate the provider mid-request.
         const QReadLocker locker(&m_mountPointsLock);
+        // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage): Qt COW d-pointer confuses the analyzer.
         const auto it = m_contentProviders.constFind(prefix);
         if (it == m_contentProviders.constEnd()) {
             res.status = 404;

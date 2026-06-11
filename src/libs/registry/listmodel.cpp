@@ -104,16 +104,15 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
         auto *const docset = itemInRow(index.row())->docset;
         QString tooltip = tr("Version: %1r%2").arg(docset->version()).arg(docset->revision());
-        if (docset->hasUpdate()) {
-            const Docset::UpdateInfo &update = docset->update().value();
-            if (update.size > 0) {
+        if (const auto &update = docset->update()) {
+            if (update->size > 0) {
                 tooltip += QLatin1Char('\n')
                          + tr("Update available: %1r%2 (%3)")
-                               .arg(update.version)
-                               .arg(update.revision)
-                               .arg(QLocale::system().formattedDataSize(update.size));
+                               .arg(update->version)
+                               .arg(update->revision)
+                               .arg(QLocale::system().formattedDataSize(update->size));
             } else {
-                tooltip += QLatin1Char('\n') + tr("Update available: %1r%2").arg(update.version).arg(update.revision);
+                tooltip += QLatin1Char('\n') + tr("Update available: %1r%2").arg(update->version).arg(update->revision);
             }
         }
 

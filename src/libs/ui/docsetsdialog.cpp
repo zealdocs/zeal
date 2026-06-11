@@ -429,7 +429,7 @@ void DocsetsDialog::downloadCompleted()
         const QString docsetName = reply->property(DocsetNameProperty).toString();
         const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
 
-        QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
+        const QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
         if (tmpFile == nullptr) {
             break; // Installation has been canceled.
         }
@@ -1036,7 +1036,7 @@ void DocsetsDialog::onTarixIndexFailed(QNetworkReply *reply)
                     QMessageBox::NoButton,
                     this);
     QPushButton *retryButton = box.addButton(QMessageBox::Retry);
-    QPushButton *installButton = box.addButton(tr("Install Anyway"), QMessageBox::AcceptRole);
+    const QPushButton *installButton = box.addButton(tr("Install Anyway"), QMessageBox::AcceptRole);
     box.addButton(QMessageBox::Cancel);
     box.setDefaultButton(retryButton);
     box.exec();
@@ -1056,7 +1056,7 @@ void DocsetsDialog::onTarixIndexFailed(QNetworkReply *reply)
 
 void DocsetsDialog::installDownloadedDocset(const QString &docsetName)
 {
-    QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
+    const QTemporaryFile *tmpFile = m_tmpFiles.value(docsetName);
     if (tmpFile == nullptr) {
         return;
     }
