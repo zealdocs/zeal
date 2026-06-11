@@ -11,6 +11,8 @@
 # Check list: https://github.com/KDE/clazy/blob/master/README.md#list-of-checks
 # Use -Fix to apply suggested fixes (requires clang-apply-replacements).
 # Use -Staged to only process files staged for commit.
+# Pass one or more file paths to lint only those files
+# (e.g. 'just clazy src/libs/core/httpserver.cpp src/app/main.cpp').
 # Use -Verbose to print each file being processed.
 #
 # Requires a compile_commands.json in the build directory (build/dev).
@@ -20,7 +22,9 @@
 param(
     [string]$Check,
     [switch]$Fix,
-    [switch]$Staged
+    [switch]$Staged,
+    [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
+    [string[]]$Path
 )
 
 $buildDir = Join-Path -Path $PSScriptRoot -ChildPath "..\build\dev"
@@ -58,7 +62,21 @@ $srcDir = Join-Path -Path $PSScriptRoot -ChildPath "..\src"
 $compileDb = Get-Content "$buildDir/compile_commands.json" | ConvertFrom-Json
 $dbFiles = $compileDb | ForEach-Object { [System.IO.Path]::GetFullPath($_.file) }
 
-if ($Staged) {
+if ($Path) {
+    $files = foreach ($p in $Path) {
+        $resolved = Resolve-Path -LiteralPath $p -ErrorAction SilentlyContinue
+        if (-not $resolved) {
+            Write-Warning "Skipping '$p': file not found."
+            continue
+        }
+        $full = [System.IO.Path]::GetFullPath($resolved.Path)
+        if ($full -notin $dbFiles) {
+            Write-Warning "Skipping '$p': not in the compile database."
+            continue
+        }
+        $full
+    }
+} elseif ($Staged) {
     $files = git diff --cached --name-only --diff-filter=ACMR -- "*.cpp" |
         ForEach-Object { Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath $_ } |
         Where-Object { Test-Path $_ } |
