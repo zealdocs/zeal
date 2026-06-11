@@ -26,7 +26,7 @@ configure *args:
 build:
     cmake --build --preset {{preset}}
 
-# Build and launch Zeal. All arguments are forwarded to zeal verbatim.
+# Build and run Zeal; args go to zeal.
 [group('dev')]
 run *args: build
     ./build/{{preset}}/zeal "$@"
@@ -38,24 +38,24 @@ test:
     cmake --build --preset testing
     ctest --preset testing
 
-# Apply clang-format across the tree (use -Fix to apply, -Staged for staged files only).
+# Run clang-format over the tree.
 [group('dev')]
 format *args:
     pwsh tools/run-clang-format.ps1 {{args}}
 
-# Run clang-tidy (use -Fix to apply, -Staged for staged files only, -Check <name> for a single check).
-# Depends on `build` (not just `configure`) so AUTOUIC/AUTOMOC/AUTORCC outputs exist.
+# Depends on `build` so AUTOUIC/AUTOMOC/AUTORCC headers exist.
+# Run clang-tidy over the tree or given files.
 [group('dev')]
 lint *args: build
     pwsh tools/run-clang-tidy.ps1 {{args}}
 
-# Run clazy Qt-aware checks (use -Fix to apply, -Staged for staged files only, -Check <name> for a single check or level).
+# Run clazy Qt-aware checks.
 [group('dev')]
 clazy *args: build
     pwsh tools/run-clazy.ps1 {{args}}
 
-# Profile build time with -ftime-trace and emit a ClangBuildAnalyzer report.
 # Requires Clang (clang-cl on Windows) and ClangBuildAnalyzer on PATH.
+# Profile build time and emit a ClangBuildAnalyzer report.
 [group('dev')]
 analyze-build-time:
     cmake --preset {{timetrace_preset}}
@@ -68,7 +68,7 @@ analyze-build-time:
 analyze-build-time-report:
     ClangBuildAnalyzer --analyze build/{{timetrace_preset}}/cba.bin
 
-# Invoke the preset's clean target (removes built artifacts, keeps CMake cache).
+# Invoke the preset's clean target.
 [group('dev')]
 clean:
     cmake --build --preset {{preset}} --target clean
