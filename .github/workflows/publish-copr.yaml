@@ -83,7 +83,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.mode.outputs.ref }}
           fetch-depth: 0
