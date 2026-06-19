@@ -197,7 +197,9 @@ void DocsetsDialog::removeSelectedDocsets()
     const QModelIndexList selectedIndexes = selectionModel->selectedRows();
     if (selectedIndexes.size() == 1) {
         const QString docsetTitle = selectedIndexes.first().data().toString();
-        rc = QMessageBox::question(this, QStringLiteral("Zeal"), tr("Remove <b>%1</b> docset?").arg(docsetTitle));
+        rc = QMessageBox::question(this,
+                                   QStringLiteral("Zeal"),
+                                   tr("Remove <b>%1</b> docset?").arg(docsetTitle.toHtmlEscaped()));
     } else {
         rc = QMessageBox::question(this,
                                    QStringLiteral("Zeal"),
@@ -308,7 +310,8 @@ void DocsetsDialog::downloadCompleted()
 
         if (reply->error() != QNetworkReply::OperationCanceledError) {
             const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
-                                    .arg(reply->errorString(), reply->request().url().toString());
+                                    .arg(reply->errorString().toHtmlEscaped(),
+                                         reply->request().url().toString().toHtmlEscaped());
             const int ret = QMessageBox::warning(this,
                                                  QStringLiteral("Zeal"),
                                                  msg,
@@ -393,7 +396,8 @@ void DocsetsDialog::downloadCompleted()
             }
             QMessageBox::warning(this,
                                  QStringLiteral("Zeal"),
-                                 tr("Cannot create a temporary file to install <b>%1</b>.").arg(docsetName));
+                                 tr("Cannot create a temporary file to install <b>%1</b>.")
+                                     .arg(docsetName.toHtmlEscaped()));
             break;
         }
 
@@ -530,7 +534,8 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
 
     QMessageBox::warning(this,
                          QStringLiteral("Zeal"),
-                         tr("Cannot extract docset <b>%1</b>: %2").arg(docsetName, errorString));
+                         tr("Cannot extract docset <b>%1</b>: %2")
+                             .arg(docsetName.toHtmlEscaped(), errorString.toHtmlEscaped()));
 
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem != nullptr) {
@@ -911,6 +916,10 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         const QJsonObject docsetJson = v.toObject();
 
         const Registry::DocsetMetadata metadata(docsetJson);
+        if (metadata.name().isEmpty() || metadata.urls().isEmpty()) {
+            qCWarning(log, "Skipping invalid docset metadata entry.");
+            continue;
+        }
         m_availableDocsets.insert({metadata.name(), metadata});
     }
 
@@ -1002,6 +1011,14 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
         url = m_userFeeds[name].url();
     }
 
+    if (!url.isValid() || url.isEmpty()) {
+        qCWarning(log, "Cannot download docset '%s': no valid URL.", qPrintable(name));
+        if (QListWidgetItem *listItem = findDocsetListItem(name); listItem != nullptr) {
+            listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+        }
+        return;
+    }
+
     QNetworkReply *reply = download(url);
     reply->setProperty(DocsetNameProperty, name);
     setDownloadType(reply, DownloadType::Docset);
@@ -1032,7 +1049,7 @@ void DocsetsDialog::onTarixIndexFailed(QNetworkReply *reply)
                     QStringLiteral("Zeal"),
                     tr("Could not download the compact index for <b>%1</b>. Installing without it will be "
                        "slower and use considerably more disk space.")
-                        .arg(docsetName),
+                        .arg(docsetName.toHtmlEscaped()),
                     QMessageBox::NoButton,
                     this);
     QPushButton *retryButton = box.addButton(QMessageBox::Retry);
@@ -1077,7 +1094,7 @@ void DocsetsDialog::removeDocset(const QString &name)
     if (!Core::FileManager::removeRecursively(docsetPath)) {
         const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
                                  " by another process.")
-                                  .arg(docsetPath);
+                                  .arg(docsetPath.toHtmlEscaped());
         QMessageBox::warning(this, QStringLiteral("Zeal"), error);
         return;
     }

@@ -27,7 +27,7 @@ WindowManager::WindowManager(Core::Application *application, QObject *parent)
 {
     // Update-check dialogs are session-level, not per-window.
     connect(m_application, &Core::Application::updateCheckError, this, [this](const QString &message) {
-        QMessageBox::warning(activeWindow(), QStringLiteral("Zeal"), message);
+        QMessageBox::warning(activeWindow(), QStringLiteral("Zeal"), message.toHtmlEscaped());
     });
 
     connect(m_application, &Core::Application::updateCheckDone, this, [this](const QString &version) {
@@ -40,7 +40,8 @@ WindowManager::WindowManager(Core::Application *application, QObject *parent)
         qApp->setQuitOnLastWindowClosed(false);
         const int ret = QMessageBox::information(activeWindow(),
                                                  QStringLiteral("Zeal"),
-                                                 tr("Zeal <b>%1</b> is available. Open download page?").arg(version),
+                                                 tr("Zeal <b>%1</b> is available. Open download page?")
+                                                     .arg(version.toHtmlEscaped()),
                                                  QMessageBox::Yes | QMessageBox::No,
                                                  QMessageBox::Yes);
         qApp->setQuitOnLastWindowClosed(true);
