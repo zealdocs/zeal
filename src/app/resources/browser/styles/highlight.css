@@ -1,0 +1,18 @@
+/* Highlight on navigation to an anchor. */
+@keyframes targetNavigatedAnimation {
+  from {
+    background: #fff;
+  }
+  50% {
+    background: #ff0;
+  }
+  to {
+    background: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  *:target {
+    animation: targetNavigatedAnimation 0.5s linear;
+  }
+}

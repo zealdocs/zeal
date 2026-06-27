@@ -21,7 +21,7 @@ Q_LOGGING_CATEGORY(log, "zeal.browser.settings")
 
 using Qt::Literals::StringLiterals::operator""_L1;
 
-constexpr auto HighlightOnNavigateCssPath = ":/browser/assets/css/highlight.css"_L1;
+constexpr auto HighlightOnNavigateCssPath = ":/browser/styles/highlight.css"_L1;
 } // namespace
 
 QWebEngineProfile *Settings::m_webProfile = nullptr;

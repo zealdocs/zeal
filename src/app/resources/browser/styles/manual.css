@@ -1,0 +1,191 @@
+/* Reference-manual styles layered on .prose: reading column, section
+   headings, tables, callouts, menu-path chips. Scoped to .doc.
+   Per-surface knobs: --docw, --doc-pad, --doc-anchor (defaults below). */
+
+.doc {
+  max-width: var(--docw, 760px);
+  margin: 0 auto;
+  padding: var(--doc-pad, 8px 0 0);
+}
+
+.doc section {
+  padding-top: 2rem;
+  scroll-margin-top: var(--doc-anchor, 84px);
+}
+
+.doc section > h2 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 40;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  margin: 0 0 1.1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.doc section > h2 .nn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--red);
+  letter-spacing: 0.06em;
+}
+.doc h3 {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 0.98rem;
+  letter-spacing: 0;
+  margin: 1.6rem 0 0.5rem;
+  color: var(--ink);
+}
+
+/* Tables */
+.doc .table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 0.4rem 0 1.1rem;
+}
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+.doc caption {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-softer);
+  padding-bottom: 0.5rem;
+}
+.doc th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-soft);
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.doc td {
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.doc td:first-child {
+  color: var(--ink);
+}
+.doc tbody tr:last-child td {
+  border-bottom: 0;
+}
+.doc .keys {
+  display: inline-flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  vertical-align: baseline;
+  align-items: center;
+}
+.doc .keys .sep {
+  color: var(--ink-softer);
+  font-size: 0.8rem;
+  padding: 0 0.1rem;
+}
+.doc td code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.doc td .tok {
+  color: var(--accent);
+}
+/* Stack link cells as blocks; display:flex on a <td> breaks fixed-table row alignment. */
+.doc .td-links a {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.doc .td-links a + a {
+  margin-top: 3px;
+}
+.doc .td-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Callout */
+.doc .callout {
+  background: var(--callout);
+  border: 1px solid var(--callout-border);
+  box-shadow: var(--callout-shadow);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.4rem 0 1.1rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.doc .callout strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.doc .callout a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 2px;
+}
+.doc .callout a:hover {
+  color: var(--accent-hover);
+  text-decoration-color: var(--accent-hover);
+}
+
+/* Menu-path chip */
+.doc .menu-path {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.85rem;
+}
+.doc .menu-path .seg {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink);
+  background: var(--deep);
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 2px 8px;
+}
+.doc .menu-path .arr {
+  color: var(--ink-softer);
+}
+
+/* Print */
+@media print {
+  .doc {
+    max-width: none;
+  }
+  .doc section {
+    padding-top: 1.25rem;
+    scroll-margin-top: 0;
+  }
+  .doc .table-wrap {
+    overflow: visible;
+  }
+  .doc h2,
+  .doc h3 {
+    break-after: avoid;
+  }
+  .doc tr,
+  .doc .callout {
+    break-inside: avoid;
+  }
+}

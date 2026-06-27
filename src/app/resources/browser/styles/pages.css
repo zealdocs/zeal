@@ -1,0 +1,530 @@
+/* Styles for Zeal's built-in browser pages (new-tab, not-found, help).
+   Offline, no frameworks; conservative CSS for Chromium 102. */
+@import "tokens.css";
+@import "prose.css";
+@import "manual.css";
+
+/* Bundled fonts */
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/SourceSerif4.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/SourceSerif4-Italic.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Google Sans Code";
+  src: url("../fonts/GoogleSansCode.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Google Sans Code";
+  src: url("../fonts/GoogleSansCode-Italic.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* App-only tokens */
+:root {
+  /* Declare both schemes so Qt WebEngine does not auto-invert these pages;
+     they theme themselves, and inversion would recolour the brand-red fills. */
+  color-scheme: light dark;
+  --shadow-soft: 0 1px 2px rgb(31 27 20 / 0.05);
+  --maxw: 460px;
+  /* manual.css reading-column knobs */
+  --docw: 760px;
+  --doc-pad: 1rem clamp(1rem, 4vw, 2rem) 0;
+  --doc-anchor: 4.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
+}
+
+/* Reset / base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--body);
+  font-optical-sizing: auto;
+  font-size: var(--type-body-size);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Chrome pages should not feel like a selectable document. */
+body.screen {
+  user-select: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  transition: color 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+a:hover {
+  color: var(--accent-hover);
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--mono);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.1em;
+  padding: 2px 6px 1px;
+  font-family: var(--mono);
+  font-size: 0.78em;
+  font-weight: 500;
+  text-align: center;
+  color: var(--ink);
+  background: var(--deep);
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Focus */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* New-tab / not-found */
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  padding: 3rem 1.75rem 1.5rem;
+}
+
+/* Brand lockup */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.lockup .logo {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 3.5px;
+  display: block;
+  box-shadow: var(--shadow-soft);
+}
+.wordmark {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  font-variation-settings: "opsz" 36;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.tagline {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  font-variation-settings: "opsz" 36;
+}
+
+/* Overline labels */
+.overline {
+  font-family: var(--body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-softer);
+  margin: 0 0 0.7rem;
+}
+
+/* Not-found heading */
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.headline h1 {
+  font-size: 1.75rem;
+  font-variation-settings: "opsz" 36;
+}
+.headline p {
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+/* Search hints */
+.search-lead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 0.9rem;
+}
+.search-lead .ico {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--accent);
+}
+
+.hints {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  align-items: baseline;
+}
+.hints .syntax {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.hints .syntax code {
+  font-size: 0.8rem;
+  color: var(--ink);
+  background: var(--prefix-box);
+  border: 1px solid var(--rule-soft);
+  border-radius: 3px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  user-select: text; /* copyable */
+  cursor: text;
+}
+.hints .syntax .tok {
+  color: var(--accent);
+}
+.hints .desc {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+/* Action cards */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.8rem 0.95rem;
+  background: var(--card);
+  border: 1px solid var(--rule-soft);
+  border-radius: 6px;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover {
+  border-color: var(--accent);
+  background: var(--card-hover);
+}
+.card .body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.card .body h3 {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  margin: 0 0 1px;
+}
+.card .body p {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: none;
+}
+.card .arrow {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--ink-softer);
+  transition:
+    color 0.12s,
+    transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover .arrow {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid var(--rule-soft);
+}
+.icon-links {
+  display: flex;
+  gap: 1.4rem;
+  align-items: center;
+}
+.icon-link {
+  display: inline-flex;
+  color: var(--ink-soft);
+  opacity: 0.65;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    opacity 0.12s;
+}
+.icon-link:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+.icon-link svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
+/* Help page */
+html.manual-root {
+  scroll-behavior: smooth;
+}
+
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem clamp(1rem, 4vw, 2rem);
+  background: var(--cream);
+  border-bottom: 1px solid var(--rule-soft);
+}
+.topnav .home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: var(--ink);
+  margin-right: auto;
+}
+.topnav .home .logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 2.5px;
+  display: block;
+}
+.topnav .home .title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  font-variation-settings: "opsz" 28;
+}
+.topnav .home .title .sub {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.topnav nav {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+.topnav nav a {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+.topnav nav a:hover {
+  color: var(--accent);
+  background: var(--nav-hover, var(--manila));
+}
+
+.help-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0;
+}
+
+.doc .footer {
+  max-width: none;
+  margin-top: 3rem;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  html.manual-root {
+    scroll-behavior: auto;
+  }
+}
+
+/* Print */
+@page {
+  margin: 1.6cm;
+}
+@media print {
+  :root {
+    --paper: #fff;
+    --cream: #fff;
+    --card: #fff;
+    --manila: #fff;
+    --deep: #f3f3f3;
+    --ink: #000;
+    --ink-soft: #333;
+    --ink-softer: #555;
+    --rule: #bbb;
+    --rule-soft: #ddd;
+    --accent: #75201a;
+    --prefix-box: #f3f3f3;
+    --callout: #fff;
+    --callout-border: #bbb;
+    --callout-shadow: none;
+  }
+  html,
+  body {
+    background: #fff;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  html.manual-root {
+    scroll-behavior: auto;
+  }
+  .topnav {
+    position: static;
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: 1px solid #bbb;
+  }
+  .topnav nav {
+    display: none;
+  }
+  .footer .icon-links {
+    display: none;
+  }
+  .doc {
+    max-width: none;
+    padding: 0 0 1rem;
+  }
+  .doc section {
+    padding-top: 1.25rem;
+  }
+  .table-wrap {
+    overflow: visible;
+  }
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  tr,
+  .callout,
+  .card {
+    break-inside: avoid;
+  }
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+}

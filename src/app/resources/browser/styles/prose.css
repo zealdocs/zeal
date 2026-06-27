@@ -1,0 +1,81 @@
+/* Shared reading-text styles (lede, paragraphs, inline code, kbd, lists).
+   Scoped to .prose; consumes the tokens in tokens.css. */
+
+.prose {
+  color: var(--ink);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Lede */
+.prose .lede {
+  font-family: var(--display);
+  font-variation-settings: "opsz" 24;
+  font-size: 1.18rem;
+  line-height: 1.5;
+  letter-spacing: -0.1px;
+  color: var(--ink);
+  margin: 2rem 0 0.5rem;
+}
+
+/* Paragraphs */
+.prose p {
+  margin: 0 0 0.85rem;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.prose p.muted {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+.prose strong {
+  font-weight: 600;
+}
+
+/* Inline links */
+.prose a.inline {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 2px;
+}
+.prose a.inline:hover {
+  color: var(--accent-hover);
+  text-decoration-color: var(--accent-hover);
+}
+
+/* Inline code */
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--deep);
+  border: 1px solid var(--rule-soft);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Keyboard keys */
+.prose kbd {
+  display: inline-block;
+  min-width: 1.1em;
+  padding: 2px 6px 1px;
+  font-family: var(--mono);
+  font-size: 0.78em;
+  font-weight: 500;
+  text-align: center;
+  color: var(--ink);
+  background: var(--deep);
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Lists */
+.prose ul {
+  margin: 0 0 0.95rem;
+  padding-left: 1.1rem;
+}
+.prose li {
+  margin: 0.25rem 0;
+}
