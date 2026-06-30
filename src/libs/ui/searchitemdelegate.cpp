@@ -167,9 +167,12 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         const QFontMetrics normalFm(normalFont);
         const QFontMetrics boldFm(boldFont);
 
+        // Link is a foreground role meant to read over Base; Highlight is a
+        // selection-background fill that may match Base and hide the match.
+        // Selected rows contrast against the selection via HighlightedText.
         const QColor matchColor = opt.state.testFlag(QStyle::State_Selected)
                                     ? opt.palette.color(cg, QPalette::HighlightedText)
-                                    : opt.palette.color(QPalette::Active, QPalette::Highlight);
+                                    : opt.palette.color(cg, QPalette::Link);
         const QColor textColor = painter->pen().color();
 
         const QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
