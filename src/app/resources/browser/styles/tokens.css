@@ -1,0 +1,278 @@
+/* Design tokens shared by Zeal's built-in browser pages.
+   Light by default; dark via prefers-color-scheme and [data-theme="dark"]. */
+
+:root {
+  /* Surfaces */
+  --paper: #fbf7ec;
+  --card: #f5ecd1;
+  --card-hover: #faf4e2;
+  --deep: #e0d6bb;
+  /* Legacy surface aliases */
+  --cream: var(--card);
+  --manila: var(--card);
+
+  /* Component surfaces */
+  --prefix-box: #efe7d1;
+  --callout: #f5ecd1;
+  --callout-border: var(--rule-soft);
+  --callout-shadow: none;
+  --nav-hover: #e9dfc5;
+
+  /* Text */
+  --ink: #1f1b14;
+  --ink-soft: #55503f;
+  --ink-softer: #655f4a;
+
+  /* Rules */
+  --rule: #c9bfa3;
+  --rule-soft: #d9d0b8;
+
+  /* Brand accent — --accent for text, --accent-solid for fills */
+  --accent: #b4322b;
+  --accent-hover: #75201a;
+  --accent-solid: #b4322b;
+  --accent-solid-hover: #75201a;
+  --on-accent: #faf4e2;
+
+  /* Legacy --red aliases */
+  --red: var(--accent);
+  --on-red: var(--on-accent);
+
+  /* AppStream store-listing branding only */
+  --brand-banner-light: #f1c3a7;
+  --brand-banner-dark: #75201a;
+
+  /* Taxonomy accents */
+  --blue: #3e5f7a;
+  --green: #4a7a4a;
+  --amber: #a86a14;
+  --plum: #6b4a82;
+
+  /* Semantic aliases */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --foreground-soft: var(--ink-soft);
+  --foreground-softer: var(--ink-softer);
+  --surface-card: var(--card);
+  --surface-inset: var(--deep);
+  --border: var(--rule);
+  --border-soft: var(--rule-soft);
+
+  --primary: var(--accent-solid);
+  --primary-foreground: var(--on-accent);
+  --danger: var(--accent-solid);
+  --danger-foreground: var(--on-accent);
+  --success: var(--green);
+  --success-foreground: var(--on-accent);
+  --warning: var(--amber);
+  --warning-foreground: var(--on-accent);
+  --info: var(--blue);
+  --info-foreground: var(--on-accent);
+
+  --ring: var(--accent);
+
+  /* Type families */
+  --display: "Source Serif 4", "Lora", Georgia, serif;
+  --body:
+    "Inter", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
+  --mono:
+    "Google Sans Code", "JetBrains Mono", ui-monospace, SFMono-Regular,
+    "SF Mono", Menlo, monospace;
+
+  --font-sans: var(--body);
+  --font-mono: var(--mono);
+
+  --display-opsz: 60;
+  --display-opsz-text: 40;
+
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Type scale */
+  --text-1: clamp(2.5rem, 2rem + 2.2vw, 3.5rem);
+  --text-2: clamp(1.75rem, 1.5rem + 1.1vw, 2.25rem);
+  --text-3: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  --text-4: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-5: 1.125rem;
+  --text-6: 1rem;
+  --text-7: 0.875rem;
+  --text-8: 0.75rem;
+  --text-9: 0.6875rem;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-loose: 1.65;
+
+  /* Type roles */
+  --type-display-font: var(--display);
+  --type-display-weight: 400;
+  --type-display-size: var(--text-1);
+  --type-display-lh: var(--leading-tight);
+
+  --type-h1-font: var(--display);
+  --type-h1-weight: 600;
+  --type-h1-size: var(--text-2);
+  --type-h2-font: var(--display);
+  --type-h2-weight: 600;
+  --type-h2-size: var(--text-3);
+  --type-h3-font: var(--body);
+  --type-h3-weight: 600;
+  --type-h3-size: var(--text-4);
+
+  --type-body-font: var(--body);
+  --type-body-weight: 400;
+  --type-body-size: 0.9375rem; /* 15px */
+  --type-body-lh: var(--leading-normal);
+
+  --type-small-font: var(--body);
+  --type-small-size: var(--text-7);
+  --type-meta-font: var(--mono);
+  --type-meta-size: var(--text-8);
+  --type-meta-color: var(--ink-soft);
+  --type-code-font: var(--mono);
+  --type-code-size: 0.875em;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-18: 4.5rem;
+  --space-24: 6rem;
+
+  /* Radii */
+  --radius-small: 2px;
+  --radius-medium: 3px;
+  --radius-large: 6px;
+
+  /* Elevation */
+  --shadow-small: 0 1px 2px 0 rgb(31 27 20 / 0.08);
+  --shadow-card:
+    0 2px 4px -1px rgb(31 27 20 / 0.06), 0 8px 24px -8px rgb(31 27 20 / 0.1);
+
+  /* Motion */
+  --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --z-dropdown: 50;
+  --z-modal: 200;
+}
+
+/* Dark theme — declared twice: prefers-color-scheme for OS-auto, and
+   [data-theme] for the manual toggle (a media query can't OR a selector). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1b1308;
+    --card: #261e12;
+    --card-hover: #352a1a;
+    --deep: #322817;
+    --cream: var(--card);
+    --manila: var(--card);
+
+    --prefix-box: #15100a;
+    --callout: #160f07;
+    --callout-border: var(--rule);
+    --callout-shadow: inset 0 1px 3px rgb(0 0 0 / 0.5);
+    --nav-hover: #1b1308;
+
+    --ink: #ddd2b6;
+    --ink-soft: #b3a892;
+    --ink-softer: #9a9180;
+
+    --rule: #6b6253;
+    --rule-soft: #554c3f;
+
+    --accent: #e8534a;
+    --accent-hover: #f0754f;
+    --accent-solid: #b4322b;
+    --accent-solid-hover: #bd3a2f;
+    --on-accent: #faf4e2;
+
+    --blue: #5486ac;
+    --green: #5f8d64;
+    --amber: #b07932;
+    --plum: #8a68a0;
+
+    --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-card:
+      0 2px 4px -1px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.55);
+  }
+  /* Force light under a dark OS */
+  :root[data-theme="light"] {
+    --paper: #fbf7ec;
+    --card: #f5ecd1;
+    --card-hover: #faf4e2;
+    --deep: #e0d6bb;
+    --cream: var(--card);
+    --manila: var(--card);
+    --prefix-box: #efe7d1;
+    --callout: #f5ecd1;
+    --callout-border: var(--rule-soft);
+    --callout-shadow: none;
+    --nav-hover: #e9dfc5;
+    --ink: #1f1b14;
+    --ink-soft: #55503f;
+    --ink-softer: #655f4a;
+    --rule: #c9bfa3;
+    --rule-soft: #d9d0b8;
+    --accent: #b4322b;
+    --accent-hover: #75201a;
+    --accent-solid: #b4322b;
+    --accent-solid-hover: #75201a;
+    --on-accent: #faf4e2;
+    --blue: #3e5f7a;
+    --green: #4a7a4a;
+    --amber: #a86a14;
+    --plum: #6b4a82;
+    --shadow-small: 0 1px 2px 0 rgb(31 27 20 / 0.08);
+    --shadow-card:
+      0 2px 4px -1px rgb(31 27 20 / 0.06), 0 8px 24px -8px rgb(31 27 20 / 0.1);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1b1308;
+  --card: #261e12;
+  --card-hover: #352a1a;
+  --deep: #322817;
+  --cream: var(--card);
+  --manila: var(--card);
+
+  --prefix-box: #15100a;
+  --callout: #160f07;
+  --callout-border: var(--rule);
+  --callout-shadow: inset 0 1px 3px rgb(0 0 0 / 0.5);
+  --nav-hover: #1b1308;
+
+  --ink: #ddd2b6;
+  --ink-soft: #b3a892;
+  --ink-softer: #9a9180;
+
+  --rule: #6b6253;
+  --rule-soft: #554c3f;
+
+  --accent: #e8534a;
+  --accent-hover: #f0754f;
+  --accent-solid: #b4322b;
+  --accent-solid-hover: #bd3a2f;
+  --on-accent: #faf4e2;
+
+  --blue: #5486ac;
+  --green: #5f8d64;
+  --amber: #b07932;
+  --plum: #8a68a0;
+
+  --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-card:
+    0 2px 4px -1px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.55);
+}

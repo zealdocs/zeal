@@ -48,7 +48,10 @@ WebControl::WebControl(QWidget *parent)
         m_webView->setToolTip(link);
     });
     connect(m_webView, &QWebEngineView::titleChanged, this, &WebControl::titleChanged);
-    connect(m_webView, &QWebEngineView::urlChanged, this, &WebControl::urlChanged);
+    connect(m_webView, &QWebEngineView::urlChanged, this, [this](const QUrl &url) {
+        updateWebBridge(url);
+        emit urlChanged(url);
+    });
     connect(m_webView, &WebView::zoomLevelChanged, this, &WebControl::zoomLevelChanged);
 
     // On a failed load that set no title, relabel the tab to signal the failure.
@@ -149,17 +152,43 @@ void WebControl::setJavaScriptEnabled(bool enabled)
 
 void WebControl::setWebBridgeObject(const QString &name, QObject *object)
 {
+    m_webBridgeName = name;
+    m_webBridgeObject = object;
+
+    // Drop any existing channel so updateWebBridge() re-registers with the new object; it
+    // returns early when a channel is already present on an open qrc page.
+    if (QWebChannel *oldChannel = m_webView->page()->webChannel()) {
+        m_webView->page()->setWebChannel(nullptr);
+        oldChannel->deleteLater();
+    }
+
+    updateWebBridge(m_webView->url());
+}
+
+void WebControl::updateWebBridge(const QUrl &url)
+{
     QWebEnginePage *page = m_webView->page();
+    if (url.scheme() != QLatin1String("qrc") || m_webBridgeName.isEmpty() || m_webBridgeObject == nullptr) {
+        if (QWebChannel *oldChannel = page->webChannel()) {
+            page->setWebChannel(nullptr);
+            oldChannel->deleteLater();
+        }
+        return;
+    }
+
+    if (page->webChannel() != nullptr) {
+        return;
+    }
 
     auto *channel = new QWebChannel(page);
-    channel->registerObject(name, object);
-
+    channel->registerObject(m_webBridgeName, m_webBridgeObject);
     page->setWebChannel(channel);
 }
 
 void WebControl::load(const QUrl &url)
 {
     m_renderProcessReloadAttempts = 0;
+    updateWebBridge(url);
     m_webView->load(url);
 }
 

@@ -61,8 +61,12 @@ protected:
 private:
     friend class WebView;
 
+    void updateWebBridge(const QUrl &url);
+
     WebView *m_webView = nullptr;
     SearchToolBar *m_searchToolBar = nullptr;
+    QString m_webBridgeName;
+    QObject *m_webBridgeObject = nullptr;
     int m_renderProcessReloadAttempts = 0;
 };
 

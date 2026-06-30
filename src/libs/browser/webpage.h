@@ -27,6 +27,8 @@ protected:
 private:
     static bool promptForExternalLink(const QUrl &requestUrl);
     void applyBackgroundColor();
+    void applyForceDarkMode(const QUrl &pageUrl);
+    void updateInternalPageTheme();
 };
 
 } // namespace Zeal::Browser

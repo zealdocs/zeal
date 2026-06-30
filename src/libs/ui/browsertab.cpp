@@ -12,6 +12,7 @@
 #include <browser/webcontrol.h>
 #include <browser/webview.h>
 #include <core/application.h>
+#include <core/settings.h>
 #include <registry/docset.h>
 #include <registry/docsetregistry.h>
 #include <registry/searchquery.h>
@@ -30,7 +31,7 @@ namespace Zeal::WidgetUi {
 namespace {
 using Qt::Literals::StringLiterals::operator""_L1;
 
-constexpr auto WelcomePageUrl = "qrc:///browser/welcome.html"_L1;
+constexpr auto NewTabPageUrl = "qrc:///browser/new-tab.html"_L1;
 } // namespace
 
 BrowserTab::BrowserTab(QWidget *parent)
@@ -226,7 +227,15 @@ SearchSidebar *BrowserTab::searchSidebar() const
 
 void BrowserTab::navigateToStartPage()
 {
-    m_webControl->load(QUrl(WelcomePageUrl));
+    // These pages must follow Zeal's appearance, not the OS. Qt WebEngine resolves
+    // prefers-color-scheme from the OS for the first renderer (before the app scheme
+    // propagates), so the page cannot reliably detect the theme on its own. Carry the
+    // resolved theme in the URL fragment; the page applies it synchronously before its
+    // styles load (see new-tab.html).
+    QUrl url(NewTabPageUrl);
+    const bool dark = Core::Application::instance()->settings()->isDarkModeEnabled();
+    url.setFragment(dark ? QStringLiteral("dark") : QStringLiteral("light"));
+    m_webControl->load(url);
 }
 
 void BrowserTab::search(const Registry::SearchQuery &query)

@@ -4,11 +4,19 @@
         <file alias="zeal-tray.svg">../../assets/freedesktop/sc-apps-zeal-tray.svg</file>
     </qresource>
     <qresource prefix="/browser">
-        <file alias="404.html">resources/browser/404.html</file>
-        <file alias="assets/css/highlight.css">resources/browser/assets/css/highlight.css</file>
-        <file alias="assets/css/oat.min.css">resources/browser/assets/css/oat.min.css</file>
-        <file alias="assets/css/welcome.css">resources/browser/assets/css/welcome.css</file>
-        <file alias="welcome.html">resources/browser/welcome.html</file>
+        <file alias="new-tab.html">resources/browser/new-tab.html</file>
+        <file alias="not-found.html">resources/browser/not-found.html</file>
+        <file alias="styles/highlight.css">resources/browser/styles/highlight.css</file>
+        <file alias="styles/manual.css">resources/browser/styles/manual.css</file>
+        <file alias="styles/pages.css">resources/browser/styles/pages.css</file>
+        <file alias="styles/prose.css">resources/browser/styles/prose.css</file>
+        <file alias="styles/tokens.css">resources/browser/styles/tokens.css</file>
+        <file alias="fonts/GoogleSansCode.woff2">resources/browser/fonts/GoogleSansCode.woff2</file>
+        <file alias="fonts/GoogleSansCode-Italic.woff2">resources/browser/fonts/GoogleSansCode-Italic.woff2</file>
+        <file alias="fonts/Inter.woff2">resources/browser/fonts/Inter.woff2</file>
+        <file alias="fonts/Inter-Italic.woff2">resources/browser/fonts/Inter-Italic.woff2</file>
+        <file alias="fonts/SourceSerif4.woff2">resources/browser/fonts/SourceSerif4.woff2</file>
+        <file alias="fonts/SourceSerif4-Italic.woff2">resources/browser/fonts/SourceSerif4-Italic.woff2</file>
     </qresource>
     <qresource prefix="/icons/tabler">
         <file alias="app-window.svg">../../assets/tabler/app-window.svg</file>

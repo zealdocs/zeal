@@ -38,7 +38,7 @@ constexpr auto IndexNameVersion = "0001"_L1;     // Current index version
 
 constexpr auto DocumentsPath = "Contents/Resources/Documents/"_L1;
 
-constexpr auto NotFoundPageUrl = "qrc:///browser/404.html"_L1;
+constexpr auto NotFoundPageUrl = "qrc:///browser/not-found.html"_L1;
 
 namespace InfoPlist {
 constexpr auto CFBundleName = "CFBundleName"_L1;
