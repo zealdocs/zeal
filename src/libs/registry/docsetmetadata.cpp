@@ -173,7 +173,19 @@ QUrl DocsetMetadata::feedUrl() const
 
 QUrl DocsetMetadata::url() const
 {
-    return m_urls.at(QRandomGenerator::global()->bounded(m_urls.size()));
+    QList<QUrl> validUrls;
+    validUrls.reserve(m_urls.size());
+    for (const QUrl &url : m_urls) {
+        if (url.isValid() && !url.isEmpty()) {
+            validUrls.append(url);
+        }
+    }
+
+    if (validUrls.isEmpty()) {
+        return {};
+    }
+
+    return validUrls.at(QRandomGenerator::global()->bounded(validUrls.size()));
 }
 
 QList<QUrl> DocsetMetadata::urls() const

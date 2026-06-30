@@ -69,7 +69,7 @@ HttpServer::HttpServer(quint16 port, QObject *parent)
 
         const QString html = QStringLiteral("<b>ERROR %1</b><br><pre>Request path: %2</pre>")
                                  .arg(res.status)
-                                 .arg(QString::fromStdString(req.path));
+                                 .arg(QString::fromStdString(req.path).toHtmlEscaped());
         res.set_content(html.toUtf8().data(), "text/html");
     });
 

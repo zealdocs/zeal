@@ -205,8 +205,23 @@ void Application::checkForUpdates(bool quiet)
             return;
         }
 
-        const QJsonObject versionInfo = jsonDoc.array().first().toObject(); // Latest is the first.
+        const QJsonArray releases = jsonDoc.array();
+        if (releases.isEmpty() || !releases.first().isObject()) {
+            if (!quiet) {
+                emit updateCheckError(tr("Server returned an invalid release list."));
+            }
+            return;
+        }
+
+        const QJsonObject versionInfo = releases.first().toObject(); // Latest is the first.
         const auto latestVersion = QVersionNumber::fromString(versionInfo[QLatin1String("version")].toString());
+        if (latestVersion.isNull()) {
+            if (!quiet) {
+                emit updateCheckError(tr("Server returned an invalid release list."));
+            }
+            return;
+        }
+
         if (latestVersion > version()) {
             emit updateCheckDone(latestVersion.toString());
         } else if (!quiet) {
