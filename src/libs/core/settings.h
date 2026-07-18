@@ -56,6 +56,8 @@ public:
     int defaultFixedFontSize;
     int minimumFontSize;
 
+    int defaultZoomFactor;
+
     enum class ExternalLinkPolicy : unsigned int {
         Ask = 0,
         Open,
