@@ -7,6 +7,8 @@
 #include "webcontrol.h"
 #include "webpage.h"
 
+#include <core/application.h>
+#include <core/settings.h>
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
 #include <ui/widgets/iconhelper.h>
@@ -23,13 +25,16 @@
 #include <QWebEngineSettings>
 #include <QWheelEvent>
 
+#include <limits>
+
 namespace Zeal::Browser {
 
 WebView::WebView(QWidget *parent)
     : QWebEngineView(parent)
 {
     setPage(new WebPage(this));
-    setZoomLevel(defaultZoomLevel());
+
+    applyDefaultZoom();
 
     // Enable plugins for PDF support.
     settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
@@ -42,6 +47,31 @@ WebView::WebView(QWidget *parent)
 int WebView::zoomLevel() const
 {
     return m_zoomLevel;
+}
+
+void WebView::applyDefaultZoom()
+{
+    setZoomLevel(nearestZoomLevel(Core::Application::instance()->settings()->defaultZoomPercentage));
+}
+
+int WebView::nearestZoomLevel(int percentage)
+{
+    const QList<int> &levels = availableZoomLevels();
+    if (percentage < levels.first() || percentage > levels.last()) {
+        return defaultZoomLevel();
+    }
+
+    int nearest = defaultZoomLevel();
+    int minDelta = std::numeric_limits<int>::max();
+    for (qsizetype i = 0; i < levels.size(); ++i) {
+        const int delta = qAbs(levels.at(i) - percentage);
+        if (delta < minDelta) {
+            minDelta = delta;
+            nearest = static_cast<int>(i);
+        }
+    }
+
+    return nearest;
 }
 
 void WebView::setZoomLevel(int level)
@@ -87,7 +117,7 @@ void WebView::zoomOut()
 
 void WebView::resetZoom()
 {
-    setZoomLevel(defaultZoomLevel());
+    applyDefaultZoom();
 }
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)

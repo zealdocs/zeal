@@ -458,10 +458,10 @@ void MainWindow::setupMainMenu()
 
     zoomMenu->addSeparator();
 
-    // -> -> Actual Size Action.
+    // -> -> Reset Zoom Action.
     action = zoomMenu->addAction(IconHelper::fromTheme(QStringLiteral("zoom-original"),
                                                        QStringLiteral(":/icons/tabler/zoom-reset.svg")),
-                                 tr("&Actual Size"));
+                                 tr("&Reset Zoom"));
     addAction(action);
     action->setShortcut(QKeySequence(QStringLiteral("Ctrl+0")));
     connect(action, &QAction::triggered, this, [this]() {

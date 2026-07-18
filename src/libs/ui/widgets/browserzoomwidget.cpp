@@ -53,7 +53,7 @@ BrowserZoomWidget::BrowserZoomWidget(QWidget *parent)
     resetButton->setIcon(
         IconHelper::fromTheme(QStringLiteral("zoom-original"), QStringLiteral(":/icons/tabler/rotate-clockwise.svg")));
     resetButton->setText(QStringLiteral("↻"));
-    resetButton->setToolTip(tr("Actual size"));
+    resetButton->setToolTip(tr("Reset zoom"));
     connect(resetButton, &QToolButton::clicked, this, &BrowserZoomWidget::resetZoomRequested);
 
     auto *layout = new QHBoxLayout(this);

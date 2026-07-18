@@ -25,6 +25,7 @@ public:
 
     static const QList<int> &availableZoomLevels();
     static int defaultZoomLevel();
+    static int nearestZoomLevel(int percentage);
 
     void zoomIn();
     void zoomOut();
@@ -38,12 +39,14 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
+    void applyDefaultZoom();
     bool handleMouseReleaseEvent(QMouseEvent *event);
     bool handleWheelEvent(QWheelEvent *event);
 
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
-    int m_zoomLevel = 0;
+    // Invalid index, so the first setZoomLevel() is never skipped.
+    int m_zoomLevel = -1;
 };
 
 } // namespace Zeal::Browser
