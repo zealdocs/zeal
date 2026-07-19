@@ -916,7 +916,7 @@ void DocsetsDialog::processDocsetList(const QJsonArray &list)
         const QJsonObject docsetJson = v.toObject();
 
         const Registry::DocsetMetadata metadata(docsetJson);
-        if (metadata.name().isEmpty() || metadata.urls().isEmpty()) {
+        if (metadata.name().isEmpty()) {
             qCWarning(log, "Skipping invalid docset metadata entry.");
             continue;
         }
