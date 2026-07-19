@@ -7,6 +7,8 @@
 #include "webcontrol.h"
 #include "webpage.h"
 
+#include <core/application.h>
+#include <core/settings.h>
 #include <ui/browsertab.h>
 #include <ui/mainwindow.h>
 #include <ui/widgets/iconhelper.h>
@@ -29,7 +31,11 @@ WebView::WebView(QWidget *parent)
     : QWebEngineView(parent)
 {
     setPage(new WebPage(this));
-    setZoomLevel(defaultZoomLevel());
+
+    applyDefaultZoomLevel();
+    connect(Core::Application::instance()->settings(), &Core::Settings::updated, this, [this]() {
+        applyDefaultZoomLevel();
+    });
 
     // Enable plugins for PDF support.
     settings()->setAttribute(QWebEngineSettings::PluginsEnabled, true);
@@ -42,6 +48,13 @@ WebView::WebView(QWidget *parent)
 int WebView::zoomLevel() const
 {
     return m_zoomLevel;
+}
+
+void WebView::applyDefaultZoomLevel()
+{
+    const int factor = Core::Application::instance()->settings()->defaultZoomFactor;
+    const qsizetype level = availableZoomLevels().indexOf(factor);
+    setZoomLevel(level == -1 ? defaultZoomLevel() : static_cast<int>(level));
 }
 
 void WebView::setZoomLevel(int level)
@@ -87,7 +100,7 @@ void WebView::zoomOut()
 
 void WebView::resetZoom()
 {
-    setZoomLevel(defaultZoomLevel());
+    applyDefaultZoomLevel();
 }
 
 QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)

@@ -232,6 +232,8 @@ void Settings::load()
     webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, defaultFixedFontSize);
     webSettings->setFontSize(QWebEngineSettings::MinimumFontSize, minimumFontSize);
 
+    defaultZoomFactor = settings->value(QStringLiteral("default_zoom_factor"), 100).toInt();
+
     isHighlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
     externalLinkPolicy = settings
@@ -321,6 +323,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("default_font_size"), defaultFontSize);
     settings->setValue(QStringLiteral("default_fixed_font_size"), defaultFixedFontSize);
     settings->setValue(QStringLiteral("minimum_font_size"), minimumFontSize);
+    settings->setValue(QStringLiteral("default_zoom_factor"), defaultZoomFactor);
 
     settings->setValue(QStringLiteral("appearance"), QVariant::fromValue(contentAppearance));
     settings->setValue(QStringLiteral("highlight_on_navigate"), isHighlightOnNavigateEnabled);

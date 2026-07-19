@@ -38,12 +38,13 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
+    void applyDefaultZoomLevel();
     bool handleMouseReleaseEvent(QMouseEvent *event);
     bool handleWheelEvent(QWheelEvent *event);
 
     QMenu *m_contextMenu = nullptr;
     QUrl m_clickedLink;
-    int m_zoomLevel = 0;
+    int m_zoomLevel = -1;
 };
 
 } // namespace Zeal::Browser

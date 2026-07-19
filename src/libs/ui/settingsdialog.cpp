@@ -6,6 +6,7 @@
 #include "ui_settingsdialog.h"
 
 #include <browser/settings.h>
+#include <browser/webview.h>
 #include <core/application.h>
 #include <core/settings.h>
 #include <qxtglobalshortcut/qxtglobalshortcut.h>
@@ -53,6 +54,10 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         ui->fontSizeComboBox->addItem(QString::number(fontSize), fontSize);
         ui->fixedFontSizeComboBox->addItem(QString::number(fontSize), fontSize);
         ui->minFontSizeComboBox->addItem(QString::number(fontSize), fontSize);
+    }
+
+    for (const int zoomFactor : Browser::WebView::availableZoomLevels()) {
+        ui->defaultZoomComboBox->addItem(QStringLiteral("%1%").arg(zoomFactor), zoomFactor);
     }
 
     // Fix tab order.
@@ -189,6 +194,8 @@ void SettingsDialog::loadSettings()
     ui->fontSizeComboBox->setCurrentText(QString::number(settings->defaultFontSize));
     ui->fixedFontSizeComboBox->setCurrentText(QString::number(settings->defaultFixedFontSize));
     ui->minFontSizeComboBox->setCurrentText(QString::number(settings->minimumFontSize));
+    const int zoomIndex = ui->defaultZoomComboBox->findData(settings->defaultZoomFactor);
+    ui->defaultZoomComboBox->setCurrentIndex(zoomIndex == -1 ? Browser::WebView::defaultZoomLevel() : zoomIndex);
 
     switch (settings->contentAppearance) {
     case Core::Settings::ContentAppearance::Automatic:
@@ -283,6 +290,7 @@ void SettingsDialog::saveSettings()
     settings->defaultFontSize = ui->fontSizeComboBox->currentData().toInt();
     settings->defaultFixedFontSize = ui->fixedFontSizeComboBox->currentData().toInt();
     settings->minimumFontSize = ui->minFontSizeComboBox->currentData().toInt();
+    settings->defaultZoomFactor = ui->defaultZoomComboBox->currentData().toInt();
 
     if (ui->appearanceAutoRadioButton->isChecked()) {
         settings->contentAppearance = Core::Settings::ContentAppearance::Automatic;
