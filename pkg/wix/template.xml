@@ -14,6 +14,10 @@
         <MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
 
         <Launch Condition="VersionNT64" Message="This package can only be installed on 64-bit versions of Windows." />
+        <!-- Qt supports Windows 10 version 1809 (build 17763) and later. Repair and removal of an
+             existing installation remain possible on older builds, while an upgrade is refused
+             there, since the newer version would not start. -->
+        <Launch Condition="Installed OR WindowsBuild &gt;= 17763" Message="[ProductName] requires Windows 10 version 1809 or later." />
 
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALL_ROOT" />
 

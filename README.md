@@ -24,7 +24,7 @@ without a connection. Originally inspired by [Dash](https://kapeli.com/dash), it
   src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg"/></a>
 
 Binary builds for Windows and other installation options are available on the
-[download page](https://zealdocs.org/download).
+[download page](https://zealdocs.org/download). Windows builds require Windows 10 version 1809 or later.
 
 ## How to use
 

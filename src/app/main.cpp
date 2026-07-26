@@ -24,6 +24,7 @@
 
 #ifdef Q_OS_WINDOWS
 #include <QAbstractNativeEventFilter>
+#include <QOperatingSystemVersion>
 #include <QPalette>
 #include <QSettings>
 #include <qt_windows.h>
@@ -244,6 +245,18 @@ void unregisterProtocolHandlers(const QHash<QString, QString> &protocols)
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_WINDOWS
+    // Qt supports Windows 10 version 1809 and later. Older builds fail with nothing the user
+    // can act on: Qt6Core links the system ICU, and where icuuc.dll is merely a forwarder to
+    // icu.dll, the loader fails before this point and Windows names the missing library. This
+    // guard covers the rest, where startup gets here but would end without a window or even a
+    // message (see issue #1920). MessageBoxW is used since the platform plugin may be broken.
+    if (QOperatingSystemVersion::current() < QOperatingSystemVersion::Windows10_1809) {
+        MessageBoxW(nullptr, L"Zeal requires Windows 10 version 1809 or later.", L"Zeal", MB_OK | MB_ICONERROR);
+        return EXIT_FAILURE;
+    }
+#endif
+
     // Do not allow Qt version lower than the app was compiled with.
     QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR)
 
