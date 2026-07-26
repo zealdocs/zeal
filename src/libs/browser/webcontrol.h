@@ -62,6 +62,8 @@ private:
     friend class WebView;
 
     void updateWebBridge(const QUrl &url);
+    void installWebBridge();
+    void removeWebBridge();
 
     WebView *m_webView = nullptr;
     SearchToolBar *m_searchToolBar = nullptr;

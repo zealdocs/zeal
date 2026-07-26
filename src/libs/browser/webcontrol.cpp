@@ -155,28 +155,26 @@ void WebControl::setWebBridgeObject(const QString &name, QObject *object)
     m_webBridgeName = name;
     m_webBridgeObject = object;
 
-    // Drop any existing channel so updateWebBridge() re-registers with the new object; it
-    // returns early when a channel is already present on an open qrc page.
-    if (QWebChannel *oldChannel = m_webView->page()->webChannel()) {
-        m_webView->page()->setWebChannel(nullptr);
-        oldChannel->deleteLater();
-    }
+    // Install is a no-op while a channel exists, so drop the old one first.
+    removeWebBridge();
 
     updateWebBridge(m_webView->url());
 }
 
 void WebControl::updateWebBridge(const QUrl &url)
 {
-    QWebEnginePage *page = m_webView->page();
     if (url.scheme() != QLatin1String("qrc") || m_webBridgeName.isEmpty() || m_webBridgeObject == nullptr) {
-        if (QWebChannel *oldChannel = page->webChannel()) {
-            page->setWebChannel(nullptr);
-            oldChannel->deleteLater();
-        }
+        removeWebBridge();
         return;
     }
 
-    if (page->webChannel() != nullptr) {
+    installWebBridge();
+}
+
+void WebControl::installWebBridge()
+{
+    QWebEnginePage *page = m_webView->page();
+    if (page->webChannel() != nullptr || m_webBridgeName.isEmpty() || m_webBridgeObject == nullptr) {
         return;
     }
 
@@ -185,10 +183,29 @@ void WebControl::updateWebBridge(const QUrl &url)
     page->setWebChannel(channel);
 }
 
+void WebControl::removeWebBridge()
+{
+    QWebEnginePage *page = m_webView->page();
+    QWebChannel *channel = page->webChannel();
+    if (channel == nullptr) {
+        return;
+    }
+
+    page->setWebChannel(nullptr);
+    channel->deleteLater();
+}
+
 void WebControl::load(const QUrl &url)
 {
     m_renderProcessReloadAttempts = 0;
-    updateWebBridge(url);
+
+    // Register before the load so the qrc document's scripts find the transport, but do not
+    // tear down here: a rejected navigation would leave the current page without its bridge.
+    // urlChanged removes it once the navigation commits.
+    if (url.scheme() == QLatin1String("qrc")) {
+        installWebBridge();
+    }
+
     m_webView->load(url);
 }
 
