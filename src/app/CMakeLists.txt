@@ -91,6 +91,17 @@ elseif(WIN32)
     # Install the license alongside the binary.
     install(FILES "${CMAKE_SOURCE_DIR}/COPYING" DESTINATION .)
 
+    # Many machines carry no system-wide MSVC runtime, or one older than the toolset. These
+    # are not KnownDLLs, so app-local copies take precedence over System32 (issue #1658).
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
+    include(InstallRequiredSystemLibraries)
+
+    # File names vary by toolset, so let the packaging check assert on what was resolved.
+    foreach(_lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+        get_filename_component(_lib_name "${_lib}" NAME)
+        list(APPEND CPACK_ZEAL_RUNTIME_LIBS "${_lib_name}")
+    endforeach()
+
     if(_use_qt_cmake_commands)
         # Install Qt runtime dependencies.
         install(SCRIPT ${_qt_deploy_script})

@@ -31,6 +31,12 @@ build:
 run *args: build
     ./build/{{preset}}/zeal "$@"
 
+# Requires the WiX toolset on Windows for the MSI.
+# Build distributable packages for the current preset.
+[group('dev')]
+package: build
+    cmake --build --preset {{preset}} --target package
+
 # Configure, build, and run the test suite.
 [group('dev')]
 test:
