@@ -640,6 +640,14 @@ void Docset::createIndex()
     static const QString indexDropQuery = QStringLiteral("DROP INDEX '%1'");
     static const QString indexCreateQuery = QStringLiteral("CREATE INDEX IF NOT EXISTS %1%2"
                                                            " ON %3 (%4 COLLATE NOCASE)");
+    // Index names come from the docset's untrusted database; allow only names Zeal itself
+    // produces, to prevent SQL injection through the string-built DROP INDEX query. Matching
+    // is case-insensitive because SQLite resolves identifiers case-insensitively.
+    static const QRegularExpression indexNameRegExp(QRegularExpression::anchoredPattern(
+                                                        QRegularExpression::escape(IndexNamePrefix)
+                                                        + QStringLiteral("[0-9]+")),
+                                                    QRegularExpression::CaseInsensitiveOption);
+    static const QString currentIndexName = IndexNamePrefix + IndexNameVersion;
 
     const QString tableName = m_type == Type::Dash ? QStringLiteral("searchIndex") : QStringLiteral("ztoken");
     const QString columnName = m_type == Type::Dash ? QStringLiteral("name") : QStringLiteral("ztokenname");
@@ -650,12 +658,21 @@ void Docset::createIndex()
 
     while (stmt.step()) {
         const QString indexName = stmt.value(1).toString();
-        if (!indexName.startsWith(IndexNamePrefix)) {
+        if (!indexName.startsWith(IndexNamePrefix, Qt::CaseInsensitive)) {
             continue;
         }
 
-        if (indexName.endsWith(IndexNameVersion)) {
-            return;
+        // Zeal never produces case variants; a variant is tampered content and is dropped below.
+        if (indexName == currentIndexName) {
+            continue;
+        }
+
+        if (!indexNameRegExp.match(indexName).hasMatch()) {
+            qCWarning(log,
+                      "[%s] Ignoring index with an unexpected name: '%s'.",
+                      qPrintable(m_name),
+                      qPrintable(indexName));
+            continue;
         }
 
         oldIndexes << indexName;
