@@ -103,13 +103,16 @@ private:
     void downloadTarixIndex(const QString &docsetName, const QUrl &indexUrl, int attempt);
     void onTarixIndexFailed(QNetworkReply *reply);
     void installDownloadedDocset(const QString &docsetName);
-    void removeDocset(const QString &name);
+    // Returns false if the docset directory could not be removed.
+    bool removeDocset(const QString &name);
 
     void updateStatus();
 
     // Returns the download buffer for a docset, creating it on first use.
     // Returns nullptr if the temporary file cannot be opened.
     QTemporaryFile *docsetTemporaryFile(const QString &docsetName);
+
+    QString docsetNameForPath(const QString &path) const;
 
     // FIXME: Come up with a better approach
     QString docsetNameForTmpFilePath(const QString &filePath) const;

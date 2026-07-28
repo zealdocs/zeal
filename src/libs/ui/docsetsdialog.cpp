@@ -20,6 +20,7 @@
 #include <QClipboard>
 #include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -76,6 +77,17 @@ void setDownloadType(QNetworkReply *reply, DownloadType type)
 DownloadType downloadType(const QNetworkReply *reply)
 {
     return static_cast<DownloadType>(reply->property(DownloadTypeProperty).toInt());
+}
+
+// An empty name, or one with path separators, could escape the cache and storage directories.
+bool isDocsetNameSafe(const QString &docsetName)
+{
+    if (docsetName.isEmpty() || docsetName.contains(QLatin1Char('/')) || docsetName.contains(QLatin1Char('\\'))) {
+        qCWarning(log, "Refusing docset with an unsafe name '%s'.", qPrintable(docsetName));
+        return false;
+    }
+
+    return true;
 }
 } // namespace
 
@@ -264,9 +276,7 @@ void DocsetsDialog::downloadSelectedDocsets()
 
 QTemporaryFile *DocsetsDialog::docsetTemporaryFile(const QString &docsetName)
 {
-    // A name with path separators could escape the cache and storage directories.
-    if (docsetName.contains(QLatin1Char('/')) || docsetName.contains(QLatin1Char('\\'))) {
-        qCWarning(log, "Refusing docset with an unsafe name '%s'.", qPrintable(docsetName));
+    if (!isDocsetNameSafe(docsetName)) {
         return nullptr;
     }
 
@@ -382,10 +392,43 @@ void DocsetsDialog::downloadCompleted()
 
     case DownloadType::Docset: {
         const QString docsetName = reply->property(DocsetNameProperty).toString();
+        if (!isDocsetNameSafe(docsetName)) {
+            QListWidgetItem *listItem = findDocsetListItem(docsetName);
+            if (listItem != nullptr) {
+                listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+            }
+            break;
+        }
+
         const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
 
-        if (QDir(m_application->settings()->docsetPath).exists(docsetDirectoryName)) {
-            removeDocset(docsetName);
+        // A directory owned by no loaded docset is stale; refuse to merge into it.
+        const QDir dataDir(m_application->settings()->docsetPath);
+        if (dataDir.exists(docsetDirectoryName)) {
+            const QString docsetPath = dataDir.filePath(docsetDirectoryName);
+            const QString installedName = docsetNameForPath(docsetPath);
+            bool removed = false;
+            if (!installedName.isEmpty()) {
+                // removeDocset() reports its own failure.
+                removed = removeDocset(installedName);
+            } else {
+                removed = Core::FileManager::removeRecursively(docsetPath);
+                if (!removed) {
+                    QMessageBox::warning(this,
+                                         QStringLiteral("Zeal"),
+                                         tr("Cannot remove directory <b>%1</b>! It might be in use"
+                                            " by another process.")
+                                             .arg(docsetPath.toHtmlEscaped()));
+                }
+            }
+
+            if (!removed) {
+                QListWidgetItem *listItem = findDocsetListItem(docsetName);
+                if (listItem != nullptr) {
+                    listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+                }
+                break;
+            }
         }
 
         QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
@@ -1083,26 +1126,31 @@ void DocsetsDialog::installDownloadedDocset(const QString &docsetName)
                                         docsetName + QLatin1String(".docset"));
 }
 
-void DocsetsDialog::removeDocset(const QString &name)
+bool DocsetsDialog::removeDocset(const QString &name)
 {
     if (!m_docsetRegistry->contains(name)) {
-        return;
+        return true;
     }
 
     const QString docsetPath = m_docsetRegistry->docset(name)->path();
     m_docsetRegistry->unloadDocset(name);
     if (!Core::FileManager::removeRecursively(docsetPath)) {
+        // The directory survived, so keep the docset usable for the rest of the session.
+        m_docsetRegistry->loadDocset(docsetPath);
+
         const QString error = tr("Cannot remove directory <b>%1</b>! It might be in use"
                                  " by another process.")
                                   .arg(docsetPath.toHtmlEscaped());
         QMessageBox::warning(this, QStringLiteral("Zeal"), error);
-        return;
+        return false;
     }
 
     QListWidgetItem *listItem = findDocsetListItem(name);
     if (listItem != nullptr) {
         listItem->setHidden(false);
     }
+
+    return true;
 }
 
 void DocsetsDialog::updateStatus()
@@ -1121,6 +1169,25 @@ void DocsetsDialog::updateStatus()
     updateAvailableDocsetsEmptyState();
 
     enableControls();
+}
+
+// Matched by canonical path, because the registry is keyed on the docset's metadata
+// name, which can differ from the directory name.
+QString DocsetsDialog::docsetNameForPath(const QString &path) const
+{
+    const QString canonicalPath = QFileInfo(path).canonicalFilePath();
+    if (canonicalPath.isEmpty()) {
+        return {};
+    }
+
+    const QList<Registry::Docset *> docsets = m_docsetRegistry->docsets();
+    for (const Registry::Docset *docset : docsets) {
+        if (QFileInfo(docset->path()).canonicalFilePath() == canonicalPath) {
+            return docset->name();
+        }
+    }
+
+    return {};
 }
 
 QString DocsetsDialog::docsetNameForTmpFilePath(const QString &filePath) const
