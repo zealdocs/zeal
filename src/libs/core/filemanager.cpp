@@ -5,14 +5,12 @@
 
 #include "application.h"
 
-#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QFutureWatcher>
 #include <QLoggingCategory>
 
-#include <future>
+#include <thread>
 
 namespace Zeal::Core {
 
@@ -48,17 +46,14 @@ bool FileManager::removeRecursively(const QString &path)
 
     qCDebug(log, "Renamed '%s' to '%s'.", qPrintable(path), qPrintable(deletePath));
 
-    std::future<bool> f = std::async(std::launch::async, [deletePath]() {
-        return QDir(deletePath).removeRecursively();
-    });
+    std::thread([deletePath]() {
+        if (!QDir(deletePath).removeRecursively()) {
+            qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
+            return;
+        }
 
-    f.wait();
-
-    if (!f.get()) {
-        qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
-    } else {
         qCDebug(log, "Removed '%s'.", qPrintable(deletePath));
-    }
+    }).detach();
 
     return true;
 }
