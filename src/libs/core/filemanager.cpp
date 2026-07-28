@@ -58,4 +58,41 @@ bool FileManager::removeRecursively(const QString &path)
     return true;
 }
 
+void FileManager::removePendingDeletions(const QString &path)
+{
+    if (path.isEmpty()) {
+        qCWarning(log, "Cannot remove pending deletions without a storage path.");
+        return;
+    }
+
+    std::thread([path]() {
+        const QDir dir(path);
+        QString storagePrefix = dir.canonicalPath();
+        if (storagePrefix.isEmpty()) {
+            qCWarning(log, "Cannot resolve the storage path '%s'.", qPrintable(path));
+            return;
+        }
+
+        if (!storagePrefix.endsWith(QLatin1Char('/'))) {
+            storagePrefix += QLatin1Char('/');
+        }
+
+        const QStringList names = dir.entryList({QStringLiteral("*.deleteme")}, QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &name : names) {
+            const QString deletePath = dir.filePath(name);
+            if (!QFileInfo(deletePath).canonicalFilePath().startsWith(storagePrefix)) {
+                qCWarning(log, "Refusing to remove '%s' outside the storage directory.", qPrintable(deletePath));
+                continue;
+            }
+
+            if (!QDir(deletePath).removeRecursively()) {
+                qCWarning(log, "Failed to remove '%s'.", qPrintable(deletePath));
+                continue;
+            }
+
+            qCDebug(log, "Removed '%s'.", qPrintable(deletePath));
+        }
+    }).detach();
+}
+
 } // namespace Zeal::Core

@@ -48,6 +48,7 @@ Application::Application(quint16 httpServerPort, QObject *parent)
     m_networkManager = new NetworkAccessManager(this);
 
     m_fileManager = new FileManager(this);
+    FileManager::removePendingDeletions(m_settings->docsetPath);
     m_httpServer = new HttpServer(httpServerPort, this);
 
     connect(m_networkManager,

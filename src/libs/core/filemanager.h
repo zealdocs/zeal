@@ -17,6 +17,7 @@ public:
     ~FileManager() override = default;
 
     static bool removeRecursively(const QString &path);
+    static void removePendingDeletions(const QString &path);
 };
 
 } // namespace Zeal::Core
