@@ -588,6 +588,13 @@ void DocsetsDialog::extractionError(const QString &filePath, const QString &erro
     delete m_tmpFiles.take(docsetName);
     delete m_tarixIndexFiles.take(docsetName);
 
+    // Remove the partially extracted docset, so it is not loaded on the next start.
+    const QDir dataDir(m_application->settings()->docsetPath);
+    const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
+    if (dataDir.exists(docsetDirectoryName)) {
+        Core::FileManager::removeRecursively(dataDir.filePath(docsetDirectoryName));
+    }
+
     updateStatus();
 }
 
