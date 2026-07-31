@@ -122,7 +122,7 @@ jobs:
           CODESIGN_AZURE_PROFILE: ${{ vars.CODESIGN_AZURE_PROFILE }}
 
       - name: Attest Build Provenance
-        uses: actions/attest@v4
+        uses: actions/attest@v4.2.0
         with:
           subject-path: build/${{ matrix.config.configurePreset }}/${{ matrix.config.uploadPattern }}
 
@@ -205,7 +205,7 @@ jobs:
             --output appimage
 
       - name: Attest Build Provenance
-        uses: actions/attest@v4
+        uses: actions/attest@v4.2.0
         with:
           subject-path: Zeal-*.AppImage*
 
@@ -263,7 +263,7 @@ jobs:
           buildPresetAdditionalArgs: "['--target package_source']"
 
       - name: Attest Build Provenance
-        uses: actions/attest@v4
+        uses: actions/attest@v4.2.0
         with:
           subject-path: build/${{ matrix.config.configurePreset }}/zeal-*.*
 
