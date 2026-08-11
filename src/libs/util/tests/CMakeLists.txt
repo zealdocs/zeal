@@ -6,6 +6,12 @@ target_link_libraries(fuzzy_test PRIVATE Util Qt6::Test)
 
 zeal_add_test(fuzzy_test)
 
+# Property list tests
+add_executable(plist_test plist_test.cpp)
+target_link_libraries(plist_test PRIVATE Util Qt6::Test)
+
+zeal_add_test(plist_test)
+
 # SQLite Statement tests
 add_executable(statement_test statement_test.cpp)
 target_link_libraries(statement_test PRIVATE Util Qt6::Test)

@@ -104,7 +104,6 @@ Docset::Docset(QString path)
 
     if (plist.hasError()) {
         qCWarning(log, "Failed to parse 'Info.plist' for docset at '%s'.", qPrintable(m_path));
-        return;
     }
 
     if (m_name.isEmpty()) {

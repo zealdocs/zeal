@@ -22,7 +22,8 @@ bool Plist::read(const QString &fileName)
         return false;
     }
 
-    QXmlStreamReader xml(&file);
+    // Some docsets ship an Info.plist with whitespace before the XML declaration.
+    QXmlStreamReader xml(file.readAll().trimmed());
 
     while (!xml.atEnd()) {
         const QXmlStreamReader::TokenType token = xml.readNext();
