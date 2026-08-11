@@ -9,8 +9,14 @@ setup_homebrew()
 # CMake options.
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
-set(CMAKE_ERROR_DEPRECATED TRUE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+if(POLICY CMP0218)
+    cmake_policy(SET CMP0218 NEW)
+    cmake_diagnostic(SET CMD_DEPRECATED FATAL_ERROR)
+else()
+    set(CMAKE_ERROR_DEPRECATED TRUE)
+endif()
 
 # VERSION is the next development version, bumped automatically after each release.
 # ZEAL_RELEASE_VERSION is the last released version, updated by `just release-prepare`.
