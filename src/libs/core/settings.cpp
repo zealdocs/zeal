@@ -47,6 +47,7 @@ Settings::Settings(QObject *parent)
 {
     qRegisterMetaType<ContentAppearance>("ContentAppearance");
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
+    qRegisterMetaType<TrayIconStyle>("TrayIconStyle");
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     // When the OS color scheme changes, reapply the color scheme.
@@ -140,6 +141,8 @@ void Settings::load()
     showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
+    trayIconStyle = settings->value(QStringLiteral("systray_icon_style"), QVariant::fromValue(TrayIconStyle::Automatic))
+                        .value<TrayIconStyle>();
 
     settings->beginGroup(GroupUI);
     hideMenuBar = settings->value(QStringLiteral("hide_menu_bar"), false).toBool();
@@ -295,6 +298,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
     settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
     settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
+    settings->setValue(QStringLiteral("systray_icon_style"), QVariant::fromValue(trayIconStyle));
 
     settings->beginGroup(GroupUI);
     settings->setValue(QStringLiteral("hide_menu_bar"), hideMenuBar);
@@ -448,5 +452,19 @@ QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolic
     std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy> value = 0;
     in >> value;
     policy = static_cast<Zeal::Core::Settings::ExternalLinkPolicy>(value);
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::TrayIconStyle style)
+{
+    out << static_cast<std::underlying_type_t<Zeal::Core::Settings::TrayIconStyle>>(style);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::TrayIconStyle &style)
+{
+    std::underlying_type_t<Zeal::Core::Settings::TrayIconStyle> value = 0;
+    in >> value;
+    style = static_cast<Zeal::Core::Settings::TrayIconStyle>(value);
     return in;
 }

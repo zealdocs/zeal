@@ -35,6 +35,15 @@ public:
     bool minimizeToSystray;
     bool hideOnClose;
 
+    enum class TrayIconStyle : unsigned int {
+        Automatic = 0,
+        Colorful,
+        MonochromeLight,
+        MonochromeDark
+    };
+    Q_ENUM(TrayIconStyle)
+    TrayIconStyle trayIconStyle = TrayIconStyle::Automatic;
+
     // Global Shortcuts
     QKeySequence showShortcut;
     // TODO: QKeySequence searchSelectedTextShortcut;
@@ -148,7 +157,11 @@ QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
 
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::TrayIconStyle style);
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::TrayIconStyle &style);
+
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ContentAppearance)
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)
+Q_DECLARE_METATYPE(Zeal::Core::Settings::TrayIconStyle)
 
 #endif // ZEAL_CORE_SETTINGS_H

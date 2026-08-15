@@ -44,6 +44,23 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         }
     });
 
+    // System tray
+    using TrayIconStyle = Core::Settings::TrayIconStyle;
+    ui->trayIconStyleComboBox->addItem(tr("Automatic"), QVariant::fromValue(TrayIconStyle::Automatic));
+    ui->trayIconStyleComboBox->addItem(tr("Colorful"), QVariant::fromValue(TrayIconStyle::Colorful));
+    ui->trayIconStyleComboBox->addItem(tr("Monochrome Light"), QVariant::fromValue(TrayIconStyle::MonochromeLight));
+    ui->trayIconStyleComboBox->addItem(tr("Monochrome Dark"), QVariant::fromValue(TrayIconStyle::MonochromeDark));
+    ui->trayIconStyleComboBox->setToolTip(
+        tr("Automatic lets the desktop tint a monochrome icon to match the panel. Choose a fixed style if the icon is "
+           "hard to see."));
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    // The platform dictates the icon: a template image on macOS, the full-color
+    // window icon on Windows.
+    ui->trayIconStyleLabel->hide();
+    ui->trayIconStyleComboBox->hide();
+#endif
+
     // Fonts
     ui->defaultFontComboBox->addItem(tr("Serif"), QStringLiteral("serif"));
     ui->defaultFontComboBox->addItem(tr("Sans-serif"), QStringLiteral("sans-serif"));
@@ -166,6 +183,9 @@ void SettingsDialog::loadSettings()
     ui->checkForUpdateCheckBox->setChecked(settings->checkForUpdate);
 
     ui->systrayGroupBox->setChecked(settings->showSystrayIcon);
+    // Fall back to the first entry if the stored style is not a known value.
+    ui->trayIconStyleComboBox->setCurrentIndex(
+        qMax(0, ui->trayIconStyleComboBox->findData(QVariant::fromValue(settings->trayIconStyle))));
     ui->minimizeToSystrayCheckBox->setChecked(settings->minimizeToSystray);
     ui->hideToSystrayCheckBox->setChecked(settings->hideOnClose);
 
@@ -262,6 +282,7 @@ void SettingsDialog::saveSettings()
     settings->checkForUpdate = ui->checkForUpdateCheckBox->isChecked();
 
     settings->showSystrayIcon = ui->systrayGroupBox->isChecked();
+    settings->trayIconStyle = ui->trayIconStyleComboBox->currentData().value<Core::Settings::TrayIconStyle>();
     settings->minimizeToSystray = ui->minimizeToSystrayCheckBox->isChecked();
     settings->hideOnClose = ui->hideToSystrayCheckBox->isChecked();
 

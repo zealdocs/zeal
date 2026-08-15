@@ -63,6 +63,23 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
+           <layout class="QFormLayout" name="formLayout_5">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="trayIconStyleLabel">
+              <property name="text">
+               <string>Icon style:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="trayIconStyleComboBox"/>
+            </item>
+           </layout>
+          </item>
+          <item>
            <widget class="QCheckBox" name="minimizeToSystrayCheckBox">
             <property name="text">
              <string>Minimize to system tray instead of taskbar</string>

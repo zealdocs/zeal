@@ -63,6 +63,8 @@ path = [
     "assets/freedesktop/*-apps-zeal.png",
     "assets/freedesktop/sc-apps-zeal.svg",
     "assets/freedesktop/sc-apps-zeal-tray.svg",
+    "assets/freedesktop/sc-apps-zeal-tray-light.svg",
+    "assets/freedesktop/sc-apps-zeal-tray-dark.svg",
     "src/app/resources/zeal.icns",
     "src/app/resources/zeal.ico",
 ]

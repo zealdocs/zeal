@@ -41,6 +41,7 @@ private:
 
     void applySettings();
     void createTrayIcon();
+    void updateTrayIcon();
     void removeTrayIcon();
 
     Core::Application *m_application = nullptr;

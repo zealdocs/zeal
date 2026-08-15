@@ -20,6 +20,32 @@
 
 namespace Zeal::WidgetUi {
 
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
+namespace {
+QIcon themedTrayIcon(Core::Settings::TrayIconStyle style)
+{
+    // Every variant is resolved by theme name so that the tray host receives an
+    // icon name rather than a pixmap. That is what lets desktops recolor the
+    // automatic variant, and lets icon themes override any of them.
+    switch (style) {
+    case Core::Settings::TrayIconStyle::Colorful:
+        return QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg")));
+    case Core::Settings::TrayIconStyle::MonochromeLight:
+        return QIcon::fromTheme(QStringLiteral("zeal-tray-light"), QIcon(QStringLiteral(":/zeal-tray-light.svg")));
+    case Core::Settings::TrayIconStyle::MonochromeDark:
+        return QIcon::fromTheme(QStringLiteral("zeal-tray-dark"), QIcon(QStringLiteral(":/zeal-tray-dark.svg")));
+    case Core::Settings::TrayIconStyle::Automatic:
+        break;
+    }
+
+    // Carries a color scheme stylesheet, so desktops that recolor tray icons tint
+    // it to match the panel. Those that do not fall back to its white default,
+    // hence the explicit choices above (#1950).
+    return QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
+}
+} // namespace
+#endif
+
 WindowManager::WindowManager(Core::Application *application, QObject *parent)
     : QObject(parent)
     , m_application(application)
@@ -117,10 +143,17 @@ MainWindow *WindowManager::activeWindow() const
 
 void WindowManager::applySettings()
 {
-    if (m_settings->isTrayActive()) {
+    if (!m_settings->isTrayActive()) {
+        removeTrayIcon();
+        return;
+    }
+
+    // createTrayIcon() applies the icon itself, so only an already visible icon
+    // needs a refresh, e.g. after the style setting changed.
+    if (m_trayIcon == nullptr) {
         createTrayIcon();
     } else {
-        removeTrayIcon();
+        updateTrayIcon();
     }
 }
 
@@ -131,18 +164,7 @@ void WindowManager::createTrayIcon()
     }
 
     m_trayIcon = new QSystemTrayIcon(this);
-#ifdef Q_OS_MACOS
-    // macOS menu-bar items render as template images: monochrome silhouettes
-    // tinted by the system to match light/dark mode and the active accent.
-    QIcon trayIcon(QStringLiteral(":/zeal-tray.svg"));
-    trayIcon.setIsMask(true);
-#elif defined(Q_OS_WIN)
-    // Windows tray takes the icon as-is — reuse the full-color window icon.
-    const QIcon trayIcon = qApp->windowIcon();
-#else
-    const QIcon trayIcon = QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
-#endif
-    m_trayIcon->setIcon(trayIcon);
+    updateTrayIcon();
     m_trayIcon->setToolTip(QStringLiteral("Zeal"));
 
     connect(m_trayIcon, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
@@ -181,6 +203,26 @@ void WindowManager::createTrayIcon()
     m_trayIcon->setContextMenu(trayIconMenu);
 
     m_trayIcon->show();
+}
+
+void WindowManager::updateTrayIcon()
+{
+    if (m_trayIcon == nullptr) {
+        return;
+    }
+
+#ifdef Q_OS_MACOS
+    // macOS menu-bar items render as template images: monochrome silhouettes
+    // tinted by the system to match light/dark mode and the active accent.
+    QIcon trayIcon(QStringLiteral(":/zeal-tray.svg"));
+    trayIcon.setIsMask(true);
+#elif defined(Q_OS_WIN)
+    // Windows tray takes the icon as-is — reuse the full-color window icon.
+    const QIcon trayIcon = qApp->windowIcon();
+#else
+    const QIcon trayIcon = themedTrayIcon(m_settings->trayIconStyle);
+#endif
+    m_trayIcon->setIcon(trayIcon);
 }
 
 void WindowManager::removeTrayIcon()
