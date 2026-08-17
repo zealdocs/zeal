@@ -30,6 +30,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPushButton>
+#include <QStringList>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -42,13 +43,6 @@ namespace {
 Q_LOGGING_CATEGORY(log, "zeal.widgetui.docsetsdialog")
 
 using Qt::Literals::StringLiterals::operator""_L1;
-
-enum class DownloadType {
-    DashFeed,
-    Docset,
-    DocsetList,
-    TarixIndex
-};
 
 constexpr auto ApiServerUrl = "https://api.zealdocs.org/v1"_L1;
 constexpr auto RedirectServerUrl = "https://go.zealdocs.org/d/%1/%2/latest"_L1;
@@ -69,15 +63,8 @@ constexpr const char *TarixRetryProperty = "tarixRetry";
 
 constexpr int MaxTarixIndexRetries = 2;
 
-void setDownloadType(QNetworkReply *reply, DownloadType type)
-{
-    reply->setProperty(DownloadTypeProperty, static_cast<int>(type));
-}
-
-DownloadType downloadType(const QNetworkReply *reply)
-{
-    return static_cast<DownloadType>(reply->property(DownloadTypeProperty).toInt());
-}
+// The download servers rate limit clients.
+constexpr int MaxConcurrentDownloads = 6;
 
 // An empty name, or one with path separators, could escape the cache and storage directories.
 bool isDocsetNameSafe(const QString &docsetName)
@@ -169,8 +156,7 @@ void DocsetsDialog::addDashFeed()
         feedUrl = QUrl::fromPercentEncoding(feedUrl.toUtf8());
     }
 
-    QNetworkReply *reply = download(QUrl(feedUrl));
-    setDownloadType(reply, DownloadType::DashFeed);
+    enqueueDownload({.url = QUrl(feedUrl), .type = DownloadType::DashFeed});
 }
 
 void DocsetsDialog::updateSelectedDocsets()
@@ -266,7 +252,7 @@ void DocsetsDialog::downloadSelectedDocsets()
         }
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), DocsetListItemDelegate::FormatRole);
+        model->setData(index, tr("Queued"), DocsetListItemDelegate::FormatRole);
         model->setData(index, 0, DocsetListItemDelegate::ValueRole);
         model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
 
@@ -308,13 +294,18 @@ void DocsetsDialog::downloadCompleted()
 
     m_replies.removeOne(reply.data());
 
+    processDownload(reply.data());
+    startPendingDownloads();
+}
+
+void DocsetsDialog::processDownload(QNetworkReply *reply)
+{
     if (reply->error() != QNetworkReply::NoError) {
-        if (downloadType(reply.data()) == DownloadType::TarixIndex) {
+        if (downloadType(reply) == DownloadType::TarixIndex) {
             if (reply->error() != QNetworkReply::OperationCanceledError) {
-                onTarixIndexFailed(reply.data());
+                onTarixIndexFailed(reply);
             }
 
-            updateStatus();
             return;
         }
 
@@ -328,31 +319,26 @@ void DocsetsDialog::downloadCompleted()
                                                  QMessageBox::Retry | QMessageBox::Cancel);
 
             if (ret == QMessageBox::Retry) {
-                QNetworkReply *newReply = download(reply->request().url());
-
-                // Copy properties
-                newReply->setProperty(DocsetNameProperty, reply->property(DocsetNameProperty));
-                setDownloadType(newReply, downloadType(reply.data()));
-                newReply->setProperty(ListItemIndexProperty, reply->property(ListItemIndexProperty));
+                enqueueDownload({.url = reply->request().url(),
+                                 .type = downloadType(reply),
+                                 .docsetName = reply->property(DocsetNameProperty).toString(),
+                                 .listItemIndex = reply->property(ListItemIndexProperty).toInt()});
                 return;
             }
 
-            bool ok = false;
-            QListWidgetItem *listItem = ui->availableDocsetList->item(
-                reply->property(ListItemIndexProperty).toInt(&ok));
-            if (ok && listItem != nullptr) {
+            QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
+            if (listItem != nullptr) {
                 listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
             }
         }
 
-        updateStatus();
         return;
     }
 
-    const auto type = downloadType(reply.data());
+    const auto type = downloadType(reply);
     switch (type) {
     case DownloadType::DocsetList:
-        processDocsetListReply(reply.data());
+        processDocsetListReply(reply);
         break;
 
     case DownloadType::DashFeed: {
@@ -369,9 +355,10 @@ void DocsetsDialog::downloadCompleted()
         if (docset == nullptr) {
             // Fetch docset only on first feed download,
             // since further downloads are only update checks
-            QNetworkReply *mdReply = download(metadata.url());
-            mdReply->setProperty(DocsetNameProperty, metadata.name());
-            setDownloadType(mdReply, DownloadType::Docset);
+            enqueueDownload({.url = metadata.url(),
+                             .type = DownloadType::Docset,
+                             .docsetName = metadata.name(),
+                             .listItemIndex = ui->availableDocsetList->row(findDocsetListItem(metadata.name()))});
         } else {
             // Check for feed update
             if (metadata.latestVersion() != docset->version() || metadata.revision() > docset->revision()) {
@@ -509,9 +496,6 @@ void DocsetsDialog::downloadCompleted()
         qCWarning(log, "Unknown download type %d.", static_cast<int>(type));
         break;
     }
-
-    // If all enqueued downloads have finished executing.
-    updateStatus();
 }
 
 // creates a total download progress for multiple QNetworkReplies
@@ -747,7 +731,7 @@ void DocsetsDialog::setupAvailableDocsetsTab()
         ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
 
         QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Downloading: %p%"), DocsetListItemDelegate::FormatRole);
+        model->setData(index, tr("Queued"), DocsetListItemDelegate::FormatRole);
         model->setData(index, 0, DocsetListItemDelegate::ValueRole);
         model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
 
@@ -804,12 +788,12 @@ void DocsetsDialog::updateAvailableDocsetsEmptyState()
         m_availableDocsetsEmptyState->setText(tr("No available docsets"));
     }
 
-    m_availableDocsetsEmptyState->setEmpty(!hasVisibleDocsets && m_replies.isEmpty());
+    m_availableDocsetsEmptyState->setEmpty(!hasVisibleDocsets && m_replies.isEmpty() && m_pendingDownloads.isEmpty());
 }
 
 void DocsetsDialog::enableControls()
 {
-    if (m_isStorageReadOnly || !m_replies.isEmpty() || !m_tmpFiles.isEmpty()) {
+    if (m_isStorageReadOnly || !m_replies.isEmpty() || !m_pendingDownloads.isEmpty() || !m_tmpFiles.isEmpty()) {
         return;
     }
 
@@ -875,22 +859,70 @@ bool DocsetsDialog::updatesAvailable() const
     });
 }
 
-QNetworkReply *DocsetsDialog::download(const QUrl &url)
+DocsetsDialog::DownloadType DocsetsDialog::downloadType(const QNetworkReply *reply)
 {
-    QNetworkReply *reply = m_application->download(url);
+    return static_cast<DownloadType>(reply->property(DownloadTypeProperty).toInt());
+}
+
+void DocsetsDialog::enqueueDownload(const DownloadRequest &request)
+{
+    // Other work waits on metadata requests, so they are served before the queued archives.
+    if (request.type == DownloadType::Docset) {
+        m_pendingDownloads.append(request);
+    } else {
+        m_pendingDownloads.prepend(request);
+    }
+
+    disableControls();
+    startPendingDownloads();
+}
+
+void DocsetsDialog::startDownload(const DownloadRequest &request)
+{
+    QNetworkReply *reply = m_application->download(request.url);
+    reply->setProperty(DownloadTypeProperty, static_cast<int>(request.type));
+    reply->setProperty(DocsetNameProperty, request.docsetName);
+    reply->setProperty(ListItemIndexProperty, request.listItemIndex);
+    reply->setProperty(TarixRetryProperty, request.tarixRetry);
+
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);
 
-    disableControls();
-    updateStatus();
+    QListWidgetItem *listItem = ui->availableDocsetList->item(request.listItemIndex);
+    if (listItem != nullptr && listItem->data(DocsetListItemDelegate::ShowProgressRole).toBool()) {
+        listItem->setData(DocsetListItemDelegate::FormatRole, tr("Downloading: %p%"));
+    }
+}
 
-    return reply;
+void DocsetsDialog::startPendingDownloads()
+{
+    while (!m_pendingDownloads.isEmpty() && m_replies.size() < MaxConcurrentDownloads) {
+        startDownload(m_pendingDownloads.takeFirst());
+    }
+
+    updateStatus();
 }
 
 void DocsetsDialog::cancelDownloads()
 {
-    for (QNetworkReply *reply : std::as_const(m_replies)) {
+    for (const DownloadRequest &request : std::as_const(m_pendingDownloads)) {
+        QListWidgetItem *listItem = ui->availableDocsetList->item(request.listItemIndex);
+        if (listItem != nullptr) {
+            listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+        }
+
+        // The archive is already downloaded, so nothing below will release it.
+        if (request.type == DownloadType::TarixIndex) {
+            delete m_tmpFiles.take(request.docsetName);
+        }
+    }
+
+    m_pendingDownloads.clear();
+
+    // Aborting emits finished(), which removes the reply from m_replies, so iterate over a copy.
+    const QList<QNetworkReply *> replies = m_replies;
+    for (QNetworkReply *reply : replies) {
         // Hide progress bar
         QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
         if (listItem != nullptr) {
@@ -913,8 +945,7 @@ void DocsetsDialog::loadUserFeedList()
     const auto docsets = m_docsetRegistry->docsets();
     for (const Registry::Docset *docset : docsets) {
         if (!docset->feedUrl().isEmpty()) {
-            QNetworkReply *reply = download(QUrl(docset->feedUrl()));
-            setDownloadType(reply, DownloadType::DashFeed);
+            enqueueDownload({.url = QUrl(docset->feedUrl()), .type = DownloadType::DashFeed});
         }
     }
 }
@@ -924,8 +955,7 @@ void DocsetsDialog::downloadDocsetList()
     ui->availableDocsetList->clear();
     m_availableDocsets.clear();
 
-    QNetworkReply *reply = download(QUrl(ApiServerUrl + QLatin1String("/docsets")));
-    setDownloadType(reply, DownloadType::DocsetList);
+    enqueueDownload({.url = QUrl(ApiServerUrl + QLatin1String("/docsets")), .type = DownloadType::DocsetList});
 }
 
 void DocsetsDialog::processDocsetListReply(QNetworkReply *reply)
@@ -1054,6 +1084,14 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
         }
     }
 
+    // Skip if a download is already queued for this docset.
+    const bool isQueued = std::ranges::any_of(m_pendingDownloads, [&name](const DownloadRequest &request) {
+        return request.type == DownloadType::Docset && request.docsetName == name;
+    });
+    if (isQueued) {
+        return;
+    }
+
     QUrl url;
     if (!m_userFeeds.contains(name)) {
         // No feed present means that this is a Kapeli docset
@@ -1071,19 +1109,19 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
         return;
     }
 
-    QNetworkReply *reply = download(url);
-    reply->setProperty(DocsetNameProperty, name);
-    setDownloadType(reply, DownloadType::Docset);
-    reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(findDocsetListItem(name)));
+    enqueueDownload({.url = url,
+                     .type = DownloadType::Docset,
+                     .docsetName = name,
+                     .listItemIndex = ui->availableDocsetList->row(findDocsetListItem(name))});
 }
 
 void DocsetsDialog::downloadTarixIndex(const QString &docsetName, const QUrl &indexUrl, int attempt)
 {
-    QNetworkReply *reply = download(indexUrl);
-    reply->setProperty(DocsetNameProperty, docsetName);
-    reply->setProperty(TarixRetryProperty, attempt);
-    reply->setProperty(ListItemIndexProperty, ui->availableDocsetList->row(findDocsetListItem(docsetName)));
-    setDownloadType(reply, DownloadType::TarixIndex);
+    enqueueDownload({.url = indexUrl,
+                     .type = DownloadType::TarixIndex,
+                     .docsetName = docsetName,
+                     .listItemIndex = ui->availableDocsetList->row(findDocsetListItem(docsetName)),
+                     .tarixRetry = attempt});
 }
 
 void DocsetsDialog::onTarixIndexFailed(QNetworkReply *reply)
@@ -1164,17 +1202,21 @@ bool DocsetsDialog::removeDocset(const QString &name)
 
 void DocsetsDialog::updateStatus()
 {
-    QString text;
+    QStringList parts;
 
     if (!m_replies.isEmpty()) {
-        text = tr("Downloading: %n.", nullptr, static_cast<int>(m_replies.size()));
+        parts << tr("Downloading: %n.", nullptr, static_cast<int>(m_replies.size()));
+    }
+
+    if (!m_pendingDownloads.isEmpty()) {
+        parts << tr("Queued: %n.", nullptr, static_cast<int>(m_pendingDownloads.size()));
     }
 
     if (!m_tmpFiles.isEmpty()) {
-        text += QLatin1String(" ") + tr("Installing: %n.", nullptr, static_cast<int>(m_tmpFiles.size()));
+        parts << tr("Installing: %n.", nullptr, static_cast<int>(m_tmpFiles.size()));
     }
 
-    ui->statusLabel->setText(text);
+    ui->statusLabel->setText(parts.join(QLatin1Char(' ')));
     updateAvailableDocsetsEmptyState();
 
     enableControls();

@@ -10,13 +10,14 @@
 
 #include <QDialog>
 #include <QHash>
+#include <QList>
 #include <QMap>
+#include <QUrl>
 
 class QDateTime;
 class QListWidgetItem;
 class QNetworkReply;
 class QTemporaryFile;
-class QUrl;
 
 namespace Zeal {
 
@@ -45,6 +46,23 @@ public:
     ~DocsetsDialog() override;
 
 private:
+    enum class DownloadType {
+        DashFeed,
+        Docset,
+        DocsetList,
+        TarixIndex
+    };
+
+    struct DownloadRequest
+    {
+        QUrl url = {};
+        DownloadType type = DownloadType::Docset;
+        QString docsetName = {};
+        // Row in the available docsets list, or -1 if there is no matching entry.
+        int listItemIndex = -1;
+        int tarixRetry = 0;
+    };
+
     void addDashFeed();
     void updateSelectedDocsets();
     void updateAllDocsets();
@@ -54,6 +72,7 @@ private:
     void downloadSelectedDocsets();
 
     void downloadCompleted();
+    void processDownload(QNetworkReply *reply);
     void downloadProgress(qint64 received, qint64 total);
 
     void extractionCompleted(const QString &filePath);
@@ -71,6 +90,7 @@ private:
     bool m_isStorageReadOnly = false;
 
     QList<QNetworkReply *> m_replies;
+    QList<DownloadRequest> m_pendingDownloads;
 
     // TODO: Create a special model
     Util::CaseInsensitiveMap<Registry::DocsetMetadata> m_availableDocsets;
@@ -90,7 +110,9 @@ private:
     QListWidgetItem *findDocsetListItem(const QString &name) const;
     bool updatesAvailable() const;
 
-    QNetworkReply *download(const QUrl &url);
+    void enqueueDownload(const DownloadRequest &request);
+    void startDownload(const DownloadRequest &request);
+    void startPendingDownloads();
     void cancelDownloads();
 
     void loadUserFeedList();
@@ -116,6 +138,8 @@ private:
 
     // FIXME: Come up with a better approach
     QString docsetNameForTmpFilePath(const QString &filePath) const;
+
+    static DownloadType downloadType(const QNetworkReply *reply);
 
     static inline int percent(qint64 fraction, qint64 total);
 
