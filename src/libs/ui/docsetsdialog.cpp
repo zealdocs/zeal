@@ -310,6 +310,14 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
         }
 
         if (reply->error() != QNetworkReply::OperationCanceledError) {
+            const auto type = downloadType(reply);
+            const QString docsetName = reply->property(DocsetNameProperty).toString();
+
+            // Downloads cannot be resumed, so a retry would append to whatever was received.
+            if (type == DownloadType::Docset) {
+                delete m_tmpFiles.take(docsetName);
+            }
+
             const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
                                     .arg(reply->errorString().toHtmlEscaped(),
                                          reply->request().url().toString().toHtmlEscaped());
@@ -320,8 +328,8 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
 
             if (ret == QMessageBox::Retry) {
                 enqueueDownload({.url = reply->request().url(),
-                                 .type = downloadType(reply),
-                                 .docsetName = reply->property(DocsetNameProperty).toString(),
+                                 .type = type,
+                                 .docsetName = docsetName,
                                  .listItemIndex = reply->property(ListItemIndexProperty).toInt()});
                 return;
             }
