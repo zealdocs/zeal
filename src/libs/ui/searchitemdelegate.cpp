@@ -13,6 +13,63 @@
 #include <QToolTip>
 
 #include <algorithm>
+#include <cmath>
+
+namespace {
+
+// WCAG 2.1 AA for normal-sized text.
+constexpr double MinContrastRatio = 4.5;
+
+// WCAG 2.1 relative luminance.
+double luminance(const QColor &color)
+{
+    const auto linearize = [](double channel) {
+        return channel <= 0.04045 ? channel / 12.92 : std::pow((channel + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * linearize(color.redF()) + 0.7152 * linearize(color.greenF()) + 0.0722 * linearize(color.blueF());
+}
+
+double contrastRatio(double luminance1, double luminance2)
+{
+    return (std::max(luminance1, luminance2) + 0.05) / (std::min(luminance1, luminance2) + 0.05);
+}
+
+// Returns the nearest opaque color with the same hue that is legible on
+// `background`. Themes are free to pick an accent color unreadable as text.
+QColor makeLegible(QColor color, const QColor &background)
+{
+    // Alpha would blend the text back into the background.
+    color.setAlpha(255);
+
+    const double backgroundLuminance = luminance(background);
+    const auto isLegible = [backgroundLuminance](const QColor &c) {
+        return contrastRatio(luminance(c), backgroundLuminance) >= MinContrastRatio;
+    };
+
+    if (isLegible(color)) {
+        return color;
+    }
+
+    // Either black or white is legible on any background.
+    float h, s, l;
+    color.getHslF(&h, &s, &l);
+    float failing = l;
+    float passing = contrastRatio(1.0, backgroundLuminance) >= MinContrastRatio ? 1.0f : 0.0f;
+
+    // Luminance is monotonic in lightness, so bisect for the nearest color.
+    for (int i = 0; i < 10; ++i) {
+        const float middle = (failing + passing) / 2;
+        if (isLegible(QColor::fromHslF(h, s, middle))) {
+            passing = middle;
+        } else {
+            failing = middle;
+        }
+    }
+
+    return QColor::fromHslF(h, s, passing);
+}
+
+} // namespace
 
 namespace Zeal::WidgetUi {
 
@@ -167,13 +224,17 @@ void SearchItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         const QFontMetrics normalFm(normalFont);
         const QFontMetrics boldFm(boldFont);
 
-        // Link is a foreground role meant to read over Base; Highlight is a
-        // selection-background fill that may match Base and hide the match.
-        // Selected rows contrast against the selection via HighlightedText.
-        const QColor matchColor = opt.state.testFlag(QStyle::State_Selected)
-                                    ? opt.palette.color(cg, QPalette::HighlightedText)
-                                    : opt.palette.color(cg, QPalette::Link);
         const QColor textColor = painter->pen().color();
+
+        // On selected rows the bold font alone marks matches; elsewhere use the
+        // theme's accent color, made legible on the row background.
+        QColor matchColor = textColor;
+        if (!opt.state.testFlag(QStyle::State_Selected)) {
+            const auto backgroundRole = opt.features.testFlag(QStyleOptionViewItem::Alternate) ? QPalette::AlternateBase
+                                                                                               : QPalette::Base;
+            matchColor = makeLegible(opt.palette.color(QPalette::Active, QPalette::Highlight),
+                                     opt.palette.color(cg, backgroundRole));
+        }
 
         const QSet<int> matchSet(matchPositions.begin(), matchPositions.end());
 
