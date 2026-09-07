@@ -24,7 +24,8 @@ find_package(LibArchive REQUIRED)
 target_link_libraries(Core PRIVATE LibArchive::LibArchive)
 
 # Configure toml++ (header-only).
-find_package(tomlplusplus CONFIG)
+# 3.4.0 renamed toml.h to toml.hpp.
+find_package(tomlplusplus 3.4.0 CONFIG)
 if(tomlplusplus_FOUND)
     target_link_libraries(Core PRIVATE tomlplusplus::tomlplusplus)
 else()
@@ -35,7 +36,8 @@ endif()
 # Configure cpp-httplib.
 add_definitions(-DCPPHTTPLIB_USE_POLL)
 
-find_package(httplib CONFIG)
+# 0.11.0 added the set_content(const char *, size_t, ...) overload.
+find_package(httplib 0.11.0 CONFIG)
 if(httplib_FOUND)
     target_link_libraries(Core PRIVATE httplib::httplib)
 else()
