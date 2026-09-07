@@ -36,8 +36,14 @@ endif()
 # Configure cpp-httplib.
 add_definitions(-DCPPHTTPLIB_USE_POLL)
 
+# SameMinorVersion in httplib's config pins 0.x, so the floor is checked here instead.
 # 0.11.0 added the set_content(const char *, size_t, ...) overload.
-find_package(httplib 0.11.0 CONFIG)
+find_package(httplib CONFIG)
+if(httplib_FOUND AND httplib_VERSION VERSION_LESS 0.11.0)
+    message(STATUS "Ignoring cpp-httplib ${httplib_VERSION}, 0.11.0 or newer required")
+    set(httplib_FOUND FALSE)
+endif()
+
 if(httplib_FOUND)
     target_link_libraries(Core PRIVATE httplib::httplib)
 else()
