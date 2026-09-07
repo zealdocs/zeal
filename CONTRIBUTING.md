@@ -41,6 +41,15 @@ cmake --build --preset dev
 Formatting is defined by `.clang-format` and `.editorconfig`. Run clang-format on the code you change, and match the
 style of the surrounding code for anything the tools do not cover.
 
+## AI-assisted contributions
+
+Using an AI coding assistant is fine. It does not change what is expected of the contribution: understand the code
+you submit, and be ready to explain and revise it in review.
+
+Do not credit the tool. `Co-Authored-By` records a person who worked on the change with you, which a model is not, so
+keep model names, session links, and generated summaries out of the commit message. Mention the tooling in the pull
+request if it is relevant there.
+
 ## Commits
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/): a type, an optional scope, and
@@ -53,6 +62,18 @@ build(cmake): append to CMAKE_MODULE_PATH
 ```
 
 Common scopes are `app`, `core`, `ui`, `util`, `assets`, and `cmake`. When in doubt, `git log` has plenty of examples.
+
+Keep the subject under 50 characters. The only thing that belongs below it is an issue reference; explain the
+reasoning in the pull request description instead, where reviewers will look for it.
+
+```text
+fix(ui): keep search match highlight legible
+
+Fixes #1963.
+```
+
+Zeal does not use `Signed-off-by`, so leave it out. `Co-Authored-By` is for people who worked on the change with
+you.
 
 ## Tests
 
@@ -75,7 +96,10 @@ By submitting a contribution, you agree to provide it under the project license.
 
 ## Pull requests
 
-* Keep pull requests small and focused; unrelated changes belong in separate PRs.
+* Branch off the latest `main`.
+* Keep pull requests small and focused; unrelated changes belong in separate PRs. Pull requests are squashed on
+  merge, so a branch should carry a single commit; split unrelated work into a second branch rather than a second
+  commit.
 * CI must pass. It runs builds for all supported platforms and CodeQL analysis.
 * Zeal is maintained in spare time, so a review can take a while. If a PR sits without a response for a couple of
   weeks, a polite ping is fine.
