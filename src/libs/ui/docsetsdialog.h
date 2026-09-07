@@ -125,6 +125,7 @@ private:
     void downloadTarixIndex(const QString &docsetName, const QUrl &indexUrl, int attempt);
     void onTarixIndexFailed(QNetworkReply *reply);
     void installDownloadedDocset(const QString &docsetName);
+    void onDocsetWriteFailed(const QString &docsetName);
     // Returns false if the docset directory could not be removed.
     bool removeDocset(const QString &name);
 

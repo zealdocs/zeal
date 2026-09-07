@@ -60,6 +60,7 @@ constexpr const char *DocsetNameProperty = "docsetName";
 constexpr const char *DownloadTypeProperty = "downloadType";
 constexpr const char *ListItemIndexProperty = "listItem";
 constexpr const char *TarixRetryProperty = "tarixRetry";
+constexpr const char *WriteFailedProperty = "writeFailed";
 
 constexpr int MaxTarixIndexRetries = 2;
 
@@ -72,6 +73,19 @@ bool isDocsetNameSafe(const QString &docsetName)
     if (docsetName.isEmpty() || docsetName.contains(QLatin1Char('/')) || docsetName.contains(QLatin1Char('\\'))) {
         qCWarning(log, "Refusing docset with an unsafe name '%s'.", qPrintable(docsetName));
         return false;
+    }
+
+    return true;
+}
+
+// QIODevice::read() allocates the full requested size, so never ask for more than a chunk.
+bool drainReply(QNetworkReply *reply, QIODevice *file)
+{
+    while (reply->bytesAvailable() > 0) {
+        const QByteArray chunk = reply->read(DownloadChunkSize);
+        if (file->write(chunk) != chunk.size()) {
+            return false;
+        }
     }
 
     return true;
@@ -300,6 +314,11 @@ void DocsetsDialog::downloadCompleted()
 
 void DocsetsDialog::processDownload(QNetworkReply *reply)
 {
+    if (reply->property(WriteFailedProperty).toBool()) {
+        onDocsetWriteFailed(reply->property(DocsetNameProperty).toString());
+        return;
+    }
+
     if (reply->error() != QNetworkReply::NoError) {
         if (downloadType(reply) == DownloadType::TarixIndex) {
             if (reply->error() != QNetworkReply::OperationCanceledError) {
@@ -439,8 +458,9 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
             break;
         }
 
-        while (reply->bytesAvailable() > 0) {
-            tmpFile->write(reply->read(DownloadChunkSize));
+        if (!drainReply(reply, tmpFile)) {
+            onDocsetWriteFailed(docsetName);
+            break;
         }
 
         tmpFile->close();
@@ -509,11 +529,6 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
 // creates a total download progress for multiple QNetworkReplies
 void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
 {
-    // Don't show progress for non-docset pages
-    if (total == -1 || received < 10240) {
-        return;
-    }
-
     auto *reply = qobject_cast<QNetworkReply *>(sender());
     if (reply == nullptr || !reply->isOpen()) {
         return;
@@ -527,7 +542,16 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
             return;
         }
 
-        tmpFile->write(reply->read(received));
+        if (!drainReply(reply, tmpFile)) {
+            reply->setProperty(WriteFailedProperty, true);
+            reply->abort();
+            return;
+        }
+    }
+
+    // Don't show progress for non-docset pages
+    if (total == -1 || received < 10240) {
+        return;
     }
 
     // Try to get the item associated to the request
@@ -535,6 +559,20 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
     if (item != nullptr) {
         item->setData(DocsetListItemDelegate::ValueRole, percent(received, total));
     }
+}
+
+void DocsetsDialog::onDocsetWriteFailed(const QString &docsetName)
+{
+    delete m_tmpFiles.take(docsetName);
+
+    QListWidgetItem *listItem = findDocsetListItem(docsetName);
+    if (listItem != nullptr) {
+        listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+    }
+
+    QMessageBox::warning(this,
+                         QStringLiteral("Zeal"),
+                         tr("Cannot write to a temporary file to install <b>%1</b>.").arg(docsetName.toHtmlEscaped()));
 }
 
 void DocsetsDialog::extractionCompleted(const QString &filePath)
