@@ -27,3 +27,14 @@ endfunction()
 function(zeal_attach_qt_pch target)
     target_precompile_headers(${target} PRIVATE <QObject> <QString> ${ARGN})
 endfunction()
+
+# Read the version of a bundled dependency out of its header. `regex` must
+# select the single line carrying it, e.g. "^#define CPPHTTPLIB_VERSION ".
+function(zeal_bundled_version out_var header regex)
+    file(STRINGS "${header}" line LIMIT_COUNT 1 REGEX "${regex}")
+    string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" version "${line}")
+    if(NOT version)
+        message(FATAL_ERROR "Could not read a version matching '${regex}' from ${header}")
+    endif()
+    set(${out_var} "${version}" PARENT_SCOPE)
+endfunction()
