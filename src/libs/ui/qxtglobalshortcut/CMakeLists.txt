@@ -13,6 +13,7 @@ elseif(UNIX)
             qxtglobalshortcut_x11.cpp
         )
     else()
+        message(STATUS "Global shortcuts disabled: xcb, xcb-keysyms, or xkbcommon not found")
         list(APPEND QxtGlobalShortcut_SOURCES
             qxtglobalshortcut_noop.cpp
         )
@@ -22,6 +23,7 @@ elseif(WIN32)
         qxtglobalshortcut_win.cpp
     )
 else()
+    message(STATUS "Global shortcuts disabled: unsupported platform")
     list(APPEND QxtGlobalShortcut_SOURCES
         qxtglobalshortcut_noop.cpp
     )
