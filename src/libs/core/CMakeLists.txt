@@ -40,7 +40,7 @@ else()
     find_package_handle_standard_args(tomlplusplus
         REQUIRED_VARS tomlplusplus_bundled_dir
         VERSION_VAR tomlplusplus_bundled_version)
-    target_include_directories(Core PRIVATE "${tomlplusplus_bundled_dir}")
+    target_include_directories(Core SYSTEM PRIVATE "${tomlplusplus_bundled_dir}")
 endif()
 
 # Configure cpp-httplib.
@@ -65,7 +65,7 @@ else()
     find_package_handle_standard_args(httplib
         REQUIRED_VARS httplib_bundled_dir
         VERSION_VAR httplib_bundled_version)
-    include_directories("${httplib_bundled_dir}")
+    target_include_directories(Core SYSTEM PRIVATE "${httplib_bundled_dir}")
 endif()
 
 # Required by cpp-httplib.
