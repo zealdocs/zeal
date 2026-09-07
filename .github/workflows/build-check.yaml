@@ -17,6 +17,7 @@ env:
   QT_VERSION: "6.11.1"
   QT_MODULES: >-
     qtpositioning
+    qttasktree
     qtwebchannel
     qtwebengine
 
