@@ -534,22 +534,25 @@ void DocsetsDialog::downloadProgress(qint64 received, qint64 total)
         return;
     }
 
-    if (downloadType(reply) == DownloadType::Docset) {
-        const QString docsetName = reply->property(DocsetNameProperty).toString();
-
-        QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
-        if (tmpFile == nullptr) {
-            return;
-        }
-
-        if (!drainReply(reply, tmpFile)) {
-            reply->setProperty(WriteFailedProperty, true);
-            reply->abort();
-            return;
-        }
+    // The tarix index download reuses the docset's list item.
+    if (downloadType(reply) != DownloadType::Docset) {
+        return;
     }
 
-    // Don't show progress for non-docset pages
+    const QString docsetName = reply->property(DocsetNameProperty).toString();
+
+    QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
+    if (tmpFile == nullptr) {
+        return;
+    }
+
+    if (!drainReply(reply, tmpFile)) {
+        reply->setProperty(WriteFailedProperty, true);
+        reply->abort();
+        return;
+    }
+
+    // Wait for a known download size.
     if (total == -1 || received < 10240) {
         return;
     }
@@ -633,6 +636,7 @@ void DocsetsDialog::extractionProgress(const QString &filePath, qint64 extracted
     const QString docsetName = docsetNameForTmpFilePath(filePath);
     QListWidgetItem *listItem = findDocsetListItem(docsetName);
     if (listItem != nullptr) {
+        listItem->setData(DocsetListItemDelegate::FormatRole, tr("Installing: %p%"));
         listItem->setData(DocsetListItemDelegate::ValueRole, percent(extracted, total));
     }
 }
@@ -934,6 +938,10 @@ void DocsetsDialog::startDownload(const DownloadRequest &request)
     connect(reply, &QNetworkReply::downloadProgress, this, &DocsetsDialog::downloadProgress);
     connect(reply, &QNetworkReply::finished, this, &DocsetsDialog::downloadCompleted);
     m_replies.append(reply);
+
+    if (request.type != DownloadType::Docset) {
+        return;
+    }
 
     QListWidgetItem *listItem = ui->availableDocsetList->item(request.listItemIndex);
     if (listItem != nullptr && listItem->data(DocsetListItemDelegate::ShowProgressRole).toBool()) {
