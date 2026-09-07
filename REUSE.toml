@@ -49,7 +49,7 @@ SPDX-License-Identifier = "MIT"
 
 [[annotations]]
 path = "src/contrib/cpp-httplib/httplib.h"
-SPDX-FileCopyrightText = "Copyright (c) 2023 Yuji Hirose. All rights reserved."
+SPDX-FileCopyrightText = "Copyright (c) 2026 Yuji Hirose. All rights reserved."
 SPDX-License-Identifier = "MIT"
 
 [[annotations]]
