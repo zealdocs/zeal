@@ -64,6 +64,7 @@ jobs:
             libsqlite3-dev \
             libvulkan-dev \
             libxcb-keysyms1-dev \
+            libxkbcommon-dev \
             ninja-build \
             ${{ matrix.config.qt_packages }}
 
@@ -241,6 +242,7 @@ jobs:
             libsqlite3-dev \
             libvulkan-dev \
             libxcb-keysyms1-dev \
+            libxkbcommon-dev \
             ninja-build \
             qt6-webengine-dev
 
