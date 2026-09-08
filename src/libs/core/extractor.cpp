@@ -17,6 +17,11 @@ namespace Zeal::Core {
 
 namespace {
 Q_LOGGING_CATEGORY(log, "zeal.core.extractor")
+
+int percent(qint64 fraction, qint64 total)
+{
+    return static_cast<int>(fraction * 100 / total);
+}
 } // namespace
 
 Extractor::Extractor(QObject *parent)
@@ -122,6 +127,9 @@ bool Extractor::extractEntries(const QString &sourceFile,
     // TODO: Do not strip root directory in archive if it equals to 'root'
     archive_entry *entry = nullptr;
     while ((rc = archive_read_next_header(info.archiveHandle, &entry)) == ARCHIVE_OK) {
+        // Reading the header consumes the previous entry's data, skipped entries included.
+        emitProgress(info);
+
         // See https://github.com/libarchive/libarchive/issues/587 for more on UTF-8.
         QString pathname = QString::fromUtf8(archive_entry_pathname_utf8(entry));
 
@@ -191,8 +199,6 @@ bool Extractor::extractEntries(const QString &sourceFile,
                 return false;
             }
         }
-
-        emitProgress(info);
     }
 
     if (rc != ARCHIVE_EOF) {
@@ -201,6 +207,9 @@ bool Extractor::extractEntries(const QString &sourceFile,
         archive_read_free(info.archiveHandle);
         return false;
     }
+
+    // The read that reported EOF consumed the last entry's data, which no loop iteration saw.
+    emitProgress(info);
 
     archive_read_free(info.archiveHandle);
     return true;
@@ -263,6 +272,12 @@ void Extractor::emitProgress(ExtractInfo &info)
 {
     const qint64 extractedBytes = archive_filter_bytes(info.archiveHandle, -1);
     if (extractedBytes == info.extractedBytes) {
+        return;
+    }
+
+    // progress() is queued to the UI thread and this runs once per archive entry.
+    if (info.totalBytes > 0
+        && percent(extractedBytes, info.totalBytes) == percent(info.extractedBytes, info.totalBytes)) {
         return;
     }
 
