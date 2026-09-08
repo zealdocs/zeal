@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 Joris Suppers
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Optional building on https://reporoad.org
+# After merging, submit this repository at https://reporoad.org to join.
+version: 1
+style: stone
+color: "#b78351"
+roof: gable
+signText: Zeal
+garden: true
+support:
+  sponsor: false
+  helpWanted: false
