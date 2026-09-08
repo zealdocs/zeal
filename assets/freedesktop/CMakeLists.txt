@@ -22,6 +22,7 @@ if(UNIX AND NOT APPLE)
                             "sc-apps-zeal-tray.svg"
                             "sc-apps-zeal-tray-light.svg"
                             "sc-apps-zeal-tray-dark.svg"
+                            "sc-apps-zeal-tray-symbolic.svg"
                       DESTINATION ${KDE_INSTALL_ICONDIR}
     )
 

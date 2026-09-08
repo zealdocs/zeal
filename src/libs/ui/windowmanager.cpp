@@ -38,10 +38,18 @@ QIcon themedTrayIcon(Core::Settings::TrayIconStyle style)
         break;
     }
 
-    // Carries a color scheme stylesheet, so desktops that recolor tray icons tint
-    // it to match the panel. Those that do not fall back to its white default,
+    // Two recoloring conventions, one file: the "-symbolic" suffix is what GNOME and
+    // Quickshell-based shells key off, while Plasma instead substitutes the SVG's
+    // ColorScheme-Text rule. Hosts doing neither fall back to its white default,
     // hence the explicit choices above (#1950).
-    return QIcon::fromTheme(QStringLiteral("zeal-tray"), QIcon(QStringLiteral(":/zeal-tray.svg")));
+    //
+    // Only a theme hit carries a name to the host. An icon built from the Qt resource
+    // reports no QIcon::name(), so QDBusTrayIcon sends a bare pixmap and nothing can
+    // tell the glyph is tintable. zeal-tray stays as a named fallback for icon themes
+    // that already override it.
+    return QIcon::fromTheme(QStringLiteral("zeal-tray-symbolic"),
+                            QIcon::fromTheme(QStringLiteral("zeal-tray"),
+                                             QIcon(QStringLiteral(":/zeal-tray-symbolic.svg"))));
 }
 } // namespace
 #endif
