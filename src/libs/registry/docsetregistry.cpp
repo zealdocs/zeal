@@ -302,17 +302,22 @@ void DocsetRegistry::runQuery(const QString &query)
     QList<Docset *> enabledDocsets;
 
     const SearchQuery searchQuery = SearchQuery::fromString(query);
+    QString queryString = searchQuery.query();
+
     if (searchQuery.hasKeywords()) {
         for (Docset *docset : std::as_const(m_docsets)) {
             if (searchQuery.hasKeywords(docset->keywords())) {
                 enabledDocsets << docset;
             }
         }
-    } else {
-        enabledDocsets = docsets();
     }
 
-    const QString queryString = searchQuery.query();
+    // A colon is not always a keyword separator, it can be part of a symbol name, e.g. 'xsl:if'.
+    if (enabledDocsets.isEmpty()) {
+        enabledDocsets = docsets();
+        queryString = query.trimmed();
+    }
+
     const QFuture<QList<SearchResult>> queryFuture = QtConcurrent::mappedReduced(enabledDocsets,
                                                                                  [this, &queryString](Docset *docset) {
         return docset->search(queryString, m_cancelSearch);
