@@ -28,6 +28,7 @@
 #include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFocusEvent>
+#include <QGuiApplication>
 #include <QIcon>
 #include <QKeyEvent>
 #include <QMenuBar>
@@ -666,6 +667,13 @@ void MainWindow::bringToFront()
     if (!m_savedGeometry.isEmpty()) {
         setWindowOpacity(0.0);
     }
+#else
+    // X11 remaps a hidden window onto the active screen; Wayland clients cannot position themselves.
+    if (!m_savedGeometry.isEmpty() && QGuiApplication::platformName() == QLatin1String("xcb")) {
+        restoreGeometry(m_savedGeometry);
+    }
+
+    m_savedGeometry.clear();
 #endif
     show();
     Qt::WindowStates state = windowState();
@@ -698,6 +706,7 @@ void MainWindow::changeEvent(QEvent *event)
 {
     if (m_settings->isTrayActive() && m_settings->minimizeToSystray && event->type() == QEvent::WindowStateChange
         && isMinimized()) {
+        m_savedGeometry = saveGeometry(); // See bringToFront().
         hide();
     }
 
@@ -812,9 +821,7 @@ void MainWindow::toggleWindow()
         bringToFront();
     } else {
         if (m_settings->isTrayActive()) {
-#ifdef Q_OS_WINDOWS
             m_savedGeometry = saveGeometry(); // See bringToFront().
-#endif
             hide();
         } else {
             showMinimized();
