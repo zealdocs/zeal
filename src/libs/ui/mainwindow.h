@@ -100,9 +100,7 @@ private:
 
     friend class SidebarViewProvider;
 
-#ifdef Q_OS_WINDOWS
     QByteArray m_savedGeometry;
-#endif
 };
 
 } // namespace WidgetUi
