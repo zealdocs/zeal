@@ -4,6 +4,7 @@
         <file alias="zeal-tray.svg">../../assets/freedesktop/sc-apps-zeal-tray.svg</file>
         <file alias="zeal-tray-light.svg">../../assets/freedesktop/sc-apps-zeal-tray-light.svg</file>
         <file alias="zeal-tray-dark.svg">../../assets/freedesktop/sc-apps-zeal-tray-dark.svg</file>
+        <file alias="zeal-tray-symbolic.svg">../../assets/freedesktop/sc-apps-zeal-tray-symbolic.svg</file>
     </qresource>
     <qresource prefix="/browser">
         <file alias="new-tab.html">resources/browser/new-tab.html</file>
