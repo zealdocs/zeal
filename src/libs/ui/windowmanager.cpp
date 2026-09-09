@@ -38,15 +38,11 @@ QIcon themedTrayIcon(Core::Settings::TrayIconStyle style)
         break;
     }
 
-    // Two recoloring conventions, one file: the "-symbolic" suffix is what GNOME and
-    // Quickshell-based shells key off, while Plasma instead substitutes the SVG's
-    // ColorScheme-Text rule. Hosts doing neither fall back to its white default,
-    // hence the explicit choices above (#1950).
-    //
-    // Only a theme hit carries a name to the host. An icon built from the Qt resource
-    // reports no QIcon::name(), so QDBusTrayIcon sends a bare pixmap and nothing can
-    // tell the glyph is tintable. zeal-tray stays as a named fallback for icon themes
-    // that already override it.
+    // Named "-symbolic" for GNOME and Quickshell-based shells, which tint by name; KDE
+    // instead substitutes the SVG's ColorScheme-Text rule, carried by the same file. Hosts
+    // doing neither fall back to its white default (#1950). The theme lookup has to hit:
+    // an icon built from the Qt resource has no QIcon::name(), so QDBusTrayIcon would send
+    // a bare pixmap and nothing could tell the glyph is tintable.
     return QIcon::fromTheme(QStringLiteral("zeal-tray-symbolic"),
                             QIcon::fromTheme(QStringLiteral("zeal-tray"),
                                              QIcon(QStringLiteral(":/zeal-tray-symbolic.svg"))));
@@ -221,8 +217,10 @@ void WindowManager::updateTrayIcon()
 
 #ifdef Q_OS_MACOS
     // macOS menu-bar items render as template images: monochrome silhouettes
-    // tinted by the system to match light/dark mode and the active accent.
-    QIcon trayIcon(QStringLiteral(":/zeal-tray.svg"));
+    // tinted by the system to match light/dark mode and the active accent. Its own asset
+    // rather than the tray one: extras sit in a fixed 22pt working area that expects less
+    // fill than a freedesktop panel.
+    QIcon trayIcon(QStringLiteral(":/zeal-tray-template.svg"));
     trayIcon.setIsMask(true);
 #elif defined(Q_OS_WIN)
     // Windows tray takes the icon as-is — reuse the full-color window icon.

@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <title>Zeal</title>
   <desc>Offline documentation browser — monochrome Z silhouette for system tray and menu bar icons.</desc>
-  <!-- KDE replaces this rule with the panel's text color. Renderers that ignore
-       CSS fall back to the color attribute below, which the rule outranks in the
-       cascade, so both paths end up with a visible glyph. -->
+  <!-- KDE replaces this rule with the panel's text color; renderers that
+       ignore CSS fall back to the color attribute below, which it outranks. -->
   <style id="current-color-scheme" type="text/css">
     .ColorScheme-Text { color: #ffffff; }
   </style>
