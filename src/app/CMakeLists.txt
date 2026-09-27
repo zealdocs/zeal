@@ -102,6 +102,12 @@ elseif(WIN32)
         list(APPEND CPACK_ZEAL_RUNTIME_LIBS "${_lib_name}")
     endforeach()
 
+    # Let the packaging step find what to sign: the app and the libraries vcpkg builds.
+    set(CPACK_ZEAL_EXECUTABLE "${PROJECT_EXECUTABLE_NAME}")
+    if(VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
+        set(CPACK_ZEAL_VCPKG_BIN_DIR "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")
+    endif()
+
     if(_use_qt_cmake_commands)
         # Install Qt runtime dependencies.
         install(SCRIPT ${_qt_deploy_script})

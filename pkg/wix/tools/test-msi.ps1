@@ -11,12 +11,14 @@
 #   ./test-msi.ps1                          # finds latest zeal-*.msi under build/
 #   ./test-msi.ps1 -MsiPath <path>          # validate a specific MSI
 #   ./test-msi.ps1 -Install                 # also run an install/uninstall smoke test
+#   ./test-msi.ps1 -Install -RequireSigned  # also require the MSI and installed binaries to be signed
 #
 
 [CmdletBinding()]
 param(
     [string]$MsiPath,
-    [switch]$Install
+    [switch]$Install,
+    [switch]$RequireSigned
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,6 +32,7 @@ if ($Install) {
         if (Test-Path $transcript) { Remove-Item $transcript }
         $inner = "Start-Transcript -Path '$transcript' | Out-Null; & '$PSCommandPath' -Install"
         if ($MsiPath) { $inner += " -MsiPath '$((Resolve-Path $MsiPath).Path)'" }
+        if ($RequireSigned) { $inner += " -RequireSigned" }
         $inner += "; Stop-Transcript | Out-Null; exit `$LASTEXITCODE"
         $proc = Start-Process pwsh.exe -ArgumentList @("-NoProfile", "-Command", $inner) -Verb RunAs -Wait -PassThru
         if (Test-Path $transcript) {
@@ -190,6 +193,17 @@ if ($launchRows.Count -gt 0) {
     $errors += "LaunchApplication"
 }
 
+if ($RequireSigned) {
+    Write-Output "`n[Signature]"
+    $status = (Get-AuthenticodeSignature $MsiPath).Status
+    if ($status -eq "Valid") {
+        Write-Output "  OK   MSI signed"
+    } else {
+        Write-Output "  FAIL MSI signature status: $status"
+        $errors += "signature:msi"
+    }
+}
+
 if ($Install) {
     Write-Output "`n[Install smoke test]"
     $logFile = Join-Path $env:TEMP "zeal-msi-install.log"
@@ -207,13 +221,25 @@ if ($Install) {
 
         Write-Output "`n  [Post-install verification]"
 
-        foreach ($file in @("zeal.exe", "archive.dll", "sqlite3.dll", "zlib1.dll")) {
-            $path = Join-Path $installDir $file
-            if (Test-Path $path) {
-                Write-Output "    OK   $file present"
+        # Libraries are checked when packaging, see cpack_pre_build.cmake.
+        if (Test-Path $expectedExe) {
+            Write-Output "    OK   zeal.exe present"
+        } else {
+            Write-Output "    FAIL zeal.exe missing at $expectedExe"
+            $errors += "file:zeal.exe"
+        }
+
+        if ($RequireSigned) {
+            $unsigned = @(Get-ChildItem $installDir -Recurse -File -Include *.exe, *.dll |
+                Get-AuthenticodeSignature | Where-Object Status -ne "Valid")
+            if ($unsigned.Count -eq 0) {
+                Write-Output "    OK   All binaries signed"
             } else {
-                Write-Output "    FAIL $file missing at $path"
-                $errors += "file:$file"
+                foreach ($signature in $unsigned) {
+                    $file = $signature.Path.Substring($installDir.Length + 1)
+                    Write-Output "    FAIL $file signature status: $($signature.Status)"
+                    $errors += "signature:$file"
+                }
             }
         }
 

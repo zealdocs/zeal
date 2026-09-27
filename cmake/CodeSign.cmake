@@ -16,6 +16,9 @@ include_guard()
 #          [QUIET]
 #          [VERBOSE]
 #          [DEBUG])
+#
+# Signing is skipped with a notice when it cannot be done, e.g. without a certificate.
+# Set the CODESIGN_REQUIRED environment variable to fail instead.
 function(codesign)
     # Cleans up temporary files created during signing.
     macro(_cleanup)
@@ -43,6 +46,16 @@ function(codesign)
         # Remove file if left from previous run.
         _cleanup()
     endmacro()
+
+    # Reports why files are left unsigned. Fatal if CODESIGN_REQUIRED is set.
+    # A function, not a macro, so backslashes in messages are not re-evaluated.
+    function(_report_unsigned _level)
+        if("$ENV{CODESIGN_REQUIRED}")
+            _cleanup()
+            set(_level FATAL_ERROR)
+        endif()
+        message(${_level} ${ARGN})
+    endfunction()
 
     if(NOT WIN32)
         message(FATAL_ERROR "Code signing is only supported on Windows.")
@@ -95,7 +108,7 @@ function(codesign)
     )
 
     if(NOT _cmd)
-        message(NOTICE "signtool.exe was not found, no binaries will be signed.")
+        _report_unsigned(NOTICE "signtool.exe was not found, no binaries will be signed.")
         return()
     endif()
 
@@ -186,19 +199,19 @@ function(codesign)
         if(NOT _ARG_CERTIFICATE_FILE)
             if(CODESIGN_CERTIFICATE_FILE)
                 if(NOT EXISTS ${CODESIGN_CERTIFICATE_FILE})
-                    message(NOTICE "Certificate file '${CODESIGN_CERTIFICATE_FILE}' does not exist.")
+                    _report_unsigned(NOTICE "Certificate file '${CODESIGN_CERTIFICATE_FILE}' does not exist.")
                     return()
                 endif()
 
                 set(_ARG_CERTIFICATE_FILE ${CODESIGN_CERTIFICATE_FILE})
             elseif(DEFINED ENV{CODESIGN_CERTIFICATE_FILE})
                 if("$ENV{CODESIGN_CERTIFICATE_FILE}" STREQUAL "")
-                    message(NOTICE "CODESIGN_CERTIFICATE_FILE is set to an empty string.")
+                    _report_unsigned(NOTICE "CODESIGN_CERTIFICATE_FILE is set to an empty string.")
                     return()
                 endif()
 
                 if(NOT EXISTS $ENV{CODESIGN_CERTIFICATE_FILE})
-                    message(NOTICE
+                    _report_unsigned(NOTICE
                         "Certificate file '$ENV{CODESIGN_CERTIFICATE_FILE}' "
                         "(set in CODESIGN_CERTIFICATE_FILE) does not exist."
                     )
@@ -208,7 +221,7 @@ function(codesign)
                 set(_ARG_CERTIFICATE_FILE $ENV{CODESIGN_CERTIFICATE_FILE})
             elseif(DEFINED ENV{CODESIGN_CERTIFICATE})
                 if("$ENV{CODESIGN_CERTIFICATE}" STREQUAL "")
-                    message(NOTICE "CODESIGN_CERTIFICATE is set to an empty string.")
+                    _report_unsigned(NOTICE "CODESIGN_CERTIFICATE is set to an empty string.")
                     return()
                 endif()
 
@@ -218,7 +231,7 @@ function(codesign)
                 set(_ARG_CERTIFICATE_FILE ${_certificate_file})
             elseif(DEFINED ENV{CODESIGN_CERTIFICATE_BASE64})
                 if("$ENV{CODESIGN_CERTIFICATE_BASE64}" STREQUAL "")
-                    message(NOTICE "CODESIGN_CERTIFICATE_BASE64 is set to an empty string.")
+                    _report_unsigned(NOTICE "CODESIGN_CERTIFICATE_BASE64 is set to an empty string.")
                     return()
                 endif()
 
@@ -248,7 +261,7 @@ function(codesign)
                 file(REMOVE ${_certificate_base64_file})
 
                 if(NOT _rc EQUAL 0)
-                    message(WARNING "Failed to decode certificate: ${_stdout}")
+                    _report_unsigned(WARNING "Failed to decode certificate: ${_stdout}")
                     _cleanup()
                     return()
                 endif()
@@ -258,7 +271,7 @@ function(codesign)
 
                 set(_ARG_CERTIFICATE_FILE ${_certificate_file})
             else()
-                message(NOTICE "Certificate is not provided, no binaries will be signed.")
+                _report_unsigned(NOTICE "Certificate is not provided, no binaries will be signed.")
                 return()
             endif()
         endif()
@@ -271,7 +284,7 @@ function(codesign)
                 set(_ARG_PASSWORD ${CODESIGN_PASSWORD})
             elseif(DEFINED ENV{CODESIGN_PASSWORD})
                 if("$ENV{CODESIGN_PASSWORD}" STREQUAL "")
-                    message(NOTICE "CODESIGN_PASSWORD is set to an empty string. Unset if not used.")
+                    _report_unsigned(NOTICE "CODESIGN_PASSWORD is set to an empty string. Unset if not used.")
                     _cleanup()
                     return()
                 endif()
@@ -327,7 +340,7 @@ function(codesign)
 
     foreach(_file ${_ARG_FILES})
         if(NOT EXISTS ${_file})
-            message(NOTICE "Cannot find file to sign: ${_file}")
+            _report_unsigned(NOTICE "Cannot find file to sign: ${_file}")
             continue()
         endif()
 
@@ -342,7 +355,7 @@ function(codesign)
         if(_rc EQUAL 0)
             message(STATUS "Successfully signed: ${_file}")
         else()
-            message(NOTICE "Failed to sign: ${_stderr}")
+            _report_unsigned(NOTICE "Failed to sign: ${_stderr}")
 
             if(NOT _ARG_QUIET)
                 message(VERBOSE ${_stdout})
