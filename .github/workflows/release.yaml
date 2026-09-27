@@ -118,9 +118,15 @@ jobs:
       - name: Package
         run: cmake --build --preset ${{ matrix.config.buildPreset }} --target package
         env:
+          CODESIGN_REQUIRED: 1
           CODESIGN_AZURE_ENDPOINT: ${{ vars.CODESIGN_AZURE_ENDPOINT }}
           CODESIGN_AZURE_ACCOUNT: ${{ vars.CODESIGN_AZURE_ACCOUNT }}
           CODESIGN_AZURE_PROFILE: ${{ vars.CODESIGN_AZURE_PROFILE }}
+
+      - name: Test MSI
+        if: matrix.config.configurePreset == 'release'
+        shell: pwsh
+        run: pwsh -NoProfile -File pkg/wix/tools/test-msi.ps1 -Install -RequireSigned
 
       - name: Attest Build Provenance
         uses: actions/attest@v4
