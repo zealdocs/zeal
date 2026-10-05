@@ -279,10 +279,12 @@ jobs:
         run: |
           export QMAKE=$(which qmake6)
           export OUTPUT=Zeal-${{ env.ZEAL_VERSION }}-x86_64.AppImage
-          ./linuxdeploy-x86_64.AppImage \
-            --appdir AppDir \
-            --plugin qt \
-            --output appimage
+          # Qt loads libssl from the host at runtime, so a bundled libcrypto would mismatch it.
+          # The Qt plugin ignores this variable, hence the removal before the final pass.
+          export LINUXDEPLOY_EXCLUDED_LIBRARIES="libssl.so*;libcrypto.so*"
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --plugin qt
+          rm -f AppDir/usr/lib/libssl.so* AppDir/usr/lib/libcrypto.so*
+          ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v7
