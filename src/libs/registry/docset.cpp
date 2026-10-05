@@ -63,6 +63,33 @@ void sqliteScoreFunction(sqlite3_context *context, int argc, sqlite3_value **arg
 
     sqlite3_result_double(context, Zeal::Util::Fuzzy::scoreFunction(needle, haystack));
 }
+
+// Captures each literal run of a LIKE pattern, so only those get highlighted.
+QRegularExpression likePatternToRegex(QStringView pattern)
+{
+    QString regex;
+    QString literal;
+    const auto flushLiteral = [&regex, &literal] {
+        if (!literal.isEmpty()) {
+            regex += u'(' + QRegularExpression::escape(literal) + u')';
+            literal.clear();
+        }
+    };
+
+    for (const QChar c : pattern) {
+        if (c == u'%' || c == u'_') {
+            flushLiteral();
+            regex += c == u'%' ? ".*?"_L1 : "."_L1;
+        } else {
+            literal += c;
+        }
+    }
+    flushLiteral();
+
+    return QRegularExpression(regex,
+                              QRegularExpression::CaseInsensitiveOption
+                                  | QRegularExpression::DotMatchesEverythingOption);
+}
 } // namespace
 
 Docset::Docset(QString path)
@@ -398,7 +425,7 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         } else {
             sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE ? ESCAPE '\\')"
+                                 "  WHERE (name LIKE ?)"
                                  "  ORDER BY score DESC");
         }
     } else {
@@ -410,7 +437,7 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         } else {
             sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE ? ESCAPE '\\')"
+                                 "  WHERE (name LIKE ?)"
                                  "  ORDER BY score DESC");
         }
     }
@@ -426,9 +453,13 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
     if (m_isFuzzySearchEnabled) {
         stmt.bindText(1, query);
     } else {
-        likePattern = QLatin1Char('%') + Util::escapeLikePattern(query) + QLatin1Char('%');
+        // Unescaped: % and _ are user wildcards, and \ stays literal without ESCAPE.
+        likePattern = QLatin1Char('%') + query + QLatin1Char('%');
         stmt.bindText(1, likePattern);
     }
+
+    const bool hasWildcards = !m_isFuzzySearchEnabled && (query.contains(u'%') || query.contains(u'_'));
+    const QRegularExpression likeRegex = hasWildcards ? likePatternToRegex(query) : QRegularExpression();
 
     QList<SearchResult> results;
     while (stmt.step() && !canceled.load(std::memory_order_relaxed)) {
@@ -444,6 +475,13 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         if (m_isFuzzySearchEnabled) {
             // Fuzzy search: use fuzzy matching algorithm.
             Util::Fuzzy::score(query, result.name, &result.matchPositions);
+        } else if (hasWildcards) {
+            const QRegularExpressionMatch match = likeRegex.match(result.name);
+            for (int group = 1; group <= match.lastCapturedIndex(); ++group) {
+                for (qsizetype i = match.capturedStart(group); i < match.capturedEnd(group); ++i) {
+                    result.matchPositions.append(static_cast<int>(i));
+                }
+            }
         } else {
             // Non-fuzzy search: highlight only first occurrence.
             const qsizetype pos = result.name.indexOf(query, 0, Qt::CaseInsensitive);
