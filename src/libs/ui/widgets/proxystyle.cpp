@@ -69,11 +69,38 @@ void ProxyStyle::drawControl(ControlElement element,
     // alignment field, so flag the label pass and adjust in drawItemText().
     if (element == CE_TabBarTabLabel && qobject_cast<const TabBar *>(widget) != nullptr) {
         const QScopedValueRollback<bool> rollback(m_leftAlignItemText, true);
-        QProxyStyle::drawControl(element, option, painter, widget);
+
+        if (!paintsTabIcon(option, widget)) {
+            QProxyStyle::drawControl(element, option, painter, widget);
+            return;
+        }
+
+        const auto *tab = qstyleoption_cast<const QStyleOptionTab *>(option);
+
+        QRect iconRect;
+        const QStyleOptionTab labelOption = tabLabelOption(tab, widget, &iconRect);
+
+        const QIcon::Mode mode = tab->state.testFlag(State_Enabled) ? QIcon::Normal : QIcon::Disabled;
+        const QIcon::State state = tab->state.testFlag(State_Selected) ? QIcon::On : QIcon::Off;
+        tab->icon.paint(painter, iconRect, Qt::AlignCenter, mode, state);
+
+        QProxyStyle::drawControl(element, &labelOption, painter, widget);
         return;
     }
 
     QProxyStyle::drawControl(element, option, painter, widget);
+}
+
+QRect ProxyStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
+{
+    // QTabBar elides titles to this rect, so it must match the label.
+    if (element == SE_TabBarTabText && paintsTabIcon(option, widget)) {
+        const auto *tab = qstyleoption_cast<const QStyleOptionTab *>(option);
+        const QStyleOptionTab labelOption = tabLabelOption(tab, widget);
+        return QProxyStyle::subElementRect(element, &labelOption, widget);
+    }
+
+    return QProxyStyle::subElementRect(element, option, widget);
 }
 
 void ProxyStyle::drawItemText(QPainter *painter,
@@ -92,6 +119,57 @@ void ProxyStyle::drawItemText(QPainter *painter,
     }
 
     QProxyStyle::drawItemText(painter, rect, flags, pal, enabled, text, textRole);
+}
+
+bool ProxyStyle::paintsTabIcon(const QStyleOption *option, const QWidget *widget) const
+{
+    // In document mode the macOS style places the icon beside the centered
+    // text. With left-aligned labels the text would overlap it. Other styles
+    // already put the icon at the leading edge.
+    if (qobject_cast<const TabBar *>(widget) == nullptr
+        || baseStyle()->name().compare(QStringLiteral("macos"), Qt::CaseInsensitive) != 0) {
+        return false;
+    }
+
+    const auto *tab = qstyleoption_cast<const QStyleOptionTab *>(option);
+    if (tab == nullptr || !tab->documentMode || tab->icon.isNull()) {
+        return false;
+    }
+
+    return tab->shape == QTabBar::RoundedNorth || tab->shape == QTabBar::RoundedSouth
+        || tab->shape == QTabBar::TriangularNorth || tab->shape == QTabBar::TriangularSouth;
+}
+
+QStyleOptionTab ProxyStyle::tabLabelOption(const QStyleOptionTab *tab, const QWidget *widget, QRect *iconRect) const
+{
+    // Same gap between icon and text as QCommonStyle and QMacStyle.
+    constexpr int IconSpacing = 4;
+
+    QSize iconSize = tab->iconSize;
+    if (!iconSize.isValid()) {
+        const int extent = pixelMetric(PM_SmallIconSize, tab, widget);
+        iconSize = QSize(extent, extent);
+    }
+
+    iconSize = tab->icon.actualSize(iconSize);
+
+    QStyleOptionTab labelOption(*tab);
+    labelOption.icon = QIcon();
+
+    if (iconRect != nullptr) {
+        // Put the icon where the text would start.
+        const QRect textRect = QProxyStyle::subElementRect(SE_TabBarTabText, &labelOption, widget);
+        *iconRect = alignedRect(tab->direction, Qt::AlignLeading | Qt::AlignVCenter, iconSize, textRect);
+    }
+
+    const int iconExtent = iconSize.width() + IconSpacing;
+    if (tab->direction == Qt::RightToLeft) {
+        labelOption.rect.setRight(labelOption.rect.right() - iconExtent);
+    } else {
+        labelOption.rect.setLeft(labelOption.rect.left() + iconExtent);
+    }
+
+    return labelOption;
 }
 
 } // namespace Zeal::WidgetUi

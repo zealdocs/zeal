@@ -5,6 +5,7 @@
 #define ZEAL_WIDGETUI_PROXYSTYLE_H
 
 #include <QProxyStyle>
+#include <QStyleOptionTab>
 
 namespace Zeal::WidgetUi {
 
@@ -29,6 +30,10 @@ public:
                      QPainter *painter,
                      const QWidget *widget = nullptr) const override;
 
+    QRect subElementRect(SubElement element,
+                         const QStyleOption *option,
+                         const QWidget *widget = nullptr) const override;
+
     void drawItemText(QPainter *painter,
                       const QRect &rect,
                       int flags,
@@ -38,6 +43,13 @@ public:
                       QPalette::ColorRole textRole = QPalette::NoRole) const override;
 
 private:
+    // Returns whether this style paints the icon of a browser tab itself.
+    bool paintsTabIcon(const QStyleOption *option, const QWidget *widget) const;
+
+    // Copy of the tab option without its icon, narrowed to leave room for the
+    // icon at the leading edge.
+    QStyleOptionTab tabLabelOption(const QStyleOptionTab *tab, const QWidget *widget, QRect *iconRect = nullptr) const;
+
     // Set while the base style draws a browser tab label, whose centered text
     // alignment is hardcoded and only reachable via proxied drawItemText().
     mutable bool m_leftAlignItemText = false;
