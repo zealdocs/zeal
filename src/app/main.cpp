@@ -214,7 +214,7 @@ void registerProtocolHandler(const QString &scheme, const QString &description)
     registry.beginGroup(QStringLiteral("shell"));
     registry.beginGroup(QStringLiteral("open"));
     registry.beginGroup(QStringLiteral("command"));
-    registry.setValue(QStringLiteral("Default"), QVariant(appPath + QLatin1String(" %1")));
+    registry.setValue(QStringLiteral("Default"), QVariant(QLatin1Char('"') + appPath + QLatin1String("\" \"%1\"")));
 }
 
 void registerProtocolHandlers(const QHash<QString, QString> &protocols, bool force = false)
