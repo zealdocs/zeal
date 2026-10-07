@@ -372,9 +372,13 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
 
-    // Set application-wide window icon. All message boxes and other windows will use it by default.
     QApplication::setDesktopFileName(QStringLiteral("org.zealdocs.zeal"));
+
+    // Default icon for all windows and message boxes. Skipped on macOS, where it would
+    // replace the Dock icon from the bundle's zeal.icns.
+#ifndef Q_OS_MACOS
     QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("zeal"), QIcon(QStringLiteral(":/zeal.svg"))));
+#endif
 
     QDir::setSearchPaths(QStringLiteral("typeIcon"), {QStringLiteral(":/icons/type")});
 
