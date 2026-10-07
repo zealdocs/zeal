@@ -158,12 +158,8 @@ QStyleOptionTab ProxyStyle::tabLabelOption(const QStyleOptionTab *tab, const QWi
 
     if (iconRect != nullptr) {
         // Put the icon where the text would start.
-        const QRect textRect = visualRect(tab->direction,
-                                          tab->rect,
-                                          QProxyStyle::subElementRect(SE_TabBarTabText, &labelOption, widget));
-        *iconRect = visualRect(tab->direction,
-                               tab->rect,
-                               QRect(QPoint(textRect.left(), textRect.center().y() - iconSize.height() / 2), iconSize));
+        const QRect textRect = QProxyStyle::subElementRect(SE_TabBarTabText, &labelOption, widget);
+        *iconRect = alignedRect(tab->direction, Qt::AlignLeading | Qt::AlignVCenter, iconSize, textRect);
     }
 
     const int iconExtent = iconSize.width() + IconSpacing;
