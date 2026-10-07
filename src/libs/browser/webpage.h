@@ -17,6 +17,9 @@ public:
     explicit WebPage(QObject *parent = nullptr);
     ~WebPage() override = default;
 
+    // Whether a non-local URL may be opened at all, in Zeal or in the system browser.
+    static bool isExternalSchemeAllowed(const QUrl &url);
+
 protected:
     bool acceptNavigationRequest(const QUrl &requestUrl, NavigationType type, bool isMainFrame) override;
     void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level,

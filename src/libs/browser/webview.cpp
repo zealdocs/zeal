@@ -164,7 +164,8 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
         }
 
         if (scheme != QLatin1String("qrc")) {
-            if (scheme != QLatin1String("javascript")) {
+            // A file: or custom-scheme link would be executed by the OS rather than browsed.
+            if (WebPage::isExternalSchemeAllowed(linkUrl)) {
                 m_contextMenu->addAction(WidgetUi::IconHelper::fromResource(
                                              QStringLiteral(":/icons/tabler/external-link.svg")),
                                          tr("Open Link in Desktop Browser"),
@@ -208,14 +209,17 @@ void WebView::contextMenuEvent(QContextMenuEvent *event)
                                                                QStringLiteral(":/icons/tabler/arrow-right.svg")));
         m_contextMenu->addAction(forwardAction);
 
-        m_contextMenu->addSeparator();
+        if (WebPage::isExternalSchemeAllowed(url())) {
+            m_contextMenu->addSeparator();
 
-        m_contextMenu->addAction(WidgetUi::IconHelper::fromResource(QStringLiteral(":/icons/tabler/external-link.svg")),
-                                 tr("Open Page in Desktop Browser"),
-                                 this,
-                                 [this]() {
-            QDesktopServices::openUrl(url());
-        });
+            m_contextMenu->addAction(WidgetUi::IconHelper::fromResource(
+                                         QStringLiteral(":/icons/tabler/external-link.svg")),
+                                     tr("Open Page in Desktop Browser"),
+                                     this,
+                                     [this]() {
+                QDesktopServices::openUrl(url());
+            });
+        }
     }
 
     if (m_contextMenu->isEmpty()) {
