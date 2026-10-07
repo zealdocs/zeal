@@ -14,6 +14,8 @@
 
 #include <httplib.h>
 
+#include <string>
+
 namespace Zeal::Core {
 
 namespace {
@@ -42,6 +44,23 @@ HttpServer::HttpServer(quint16 port, QObject *parent)
     m_baseUrl.setScheme(QStringLiteral("http"));
     m_baseUrl.setHost(QString::fromLatin1(LocalHttpServerHost));
     m_baseUrl.setPort(boundPort);
+
+    // Only Zeal's own browser is meant to talk to this server. A page in a regular browser
+    // can reach it through DNS rebinding, but then the Host header names the attacker's
+    // domain rather than the loopback address, so reject anything else. Exact matches
+    // only: browsers resolve any *.localhost name to loopback as well.
+    const std::string portSuffix = ":" + std::to_string(boundPort);
+    const std::string loopbackHost = LocalHttpServerHost + portSuffix;
+    const std::string localhostHost = "localhost" + portSuffix;
+    m_server->set_pre_routing_handler([loopbackHost, localhostHost](const auto &req, auto &res) {
+        const std::string host = req.get_header_value("Host");
+        if (host != loopbackHost && host != localhostHost) {
+            res.status = 403;
+            return httplib::Server::HandlerResponse::Handled;
+        }
+
+        return httplib::Server::HandlerResponse::Unhandled;
+    });
 
     m_server->set_error_handler([this](const auto &req, auto &res) {
         // On 404, try case-insensitive path resolution.
