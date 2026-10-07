@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 #include <QLoggingCategory>
 #include <QMetaEnum>
+#include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -45,7 +46,8 @@ WebControl::WebControl(QWidget *parent)
             return;
         }
 
-        m_webView->setToolTip(link);
+        // Tooltips render anything that looks like HTML; the link text is docset content.
+        m_webView->setToolTip(Qt::convertFromPlainText(link));
     });
     connect(m_webView, &QWebEngineView::titleChanged, this, &WebControl::titleChanged);
     connect(m_webView, &QWebEngineView::urlChanged, this, [this](const QUrl &url) {
