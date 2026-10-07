@@ -15,7 +15,8 @@ target_link_libraries(Util PRIVATE Qt6::Core)
 
 zeal_attach_qt_pch(Util)
 
-find_package(SQLite3 REQUIRED)
+# 3.31.0 introduced SQLITE_DBCONFIG_TRUSTED_SCHEMA.
+find_package(SQLite3 3.31.0 REQUIRED)
 if(NOT TARGET SQLite3::SQLite3)
     add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
 endif()
