@@ -97,6 +97,15 @@ void WebPage::updateInternalPageTheme()
                       .arg(theme));
 }
 
+// Docset content is untrusted, and QDesktopServices::openUrl() hands any scheme to the OS,
+// where handlers such as ms-msdt: or search-ms: run arbitrary programs. Only web schemes
+// may leave Zeal.
+bool WebPage::isExternalSchemeAllowed(const QUrl &url)
+{
+    const QString scheme = url.scheme();
+    return scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto");
+}
+
 bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::NavigationType type, bool isMainFrame)
 {
     Q_UNUSED(type)
@@ -110,6 +119,14 @@ bool WebPage::acceptNavigationRequest(const QUrl &requestUrl, QWebEnginePage::Na
     // Local elements are always allowed.
     if (Core::NetworkAccessManager::isLocalUrl(requestUrl)) {
         return true;
+    }
+
+    if (!isExternalSchemeAllowed(requestUrl)) {
+        qCWarning(log, "Blocked request to '%s': scheme is not allowed.", qPrintable(requestUrl.toString()));
+        if (isMainFrame) {
+            applyForceDarkMode(url());
+        }
+        return false;
     }
 
     // Allow external resources if already on an external page.
