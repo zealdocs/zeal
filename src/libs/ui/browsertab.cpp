@@ -125,6 +125,8 @@ BrowserTab::BrowserTab(SearchSidebar *sidebarToClone, QWidget *parent)
 
     auto *label = new QLabel();
     label->setAlignment(Qt::AlignCenter);
+    // Page titles come from docset content; do not let QLabel render them as HTML.
+    label->setTextFormat(Qt::PlainText);
     connect(m_webControl, &Browser::WebControl::titleChanged, this, [label](const QString &title) {
         if (title.isEmpty()) {
             return;

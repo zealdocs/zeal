@@ -37,6 +37,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTabBar>
+#include <QTextDocument>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -212,7 +213,8 @@ void MainWindow::addTab(BrowserTab *tab, int index, bool activate)
             const int index = m_webViewStack->indexOf(tab);
             Q_ASSERT(m_tabBar->tabData(index).value<BrowserTab *>() == tab);
             m_tabBar->setTabText(index, title);
-            m_tabBar->setTabToolTip(index, title);
+            // Tooltips render anything that looks like HTML; the title is docset content.
+            m_tabBar->setTabToolTip(index, Qt::convertFromPlainText(title));
         }
 
         // Only update the window title for the active tab.
