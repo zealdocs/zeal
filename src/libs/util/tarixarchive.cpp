@@ -104,13 +104,13 @@ TarixArchive::TarixArchive(const QString &archivePath, const QString &indexPath)
         return;
     }
 
-    // Check upfront because opening a nonexistent path would create an empty database.
     if (!QFile::exists(indexPath)) {
         m_lastError = QStringLiteral("Index does not exist: %1").arg(indexPath);
         return;
     }
 
-    auto index = std::make_unique<Database>(indexPath);
+    // The index is only ever read, so do not give its untrusted content a writable connection.
+    auto index = std::make_unique<Database>(indexPath, /*readOnly=*/true);
     if (!index->isOpen()) {
         m_lastError = index->lastError();
         return;

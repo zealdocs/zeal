@@ -31,18 +31,27 @@ const auto ListCallback = [](void *ptr, int, char **data, char **) {
 };
 } // namespace
 
-Database::Database(const QString &path)
+Database::Database(const QString &path, bool readOnly)
 {
     if (sqlite3_initialize() != SQLITE_OK) {
         return;
     }
 
-    if (sqlite3_open16(path.constData(), &m_db) != SQLITE_OK) {
+    const int flags = readOnly ? SQLITE_OPEN_READONLY : (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
+    if (sqlite3_open_v2(path.toUtf8().constData(), &m_db, flags, nullptr) != SQLITE_OK) {
         if (m_db != nullptr) {
-            m_lastError = QString(static_cast<const QChar *>(sqlite3_errmsg16(m_db)));
+            m_lastError = QString::fromUtf8(sqlite3_errmsg(m_db));
         }
         close();
+        return;
     }
+
+    // Docset databases are untrusted input. Defensive mode blocks writes to the schema and
+    // shadow tables; an untrusted schema keeps SQL embedded in views, triggers and CHECK
+    // constraints from calling functions or virtual tables that are not marked innocuous.
+    // Zeal's own statements are unaffected. See https://www.sqlite.org/security.html.
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_DEFENSIVE, 1, nullptr);
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, nullptr);
 }
 
 Database::~Database()

@@ -16,7 +16,8 @@ class Database
 {
     Q_DISABLE_COPY_MOVE(Database)
 public:
-    explicit Database(const QString &path);
+    // A read-only database fails to open rather than being created when the file is missing.
+    explicit Database(const QString &path, bool readOnly = false);
     virtual ~Database();
 
     bool isOpen() const;
