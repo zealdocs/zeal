@@ -72,8 +72,7 @@ fix(ui): keep search match highlight legible
 Fixes #1963.
 ```
 
-Zeal does not use `Signed-off-by`, so leave it out. `Co-Authored-By` is for people who worked on the change with
-you.
+Zeal does not use `Signed-off-by`, so leave it out.
 
 ## Tests
 

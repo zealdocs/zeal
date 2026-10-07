@@ -41,7 +41,9 @@ path = [
     ".github/**/*",
     ".gitignore",
     ".markdownlint.yaml",
+    "AGENTS.md",
     "CHANGELOG.md",
+    "CLAUDE.md",
     "tools/cliff.toml",
 ]
 SPDX-FileCopyrightText = "Oleg Shparber, et al. <https://zealdocs.org>"
