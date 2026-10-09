@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLoggingCategory>
+#include <QQuickWindow>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QSystemTrayIcon>
@@ -47,6 +48,7 @@ Settings::Settings(QObject *parent)
 {
     qRegisterMetaType<ContentAppearance>("ContentAppearance");
     qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
+    qRegisterMetaType<RenderingBackend>("RenderingBackend");
     qRegisterMetaType<TrayIconStyle>("TrayIconStyle");
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
@@ -179,6 +181,8 @@ void Settings::load()
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags);
     }
 #endif
+
+    renderingBackend = readRenderingBackend(settings.get());
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     applyColorScheme();
@@ -334,6 +338,7 @@ void Settings::save()
     settings->setValue(QStringLiteral("custom_css_file"), customCssFile);
     settings->setValue(QStringLiteral("external_link_policy"), QVariant::fromValue(externalLinkPolicy));
     settings->setValue(QStringLiteral("smooth_scrolling"), isSmoothScrollingEnabled);
+    settings->setValue(QStringLiteral("rendering_backend"), QVariant::fromValue(renderingBackend));
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
@@ -359,6 +364,47 @@ void Settings::save()
     settings->sync();
 
     emit updated();
+}
+
+void Settings::applyRenderingBackend()
+{
+    qRegisterMetaType<RenderingBackend>("RenderingBackend");
+
+    auto settings = qsettings();
+    settings->beginGroup(GroupContent);
+    const RenderingBackend backend = readRenderingBackend(settings.get());
+    settings->endGroup();
+
+    if (backend == RenderingBackend::Automatic) {
+        return;
+    }
+
+    // An explicit request overrides the environment, so keep the environment as an escape
+    // hatch for a stored choice that breaks rendering.
+    for (const char *name : {"QT_QUICK_BACKEND", "QMLSCENE_DEVICE", "QSG_RHI_BACKEND"}) {
+        if (!qEnvironmentVariableIsEmpty(name)) {
+            qCInfo(log, "Rendering backend setting ignored: %s is set.", name);
+            return;
+        }
+    }
+
+    switch (backend) {
+    case RenderingBackend::OpenGL:
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
+        break;
+    case RenderingBackend::Software:
+        // Qt WebEngine disables Chromium's GPU process itself when the scene graph is software.
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
+        break;
+    default:
+        break;
+    }
+}
+
+Settings::RenderingBackend Settings::readRenderingBackend(QSettings *settings)
+{
+    return settings->value(QStringLiteral("rendering_backend"), QVariant::fromValue(RenderingBackend::Automatic))
+        .value<RenderingBackend>();
 }
 
 /*!
@@ -452,6 +498,20 @@ QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolic
     std::underlying_type_t<Zeal::Core::Settings::ExternalLinkPolicy> value = 0;
     in >> value;
     policy = static_cast<Zeal::Core::Settings::ExternalLinkPolicy>(value);
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::RenderingBackend backend)
+{
+    out << static_cast<std::underlying_type_t<Zeal::Core::Settings::RenderingBackend>>(backend);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::RenderingBackend &backend)
+{
+    std::underlying_type_t<Zeal::Core::Settings::RenderingBackend> value = 0;
+    in >> value;
+    backend = static_cast<Zeal::Core::Settings::RenderingBackend>(value);
     return in;
 }
 

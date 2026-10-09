@@ -5,6 +5,7 @@
 #include <core/application.h>
 #include <core/applicationsingleton.h>
 #include <core/httpserver.h>
+#include <core/settings.h>
 #include <registry/searchquery.h>
 #include <ui/widgets/proxystyle.h>
 #include <ui/windowmanager.h>
@@ -290,6 +291,8 @@ int main(int argc, char *argv[])
         if (parser.isSet(QStringLiteral("version"))) {
             parser.showVersion();
         }
+
+        Zeal::Core::Settings::applyRenderingBackend();
     }
 
     QApplication qapp(argc, argv);

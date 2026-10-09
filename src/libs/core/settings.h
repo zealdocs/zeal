@@ -87,6 +87,15 @@ public:
     QString customCssFile;
     bool isSmoothScrollingEnabled;
 
+    // OpenGL differs from Automatic only where Qt defaults to D3D11 (Windows) or Metal (macOS).
+    enum class RenderingBackend : unsigned int {
+        Automatic = 0,
+        OpenGL,
+        Software
+    };
+    Q_ENUM(RenderingBackend)
+    RenderingBackend renderingBackend = RenderingBackend::Automatic;
+
     // Network
     enum class ProxyType : unsigned int {
         None = 0,
@@ -140,6 +149,10 @@ public:
     void load();
     void save();
 
+    // Applies the stored rendering backend. Qt WebEngine inspects the requested graphics API
+    // while QApplication is constructed, so this must run before that.
+    static void applyRenderingBackend();
+
 signals:
     void updated();
 
@@ -147,6 +160,7 @@ private:
     static void migrate(QSettings *settings);
 
     static std::unique_ptr<QSettings> qsettings();
+    static RenderingBackend readRenderingBackend(QSettings *settings);
 };
 
 } // namespace Zeal::Core
@@ -157,11 +171,15 @@ QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ContentAppearance
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::ExternalLinkPolicy &policy);
 
+QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::RenderingBackend backend);
+QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::RenderingBackend &backend);
+
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::TrayIconStyle style);
 QDataStream &operator>>(QDataStream &in, Zeal::Core::Settings::TrayIconStyle &style);
 
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ContentAppearance)
 Q_DECLARE_METATYPE(Zeal::Core::Settings::ExternalLinkPolicy)
+Q_DECLARE_METATYPE(Zeal::Core::Settings::RenderingBackend)
 Q_DECLARE_METATYPE(Zeal::Core::Settings::TrayIconStyle)
 
 #endif // ZEAL_CORE_SETTINGS_H
