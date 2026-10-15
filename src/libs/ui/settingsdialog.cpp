@@ -77,6 +77,21 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         ui->defaultZoomComboBox->addItem(QStringLiteral("%1%").arg(percentage), percentage);
     }
 
+    // Rendering
+    using RenderingBackend = Core::Settings::RenderingBackend;
+    ui->renderingBackendComboBox->addItem(tr("Automatic"), QVariant::fromValue(RenderingBackend::Automatic));
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+    // Elsewhere Qt already defaults to OpenGL, so the option would be a no-op.
+    ui->renderingBackendComboBox->addItem(tr("OpenGL"), QVariant::fromValue(RenderingBackend::OpenGL));
+    ui->renderingBackendComboBox->setToolTip(
+        tr("Automatic uses the platform's hardware acceleration. Try OpenGL if pages come up blank or garbled, and "
+           "Software if that does not help."));
+#else
+    ui->renderingBackendComboBox->setToolTip(
+        tr("Automatic uses the platform's hardware acceleration. Try Software if pages come up blank or garbled."));
+#endif
+    ui->renderingBackendComboBox->addItem(tr("Software"), QVariant::fromValue(RenderingBackend::Software));
+
     // Fix tab order.
     setTabOrder(ui->defaultFontComboBox, ui->fontSizeComboBox);
     setTabOrder(ui->fontSizeComboBox, ui->serifFontComboBox);
@@ -245,6 +260,9 @@ void SettingsDialog::loadSettings()
     }
 
     ui->useSmoothScrollingCheckBox->setChecked(settings->isSmoothScrollingEnabled);
+    // Fall back to the first entry if the stored backend is not a known value.
+    ui->renderingBackendComboBox->setCurrentIndex(
+        qMax(0, ui->renderingBackendComboBox->findData(QVariant::fromValue(settings->renderingBackend))));
 
     // Network Tab
     switch (settings->proxyType) {
@@ -333,6 +351,7 @@ void SettingsDialog::saveSettings()
     }
 
     settings->isSmoothScrollingEnabled = ui->useSmoothScrollingCheckBox->isChecked();
+    settings->renderingBackend = ui->renderingBackendComboBox->currentData().value<Core::Settings::RenderingBackend>();
 
     // Network Tab
     // Proxy settings
