@@ -5,7 +5,8 @@
 #define ZEAL_WIDGETUI_PROXYSTYLE_H
 
 #include <QProxyStyle>
-#include <QStyleOptionTab>
+
+class QStyleOptionTab;
 
 namespace Zeal::WidgetUi {
 
@@ -13,7 +14,8 @@ namespace Zeal::WidgetUi {
 // they match the rest of the application's icon set. Currently this restyles the
 // tab bar close button; everything else is left to the base style, and a real
 // desktop icon theme (non-empty QIcon::themeName()) still takes precedence.
-// Additionally left-aligns labels in the browser tab bar.
+// Additionally left-aligns labels in the browser tab bar and, on macOS, moves
+// the tab icon to the leading edge.
 class ProxyStyle : public QProxyStyle
 {
     Q_OBJECT
@@ -43,8 +45,7 @@ public:
                       QPalette::ColorRole textRole = QPalette::NoRole) const override;
 
 private:
-    // Returns whether this style paints the icon of a browser tab itself.
-    bool paintsTabIcon(const QStyleOption *option, const QWidget *widget) const;
+    bool shouldPaintTabIcon(const QStyleOption *option, const QWidget *widget) const;
 
     // Copy of the tab option without its icon, narrowed to leave room for the
     // icon at the leading edge.

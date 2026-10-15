@@ -70,7 +70,7 @@ void ProxyStyle::drawControl(ControlElement element,
     if (element == CE_TabBarTabLabel && qobject_cast<const TabBar *>(widget) != nullptr) {
         const QScopedValueRollback<bool> rollback(m_leftAlignItemText, true);
 
-        if (!paintsTabIcon(option, widget)) {
+        if (!shouldPaintTabIcon(option, widget)) {
             QProxyStyle::drawControl(element, option, painter, widget);
             return;
         }
@@ -94,7 +94,7 @@ void ProxyStyle::drawControl(ControlElement element,
 QRect ProxyStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 {
     // QTabBar elides titles to this rect, so it must match the label.
-    if (element == SE_TabBarTabText && paintsTabIcon(option, widget)) {
+    if (element == SE_TabBarTabText && shouldPaintTabIcon(option, widget)) {
         const auto *tab = qstyleoption_cast<const QStyleOptionTab *>(option);
         const QStyleOptionTab labelOption = tabLabelOption(tab, widget);
         return QProxyStyle::subElementRect(element, &labelOption, widget);
@@ -121,11 +121,10 @@ void ProxyStyle::drawItemText(QPainter *painter,
     QProxyStyle::drawItemText(painter, rect, flags, pal, enabled, text, textRole);
 }
 
-bool ProxyStyle::paintsTabIcon(const QStyleOption *option, const QWidget *widget) const
+bool ProxyStyle::shouldPaintTabIcon(const QStyleOption *option, const QWidget *widget) const
 {
     // In document mode the macOS style places the icon beside the centered
-    // text. With left-aligned labels the text would overlap it. Other styles
-    // already put the icon at the leading edge.
+    // text, which left-aligned labels would overlap.
     if (qobject_cast<const TabBar *>(widget) == nullptr
         || baseStyle()->name().compare(QStringLiteral("macos"), Qt::CaseInsensitive) != 0) {
         return false;
@@ -157,7 +156,6 @@ QStyleOptionTab ProxyStyle::tabLabelOption(const QStyleOptionTab *tab, const QWi
     labelOption.icon = QIcon();
 
     if (iconRect != nullptr) {
-        // Put the icon where the text would start.
         const QRect textRect = QProxyStyle::subElementRect(SE_TabBarTabText, &labelOption, widget);
         *iconRect = alignedRect(tab->direction, Qt::AlignLeading | Qt::AlignVCenter, iconSize, textRect);
     }
