@@ -388,8 +388,15 @@ void Settings::applyRenderingBackend()
         }
     }
 
+    applyRenderingBackend(backend);
+}
+
+void Settings::applyRenderingBackend(RenderingBackend backend)
+{
     switch (backend) {
     case RenderingBackend::OpenGL:
+        // Otherwise a software adaptation requested via QT_QUICK_BACKEND would still win.
+        QQuickWindow::setSceneGraphBackend(QStringLiteral("rhi"));
         QQuickWindow::setGraphicsApi(QSGRendererInterface::OpenGL);
         break;
     case RenderingBackend::Software:
