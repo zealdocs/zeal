@@ -149,9 +149,10 @@ public:
     void load();
     void save();
 
-    // Applies the stored rendering backend. Qt WebEngine inspects the requested graphics API
-    // while QApplication is constructed, so this must run before that.
+    // Must run before QApplication is constructed, which is when Qt WebEngine inspects the
+    // requested graphics API. The overload applies the given backend regardless of environment.
     static void applyRenderingBackend();
+    static void applyRenderingBackend(RenderingBackend backend);
 
 signals:
     void updated();

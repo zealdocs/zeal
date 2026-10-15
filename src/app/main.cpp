@@ -37,6 +37,7 @@
 #include <array>
 #include <cstdlib>
 #include <limits>
+#include <optional>
 
 namespace {
 
@@ -113,6 +114,23 @@ QString stripParameterUrl(const QString &url, const QString &scheme)
     return str;
 }
 
+std::optional<Zeal::Core::Settings::RenderingBackend> parseRenderingBackend(const QString &value)
+{
+    using RenderingBackend = Zeal::Core::Settings::RenderingBackend;
+
+    const QString name = value.toLower();
+    if (name == QLatin1String("auto")) {
+        return RenderingBackend::Automatic;
+    }
+    if (name == QLatin1String("opengl")) {
+        return RenderingBackend::OpenGL;
+    }
+    if (name == QLatin1String("software")) {
+        return RenderingBackend::Software;
+    }
+    return std::nullopt;
+}
+
 // Reports a fatal startup error both on the console and in a dialog, so it is
 // visible whether Zeal was launched from a terminal or a desktop shortcut.
 void showStartupError(const QString &message)
@@ -131,7 +149,10 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
     parser.addOptions({{QStringLiteral("minimized"), QObject::tr("Start minimized regardless of settings.")},
                        {QStringLiteral("port"),
                         QObject::tr("Bind the local documentation server to a fixed port."),
-                        QObject::tr("port")}});
+                        QObject::tr("port")},
+                       {QStringLiteral("rendering-backend"),
+                        QObject::tr("Override the rendering backend for this run (auto, opengl, software)."),
+                        QObject::tr("backend")}});
 
 #ifdef Q_OS_WINDOWS
     // --attach-console is acted on at the top of main() (before any parsing) so that
@@ -161,6 +182,14 @@ CommandLineParameters parseCommandLine(const QStringList &arguments)
             ::exit(EXIT_FAILURE);
         }
         clParams.httpServerPort = static_cast<quint16>(port);
+    }
+
+    if (parser.isSet(QStringLiteral("rendering-backend"))) {
+        const QString value = parser.value(QStringLiteral("rendering-backend"));
+        if (!parseRenderingBackend(value)) {
+            showStartupError(QObject::tr("Invalid rendering backend: %1. Use auto, opengl, or software.").arg(value));
+            ::exit(EXIT_FAILURE);
+        }
     }
 
 #ifdef Q_OS_WINDOWS
@@ -287,12 +316,23 @@ int main(int argc, char *argv[])
 
         QCommandLineParser parser;
         parser.addVersionOption();
+        // Read here as well, since the backend must be requested before QApplication exists.
+        const QCommandLineOption renderingBackendOption(QStringLiteral("rendering-backend"),
+                                                        QString(),
+                                                        QStringLiteral("backend"));
+        parser.addOption(renderingBackendOption);
         parser.parse(QCoreApplication::arguments());
         if (parser.isSet(QStringLiteral("version"))) {
             parser.showVersion();
         }
 
-        Zeal::Core::Settings::applyRenderingBackend();
+        if (parser.isSet(renderingBackendOption)) {
+            if (const auto backend = parseRenderingBackend(parser.value(renderingBackendOption))) {
+                Zeal::Core::Settings::applyRenderingBackend(*backend);
+            }
+        } else {
+            Zeal::Core::Settings::applyRenderingBackend();
+        }
     }
 
     QApplication qapp(argc, argv);
