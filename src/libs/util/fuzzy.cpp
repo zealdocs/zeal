@@ -58,11 +58,11 @@ bool hasMatch(const QString &needle, const QString &haystack)
     const int haystackLen = static_cast<int>(haystack.length());
 
     for (int i = 0; i < needle.length(); ++i) {
-        const QChar needleCh = needle.at(i).toLower();
+        const QChar needleCh = needle.at(i).toCaseFolded();
         bool found = false;
 
         while (haystackPos < haystackLen) {
-            if (haystack.at(haystackPos).toLower() == needleCh) {
+            if (haystack.at(haystackPos).toCaseFolded() == needleCh) {
                 found = true;
                 ++haystackPos;
                 break;
@@ -163,11 +163,11 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
     const auto D = std::span(dp).first(cells);
     const auto M = std::span(dp).subspan(cells, cells);
 
-    // Lower the haystack once instead of once per needle row.
-    std::array<char16_t, FZY_MAX_LEN> hsLowerStorage{};
-    const std::span<char16_t> hsLower(hsLowerStorage);
+    // Case-fold the haystack once instead of once per needle row.
+    std::array<char16_t, FZY_MAX_LEN> hsFoldedStorage{};
+    const std::span<char16_t> hsFolded(hsFoldedStorage);
     for (int j = 0; j < haystackLen; ++j) {
-        hsLower[j] = haystack.at(j).toLower().unicode();
+        hsFolded[j] = haystack.at(j).toCaseFolded().unicode();
     }
 
     auto idx = [haystackLen](int i, int j) {
@@ -179,10 +179,10 @@ double computeScore(const QString &needle, const QString &haystack, QList<int> *
         double prevScore = SCORE_MIN;
         const double gapScore = (i == needleLen - 1) ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
-        const char16_t needleCh = needle.at(i).toLower().unicode();
+        const char16_t needleCh = needle.at(i).toCaseFolded().unicode();
 
         for (int j = 0; j < haystackLen; ++j) {
-            if (needleCh == hsLower[j]) {
+            if (needleCh == hsFolded[j]) {
                 double score = SCORE_MIN;
 
                 if (i == 0) {
