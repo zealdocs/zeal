@@ -46,11 +46,6 @@ constexpr auto GroupProxy = "proxy"_L1;
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
-    qRegisterMetaType<ContentAppearance>("ContentAppearance");
-    qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
-    qRegisterMetaType<RenderingBackend>("RenderingBackend");
-    qRegisterMetaType<TrayIconStyle>("TrayIconStyle");
-
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     // When the OS color scheme changes, reapply the color scheme.
     connect(qApp->styleHints(), &QStyleHints::colorSchemeChanged, this, [this]() {
@@ -368,8 +363,6 @@ void Settings::save()
 
 void Settings::applyRenderingBackend()
 {
-    qRegisterMetaType<RenderingBackend>("RenderingBackend");
-
     auto settings = qsettings();
     settings->beginGroup(GroupContent);
     const RenderingBackend backend = readRenderingBackend(settings.get());
@@ -470,6 +463,15 @@ void Settings::migrate(QSettings *settings)
  */
 std::unique_ptr<QSettings> Settings::qsettings()
 {
+    // QSettings parses and caches a whole INI section on first access, so these must be registered
+    // before any read. The names are the type tags already stored in config files; ProxyType has
+    // always been stored under its full name.
+    qRegisterMetaType<ContentAppearance>("ContentAppearance");
+    qRegisterMetaType<ExternalLinkPolicy>("ExternalLinkPolicy");
+    qRegisterMetaType<ProxyType>();
+    qRegisterMetaType<RenderingBackend>("RenderingBackend");
+    qRegisterMetaType<TrayIconStyle>("TrayIconStyle");
+
 #ifndef PORTABLE_BUILD
     return std::make_unique<QSettings>();
 #else
