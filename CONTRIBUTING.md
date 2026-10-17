@@ -28,7 +28,7 @@ just run         # compile and launch Zeal
 just test        # configure, build, and run the test suite
 ```
 
-Recipes use the `dev` CMake preset by default; override it with `PRESET=release just build`. If you prefer plain
+Recipes use the `dev` CMake preset by default; override it with `just preset=release build`. If you prefer plain
 CMake, the presets work on their own:
 
 ```shell
@@ -63,8 +63,8 @@ build(cmake): append to CMAKE_MODULE_PATH
 
 Common scopes are `app`, `core`, `ui`, `util`, `assets`, and `cmake`. When in doubt, `git log` has plenty of examples.
 
-Keep the subject under 50 characters. The only thing that belongs below it is an issue reference; explain the
-reasoning in the pull request description instead, where reviewers will look for it.
+Keep the subject to 50 characters at most, counting the type and scope. A body is optional: when the diff does
+not explain itself, add a few sentences on why, wrapped at 72 columns. End with the issue reference, if any.
 
 ```text
 fix(ui): keep search match highlight legible
@@ -72,8 +72,7 @@ fix(ui): keep search match highlight legible
 Fixes #1963.
 ```
 
-Zeal does not use `Signed-off-by`, so leave it out. `Co-Authored-By` is for people who worked on the change with
-you.
+Zeal does not use `Signed-off-by`, so leave it out.
 
 ## Tests
 
