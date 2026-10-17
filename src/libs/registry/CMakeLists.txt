@@ -20,3 +20,8 @@ target_link_libraries(Registry PRIVATE
 )
 
 zeal_attach_qt_pch(Registry <QIcon>)
+
+# Tests
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
