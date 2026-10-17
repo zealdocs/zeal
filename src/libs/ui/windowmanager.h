@@ -6,6 +6,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QString>
 
 class QSystemTrayIcon;
 
@@ -39,6 +40,8 @@ private:
     MainWindow *activeWindow() const;
     MainWindow *createMainWindow();
 
+    void showUpdateDialog(const QString &version);
+
     void applySettings();
     void createTrayIcon();
     void updateTrayIcon();
@@ -49,6 +52,8 @@ private:
 
     QList<MainWindow *> m_windows;
     QSystemTrayIcon *m_trayIcon = nullptr;
+
+    QString m_pendingUpdateVersion;
 };
 
 } // namespace WidgetUi

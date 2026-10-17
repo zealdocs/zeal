@@ -16,12 +16,19 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QSystemTrayIcon>
+#include <QTimer>
 #include <QUrl>
+
+#include <utility>
 
 namespace Zeal::WidgetUi {
 
-#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
 namespace {
+using Qt::Literals::StringLiterals::operator""_L1;
+
+constexpr auto DownloadPageUrl = "https://zealdocs.org/download.html"_L1;
+
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
 QIcon themedTrayIcon(Core::Settings::TrayIconStyle style)
 {
     // Every variant is resolved by theme name so that the tray host receives an
@@ -47,8 +54,8 @@ QIcon themedTrayIcon(Core::Settings::TrayIconStyle style)
                             QIcon::fromTheme(QStringLiteral("zeal-tray"),
                                              QIcon(QStringLiteral(":/zeal-tray-symbolic.svg"))));
 }
-} // namespace
 #endif
+} // namespace
 
 WindowManager::WindowManager(Core::Application *application, QObject *parent)
     : QObject(parent)
@@ -66,19 +73,26 @@ WindowManager::WindowManager(Core::Application *application, QObject *parent)
             return;
         }
 
-        // TODO: Remove this ugly workaround for #637.
-        qApp->setQuitOnLastWindowClosed(false);
-        const int ret = QMessageBox::information(activeWindow(),
-                                                 QStringLiteral("Zeal"),
-                                                 tr("Zeal <b>%1</b> is available. Open download page?")
-                                                     .arg(version.toHtmlEscaped()),
-                                                 QMessageBox::Yes | QMessageBox::No,
-                                                 QMessageBox::Yes);
-        qApp->setQuitOnLastWindowClosed(true);
-
-        if (ret == QMessageBox::Yes) {
-            QDesktopServices::openUrl(QUrl(QStringLiteral("https://zealdocs.org/download.html")));
+        if (qApp->applicationState() == Qt::ApplicationActive) {
+            showUpdateDialog(version);
+        } else if (m_trayIcon != nullptr && QSystemTrayIcon::supportsMessages()) {
+            m_trayIcon->showMessage(tr("Zeal %1 is available").arg(version), tr("Click to open the download page."));
+        } else {
+            m_pendingUpdateVersion = version;
         }
+    });
+
+    connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (state != Qt::ApplicationActive || m_pendingUpdateVersion.isEmpty()) {
+            return;
+        }
+
+        // Queued, so the dialog's event loop does not run inside the activation change.
+        QTimer::singleShot(0, this, [this]() {
+            if (qApp->applicationState() == Qt::ApplicationActive && !m_pendingUpdateVersion.isEmpty()) {
+                showUpdateDialog(std::exchange(m_pendingUpdateVersion, {}));
+            }
+        });
     });
 
     connect(m_settings, &Core::Settings::updated, this, &WindowManager::applySettings);
@@ -145,6 +159,23 @@ MainWindow *WindowManager::activeWindow() const
     return m_windows.first();
 }
 
+void WindowManager::showUpdateDialog(const QString &version)
+{
+    // TODO: Remove this ugly workaround for #637.
+    qApp->setQuitOnLastWindowClosed(false);
+    const int ret = QMessageBox::information(activeWindow(),
+                                             QStringLiteral("Zeal"),
+                                             tr("Zeal <b>%1</b> is available. Open download page?")
+                                                 .arg(version.toHtmlEscaped()),
+                                             QMessageBox::Yes | QMessageBox::No,
+                                             QMessageBox::Yes);
+    qApp->setQuitOnLastWindowClosed(true);
+
+    if (ret == QMessageBox::Yes) {
+        QDesktopServices::openUrl(QUrl(DownloadPageUrl));
+    }
+}
+
 void WindowManager::applySettings()
 {
     if (!m_settings->isTrayActive()) {
@@ -183,6 +214,10 @@ void WindowManager::createTrayIcon()
         }
 
         target->toggleWindow();
+    });
+
+    connect(m_trayIcon, &QSystemTrayIcon::messageClicked, this, []() {
+        QDesktopServices::openUrl(QUrl(DownloadPageUrl));
     });
 
     auto *trayIconMenu = new QMenu();
