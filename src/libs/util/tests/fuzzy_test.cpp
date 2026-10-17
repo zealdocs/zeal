@@ -22,6 +22,8 @@ private slots:
     void testPositionsExact();
     void testCamelCase();
     void testUnicode();
+    void testUnicodeCaseFolding_data();
+    void testUnicodeCaseFolding();
     void testPubTrimIssue();
     void testPubProtIssue();
     void testNoMatch();
@@ -157,6 +159,40 @@ void FuzzyTest::testUnicode()
     // Case-insensitive Unicode
     double caseScore = score(QStringLiteral("café"), QStringLiteral("CAFÉ"));
     QVERIFY(caseScore > 0);
+}
+
+void FuzzyTest::testUnicodeCaseFolding_data()
+{
+    QTest::addColumn<QString>("needle");
+    QTest::addColumn<QString>("haystack");
+    QTest::addColumn<QList<int>>("expectedPositions");
+
+    QTest::newRow("final-sigma-exact") << QStringLiteral("κόσμος") << QStringLiteral("ΚΌΣΜΟΣ")
+                                       << QList<int>{0, 1, 2, 3, 4, 5};
+    QTest::newRow("final-sigma-fuzzy") << QStringLiteral("κόσμος") << QStringLiteral("prefix_ΚΌΣΜΟΣ")
+                                       << QList<int>{7, 8, 9, 10, 11, 12};
+    QTest::newRow("final-sigma-reverse-exact")
+        << QStringLiteral("ΚΌΣΜΟΣ") << QStringLiteral("κόσμος") << QList<int>{0, 1, 2, 3, 4, 5};
+    QTest::newRow("final-sigma-reverse-fuzzy")
+        << QStringLiteral("ΚΌΣΜΟΣ") << QStringLiteral("prefix_κόσμος") << QList<int>{7, 8, 9, 10, 11, 12};
+    QTest::newRow("long-s-exact") << QStringLiteral("ſ") << QStringLiteral("S") << QList<int>{0};
+    QTest::newRow("long-s-fuzzy") << QStringLiteral("ſ") << QStringLiteral("prefix_S") << QList<int>{7};
+    QTest::newRow("micro-sign-exact") << QStringLiteral("µ") << QStringLiteral("Μ") << QList<int>{0};
+    QTest::newRow("micro-sign-fuzzy") << QStringLiteral("µ") << QStringLiteral("prefix_Μ") << QList<int>{7};
+}
+
+void FuzzyTest::testUnicodeCaseFolding()
+{
+    QFETCH(QString, needle);
+    QFETCH(QString, haystack);
+    QFETCH(QList<int>, expectedPositions);
+
+    QList<int> positions;
+    QVERIFY(score(needle, haystack, &positions) > 0);
+    QCOMPARE(positions, expectedPositions);
+    QVERIFY(computeScore(needle, haystack, &positions) > 0);
+    QCOMPARE(positions, expectedPositions);
+    QVERIFY(scoreFunction(needle.toUtf8().constData(), haystack.toUtf8().constData()) > 0);
 }
 
 void FuzzyTest::testPubTrimIssue()
