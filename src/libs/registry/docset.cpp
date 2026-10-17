@@ -24,6 +24,7 @@
 
 #include <sqlite3.h>
 
+#include <algorithm>
 #include <utility>
 
 namespace Zeal::Registry {
@@ -89,6 +90,32 @@ QRegularExpression likePatternToRegex(QStringView pattern)
     return QRegularExpression(regex,
                               QRegularExpression::CaseInsensitiveOption
                                   | QRegularExpression::DotMatchesEverythingOption);
+}
+
+// Same result as `name LIKE '%' || query || '%'`, but folds case beyond ASCII.
+void sqliteMatchFunction(sqlite3_context *context, int argc, sqlite3_value **argv)
+{
+    Q_UNUSED(argc)
+
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    const auto *query = reinterpret_cast<const char *>(sqlite3_value_text(argv[0]));
+    const auto *name = reinterpret_cast<const char *>(sqlite3_value_text(argv[1]));
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
+    auto *regex = static_cast<QRegularExpression *>(sqlite3_get_auxdata(context, 0));
+    const bool isCached = regex != nullptr;
+    if (!isCached) {
+        regex = new QRegularExpression(likePatternToRegex(QString::fromUtf8(query)));
+    }
+
+    sqlite3_result_int(context, regex->match(QString::fromUtf8(name)).hasMatch() ? 1 : 0);
+
+    if (!isCached) {
+        // SQLite owns the regex from here on and may free it before returning.
+        sqlite3_set_auxdata(context, 0, regex, [](void *p) {
+            delete static_cast<QRegularExpression *>(p);
+        });
+    }
 }
 } // namespace
 
@@ -175,6 +202,14 @@ Docset::Docset(QString path)
                             SQLITE_UTF8,
                             nullptr,
                             sqliteScoreFunction,
+                            nullptr,
+                            nullptr);
+    sqlite3_create_function(m_db->handle(),
+                            "zealMatch",
+                            2,
+                            SQLITE_UTF8,
+                            nullptr,
+                            sqliteMatchFunction,
                             nullptr,
                             nullptr);
 
@@ -415,6 +450,12 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         return results;
     }
 
+    // SQLite's LIKE only folds ASCII case, but it is faster than zealMatch().
+    const bool isAsciiQuery = std::ranges::all_of(query, [](QChar c) {
+        return c.unicode() < 0x80;
+    });
+    const QString nameFilter = isAsciiQuery ? QStringLiteral("name LIKE ?") : QStringLiteral("zealMatch(?, name)");
+
     QString sql;
     if (m_type == Docset::Type::Dash) {
         if (m_isFuzzySearchEnabled) {
@@ -425,8 +466,9 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         } else {
             sql = QStringLiteral("SELECT name, type, path, '', -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE ?)"
-                                 "  ORDER BY score DESC");
+                                 "  WHERE (%1)"
+                                 "  ORDER BY score DESC")
+                      .arg(nameFilter);
         }
     } else {
         if (m_isFuzzySearchEnabled) {
@@ -437,8 +479,9 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
         } else {
             sql = QStringLiteral("SELECT name, type, path, fragment, -length(name) as score"
                                  "  FROM searchIndex"
-                                 "  WHERE (name LIKE ?)"
-                                 "  ORDER BY score DESC");
+                                 "  WHERE (%1)"
+                                 "  ORDER BY score DESC")
+                      .arg(nameFilter);
         }
     }
 
@@ -450,7 +493,7 @@ QList<SearchResult> Docset::search(const QString &query, const std::atomic_bool 
 
     Util::Statement stmt(*m_db, sql);
     QString likePattern;
-    if (m_isFuzzySearchEnabled) {
+    if (m_isFuzzySearchEnabled || !isAsciiQuery) {
         stmt.bindText(1, query);
     } else {
         // Unescaped: % and _ are user wildcards, and \ stays literal without ESCAPE.
