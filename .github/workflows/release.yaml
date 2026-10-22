@@ -202,7 +202,7 @@ jobs:
           mkdir -p AppDir/apprun-hooks
           echo 'export QTWEBENGINE_DISABLE_SANDBOX=1' > AppDir/apprun-hooks/qtwebengine.sh
           # Prevent loading host plugins or propagating QT_PLUGIN_PATH to child processes
-          echo 'unset QT_PLUGIN_PATH' > AppDir/apprun-hooks/zz-clear-qt-plugin-path.sh
+          echo 'unset QT_PLUGIN_PATH QT_QPA_PLATFORM_PLUGIN_PATH' > AppDir/apprun-hooks/zz-clear-qt-plugin-path.sh
 
       - name: Build AppImage
         run: |
