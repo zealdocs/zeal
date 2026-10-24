@@ -24,7 +24,7 @@ endif()
 # The `# x-version` marker on each version line acts as a sed anchor for the bump.
 project(Zeal
     VERSION 0.9.2 # x-version
-    DESCRIPTION "A simple documentation browser."
+    DESCRIPTION "Offline documentation browser"
     HOMEPAGE_URL "https://zealdocs.org"
     LANGUAGES CXX
 )

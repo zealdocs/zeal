@@ -15,20 +15,18 @@
     <projectUrl>https://zealdocs.org/</projectUrl>
     <iconUrl>https://cdn.jsdelivr.net/gh/zealdocs/zeal@v0.0.0/assets/freedesktop/128-apps-zeal.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description><![CDATA[Zeal is an offline documentation browser inspired by [Dash](https://kapeli.com/dash/).
+    <description><![CDATA[Zeal is an offline documentation browser that keeps the references you rely on right on your computer, ready the moment you need them — on a plane, off the grid, or just on flaky Wi-Fi. Instant search takes you straight to the right page before a browser tab would even finish loading.
+
+Build your personal library from over 900 docsets in the same format Dash uses, covering programming languages, frameworks, and tools. Open results in tabs and summon Zeal from anywhere with a global shortcut.
 
 ![Zeal Screenshot](https://i.imgur.com/lWso18u.png)
 
 ## Features
 
-- Over 200 docsets available for immediate download.
-- Downloaded docsets do not require Internet connection.
-- Global shortcut support for quick access.
-- Fast search across installed docsets.
-- Search prefixes to limit scope to select docsets.
-- [IDE integration](https://zealdocs.org/usage.html#plugins): VS Code, IDEA, Sublime Text, and many others.
+- Search all docsets at once, or limit the search with a docset prefix.
+- [Plugins](https://zealdocs.org/usage.html#plugins) for VS Code, IntelliJ IDEA, Sublime Text, Vim, Emacs, and Kate.
 ]]></description>
-    <summary>A simple offline documentation browser inspired by Dash.</summary>
+    <summary>Offline documentation browser</summary>
     <releaseNotes>https://github.com/zealdocs/zeal/releases/tag/v0.0.0</releaseNotes>
     <copyright>Copyright © 2015-2026 Oleg Shparber</copyright>
     <tags>zeal admin api dash dev developer docs docset documentation help tools</tags>
