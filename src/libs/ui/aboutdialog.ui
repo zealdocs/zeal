@@ -73,17 +73,18 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&lt;strong&gt;A simple offline documentation browser&lt;/strong&gt;
+          <string>Copyright &amp;copy; Oleg Shparber and other contributors, 2013-2026.
 &lt;br&gt;&lt;br&gt;
-Copyright &amp;copy; Oleg Shparber and other contributors, 2013-2026.
-&lt;br&gt;
 &lt;a href=&quot;https://zealdocs.org&quot;&gt;zealdocs.org&lt;/a&gt;
 &lt;br&gt;
 &lt;a href=&quot;https://go.zealdocs.org/l/contact&quot;&gt;Get in touch&lt;/a&gt;
 &lt;br&gt;&lt;br&gt;
-Zeal is an open source software available under the terms of the General Public License version 3 (&lt;a href=&quot;https://www.gnu.org/copyleft/gpl.html&quot;&gt;GPLv3&lt;/a&gt;) or later.
+Zeal is open source software, available under the GNU General Public License version 3 (&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.html&quot;&gt;GPLv3&lt;/a&gt;) or later.
 &lt;br&gt;&lt;br&gt;
 Docsets are courtesy of &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

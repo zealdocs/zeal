@@ -13,7 +13,7 @@
 Name:           zeal
 Version:        0.0.0
 Release:        1%{?dist}
-Summary:        Simple offline documentation browser
+Summary:        Offline documentation browser
 
 License:        GPL-3.0-or-later
 URL:            https://zealdocs.org
@@ -47,14 +47,17 @@ Requires:       hicolor-icon-theme
 Provides:       bundled(cpp-httplib)
 
 %description
-Zeal is a simple offline documentation browser inspired by Dash. It offers
-access to over 200 docsets covering various libraries and APIs.
+Zeal is an offline documentation browser that keeps the references you rely
+on right on your computer, ready the moment you need them — on a plane, off
+the grid, or just on flaky Wi-Fi. Instant search takes you straight to the
+right page before a browser tab would even finish loading.
 
-  * Quickly search documentation using a customisable global hotkey from any
-    place in your workspace.
-  * Search in multiple sets of documentation at once.
-  * Don't be dependent on your internet connection.
-  * Integrate Zeal with Emacs, Sublime Text, or Vim.
+Build your personal library from over 900 docsets in the same format Dash
+uses, covering programming languages, frameworks, and tools. Open results in
+tabs and summon Zeal from anywhere with a global shortcut.
+
+  * Search all docsets at once, or limit the search with a docset prefix.
+  * Plugins for VS Code, IntelliJ IDEA, Sublime Text, Vim, Emacs, and Kate.
 
 %prep
 %autosetup -n %{name}-%{version}
