@@ -4,11 +4,11 @@ Upstream-Contact: https://go.zealdocs.org/l/contact
 Source: https://github.com/zealdocs/zeal
 
 Files: *
-Copyright: 2013-2026 Oleg Shparber and other contributors
+Copyright: Oleg Shparber and other contributors
 License: GPL-3.0+
 
 Files: debian/*
-Copyright: 2015-2026 Oleg Shparber <oleg@zealdocs.org>
+Copyright: Oleg Shparber <oleg@zealdocs.org>
 License: GPL-3.0+
 
 License: GPL-3.0+
