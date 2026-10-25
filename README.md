@@ -59,6 +59,7 @@ Detailed, up-to-date build instructions for each platform are available in the
 * [Qt](https://www.qt.io/) version 6.4.2 or later. Required modules besides Qt Base: Svg, WebEngine.
 * [libarchive](https://libarchive.org/).
 * [SQLite](https://sqlite.org/) version 3.31.0 or later.
+* [zlib](https://zlib.net/).
 * Linux/BSD platforms: `extra-cmake-modules`.
 * X11 platforms only: `libxkbcommon`, `xcb-util-keysyms`.
 
