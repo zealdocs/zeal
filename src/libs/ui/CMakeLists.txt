@@ -2,7 +2,6 @@ add_subdirectory(qxtglobalshortcut)
 add_subdirectory(widgets)
 
 set(Ui_FORMS
-    aboutdialog.ui
     docsetsdialog.ui
     settingsdialog.ui
 )
