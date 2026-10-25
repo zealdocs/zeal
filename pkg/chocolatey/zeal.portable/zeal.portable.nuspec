@@ -28,7 +28,7 @@ Build your personal library from over 900 docsets in the same format Dash uses, 
 ]]></description>
     <summary>Offline documentation browser</summary>
     <releaseNotes>https://github.com/zealdocs/zeal/releases/tag/v0.0.0</releaseNotes>
-    <copyright>Copyright © 2015-2026 Oleg Shparber</copyright>
+    <copyright>Copyright © Oleg Shparber</copyright>
     <tags>zeal api dash dev developer docs docset documentation help tools</tags>
     <projectSourceUrl>https://github.com/zealdocs/zeal</projectSourceUrl>
     <packageSourceUrl>https://github.com/zealdocs/zeal/tree/main/pkg/chocolatey</packageSourceUrl>

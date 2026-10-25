@@ -73,7 +73,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Copyright &amp;copy; Oleg Shparber and other contributors, 2013-2026.
+          <string>Copyright &amp;copy; Oleg Shparber and other contributors.
 &lt;br&gt;&lt;br&gt;
 &lt;a href=&quot;https://zealdocs.org&quot;&gt;zealdocs.org&lt;/a&gt;
 &lt;br&gt;
