@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  QT_VERSION: "6.11.1"
+  QT_VERSION: "6.11.3"
   QT_MODULES: >-
     qtpositioning
     qttasktree
