@@ -162,6 +162,18 @@ DocsetsDialog::~DocsetsDialog()
     delete ui;
 }
 
+void DocsetsDialog::reject()
+{
+    cancelDownloads();
+
+    // Extraction cannot be canceled.
+    if (!m_tmpFiles.isEmpty()) {
+        return;
+    }
+
+    QDialog::reject();
+}
+
 void DocsetsDialog::addDashFeed()
 {
     QString clipboardText = QApplication::clipboard()->text();
@@ -334,43 +346,47 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
     }
 
     if (reply->error() != QNetworkReply::NoError) {
-        if (downloadType(reply) == DownloadType::TarixIndex) {
-            if (reply->error() != QNetworkReply::OperationCanceledError) {
-                onTarixIndexFailed(reply);
+        const auto type = downloadType(reply);
+        const QString docsetName = reply->property(DocsetNameProperty).toString();
+
+        if (reply->error() == QNetworkReply::OperationCanceledError) {
+            // Servers can cancel too, and then nothing else releases the archive.
+            if (type == DownloadType::Docset || type == DownloadType::TarixIndex) {
+                delete m_tmpFiles.take(docsetName);
             }
 
             return;
         }
 
-        if (reply->error() != QNetworkReply::OperationCanceledError) {
-            const auto type = downloadType(reply);
-            const QString docsetName = reply->property(DocsetNameProperty).toString();
+        if (type == DownloadType::TarixIndex) {
+            onTarixIndexFailed(reply);
+            return;
+        }
 
-            // Downloads cannot be resumed, so a retry would append to whatever was received.
-            if (type == DownloadType::Docset) {
-                delete m_tmpFiles.take(docsetName);
-            }
+        // Downloads cannot be resumed, so a retry would append to whatever was received.
+        if (type == DownloadType::Docset) {
+            delete m_tmpFiles.take(docsetName);
+        }
 
-            const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
-                                    .arg(reply->errorString().toHtmlEscaped(),
-                                         reply->request().url().toString().toHtmlEscaped());
-            const int ret = QMessageBox::warning(this,
-                                                 QStringLiteral("Zeal"),
-                                                 msg,
-                                                 QMessageBox::Retry | QMessageBox::Cancel);
+        const QString msg = tr("Download failed!<br><br><b>Error:</b> %1<br><b>URL:</b> %2")
+                                .arg(reply->errorString().toHtmlEscaped(),
+                                     reply->request().url().toString().toHtmlEscaped());
+        const int ret = QMessageBox::warning(this,
+                                             QStringLiteral("Zeal"),
+                                             msg,
+                                             QMessageBox::Retry | QMessageBox::Cancel);
 
-            if (ret == QMessageBox::Retry) {
-                enqueueDownload({.url = reply->request().url(),
-                                 .type = type,
-                                 .docsetName = docsetName,
-                                 .listItemIndex = reply->property(ListItemIndexProperty).toInt()});
-                return;
-            }
+        if (ret == QMessageBox::Retry) {
+            enqueueDownload({.url = reply->request().url(),
+                             .type = type,
+                             .docsetName = docsetName,
+                             .listItemIndex = reply->property(ListItemIndexProperty).toInt()});
+            return;
+        }
 
-            QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
-            if (listItem != nullptr) {
-                listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
-            }
+        QListWidgetItem *listItem = ui->availableDocsetList->item(reply->property(ListItemIndexProperty).toInt());
+        if (listItem != nullptr) {
+            listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
         }
 
         return;
