@@ -50,6 +50,7 @@ parts:
       - libvulkan-dev
       - libxcb-keysyms1-dev
       - libxkbcommon-dev
+      - zlib1g-dev
     stage-packages:
       - libarchive13t64
       - libsqlite3-0

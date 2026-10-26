@@ -25,6 +25,7 @@ depends=(
   sqlite
   tomlplusplus
   xcb-util-keysyms
+  zlib
 )
 makedepends=(
   cmake

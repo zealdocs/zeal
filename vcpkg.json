@@ -12,6 +12,7 @@
     },
     "sqlite3",
     "tomlplusplus",
-    "vulkan-headers"
+    "vulkan-headers",
+    "zlib"
   ]
 }

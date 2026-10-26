@@ -15,6 +15,7 @@ Build-Depends: debhelper-compat (= 13),
                libxcb-keysyms1-dev,
                libxkbcommon-dev,
                qt6-webengine-dev,
+               zlib1g-dev,
 Standards-Version: 4.7.0
 Vcs-Git: https://github.com/zealdocs/zeal.git
 Vcs-Browser: https://github.com/zealdocs/zeal

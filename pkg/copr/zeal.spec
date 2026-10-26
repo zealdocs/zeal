@@ -35,6 +35,7 @@ BuildRequires:  qt6-qtwebengine-devel
 BuildRequires:  libarchive-devel
 BuildRequires:  tomlplusplus-devel
 BuildRequires:  sqlite-devel
+BuildRequires:  zlib-devel
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  vulkan-headers
 BuildRequires:  libX11-devel
