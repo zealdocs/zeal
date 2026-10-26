@@ -244,6 +244,7 @@ jobs:
             libxcb-keysyms1-dev \
             libxkbcommon-dev \
             ninja-build \
+            qt6-wayland \
             qt6-webengine-dev
 
       - name: Install linuxdeploy
@@ -279,6 +280,9 @@ jobs:
         run: |
           export QMAKE=$(which qmake6)
           export OUTPUT=Zeal-${{ env.ZEAL_VERSION }}-x86_64.AppImage
+          export EXTRA_PLATFORM_PLUGINS="libqwayland-egl.so;libqwayland-generic.so"
+          # Only the waylandcompositor deployer copies the wayland-* client plugin directories.
+          export EXTRA_QT_MODULES=waylandcompositor
           # Qt loads libssl from the host at runtime, so a bundled libcrypto would mismatch it.
           # The Qt plugin ignores this variable, hence the removal before the final pass.
           export LINUXDEPLOY_EXCLUDED_LIBRARIES="libssl.so*;libcrypto.so*"
