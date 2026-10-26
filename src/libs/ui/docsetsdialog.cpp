@@ -428,37 +428,6 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
             break;
         }
 
-        const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
-
-        // A directory owned by no loaded docset is stale; refuse to merge into it.
-        const QDir dataDir(m_application->settings()->docsetPath);
-        if (dataDir.exists(docsetDirectoryName)) {
-            const QString docsetPath = dataDir.filePath(docsetDirectoryName);
-            const QString installedName = docsetNameForPath(docsetPath);
-            bool removed = false;
-            if (!installedName.isEmpty()) {
-                // removeDocset() reports its own failure.
-                removed = removeDocset(installedName);
-            } else {
-                removed = Core::FileManager::removeRecursively(docsetPath);
-                if (!removed) {
-                    QMessageBox::warning(this,
-                                         QStringLiteral("Zeal"),
-                                         tr("Cannot remove directory <b>%1</b>! It might be in use"
-                                            " by another process.")
-                                             .arg(docsetPath.toHtmlEscaped()));
-                }
-            }
-
-            if (!removed) {
-                QListWidgetItem *listItem = findDocsetListItem(docsetName);
-                if (listItem != nullptr) {
-                    listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
-                }
-                break;
-            }
-        }
-
         QTemporaryFile *tmpFile = docsetTemporaryFile(docsetName);
         if (tmpFile == nullptr) {
             QListWidgetItem *listItem = findDocsetListItem(docsetName);
@@ -520,10 +489,12 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
             if (indexFile->open() && indexFile->write(indexData) == indexData.size()) {
                 indexFile->close();
                 m_tarixIndexFiles.insert(docsetName, indexFile);
-                m_application->extractor()->installTarixDocset(tmpFile->fileName(),
-                                                               indexFile->fileName(),
-                                                               m_application->settings()->docsetPath,
-                                                               docsetDirectoryName);
+                if (clearDocsetDirectory(docsetName)) {
+                    m_application->extractor()->installTarixDocset(tmpFile->fileName(),
+                                                                   indexFile->fileName(),
+                                                                   m_application->settings()->docsetPath,
+                                                                   docsetDirectoryName);
+                }
                 break;
             }
 
@@ -1236,9 +1207,51 @@ void DocsetsDialog::installDownloadedDocset(const QString &docsetName)
         return;
     }
 
+    if (!clearDocsetDirectory(docsetName)) {
+        return;
+    }
+
     m_application->extractor()->extract(tmpFile->fileName(),
                                         m_application->settings()->docsetPath,
                                         docsetName + QLatin1String(".docset"));
+}
+
+bool DocsetsDialog::clearDocsetDirectory(const QString &docsetName)
+{
+    const QString docsetDirectoryName = docsetName + QLatin1String(".docset");
+
+    // A directory owned by no loaded docset is stale; refuse to merge into it.
+    const QDir dataDir(m_application->settings()->docsetPath);
+    if (dataDir.exists(docsetDirectoryName)) {
+        const QString docsetPath = dataDir.filePath(docsetDirectoryName);
+        const QString installedName = docsetNameForPath(docsetPath);
+        bool removed = false;
+        if (!installedName.isEmpty()) {
+            // removeDocset() reports its own failure.
+            removed = removeDocset(installedName);
+        } else {
+            removed = Core::FileManager::removeRecursively(docsetPath);
+            if (!removed) {
+                QMessageBox::warning(this,
+                                     QStringLiteral("Zeal"),
+                                     tr("Cannot remove directory <b>%1</b>! It might be in use"
+                                        " by another process.")
+                                         .arg(docsetPath.toHtmlEscaped()));
+            }
+        }
+
+        if (!removed) {
+            QListWidgetItem *listItem = findDocsetListItem(docsetName);
+            if (listItem != nullptr) {
+                listItem->setData(DocsetListItemDelegate::ShowProgressRole, false);
+            }
+            delete m_tmpFiles.take(docsetName);
+            delete m_tarixIndexFiles.take(docsetName);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool DocsetsDialog::removeDocset(const QString &name)
