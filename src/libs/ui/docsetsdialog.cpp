@@ -100,7 +100,21 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
 {
     ui->setupUi(this);
 
-    loadDocsetList();
+    const auto loadLibrary = [this]() {
+        ui->tabWidget->setEnabled(true);
+        loadDocsetList();
+    };
+    const QMetaObject::Connection connection = connect(m_docsetRegistry,
+                                                       &Registry::DocsetRegistry::docsetLoadingFinished,
+                                                       this,
+                                                       loadLibrary,
+                                                       Qt::SingleShotConnection);
+    // Fails if loading has just finished, leaving the queued call to load the list.
+    if (!m_docsetRegistry->isLoading() && disconnect(connection)) {
+        loadDocsetList();
+    } else {
+        ui->tabWidget->setEnabled(false);
+    }
 
     m_isStorageReadOnly = !isDirWritable(m_application->settings()->docsetPath);
 
