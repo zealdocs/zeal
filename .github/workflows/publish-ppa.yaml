@@ -19,7 +19,7 @@ env:
   # Ubuntu series as <codename>:<version> pairs. 24.04 (noble) is the floor; 22.04's
   # Qt 6.2 is too old. <version> forms the ~ubuntu<version> suffix, <codename> is the
   # changelog distribution. Launchpad rejects EOL or unknown series.
-  SERIES: "noble:24.04 resolute:26.04"
+  SERIES: "noble:24.04 resolute:26.04 stonking:26.10"
   PPA: "ppa:zealdocs/ppa"
 
 jobs:
