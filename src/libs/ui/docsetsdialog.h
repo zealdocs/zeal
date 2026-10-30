@@ -45,6 +45,8 @@ public:
     explicit DocsetsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~DocsetsDialog() override;
 
+    void reject() override;
+
 private:
     enum class DownloadType {
         DashFeed,
