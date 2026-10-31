@@ -20,7 +20,6 @@ env:
   # Qt 6.2 is too old. <version> forms the ~ubuntu<version> suffix, <codename> is the
   # changelog distribution. Launchpad rejects EOL or unknown series.
   SERIES: "noble:24.04 resolute:26.04 stonking:26.10"
-  PPA: "ppa:zealdocs/ppa"
 
 jobs:
   publish:
@@ -69,7 +68,8 @@ jobs:
             debhelper \
             devscripts \
             dput-ng \
-            fakeroot
+            fakeroot \
+            python3-paramiko
 
       - name: Import signing key
         env:
@@ -106,6 +106,48 @@ jobs:
             printf 'exec gpg --batch --pinentry-mode loopback "$@"\n'
           } > ~/.gpg-sign
           chmod +x ~/.gpg-sign
+
+      - name: Set up SFTP upload
+        env:
+          PPA_USERNAME: ${{ secrets.PPA_USERNAME }}
+          PPA_SSH_PRIVATE_KEY: ${{ secrets.PPA_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          case "$PPA_USERNAME" in
+            ''|*[!a-z0-9.+-]*)
+              echo "::error::No valid Launchpad username; set the PPA_USERNAME secret."
+              exit 1
+              ;;
+          esac
+          if [ -z "$PPA_SSH_PRIVATE_KEY" ]; then
+            echo "::error::No SSH key; set the PPA_SSH_PRIVATE_KEY secret."
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$PPA_SSH_PRIVATE_KEY" > ~/.ssh/launchpad
+          chmod 600 ~/.ssh/launchpad
+          printf 'Host ppa.launchpad.net\n  IdentityFile ~/.ssh/launchpad\n' > ~/.ssh/config
+          # SHA256:MGq+4hxD7RduVTcfwlwwboZnsgJC6SL/NltM8ye+gNg, as published at
+          # https://documentation.ubuntu.com/launchpad/user/reference/ssh-fingerprints
+          echo "ppa.launchpad.net ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0aKz5UTUndYgIGG7dQBV+HaeuEZJ2xPHo2DS2iSKvUL4xNMSAY4UguNW+pX56nAQmZKIZZ8MaEvSj6zMEDiq6HFfn5JcTlM80UwlnyKe8B8p7Nk06PPQLrnmQt5fh0HmEcZx+JU9TZsfCHPnX7MNz4ELfZE6cFsclClrKim3BHUIGq//t93DllB+h4O9LHjEUsQ1Sr63irDLSutkLJD6RXchjROXkNirlcNVHH/jwLWR5RcYilNX7S5bIkK8NlWPjsn/8Ua5O7I9/YoE97PpO6i73DTGLh5H9JN/SITwCKBkgSDWUt61uPK3Y11Gty7o2lWsBjhBUm2Y38CBsoGmBw==" \
+            > ~/.ssh/known_hosts
+
+          # dput-ng's stock ppa profile, with SFTP in place of FTP.
+          mkdir -p ~/.dput.d/profiles
+          cat > ~/.dput.d/profiles/launchpad-sftp.json <<EOF
+          {
+            "fqdn": "ppa.launchpad.net",
+            "incoming": "~zealdocs/ubuntu/ppa",
+            "login": "${PPA_USERNAME}",
+            "meta": "ubuntu",
+            "method": "sftp",
+            "required-fields": {"skip": true},
+            "supported-distribution": {
+              "allowed": ["release"],
+              "known": ["release", "proposed", "updates", "backports", "security"]
+            }
+          }
+          EOF
 
       - name: Build source tarball
         env:
@@ -169,7 +211,7 @@ jobs:
             # -d skips the build-dependency check: nothing is compiled here, and
             # the dependencies are resolved on the Launchpad builders instead.
             if ( cd "$work" && debuild --no-lintian -d -S "$tarball_opt" -k"$GPG_KEYID" -p"$HOME/.gpg-sign" ) \
-                && dput "$PPA" "$src_root/zeal_${file_ver}_source.changes"; then
+                && timeout 5m dput launchpad-sftp "$src_root/zeal_${file_ver}_source.changes"; then
               first=false
             else
               status=1
