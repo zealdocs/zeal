@@ -1,4 +1,4 @@
-zeal (1:0.9.2-0ubuntu1) UNRELEASED; urgency=medium
+zeal (1:0.9.3-0ubuntu1) UNRELEASED; urgency=medium
 
   * Placeholder entry, except for the version above. Releases rewrite this file
     with `dch` per series in publish-ppa.yaml, but the Launchpad nightly recipe
