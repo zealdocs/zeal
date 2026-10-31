@@ -4,6 +4,7 @@
 #include "settings.h"
 
 #include "application.h"
+#include "pathutils.h"
 
 #include <QApplication>
 #include <QDir>
@@ -257,7 +258,7 @@ void Settings::load()
 
     settings->beginGroup(GroupDocsets);
     if (settings->contains(QStringLiteral("path"))) {
-        docsetPath = settings->value(QStringLiteral("path")).toString();
+        docsetPath = Detail::expandTildePath(settings->value(QStringLiteral("path")).toString(), QDir::homePath());
     } else {
 #ifndef PORTABLE_BUILD
         docsetPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QLatin1String("/docsets");
@@ -347,6 +348,7 @@ void Settings::save()
     settings->endGroup();
 
     settings->beginGroup(GroupDocsets);
+    docsetPath = Detail::expandTildePath(docsetPath, QDir::homePath());
     settings->setValue(QStringLiteral("path"), docsetPath);
     settings->endGroup();
 
