@@ -12,3 +12,8 @@ find_package(LibArchive REQUIRED)
 target_link_libraries(extractor_test PRIVATE LibArchive::LibArchive)
 
 zeal_add_test(extractor_test)
+
+add_executable(pathutils_test pathutils_test.cpp)
+target_link_libraries(pathutils_test PRIVATE Qt6::Test)
+
+zeal_add_test(pathutils_test)
