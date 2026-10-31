@@ -49,6 +49,22 @@
     <id>zeal.desktop</id>
   </provides>
   <releases>@ZEAL_APPSTREAM_DEV_RELEASE@
+    <release date="2026-10-31" version="0.9.2" type="stable">
+      <description>
+        <ul>
+          <li>Added a rendering setting and --rendering-backend option to fix blank pages</li>
+          <li>Added a tray icon style setting with colorful and monochrome options</li>
+          <li>Fixed docset pages opening other programs; only web and email links leave Zeal</li>
+          <li>Fixed canceling a docset update deleting the installed docset</li>
+          <li>Fixed downloads failing when installing many docsets at once</li>
+          <li>Fixed high memory use while downloading large docsets</li>
+          <li>Fixed the update prompt popping up while Zeal is in the background</li>
+          <li>Fixed searching for names that contain a colon, such as xsl:if</li>
+          <li>Fixed the window moving when restored from the tray on X11</li>
+        </ul>
+      </description>
+      <url>https://github.com/zealdocs/zeal/releases/tag/v0.9.2</url>
+    </release>
     <release date="2026-07-28" version="0.9.1" type="stable">
       <description>
         <ul>
