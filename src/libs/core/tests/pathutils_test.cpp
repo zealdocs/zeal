@@ -34,6 +34,8 @@ void PathUtilsTest::expandsHomeRelativePath()
 #if defined(Q_OS_UNIX)
     QCOMPARE(expandTildePath(QStringLiteral("~/docsets"), QStringLiteral("/home/zeal")),
              QStringLiteral("/home/zeal/docsets"));
+    QCOMPARE(expandTildePath(QStringLiteral("~//docsets"), QStringLiteral("/home/zeal")),
+             QStringLiteral("/home/zeal/docsets"));
 #else
     QCOMPARE(expandTildePath(QStringLiteral("~/docsets"), QStringLiteral("/home/zeal")), QStringLiteral("~/docsets"));
 #endif

@@ -17,8 +17,14 @@ inline QString expandTildePath(const QString &path, const QString &homePath)
         return homePath;
     }
     if (path.startsWith(QStringLiteral("~/"))) {
-        return QDir(homePath).filePath(path.mid(2));
+        QString relativePath = path.mid(2);
+        while (relativePath.startsWith(QLatin1Char('/'))) {
+            relativePath.remove(0, 1);
+        }
+        return QDir(homePath).filePath(relativePath);
     }
+#else
+    Q_UNUSED(homePath);
 #endif
     return path;
 }
