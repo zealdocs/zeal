@@ -27,7 +27,7 @@ the recipe on Launchpad.
 ## Release uploads (`publish-ppa.yaml`)
 
 On a release (or manual run with a version), the workflow builds a GPG-signed source
-package per series and `dput`s it to `ppa:zealdocs/ppa`, versioned
+package per series and uploads it to `ppa:zealdocs/ppa` over SFTP, versioned
 `1:<version>-0ubuntu1~ubuntu<series>.1`. The `1:` epoch is required: the official archive
 package carries it (`1:0.7.x`), so without it a PPA build would sort below the archive
 and never reach users. The `~ubuntu<series>` suffix orders correctly across series
@@ -57,6 +57,16 @@ upgrades.
 3. Add the secret `RELEASE_GPG_PRIVATE_KEY` (armored key from
    `gpg --armor --export-secret-keys <keyid>`). Set `RELEASE_GPG_PASSPHRASE` only if the
    key has one (not recommended).
+4. Uploads go over SFTP, which authenticates with an SSH key on a Launchpad account in
+   `~zealdocs`; teams can't hold keys. Register a passphrase-less key on that account at
+   <https://launchpad.net/~/+editsshkeys>:
+
+   ```sh
+   ssh-keygen -t ed25519 -N '' -C zeal-ppa-upload -f zeal-ppa-upload
+   ```
+
+   Add the account's name as the secret `PPA_USERNAME` and the private key
+   (`zeal-ppa-upload`) as the secret `PPA_SSH_PRIVATE_KEY`.
 
 ## Nightly builds (Launchpad recipe)
 
