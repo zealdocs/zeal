@@ -97,6 +97,7 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     , ui(new Ui::DocsetsDialog())
     , m_application(app)
     , m_docsetRegistry(app->docsetRegistry())
+    , m_isStorageReadOnly(!isDirWritable(app->settings()->docsetPath))
 {
     ui->setupUi(this);
 
@@ -115,8 +116,6 @@ DocsetsDialog::DocsetsDialog(Core::Application *app, QWidget *parent)
     } else {
         ui->tabWidget->setEnabled(false);
     }
-
-    m_isStorageReadOnly = !isDirWritable(m_application->settings()->docsetPath);
 
 #ifdef Q_OS_MACOS
     ui->availableDocsetList->setAttribute(Qt::WA_MacShowFocusRect, false);
