@@ -26,3 +26,7 @@ zeal_attach_qt_pch(Ui <QDialog> <QWidget>)
 
 find_package(Qt6 COMPONENTS WebEngineWidgets REQUIRED)
 target_link_libraries(Ui PRIVATE Qt6::WebEngineWidgets)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

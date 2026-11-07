@@ -112,7 +112,7 @@ private:
     QListWidgetItem *findDocsetListItem(const QString &name) const;
     bool updatesAvailable() const;
 
-    void enqueueDownload(const DownloadRequest &request);
+    void enqueueDownload(DownloadRequest request);
     void startDownload(const DownloadRequest &request);
     void startPendingDownloads();
     void cancelDownloads();

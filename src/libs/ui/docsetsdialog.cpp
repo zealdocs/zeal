@@ -267,12 +267,11 @@ void DocsetsDialog::updateDocsetFilter(const QString &filterString)
     for (int i = 0; i < ui->availableDocsetList->count(); ++i) {
         QListWidgetItem *item = ui->availableDocsetList->item(i);
 
-        // Skip installed docsets
-        if (m_docsetRegistry->contains(item->data(Registry::ItemDataRole::DocsetNameRole).toString())) {
-            continue;
-        }
-
-        item->setHidden(doSearch && !item->text().contains(filterString, Qt::CaseInsensitive));
+        const bool installed = m_docsetRegistry->contains(
+            item->data(Registry::ItemDataRole::DocsetNameRole).toString());
+        const bool inProgress = item->data(DocsetListItemDelegate::ShowProgressRole).toBool();
+        item->setHidden(!inProgress
+                        && (installed || (doSearch && !item->text().contains(filterString, Qt::CaseInsensitive))));
     }
 
     updateAvailableDocsetsEmptyState();
@@ -289,11 +288,6 @@ void DocsetsDialog::downloadSelectedDocsets()
         if (index.data(DocsetListItemDelegate::ShowProgressRole).toBool()) {
             continue;
         }
-
-        QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Queued"), DocsetListItemDelegate::FormatRole);
-        model->setData(index, 0, DocsetListItemDelegate::ValueRole);
-        model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
 
         downloadDashDocset(index);
     }
@@ -352,6 +346,9 @@ void DocsetsDialog::processDownload(QNetworkReply *reply)
             // Servers can cancel too, and then nothing else releases the archive.
             if (type == DownloadType::Docset || type == DownloadType::TarixIndex) {
                 delete m_tmpFiles.take(docsetName);
+                if (QListWidgetItem *item = findDocsetListItem(docsetName); item != nullptr) {
+                    item->setData(DocsetListItemDelegate::ShowProgressRole, false);
+                }
             }
 
             return;
@@ -780,11 +777,6 @@ void DocsetsDialog::setupAvailableDocsetsTab()
 
         ui->availableDocsetList->selectionModel()->select(index, QItemSelectionModel::Deselect);
 
-        QAbstractItemModel *model = ui->availableDocsetList->model();
-        model->setData(index, tr("Queued"), DocsetListItemDelegate::FormatRole);
-        model->setData(index, 0, DocsetListItemDelegate::ValueRole);
-        model->setData(index, true, DocsetListItemDelegate::ShowProgressRole);
-
         downloadDashDocset(index);
     });
 
@@ -914,10 +906,25 @@ DocsetsDialog::DownloadType DocsetsDialog::downloadType(const QNetworkReply *rep
     return static_cast<DownloadType>(reply->property(DownloadTypeProperty).toInt());
 }
 
-void DocsetsDialog::enqueueDownload(const DownloadRequest &request)
+void DocsetsDialog::enqueueDownload(DownloadRequest request)
 {
     // Other work waits on metadata requests, so they are served before the queued archives.
     if (request.type == DownloadType::Docset) {
+        QListWidgetItem *item = findDocsetListItem(request.docsetName);
+        if (item == nullptr) {
+            const Registry::DocsetMetadata metadata = m_userFeeds.value(request.docsetName);
+            item = new QListWidgetItem(metadata.icon(), metadata.title(), ui->availableDocsetList);
+            item->setData(Registry::ItemDataRole::DocsetNameRole, request.docsetName);
+        }
+
+        request.listItemIndex = ui->availableDocsetList->row(item);
+        item->setData(DocsetListItemDelegate::FormatRole, tr("Queued"));
+        item->setData(DocsetListItemDelegate::ValueRole, 0);
+        item->setData(DocsetListItemDelegate::ShowProgressRole, true);
+        item->setHidden(false);
+        ui->tabWidget->setCurrentWidget(ui->availableDocsetsTab);
+        ui->availableDocsetList->scrollToItem(item);
+
         m_pendingDownloads.append(request);
     } else {
         m_pendingDownloads.prepend(request);
@@ -1313,7 +1320,7 @@ void DocsetsDialog::updateStatus()
     }
 
     ui->statusLabel->setText(parts.join(QLatin1Char(' ')));
-    updateAvailableDocsetsEmptyState();
+    updateDocsetFilter(ui->docsetFilterInput->text());
 
     enableControls();
 }
